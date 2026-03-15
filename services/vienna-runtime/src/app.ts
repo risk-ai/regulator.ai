@@ -8,9 +8,9 @@ import incidentsRouter from './routes/incidents'
 import artifactsRouter from './routes/artifacts'
 import tracesRouter from './routes/traces'
 
-export function createApp(): Express {
+export async function createApp(): Promise<Express> {
   // Initialize database and seed data
-  initializeDatabase()
+  await initializeDatabase()
   bootstrap()
   
   const app = express()

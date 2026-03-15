@@ -1,21 +1,26 @@
 import { Router } from 'express'
 import type { HealthResponse } from '../types/api'
+import { getDatabaseBackend, getDatabaseInfo, checkDatabaseHealth } from '../adapters/db/client'
 
 const router = Router()
 
 const startTime = Date.now()
 
-router.get('/', (_req, res) => {
+router.get('/', async (_req, res) => {
   const uptime = Math.floor((Date.now() - startTime) / 1000)
+  const dbInfo = getDatabaseInfo()
+  const dbHealthy = await checkDatabaseHealth()
 
   const health: HealthResponse = {
-    status: 'healthy',
+    status: dbHealthy ? 'healthy' : 'degraded',
     version: '1.0.0',
     uptime_seconds: uptime,
     components: {
       state_graph: {
-        status: 'healthy',
-        type: (process.env.VIENNA_STATE_BACKEND as 'memory' | 'sqlite' | 'postgres') || 'memory'
+        status: dbHealthy ? 'healthy' : 'unhealthy',
+        type: dbInfo.backend,
+        configured: dbInfo.configured,
+        path: dbInfo.path
       },
       artifact_storage: {
         status: 'healthy',

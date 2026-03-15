@@ -302,7 +302,9 @@ baae980 Stage 6: complete production integration
 
 **Justification:**
 
-Stage 6 manual production-readiness review is complete.
+Stage 6 manual production-readiness review complete.
+
+**Recommendation:** Ready for PR.
 
 **No merge blockers remain:**
 - All builds passing
@@ -314,10 +316,11 @@ Stage 6 manual production-readiness review is complete.
 - Offline behavior graceful
 - Environment contract accurate
 
-**Minor limitation:**
-- Docker build not tested (daemon unavailable in WSL)
-- Recommendation: Test on host before production deployment
-- Not a merge blocker (Dockerfile structure validated, expected behavior documented)
+Implementation, boundary behavior, auth enforcement, offline handling, environment contract, and documentation are all in acceptable shape for review.
+
+**Outstanding non-blocking validation:**
+- Docker build/run should be tested on a host with Docker available
+- Hosted deployment validation remains to be completed after PR review/merge
 
 **Manual review fixes applied:**
 - TypeScript build errors resolved
@@ -326,7 +329,7 @@ Stage 6 manual production-readiness review is complete.
 **Ready for:**
 - PR review
 - Merge to main
-- Deployment to Fly.io preview environment
+- Deployment to Fly.io preview environment (pending Docker validation)
 - Production deployment (after preview validation)
 
 ---

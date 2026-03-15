@@ -175,6 +175,8 @@ Adds production-ready infrastructure for:
 ✅ **Docs Aligned:** Documentation matches implementation  
 ✅ **Runbooks Ready:** Deployment guides operational  
 
+**Note:** Docker deployment was reviewed structurally but not executed in this environment because Docker daemon access was unavailable in WSL during manual review. Docker build validation should be performed on a host with Docker available before production deployment.
+
 **Recommendation:** Ready for PR review and merge.
 
 ---

@@ -1,317 +1,339 @@
-# Local Development Workflow — regulator.ai + Vienna Runtime
+# Local Development Workflow
 
-**Purpose:** Run Next.js product shell + Vienna runtime service together for local development
+## Overview
+
+This project consists of two services:
+
+1. **Next.js Product Shell** — User-facing web application (port 3000)
+2. **Vienna Runtime** — Backend service for Vienna OS state/execution (port 3001)
+
+Both services must run concurrently for full workspace functionality.
 
 ---
 
 ## Prerequisites
 
-- Node.js 18+ installed
-- npm installed
-- Git cloned repository
-- Environment files configured
+- Node.js 18+ (tested on v22.22.0)
+- npm 8+
+- SQLite (bundled via better-sqlite3, no separate install needed)
 
 ---
 
-## Quick Start (Concurrent)
+## Initial Setup
 
-**Easiest method:** Run both services from root with npm scripts
-
-### 1. Install Dependencies
+### 1. Install Root Dependencies
 
 ```bash
-# Root (Next.js)
+cd /path/to/regulator.ai
 npm install
-
-# Vienna Runtime
-cd services/vienna-runtime
-npm install
-cd ../..
 ```
 
-### 2. Configure Environment
-
-**Root `.env.local`:**
-
-```bash
-# Copy template
-cp .env.example .env.local
-
-# Edit and add:
-VIENNA_RUNTIME_BASE_URL=http://localhost:4001
-DATABASE_URL=postgresql://...
-NEXTAUTH_SECRET=your-secret
-NEXTAUTH_URL=http://localhost:3000
-```
-
-**Vienna Runtime `.env`:**
+### 2. Install Vienna Runtime Dependencies
 
 ```bash
 cd services/vienna-runtime
-cp .env.example .env
+npm install
+```
 
-# Default values should work:
-PORT=4001
-VIENNA_STATE_BACKEND=memory
-VIENNA_ARTIFACT_BACKEND=filesystem
-VIENNA_DATA_DIR=./data
+### 3. Configure Environment Variables
+
+**Product Shell** (root `.env.local`):
+
+```bash
+# Vienna Runtime URL for server-side proxy
+VIENNA_RUNTIME_URL=http://localhost:3001
+
+# Next.js public URL (for client-side)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+**Vienna Runtime** (`services/vienna-runtime/.env`):
+
+```bash
+# Port for runtime service
+PORT=3001
+
+# CORS origins (comma-separated)
 CORS_ORIGINS=http://localhost:3000
+
+# Node environment
+NODE_ENV=development
 ```
 
-### 3. Run Both Services
+---
 
-**Option A: Manual (two terminals)**
+## Running the Services
 
-Terminal 1 (Next.js):
-```bash
-npm run dev
-```
+### Option 1: Run Both Services Separately
 
-Terminal 2 (Vienna Runtime):
+**Terminal 1 — Vienna Runtime:**
+
 ```bash
 cd services/vienna-runtime
 npm run dev
 ```
 
-**Option B: Docker Compose**
-
-```bash
-docker-compose up
+**Expected output:**
+```
+[Vienna DB] Initialized SQLite database at .../data/vienna.db
+[Vienna Bootstrap] Seeding development data...
+[Vienna Bootstrap] Seeded:
+  - 2 investigations
+  - 2 incidents
+  - 2 artifacts
+  - 1 investigation-incident link
+Vienna Runtime listening on port 3001
 ```
 
----
+**Terminal 2 — Product Shell:**
 
-## Port Layout
+```bash
+cd /path/to/regulator.ai
+npm run dev
+```
 
-| Service | Port | URL |
-|---------|------|-----|
-| Next.js Product Shell | 3000 | http://localhost:3000 |
-| Vienna Runtime | 4001 | http://localhost:4001 |
-| Vienna Health Check | 4001 | http://localhost:4001/health |
+**Expected output:**
+```
+  ▲ Next.js 14.x.x
+  - Local:        http://localhost:3000
+  - ready in XXXms
+```
+
+### Option 2: Docker Compose (Future)
+
+**Not yet implemented.** Will be added in Stage 5+.
 
 ---
 
 ## Verification
 
-### 1. Check Vienna Runtime
+### 1. Vienna Runtime Health Check
 
 ```bash
-curl http://localhost:4001/health
+curl http://localhost:3001/health
 ```
 
-Expected response:
-
+**Expected:**
 ```json
 {
-  "status": "healthy",
-  "version": "1.0.0",
-  "uptime_seconds": 123,
-  "components": {
-    "state_graph": {
-      "status": "healthy",
-      "type": "memory"
-    },
-    "artifact_storage": {
-      "status": "healthy",
-      "disk_usage": "N/A (dev mode)"
-    }
-  }
+  "status": "ok",
+  "timestamp": "2026-03-14T...",
+  "backend": "sqlite",
+  "artifacts": "filesystem"
 }
 ```
 
-### 2. Check Product Shell
-
-Open http://localhost:3000 in browser
-
-- Landing page should load
-- `/workspace` route should exist (may show empty state if not yet implemented)
-
-### 3. Check API Proxy
+### 2. Runtime API Check
 
 ```bash
-# Via Next.js proxy (if implemented)
+curl http://localhost:3001/api/investigations
+```
+
+**Expected:** JSON response with 2 seeded investigations.
+
+### 3. Next.js Proxy Check
+
+```bash
 curl http://localhost:3000/api/workspace/investigations
-
-# Direct to Vienna Runtime
-curl http://localhost:4001/api/investigations
 ```
 
-Expected response:
+**Expected:** Same JSON response (proxied through Next.js).
 
-```json
-{
-  "investigations": [
-    {
-      "id": "inv_20260314_001",
-      "name": "Gateway Failure 2026-03-14",
-      ...
-    }
-  ],
-  "total": 2,
-  "limit": 50,
-  "offset": 0
-}
+### 4. Workspace UI Check
+
+Open in browser:
+```
+http://localhost:3000/workspace
+```
+
+**Expected:** Workspace dashboard loads, shows investigations and incidents.
+
+---
+
+## Database and Artifacts
+
+### SQLite Database
+
+**Location:** `services/vienna-runtime/data/vienna.db`
+
+**Auto-created on first boot.**
+
+**Inspect database:**
+```bash
+cd services/vienna-runtime/data
+sqlite3 vienna.db
+
+sqlite> .tables
+sqlite> .schema investigations
+sqlite> SELECT * FROM investigations;
+sqlite> .quit
+```
+
+**Reset database:**
+```bash
+cd services/vienna-runtime
+rm data/vienna.db
+npm run dev  # Recreates DB and re-seeds
+```
+
+### Artifact Storage
+
+**Location:** `services/vienna-runtime/data/artifacts/`
+
+**Auto-created on first artifact write.**
+
+Artifacts are stored as files named by their artifact ID.
+
+**List artifacts:**
+```bash
+ls -lh services/vienna-runtime/data/artifacts/
 ```
 
 ---
 
-## Development Workflow
+## Common Issues
 
-### Making Changes
+### Issue: Port 3000 or 3001 already in use
 
-**Next.js changes:**
-- Edit files in `src/`
-- Hot reload automatic
-- Refresh browser
+**Solution:**
+```bash
+# Find process using port
+lsof -i :3000
+lsof -i :3001
 
-**Vienna Runtime changes:**
-- Edit files in `services/vienna-runtime/src/`
-- Service auto-restarts (via tsx watch)
-- Refresh browser/retry API calls
+# Kill process
+kill -9 <PID>
+```
 
-### Testing API Integration
+Or change port in `.env` files.
 
-1. Make change in Vienna Runtime
-2. Service restarts automatically
-3. Test endpoint: `curl http://localhost:4001/api/...`
-4. Test via proxy: `curl http://localhost:3000/api/workspace/...`
-5. Verify in UI
+### Issue: Vienna Runtime not seeding data
+
+**Cause:** Database already exists with data.
+
+**Solution:** Reset database:
+```bash
+rm services/vienna-runtime/data/vienna.db
+npm run dev
+```
+
+### Issue: Next.js cannot connect to Vienna Runtime
+
+**Check:**
+1. Vienna Runtime is running on port 3001
+2. `.env.local` has correct `VIENNA_RUNTIME_URL=http://localhost:3001`
+3. CORS is configured correctly in runtime
+
+**Test runtime directly:**
+```bash
+curl http://localhost:3001/health
+```
+
+### Issue: TypeScript errors in IDE
+
+**Solution:** Restart TypeScript server:
+- VS Code: Cmd+Shift+P → "TypeScript: Restart TS Server"
+- Or run: `npm run build` to check for real errors
+
+### Issue: Database locked error
+
+**Cause:** Another process has the SQLite DB open.
+
+**Solution:**
+```bash
+# Close all connections
+cd services/vienna-runtime
+rm data/vienna.db
+npm run dev
+```
 
 ---
 
-## Environment Variables
+## Rebuild and Clean
 
-### Next.js (.env.local)
+### Full Clean Rebuild
 
-Required:
-- `VIENNA_RUNTIME_BASE_URL` — Vienna runtime base URL (http://localhost:4001)
-- `DATABASE_URL` — Neon Postgres connection string
-- `NEXTAUTH_SECRET` — Auth secret (generate with `openssl rand -base64 32`)
-- `NEXTAUTH_URL` — Next.js URL (http://localhost:3000)
+```bash
+# Clean root
+rm -rf node_modules .next
+npm install
 
-Optional:
-- `GOOGLE_CLIENT_ID` — Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET` — Google OAuth secret
+# Clean runtime
+cd services/vienna-runtime
+rm -rf node_modules dist data
+npm install
+```
 
-### Vienna Runtime (.env)
+### Clear Next.js Cache
 
-Required:
-- `PORT` — Service port (default: 4001)
-- `CORS_ORIGINS` — Allowed origins (http://localhost:3000)
+```bash
+rm -rf .next
+npm run dev
+```
 
-Optional (defaults work for dev):
-- `VIENNA_STATE_BACKEND` — State storage (memory | sqlite | postgres)
-- `VIENNA_ARTIFACT_BACKEND` — Artifact storage (filesystem | s3 | vercel-blob)
-- `VIENNA_DATA_DIR` — Data directory (./data)
-- `LOG_LEVEL` — Logging verbosity (info | debug)
+---
+
+## Development URLs
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Product Shell | http://localhost:3000 | Next.js application |
+| Workspace | http://localhost:3000/workspace | Vienna workspace UI |
+| Vienna Runtime | http://localhost:3001 | Backend API (direct) |
+| Runtime Health | http://localhost:3001/health | Health check endpoint |
+| Shell Proxy API | http://localhost:3000/api/workspace/* | Proxied runtime API |
+
+---
+
+## Data Persistence
+
+**SQLite database persists across runtime restarts.**
+
+**To verify persistence:**
+```bash
+# Start runtime, create incident via API
+curl -X POST http://localhost:3001/api/incidents \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Test","severity":"medium","status":"open"}'
+
+# Stop runtime (Ctrl+C)
+# Restart runtime
+npm run dev
+
+# Verify incident still exists
+curl http://localhost:3001/api/incidents
+```
+
+---
+
+## Next Steps
+
+After verifying local setup:
+
+1. **Stage 5:** Preview deployment validation
+2. **Stage 6:** Production backend (Neon Postgres)
+3. **Stage 7:** Auth enforcement on proxy routes
+4. **Stage 8:** S3/Vercel Blob artifact storage
 
 ---
 
 ## Troubleshooting
 
-### Port 4001 already in use
+**Can't start services:**
+- Check Node.js version: `node --version` (should be 18+)
+- Check npm version: `npm --version`
+- Ensure no other services on ports 3000/3001
 
-```bash
-# Find process
-lsof -i :4001  # Mac/Linux
-netstat -ano | findstr :4001  # Windows
+**Database issues:**
+- Reset DB: `rm services/vienna-runtime/data/vienna.db`
+- Check SQLite installation: `which sqlite3`
 
-# Kill it or use different port
-cd services/vienna-runtime
-PORT=4002 npm run dev
-# Then update VIENNA_RUNTIME_BASE_URL in Next.js .env.local
-```
+**Proxy issues:**
+- Confirm runtime is accessible: `curl http://localhost:3001/health`
+- Check `.env.local` has correct `VIENNA_RUNTIME_URL`
+- Restart both services
 
-### CORS errors in browser
-
-Check `CORS_ORIGINS` in Vienna Runtime `.env`:
-
-```bash
-CORS_ORIGINS=http://localhost:3000
-```
-
-Restart Vienna Runtime after changing.
-
-### API proxy 500 errors
-
-1. Check Vienna Runtime is running: `curl http://localhost:4001/health`
-2. Check `VIENNA_RUNTIME_BASE_URL` in Next.js `.env.local`
-3. Check browser console for exact error
-4. Check Next.js terminal for proxy error logs
-
-### Database connection errors
-
-Vienna Runtime Stage 3 uses **in-memory data** (no database required).
-
-Next.js still needs `DATABASE_URL` for Drizzle ORM, but workspace routes don't use it yet.
-
----
-
-## Data Flow
-
-```
-Browser
-  ↓ HTTP GET /workspace/investigations
-Next.js (localhost:3000)
-  ↓ API Route: /api/workspace/investigations
-  ↓ HTTP proxy to Vienna Runtime
-Vienna Runtime (localhost:4001)
-  ↓ Route: GET /api/investigations
-  ↓ Return mock data from dev-data.ts
-Browser (renders investigation list)
-```
-
----
-
-## Development Scripts
-
-### Next.js
-
-```bash
-npm run dev       # Start dev server
-npm run build     # Production build
-npm run lint      # ESLint
-npm run typecheck # TypeScript check
-```
-
-### Vienna Runtime
-
-```bash
-cd services/vienna-runtime
-npm run dev       # Start dev server (auto-restart)
-npm run build     # TypeScript compile
-npm start         # Run compiled code
-npm run typecheck # TypeScript check
-```
-
----
-
-## Recommended Development Flow
-
-1. **Start both services** (Option A: two terminals)
-2. **Open browser** to http://localhost:3000
-3. **Make changes** in either service
-4. **Verify in browser** or with curl
-5. **Commit when working**
-
----
-
-## Next Steps After Stage 3
-
-**Stage 4 will add:**
-- Real State Graph persistence (SQLite/Postgres)
-- Artifact filesystem storage
-- Database adapters
-- Policy integration
-- Execution engine
-
-**For now (Stage 3):**
-- Vienna Runtime serves mock data
-- Next.js workspace routes proxy to Vienna
-- No database writes needed
-- Focus on UI structure and API contract
-
----
-
-**Status:** Development workflow ready for Stage 3  
-**Last Updated:** 2026-03-14
+**For further help:**
+- Check `STAGE_4_BACKEND_INTEGRATION_COMPLETE.md`
+- Check `services/vienna-runtime/STATE_BACKEND.md`
+- Check `services/vienna-runtime/ARTIFACT_STORAGE.md`

@@ -258,7 +258,7 @@ Content-Type: application/json
 **Test 6A: Health Endpoint (Local)**
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 ```
 
 **Expected:**
@@ -320,7 +320,7 @@ npm run dev
 
 **Check health:**
 ```bash
-curl http://localhost:3001/health | jq .components.state_graph.type
+curl http://localhost:4001/health | jq .components.state_graph.type
 # Expected: "sqlite"
 ```
 
@@ -346,7 +346,7 @@ npm run dev
 
 **Check health:**
 ```bash
-curl http://localhost:3001/health | jq .components.state_graph.type
+curl http://localhost:4001/health | jq .components.state_graph.type
 # Expected: "postgres"
 ```
 

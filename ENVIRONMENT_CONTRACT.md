@@ -45,7 +45,7 @@ Each service has its own environment variables. They communicate via HTTP, not s
 DATABASE_URL=postgresql://user:pass@localhost:5432/regulator_dev
 
 # Vienna Runtime (local)
-VIENNA_RUNTIME_URL=http://localhost:3001
+VIENNA_RUNTIME_URL=http://localhost:4001
 
 # Auth (optional - disabled when not set)
 # WORKSPACE_AUTH_TOKEN=  # Intentionally not set for local dev
@@ -409,3 +409,4 @@ Neon provides:
 3. **Add startup validation** for required env vars
 4. **Implement secret scanning** in CI/CD (detect committed secrets)
 5. **Document incident response** for secret exposure
+ecret exposure

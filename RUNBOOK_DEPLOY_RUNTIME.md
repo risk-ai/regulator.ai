@@ -104,7 +104,7 @@ vol_abc123...   created vienna_data   10GB    iad     -
 
 ```bash
 fly secrets set \
-  PORT=3001 \
+  PORT=4001 \
   NODE_ENV=preview \
   ARTIFACT_STORAGE_TYPE=filesystem \
   CORS_ORIGINS=https://preview.vercel.app,https://*.vercel.app \
@@ -117,7 +117,7 @@ fly secrets set \
 
 ```bash
 fly secrets set \
-  PORT=3001 \
+  PORT=4001 \
   NODE_ENV=production \
   DATABASE_URL=postgresql://user:pass@ep-name.c-2.us-east-1.aws.neon.tech/vienna?sslmode=require \
   ARTIFACT_STORAGE_TYPE=s3 \
@@ -247,11 +247,11 @@ fly logs --lines 50 --app vienna-runtime-preview
 **Expected logs:**
 ```
 🏛 Vienna Runtime Service
-   Port: 3001
+   Port: 4001
    Environment: preview
    Database Backend: sqlite (/app/data/vienna.db)
    Artifact Backend: filesystem
-   Health: http://localhost:3001/health
+   Health: http://localhost:4001/health
 
 ✓ Ready for requests
 ```
@@ -358,7 +358,7 @@ fly logs --lines 100 --app vienna-runtime-preview
 fly secrets list --app vienna-runtime-preview
 
 # Set missing secrets
-fly secrets set PORT=3001 --app vienna-runtime-preview
+fly secrets set PORT=4001 --app vienna-runtime-preview
 
 # Redeploy
 fly deploy --app vienna-runtime-preview
@@ -377,7 +377,7 @@ fly ssh console --app vienna-runtime-preview
 ps aux
 
 # Check health locally
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 
 # Check environment
 env | grep -E 'DATABASE|ARTIFACT|AWS'

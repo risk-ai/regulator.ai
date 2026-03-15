@@ -146,7 +146,7 @@ cat > .env.local << 'EOF'
 DATABASE_URL=postgresql://user:pass@localhost:5432/regulator_dev
 
 # Vienna Runtime (local)
-VIENNA_RUNTIME_URL=http://localhost:3001
+VIENNA_RUNTIME_URL=http://localhost:4001
 
 # Auth (disabled for local dev)
 # WORKSPACE_AUTH_TOKEN=  # Intentionally not set

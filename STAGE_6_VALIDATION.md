@@ -405,7 +405,7 @@ cd /home/maxlawai/regulator.ai
 
 3. **Configure secrets**
    ```bash
-   fly secrets set PORT=3001 NODE_ENV=preview ...
+   fly secrets set PORT=4001 NODE_ENV=preview ...
    ```
 
 4. **Deploy**

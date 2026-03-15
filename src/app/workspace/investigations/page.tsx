@@ -13,25 +13,37 @@ type Investigation = {
   trace_count?: number
 }
 
+type FetchResult = {
+  investigations: Investigation[]
+  error?: string
+}
+
 // Server component - fetch directly from Vienna Runtime
-async function getInvestigations(): Promise<Investigation[]> {
+async function getInvestigations(): Promise<FetchResult> {
   const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
   
   try {
     const res = await fetch(`${baseUrl}/api/investigations`, {
-      cache: 'no-store' // Always fetch fresh data
+      cache: 'no-store', // Always fetch fresh data
+      signal: AbortSignal.timeout(5000) // 5s timeout
     })
     
     if (!res.ok) {
       console.error('Failed to fetch investigations:', res.status)
-      return []
+      return { 
+        investigations: [], 
+        error: `Vienna Runtime returned ${res.status}. Check runtime service.` 
+      }
     }
     
     const data = await res.json()
-    return data.investigations || []
+    return { investigations: data.investigations || [] }
   } catch (error) {
     console.error('Error fetching investigations:', error)
-    return []
+    return { 
+      investigations: [], 
+      error: 'Vienna Runtime unavailable. The runtime service may be offline or unreachable.' 
+    }
   }
 }
 
@@ -53,7 +65,7 @@ function StatusBadge({ status }: { status: Investigation['status'] }) {
 }
 
 export default async function InvestigationsPage() {
-  const investigations = await getInvestigations()
+  const { investigations, error } = await getInvestigations()
 
   return (
     <div>
@@ -68,6 +80,19 @@ export default async function InvestigationsPage() {
           + New Investigation
         </button>
       </div>
+
+      {/* Runtime unavailable warning */}
+      {error && (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="text-amber-400 text-xl">⚠️</div>
+            <div>
+              <p className="text-amber-400 font-semibold mb-1">Vienna Runtime Unavailable</p>
+              <p className="text-amber-300/80 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mb-6 flex items-center gap-3">
@@ -86,9 +111,13 @@ export default async function InvestigationsPage() {
       </div>
 
       {/* Investigation List */}
-      {investigations.length === 0 ? (
+      {investigations.length === 0 && !error ? (
         <div className="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center">
           <p className="text-slate-400">No investigations found</p>
+        </div>
+      ) : investigations.length === 0 && error ? (
+        <div className="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center">
+          <p className="text-slate-400">Unable to load investigations. Check runtime status.</p>
         </div>
       ) : (
         <div className="space-y-4">

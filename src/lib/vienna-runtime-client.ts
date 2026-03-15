@@ -60,19 +60,25 @@ export class ViennaRuntimeError extends Error {
 }
 
 /**
- * Fetch from Vienna Runtime with error handling
+ * Fetch from Vienna Runtime with error handling and timeout
  */
 async function viennaFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${VIENNA_RUNTIME_URL}${path}`;
   
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    
     const response = await fetch(url, {
       ...options,
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         ...options?.headers,
       },
     });
+    
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorData = await response.json() as ViennaErrorResponse;
@@ -88,6 +94,16 @@ async function viennaFetch<T>(path: string, options?: RequestInit): Promise<T> {
     if (error instanceof ViennaRuntimeError) {
       throw error;
     }
+    
+    // Network errors or timeout
+    if (error instanceof TypeError || (error as Error).name === 'AbortError') {
+      throw new ViennaRuntimeError(
+        503,
+        'runtime_unavailable',
+        'Vienna Runtime is currently unavailable. The runtime service may be offline or unreachable.'
+      );
+    }
+    
     throw new Error(`Vienna Runtime request failed: ${error}`);
   }
 }

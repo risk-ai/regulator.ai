@@ -11,24 +11,36 @@ type Incident = {
   resolution_summary?: string
 }
 
-async function getIncidents(): Promise<Incident[]> {
+type FetchResult = {
+  incidents: Incident[]
+  error?: string
+}
+
+async function getIncidents(): Promise<FetchResult> {
   const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
   
   try {
     const res = await fetch(`${baseUrl}/api/incidents`, {
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000)
     })
     
     if (!res.ok) {
       console.error('Failed to fetch incidents:', res.status)
-      return []
+      return { 
+        incidents: [], 
+        error: `Vienna Runtime returned ${res.status}. Check runtime service.` 
+      }
     }
     
     const data = await res.json()
-    return data.incidents || []
+    return { incidents: data.incidents || [] }
   } catch (error) {
     console.error('Error fetching incidents:', error)
-    return []
+    return { 
+      incidents: [], 
+      error: 'Vienna Runtime unavailable. The runtime service may be offline or unreachable.' 
+    }
   }
 }
 
@@ -74,7 +86,7 @@ function StatusBadge({ status }: { status: Incident['status'] }) {
 }
 
 export default async function IncidentsPage() {
-  const incidents = await getIncidents()
+  const { incidents, error } = await getIncidents()
 
   return (
     <div>
@@ -86,6 +98,19 @@ export default async function IncidentsPage() {
           </p>
         </div>
       </div>
+
+      {/* Runtime unavailable warning */}
+      {error && (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="text-amber-400 text-xl">⚠️</div>
+            <div>
+              <p className="text-amber-400 font-semibold mb-1">Vienna Runtime Unavailable</p>
+              <p className="text-amber-300/80 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mb-6 flex items-center gap-3">
@@ -104,9 +129,13 @@ export default async function IncidentsPage() {
       </div>
 
       {/* Incident List */}
-      {incidents.length === 0 ? (
+      {incidents.length === 0 && !error ? (
         <div className="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center">
           <p className="text-slate-400">No incidents found</p>
+        </div>
+      ) : incidents.length === 0 && error ? (
+        <div className="bg-navy-800 border border-navy-700 rounded-xl p-12 text-center">
+          <p className="text-slate-400">Unable to load incidents. Check runtime status.</p>
         </div>
       ) : (
         <div className="space-y-4">

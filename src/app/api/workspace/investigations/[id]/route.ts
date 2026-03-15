@@ -1,14 +1,23 @@
 /**
  * Next.js API Proxy: Investigation Detail
+ * 
+ * Stage 6: Auth-protected workspace proxy route
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { investigations } from '@/lib/vienna-runtime-client';
+import { requireWorkspaceAccess } from '@/lib/auth-middleware';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  // Enforce authentication
+  const authResult = requireWorkspaceAccess(request);
+  if (authResult instanceof NextResponse) {
+    return authResult; // Return 401/403 response
+  }
+  
   try {
     const data = await investigations.get(params.id);
     return NextResponse.json(data);

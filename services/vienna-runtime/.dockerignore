@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+dist
+.env
+.env.local
+.env.production
+.git
+.gitignore
+README.md
+*.md
+.DS_Store
+data/vienna.db
+data/artifacts/*
+!data/artifacts/.gitkeep

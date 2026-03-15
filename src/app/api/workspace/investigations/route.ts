@@ -13,10 +13,12 @@ export async function GET(request: Request) {
     
     const data = await investigations.list({ status, limit });
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = (error as { status?: number }).status || 500;
     return NextResponse.json(
-      { error: 'runtime_error', message: error.message },
-      { status: error.status || 500 }
+      { error: 'runtime_error', message },
+      { status }
     );
   }
 }

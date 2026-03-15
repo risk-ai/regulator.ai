@@ -6,6 +6,43 @@
 
 const VIENNA_RUNTIME_URL = process.env.VIENNA_RUNTIME_URL || 'http://localhost:3001';
 
+// Import shared types from Vienna Runtime
+export interface Investigation {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'open' | 'investigating' | 'resolved' | 'archived';
+  objective_id?: string;
+  created_by: string;
+  created_at: string;
+  resolved_at?: string;
+  workspace_path: string;
+  artifact_count?: number;
+  trace_count?: number;
+}
+
+export interface Incident {
+  id: string;
+  title: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'investigating' | 'resolved';
+  service_id: string;
+  detected_by: string;
+  detected_at: string;
+  resolved_at?: string;
+  resolution_summary?: string;
+}
+
+export interface CreateIncidentRequest {
+  title: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status?: 'open' | 'investigating' | 'resolved';
+  service_id: string;
+  detected_by: string;
+  detected_at?: string;
+  resolution_summary?: string;
+}
+
 export interface ViennaErrorResponse {
   error: string;
   message: string;
@@ -85,8 +122,8 @@ export const incidents = {
     return viennaFetch(`/api/incidents/${id}`);
   },
   
-  create: async (data: any) => {
-    return viennaFetch('/api/incidents', {
+  create: async (data: CreateIncidentRequest) => {
+    return viennaFetch<Incident>('/api/incidents', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -119,9 +156,11 @@ export const traces = {
   },
 };
 
-export default {
+const viennaClient = {
   investigations,
   incidents,
   artifacts,
   traces,
 };
+
+export default viennaClient;

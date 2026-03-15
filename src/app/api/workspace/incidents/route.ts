@@ -9,10 +9,12 @@ export async function GET() {
   try {
     const data = await incidents.list();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = (error as { status?: number }).status || 500;
     return NextResponse.json(
-      { error: 'runtime_error', message: error.message },
-      { status: error.status || 500 }
+      { error: 'runtime_error', message },
+      { status }
     );
   }
 }
@@ -22,10 +24,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const data = await incidents.create(body);
     return NextResponse.json(data, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    const status = (error as { status?: number }).status || 500;
     return NextResponse.json(
-      { error: 'runtime_error', message: error.message },
-      { status: error.status || 500 }
+      { error: 'runtime_error', message },
+      { status }
     );
   }
 }

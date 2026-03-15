@@ -1,28 +1,23 @@
 import { Router } from 'express'
-import { mockInvestigations } from '../lib/dev-data'
-import type { InvestigationListResponse, Investigation } from '../types/api'
+import { InvestigationRepository } from '../adapters/db/repositories/investigations'
+import { ArtifactRepository } from '../adapters/db/repositories/artifacts'
+import type { InvestigationListResponse } from '../types/api'
 
 const router = Router()
 
 // GET /api/investigations - List investigations
 router.get('/', (req, res) => {
+  const repo = new InvestigationRepository()
   const status = req.query.status as string | undefined
   const limit = parseInt(req.query.limit as string) || 50
-  const offset = parseInt(req.query.offset as string) || 0
 
-  let filtered = mockInvestigations
-
-  if (status) {
-    filtered = filtered.filter(inv => inv.status === status)
-  }
-
-  const paginated = filtered.slice(offset, offset + limit)
+  const investigations = repo.list({ status, limit })
 
   const response: InvestigationListResponse = {
-    investigations: paginated,
-    total: filtered.length,
+    investigations,
+    total: investigations.length,
     limit,
-    offset
+    offset: 0
   }
 
   res.json(response)
@@ -30,7 +25,10 @@ router.get('/', (req, res) => {
 
 // GET /api/investigations/:id - Get investigation details
 router.get('/:id', (req, res) => {
-  const investigation = mockInvestigations.find(inv => inv.id === req.params.id)
+  const repo = new InvestigationRepository()
+  const artifactRepo = new ArtifactRepository()
+  
+  const investigation = repo.findById(req.params.id)
 
   if (!investigation) {
     return res.status(404).json({
@@ -39,7 +37,15 @@ router.get('/:id', (req, res) => {
     })
   }
 
-  res.json(investigation)
+  // Expand with artifacts
+  const artifacts = artifactRepo.listByInvestigation(investigation.id)
+  const incidents = repo.getLinkedIncidents(investigation.id)
+
+  res.json({
+    ...investigation,
+    artifacts,
+    incidents
+  })
 })
 
 export default router

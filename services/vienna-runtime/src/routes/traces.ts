@@ -1,23 +1,32 @@
 import { Router } from 'express'
-import { mockTraceTimeline } from '../lib/dev-data'
+import { TraceRepository } from '../adapters/db/repositories/traces'
 
 const router = Router()
 
-// GET /api/traces/:id - Get trace (stub)
+// GET /api/traces/:id - Get trace details
 router.get('/:id', (req, res) => {
-  res.json({
-    intent_id: req.params.id,
-    status: 'completed',
-    created_at: '2026-03-14T21:18:00Z'
-  })
+  const repo = new TraceRepository()
+  const trace = repo.findById(req.params.id)
+
+  if (!trace) {
+    return res.status(404).json({
+      error: 'trace_not_found',
+      message: `Trace ${req.params.id} not found`
+    })
+  }
+
+  res.json(trace)
 })
 
 // GET /api/traces/:id/timeline - Get trace timeline
 router.get('/:id/timeline', (req, res) => {
-  // Return mock timeline
+  const repo = new TraceRepository()
+  const timeline = repo.getTimeline(req.params.id)
+
   res.json({
-    ...mockTraceTimeline,
-    intent_id: req.params.id
+    trace_id: req.params.id,
+    timeline,
+    count: timeline.length
   })
 })
 

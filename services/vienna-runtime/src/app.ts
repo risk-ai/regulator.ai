@@ -1,5 +1,7 @@
 import express, { Express } from 'express'
 import cors from 'cors'
+import { initializeDatabase } from './adapters/db/client'
+import { bootstrap } from './lib/bootstrap'
 import healthRouter from './routes/health'
 import investigationsRouter from './routes/investigations'
 import incidentsRouter from './routes/incidents'
@@ -7,6 +9,10 @@ import artifactsRouter from './routes/artifacts'
 import tracesRouter from './routes/traces'
 
 export function createApp(): Express {
+  // Initialize database and seed data
+  initializeDatabase()
+  bootstrap()
+  
   const app = express()
 
   // Middleware

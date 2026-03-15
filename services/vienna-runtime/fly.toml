@@ -1,0 +1,90 @@
+# Vienna Runtime Service - Fly.io Configuration (Stage 6)
+# 
+# This configuration enables deployment to Fly.io for both preview and production.
+# Environment-specific settings are managed via fly secrets.
+
+app = "vienna-runtime"
+primary_region = "iad"
+
+[build]
+  builder = "paket"
+  buildpacks = []
+
+[build.dockerfile_build_args]
+  BUILDKIT_INLINE_CACHE = "1"
+
+[env]
+  # Default environment (can be overridden per deployment)
+  PORT = "3001"
+  NODE_ENV = "production"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3001
+  
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  # Start probe - checks container is ready (slower, runs once)
+  [services.tcp_checks]
+    [[services.tcp_checks.checks]]
+      grace_period = "10s"
+      interval = "15s"
+      timeout = "5s"
+
+  # Liveness probe - periodic health checks
+  [[services.http_checks]]
+    protocol = "http"
+    method = "GET"
+    path = "/health"
+    interval = "30s"
+    timeout = "10s"
+    grace_period = "5s"
+    min_interval = "10s"
+    min_timeout = "1s"
+
+  # Graceful shutdown
+  [[services.processes]]
+    type = "web"
+    cmd_entrypoint = "/sbin/dumb-init"
+    cmd_args = ["--", "node", "dist/index.js"]
+
+[env.preview]
+  # Preview environment (smaller resources)
+  NODE_ENV = "preview"
+
+[env.production]
+  # Production environment
+  NODE_ENV = "production"
+
+[[mounts]]
+  # Persistent storage for SQLite database and artifacts
+  source = "vienna_data"
+  destination = "/app/data"
+  initial_size = "10gb"
+
+[http_service]
+  # Health check endpoint
+  internal_port = 3001
+  protocol = "http"
+  checks = [{grace_period = "5s", interval = "15s", method = "GET", path = "/health", timeout = "5s"}]
+
+# Observability
+[observability]
+  enabled = true
+
+# Metrics
+[[metrics]]
+  port = 9090
+  handlers = ["http"]
+  path = "/metrics"

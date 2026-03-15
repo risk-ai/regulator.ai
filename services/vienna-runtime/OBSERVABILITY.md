@@ -131,7 +131,7 @@ Health checks occur every 30 seconds but don't generate logs unless they fail.
 - Database backend type (`postgres` or `sqlite`)
 - S3 bucket name (`vienna-artifacts-prod`)
 - AWS region (`us-east-1`)
-- Port number (`3001`)
+- Port number (`4001`)
 
 ### Sensitive Data
 

@@ -49,15 +49,15 @@ docker build -t vienna-runtime:latest .
 
 # Test locally
 docker run \
-  -p 3001:3001 \
-  -e PORT=3001 \
+  -p 4001:4001 \
+  -e PORT=4001 \
   -e NODE_ENV=development \
   -e ARTIFACT_STORAGE_TYPE=filesystem \
   -v $(pwd)/data:/app/data \
   vienna-runtime:latest
 
 # Check health
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 ```
 
 ### Fly.io Build
@@ -117,7 +117,7 @@ fly volumes list
 
 ```bash
 # Basic runtime config
-fly secrets set PORT=3001
+fly secrets set PORT=4001
 fly secrets set NODE_ENV=production
 
 # Artifact storage (preview uses filesystem)
@@ -167,7 +167,7 @@ fly logs --lines 100
 fly status
 
 # Check health endpoint
-fly ssh console -C "curl http://localhost:3001/health"
+fly ssh console -C "curl http://localhost:4001/health"
 
 # Or from outside
 curl https://vienna-runtime.fly.dev/health
@@ -330,8 +330,8 @@ docker build -t vienna-runtime:test .
 # 2. Run container
 docker run -d \
   --name vienna-test \
-  -p 3001:3001 \
-  -e PORT=3001 \
+  -p 4001:4001 \
+  -e PORT=4001 \
   -e NODE_ENV=development \
   -e ARTIFACT_STORAGE_TYPE=filesystem \
   -v $(pwd)/data:/app/data \
@@ -341,10 +341,10 @@ docker run -d \
 sleep 3
 
 # 4. Check health
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 
 # 5. Test investigations list
-curl http://localhost:3001/api/investigations
+curl http://localhost:4001/api/investigations
 
 # 6. Check logs
 docker logs vienna-test
@@ -370,7 +370,7 @@ fly ssh console
 ps aux
 
 # 5. Check health endpoint
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 
 # 6. Exit SSH
 exit

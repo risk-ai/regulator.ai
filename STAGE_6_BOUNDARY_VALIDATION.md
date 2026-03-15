@@ -140,7 +140,7 @@ cd services/vienna-runtime
 npm run dev
 
 # Check runtime health
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 # Should return: {"status":"healthy",...}
 
 # Start shell
@@ -253,7 +253,7 @@ npm run dev
 
 **Test health endpoint:**
 ```bash
-curl http://localhost:3001/health | jq .components.state_graph
+curl http://localhost:4001/health | jq .components.state_graph
 
 # Expected:
 # {
@@ -301,7 +301,7 @@ npm run dev
 
 **Test health endpoint:**
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:4001/health
 
 # Expected artifact_storage component to show S3 info
 ```
@@ -371,7 +371,7 @@ npm run dev
 1. Open http://localhost:3000 (allowed origin)
 2. Make fetch request to runtime from browser console:
    ```javascript
-   fetch('http://localhost:3001/api/investigations')
+   fetch('http://localhost:4001/api/investigations')
    ```
 3. Should succeed (CORS allows localhost:3000)
 
@@ -381,7 +381,7 @@ npm run dev
 curl -H "Origin: http://localhost:4000" \
   -H "Access-Control-Request-Method: GET" \
   -X OPTIONS \
-  http://localhost:3001/api/investigations
+  http://localhost:4001/api/investigations
 
 # Expected: No Access-Control-Allow-Origin header
 # (or CORS error if configured correctly)
@@ -445,7 +445,7 @@ Run these checks before completing Stage 6:
 ### Local Development Validation
 
 - [ ] Start runtime (`cd services/vienna-runtime && npm run dev`)
-- [ ] Check runtime health (`curl http://localhost:3001/health`)
+- [ ] Check runtime health (`curl http://localhost:4001/health`)
 - [ ] Start shell (`npm run dev`)
 - [ ] Access workspace in browser (`http://localhost:3000/workspace`)
 - [ ] Verify workspace routes load without errors

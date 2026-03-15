@@ -83,6 +83,8 @@ export interface HealthResponse {
     state_graph: {
       status: 'healthy' | 'degraded' | 'unhealthy'
       type: 'memory' | 'sqlite' | 'postgres'
+      configured?: boolean
+      path?: string
     }
     artifact_storage: {
       status: 'healthy' | 'degraded' | 'unhealthy'

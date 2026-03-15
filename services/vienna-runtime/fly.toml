@@ -3,15 +3,11 @@
 # This configuration enables deployment to Fly.io for both preview and production.
 # Environment-specific settings are managed via fly secrets.
 
-app = "vienna-runtime"
+app = "vienna-runtime-preview"
 primary_region = "iad"
 
 [build]
-  builder = "paket"
-  buildpacks = []
-
-[build.dockerfile_build_args]
-  BUILDKIT_INLINE_CACHE = "1"
+  dockerfile = "Dockerfile"
 
 [env]
   # Default environment (can be overridden per deployment)
@@ -53,11 +49,7 @@ primary_region = "iad"
     min_interval = "10s"
     min_timeout = "1s"
 
-  # Graceful shutdown
-  [[services.processes]]
-    type = "web"
-    cmd_entrypoint = "/sbin/dumb-init"
-    cmd_args = ["--", "node", "dist/index.js"]
+  # Graceful shutdown handled by Node.js process
 
 [env.preview]
   # Preview environment (smaller resources)

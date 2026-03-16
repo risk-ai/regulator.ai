@@ -11,10 +11,10 @@ type Incident = {
 }
 
 async function getIncident(id: string): Promise<Incident | null> {
-  const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
   try {
-    const res = await fetch(`${baseUrl}/api/incidents/${id}`, {
+    const res = await fetch(`${baseUrl}/api/workspace/incidents/${id}`, {
       cache: 'no-store'
     })
     

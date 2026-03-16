@@ -18,12 +18,12 @@ type FetchResult = {
   error?: string
 }
 
-// Server component - fetch directly from Vienna Runtime
+// Server component - fetch through shell proxy boundary
 async function getInvestigations(): Promise<FetchResult> {
-  const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
   try {
-    const res = await fetch(`${baseUrl}/api/investigations`, {
+    const res = await fetch(`${baseUrl}/api/workspace/investigations`, {
       cache: 'no-store', // Always fetch fresh data
       signal: AbortSignal.timeout(5000) // 5s timeout
     })
@@ -32,7 +32,7 @@ async function getInvestigations(): Promise<FetchResult> {
       console.error('Failed to fetch investigations:', res.status)
       return { 
         investigations: [], 
-        error: `Vienna Runtime returned ${res.status}. Check runtime service.` 
+        error: `Shell proxy returned ${res.status}. Check runtime service.` 
       }
     }
     

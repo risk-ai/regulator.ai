@@ -17,10 +17,10 @@ type FetchResult = {
 }
 
 async function getIncidents(): Promise<FetchResult> {
-  const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
   try {
-    const res = await fetch(`${baseUrl}/api/incidents`, {
+    const res = await fetch(`${baseUrl}/api/workspace/incidents`, {
       cache: 'no-store',
       signal: AbortSignal.timeout(5000)
     })
@@ -29,7 +29,7 @@ async function getIncidents(): Promise<FetchResult> {
       console.error('Failed to fetch incidents:', res.status)
       return { 
         incidents: [], 
-        error: `Vienna Runtime returned ${res.status}. Check runtime service.` 
+        error: `Shell proxy returned ${res.status}. Check runtime service.` 
       }
     }
     

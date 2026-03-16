@@ -10,10 +10,10 @@ type Investigation = {
 }
 
 async function getInvestigation(id: string): Promise<Investigation | null> {
-  const baseUrl = process.env.VIENNA_RUNTIME_BASE_URL || 'http://localhost:4001'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   
   try {
-    const res = await fetch(`${baseUrl}/api/investigations/${id}`, {
+    const res = await fetch(`${baseUrl}/api/workspace/investigations/${id}`, {
       cache: 'no-store'
     })
     

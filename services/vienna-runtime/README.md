@@ -1,241 +1,90 @@
-# Vienna Runtime Service
+# Vienna OS
 
-**Purpose:** Governance execution layer for Vienna OS
+**Governed AI Operating System**
 
-This is the backend service that handles:
-- Investigation management
-- Incident tracking
-- Artifact storage
-- Trace timelines
-- Governance enforcement
-- Objective evaluation (future)
-- Background reconciliation (future)
+Vienna OS is a governed execution layer for autonomous AI operations. It enforces architectural boundaries so AI agents cannot execute system commands directly—all actions must pass through Vienna's governed pipeline with operator approval.
 
-The Vienna Runtime is designed to run as a standalone service separate from the Next.js product shell.
-
----
-
-## Quick Start
-
-### Development
-
-```bash
-cd services/vienna-runtime
-npm install
-npm run dev
-```
-
-Server will start on http://localhost:4001
-
-### Production Build
-
-```bash
-npm run build
-npm start
-```
-
----
-
-## Environment Configuration
-
-Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Key variables:
-
-- `PORT` — HTTP server port (default: 4001)
-- `VIENNA_STATE_BACKEND` — State storage (memory | sqlite | postgres)
-- `VIENNA_ARTIFACT_BACKEND` — Artifact storage (filesystem | s3 | vercel-blob)
-- `VIENNA_DATA_DIR` — Data directory for filesystem backend
-- `CORS_ORIGINS` — Allowed origins (comma-separated)
-
----
-
-## Routes
-
-### Health Check
+## Core Rule
 
 ```
-GET /health
+AI explains
+Runtime executes
+Operator approves
 ```
-
-Returns service health status.
-
-### Investigations
-
-```
-GET /api/investigations
-GET /api/investigations/:id
-```
-
-Query parameters for list:
-- `status` (optional): filter by status
-- `limit` (optional, default 50): max results
-- `offset` (optional, default 0): pagination offset
-
-### Incidents
-
-```
-GET /api/incidents
-GET /api/incidents/:id
-POST /api/incidents
-```
-
-Query parameters for list:
-- `status` (optional): filter by status
-- `severity` (optional): filter by severity
-- `limit` (optional)
-- `offset` (optional)
-
-### Artifacts
-
-```
-GET /api/artifacts
-GET /api/artifacts/:id
-```
-
-Query parameters for list:
-- `artifact_type` (optional): filter by type
-- `investigation_id` (optional): filter by investigation
-- `limit` (optional)
-- `offset` (optional)
-
-### Traces
-
-```
-GET /api/traces/:id
-GET /api/traces/:id/timeline
-```
-
-Returns trace details and execution timeline.
-
----
 
 ## Architecture
 
-### Adapter System
+```
+Intent → Plan → Policy → Approval (T1/T2) → Warrant → Execution → Verification → Ledger
+```
 
-The runtime uses adapters to abstract storage and execution:
+## Quick Start
 
-**Database Adapter** — State storage (memory/SQLite/Postgres)  
-**Storage Adapter** — Artifact storage (filesystem/S3/Vercel Blob)  
-**Policy Adapter** — Policy sync with product shell  
-**Execution Adapter** — External command execution  
-
-Adapters are pluggable and configured via environment variables.
-
-### Current State (Stage 3)
-
-- **State Backend:** In-memory (mock data)
-- **Artifact Backend:** Stub responses
-- **Governance:** Not yet implemented
-- **Background Services:** Not yet implemented
-
-Stage 3 focus is on scaffolding and API structure. Real persistence and governance logic will be implemented in Stage 4.
-
----
-
-## Development Data
-
-When `VIENNA_STATE_BACKEND=memory`, the service uses mock data from `src/lib/dev-data.ts`:
-
-- 2 sample investigations
-- 2 sample incidents
-- 2 sample artifacts
-- 1 sample trace timeline
-
-This allows the product shell to integrate against stable data without requiring database setup.
-
----
-
-## Dependencies
-
-**Runtime:**
-- `express` — HTTP server
-- `cors` — Cross-origin support
-- `dotenv` — Environment configuration
-
-**Development:**
-- `tsx` — TypeScript execution (dev mode)
-- `typescript` — Type checking
-- `@types/*` — TypeScript definitions
-
----
-
-## Testing
+### Local Development
 
 ```bash
-# Type checking
-npm run typecheck
+# Install dependencies
+npm install
 
-# Linting
-npm run lint
+# Run development server
+cd console/server && npm run dev
 
-# Build verification
-npm run build
+# In separate terminal, run client
+cd console/client && npm run dev
 ```
 
----
+### Environment Variables
 
-## Integration with Product Shell
+Create `.env` in `console/server/`:
 
-The Next.js product shell proxies requests to Vienna Runtime:
-
+```bash
+NODE_ENV=production
+PORT=3100
+SESSION_SECRET=your-secret-here
+ANTHROPIC_API_KEY=your-key-here
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:0.5b
 ```
-Next.js (localhost:3000)
-  ↓ HTTP proxy
-Vienna Runtime (localhost:4001)
-```
-
-Product shell API routes forward to Vienna Runtime base URL configured via `VIENNA_RUNTIME_BASE_URL` environment variable.
-
-See `src/app/api/workspace/*` in the product shell for proxy implementations.
-
----
-
-## Future Phases
-
-**Stage 4 (Backend Integration):**
-- Real State Graph persistence (SQLite/Postgres)
-- Artifact filesystem storage
-- Policy evaluation engine
-- Execution engine integration
-
-**Stage 5 (Background Services):**
-- Objective evaluation loop
-- Execution timeout watchdog
-- Reconciliation control plane
-- Circuit breakers
-
-**Stage 6 (Production Hardening):**
-- Authentication/authorization
-- Rate limiting
-- Audit logging
-- Monitoring integration
-
----
-
-## Port Layout
-
-Default port assignments:
-
-- Next.js Product Shell: **3000**
-- Vienna Runtime: **4001**
-- Database (if local): **5432**
-
----
 
 ## Deployment
 
-**Development:** Local Node.js process (`npm run dev`)  
-**Production:** Docker container OR Fly.io app  
+### Vercel (Frontend Only)
 
-See root `docker-compose.yml` for local multi-service orchestration.
+The frontend builds automatically deploy to Vercel. Backend must run separately.
 
----
+```bash
+# Vercel will run:
+cd console/client && npm ci && npm run build
+```
 
-**Status:** Stage 3 scaffold complete  
-**Next:** Stage 4 backend integration
+### Full Stack Deployment
+
+For complete deployment including backend:
+
+1. Deploy backend to your infrastructure
+2. Configure CORS to allow Vercel frontend domain
+3. Set backend URL in client environment
+
+## Features
+
+- **Phase 17 Complete:** Full operator approval workflow
+- **Governed Execution:** T1/T2 actions require operator review
+- **Audit Trail:** Complete execution history with forensic reconstruction
+- **Policy Engine:** Constraint-based governance with 10 constraint types
+- **Verification Layer:** Post-execution validation independent from execution
+- **Multi-Step Plans:** Governed orchestration with per-step enforcement
+
+## Status
+
+- **Backend:** Node.js + Express + SQLite
+- **Frontend:** React + TypeScript + Vite
+- **Test Coverage:** 71/71 tests passing (approval workflow)
+- **Production:** Ready for controlled deployment
+
+## Documentation
+
+See `/docs` for complete architecture documentation.
+
+## License
+
+Private - Max Anderson / Vienna OS Project

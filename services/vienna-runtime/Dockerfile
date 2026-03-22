@@ -1,47 +1,79 @@
-# Vienna Runtime Service - Production Dockerfile
-
+# Vienna OS Production Dockerfile
 FROM node:22-alpine AS builder
 
-WORKDIR /build
+# Install build dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    sqlite
 
-# Copy package files
-COPY package.json package-lock.json ./
+WORKDIR /app
 
-# Install dependencies
-RUN npm ci --include=optional
+# Copy package files for dependency installation
+COPY package*.json ./
+COPY console/server/package*.json ./console/server/
+COPY console/client/package*.json ./console/client/
 
-# Copy source
+# Install all dependencies (including dev for building)
+RUN npm ci
+RUN cd console/server && npm ci
+RUN cd console/client && npm ci
+
+# Copy application code
 COPY . .
 
-# Build TypeScript
+# Build frontend
+WORKDIR /app/console/client
+RUN npm run build
+
+# Build backend
+WORKDIR /app/console/server
 RUN npm run build
 
 # Production stage
 FROM node:22-alpine
 
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    sqlite \
+    curl \
+    dumb-init
+
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
-
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package*.json ./
+COPY console/server/package*.json ./console/server/
 
 # Install production dependencies only
-RUN npm ci --omit=dev --include=optional
+RUN npm ci --only=production
+RUN cd console/server && npm ci --only=production
 
-# Copy built application from builder
-COPY --from=builder /build/dist ./dist
+# Copy built artifacts from builder
+COPY --from=builder /app/console/server/dist ./console/server/dist
+COPY --from=builder /app/console/client/dist ./console/dist
+COPY --from=builder /app/lib ./lib
 
-# Create data directory for local dev (overridden by volume in production)
-RUN mkdir -p /app/data/artifacts
+# Create runtime directories
+RUN mkdir -p /app/runtime/prod/state && \
+    mkdir -p /app/runtime/prod/queue && \
+    mkdir -p /app/runtime/prod/dlq && \
+    mkdir -p /app/runtime/prod/replay && \
+    chown -R node:node /app
 
-# Expose port (Fly.io will set $PORT at runtime)
-EXPOSE 3001
+# Switch to non-root user
+USER node
+
+# Expose port
+EXPOSE 3100
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3001) + '/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3100/health || exit 1
 
-# Start application (Fly.io handles init)
-CMD ["node", "dist/index.js"]
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+# Start server
+CMD ["node", "console/server/dist/server.js"]

@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "cd console/client && npm ci && npm run build",
+  "outputDirectory": "console/client/dist",
+  "installCommand": "echo 'Skipping root install'",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,82 +1,36 @@
-# Vienna Runtime Service - Fly.io Configuration (Stage 6)
-# 
-# This configuration enables deployment to Fly.io for both preview and production.
-# Environment-specific settings are managed via fly secrets.
+# fly.toml app configuration file generated for vienna-os on 2026-03-21T15:08:47-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "vienna-runtime-preview"
-primary_region = "iad"
+app = 'vienna-os'
+primary_region = 'iad'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "fly.Dockerfile"
 
 [env]
-  # Default environment (can be overridden per deployment)
-  PORT = "3001"
-  NODE_ENV = "production"
-
-[[services]]
-  protocol = "tcp"
-  internal_port = 3001
-  
-  [services.concurrency]
-    type = "connections"
-    hard_limit = 25
-    soft_limit = 20
-
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  # Start probe - checks container is ready (slower, runs once)
-  [services.tcp_checks]
-    [[services.tcp_checks.checks]]
-      grace_period = "10s"
-      interval = "15s"
-      timeout = "5s"
-
-  # Liveness probe - periodic health checks
-  [[services.http_checks]]
-    protocol = "http"
-    method = "GET"
-    path = "/health"
-    interval = "30s"
-    timeout = "10s"
-    grace_period = "5s"
-    min_interval = "10s"
-    min_timeout = "1s"
-
-  # Graceful shutdown handled by Node.js process
-
-[env.preview]
-  # Preview environment (smaller resources)
-  NODE_ENV = "preview"
-
-[env.production]
-  # Production environment
-  NODE_ENV = "production"
-
-[[mounts]]
-  # Persistent storage for SQLite database and artifacts
-  source = "vienna_data"
-  destination = "/app/data"
-  initial_size = "10gb"
+  HOST = '0.0.0.0'
+  NODE_ENV = 'production'
+  PORT = '3100'
+  CORS_ORIGIN = 'https://vienna-os.fly.dev,https://vienna-core.vercel.app'
 
 [http_service]
-  # Health check endpoint
-  internal_port = 3001
-  protocol = "http"
-  checks = [{grace_period = "5s", interval = "15s", method = "GET", path = "/health", timeout = "5s"}]
+  internal_port = 3100
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
 
-# Observability
-[observability]
-  enabled = true
+  [[http_service.checks]]
+    interval = '15s'
+    timeout = '10s'
+    grace_period = '30s'
+    method = 'GET'
+    path = '/health'
 
-# Metrics
-[[metrics]]
-  port = 9090
-  handlers = ["http"]
-  path = "/metrics"
+[[vm]]
+  memory = '2gb'
+  cpu_kind = 'shared'
+  cpus = 2

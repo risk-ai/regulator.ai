@@ -1,0 +1,113 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                  VIENNA OS PRESENTATION MODE                  ║
+║                     Quick Reference Card                      ║
+╚═══════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────┐
+│ ENABLE (2 minutes)                                          │
+├─────────────────────────────────────────────────────────────┤
+│ cd vienna-core/console                                      │
+│ ./enable-presentation-mode.sh                               │
+│ cd server && npm start                                      │
+│ Open: http://100.120.116.10:5174                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ DEMO SCRIPT (3 minutes)                                     │
+├─────────────────────────────────────────────────────────────┤
+│ Opening (30s):                                              │
+│   1. Show navigation → "Operational" badge                  │
+│   2. Hero heading → "Governed AI Operating System"         │
+│                                                             │
+│ Core (2m):                                                  │
+│   1. Metrics → "127 executions, 98.4% success"             │
+│   2. Health → "All systems 100%"                           │
+│   3. Pipeline → 7 stages (Intent → Ledger)                 │
+│   4. Timeline → "Real-time monitoring"                     │
+│                                                             │
+│ Closing (30s):                                              │
+│   1. Progress → "Phase 12 complete"                        │
+│   2. Status → "Production-ready"                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ KEY TALKING POINTS                                          │
+├─────────────────────────────────────────────────────────────┤
+│ "Vienna OS is a governed AI operating system"              │
+│ "7 governance stages with complete traceability"           │
+│ "127 executions today with 98.4% reliability"              │
+│ "All 12 phases complete and operational"                   │
+│ "Architectural enforcement, not behavioral"                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                             │
+├─────────────────────────────────────────────────────────────┤
+│ Blank screen:                                               │
+│   → cd server && npm start                                  │
+│   → curl localhost:5174                                     │
+│                                                             │
+│ Wrong styles:                                               │
+│   → cd client && npm run build                             │
+│   → Browser: Ctrl+Shift+R (hard refresh)                   │
+│                                                             │
+│ Not enabled:                                                │
+│   → grep AppPresentation client/src/main.tsx               │
+│   → Should see: './AppPresentation.js'                     │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ REVERT                                                      │
+├─────────────────────────────────────────────────────────────┤
+│ ./disable-presentation-mode.sh                              │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ VISUAL HIGHLIGHTS                                           │
+├─────────────────────────────────────────────────────────────┤
+│ ✓ Glass morphism (backdrop blur)                           │
+│ ✓ Animated gradients (color-shifting)                      │
+│ ✓ Glow effects (hover states)                              │
+│ ✓ Pulsing status badges                                    │
+│ ✓ Smooth 60 FPS animations                                 │
+│ ✓ Professional metric cards                                │
+│ ✓ Real-time activity timeline                              │
+│ ✓ 7-stage pipeline diagram                                 │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ BEFORE PRESENTATION CHECKLIST                               │
+├─────────────────────────────────────────────────────────────┤
+│ □ Clear browser cache (Ctrl+Shift+R)                       │
+│ □ Zoom to 90% (for projector)                              │
+│ □ Close other tabs                                         │
+│ □ Disable notifications (Do Not Disturb)                   │
+│ □ Test on presentation screen                              │
+│ □ Prepare backup slides                                    │
+│ □ Practice demo flow once                                  │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ KEYBOARD SHORTCUTS                                          │
+├─────────────────────────────────────────────────────────────┤
+│ F11         → Full screen                                   │
+│ Ctrl+Shift+R → Hard refresh                                │
+│ Ctrl +/-    → Zoom in/out                                  │
+│ Ctrl+0      → Reset zoom                                   │
+│ Alt+Tab     → Switch apps                                  │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ DOCUMENTATION                                               │
+├─────────────────────────────────────────────────────────────┤
+│ Quick Start:  QUICK_START_PRESENTATION.md                  │
+│ Full Guide:   PRESENTATION_MODE.md                         │
+│ Technical:    PRESENTATION_UI_MAKEOVER.md                  │
+│ Files:        PRESENTATION_DELIVERABLES.md                 │
+│ Comparison:   BEFORE_AFTER_COMPARISON.md                   │
+│ Overview:     README_PRESENTATION.md                        │
+└─────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════╗
+║  Ready to present. Built to impress. 🚀                      ║
+╚═══════════════════════════════════════════════════════════════╝

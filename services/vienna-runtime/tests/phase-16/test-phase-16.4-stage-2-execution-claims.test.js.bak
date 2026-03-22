@@ -1,0 +1,401 @@
+/**
+ * Phase 16.4 Stage 2 — Execution Claims Tests
+ * 
+ * Test coverage:
+ * - Atomic claim acquisition
+ * - Duplicate claim prevention
+ * - Execution key generation (deterministic)
+ * - Claim lifecycle (CLAIMED → STARTED → COMPLETED/FAILED)
+ * - Abandoned claim detection
+ * - Idempotency via execution key
+ */
+
+process.env.VIENNA_ENV = "test";
+
+const { ClaimManager } = require("../../lib/queue/claim-manager");
+const { getStateGraph } = require("../../lib/state/state-graph");
+
+describe("Phase 16.4 Stage 2 — Execution Claims", () => {
+  let stateGraph;
+  let claimManager;
+
+  beforeAll(async () => {
+    stateGraph = getStateGraph();
+    await stateGraph.initialize();
+    claimManager = new ClaimManager();
+  });
+
+  afterAll(async () => {
+    if (stateGraph.db) {
+      stateGraph.db.close();
+    }
+  });
+
+  beforeEach(async () => {
+    // Clear tables
+    const db = stateGraph.db;
+    db.prepare("DELETE FROM execution_claims").run();
+    db.prepare("DELETE FROM scheduler_workers").run();
+
+    // Create test worker (required for FOREIGN KEY)
+    db.prepare(`
+      INSERT INTO scheduler_workers (worker_id, status, started_at, heartbeat_at)
+      VALUES (?, 'ACTIVE', datetime('now'), datetime('now'))
+    `).run("worker_001");
+  });
+
+  describe("Category A: Execution Key Generation", () => {
+    test("A1: Same inputs produce same execution key", () => {
+      const key1 = claimManager.generateExecutionKey("queue_001", 1);
+      const key2 = claimManager.generateExecutionKey("queue_001", 1);
+
+      expect(key1).toBe(key2);
+      expect(key1).toHaveLength(64); // SHA-256 hex
+    });
+
+    test("A2: Different queue items produce different keys", () => {
+      const key1 = claimManager.generateExecutionKey("queue_001", 1);
+      const key2 = claimManager.generateExecutionKey("queue_002", 1);
+
+      expect(key1).not.toBe(key2);
+    });
+
+    test("A3: Different attempt numbers produce different keys", () => {
+      const key1 = claimManager.generateExecutionKey("queue_001", 1);
+      const key2 = claimManager.generateExecutionKey("queue_001", 2);
+
+      expect(key1).not.toBe(key2);
+    });
+
+    test("A4: Execution key is deterministic (multiple invocations)", () => {
+      const keys = Array.from({ length: 10 }, () =>
+        claimManager.generateExecutionKey("queue_test", 5)
+      );
+
+      expect(new Set(keys).size).toBe(1); // All identical
+    });
+  });
+
+  describe("Category B: Atomic Claim Acquisition", () => {
+    test("B1: First claim succeeds", async () => {
+      global.createQueueItem("queue_001");
+      const result = await claimManager.acquireClaim("queue_001", 1, "worker_001");
+
+      expect(result.claimed).toBe(true);
+      expect(result.claim).toBeDefined();
+      expect(result.claim.queue_item_id).toBe("queue_001");
+      expect(result.claim.attempt_number).toBe(1);
+      expect(result.claim.status).toBe("CLAIMED");
+    });
+
+    test("B2: Duplicate claim on same queue item + attempt fails", async () => {
+      global.createQueueItem("queue_002");
+      await claimManager.acquireClaim("queue_002", 1, "worker_001");
+
+      const result = await claimManager.acquireClaim("queue_002", 1, "worker_001");
+
+      expect(result.claimed).toBe(false);
+      expect(result.reason).toBe("CLAIM_ALREADY_EXISTS");
+      expect(result.existing_claim_id).toBeDefined();
+    });
+
+    test("B3: Different attempt number on same queue item succeeds", async () => {
+      await claimManager.acquireClaim("queue_003", 1, "worker_001");
+
+      const result = await claimManager.acquireClaim("queue_003", 2, "worker_001");
+
+      expect(result.claimed).toBe(true);
+    });
+
+    test("B4: Same attempt on different queue items succeeds", async () => {
+      const result1 = await claimManager.acquireClaim("queue_004", 1, "worker_001");
+      const result2 = await claimManager.acquireClaim("queue_005", 1, "worker_001");
+
+      expect(result1.claimed).toBe(true);
+      expect(result2.claimed).toBe(true);
+    });
+
+    test("B5: Execution key uniqueness enforced", async () => {
+      const result1 = await claimManager.acquireClaim("queue_006", 1, "worker_001");
+
+      // Manually try to insert duplicate execution key (should fail)
+      const db = stateGraph.db;
+      const executionKey = claimManager.generateExecutionKey("queue_006", 1);
+
+      expect(() => {
+        db.prepare(`
+          INSERT INTO execution_claims (
+            claim_id, queue_item_id, execution_key, attempt_number,
+            worker_id, status, claimed_at
+          ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+        `).run("claim_duplicate", "queue_007", executionKey, 2, "worker_001", "CLAIMED");
+      }).toThrow(/UNIQUE constraint/);
+    });
+  });
+
+  describe("Category C: Claim Lifecycle", () => {
+    test("C1: CLAIMED → STARTED transition", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_007", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      const transitionResult = await claimManager.markStarted(claim.claim_id, "worker_001");
+
+      expect(transitionResult.transitioned).toBe(true);
+
+      const updatedClaim = await claimManager.getClaim(claim.claim_id);
+      expect(updatedClaim.status).toBe("STARTED");
+      expect(updatedClaim.started_at).toBeDefined();
+    });
+
+    test("C2: STARTED → COMPLETED transition", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_008", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      await claimManager.markStarted(claim.claim_id, "worker_001");
+      const transitionResult = await claimManager.markCompleted(
+        claim.claim_id,
+        "worker_001",
+        "Success"
+      );
+
+      expect(transitionResult.transitioned).toBe(true);
+
+      const updatedClaim = await claimManager.getClaim(claim.claim_id);
+      expect(updatedClaim.status).toBe("COMPLETED");
+      expect(updatedClaim.completed_at).toBeDefined();
+      expect(updatedClaim.result_summary).toBe("Success");
+    });
+
+    test("C3: STARTED → FAILED transition", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_009", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      await claimManager.markStarted(claim.claim_id, "worker_001");
+      const transitionResult = await claimManager.markFailed(
+        claim.claim_id,
+        "worker_001",
+        "Execution error"
+      );
+
+      expect(transitionResult.transitioned).toBe(true);
+
+      const updatedClaim = await claimManager.getClaim(claim.claim_id);
+      expect(updatedClaim.status).toBe("FAILED");
+      expect(updatedClaim.completed_at).toBeDefined();
+      expect(updatedClaim.error_message).toBe("Execution error");
+    });
+
+    test("C4: Non-owner cannot transition claim", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_010", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      const db = stateGraph.db;
+      db.prepare(`
+        INSERT INTO scheduler_workers (worker_id, status, started_at, heartbeat_at)
+        VALUES (?, 'ACTIVE', datetime('now'), datetime('now'))
+      `).run("worker_002");
+
+      const transitionResult = await claimManager.markStarted(claim.claim_id, "worker_002");
+
+      expect(transitionResult.transitioned).toBe(false);
+    });
+
+    test("C5: COMPLETED claim cannot transition again", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_011", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      await claimManager.markStarted(claim.claim_id, "worker_001");
+      await claimManager.markCompleted(claim.claim_id, "worker_001", "Success");
+
+      const transitionResult = await claimManager.markStarted(claim.claim_id, "worker_001");
+
+      expect(transitionResult.transitioned).toBe(false);
+    });
+  });
+
+  describe("Category D: Claim Queries", () => {
+    test("D1: Get claim by ID", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_012", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      const retrieved = await claimManager.getClaim(claim.claim_id);
+
+      expect(retrieved).not.toBeNull();
+      expect(retrieved.claim_id).toBe(claim.claim_id);
+      expect(retrieved.queue_item_id).toBe("queue_012");
+    });
+
+    test("D2: Get claim by execution key", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_013", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      const retrieved = await claimManager.getClaimByExecutionKey(claim.execution_key);
+
+      expect(retrieved).not.toBeNull();
+      expect(retrieved.claim_id).toBe(claim.claim_id);
+    });
+
+    test("D3: Get active claim for queue item", async () => {
+      await claimManager.acquireClaim("queue_014", 1, "worker_001");
+
+      const activeClaim = await claimManager.getActiveClaim("queue_014");
+
+      expect(activeClaim).not.toBeNull();
+      expect(activeClaim.status).toBe("CLAIMED");
+    });
+
+    test("D4: List all claims by queue item", async () => {
+      await claimManager.acquireClaim("queue_015", 1, "worker_001");
+      await claimManager.acquireClaim("queue_015", 2, "worker_001");
+      await claimManager.acquireClaim("queue_015", 3, "worker_001");
+
+      const claims = await claimManager.listClaimsByQueueItem("queue_015");
+
+      expect(claims.length).toBe(3);
+      expect(claims[0].attempt_number).toBe(3); // DESC order
+      expect(claims[1].attempt_number).toBe(2);
+      expect(claims[2].attempt_number).toBe(1);
+    });
+
+    test("D5: List claims by worker", async () => {
+      await claimManager.acquireClaim("queue_016", 1, "worker_001");
+      await claimManager.acquireClaim("queue_017", 1, "worker_001");
+
+      const claims = await claimManager.listClaimsByWorker("worker_001");
+
+      expect(claims.length).toBeGreaterThanOrEqual(2);
+    });
+
+    test("D6: List claims by worker and status", async () => {
+      const claim1 = await claimManager.acquireClaim("queue_018", 1, "worker_001");
+      const claim2 = await claimManager.acquireClaim("queue_019", 1, "worker_001");
+
+      await claimManager.markStarted(claim1.claim.claim_id, "worker_001");
+
+      const startedClaims = await claimManager.listClaimsByWorker("worker_001", "STARTED");
+
+      expect(startedClaims.length).toBeGreaterThanOrEqual(1);
+      expect(startedClaims.every((c) => c.status === "STARTED")).toBe(true);
+    });
+  });
+
+  describe("Category E: Abandoned Claim Detection", () => {
+    test("E1: Recent claim not detected as abandoned", async () => {
+      await claimManager.acquireClaim("queue_020", 1, "worker_001");
+
+      const abandoned = await claimManager.findAbandonedClaims(10000); // 10s threshold
+
+      expect(abandoned.length).toBe(0);
+    });
+
+    test("E2: Old claim detected as abandoned", async () => {
+      const db = stateGraph.db;
+
+      // Insert old claim (backdated)
+      const oldTimestamp = new Date(Date.now() - 400000).toISOString(); // 6.67 minutes ago
+      const executionKey = claimManager.generateExecutionKey("queue_021", 1);
+
+      db.prepare(`
+        INSERT INTO execution_claims (
+          claim_id, queue_item_id, execution_key, attempt_number,
+          worker_id, status, claimed_at, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        "old_claim_001",
+        "queue_021",
+        executionKey,
+        1,
+        "worker_001",
+        "CLAIMED",
+        oldTimestamp,
+        oldTimestamp,
+        oldTimestamp
+      );
+
+      const abandoned = await claimManager.findAbandonedClaims(300000); // 5 min threshold
+
+      expect(abandoned.length).toBeGreaterThan(0);
+      expect(abandoned.some((c) => c.claim_id === "old_claim_001")).toBe(true);
+    });
+
+    test("E3: Mark claim as ABANDONED", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_022", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      await claimManager.markAbandoned(claim.claim_id, "Test abandonment");
+
+      const updatedClaim = await claimManager.getClaim(claim.claim_id);
+      expect(updatedClaim.status).toBe("ABANDONED");
+      expect(updatedClaim.error_message).toBe("Test abandonment");
+    });
+
+    test("E4: COMPLETED claim not marked as abandoned", async () => {
+      const acquireResult = await claimManager.acquireClaim("queue_023", 1, "worker_001");
+      const claim = acquireResult.claim;
+
+      await claimManager.markStarted(claim.claim_id, "worker_001");
+      await claimManager.markCompleted(claim.claim_id, "worker_001", "Success");
+
+      await claimManager.markAbandoned(claim.claim_id, "Should not change");
+
+      const updatedClaim = await claimManager.getClaim(claim.claim_id);
+      expect(updatedClaim.status).toBe("COMPLETED"); // Not ABANDONED
+    });
+  });
+
+  describe("Category F: Integration with ExpiryDetector", () => {
+    test("F1: ExpiryDetector marks abandoned claims", async () => {
+      const { ExpiryDetector } = require("../../lib/queue/expiry-detector");
+
+      const db = stateGraph.db;
+
+      // Insert old claim
+      const oldTimestamp = new Date(Date.now() - 400000).toISOString();
+      const executionKey = claimManager.generateExecutionKey("queue_024", 1);
+
+      db.prepare(`
+        INSERT INTO execution_claims (
+          claim_id, queue_item_id, execution_key, attempt_number,
+          worker_id, status, claimed_at, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        "old_claim_002",
+        "queue_024",
+        executionKey,
+        1,
+        "worker_001",
+        "CLAIMED",
+        oldTimestamp,
+        oldTimestamp,
+        oldTimestamp
+      );
+
+      const detector = new ExpiryDetector(1000);
+      detector["abandonedClaimThresholdMs"] = 300000; // 5 min
+      await detector.detectOnce();
+
+      const claim = await claimManager.getClaim("old_claim_002");
+      expect(claim.status).toBe("ABANDONED");
+    });
+  });
+});
+_claim_002",
+        "queue_024",
+        executionKey,
+        1,
+        "worker_001",
+        "CLAIMED",
+        oldTimestamp,
+        oldTimestamp,
+        oldTimestamp
+      );
+
+      const detector = new ExpiryDetector(1000);
+      detector["abandonedClaimThresholdMs"] = 300000; // 5 min
+      await detector.detectOnce();
+
+      const claim = await claimManager.getClaim("old_claim_002");
+      expect(claim.status).toBe("ABANDONED");
+    });
+  });
+});

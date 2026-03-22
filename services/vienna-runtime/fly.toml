@@ -13,7 +13,7 @@ primary_region = 'iad'
   HOST = '0.0.0.0'
   NODE_ENV = 'production'
   PORT = '3100'
-  CORS_ORIGIN = 'https://vienna-os.fly.dev,https://vienna-core.vercel.app'
+  CORS_ORIGIN = 'https://vienna-os.fly.dev,https://vienna-core.vercel.app,https://regulator.ai'
 
 [http_service]
   internal_port = 3100

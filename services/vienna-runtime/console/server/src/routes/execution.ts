@@ -1,0 +1,431 @@
+/**
+ * Execution Routes
+ * 
+ * GET    /api/v1/execution/active
+ * GET    /api/v1/execution/queue
+ * GET    /api/v1/execution/blocked
+ * GET    /api/v1/execution/metrics
+ * GET    /api/v1/execution/health
+ * GET    /api/v1/execution/integrity
+ * POST   /api/v1/execution/pause
+ * POST   /api/v1/execution/resume
+ * POST   /api/v1/execution/integrity-check
+ * POST   /api/v1/execution/emergency-override
+ */
+
+import { Router, Request, Response } from 'express';
+import { ViennaRuntimeService } from '../services/viennaRuntime.js';
+import type {
+  SuccessResponse,
+  ErrorResponse,
+  EnvelopeExecution,
+  QueueSnapshot,
+  ExecutionMetrics,
+  HealthSnapshot,
+  IntegritySnapshot,
+  PauseExecutionRequest,
+  PauseExecutionResponse,
+  ResumeExecutionRequest,
+  ResumeExecutionResponse,
+  IntegrityCheckRequest,
+  IntegrityCheckResponse,
+  EmergencyOverrideRequest,
+  EmergencyOverrideResponse,
+} from '../types/api.js';
+
+export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
+  const router = Router();
+
+  /**
+   * GET /api/v1/execution/active
+   * Get currently executing envelopes
+   */
+  router.get('/active', async (req: Request, res: Response) => {
+    try {
+      const envelopes = await vienna.getActiveEnvelopes();
+      
+      const response: SuccessResponse<EnvelopeExecution[]> = {
+        success: true,
+        data: envelopes,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'ACTIVE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/queue
+   * Get queue state snapshot
+   */
+  router.get('/queue', async (req: Request, res: Response) => {
+    try {
+      const queue = await vienna.getQueueState();
+      
+      const response: SuccessResponse<QueueSnapshot> = {
+        success: true,
+        data: queue,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'QUEUE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/blocked
+   * Get blocked envelopes
+   */
+  router.get('/blocked', async (req: Request, res: Response) => {
+    try {
+      const blocked = await vienna.getBlockedEnvelopes();
+      
+      const response: SuccessResponse<EnvelopeExecution[]> = {
+        success: true,
+        data: blocked,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'BLOCKED_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/metrics
+   * Get execution metrics
+   */
+  router.get('/metrics', async (req: Request, res: Response) => {
+    try {
+      const metrics = await vienna.getExecutionMetrics();
+      
+      const response: SuccessResponse<ExecutionMetrics> = {
+        success: true,
+        data: metrics,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'METRICS_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/health
+   * Get health snapshot
+   */
+  router.get('/health', async (req: Request, res: Response) => {
+    try {
+      const health = await vienna.getHealth();
+      
+      const response: SuccessResponse<HealthSnapshot> = {
+        success: true,
+        data: health,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'HEALTH_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/integrity
+   * Get integrity snapshot (cached)
+   */
+  router.get('/integrity', async (req: Request, res: Response) => {
+    try {
+      // Return cached integrity check result
+      // For manual trigger, use POST /api/v1/execution/integrity-check
+      const integrity = await vienna.checkIntegrity('system');
+      
+      const response: SuccessResponse<IntegritySnapshot> = {
+        success: true,
+        data: integrity,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'INTEGRITY_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * POST /api/v1/execution/pause
+   * Pause execution
+   */
+  router.post('/pause', async (req: Request, res: Response) => {
+    try {
+      const request: PauseExecutionRequest = req.body;
+      
+      if (!request.operator || !request.reason) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Missing required fields: operator, reason',
+          code: 'INVALID_REQUEST',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+      
+      const result = await vienna.pauseExecution(request);
+      
+      const responseData: PauseExecutionResponse = {
+        success: true,
+        paused_at: result.paused_at,
+        queued_envelopes_paused: result.queued_envelopes_paused,
+      };
+      
+      const response: SuccessResponse<PauseExecutionResponse> = {
+        success: true,
+        data: responseData,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'PAUSE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * POST /api/v1/execution/resume
+   * Resume execution
+   */
+  router.post('/resume', async (req: Request, res: Response) => {
+    try {
+      const request: ResumeExecutionRequest = req.body;
+      
+      if (!request.operator) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Missing required field: operator',
+          code: 'INVALID_REQUEST',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+      
+      const result = await vienna.resumeExecution(request);
+      
+      const responseData: ResumeExecutionResponse = {
+        success: true,
+        resumed_at: result.resumed_at,
+        envelopes_resumed: result.envelopes_resumed,
+      };
+      
+      const response: SuccessResponse<ResumeExecutionResponse> = {
+        success: true,
+        data: responseData,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'RESUME_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * POST /api/v1/execution/integrity-check
+   * Manually trigger integrity check
+   */
+  router.post('/integrity-check', async (req: Request, res: Response) => {
+    try {
+      const request: IntegrityCheckRequest = req.body;
+      
+      if (!request.operator) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Missing required field: operator',
+          code: 'INVALID_REQUEST',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+      
+      const integrity = await vienna.checkIntegrity(request.operator);
+      
+      const responseData: IntegrityCheckResponse = {
+        success: true,
+        integrity,
+        checked_at: new Date().toISOString(),
+      };
+      
+      const response: SuccessResponse<IntegrityCheckResponse> = {
+        success: true,
+        data: responseData,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'INTEGRITY_CHECK_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * POST /api/v1/execution/emergency-override
+   * Activate emergency trading guard override
+   * 
+   * CRITICAL: Requires Metternich approval
+   * Max duration: 60 minutes
+   * Trading guard bypass only
+   * Full audit trail required
+   */
+  router.post('/emergency-override', async (req: Request, res: Response) => {
+    try {
+      const request: EmergencyOverrideRequest = req.body;
+      
+      // Validate required fields
+      if (!request.operator || !request.reason || !request.metternich_approval_id) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Missing required fields: operator, reason, metternich_approval_id',
+          code: 'INVALID_REQUEST',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+      
+      // Validate duration
+      if (!request.duration_minutes || request.duration_minutes > 60 || request.duration_minutes < 1) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Duration must be between 1 and 60 minutes',
+          code: 'INVALID_DURATION',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+      
+      const result = await vienna.activateEmergencyOverride(request);
+      
+      const responseData: EmergencyOverrideResponse = {
+        success: true,
+        override_id: result.override_id,
+        activated_at: result.activated_at,
+        expires_at: result.expires_at,
+        audit_event_id: result.audit_event_id,
+      };
+      
+      const response: SuccessResponse<EmergencyOverrideResponse> = {
+        success: true,
+        data: responseData,
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'OVERRIDE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * GET /api/v1/execution/envelopes/:id/lineage
+   * Get envelope lineage chain (Phase 3E)
+   */
+  router.get('/envelopes/:id/lineage', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      const lineage = await vienna.getEnvelopeLineage(id);
+      
+      const response: SuccessResponse<{ envelope_id: string; lineage: any[] }> = {
+        success: true,
+        data: {
+          envelope_id: id,
+          lineage,
+        },
+        timestamp: new Date().toISOString(),
+      };
+      
+      res.json(response);
+    } catch (error) {
+      console.error('[ExecutionRoute] Error fetching lineage:', error);
+      
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'ENVELOPE_LINEAGE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  return router;
+}

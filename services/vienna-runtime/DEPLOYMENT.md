@@ -1,620 +1,602 @@
-# Vienna Runtime Deployment Guide (Stage 6)
+# Vienna OS Deployment Guide
 
-**Date:** 2026-03-14  
-**Platform:** Fly.io  
-**Status:** ✅ CONFIGURATION READY
-
----
-
-## Overview
-
-Vienna Runtime is deployed as a containerized service on Fly.io with support for both preview (development) and production (scaled) configurations.
-
-**Deployment architecture:**
-```
-GitHub Repo
-  ↓
-Docker Build (Dockerfile)
-  ↓
-Fly.io Registry
-  ↓
-Fly.io Container Runtime
-  ↓
-Vienna Persistent Volume (/app/data)
-  ↓
-Neon Postgres (production) or SQLite (preview)
-  ↓
-S3 Artifact Storage (production) or Filesystem (preview)
-```
+**Version:** 2.0.0  
+**Status:** Production Ready  
+**Last Updated:** 2026-03-21
 
 ---
 
-## Build Steps
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 22+ (for local validation)
-- Docker (for local testing)
-- Fly.io CLI (`flyctl` installed)
-- Fly.io account and app created
+- Node.js 18+ (recommended: 22.x)
+- npm or pnpm
+- SQLite 3
+- Git
 
-### Local Build
+### Local Development
 
-**Build image:**
 ```bash
-cd services/vienna-runtime
+# Clone repository
+git clone https://github.com/MaxAnderson-code/vienna-os.git
+cd vienna-os
 
-# Build with Docker
-docker build -t vienna-runtime:latest .
+# Install dependencies
+npm install
 
-# Test locally
-docker run \
-  -p 4001:4001 \
-  -e PORT=4001 \
-  -e NODE_ENV=development \
-  -e ARTIFACT_STORAGE_TYPE=filesystem \
-  -v $(pwd)/data:/app/data \
-  vienna-runtime:latest
+# Start development servers
+npm run dev
 
-# Check health
-curl http://localhost:4001/health
+# Or start separately
+npm run dev:server  # Backend on http://localhost:3100
+npm run dev:client  # Frontend on http://localhost:5174
 ```
 
-### Fly.io Build
+### Build for Production
 
-**Fly.io automatically builds from Dockerfile:**
 ```bash
-# First time: initialize app
-fly launch --no-deploy
+# Build both frontend and backend
+npm run build
 
-# Check app exists
-fly apps list | grep vienna-runtime
+# Or build separately
+npm run build:client
+npm run build:server
+
+# Start production server
+npm start
+```
+
+---
+
+## Deployment Options
+
+### Option 1: Fly.io (Recommended)
+
+**Best for:** Full Node.js runtime, persistent storage, background processes
+
+#### Prerequisites
+```bash
+# Install Fly CLI
+curl -L https://fly.io/install.sh | sh
+export PATH="$HOME/.fly/bin:$PATH"
+
+# Authenticate
+flyctl auth login
+```
+
+#### Deploy
+
+```bash
+# Create app (first time only)
+flyctl apps create vienna-os
+
+# Create persistent volume for SQLite
+flyctl volumes create vienna_data --size 10 --region iad
+
+# Set secrets
+flyctl secrets set \
+  VIENNA_OPERATOR_PASSWORD="your-secure-password" \
+  VIENNA_SESSION_SECRET="$(openssl rand -hex 32)" \
+  ANTHROPIC_API_KEY="your-anthropic-key"
 
 # Deploy
-fly deploy
-```
-
----
-
-## Deploy Steps
-
-### 1. Create Fly App (First Time Only)
-
-```bash
-cd services/vienna-runtime
-
-# Initialize Fly app
-fly launch --no-deploy
-
-# This creates:
-# - fly.toml configuration
-# - App in Fly.io dashboard
-# - Does NOT deploy yet
-```
-
-### 2. Create Persistent Volume (First Time Only)
-
-```bash
-# Create 10GB persistent volume for SQLite + artifacts (preview)
-fly volumes create vienna_data \
-  --region iad \
-  --size 10
-
-# Production: consider larger volume
-fly volumes create vienna_data \
-  --region iad \
-  --size 50  # 50GB for production artifacts
-```
-
-**Verify volume created:**
-```bash
-fly volumes list
-```
-
-### 3. Configure Secrets
-
-**Required secrets for deployment:**
-
-```bash
-# Basic runtime config
-fly secrets set PORT=4001
-fly secrets set NODE_ENV=production
-
-# Artifact storage (preview uses filesystem)
-fly secrets set ARTIFACT_STORAGE_TYPE=filesystem
-
-# Or for production (S3)
-fly secrets set ARTIFACT_STORAGE_TYPE=s3
-fly secrets set AWS_S3_BUCKET=vienna-artifacts-prod
-fly secrets set AWS_REGION=us-east-1
-fly secrets set AWS_ACCESS_KEY_ID=<your-key>
-fly secrets set AWS_SECRET_ACCESS_KEY=<your-secret>
-
-# Database (preview uses SQLite)
-# (No DATABASE_URL needed, defaults to SQLite)
-
-# Or for production (Neon Postgres)
-fly secrets set DATABASE_URL=postgresql://user:pass@ep-name.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
-
-# CORS configuration (point to your shell domain)
-fly secrets set CORS_ORIGINS=https://your-app.vercel.app,https://your-app-staging.vercel.app
-```
-
-**View secrets:**
-```bash
-fly secrets list
-```
-
-### 4. Deploy to Fly.io
-
-```bash
-# Initial deployment
-fly deploy
-
-# Or deploy specific image
-fly deploy --image ghcr.io/your-org/vienna-runtime:latest
-
-# Check deployment progress
-fly status
-
-# View recent logs
-fly logs --lines 100
-```
-
-**Verify deployment:**
-```bash
-# Check app is running
-fly status
-
-# Check health endpoint
-fly ssh console -C "curl http://localhost:4001/health"
-
-# Or from outside
-curl https://vienna-runtime.fly.dev/health
-```
-
-### 5. Configure Shell Runtime URL
-
-In the product shell (Vercel), set environment variable:
-
-```bash
-# .env.production
-VIENNA_RUNTIME_URL=https://vienna-runtime.fly.dev
-
-# Or your custom domain
-VIENNA_RUNTIME_URL=https://runtime.your-domain.com
-```
-
-Then redeploy product shell:
-```bash
-# Vercel will redeploy with new VIENNA_RUNTIME_URL
-git push origin main
-```
-
----
-
-## Required Secrets
-
-| Secret | Required | Example | Notes |
-|--------|----------|---------|-------|
-| `PORT` | ✅ | `3001` | Runtime port |
-| `NODE_ENV` | ✅ | `production` | Environment mode |
-| `ARTIFACT_STORAGE_TYPE` | ✅ | `filesystem` or `s3` | Storage backend |
-| `DATABASE_URL` | ❌ | `postgresql://...` | Neon (production only) |
-| `AWS_S3_BUCKET` | ❌* | `vienna-artifacts` | S3 bucket name |
-| `AWS_REGION` | ❌* | `us-east-1` | AWS region |
-| `AWS_ACCESS_KEY_ID` | ❌* | `AKIAIOSFODNN7EXAMPLE` | AWS credentials |
-| `AWS_SECRET_ACCESS_KEY` | ❌* | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` | AWS credentials |
-| `CORS_ORIGINS` | ❌ | `https://app.vercel.app` | Browser CORS whitelist |
-
-*Required only if `ARTIFACT_STORAGE_TYPE=s3`
-
----
-
-## Environment Variables
-
-### Database Configuration
-
-**Preview (SQLite):**
-```bash
-# No DATABASE_URL needed
-# SQLite created automatically at /app/data/vienna.db
-```
-
-**Production (Postgres):**
-```bash
-DATABASE_URL=postgresql://neondb_owner:PASSWORD@ep-purple-smoke.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require
-```
-
-### Artifact Storage Configuration
-
-**Preview (Filesystem):**
-```bash
-ARTIFACT_STORAGE_TYPE=filesystem
-# Files stored in /app/data/artifacts/
-```
-
-**Production (S3):**
-```bash
-ARTIFACT_STORAGE_TYPE=s3
-AWS_S3_BUCKET=vienna-artifacts
-AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=<key>
-AWS_SECRET_ACCESS_KEY=<secret>
-```
-
-### Optional Configuration
-
-```bash
-# CORS origins (comma-separated)
-CORS_ORIGINS=https://app.vercel.app,https://staging.vercel.app
-
-# Logging level
-LOG_LEVEL=info  # error|warn|info|debug
-```
-
----
-
-## Health Checks
-
-### Endpoint
-
-**GET** `/health`
-
-**Response (healthy):**
-```json
-{
-  "status": "healthy",
-  "version": "1.0.0",
-  "uptime_seconds": 3600,
-  "components": {
-    "state_graph": {
-      "status": "healthy",
-      "type": "sqlite",
-      "configured": true,
-      "path": "/app/data/vienna.db"
-    },
-    "artifact_storage": {
-      "status": "healthy",
-      "disk_usage": "N/A (dev mode)"
-    }
-  }
-}
-```
-
-**Response (degraded - Postgres unavailable):**
-```json
-{
-  "status": "degraded",
-  "version": "1.0.0",
-  "uptime_seconds": 3600,
-  "components": {
-    "state_graph": {
-      "status": "unhealthy",
-      "type": "postgres",
-      "configured": true
-    }
-  }
-}
-```
-
-### Fly.io Health Check Configuration
-
-Defined in `fly.toml`:
-```toml
-[[services.http_checks]]
-  protocol = "http"
-  method = "GET"
-  path = "/health"
-  interval = "30s"
-  timeout = "10s"
-  grace_period = "5s"
-```
-
-**Behavior:**
-- Every 30 seconds, Fly.io requests `/health`
-- Expects 200 status within 10 seconds
-- Gives container 5 seconds to start before checking
-- Automatically restarts if unhealthy for threshold period
-
----
-
-## Smoke Tests
-
-### Local Testing (Pre-deployment)
-
-```bash
-# 1. Build Docker image
-docker build -t vienna-runtime:test .
-
-# 2. Run container
-docker run -d \
-  --name vienna-test \
-  -p 4001:4001 \
-  -e PORT=4001 \
-  -e NODE_ENV=development \
-  -e ARTIFACT_STORAGE_TYPE=filesystem \
-  -v $(pwd)/data:/app/data \
-  vienna-runtime:test
-
-# 3. Wait for startup
-sleep 3
-
-# 4. Check health
-curl http://localhost:4001/health
-
-# 5. Test investigations list
-curl http://localhost:4001/api/investigations
-
-# 6. Check logs
-docker logs vienna-test
-
-# 7. Cleanup
-docker stop vienna-test
-docker rm vienna-test
-```
-
-### Post-deployment Testing
-
-```bash
-# 1. Check app status
-fly status
-
-# 2. Tail logs
-fly logs --lines 50
-
-# 3. SSH into container
-fly ssh console
-
-# 4. Inside container, check processes
-ps aux
-
-# 5. Check health endpoint
-curl http://localhost:4001/health
-
-# 6. Exit SSH
-exit
-
-# 7. Test from outside
-curl https://vienna-runtime.fly.dev/health
-
-# 8. Test with auth (shell will include header)
-curl -H "Authorization: Bearer <token>" \
-  https://vienna-runtime.fly.dev/api/investigations
-```
-
-### Full End-to-End Test
-
-```bash
-# 1. Deploy shell with VIENNA_RUNTIME_URL pointing to Fly app
-# 2. Access shell at https://your-app.vercel.app
-# 3. Navigate to /workspace/investigations
-# 4. Should see investigations loaded from runtime
-# 5. Click detail to load single investigation
-# 6. Check shell network tab confirms requests to runtime
-# 7. Check runtime health remains "healthy"
-```
-
----
-
-## Rollback Notes
-
-### Rollback to Previous Deployment
-
-**Fly.io keeps recent deployments:**
-```bash
-# List recent deployments
-fly releases list
-
-# Rollback to specific release
-fly releases rollback <release-version>
-
-# Or rollback one version back
-fly releases rollback -v 1
-```
-
-### Data Safety During Rollback
-
-- **Persistent volume** (`/app/data`) persists across rollbacks
-- SQLite database and artifacts are never lost
-- Rollback is safe for state recovery
-
-### Manual Rollback Steps
-
-1. **If deployment fails but old version running:**
-   ```bash
-   fly releases rollback
-   ```
-
-2. **If bad data in SQLite, restore from backup:**
-   ```bash
-   # SSH into container
-   fly ssh console
-   
-   # Stop app
-   kill <pid>
-   
-   # Restore backup
-   cp /app/data/vienna.db.backup /app/data/vienna.db
-   
-   # Restart
-   fly apps restart
-   ```
-
-3. **If S3 corrupted, restore from S3 versioning:**
-   ```bash
-   # Via AWS console or CLI
-   aws s3api list-object-versions \
-     --bucket vienna-artifacts \
-     --prefix artifacts/
-   
-   # Restore old version
-   aws s3api copy-object \
-     --bucket vienna-artifacts \
-     --copy-source vienna-artifacts/artifacts/id?versionId=XXX \
-     --key artifacts/id
-   ```
-
----
-
-## Scale and Resize
-
-### Increase Resources
-
-```bash
-# Check current VM size
-fly status -d
-
-# Resize to larger VM
-fly scale vm performance-2
-
-# Or back to standard
-fly scale vm shared-cpu-2x
-```
-
-### Add Additional Regions
-
-```bash
-# Deploy to additional region
-fly scale count 2 --region iad,lax
+flyctl deploy
 
 # Check status
-fly status
+flyctl status
+flyctl logs
 ```
 
-### Monitor Resource Usage
+#### Environment Variables (Fly.io)
 
-```bash
-fly status -d
-fly metrics
+**Required:**
+- `VIENNA_OPERATOR_PASSWORD` - Admin password
+- `VIENNA_SESSION_SECRET` - Session encryption key (32+ bytes)
+
+**Optional:**
+- `ANTHROPIC_API_KEY` - For AI features
+- `OLLAMA_BASE_URL` - Local Ollama endpoint
+- `DATABASE_PATH` - SQLite database path (default: `/app/runtime/prod/state/state.db`)
+
+#### Update fly.toml (if needed)
+
+```toml
+app = "your-app-name"  # Change this
+primary_region = "iad"  # Or your preferred region
+
+[mounts]
+  source = "vienna_data"
+  destination = "/app/runtime"
 ```
 
 ---
 
-## Monitoring and Alerts
+### Option 2: Vercel
 
-### Fly.io Monitoring
+**Best for:** Quick deployment, serverless, automatic HTTPS
 
-- **Dashboard:** https://fly.io/dashboard
-- **Metrics:** fly.io provides CPU, memory, network metrics
-- **Logs:** Accessible via `fly logs` CLI
+**Note:** Vercel has 10s timeout limit for serverless functions. For long-running operations, use Fly.io.
 
-### Health Monitoring
+#### Deploy
 
 ```bash
-# Continuous health check
-while true; do
-  curl -s https://vienna-runtime.fly.dev/health | jq .status
-  sleep 30
-done
+# Install Vercel CLI
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy
+vercel --prod
 ```
 
-### Recommended Observability (Future)
+#### Environment Variables (Vercel)
 
-- Sentry for error tracking
-- Prometheus for metrics
-- Datadog for observability
-- PagerDuty for alerts
+Set via Vercel dashboard or CLI:
+
+```bash
+vercel env add VIENNA_OPERATOR_PASSWORD production
+vercel env add VIENNA_SESSION_SECRET production
+vercel env add ANTHROPIC_API_KEY production
+```
+
+**Important:** Vercel uses ephemeral filesystem. Database resets on each deployment. Consider:
+- External database (Turso, PlanetScale)
+- Persistent volume service
+- Or use Fly.io for stateful deployments
+
+---
+
+### Option 3: Docker
+
+**Best for:** Any cloud provider, Kubernetes, self-hosting
+
+#### Build Image
+
+```bash
+# Build
+docker build -t vienna-os:latest .
+
+# Run
+docker run -d \
+  -p 3100:3100 \
+  -e VIENNA_OPERATOR_PASSWORD="your-password" \
+  -e VIENNA_SESSION_SECRET="$(openssl rand -hex 32)" \
+  -e ANTHROPIC_API_KEY="your-key" \
+  -v vienna-data:/app/runtime \
+  --name vienna-os \
+  vienna-os:latest
+
+# Check logs
+docker logs -f vienna-os
+
+# Health check
+curl http://localhost:3100/health
+```
+
+#### Docker Compose
+
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  vienna-os:
+    build: .
+    ports:
+      - "3100:3100"
+    environment:
+      - NODE_ENV=production
+      - VIENNA_OPERATOR_PASSWORD=${VIENNA_OPERATOR_PASSWORD}
+      - VIENNA_SESSION_SECRET=${VIENNA_SESSION_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - vienna-data:/app/runtime
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  vienna-data:
+```
+
+Run:
+```bash
+docker-compose up -d
+```
+
+---
+
+### Option 4: Railway
+
+**Best for:** Simple deployment, built-in database options
+
+#### Deploy
+
+1. Go to https://railway.app
+2. Create new project → "Deploy from GitHub repo"
+3. Select `vienna-os` repository
+4. Set environment variables:
+   - `VIENNA_OPERATOR_PASSWORD`
+   - `VIENNA_SESSION_SECRET`
+   - `ANTHROPIC_API_KEY`
+5. Deploy
+
+Railway will auto-detect the Dockerfile and deploy.
+
+---
+
+### Option 5: Render
+
+**Best for:** Free tier, PostgreSQL included
+
+#### Deploy
+
+1. Go to https://render.com
+2. New → Web Service
+3. Connect GitHub repository
+4. Configure:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+   - Environment: Docker (uses Dockerfile)
+5. Add environment variables
+6. Create service
+
+---
+
+## Environment Variables Reference
+
+### Required
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VIENNA_OPERATOR_PASSWORD` | Admin password for operator access | `P@ssw0rd123!` |
+| `VIENNA_SESSION_SECRET` | Session encryption key | `$(openssl rand -hex 32)` |
+
+### Optional
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NODE_ENV` | Environment mode | `production` |
+| `PORT` | Server port | `3100` |
+| `HOST` | Server host | `0.0.0.0` |
+| `ANTHROPIC_API_KEY` | Anthropic API key | - |
+| `OLLAMA_BASE_URL` | Ollama endpoint | `http://localhost:11434` |
+| `DATABASE_PATH` | SQLite database path | `/app/runtime/prod/state/state.db` |
+| `CORS_ORIGIN` | Allowed CORS origins | `*` |
+
+---
+
+## Post-Deployment
+
+### 1. Verify Health
+
+```bash
+# Check health endpoint
+curl https://your-domain.com/health
+
+# Expected response:
+{
+  "success": true,
+  "data": {
+    "runtime": { "status": "healthy" },
+    "providers": { "chat_available": true }
+  }
+}
+```
+
+### 2. Access Dashboard
+
+Navigate to: `https://your-domain.com`
+
+Login with your `VIENNA_OPERATOR_PASSWORD`
+
+### 3. Run Tests
+
+```bash
+# Unit tests
+npm test
+
+# Integration tests
+npm run test:integration
+
+# Phase validation tests
+npm run test:phase15
+npm run test:phase16
+npm run test:phase17
+```
+
+### 4. Monitor Logs
+
+**Fly.io:**
+```bash
+flyctl logs -a vienna-os
+```
+
+**Docker:**
+```bash
+docker logs -f vienna-os
+```
+
+**Vercel:**
+```bash
+vercel logs
+```
+
+---
+
+## Database Management
+
+### SQLite (Default)
+
+**Location:** `/app/runtime/prod/state/state.db`
+
+**Backup:**
+```bash
+# Fly.io
+flyctl ssh console -a vienna-os
+sqlite3 /app/runtime/prod/state/state.db ".backup /tmp/backup.db"
+flyctl sftp get /tmp/backup.db ./backup-$(date +%Y%m%d).db
+
+# Docker
+docker exec vienna-os sqlite3 /app/runtime/prod/state/state.db ".backup /tmp/backup.db"
+docker cp vienna-os:/tmp/backup.db ./backup-$(date +%Y%m%d).db
+```
+
+**Restore:**
+```bash
+# Fly.io
+flyctl sftp put backup.db /app/runtime/prod/state/state.db
+
+# Docker
+docker cp backup.db vienna-os:/app/runtime/prod/state/state.db
+docker restart vienna-os
+```
+
+### Migrations
+
+Migrations run automatically on startup. Located in:
+- `lib/state/migrations/`
+
+To run manually:
+```bash
+node scripts/run-migrations.js
+```
+
+---
+
+## Scaling
+
+### Fly.io
+
+**Horizontal scaling:**
+```bash
+flyctl scale count 3 -a vienna-os
+```
+
+**Vertical scaling:**
+```bash
+flyctl scale vm shared-cpu-2x -a vienna-os
+flyctl scale memory 4096 -a vienna-os
+```
+
+### Docker
+
+**Multiple instances with load balancer:**
+
+Update `docker-compose.yml`:
+```yaml
+services:
+  vienna-os:
+    deploy:
+      replicas: 3
+  
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - vienna-os
+```
+
+---
+
+## Security Checklist
+
+- [ ] Strong `VIENNA_OPERATOR_PASSWORD` set
+- [ ] Unique `VIENNA_SESSION_SECRET` (32+ bytes)
+- [ ] HTTPS enabled
+- [ ] Firewall configured (only ports 80, 443 open)
+- [ ] Database backups automated
+- [ ] Environment variables stored securely (not in code)
+- [ ] CORS origins restricted in production
+- [ ] Regular security updates scheduled
 
 ---
 
 ## Troubleshooting
 
-### Container Won't Start
+### Application won't start
 
+**Check:**
+1. Environment variables set correctly
+2. Port 3100 not already in use
+3. Node.js version ≥18
+4. Dependencies installed: `npm install`
+
+**Logs:**
 ```bash
-# Check logs
-fly logs --lines 100
+# Fly.io
+flyctl logs -a vienna-os
 
-# SSH in to debug
-fly ssh console
+# Docker
+docker logs vienna-os
 
-# Check environment variables
-env | grep -E 'DATABASE|ARTIFACT|AWS'
-
-# Check file permissions
-ls -la /app/data
+# Local
+npm start 2>&1 | tee error.log
 ```
 
-### Health Check Failing
+### Database locked errors
+
+**Solution:**
+- Ensure only one instance accessing SQLite
+- Use external database for multi-instance deployments
+- Check file permissions
+
+### Health check failing
+
+**Check:**
+1. Server is running: `curl http://localhost:3100/health`
+2. Database is accessible
+3. Required environment variables set
+
+### Out of memory
+
+**Solutions:**
+- Increase memory allocation (Fly.io: `flyctl scale memory 2048`)
+- Optimize queries
+- Enable database connection pooling
+
+---
+
+## Performance Optimization
+
+### Recommended Settings
+
+**Fly.io:**
+- CPU: 2 shared cores minimum
+- Memory: 2048 MB minimum
+- Region: Closest to users
+
+**Docker:**
+- Memory limit: 2GB+
+- CPU limit: 2 cores+
+
+### Caching
+
+Vienna OS includes built-in caching for:
+- Warrant validation
+- Policy decisions
+- State graph queries
+
+No additional configuration needed.
+
+---
+
+## Monitoring
+
+### Built-in Endpoints
+
+- `/health` - Application health
+- `/api/v1/system/now` - System status
+- `/api/v1/managed-objectives` - Objectives status
+
+### Recommended Monitoring
+
+**Fly.io:**
+- Built-in metrics dashboard
+- `flyctl metrics -a vienna-os`
+
+**External:**
+- Sentry (error tracking)
+- Datadog (APM)
+- Prometheus + Grafana
+
+---
+
+## Backup Strategy
+
+### Recommended Schedule
+
+- **Hourly:** Database snapshots (retain 24)
+- **Daily:** Full backups (retain 7)
+- **Weekly:** Long-term archives (retain 4)
+
+### Automated Backup Script
 
 ```bash
-# Check health endpoint manually
-curl https://vienna-runtime.fly.dev/health
+#!/bin/bash
+# backup-vienna.sh
 
-# Check if Postgres connection works (if using Postgres)
-fly ssh console -C "curl postgresql://..."
+DATE=$(date +%Y%m%d-%H%M%S)
+BACKUP_DIR="/backups/vienna"
+mkdir -p "$BACKUP_DIR"
 
-# Check S3 connectivity (if using S3)
-fly ssh console -C "aws s3 ls"
+# Backup database
+sqlite3 /app/runtime/prod/state/state.db ".backup $BACKUP_DIR/vienna-$DATE.db"
+
+# Compress
+gzip "$BACKUP_DIR/vienna-$DATE.db"
+
+# Retain last 7 days
+find "$BACKUP_DIR" -name "vienna-*.db.gz" -mtime +7 -delete
+
+echo "Backup complete: vienna-$DATE.db.gz"
 ```
 
-### Performance Issues
-
+Add to cron:
 ```bash
-# Check CPU/memory usage
-fly metrics
-
-# View request logs
-fly logs --lines 200
-
-# Check slow queries
-fly ssh console
-# Inside: check process logs for slow operations
-```
-
-### Disk Space Issues
-
-```bash
-# Check volume usage
-fly volumes list
-
-# SSH in and check
-fly ssh console -C "df -h"
-
-# Remove old artifacts if needed
-fly ssh console -C "find /app/data/artifacts -mtime +30 -delete"
+0 * * * * /path/to/backup-vienna.sh
 ```
 
 ---
 
-## Production Checklist
+## Rollback Procedure
 
-Before promoting to production:
+### Fly.io
 
-- [ ] PostgreSQL connection tested
-- [ ] S3 bucket created and credentials configured
-- [ ] Environment variables set via `fly secrets`
-- [ ] Health endpoint returning 200
-- [ ] Smoke tests passing
-- [ ] CORS configured for production shell domain
-- [ ] Backups configured (if needed)
-- [ ] Monitoring/alerting set up
-- [ ] Team trained on rollback procedures
-- [ ] Runbook documented (this file)
+```bash
+# List releases
+flyctl releases -a vienna-os
+
+# Rollback to previous
+flyctl releases rollback <version> -a vienna-os
+```
+
+### Docker
+
+```bash
+# List images
+docker images vienna-os
+
+# Rollback
+docker stop vienna-os
+docker rm vienna-os
+docker run -d --name vienna-os vienna-os:<previous-tag>
+```
+
+### Database Rollback
+
+```bash
+# Restore from backup
+cp backup-YYYYMMDD.db /app/runtime/prod/state/state.db
+# Restart application
+```
 
 ---
 
-## Support & Escalation
+## Support
 
-**For Fly.io issues:**
-- Check Fly.io status: https://status.fly.io
-- Consult Fly.io docs: https://fly.io/docs
-- Contact Fly.io support
-
-**For Vienna Runtime issues:**
-- Check runtime logs: `fly logs`
-- Review OBSERVABILITY.md for logging details
-- File issue on GitHub
+**Documentation:** https://github.com/MaxAnderson-code/vienna-os  
+**Issues:** https://github.com/MaxAnderson-code/vienna-os/issues  
+**Security:** Report via GitHub Security tab
 
 ---
 
-## Next Steps
+## License
 
-1. **Create Fly app** (if not already done)
-2. **Create persistent volume**
-3. **Set secrets** for your environment
-4. **Deploy** via `fly deploy`
-5. **Test** health endpoint and workspace
-6. **Configure shell** with VIENNA_RUNTIME_URL
-7. **Monitor** health checks and logs
+MIT License - See LICENSE file
+
+---
+
+**Last Updated:** 2026-03-21  
+**Vienna OS Version:** 2.0.0  
+**Deployment Guide Version:** 1.0

@@ -1,0 +1,180 @@
+/**
+ * Circuit Breakers Panel Styles
+ */
+
+.circuit-breakers-panel {
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.circuit-breakers-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #374151;
+}
+
+.circuit-breakers-panel .panel-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #f3f4f6;
+}
+
+.breaker-count {
+  font-size: 12px;
+  color: #9ca3af;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.circuit-breakers-panel .panel-body {
+  padding: 0;
+}
+
+.breakers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.breakers-table thead {
+  background: #111827;
+}
+
+.breakers-table th {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: normal;
+  color: #9ca3af;
+  text-align: left;
+  border-bottom: 1px solid #374151;
+}
+
+.breakers-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #f3f4f6;
+  border-bottom: 1px solid #374151;
+}
+
+.breakers-table tbody tr:hover {
+  background: #111827;
+}
+
+.breakers-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.breaker-row.degraded {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.breaker-row.cooldown {
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.objective-cell {
+  font-family: 'Roboto Mono', monospace;
+}
+
+.objective-name {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.failure-reason {
+  font-size: 11px;
+  color: #9ca3af;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.failures-cell {
+  text-align: center;
+}
+
+.failure-count {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.failure-count.active {
+  color: #fbbf24;
+}
+
+.failure-count.cooldown {
+  color: #fbbf24;
+}
+
+.failure-count.degraded {
+  color: #ef4444;
+}
+
+.limit-cell {
+  text-align: center;
+}
+
+.attempts-remaining {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.attempts-exhausted {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.state-cell {
+  text-align: center;
+}
+
+.state-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 4px;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.state-badge.active {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.state-badge.cooldown {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.state-badge.degraded {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.empty-state .text-muted {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.error-state {
+  padding: 24px;
+  text-align: center;
+  color: #f87171;
+}

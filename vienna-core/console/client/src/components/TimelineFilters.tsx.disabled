@@ -1,0 +1,82 @@
+/**
+ * Timeline Filters Component
+ * Phase 5B: Objective Timeline View
+ * 
+ * Filter controls for timeline view.
+ */
+
+import React from 'react';
+import type { TimelineCategory, TimelineStatus } from '../hooks/useObjectiveTimeline.js';
+
+interface TimelineFiltersProps {
+  category: TimelineCategory | 'all';
+  status: TimelineStatus | 'all';
+  onCategoryChange: (category: TimelineCategory | 'all') => void;
+  onStatusChange: (status: TimelineStatus | 'all') => void;
+}
+
+export function TimelineFilters({
+  category,
+  status,
+  onCategoryChange,
+  onStatusChange,
+}: TimelineFiltersProps) {
+  return (
+    <div className="flex items-center gap-4 p-3 bg-gray-50 border-b border-gray-200">
+      {/* Category filter */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-gray-700">Category:</label>
+        <select
+          value={category}
+          onChange={(e) => onCategoryChange(e.target.value as TimelineCategory | 'all')}
+          className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All</option>
+          <option value="execution">Execution</option>
+          <option value="objective">Objective</option>
+          <option value="alert">Alerts</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+      
+      {/* Status filter */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium text-gray-700">Status:</label>
+        <select
+          value={status}
+          onChange={(e) => onStatusChange(e.target.value as TimelineStatus | 'all')}
+          className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="all">All</option>
+          <option value="info">Info</option>
+          <option value="running">Running</option>
+          <option value="success">Success</option>
+          <option value="warning">Warning</option>
+          <option value="error">Error</option>
+        </select>
+      </div>
+      
+      {/* Quick filters */}
+      <div className="flex items-center gap-2 ml-auto">
+        <button
+          onClick={() => {
+            onCategoryChange('all');
+            onStatusChange('error');
+          }}
+          className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+        >
+          Failures Only
+        </button>
+        <button
+          onClick={() => {
+            onCategoryChange('all');
+            onStatusChange('all');
+          }}
+          className="text-xs px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+        >
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  );
+}

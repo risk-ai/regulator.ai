@@ -1,0 +1,14 @@
+/**
+ * Vienna Console Global Styles
+ * Version 2.0 - 2026-03-14
+ */
+
+/* Import Vienna Design System */
+@import './styles/variables.css';
+@import './styles/base.css';
+@import './styles/presentation.css';
+
+/* Import Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

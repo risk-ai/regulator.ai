@@ -1,0 +1,359 @@
+/**
+ * Phase 7.2 Stage 1: State Graph Plumbing Tests
+ * 
+ * Validates dependency injection without activating writes.
+ * 
+ * Success criteria:
+ * 1. State Graph reference reaches all runtime components
+ * 2. Runtime boots normally with State Graph available
+ * 3. Runtime boots normally with State Graph unavailable
+ * 4. Prod/test environment selection correct
+ * 5. No operator-visible behavior changes
+ */
+
+const ViennaCore = require('../index');
+const { getStateGraph } = require('../lib/state/state-graph');
+const fs = require('fs');
+const path = require('path');
+
+describe('Phase 7.2 Stage 1 - State Graph Plumbing', () => {
+  let testDbPath;
+  
+  beforeEach(() => {
+    // Use test environment
+    process.env.VIENNA_ENV = 'test';
+    
+    // Clean test database if exists
+    testDbPath = path.join(
+      process.env.HOME,
+      '.openclaw',
+      'runtime',
+      'test',
+      'state',
+      'state-graph.db'
+    );
+    
+    if (fs.existsSync(testDbPath)) {
+      fs.unlinkSync(testDbPath);
+    }
+  });
+  
+  afterEach(() => {
+    // Clean up test database
+    if (fs.existsSync(testDbPath)) {
+      fs.unlinkSync(testDbPath);
+    }
+    
+    delete process.env.VIENNA_ENV;
+    delete process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES;
+  });
+  
+  describe('Dependency Injection', () => {
+    test('State Graph reference reaches ProviderHealthManager', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+      expect(vienna.providerHealthManager.stateGraph).toBe(vienna.stateGraph);
+    });
+    
+    test('State Graph reference reaches RuntimeModeManager', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+      expect(vienna.runtimeModeManager.stateGraph).toBe(vienna.stateGraph);
+    });
+    
+    test('State Graph reference reaches ObjectiveTracker', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+      expect(vienna.queuedExecutor.objectiveTracker.stateGraph).toBe(vienna.stateGraph);
+    });
+    
+    test('State Graph reference reaches all ServiceAdapter instances', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+      expect(vienna._serviceAdapters.length).toBeGreaterThan(0);
+      
+      for (const adapter of vienna._serviceAdapters) {
+        expect(adapter.stateGraph).toBe(vienna.stateGraph);
+      }
+    });
+  });
+  
+  describe('Boot Safety', () => {
+    test('Runtime boots successfully with State Graph available', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.isInitialized()).toBe(true);
+      expect(vienna.stateGraph).not.toBeNull();
+      expect(vienna.stateGraph.initialized).toBe(true);
+    });
+    
+    test('Runtime boots successfully with State Graph disabled', async () => {
+      process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES = 'false';
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.isInitialized()).toBe(true);
+      expect(vienna.stateGraph).toBeNull();
+    });
+    
+    test('Runtime continues if State Graph initialization fails', async () => {
+      // Force initialization failure by using invalid path
+      const originalGetStateGraph = require('../lib/state/state-graph').getStateGraph;
+      
+      // Mock getStateGraph to throw
+      jest.spyOn(require('../lib/state/state-graph'), 'getStateGraph').mockImplementation(() => {
+        throw new Error('Forced initialization failure');
+      });
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.isInitialized()).toBe(true);
+      expect(vienna.stateGraph).toBeNull();
+      
+      // Restore original
+      require('../lib/state/state-graph').getStateGraph.mockRestore();
+    });
+  });
+  
+  describe('Environment Isolation', () => {
+    test('Test environment uses test database path', async () => {
+      process.env.VIENNA_ENV = 'test';
+      
+      const stateGraph = getStateGraph();
+      await stateGraph.initialize();
+      
+      expect(stateGraph.dbPath).toContain('/runtime/test/state/');
+      expect(stateGraph.environment).toBe('test');
+      
+      stateGraph.close();
+    });
+    
+    test('Prod environment uses prod database path', async () => {
+      process.env.VIENNA_ENV = 'prod';
+      
+      const stateGraph = getStateGraph();
+      
+      expect(stateGraph.dbPath).toContain('/runtime/prod/state/');
+      expect(stateGraph.environment).toBe('prod');
+    });
+    
+    test('Default environment is prod', async () => {
+      delete process.env.VIENNA_ENV;
+      
+      const stateGraph = getStateGraph();
+      
+      expect(stateGraph.dbPath).toContain('/runtime/prod/state/');
+      expect(stateGraph.environment).toBe('prod');
+    });
+  });
+  
+  describe('No Behavioral Changes', () => {
+    test('ProviderHealthManager operates normally with State Graph', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      // Register a provider
+      vienna.providerHealthManager.registerProvider('test-provider', {});
+      
+      // Record success (should not crash with State Graph present)
+      await vienna.providerHealthManager.recordSuccess('test-provider');
+      
+      // Verify in-memory state updated
+      const state = vienna.providerHealthManager.providers.get('test-provider');
+      expect(state).toBeDefined();
+      expect(state.consecutiveSuccesses).toBe(1);
+    });
+    
+    test('RuntimeModeManager operates normally with State Graph', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      // Update mode (should not crash with State Graph present)
+      const providerHealth = new Map([['test', { status: 'healthy' }]]);
+      const transition = vienna.runtimeModeManager.updateMode(providerHealth, true);
+      
+      // No transition expected (already in normal mode)
+      expect(transition).toBeNull();
+    });
+    
+    test('ObjectiveTracker operates normally with State Graph', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      // Register objective (should not crash with State Graph present)
+      vienna.queuedExecutor.objectiveTracker.registerObjective('test-obj', 5);
+      
+      // Verify in-memory state
+      const obj = vienna.queuedExecutor.objectiveTracker.objectives.get('test-obj');
+      expect(obj).toBeDefined();
+      expect(obj.total_envelopes).toBe(5);
+    });
+    
+    test('ServiceAdapter operates normally with State Graph', async () => {
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      // Get a ServiceAdapter
+      const adapter = vienna._serviceAdapters[0];
+      
+      expect(adapter).toBeDefined();
+      expect(adapter.stateGraph).toBe(vienna.stateGraph);
+      
+      // Adapter should have execute method
+      expect(typeof adapter.execute).toBe('function');
+    });
+  });
+  
+  describe('Feature Flag Control', () => {
+    test('Feature flag enables State Graph', async () => {
+      process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES = 'true';
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+    });
+    
+    test('Feature flag disables State Graph', async () => {
+      process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES = 'false';
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).toBeNull();
+    });
+    
+    test('Default behavior enables State Graph', async () => {
+      delete process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES;
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      expect(vienna.stateGraph).not.toBeNull();
+    });
+  });
+  
+  describe('Null Safety', () => {
+    test('Components handle null State Graph gracefully', async () => {
+      process.env.VIENNA_ENABLE_STATE_GRAPH_WRITES = 'false';
+      
+      const vienna = ViennaCore;
+      
+      vienna.init({
+        adapter: 'openclaw',
+        workspace: '/tmp/test-workspace'
+      });
+      
+      await vienna.initPhase7_3();
+      
+      // All components should have null stateGraph
+      expect(vienna.providerHealthManager.stateGraph).toBeNull();
+      expect(vienna.runtimeModeManager.stateGraph).toBeNull();
+      expect(vienna.queuedExecutor.objectiveTracker.stateGraph).toBeNull();
+      
+      for (const adapter of vienna._serviceAdapters) {
+        expect(adapter.stateGraph).toBeNull();
+      }
+      
+      // Operations should still work
+      await vienna.providerHealthManager.recordSuccess('test-provider');
+      
+      expect(vienna.providerHealthManager.providers.get('test-provider')).toBeDefined();
+    });
+  });
+});

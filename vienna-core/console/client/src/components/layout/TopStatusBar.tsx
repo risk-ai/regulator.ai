@@ -2,11 +2,14 @@
  * Top Status Bar
  * 
  * Displays Vienna system health, execution state, queue depth, and connection status
+ * Phase 21-30: Enhanced with tenant and quota status
  */
 
 import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore.js';
 import { useAuthStore } from '../../store/authStore.js';
+import { TenantStatusBar } from './TenantStatusBar.js';
+import { QuotaStatusWidget } from '../dashboard/QuotaStatusWidget.js';
 
 export function TopStatusBar() {
   const systemStatus = useDashboardStore((state) => state.systemStatus);
@@ -14,6 +17,11 @@ export function TopStatusBar() {
   const providers = useDashboardStore((state) => state.providers);
   const services = useDashboardStore((state) => state.services);
   const { operator, logout } = useAuthStore();
+  
+  // Phase 21-30: Tenant and quota state
+  // TODO: Wire these from backend session/API
+  const tenantId = 'system'; // From session
+  const quotaState = null; // From API
   
   const handleLogout = async () => {
     if (confirm('Logout from Vienna Console?')) {
@@ -134,6 +142,12 @@ export function TopStatusBar() {
             <div className={`w-2 h-2 rounded-full ${openclawHealthy ? 'bg-green-500' : 'bg-red-500'}`} />
             <span className="text-sm text-gray-300">openclaw</span>
           </div>
+          
+          {/* Phase 21: Tenant Status */}
+          <TenantStatusBar tenantId={tenantId} />
+          
+          {/* Phase 22: Quota Status */}
+          {quotaState && <QuotaStatusWidget quotaState={quotaState} />}
         </div>
         
         {/* Connection Status and Operator */}

@@ -1,13 +1,12 @@
 /**
  * Main Navigation
- * Phase 2: Information Architecture
  * 
- * Top-level navigation for Vienna OS operator shell
+ * Top-level navigation for Vienna OS operator console
  */
 
 import React from 'react';
 
-export type NavSection = 'now' | 'runtime' | 'workspace' | 'approvals' | 'history' | 'services' | 'settings';
+export type NavSection = 'overview' | 'now' | 'approvals' | 'executions' | 'runtime' | 'workspace' | 'services' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -18,43 +17,49 @@ interface NavItem {
   id: NavSection;
   label: string;
   description: string;
+  badge?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
+    id: 'overview',
+    label: 'Overview',
+    description: 'System health and capabilities',
+  },
+  {
     id: 'now',
     label: 'Now',
-    description: 'Current system posture and actionable summary',
-  },
-  {
-    id: 'runtime',
-    label: 'Runtime',
-    description: 'Governed reconciliation control plane',
-  },
-  {
-    id: 'workspace',
-    label: 'Workspace',
-    description: 'Files, artifacts, and documentation',
+    description: 'Current activity and chat',
   },
   {
     id: 'approvals',
     label: 'Approvals',
-    description: 'Review and approve pending T1/T2 actions',
+    description: 'Review and approve T1/T2 actions',
   },
   {
-    id: 'history',
-    label: 'History',
-    description: 'Execution ledger and audit trail',
+    id: 'executions',
+    label: 'Executions',
+    description: 'Execution history and audit trail',
+  },
+  {
+    id: 'runtime',
+    label: 'Runtime',
+    description: 'Control plane and reconciliation',
+  },
+  {
+    id: 'workspace',
+    label: 'Workspace',
+    description: 'Investigation files and artifacts',
   },
   {
     id: 'services',
     label: 'Services',
-    description: 'Infrastructure monitoring and health',
+    description: 'Infrastructure monitoring',
   },
   {
     id: 'settings',
     label: 'Settings',
-    description: 'Operator preferences and configuration',
+    description: 'Operator preferences',
   },
 ];
 
@@ -65,8 +70,18 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo / Title */}
           <div className="flex items-center space-x-4">
-            <div className="text-lg font-semibold text-white">
-              Vienna OS
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">V</span>
+              </div>
+              <div>
+                <div className="text-base font-semibold text-white leading-tight">
+                  Vienna OS
+                </div>
+                <div className="text-xs text-gray-400 leading-tight">
+                  Operator Console
+                </div>
+              </div>
             </div>
           </div>
           

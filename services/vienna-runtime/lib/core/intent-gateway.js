@@ -524,16 +524,40 @@ class IntentGateway {
         JSON.stringify({ prompt: executionInput, mvp: true })
       );
 
+      // Create attestation (execution → verification → attestation)
+      const { AttestationEngine } = require('../../../../vienna-core/lib/attestation/attestation-engine');
+      const attestationEngine = new AttestationEngine();
+      
+      const attestation = await attestationEngine.createAttestation({
+        execution_id: executionId,
+        tenant_id: tenantId,
+        status: 'success',
+        metadata: {
+          intent_id: intent.intent_id,
+          operator_name: operatorName,
+          mvp: true
+        }
+      });
+
+      // Retrieve attestation to include in response
+      const storedAttestation = await attestationEngine.getAttestation(executionId);
+
       return {
         accepted: true,
         action: 'execution_mvp_complete',
-        message: 'MVP execution complete (tenant attribution proven)',
+        message: 'MVP execution complete (tenant attribution + attestation proven)',
         metadata: {
           tenant_id: tenantId,
           operator_name: operatorName,
           execution_id: executionId,
           cost_id: costId
-        }
+        },
+        attestation: storedAttestation ? {
+          attestation_id: storedAttestation.attestation_id,
+          status: storedAttestation.status,
+          attested_at: storedAttestation.attested_at,
+          execution_id: storedAttestation.execution_id
+        } : null
       };
     } catch (error) {
       console.error('[IntentGateway] Governed execution error:', error);

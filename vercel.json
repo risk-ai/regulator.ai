@@ -1,17 +1,22 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/console",
-      "destination": "/console/index.html"
+      "src": "apps/marketing/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://vienna-os.fly.dev/api/$1"
     },
     {
-      "source": "/console/(.*)",
-      "destination": "/console/$1"
+      "handle": "filesystem"
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://vienna-os.fly.dev/api/:path*"
+      "src": "/(.*)",
+      "dest": "apps/marketing/$1"
     }
   ]
 }

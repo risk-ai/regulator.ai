@@ -1,25 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/console/(.*)",
-      "headers": {
-        "cache-control": "s-maxage=0"
-      },
-      "dest": "/console/$1"
+      "source": "/console",
+      "destination": "/console/index.html"
     },
     {
-      "handle": "filesystem"
+      "source": "/console/(.*)",
+      "destination": "/console/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/:path*",
+      "destination": "https://vienna-os.fly.dev/api/:path*"
     }
   ]
 }

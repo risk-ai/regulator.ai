@@ -1,23 +1,17 @@
 {
-  "name": "@vienna/core",
-  "version": "8.0.0",
-  "description": "Vienna OS - Governed AI Control Plane",
+  "name": "@vienna/runtime",
+  "version": "1.0.0",
+  "description": "Vienna Runtime - Backend Service",
   "private": true,
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test --workspaces",
-    "build": "npm run build --workspace=console/server",
     "start": "node index.js"
   },
-  "workspaces": [
-    "console/server",
-    "console/client"
-  ],
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "better-sqlite3": "^12.6.2"
+    "express": "^4.19.2"
   }
 }

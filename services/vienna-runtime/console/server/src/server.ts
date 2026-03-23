@@ -86,6 +86,7 @@ async function start() {
     // Initialize auth config
     const operatorPassword = process.env.VIENNA_OPERATOR_PASSWORD;
     const operatorName = process.env.VIENNA_OPERATOR_NAME || 'vienna';
+    const operatorTenantId = process.env.VIENNA_OPERATOR_TENANT_ID || 'default-tenant';
     const sessionSecret = process.env.VIENNA_SESSION_SECRET || crypto.randomBytes(32).toString('hex');
     const sessionTTL = parseInt(process.env.VIENNA_SESSION_TTL || '86400000', 10); // 24h default
     
@@ -111,6 +112,7 @@ async function start() {
     const authService = new AuthService({
       operatorPassword,
       operatorName,
+      operatorTenantId,
       sessionSecret,
       sessionTTL,
     });

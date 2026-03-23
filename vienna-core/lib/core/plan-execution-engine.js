@@ -22,6 +22,7 @@ const {
   validateApprovalForResumption,
   getLedgerEventType
 } = require('./approval-resolution-handler');
+const { AttestationEngine } = require('../attestation/attestation-engine');
 
 /**
  * Plan execution context
@@ -189,6 +190,7 @@ class PlanExecutionEngine {
     this.verificationEngine = options.verificationEngine;
     this.approvalManager = options.approvalManager; // Approval manager for resolution
     this.lockManager = new ExecutionLockManager();
+    this.attestationEngine = new AttestationEngine(); // Attestation engine for verifiable records
   }
 
   /**
@@ -493,11 +495,32 @@ class PlanExecutionEngine {
           verificationResult = await this._verifyStep(step, result, context);
         }
 
+        // Create attestation (execution → verification → attestation)
+        let attestation = null;
+        if (context.execution_id) {
+          try {
+            attestation = await this.attestationEngine.createAttestation({
+              execution_id: context.execution_id,
+              tenant_id: context.tenant_id || null,
+              status: 'success',
+              metadata: {
+                step_id: step.step_id,
+                plan_id: execContext.planId,
+                verification_passed: verificationResult ? verificationResult.passed : null
+              }
+            });
+          } catch (err) {
+            // Log attestation failure but don't block execution
+            console.warn('[PlanExecutionEngine] Attestation creation failed:', err.message);
+          }
+        }
+
         // Mark step as completed
         execContext.updateStepState(step.step_id, {
           status: StepStatus.COMPLETED,
           result,
           verification_result: verificationResult,
+          attestation,
           completed_at: new Date().toISOString()
         });
 
@@ -514,7 +537,12 @@ class PlanExecutionEngine {
           stage: 'execution',
           plan_id: execContext.planId,
           step_id: step.step_id,
-          metadata: { attempt, result, verification_result: verificationResult }
+          metadata: { 
+            attempt, 
+            result, 
+            verification_result: verificationResult,
+            attestation_id: attestation ? attestation.attestation_id : null
+          }
         });
 
         return; // Success, exit retry loop

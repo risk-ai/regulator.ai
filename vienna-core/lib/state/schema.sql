@@ -1108,4 +1108,32 @@ CREATE TABLE IF NOT EXISTS federated_ledger (
 CREATE INDEX IF NOT EXISTS idx_federated_node ON federated_ledger(node_id);
 CREATE INDEX IF NOT EXISTS idx_federated_execution ON federated_ledger(execution_id);
 CREATE INDEX IF NOT EXISTS idx_federated_timestamp ON federated_ledger(timestamp);
+
+-- Execution Attestations: verifiable execution records
+-- Created AFTER execution completes (execution → verification → attestation)
+CREATE TABLE IF NOT EXISTS execution_attestations (
+  attestation_id TEXT PRIMARY KEY,
+  execution_id TEXT NOT NULL UNIQUE,
+  tenant_id TEXT,
+  
+  -- Attestation status
+  status TEXT NOT NULL CHECK(status IN ('success', 'failed', 'blocked')),
+  
+  -- Optional cryptographic integrity
+  input_hash TEXT,
+  output_hash TEXT,
+  
+  -- Timestamp
+  attested_at TEXT NOT NULL DEFAULT (datetime('now')),
+  
+  -- Metadata (JSON)
+  metadata TEXT,
+  
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_attestations_execution ON execution_attestations(execution_id);
+CREATE INDEX IF NOT EXISTS idx_attestations_tenant ON execution_attestations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_attestations_status ON execution_attestations(status);
+CREATE INDEX IF NOT EXISTS idx_attestations_attested_at ON execution_attestations(attested_at);
 CREATE INDEX IF NOT EXISTS idx_federated_tombstoned ON federated_ledger(tombstoned);

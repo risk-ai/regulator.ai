@@ -13,6 +13,12 @@ export interface ExecutionResult {
   message: string;
   execution_id?: string;
   details?: any;
+  attestation?: {
+    attestation_id: string;
+    status: string;
+    attested_at: string;
+    execution_id: string;
+  };
 }
 
 interface ExecutionResultMessageProps {
@@ -46,6 +52,24 @@ export const ExecutionResultMessage: React.FC<ExecutionResultMessageProps> = ({ 
           </a>
           <span style={{ marginLeft: '0.5rem', color: 'rgb(75, 85, 99)' }}>•</span>
           <span style={{ marginLeft: '0.5rem' }}>View Details</span>
+        </div>
+      )}
+      
+      {result.attestation && (
+        <div className="result-message-meta" style={{ marginTop: '0.375rem' }}>
+          <span style={{ fontWeight: 500 }}>Attestation: </span>
+          <span style={{ 
+            padding: '0.125rem 0.375rem',
+            backgroundColor: result.attestation.status === 'success' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+            borderRadius: '0.25rem',
+            fontSize: '0.75rem',
+            fontWeight: 600
+          }}>
+            {result.attestation.status}
+          </span>
+          <span style={{ marginLeft: '0.5rem', color: 'rgb(156, 163, 175)', fontSize: '0.75rem' }}>
+            {new Date(result.attestation.attested_at).toLocaleString()}
+          </span>
         </div>
       )}
       

@@ -52,6 +52,18 @@ class IntentGateway {
     // Phase 11.5: Initialize intent tracer
     const { IntentTracer } = require('./intent-tracing');
     this.tracer = new IntentTracer(stateGraph);
+
+    // Phase 22: Initialize quota enforcer
+    const { QuotaEnforcer } = require('../governance/quota-enforcer');
+    this.quotaEnforcer = new QuotaEnforcer(stateGraph);
+
+    // Phase 23: Initialize attestation engine
+    const { AttestationEngine } = require('../attestation/attestation-engine');
+    this.attestationEngine = new AttestationEngine(stateGraph);
+
+    // Phase 29: Initialize cost tracker
+    const { CostTracker } = require('../accounting/cost-tracker');
+    this.costTracker = new CostTracker(stateGraph);
   }
 
   /**
@@ -511,4 +523,8 @@ class IntentGateway {
   }
 }
 
-module.exports = { IntentGateway };
+// Phase 21-30: Apply governance patch
+const { patchIntentGateway } = require('./intent-gateway-patch');
+const PatchedIntentGateway = patchIntentGateway(IntentGateway);
+
+module.exports = { IntentGateway: PatchedIntentGateway };

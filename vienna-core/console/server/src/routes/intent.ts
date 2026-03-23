@@ -18,15 +18,18 @@ export function createIntentRouter(): Router {
    * POST /api/v1/intent
    * Submit intent to Vienna OS
    * 
+   * Phase 21-30: Enhanced with tenant/quota/cost/attestation/explanation
+   * 
    * Body:
    * {
    *   intent_type: 'restore_objective' | 'investigate_objective' | 'set_safe_mode',
-   *   payload: { ... }
+   *   payload: { ... },
+   *   simulation?: boolean  // Phase 24: Dry run mode
    * }
    */
   router.post('/', async (req: Request, res: Response) => {
     try {
-      const { intent_type, payload } = req.body;
+      const { intent_type, payload, simulation = false } = req.body;
 
       if (!intent_type || !payload) {
         return res.status(400).json({
@@ -37,27 +40,43 @@ export function createIntentRouter(): Router {
         });
       }
 
+      // Phase 21: Extract tenant from session
+      const tenant_id = (req as any).session?.tenant_id || 'system';
+      const operator_id = (req as any).session?.operator?.id || 'console';
+
       // Build intent with operator source
       const intent = {
         intent_type,
         source: {
           type: 'operator',
-          id: 'console', // In future: extract from auth session
+          id: operator_id,
         },
         payload,
       };
 
-      // Submit to Intent Gateway
-      const response = await intentGateway.submitIntent(intent);
+      // Phase 21-30: Submit with governance context
+      const context = {
+        tenant_id,
+        session: (req as any).session,
+        simulation,
+      };
 
-      // Map to API response
+      const response = await intentGateway.submitIntent(intent, context);
+
+      // Enhanced API response with Phase 21-30 fields
       if (response.accepted) {
         res.json({
           success: true,
           data: {
             intent_id: response.intent_id,
+            tenant_id: response.tenant_id,
             action: response.action,
-            message: response.message,
+            execution_id: response.execution_id,
+            simulation: response.simulation,
+            explanation: response.explanation,          // Phase 27
+            attestation: response.attestation,          // Phase 23
+            cost: response.cost,                        // Phase 29
+            quota_state: response.quota_state,          // Phase 22
             metadata: response.metadata,
           },
           timestamp: new Date().toISOString(),
@@ -69,6 +88,10 @@ export function createIntentRouter(): Router {
           code: 'INTENT_REJECTED',
           data: {
             intent_id: response.intent_id,
+            tenant_id: response.tenant_id,
+            explanation: response.explanation,          // Phase 27
+            quota_state: response.quota_state,          // Phase 22
+            cost: response.cost,                        // Phase 29
             metadata: response.metadata,
           },
           timestamp: new Date().toISOString(),

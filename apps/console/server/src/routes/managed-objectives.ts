@@ -32,7 +32,7 @@ export function createManagedObjectivesRouter(vienna: ViennaRuntimeService): Rou
       const offset = (pageNum - 1) * limit;
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Build query
@@ -135,7 +135,7 @@ export function createManagedObjectivesRouter(vienna: ViennaRuntimeService): Rou
       const { id } = req.params;
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Get objective
@@ -211,7 +211,7 @@ export function createManagedObjectivesRouter(vienna: ViennaRuntimeService): Rou
       const limitNum = Math.min(parseInt(limit as string, 10), 500); // Max 500
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Build query

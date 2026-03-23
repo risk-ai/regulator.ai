@@ -231,7 +231,7 @@ export class ProviderHealthChecker {
     latencyMs?: number
   ): Promise<void> {
     try {
-      const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       await stateGraph.initialize();
       

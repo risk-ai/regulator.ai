@@ -1,0 +1,74 @@
+{
+  "name": "@vienna/lib",
+  "version": "1.0.0",
+  "description": "Vienna OS Governance Engine",
+  "type": "commonjs",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    },
+    "./core/*": {
+      "import": "./core/*.js",
+      "require": "./core/*.js"
+    },
+    "./governance/*": {
+      "import": "./governance/*.js",
+      "require": "./governance/*.js"
+    },
+    "./execution/*": {
+      "import": "./execution/*.js",
+      "require": "./execution/*.js"
+    },
+    "./state/*": {
+      "import": "./state/*.js",
+      "require": "./state/*.js"
+    },
+    "./attestation/*": {
+      "import": "./attestation/*.js",
+      "require": "./attestation/*.js"
+    },
+    "./accounting/*": {
+      "import": "./accounting/*.js",
+      "require": "./accounting/*.js"
+    },
+    "./learning/*": {
+      "import": "./learning/*.js",
+      "require": "./learning/*.js"
+    },
+    "./distributed/*": {
+      "import": "./distributed/*.js",
+      "require": "./distributed/*.js"
+    },
+    "./simulation/*": {
+      "import": "./simulation/*.js",
+      "require": "./simulation/*.js"
+    },
+    "./federation/*": {
+      "import": "./federation/*.js",
+      "require": "./federation/*.js"
+    },
+    "./economic/*": {
+      "import": "./economic/*.js",
+      "require": "./economic/*.js"
+    },
+    "./workspace/*": {
+      "import": "./workspace/*.js",
+      "require": "./workspace/*.js"
+    },
+    "./schemas/*": {
+      "import": "./schemas/*.js",
+      "require": "./schemas/*.js"
+    }
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "better-sqlite3": "^12.6.2",
+    "uuid": "^10.0.0",
+    "nanoid": "^3.3.7"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -39,8 +39,8 @@ async function initializeViennaCore() {
   
   const workspace = process.env.OPENCLAW_WORKSPACE || path.join(os.homedir(), '.openclaw', 'workspace');
   
-  // Dynamic import for CommonJS module
-  const ViennaCore = (await import('../../../index.js')).default;
+  // Dynamic import for CommonJS module via workspace package
+  const ViennaCore = (await import('@vienna/lib')).default;
   
   // Initialize Vienna Core
   ViennaCore.init({
@@ -160,13 +160,12 @@ async function start() {
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService, objectivesService);
     
     // Initialize State Graph (Phase 13)
-    const { getStateGraph } = await import('../../../lib/state/state-graph.js');
+    const { getStateGraph, WorkspaceManager } = await import('@vienna/lib');
     const stateGraph = getStateGraph();
     await stateGraph.initialize();
     console.log('State Graph initialized');
     
     // Initialize Workspace Manager (Phase 13)
-    const { WorkspaceManager } = await import('../../../lib/workspace/workspace-manager.js');
     const workspaceManager = new WorkspaceManager(stateGraph);
     console.log('Workspace Manager initialized');
     

@@ -3,7 +3,7 @@
  */
 
 import { Router } from 'express';
-import { getStateGraph } from '../../../../lib/state/state-graph.js';
+import { getStateGraph } from '@vienna/lib';
 
 const router = Router();
 const stateGraph = getStateGraph();

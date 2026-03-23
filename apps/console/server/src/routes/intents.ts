@@ -6,8 +6,7 @@
  */
 
 import express from 'express';
-import { getStateGraph } from '../../../../lib/state/state-graph.js';
-import { ExecutionGraphBuilder } from '../../../../lib/core/execution-graph.js';
+import { getStateGraph, ExecutionGraphBuilder } from '@vienna/lib';
 
 const router = express.Router();
 

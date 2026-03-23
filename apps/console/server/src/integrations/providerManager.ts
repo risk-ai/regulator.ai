@@ -67,7 +67,7 @@ let LocalProviderClass: any = null;
  */
 async function ensureProviderClasses() {
   if (!ProviderManagerClass) {
-    const providerModule = await import('../../../../lib/providers/index.js');
+    const providerModule = await import('../../../../../services/vienna-lib/providers/index.js');
     ProviderManagerClass = providerModule.ProviderManager;
     AnthropicProviderClass = providerModule.AnthropicProvider;
     LocalProviderClass = providerModule.LocalProvider;

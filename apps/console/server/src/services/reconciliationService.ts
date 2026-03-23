@@ -54,7 +54,7 @@ export class ReconciliationService {
 
   private async ensureStateGraph() {
     if (!this.getStateGraph) {
-      const module = await import('../../../../lib/state/state-graph.js');
+      const module = await import('../../../../../services/vienna-lib/state/state-graph.js');
       this.getStateGraph = module.getStateGraph;
     }
     return this.getStateGraph();

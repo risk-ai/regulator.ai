@@ -6,8 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { IntentGateway } from '../../../../lib/core/intent-gateway.js';
-import { getStateGraph } from '../../../../lib/state/state-graph.js';
+import { IntentGateway, getStateGraph } from '@vienna/lib';
 
 export function createIntentRouter(): Router {
   const router = Router();

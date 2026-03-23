@@ -6,7 +6,7 @@
  * Tracks health transitions and enforces truthfulness principles.
  */
 
-import type { ProviderHealth as LibProviderHealth, ProviderHealthTransition } from '../../../../lib/providers/types.js';
+import type { ProviderHealth as LibProviderHealth, ProviderHealthTransition } from '../../../../../services/vienna-lib/providers/types.js';
 import type { ProviderManagerBridge } from '../integrations/providerManager.js';
 
 export type ProviderHealthState = 'healthy' | 'degraded' | 'unavailable' | 'unknown';
@@ -84,7 +84,7 @@ export class ProviderHealthService {
       let baseStatuses: Record<string, any> = {};
       
       try {
-        const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+        const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
         const stateGraph = getStateGraph();
         await stateGraph.initialize();
         const stateProviders = stateGraph.listProviders();

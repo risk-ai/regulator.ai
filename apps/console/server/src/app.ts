@@ -55,6 +55,7 @@ import intentsRouter from './routes/intents.js';
 import investigationsRouter from './routes/investigations.js';
 import artifactsRouter from './routes/artifacts.js';
 import incidentsRouter from './routes/incidents.js';
+import { createValidationRouter } from './routes/validation.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -129,7 +130,7 @@ export function createApp(
       
       // Check State Graph availability
       try {
-        const { getStateGraph } = await import('../../../lib/state/state-graph.js');
+        const { getStateGraph } = await import('@vienna/lib');
         const stateGraph = getStateGraph();
         await stateGraph.initialize();
         runtimeHealth.services.state_graph = { status: 'operational', health: 'healthy' };
@@ -262,6 +263,9 @@ export function createApp(
   
   // Phase 14: Forensic Incidents
   app.use(`${apiPrefix}/incidents`, requireAuth, incidentsRouter);
+  
+  // Validation logging (browser testing)
+  app.use(`${apiPrefix}/validation`, createValidationRouter());
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

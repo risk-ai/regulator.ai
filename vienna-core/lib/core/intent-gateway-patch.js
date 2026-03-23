@@ -108,46 +108,47 @@ function patchIntentGateway(IntentGatewayClass) {
       });
 
       // Phase 22: Quota check (skip for system tenant and simulation)
-      if (tenant_id !== 'system' && !simulation && this.quotaEnforcer) {
+      if (tenant_id !== 'system' && !simulation) {
         try {
-          const quotaCheck = await this.quotaEnforcer.checkQuota(tenant_id, intent);
+          if (this.quotaEnforcer) {
+            const quotaCheck = await this.quotaEnforcer.checkQuota(tenant_id, intent);
 
-          if (!quotaCheck.allowed) {
-            response.error = 'quota_exceeded';
-            response.explanation = `Quota exceeded. Used ${quotaCheck.used}/${quotaCheck.limit} units (${Math.round(quotaCheck.utilization * 100)}%). ${quotaCheck.reason || ''}`;
+            if (!quotaCheck.allowed) {
+              response.error = 'quota_exceeded';
+              response.explanation = `Quota exceeded. Used ${quotaCheck.used}/${quotaCheck.limit} units (${Math.round(quotaCheck.utilization * 100)}%). ${quotaCheck.reason || ''}`;
+              response.quota_state = {
+                used: quotaCheck.used,
+                limit: quotaCheck.limit,
+                available: quotaCheck.available,
+                utilization: quotaCheck.utilization,
+                blocked: true
+              };
+
+              // Emit quota.exceeded event
+              this._emitLifecycleEvent('quota.exceeded', intent, {
+                intent_id: intent.intent_id,
+                tenant_id: tenant_id,
+                quota_state: response.quota_state
+              });
+
+              await this.tracer.recordEvent(intent.intent_id, 'quota.exceeded', {
+                tenant_id: tenant_id,
+                quota_state: response.quota_state
+              });
+              await this.tracer.updateStatus(intent.intent_id, 'blocked');
+
+              return response;
+            }
+
+            // Record quota state (allowed)
             response.quota_state = {
               used: quotaCheck.used,
               limit: quotaCheck.limit,
               available: quotaCheck.available,
               utilization: quotaCheck.utilization,
-              blocked: true
+              blocked: false
             };
-
-            // Emit quota.exceeded event
-            this._emitLifecycleEvent('quota.exceeded', intent, {
-              intent_id: intent.intent_id,
-              tenant_id: tenant_id,
-              quota_state: response.quota_state
-            });
-
-            await this.tracer.recordEvent(intent.intent_id, 'quota.exceeded', {
-              tenant_id: tenant_id,
-              quota_state: response.quota_state
-            });
-            await this.tracer.updateStatus(intent.intent_id, 'blocked');
-
-            return response;
           }
-
-          // Record quota state (allowed)
-          response.quota_state = {
-            used: quotaCheck.used,
-            limit: quotaCheck.limit,
-            available: quotaCheck.available,
-            utilization: quotaCheck.utilization,
-            blocked: false
-          };
-
         } catch (quotaError) {
           console.error('[IntentGateway] Quota check error:', quotaError);
           // Continue execution, log warning
@@ -181,22 +182,23 @@ function patchIntentGateway(IntentGatewayClass) {
       }
 
       // Phase 23: Create attestation (only for real executions)
-      if (!simulation && resolution.accepted && response.execution_id && this.attestationEngine) {
+      if (!simulation && resolution.accepted && response.execution_id) {
         try {
-          const attestationResult = await this.attestationEngine.createAttestation(
-            response.execution_id,
-            tenant_id,
-            'success',
-            normalized,
-            resolution.metadata
-          );
+          if (this.attestationEngine) {
+            const attestationResult = await this.attestationEngine.createAttestation(
+              response.execution_id,
+              tenant_id,
+              'success',
+              normalized,
+              resolution.metadata
+            );
 
-          response.attestation = {
-            status: 'attested',
-            attestation_id: attestationResult.attestation_id,
-            timestamp: attestationResult.attested_at
-          };
-
+            response.attestation = {
+              status: 'attested',
+              attestation_id: attestationResult.attestation_id,
+              timestamp: attestationResult.attested_at
+            };
+          }
         } catch (attestationError) {
           console.error('[IntentGateway] Attestation error:', attestationError);
           response.metadata.attestation_error = attestationError.message;
@@ -204,25 +206,26 @@ function patchIntentGateway(IntentGatewayClass) {
       }
 
       // Phase 29: Record cost (only for real executions)
-      if (!simulation && resolution.accepted && response.execution_id && this.costTracker) {
+      if (!simulation && resolution.accepted && response.execution_id) {
         try {
-          // For now, record a nominal cost
-          // TODO: Calculate actual cost from LLM token usage
-          const nominalCost = 0.01; // $0.01 per execution
+          if (this.costTracker) {
+            // For now, record a nominal cost
+            // TODO: Calculate actual cost from LLM token usage
+            const nominalCost = 0.01; // $0.01 per execution
 
-          await this.costTracker.recordCost(
-            response.execution_id,
-            tenant_id,
-            nominalCost,
-            { type: 'execution', description: resolution.action }
-          );
+            await this.costTracker.recordCost(
+              response.execution_id,
+              tenant_id,
+              nominalCost,
+              { type: 'execution', description: resolution.action }
+            );
 
-          response.cost = {
-            amount: nominalCost,
-            currency: 'USD',
-            breakdown: { type: 'execution' }
-          };
-
+            response.cost = {
+              amount: nominalCost,
+              currency: 'USD',
+              breakdown: { type: 'execution' }
+            };
+          }
         } catch (costError) {
           console.error('[IntentGateway] Cost tracking error:', costError);
           response.metadata.cost_tracking_error = costError.message;
@@ -243,7 +246,8 @@ function patchIntentGateway(IntentGatewayClass) {
           execution_id: response.execution_id,
           simulation: simulation
         });
-        await this.tracer.updateStatus(intent.intent_id, simulation ? 'simulated' : 'executing');
+        // Use 'executing' for both simulation and real execution (status enum limitation)
+        await this.tracer.updateStatus(intent.intent_id, 'executing');
 
         if (response.execution_id) {
           await this.tracer.linkExecution(intent.intent_id, response.execution_id);

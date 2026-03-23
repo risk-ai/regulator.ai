@@ -9,7 +9,12 @@ import crypto from 'crypto';
 
 export interface Session {
   sessionId: string;
-  operator: string;
+  operator: {
+    name: string;
+    tenant_id: string;
+    workspace_id?: string;
+    user_id?: string;
+  };
   createdAt: string;
   expiresAt: string;
   lastActivity: string;
@@ -18,6 +23,7 @@ export interface Session {
 export interface AuthConfig {
   operatorPassword: string;
   operatorName: string;
+  operatorTenantId?: string;
   sessionTTL: number; // milliseconds
   sessionSecret: string;
 }
@@ -62,7 +68,10 @@ export class AuthService {
     
     const session: Session = {
       sessionId,
-      operator: this.config.operatorName,
+      operator: {
+        name: this.config.operatorName,
+        tenant_id: this.config.operatorTenantId || 'default-tenant',
+      },
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
       lastActivity: now.toISOString(),

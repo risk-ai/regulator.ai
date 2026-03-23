@@ -55,7 +55,8 @@ export function createAuthRouter(authService: AuthService): Router {
       res.json({
         success: true,
         data: {
-          operator: session.operator,
+          operator: session.operator.name,
+          tenant_id: session.operator.tenant_id,
           sessionId: session.sessionId,
           expiresAt: session.expiresAt,
         },
@@ -146,7 +147,8 @@ export function createAuthRouter(authService: AuthService): Router {
         success: true,
         data: {
           authenticated: true,
-          operator: session.operator,
+          operator: session.operator.name,
+          tenant_id: session.operator.tenant_id,
           expiresAt: session.expiresAt,
         },
         timestamp: new Date().toISOString(),

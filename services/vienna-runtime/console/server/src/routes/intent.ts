@@ -6,13 +6,22 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { IntentGateway } from '../../../../lib/core/intent-gateway.js';
-import { getStateGraph } from '../../../../lib/state/state-graph.js';
 
 export function createIntentRouter(): Router {
   const router = Router();
-  const stateGraph = getStateGraph();
-  const intentGateway = new IntentGateway(stateGraph);
+  
+  let intentGateway: any = null;
+  
+  // Initialize IntentGateway lazily (CommonJS interop)
+  async function getIntentGateway() {
+    if (!intentGateway) {
+      const { getStateGraph } = await import('../../../../lib/state/state-graph.js');
+      const { IntentGateway } = await import('../../../../lib/core/intent-gateway.js');
+      const stateGraph = getStateGraph();
+      intentGateway = new IntentGateway(stateGraph);
+    }
+    return intentGateway;
+  }
 
   /**
    * POST /api/v1/intent
@@ -37,18 +46,29 @@ export function createIntentRouter(): Router {
         });
       }
 
-      // Build intent with operator source
+      // Extract tenant context from session
+      const session = (req as any).session;
+      const tenantId = session?.operator?.tenant_id || 'system';
+      const workspaceId = session?.operator?.workspace_id;
+      const userId = session?.operator?.user_id;
+      const operatorName = session?.operator?.name || 'console';
+
+      // Build intent with operator source (tenant-aware)
       const intent = {
         intent_type,
         source: {
           type: 'operator',
-          id: 'console', // In future: extract from auth session
+          id: tenantId,
+          operator_name: operatorName,
+          workspace_id: workspaceId,
+          user_id: userId,
         },
         payload,
       };
 
       // Submit to Intent Gateway
-      const response = await intentGateway.submitIntent(intent);
+      const gateway = await getIntentGateway();
+      const response = await gateway.submitIntent(intent);
 
       // Map to API response
       if (response.accepted) {

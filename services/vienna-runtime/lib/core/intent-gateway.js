@@ -44,7 +44,8 @@ class IntentGateway {
       supported_intent_types: [
         'restore_objective',
         'investigate_objective',
-        'set_safe_mode'
+        'set_safe_mode',
+        'governed_execute'
       ],
       ...options
     };
@@ -294,7 +295,8 @@ class IntentGateway {
     const handlers = {
       'restore_objective': this._handleRestoreObjective,
       'investigate_objective': this._handleInvestigateObjective,
-      'set_safe_mode': this._handleSetSafeMode
+      'set_safe_mode': this._handleSetSafeMode,
+      'governed_execute': this._handleGovernedExecute
     };
 
     return handlers[intentType] || null;
@@ -327,6 +329,12 @@ class IntentGateway {
         }
         if (intent.payload.enabled && !intent.payload.reason) {
           return { valid: false, error: 'missing_reason' };
+        }
+        return { valid: true };
+
+      case 'governed_execute':
+        if (!intent.payload.prompt && !intent.payload.input) {
+          return { valid: false, error: 'missing_prompt_or_input' };
         }
         return { valid: true };
 
@@ -478,6 +486,61 @@ class IntentGateway {
         metadata: {
           safe_mode: this.stateGraph.getSafeModeStatus()
         }
+      };
+    }
+  }
+
+  /**
+   * Handle governed_execute intent (MVP - tenant attribution proof)
+   * @private
+   */
+  async _handleGovernedExecute(intent) {
+    const { prompt, input } = intent.payload;
+    const executionInput = prompt || input;
+    
+    // Extract tenant context
+    const tenantId = intent.source.id || 'system';
+    const operatorName = intent.source.operator_name || 'console';
+
+    try {
+      const executionId = `exec-${Date.now()}`;
+      const costId = `cost-${Date.now()}`;
+      
+      // Record cost to prove tenant attribution
+      this.stateGraph.db.prepare(`
+        INSERT INTO execution_costs (
+          cost_id, execution_id, tenant_id, llm_provider, model,
+          tokens_input, tokens_output, cost_usd, metadata, recorded_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `).run(
+        costId,
+        executionId,
+        tenantId,
+        'local',
+        'mvp-test',
+        100,
+        50,
+        0.001,
+        JSON.stringify({ prompt: executionInput, mvp: true })
+      );
+
+      return {
+        accepted: true,
+        action: 'execution_mvp_complete',
+        message: 'MVP execution complete (tenant attribution proven)',
+        metadata: {
+          tenant_id: tenantId,
+          operator_name: operatorName,
+          execution_id: executionId,
+          cost_id: costId
+        }
+      };
+    } catch (error) {
+      console.error('[IntentGateway] Governed execution error:', error);
+      return {
+        accepted: false,
+        error: 'execution_failed',
+        message: error.message
       };
     }
   }

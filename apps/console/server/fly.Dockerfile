@@ -6,10 +6,12 @@ ENV NODE_ENV=production
 
 # Install dependencies (workspace-aware)
 FROM base AS deps
-COPY apps/console/server/package.json ./
 COPY services/vienna-lib /app/services/vienna-lib
+COPY apps/console/server/package.json ./package.json
 WORKDIR /app
-RUN npm install --omit=dev
+# Fix vienna-lib path reference before install
+RUN sed -i 's|file:../../../services/vienna-lib|file:./services/vienna-lib|g' package.json && \
+    npm install --omit=dev
 
 # Production stage
 FROM base AS production

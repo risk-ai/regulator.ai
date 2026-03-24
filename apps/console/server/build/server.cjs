@@ -1,3 +1,8 @@
+const { createRequire } = require('module');
+const { fileURLToPath } = require('url');
+const { dirname } = require('path');
+// Polyfill import.meta for CommonJS
+const importMetaUrl = typeof __filename !== 'undefined' ? require('url').pathToFileURL(__filename).href : undefined;
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -24560,7 +24565,7 @@ var require_workspace_manager = __commonJS({
       normalizeArtifactFilters,
       normalizeInvestigationFilters
     } = require_workspace_schema();
-    var WorkspaceManager = class {
+    var WorkspaceManager2 = class {
       constructor(stateGraph, options = {}) {
         this.stateGraph = stateGraph;
         this.environment = stateGraph.environment;
@@ -25204,7 +25209,7 @@ _Add investigation notes here._
 `;
       }
     };
-    module2.exports = { WorkspaceManager };
+    module2.exports = { WorkspaceManager: WorkspaceManager2 };
   }
 });
 
@@ -28698,8 +28703,8 @@ var require_state_graph = __commonJS({
        */
       listInvestigations(filters = {}) {
         if (!this._workspaceManager) {
-          const { WorkspaceManager } = require_workspace_manager();
-          this._workspaceManager = new WorkspaceManager(this);
+          const { WorkspaceManager: WorkspaceManager2 } = require_workspace_manager();
+          this._workspaceManager = new WorkspaceManager2(this);
         }
         return this._workspaceManager.listInvestigations(filters);
       }
@@ -28710,8 +28715,8 @@ var require_state_graph = __commonJS({
        */
       getInvestigation(investigation_id) {
         if (!this._workspaceManager) {
-          const { WorkspaceManager } = require_workspace_manager();
-          this._workspaceManager = new WorkspaceManager(this);
+          const { WorkspaceManager: WorkspaceManager2 } = require_workspace_manager();
+          this._workspaceManager = new WorkspaceManager2(this);
         }
         return this._workspaceManager.getInvestigation(investigation_id);
       }
@@ -28722,8 +28727,8 @@ var require_state_graph = __commonJS({
        */
       listArtifacts(filters = {}) {
         if (!this._workspaceManager) {
-          const { WorkspaceManager } = require_workspace_manager();
-          this._workspaceManager = new WorkspaceManager(this);
+          const { WorkspaceManager: WorkspaceManager2 } = require_workspace_manager();
+          this._workspaceManager = new WorkspaceManager2(this);
         }
         return this._workspaceManager.listArtifacts(filters);
       }
@@ -28734,14 +28739,14 @@ var require_state_graph = __commonJS({
        */
       getArtifact(artifact_id) {
         if (!this._workspaceManager) {
-          const { WorkspaceManager } = require_workspace_manager();
-          this._workspaceManager = new WorkspaceManager(this);
+          const { WorkspaceManager: WorkspaceManager2 } = require_workspace_manager();
+          this._workspaceManager = new WorkspaceManager2(this);
         }
         return this._workspaceManager.getArtifact(artifact_id);
       }
     };
     var instance = null;
-    function getStateGraph5(options = {}) {
+    function getStateGraph2(options = {}) {
       if (!instance) {
         instance = new StateGraph(options);
       }
@@ -28755,7 +28760,7 @@ var require_state_graph = __commonJS({
     }
     module2.exports = {
       StateGraph,
-      getStateGraph: getStateGraph5,
+      getStateGraph: getStateGraph2,
       _resetStateGraphForTesting
     };
   }
@@ -29094,7 +29099,7 @@ var require_approval_manager = __commonJS({
       TransitionReason,
       getTransitionMetadata
     } = require_approval_state_machine();
-    var ApprovalManager = class {
+    var ApprovalManager2 = class {
       constructor(stateGraph) {
         this.stateGraph = stateGraph;
       }
@@ -29270,7 +29275,7 @@ var require_approval_manager = __commonJS({
         return validateTransition(fromStatus, toStatus);
       }
     };
-    module2.exports = ApprovalManager;
+    module2.exports = ApprovalManager2;
   }
 });
 
@@ -37007,6 +37012,9914 @@ var require_multer = __commonJS({
     module2.exports.diskStorage = diskStorage;
     module2.exports.memoryStorage = memoryStorage;
     module2.exports.MulterError = MulterError;
+  }
+});
+
+// ../../../services/vienna-lib/core/intent-tracing.js
+var require_intent_tracing = __commonJS({
+  "../../../services/vienna-lib/core/intent-tracing.js"(exports2, module2) {
+    var IntentTracer = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Record intent lifecycle event
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} event_type - Event type
+       * @param {Object} metadata - Event metadata
+       */
+      async recordEvent(intent_id, event_type, metadata = {}) {
+        const event = {
+          event_type,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          metadata
+        };
+        await this.stateGraph.appendIntentTraceEvent(intent_id, event);
+        return event;
+      }
+      /**
+       * Get intent trace by ID
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {IntentTrace|null} Complete intent trace
+       */
+      async getTrace(intent_id) {
+        return await this.stateGraph.getIntentTrace(intent_id);
+      }
+      /**
+       * List intent traces with filters
+       * 
+       * @param {Object} filters - Query filters
+       * @returns {Array<IntentTrace>} Matching traces
+       */
+      async listTraces(filters = {}) {
+        return await this.stateGraph.listIntentTraces(filters);
+      }
+      /**
+       * Build execution graph for intent
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {Object} Execution graph structure
+       */
+      async buildExecutionGraph(intent_id) {
+        const trace = await this.getTrace(intent_id);
+        if (!trace) {
+          return null;
+        }
+        const graph = {
+          intent: {
+            intent_id: trace.intent_id,
+            intent_type: trace.intent_type,
+            source: trace.source,
+            submitted_at: trace.submitted_at,
+            status: trace.status
+          },
+          nodes: [],
+          edges: []
+        };
+        const relationships = trace.relationships || {};
+        graph.nodes.push({
+          id: trace.intent_id,
+          type: "intent",
+          label: trace.intent_type,
+          timestamp: trace.submitted_at,
+          status: trace.status
+        });
+        if (relationships.reconciliation_id) {
+          const reconciliation = await this._getReconciliationNode(relationships.reconciliation_id);
+          if (reconciliation) {
+            graph.nodes.push(reconciliation);
+            graph.edges.push({
+              from: trace.intent_id,
+              to: relationships.reconciliation_id,
+              type: "triggers"
+            });
+          }
+        }
+        if (relationships.execution_id) {
+          const execution = await this._getExecutionNode(relationships.execution_id);
+          if (execution) {
+            graph.nodes.push(execution);
+            graph.edges.push({
+              from: relationships.reconciliation_id || trace.intent_id,
+              to: relationships.execution_id,
+              type: "executes"
+            });
+          }
+        }
+        if (relationships.verification_id) {
+          const verification = await this._getVerificationNode(relationships.verification_id);
+          if (verification) {
+            graph.nodes.push(verification);
+            graph.edges.push({
+              from: relationships.execution_id || trace.intent_id,
+              to: relationships.verification_id,
+              type: "verifies"
+            });
+          }
+        }
+        if (relationships.outcome_id) {
+          const outcome = await this._getOutcomeNode(relationships.outcome_id);
+          if (outcome) {
+            graph.nodes.push(outcome);
+            graph.edges.push({
+              from: relationships.verification_id || relationships.execution_id || trace.intent_id,
+              to: relationships.outcome_id,
+              type: "concludes"
+            });
+          }
+        }
+        return graph;
+      }
+      /**
+       * Get intent timeline (chronological event list)
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {Array<Object>} Timeline events
+       */
+      async getIntentTimeline(intent_id) {
+        const trace = await this.getTrace(intent_id);
+        if (!trace) {
+          return null;
+        }
+        return trace.events.sort(
+          (a2, b2) => new Date(a2.timestamp) - new Date(b2.timestamp)
+        );
+      }
+      /**
+       * Link intent to reconciliation
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} reconciliation_id - Reconciliation identifier
+       */
+      async linkReconciliation(intent_id, reconciliation_id) {
+        await this.stateGraph.updateIntentRelationship(intent_id, {
+          reconciliation_id
+        });
+      }
+      /**
+       * Link intent to execution
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} execution_id - Execution identifier
+       */
+      async linkExecution(intent_id, execution_id) {
+        await this.stateGraph.updateIntentRelationship(intent_id, {
+          execution_id
+        });
+      }
+      /**
+       * Link intent to verification
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} verification_id - Verification identifier
+       */
+      async linkVerification(intent_id, verification_id) {
+        await this.stateGraph.updateIntentRelationship(intent_id, {
+          verification_id
+        });
+      }
+      /**
+       * Link intent to outcome
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} outcome_id - Outcome identifier
+       */
+      async linkOutcome(intent_id, outcome_id) {
+        await this.stateGraph.updateIntentRelationship(intent_id, {
+          outcome_id
+        });
+      }
+      /**
+       * Update intent status
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @param {string} status - New status
+       */
+      async updateStatus(intent_id, status) {
+        await this.stateGraph.updateIntentStatus(intent_id, status);
+      }
+      // Private helper methods for graph construction
+      async _getReconciliationNode(reconciliation_id) {
+        return {
+          id: reconciliation_id,
+          type: "reconciliation",
+          label: "Reconciliation",
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          status: "unknown"
+          // Would be populated from actual data
+        };
+      }
+      async _getExecutionNode(execution_id) {
+        const summary = await this.stateGraph.getExecutionLedgerSummary(execution_id);
+        if (!summary) {
+          return null;
+        }
+        return {
+          id: execution_id,
+          type: "execution",
+          label: summary.objective || "Execution",
+          timestamp: summary.started_at,
+          status: summary.status,
+          metadata: {
+            risk_tier: summary.risk_tier,
+            target_id: summary.target_id,
+            duration_ms: summary.duration_ms
+          }
+        };
+      }
+      async _getVerificationNode(verification_id) {
+        const verification = await this.stateGraph.getVerification(verification_id);
+        if (!verification) {
+          return null;
+        }
+        return {
+          id: verification_id,
+          type: "verification",
+          label: verification.verification_type,
+          timestamp: verification.started_at,
+          status: verification.status,
+          metadata: {
+            objective_achieved: verification.objective_achieved
+          }
+        };
+      }
+      async _getOutcomeNode(outcome_id) {
+        const outcome = await this.stateGraph.getWorkflowOutcome(outcome_id);
+        if (!outcome) {
+          return null;
+        }
+        return {
+          id: outcome_id,
+          type: "outcome",
+          label: outcome.outcome_type,
+          timestamp: outcome.finalized_at,
+          status: outcome.outcome_type,
+          metadata: {
+            objective_achieved: outcome.objective_achieved,
+            summary: outcome.summary
+          }
+        };
+      }
+    };
+    module2.exports = { IntentTracer };
+  }
+});
+
+// ../../../services/vienna-lib/governance/quota-enforcer.js
+var require_quota_enforcer = __commonJS({
+  "../../../services/vienna-lib/governance/quota-enforcer.js"(exports2, module2) {
+    var QuotaEnforcer2 = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Check if tenant has available quota
+       * 
+       * @param {string} tenantId - Tenant identifier
+       * @param {Object} intent - Intent object (for cost estimation)
+       * @returns {Promise<Object>} { allowed, used, limit, available, utilization, reason }
+       */
+      async checkQuota(tenantId, intent) {
+        let tenant = null;
+        if (typeof this.stateGraph.getTenant === "function") {
+          tenant = this.stateGraph.getTenant(tenantId);
+        }
+        if (!tenant) {
+          return {
+            allowed: true,
+            used: 0,
+            limit: 100,
+            available: 100,
+            utilization: 0,
+            reason: "default_quota"
+          };
+        }
+        const used = tenant.quota_used || 0;
+        const limit = tenant.quota_limit || 100;
+        const available = Math.max(0, limit - used);
+        const utilization = limit > 0 ? used / limit : 0;
+        const allowed = used < limit;
+        return {
+          allowed,
+          used,
+          limit,
+          available,
+          utilization,
+          reason: allowed ? null : "quota_exceeded"
+        };
+      }
+      /**
+       * Reserve quota for upcoming execution
+       * 
+       * @param {string} tenantId
+       * @param {number} amount
+       * @returns {Promise<Object>} Reservation result
+       */
+      async reserveQuota(tenantId, amount) {
+        const reservationId = `qres_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        this.stateGraph.createQuotaReservation(
+          reservationId,
+          tenantId,
+          amount,
+          "reserved",
+          (/* @__PURE__ */ new Date()).toISOString()
+        );
+        return {
+          reservation_id: reservationId,
+          tenant_id: tenantId,
+          amount,
+          status: "reserved"
+        };
+      }
+      /**
+       * Commit (finalize) quota reservation
+       * 
+       * @param {string} reservationId
+       * @returns {Promise<void>}
+       */
+      async commitQuota(reservationId) {
+        this.stateGraph.updateQuotaReservation(reservationId, {
+          status: "committed",
+          committed_at: (/* @__PURE__ */ new Date()).toISOString()
+        });
+      }
+      /**
+       * Release (cancel) quota reservation
+       * 
+       * @param {string} reservationId
+       * @returns {Promise<void>}
+       */
+      async releaseQuota(reservationId) {
+        this.stateGraph.updateQuotaReservation(reservationId, {
+          status: "released",
+          released_at: (/* @__PURE__ */ new Date()).toISOString()
+        });
+      }
+    };
+    module2.exports = { QuotaEnforcer: QuotaEnforcer2 };
+  }
+});
+
+// ../../../services/vienna-lib/attestation/attestation-engine.js
+var require_attestation_engine = __commonJS({
+  "../../../services/vienna-lib/attestation/attestation-engine.js"(exports2, module2) {
+    var { randomUUID } = require("crypto");
+    var { getStateGraph: getStateGraph2 } = require_state_graph();
+    var AttestationEngine2 = class {
+      constructor() {
+        this.stateGraph = null;
+      }
+      async initialize() {
+        if (!this.stateGraph) {
+          this.stateGraph = getStateGraph2();
+          await this.stateGraph.initialize();
+        }
+      }
+      /**
+       * Create attestation record
+       * 
+       * @param {Object} params
+       * @param {string} params.execution_id - Execution ID (required)
+       * @param {string} params.tenant_id - Tenant ID (optional)
+       * @param {string} params.status - Attestation status: success | failed | blocked
+       * @param {string} params.input_hash - Input hash (optional)
+       * @param {string} params.output_hash - Output hash (optional)
+       * @param {Object} params.metadata - Additional metadata (optional)
+       * @returns {Promise<Object>} Attestation record
+       */
+      async createAttestation({
+        execution_id,
+        tenant_id = null,
+        status,
+        input_hash = null,
+        output_hash = null,
+        metadata = null
+      }) {
+        await this.initialize();
+        if (!execution_id) {
+          throw new Error("execution_id is required");
+        }
+        if (!["success", "failed", "blocked"].includes(status)) {
+          throw new Error(`Invalid status: ${status}. Must be success, failed, or blocked`);
+        }
+        const attestation_id = randomUUID();
+        const attested_at = (/* @__PURE__ */ new Date()).toISOString();
+        const attestation = {
+          attestation_id,
+          execution_id,
+          tenant_id,
+          status,
+          input_hash,
+          output_hash,
+          attested_at,
+          metadata: metadata ? JSON.stringify(metadata) : null,
+          created_at: attested_at
+        };
+        const stmt = this.stateGraph.db.prepare(`
+      INSERT INTO execution_attestations (
+        attestation_id,
+        execution_id,
+        tenant_id,
+        status,
+        input_hash,
+        output_hash,
+        attested_at,
+        metadata,
+        created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+        stmt.run(
+          attestation.attestation_id,
+          attestation.execution_id,
+          attestation.tenant_id,
+          attestation.status,
+          attestation.input_hash,
+          attestation.output_hash,
+          attestation.attested_at,
+          attestation.metadata,
+          attestation.created_at
+        );
+        return attestation;
+      }
+      /**
+       * Get attestation by execution_id
+       * 
+       * @param {string} execution_id - Execution ID
+       * @returns {Promise<Object|null>} Attestation record or null
+       */
+      async getAttestation(execution_id) {
+        await this.initialize();
+        const stmt = this.stateGraph.db.prepare(`
+      SELECT * FROM execution_attestations WHERE execution_id = ?
+    `);
+        const row = stmt.get(execution_id);
+        if (!row) {
+          return null;
+        }
+        if (row.metadata) {
+          try {
+            row.metadata = JSON.parse(row.metadata);
+          } catch (err) {
+          }
+        }
+        return row;
+      }
+      /**
+       * List attestations (with optional filters)
+       * 
+       * @param {Object} filters
+       * @param {string} filters.tenant_id - Filter by tenant
+       * @param {string} filters.status - Filter by status
+       * @param {number} filters.limit - Result limit (default: 100)
+       * @returns {Promise<Array<Object>>} Attestation records
+       */
+      async listAttestations(filters = {}) {
+        await this.initialize();
+        const { tenant_id, status, limit = 100 } = filters;
+        let query = "SELECT * FROM execution_attestations WHERE 1=1";
+        const params = [];
+        if (tenant_id) {
+          query += " AND tenant_id = ?";
+          params.push(tenant_id);
+        }
+        if (status) {
+          query += " AND status = ?";
+          params.push(status);
+        }
+        query += " ORDER BY attested_at DESC LIMIT ?";
+        params.push(limit);
+        const stmt = this.stateGraph.db.prepare(query);
+        const rows = stmt.all(...params);
+        return rows.map((row) => {
+          if (row.metadata) {
+            try {
+              row.metadata = JSON.parse(row.metadata);
+            } catch (err) {
+            }
+          }
+          return row;
+        });
+      }
+      /**
+       * Check if attestation exists for execution
+       * 
+       * @param {string} execution_id - Execution ID
+       * @returns {Promise<boolean>}
+       */
+      async hasAttestation(execution_id) {
+        await this.initialize();
+        const stmt = this.stateGraph.db.prepare(`
+      SELECT 1 FROM execution_attestations WHERE execution_id = ? LIMIT 1
+    `);
+        return !!stmt.get(execution_id);
+      }
+    };
+    module2.exports = { AttestationEngine: AttestationEngine2 };
+  }
+});
+
+// ../../../services/vienna-lib/accounting/cost-tracker.js
+var require_cost_tracker = __commonJS({
+  "../../../services/vienna-lib/accounting/cost-tracker.js"(exports2, module2) {
+    var CostTracker2 = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Estimate cost for intent (before execution)
+       * 
+       * @param {Object} intent - Intent object
+       * @returns {Promise<number>} Estimated cost in USD
+       */
+      async estimateCost(intent) {
+        return 0.01;
+      }
+      /**
+       * Check if tenant has available budget
+       * 
+       * @param {string} tenantId
+       * @param {number} estimatedCost
+       * @returns {Promise<Object>} { allowed, available, currency }
+       */
+      async checkBudget(tenantId, estimatedCost) {
+        const tenant = this.stateGraph.getTenant(tenantId);
+        if (!tenant) {
+          return {
+            allowed: true,
+            available: Infinity,
+            currency: "USD"
+          };
+        }
+        const budgetLimit = tenant.budget_limit || Infinity;
+        const budgetUsed = tenant.budget_used || 0;
+        const available = budgetLimit - budgetUsed;
+        const allowed = estimatedCost <= available;
+        return {
+          allowed,
+          available,
+          currency: "USD"
+        };
+      }
+      /**
+       * Calculate actual cost after execution
+       * 
+       * @param {string} executionId
+       * @returns {Promise<Object>} { amount, currency, breakdown }
+       */
+      async calculateActualCost(executionId) {
+        return {
+          amount: 0.01,
+          currency: "USD",
+          breakdown: {
+            input_tokens: 0,
+            output_tokens: 0,
+            model: "unknown"
+          }
+        };
+      }
+      /**
+       * Record cost to State Graph
+       * 
+       * @param {string} executionId
+       * @param {string} tenantId
+       * @param {number} amount
+       * @param {Object} breakdown
+       * @returns {Promise<void>}
+       */
+      async recordCost(executionId, tenantId, amount, breakdown) {
+        const costId = `cost_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        this.stateGraph.createExecutionCost(
+          costId,
+          executionId,
+          tenantId,
+          amount,
+          "USD",
+          breakdown,
+          (/* @__PURE__ */ new Date()).toISOString()
+        );
+        const tenant = this.stateGraph.getTenant(tenantId);
+        if (tenant) {
+          const budgetUsed = (tenant.budget_used || 0) + amount;
+          this.stateGraph.updateTenant(tenantId, { budget_used: budgetUsed });
+        }
+      }
+    };
+    module2.exports = { CostTracker: CostTracker2 };
+  }
+});
+
+// ../../../services/vienna-lib/core/reconciliation-state-machine.js
+var require_reconciliation_state_machine = __commonJS({
+  "../../../services/vienna-lib/core/reconciliation-state-machine.js"(exports2, module2) {
+    var ReconciliationStatus = {
+      IDLE: "idle",
+      RECONCILING: "reconciling",
+      COOLDOWN: "cooldown",
+      DEGRADED: "degraded",
+      SAFE_MODE: "safe_mode"
+    };
+    var TransitionReason = {
+      // Entry into reconciliation
+      DRIFT_DETECTED: "drift_detected",
+      COOLDOWN_EXPIRED: "cooldown_expired",
+      // Successful completion
+      VERIFICATION_SUCCESS: "verification_success",
+      PASSIVE_RECOVERY: "passive_recovery",
+      // Failure paths
+      EXECUTION_FAILED: "execution_failed",
+      VERIFICATION_FAILED: "verification_failed",
+      TIMEOUT: "timeout",
+      ATTEMPTS_EXHAUSTED: "attempts_exhausted",
+      // Control actions
+      MANUAL_RESET: "manual_reset",
+      MANUAL_ESCALATION: "manual_escalation",
+      SAFE_MODE_ENTERED: "safe_mode_entered",
+      SAFE_MODE_RELEASED: "safe_mode_released",
+      // System actions
+      STALE_RECONCILIATION: "stale_reconciliation"
+    };
+    var TransitionTable = {
+      [ReconciliationStatus.IDLE]: {
+        [ReconciliationStatus.RECONCILING]: [
+          TransitionReason.DRIFT_DETECTED,
+          TransitionReason.COOLDOWN_EXPIRED
+        ],
+        [ReconciliationStatus.SAFE_MODE]: [
+          TransitionReason.SAFE_MODE_ENTERED
+        ],
+        [ReconciliationStatus.DEGRADED]: [
+          TransitionReason.MANUAL_ESCALATION
+        ]
+      },
+      [ReconciliationStatus.RECONCILING]: {
+        [ReconciliationStatus.IDLE]: [
+          TransitionReason.VERIFICATION_SUCCESS,
+          TransitionReason.PASSIVE_RECOVERY
+        ],
+        [ReconciliationStatus.COOLDOWN]: [
+          TransitionReason.EXECUTION_FAILED,
+          TransitionReason.VERIFICATION_FAILED,
+          TransitionReason.TIMEOUT
+        ],
+        [ReconciliationStatus.DEGRADED]: [
+          TransitionReason.ATTEMPTS_EXHAUSTED,
+          TransitionReason.TIMEOUT,
+          TransitionReason.MANUAL_ESCALATION,
+          TransitionReason.STALE_RECONCILIATION
+        ],
+        [ReconciliationStatus.SAFE_MODE]: [
+          TransitionReason.SAFE_MODE_ENTERED
+        ]
+      },
+      [ReconciliationStatus.COOLDOWN]: {
+        [ReconciliationStatus.RECONCILING]: [
+          TransitionReason.COOLDOWN_EXPIRED
+        ],
+        [ReconciliationStatus.IDLE]: [
+          TransitionReason.PASSIVE_RECOVERY
+        ],
+        [ReconciliationStatus.DEGRADED]: [
+          TransitionReason.MANUAL_ESCALATION,
+          TransitionReason.ATTEMPTS_EXHAUSTED
+        ],
+        [ReconciliationStatus.SAFE_MODE]: [
+          TransitionReason.SAFE_MODE_ENTERED
+        ]
+      },
+      [ReconciliationStatus.DEGRADED]: {
+        [ReconciliationStatus.IDLE]: [
+          TransitionReason.MANUAL_RESET
+        ],
+        [ReconciliationStatus.SAFE_MODE]: [
+          TransitionReason.SAFE_MODE_ENTERED
+        ]
+      },
+      [ReconciliationStatus.SAFE_MODE]: {
+        [ReconciliationStatus.IDLE]: [
+          TransitionReason.SAFE_MODE_RELEASED,
+          TransitionReason.MANUAL_RESET
+        ],
+        [ReconciliationStatus.DEGRADED]: [
+          TransitionReason.SAFE_MODE_RELEASED
+          // Conservative release policy
+        ]
+      }
+    };
+    var DEFAULT_POLICY = {
+      max_reconciliation_attempts: 3,
+      cooldown_duration_seconds: 300,
+      // 5 minutes
+      execution_timeout_seconds: 30,
+      verification_timeout_seconds: 10,
+      stale_reconciliation_timeout_seconds: 120,
+      degraded_requires_manual_reset: true,
+      safe_mode_release_conservative: true
+    };
+    function canTransition(fromStatus, toStatus, reason) {
+      if (fromStatus === toStatus) {
+        return false;
+      }
+      const allowedTransitions = TransitionTable[fromStatus];
+      if (!allowedTransitions) {
+        return false;
+      }
+      const allowedReasons = allowedTransitions[toStatus];
+      if (!allowedReasons) {
+        return false;
+      }
+      return allowedReasons.includes(reason);
+    }
+    function getAllowedNextStates(status) {
+      const transitions = TransitionTable[status];
+      if (!transitions) {
+        return [];
+      }
+      return Object.keys(transitions);
+    }
+    function getAllowedReasons(fromStatus, toStatus) {
+      const transitions = TransitionTable[fromStatus];
+      if (!transitions) {
+        return [];
+      }
+      return transitions[toStatus] || [];
+    }
+    function applyTransition(objective, toStatus, reason, context = {}) {
+      const fromStatus = objective.reconciliation_status;
+      if (!canTransition(fromStatus, toStatus, reason)) {
+        const allowed = getAllowedNextStates(fromStatus);
+        throw new Error(
+          `Invalid transition: ${fromStatus} \u2192 ${toStatus} (reason: ${reason}). Allowed: [${allowed.join(", ")}]`
+        );
+      }
+      const now = (/* @__PURE__ */ new Date()).toISOString();
+      const updates = {
+        reconciliation_status: toStatus,
+        updated_at: now
+      };
+      switch (toStatus) {
+        case ReconciliationStatus.RECONCILING:
+          updates.reconciliation_started_at = now;
+          updates.reconciliation_generation = (objective.reconciliation_generation || 0) + 1;
+          updates.reconciliation_cooldown_until = null;
+          updates.reconciliation_last_result = "execution_started";
+          break;
+        case ReconciliationStatus.IDLE:
+          updates.reconciliation_started_at = null;
+          updates.reconciliation_cooldown_until = null;
+          updates.reconciliation_last_result = reason === TransitionReason.VERIFICATION_SUCCESS ? "recovered" : reason;
+          if (reason === TransitionReason.VERIFICATION_SUCCESS) {
+            updates.reconciliation_attempt_count = 0;
+            updates.reconciliation_last_verified_at = now;
+            updates.reconciliation_last_error = null;
+          }
+          if (reason === TransitionReason.MANUAL_RESET) {
+            updates.reconciliation_attempt_count = 0;
+            updates.reconciliation_last_error = null;
+          }
+          break;
+        case ReconciliationStatus.COOLDOWN:
+          const cooldownSeconds = context.cooldown_seconds || DEFAULT_POLICY.cooldown_duration_seconds;
+          const cooldownUntil = new Date(Date.now() + cooldownSeconds * 1e3).toISOString();
+          updates.reconciliation_started_at = null;
+          updates.reconciliation_cooldown_until = cooldownUntil;
+          updates.reconciliation_last_result = reason;
+          if (context.error) {
+            updates.reconciliation_last_error = context.error;
+          }
+          if (context.execution_id) {
+            updates.reconciliation_last_execution_id = context.execution_id;
+          }
+          break;
+        case ReconciliationStatus.DEGRADED:
+          updates.reconciliation_started_at = null;
+          updates.reconciliation_cooldown_until = null;
+          updates.reconciliation_last_result = "degraded";
+          if (context.error) {
+            updates.reconciliation_last_error = context.error;
+          }
+          if (context.execution_id) {
+            updates.reconciliation_last_execution_id = context.execution_id;
+          }
+          break;
+        case ReconciliationStatus.SAFE_MODE:
+          updates.reconciliation_last_result = "safe_mode";
+          break;
+      }
+      return updates;
+    }
+    function isEligibleForReconciliation(objective, options = {}) {
+      const { global_safe_mode = false, current_time = null } = options;
+      const now = current_time || (/* @__PURE__ */ new Date()).toISOString();
+      if (global_safe_mode) {
+        return { eligible: false, reason: "global_safe_mode" };
+      }
+      if (objective.manual_hold) {
+        return { eligible: false, reason: "manual_hold" };
+      }
+      const status = objective.reconciliation_status;
+      if (status === ReconciliationStatus.RECONCILING) {
+        return { eligible: false, reason: "in_flight" };
+      }
+      if (status === ReconciliationStatus.COOLDOWN) {
+        if (objective.reconciliation_cooldown_until && now < objective.reconciliation_cooldown_until) {
+          return { eligible: false, reason: "cooldown_active" };
+        }
+        return { eligible: true, reason: "cooldown_expired" };
+      }
+      if (status === ReconciliationStatus.DEGRADED) {
+        return { eligible: false, reason: "degraded" };
+      }
+      if (status === ReconciliationStatus.SAFE_MODE) {
+        return { eligible: false, reason: "safe_mode" };
+      }
+      if (status === ReconciliationStatus.IDLE) {
+        return { eligible: true, reason: "idle" };
+      }
+      return { eligible: false, reason: "unknown_status" };
+    }
+    function isTerminalState(objective) {
+      return objective.reconciliation_status === ReconciliationStatus.DEGRADED;
+    }
+    function isRemediating(objective) {
+      return objective.reconciliation_status === ReconciliationStatus.RECONCILING;
+    }
+    function isInCooldown(objective, current_time = null) {
+      const now = current_time || (/* @__PURE__ */ new Date()).toISOString();
+      return objective.reconciliation_status === ReconciliationStatus.COOLDOWN && objective.reconciliation_cooldown_until && now < objective.reconciliation_cooldown_until;
+    }
+    function hasAttemptsRemaining(objective, policy = DEFAULT_POLICY) {
+      const attemptCount = objective.reconciliation_attempt_count || 0;
+      return attemptCount < policy.max_reconciliation_attempts;
+    }
+    function isStaleReconciliation(objective, policy = DEFAULT_POLICY, current_time = null) {
+      if (objective.reconciliation_status !== ReconciliationStatus.RECONCILING) {
+        return false;
+      }
+      if (!objective.reconciliation_started_at) {
+        return false;
+      }
+      const now = current_time ? new Date(current_time) : /* @__PURE__ */ new Date();
+      const startedAt = new Date(objective.reconciliation_started_at);
+      const elapsedSeconds = (now - startedAt) / 1e3;
+      return elapsedSeconds > policy.stale_reconciliation_timeout_seconds;
+    }
+    function determineFailureStatus(objective, policy = DEFAULT_POLICY) {
+      if (hasAttemptsRemaining(objective, policy)) {
+        return ReconciliationStatus.COOLDOWN;
+      } else {
+        return ReconciliationStatus.DEGRADED;
+      }
+    }
+    function getReconciliationSummary(objective) {
+      const status = objective.reconciliation_status;
+      const attemptCount = objective.reconciliation_attempt_count || 0;
+      const lastResult = objective.reconciliation_last_result;
+      const lastError = objective.reconciliation_last_error;
+      const cooldownUntil = objective.reconciliation_cooldown_until;
+      const generation = objective.reconciliation_generation || 0;
+      return {
+        status,
+        attempt_count: attemptCount,
+        last_result: lastResult,
+        last_error: lastError,
+        cooldown_until: cooldownUntil,
+        generation,
+        manual_hold: objective.manual_hold || false,
+        is_terminal: isTerminalState(objective),
+        is_remediating: isRemediating(objective),
+        is_in_cooldown: isInCooldown(objective)
+      };
+    }
+    module2.exports = {
+      // Enums
+      ReconciliationStatus,
+      TransitionReason,
+      TransitionTable,
+      DEFAULT_POLICY,
+      // Transition logic
+      canTransition,
+      getAllowedNextStates,
+      getAllowedReasons,
+      applyTransition,
+      // State checks
+      isEligibleForReconciliation,
+      isTerminalState,
+      isRemediating,
+      isInCooldown,
+      hasAttemptsRemaining,
+      isStaleReconciliation,
+      // Helpers
+      determineFailureStatus,
+      getReconciliationSummary
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/reconciliation-gate.js
+var require_reconciliation_gate = __commonJS({
+  "../../../services/vienna-lib/core/reconciliation-gate.js"(exports2, module2) {
+    var {
+      ReconciliationStatus,
+      TransitionReason,
+      isEligibleForReconciliation,
+      canTransition,
+      applyTransition,
+      hasAttemptsRemaining
+    } = require_reconciliation_state_machine();
+    var ReconciliationGate = class {
+      constructor(stateGraph, options = {}) {
+        this.stateGraph = stateGraph;
+        this.options = {
+          global_safe_mode: false,
+          ...options
+        };
+      }
+      /**
+       * Request reconciliation admission for an objective
+       * 
+       * @param {string} objectiveId - Objective ID
+       * @param {Object} context - Admission context (drift_reason, intent_id, etc.)
+       * @returns {GateDecision} Admission decision
+       */
+      requestAdmission(objectiveId, context = {}) {
+        if (!context.intent_id) {
+          console.warn("[DIRECT_ACTION_BYPASS] action=requestAdmission objective=" + objectiveId + " source=internal migration_required=true");
+          console.warn("[DIRECT_ACTION_BYPASS] Direct reconciliation admission without intent context. Use IntentGateway.submitIntent() instead.");
+        }
+        const safeModeStatus = this.stateGraph.getSafeModeStatus();
+        if (safeModeStatus.active) {
+          this.stateGraph.appendLedgerEvent({
+            execution_id: `gate-${objectiveId}-${Date.now()}`,
+            event_type: "objective.reconciliation.skipped",
+            stage: "policy",
+            actor_type: "system",
+            actor_id: "reconciliation-gate",
+            event_timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+            objective: objectiveId,
+            payload_json: {
+              skip_reason: "safe_mode",
+              safe_mode_reason: safeModeStatus.reason,
+              safe_mode_entered_by: safeModeStatus.entered_by,
+              safe_mode_entered_at: safeModeStatus.entered_at
+            }
+          });
+          return {
+            admitted: false,
+            reason: "safe_mode",
+            generation: null,
+            updates: null,
+            metadata: {
+              objective_id: objectiveId,
+              safe_mode_reason: safeModeStatus.reason,
+              safe_mode_entered_by: safeModeStatus.entered_by,
+              safe_mode_entered_at: safeModeStatus.entered_at
+            }
+          };
+        }
+        const objective = this.stateGraph.getObjective(objectiveId);
+        if (!objective) {
+          return {
+            admitted: false,
+            reason: "objective_not_found",
+            generation: null,
+            updates: null,
+            metadata: { objective_id: objectiveId }
+          };
+        }
+        const eligibility = isEligibleForReconciliation(objective, {
+          global_safe_mode: this.options.global_safe_mode,
+          current_time: context.current_time
+        });
+        if (!eligibility.eligible) {
+          return {
+            admitted: false,
+            reason: eligibility.reason,
+            generation: objective.reconciliation_generation,
+            updates: null,
+            metadata: {
+              objective_id: objectiveId,
+              current_status: objective.reconciliation_status,
+              attempt_count: objective.reconciliation_attempt_count,
+              cooldown_until: objective.reconciliation_cooldown_until
+            }
+          };
+        }
+        const currentStatus = objective.reconciliation_status;
+        let transitionReason;
+        if (currentStatus === ReconciliationStatus.IDLE) {
+          transitionReason = TransitionReason.DRIFT_DETECTED;
+        } else if (currentStatus === ReconciliationStatus.COOLDOWN) {
+          transitionReason = TransitionReason.COOLDOWN_EXPIRED;
+        } else {
+          return {
+            admitted: false,
+            reason: "invalid_status",
+            generation: objective.reconciliation_generation,
+            updates: null,
+            metadata: { current_status: currentStatus }
+          };
+        }
+        if (!canTransition(currentStatus, ReconciliationStatus.RECONCILING, transitionReason)) {
+          return {
+            admitted: false,
+            reason: "invalid_transition",
+            generation: objective.reconciliation_generation,
+            updates: null,
+            metadata: {
+              from: currentStatus,
+              to: ReconciliationStatus.RECONCILING,
+              reason: transitionReason
+            }
+          };
+        }
+        const policy = this._loadPolicy(objective);
+        const policyEvaluation = this._evaluatePolicy(objective, policy, context);
+        if (!policyEvaluation.allowed) {
+          return {
+            admitted: false,
+            reason: policyEvaluation.reason,
+            generation: objective.reconciliation_generation,
+            updates: null,
+            metadata: {
+              objective_id: objectiveId,
+              policy_ref: objective.policy_ref,
+              policy_reason: policyEvaluation.reason,
+              ...policyEvaluation.metadata
+            }
+          };
+        }
+        const updates = applyTransition(
+          objective,
+          ReconciliationStatus.RECONCILING,
+          transitionReason,
+          context
+        );
+        updates.reconciliation_attempt_count = (objective.reconciliation_attempt_count || 0) + 1;
+        const newGeneration = updates.reconciliation_generation;
+        return {
+          admitted: true,
+          reason: transitionReason,
+          generation: newGeneration,
+          updates,
+          metadata: {
+            objective_id: objectiveId,
+            previous_status: currentStatus,
+            new_status: ReconciliationStatus.RECONCILING,
+            attempt_count: updates.reconciliation_attempt_count,
+            generation: newGeneration
+          }
+        };
+      }
+      /**
+       * Admit reconciliation with atomic state update
+       * 
+       * This is the single-flight enforcement point.
+       * Uses compare-and-swap pattern on reconciliation_status.
+       * 
+       * @param {string} objectiveId - Objective ID
+       * @param {Object} context - Admission context
+       * @returns {Object} { admitted: boolean, generation: number|null, reason: string }
+       */
+      admitAndTransition(objectiveId, context = {}) {
+        const decision = this.requestAdmission(objectiveId, context);
+        if (!decision.admitted) {
+          return {
+            admitted: false,
+            generation: null,
+            reason: decision.reason,
+            metadata: decision.metadata
+          };
+        }
+        const objective = this.stateGraph.getObjective(objectiveId);
+        if (!objective) {
+          return {
+            admitted: false,
+            generation: null,
+            reason: "objective_disappeared",
+            metadata: { objective_id: objectiveId }
+          };
+        }
+        const currentStatus = objective.reconciliation_status;
+        const expectedStatus = decision.metadata.previous_status;
+        if (currentStatus !== expectedStatus) {
+          return {
+            admitted: false,
+            generation: null,
+            reason: "status_changed",
+            metadata: {
+              expected: expectedStatus,
+              actual: currentStatus,
+              objective_id: objectiveId
+            }
+          };
+        }
+        try {
+          this.stateGraph.updateObjective(objectiveId, decision.updates);
+          this.stateGraph.recordObjectiveTransition(
+            objectiveId,
+            expectedStatus,
+            ReconciliationStatus.RECONCILING,
+            "objective.reconciliation.requested",
+            {
+              generation: decision.generation,
+              attempt_count: decision.updates.reconciliation_attempt_count,
+              admission_reason: decision.reason,
+              drift_reason: context.drift_reason || null
+            }
+          );
+          return {
+            admitted: true,
+            generation: decision.generation,
+            reason: decision.reason,
+            metadata: {
+              objective_id: objectiveId,
+              new_status: ReconciliationStatus.RECONCILING,
+              attempt_count: decision.updates.reconciliation_attempt_count,
+              generation: decision.generation
+            }
+          };
+        } catch (err) {
+          return {
+            admitted: false,
+            generation: null,
+            reason: "update_failed",
+            metadata: {
+              error: err.message,
+              objective_id: objectiveId
+            }
+          };
+        }
+      }
+      /**
+       * Batch admission check (without state mutation)
+       * 
+       * Used by evaluator to determine which objectives need reconciliation.
+       * 
+       * @param {string[]} objectiveIds - Array of objective IDs
+       * @param {Object} context - Shared context
+       * @returns {Object[]} Array of decisions
+       */
+      batchCheckEligibility(objectiveIds, context = {}) {
+        const decisions = [];
+        for (const objectiveId of objectiveIds) {
+          const decision = this.requestAdmission(objectiveId, context);
+          decisions.push({
+            objective_id: objectiveId,
+            ...decision
+          });
+        }
+        return decisions;
+      }
+      /**
+       * Get gate status summary
+       * 
+       * @returns {Object} Current gate configuration
+       */
+      getStatus() {
+        return {
+          global_safe_mode: this.options.global_safe_mode,
+          active: !this.options.global_safe_mode
+        };
+      }
+      /**
+       * Enable global safe mode
+       * 
+       * Blocks all new reconciliation admissions.
+       */
+      enableSafeMode(reason = "operator_action") {
+        this.options.global_safe_mode = true;
+        const activeObjectives = this.stateGraph.listObjectives({ is_enabled: true });
+        for (const objective of activeObjectives) {
+          this.stateGraph.recordObjectiveTransition(
+            objective.objective_id,
+            objective.reconciliation_status,
+            objective.reconciliation_status,
+            "objective.reconciliation.safe_mode_entered",
+            {
+              reason,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            }
+          );
+        }
+      }
+      /**
+       * Disable global safe mode
+       * 
+       * Allows reconciliation admissions.
+       */
+      disableSafeMode(reason = "operator_action") {
+        this.options.global_safe_mode = false;
+        const activeObjectives = this.stateGraph.listObjectives({ is_enabled: true });
+        for (const objective of activeObjectives) {
+          this.stateGraph.recordObjectiveTransition(
+            objective.objective_id,
+            objective.reconciliation_status,
+            objective.reconciliation_status,
+            "objective.reconciliation.safe_mode_released",
+            {
+              reason,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            }
+          );
+        }
+      }
+      /**
+       * Check if objective can be admitted (read-only)
+       * 
+       * @param {string} objectiveId - Objective ID
+       * @param {Object} context - Context
+       * @returns {Object} { eligible: boolean, reason: string }
+       */
+      checkEligibility(objectiveId, context = {}) {
+        const objective = this.stateGraph.getObjective(objectiveId);
+        if (!objective) {
+          return { eligible: false, reason: "objective_not_found" };
+        }
+        const eligibility = isEligibleForReconciliation(objective, {
+          global_safe_mode: this.options.global_safe_mode,
+          current_time: context.current_time
+        });
+        return eligibility;
+      }
+      /**
+       * Manually reset objective to idle state
+       * 
+       * Operator override for degraded or stuck objectives.
+       * 
+       * @param {string} objectiveId - Objective ID
+       * @param {Object} context - Reset context (reason, operator)
+       * @returns {Object} { success: boolean, message: string }
+       */
+      manualReset(objectiveId, context = {}) {
+        const objective = this.stateGraph.getObjective(objectiveId);
+        if (!objective) {
+          return {
+            success: false,
+            message: "objective_not_found"
+          };
+        }
+        const currentStatus = objective.reconciliation_status;
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        const policy = this._loadPolicy(objective);
+        const { shouldResetOnManualReset } = require_failure_policy_schema();
+        const resetCounters = shouldResetOnManualReset(policy);
+        const updates = {
+          reconciliation_status: ReconciliationStatus.IDLE,
+          reconciliation_attempt_count: 0,
+          reconciliation_started_at: null,
+          reconciliation_cooldown_until: null,
+          reconciliation_last_result: "manual_reset",
+          reconciliation_last_error: null,
+          updated_at: now
+        };
+        if (resetCounters) {
+          updates.consecutive_failures = 0;
+          updates.degraded_reason = null;
+        }
+        this.stateGraph.updateObjective(objectiveId, updates);
+        this.stateGraph.recordObjectiveTransition(
+          objectiveId,
+          currentStatus,
+          ReconciliationStatus.IDLE,
+          "objective.reconciliation.manual_reset",
+          {
+            previous_status: currentStatus,
+            operator: context.operator || "unknown",
+            reason: context.reason || "operator_override",
+            generation: objective.reconciliation_generation
+          }
+        );
+        return {
+          success: true,
+          message: "objective_reset_to_idle",
+          previous_status: currentStatus
+        };
+      }
+      // ============================================================
+      // POLICY EVALUATION (Phase 10.2)
+      // ============================================================
+      /**
+       * Load failure policy for objective
+       */
+      _loadPolicy(objective) {
+        if (!objective.policy_ref) {
+          return null;
+        }
+        const policy = this.stateGraph.getFailurePolicy(objective.policy_ref);
+        if (!policy) {
+          console.warn(`[ReconciliationGate] Policy not found: ${objective.policy_ref}`);
+          return null;
+        }
+        return policy;
+      }
+      /**
+       * Evaluate failure policy against objective state
+       * 
+       * Returns: { allowed: boolean, reason: string, metadata: object }
+       */
+      _evaluatePolicy(objective, policy, context = {}) {
+        if (!policy) {
+          return { allowed: true, reason: "no_policy", metadata: {} };
+        }
+        console.log(`[DEBUG] _evaluatePolicy: obj=${objective.objective_id}, consecutive_failures=${objective.consecutive_failures}, max_consecutive=${policy.max_consecutive_failures}`);
+        const {
+          calculateCooldownDuration,
+          shouldEnterDegraded
+        } = require_failure_policy_schema();
+        if (policy.max_consecutive_failures !== void 0 && policy.max_consecutive_failures !== null) {
+          if (objective.consecutive_failures >= policy.max_consecutive_failures) {
+            if (objective.reconciliation_status !== ReconciliationStatus.DEGRADED) {
+              console.warn(
+                `[ReconciliationGate] Objective ${objective.objective_id} has ${objective.consecutive_failures} consecutive failures (>= ${policy.max_consecutive_failures}) but not in degraded state`
+              );
+            }
+            return {
+              allowed: false,
+              reason: "policy_max_failures_reached",
+              metadata: {
+                consecutive_failures: objective.consecutive_failures,
+                max_allowed: policy.max_consecutive_failures
+              }
+            };
+          }
+        }
+        if (objective.reconciliation_cooldown_until) {
+          const now = context.current_time || (/* @__PURE__ */ new Date()).toISOString();
+          if (now < objective.reconciliation_cooldown_until) {
+            const remainingMs = new Date(objective.reconciliation_cooldown_until) - new Date(now);
+            return {
+              allowed: false,
+              reason: "policy_cooldown_active",
+              metadata: {
+                cooldown_until: objective.reconciliation_cooldown_until,
+                remaining_seconds: Math.ceil(remainingMs / 1e3)
+              }
+            };
+          }
+        }
+        if (shouldEnterDegraded(policy, objective.consecutive_failures + 1)) {
+          return {
+            allowed: true,
+            reason: "policy_last_attempt_before_degraded",
+            metadata: {
+              consecutive_failures: objective.consecutive_failures,
+              degraded_threshold: policy.degraded?.enter_after_consecutive_failures,
+              warning: "next_failure_triggers_degraded"
+            }
+          };
+        }
+        return {
+          allowed: true,
+          reason: "policy_approved",
+          metadata: {
+            policy_ref: policy.policy_id,
+            consecutive_failures: objective.consecutive_failures,
+            attempts_remaining: policy.max_consecutive_failures ? policy.max_consecutive_failures - objective.consecutive_failures : null
+          }
+        };
+      }
+    };
+    function createReconciliationGate(stateGraph, options = {}) {
+      return new ReconciliationGate(stateGraph, options);
+    }
+    module2.exports = {
+      ReconciliationGate,
+      createReconciliationGate
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/intent-gateway-patch.js
+var require_intent_gateway_patch = __commonJS({
+  "../../../services/vienna-lib/core/intent-gateway-patch.js"(exports2, module2) {
+    var { v4: uuidv4 } = (init_esm_node(), __toCommonJS(esm_node_exports));
+    function patchIntentGateway(IntentGatewayClass) {
+      const originalSubmitIntent = IntentGatewayClass.prototype.submitIntent;
+      IntentGatewayClass.prototype.submitIntent = async function(intent, context = {}) {
+        const {
+          tenant_id = "system",
+          session = null,
+          simulation = false
+        } = context;
+        if (!intent.intent_id) {
+          intent.intent_id = `intent-${uuidv4()}`;
+        }
+        if (!intent.submitted_at) {
+          intent.submitted_at = (/* @__PURE__ */ new Date()).toISOString();
+        }
+        intent.tenant_id = tenant_id;
+        if (intent.simulation === void 0) {
+          intent.simulation = simulation;
+        }
+        const response = {
+          intent_id: intent.intent_id,
+          tenant_id,
+          simulation: intent.simulation !== void 0 ? intent.simulation : simulation,
+          accepted: false,
+          action: null,
+          error: null,
+          execution_id: null,
+          explanation: null,
+          attestation: null,
+          cost: null,
+          quota_state: null,
+          metadata: {}
+        };
+        try {
+          this.stateGraph.createIntentTrace(
+            intent.intent_id,
+            intent.intent_type,
+            intent.source,
+            intent.submitted_at
+          );
+          this._emitLifecycleEvent("intent.submitted", intent, {
+            intent_id: intent.intent_id,
+            intent_type: intent.intent_type,
+            source: intent.source,
+            tenant_id
+          });
+          await this.tracer.recordEvent(intent.intent_id, "intent.submitted", {
+            intent_type: intent.intent_type,
+            source: intent.source,
+            tenant_id
+          });
+          const validation = this.validateIntent(intent);
+          if (!validation.valid) {
+            response.error = validation.error;
+            response.explanation = `Intent validation failed: ${validation.error}`;
+            this._emitLifecycleEvent("intent.denied", intent, {
+              intent_id: intent.intent_id,
+              denial_reason: validation.error,
+              stage: "validation"
+            });
+            await this.tracer.recordEvent(intent.intent_id, "intent.denied", {
+              reason: validation.error,
+              stage: "validation"
+            });
+            await this.tracer.updateStatus(intent.intent_id, "denied");
+            return response;
+          }
+          await this.tracer.recordEvent(intent.intent_id, "intent.validated", {
+            intent_type: intent.intent_type
+          });
+          if (tenant_id !== "system" && !intent.simulation) {
+            try {
+              if (this.quotaEnforcer) {
+                const quotaCheck = await this.quotaEnforcer.checkQuota(tenant_id, intent);
+                if (!quotaCheck.allowed) {
+                  response.error = "quota_exceeded";
+                  response.explanation = `Quota exceeded. Used ${quotaCheck.used}/${quotaCheck.limit} units (${Math.round(quotaCheck.utilization * 100)}%). ${quotaCheck.reason || ""}`;
+                  response.quota_state = {
+                    used: quotaCheck.used,
+                    limit: quotaCheck.limit,
+                    available: quotaCheck.available,
+                    utilization: quotaCheck.utilization,
+                    blocked: true
+                  };
+                  this._emitLifecycleEvent("quota.exceeded", intent, {
+                    intent_id: intent.intent_id,
+                    tenant_id,
+                    quota_state: response.quota_state
+                  });
+                  await this.tracer.recordEvent(intent.intent_id, "quota.exceeded", {
+                    tenant_id,
+                    quota_state: response.quota_state
+                  });
+                  await this.tracer.updateStatus(intent.intent_id, "blocked");
+                  return response;
+                }
+                response.quota_state = {
+                  used: quotaCheck.used,
+                  limit: quotaCheck.limit,
+                  available: quotaCheck.available,
+                  utilization: quotaCheck.utilization,
+                  blocked: false
+                };
+              }
+            } catch (quotaError) {
+              console.error("[IntentGateway] Quota check error:", quotaError);
+              response.metadata.quota_warning = quotaError.message;
+            }
+          }
+          const normalized = this.normalizeIntent(intent);
+          if (normalized.simulation === void 0) {
+            normalized.simulation = simulation;
+          }
+          const resolution = await this.resolveIntent(normalized);
+          response.accepted = resolution.accepted;
+          response.action = resolution.action || null;
+          response.error = resolution.error || null;
+          response.execution_id = resolution.metadata?.execution_id || null;
+          response.metadata = { ...response.metadata, ...resolution.metadata };
+          if (resolution.accepted && resolution.action) {
+            if (simulation) {
+              response.explanation = `Simulation: Would execute ${resolution.action}. No side effects were performed.`;
+            } else {
+              response.explanation = `Executed ${resolution.action} successfully. ${resolution.message || ""}`;
+            }
+          } else if (!resolution.accepted) {
+            response.explanation = `Intent denied: ${resolution.error || "unknown reason"}.`;
+          }
+          if (!simulation && resolution.accepted && response.execution_id) {
+            try {
+              if (this.attestationEngine) {
+                const attestationResult = await this.attestationEngine.createAttestation(
+                  response.execution_id,
+                  tenant_id,
+                  "success",
+                  normalized,
+                  resolution.metadata
+                );
+                response.attestation = {
+                  status: "attested",
+                  attestation_id: attestationResult.attestation_id,
+                  timestamp: attestationResult.attested_at
+                };
+              }
+            } catch (attestationError) {
+              console.error("[IntentGateway] Attestation error:", attestationError);
+              response.metadata.attestation_error = attestationError.message;
+            }
+          }
+          if (!simulation && resolution.accepted && response.execution_id) {
+            try {
+              if (this.costTracker) {
+                const nominalCost = 0.01;
+                await this.costTracker.recordCost(
+                  response.execution_id,
+                  tenant_id,
+                  nominalCost,
+                  { type: "execution", description: resolution.action }
+                );
+                response.cost = {
+                  amount: nominalCost,
+                  currency: "USD",
+                  breakdown: { type: "execution" }
+                };
+              }
+            } catch (costError) {
+              console.error("[IntentGateway] Cost tracking error:", costError);
+              response.metadata.cost_tracking_error = costError.message;
+            }
+          }
+          if (resolution.accepted && resolution.action) {
+            this._emitLifecycleEvent("intent.executed", intent, {
+              intent_id: intent.intent_id,
+              action: resolution.action,
+              execution_id: response.execution_id,
+              simulation
+            });
+            await this.tracer.recordEvent(intent.intent_id, "intent.executed", {
+              action: resolution.action,
+              execution_id: response.execution_id,
+              simulation
+            });
+            await this.tracer.updateStatus(intent.intent_id, "executing");
+            if (response.execution_id) {
+              await this.tracer.linkExecution(intent.intent_id, response.execution_id);
+            }
+          } else if (!resolution.accepted) {
+            this._emitLifecycleEvent("intent.denied", intent, {
+              intent_id: intent.intent_id,
+              denial_reason: resolution.error,
+              stage: "resolution"
+            });
+            await this.tracer.recordEvent(intent.intent_id, "intent.denied", {
+              reason: resolution.error,
+              stage: "resolution"
+            });
+            await this.tracer.updateStatus(intent.intent_id, "denied");
+          }
+          return response;
+        } catch (error) {
+          console.error("[IntentGateway] Submit intent error:", error);
+          response.error = "intent_processing_failed";
+          response.explanation = `Intent processing failed: ${error.message}`;
+          response.metadata.error_stack = error.stack;
+          await this.tracer.recordEvent(intent.intent_id, "intent.failed", {
+            error: error.message
+          });
+          await this.tracer.updateStatus(intent.intent_id, "failed");
+          return response;
+        }
+      };
+      return IntentGatewayClass;
+    }
+    module2.exports = { patchIntentGateway };
+  }
+});
+
+// ../../../services/vienna-lib/core/intent-gateway.js
+var require_intent_gateway = __commonJS({
+  "../../../services/vienna-lib/core/intent-gateway.js"(exports2, module2) {
+    var { v4: uuidv4 } = (init_esm_node(), __toCommonJS(esm_node_exports));
+    var IntentGateway2 = class {
+      constructor(stateGraph, options = {}) {
+        this.stateGraph = stateGraph;
+        this.options = {
+          supported_intent_types: [
+            "restore_objective",
+            "investigate_objective",
+            "set_safe_mode",
+            "test_execution",
+            // Phase 1 validation support
+            "check_system_health"
+            // Phase 28 integration proof
+          ],
+          ...options
+        };
+        const { IntentTracer } = require_intent_tracing();
+        this.tracer = new IntentTracer(stateGraph);
+        const { QuotaEnforcer: QuotaEnforcer2 } = require_quota_enforcer();
+        this.quotaEnforcer = new QuotaEnforcer2(stateGraph);
+        const { AttestationEngine: AttestationEngine2 } = require_attestation_engine();
+        this.attestationEngine = new AttestationEngine2(stateGraph);
+        const { CostTracker: CostTracker2 } = require_cost_tracker();
+        this.costTracker = new CostTracker2(stateGraph);
+      }
+      /**
+       * Submit intent to Vienna OS
+       * 
+       * @param {Intent} intent - Intent object
+       * @returns {IntentResponse} Response with acceptance status
+       */
+      async submitIntent(intent) {
+        if (!intent.intent_id) {
+          intent.intent_id = `intent-${uuidv4()}`;
+        }
+        if (!intent.submitted_at) {
+          intent.submitted_at = (/* @__PURE__ */ new Date()).toISOString();
+        }
+        this.stateGraph.createIntentTrace(
+          intent.intent_id,
+          intent.intent_type,
+          intent.source,
+          intent.submitted_at
+        );
+        this._emitLifecycleEvent("intent.submitted", intent, {
+          intent_id: intent.intent_id,
+          intent_type: intent.intent_type,
+          source: intent.source
+        });
+        await this.tracer.recordEvent(intent.intent_id, "intent.submitted", {
+          intent_type: intent.intent_type,
+          source: intent.source
+        });
+        const validation = this.validateIntent(intent);
+        if (!validation.valid) {
+          this._emitLifecycleEvent("intent.denied", intent, {
+            intent_id: intent.intent_id,
+            denial_reason: validation.error,
+            stage: "validation"
+          });
+          await this.tracer.recordEvent(intent.intent_id, "intent.denied", {
+            reason: validation.error,
+            stage: "validation"
+          });
+          await this.tracer.updateStatus(intent.intent_id, "denied");
+          return {
+            intent_id: intent.intent_id,
+            accepted: false,
+            error: validation.error,
+            metadata: { validation }
+          };
+        }
+        this._emitLifecycleEvent("intent.validated", intent, {
+          intent_id: intent.intent_id,
+          intent_type: intent.intent_type
+        });
+        await this.tracer.recordEvent(intent.intent_id, "intent.validated", {
+          intent_type: intent.intent_type
+        });
+        const normalized = this.normalizeIntent(intent);
+        const resolution = await this.resolveIntent(normalized);
+        this._emitLifecycleEvent("intent.resolved", intent, {
+          intent_id: intent.intent_id,
+          accepted: resolution.accepted,
+          action: resolution.action || null,
+          error: resolution.error || null
+        });
+        await this.tracer.recordEvent(intent.intent_id, "intent.resolved", {
+          accepted: resolution.accepted,
+          action: resolution.action || null,
+          error: resolution.error || null
+        });
+        if (resolution.accepted && resolution.action) {
+          this._emitLifecycleEvent("intent.executed", intent, {
+            intent_id: intent.intent_id,
+            action: resolution.action,
+            metadata: resolution.metadata
+          });
+          await this.tracer.recordEvent(intent.intent_id, "intent.executed", {
+            action: resolution.action,
+            metadata: resolution.metadata
+          });
+          await this.tracer.updateStatus(intent.intent_id, "executing");
+          if (resolution.metadata && resolution.metadata.execution_id) {
+            await this.tracer.linkExecution(intent.intent_id, resolution.metadata.execution_id);
+          }
+        } else if (!resolution.accepted) {
+          this._emitLifecycleEvent("intent.denied", intent, {
+            intent_id: intent.intent_id,
+            denial_reason: resolution.error,
+            stage: "resolution"
+          });
+          await this.tracer.recordEvent(intent.intent_id, "intent.denied", {
+            reason: resolution.error,
+            stage: "resolution"
+          });
+          await this.tracer.updateStatus(intent.intent_id, "denied");
+        }
+        return {
+          intent_id: intent.intent_id,
+          ...resolution
+        };
+      }
+      /**
+       * Validate intent structure
+       * 
+       * @param {Intent} intent - Intent to validate
+       * @returns {Object} { valid: boolean, error?: string }
+       */
+      validateIntent(intent) {
+        if (!intent.intent_type) {
+          return { valid: false, error: "missing_intent_type" };
+        }
+        if (!intent.source || !intent.source.type || !intent.source.id) {
+          return { valid: false, error: "invalid_source" };
+        }
+        if (!intent.payload || typeof intent.payload !== "object") {
+          return { valid: false, error: "invalid_payload" };
+        }
+        if (!this.options.supported_intent_types.includes(intent.intent_type)) {
+          return {
+            valid: false,
+            error: "unsupported_intent_type",
+            supported: this.options.supported_intent_types
+          };
+        }
+        const typeValidation = this._validateIntentType(intent);
+        if (!typeValidation.valid) {
+          return typeValidation;
+        }
+        return { valid: true };
+      }
+      /**
+       * Normalize intent to canonical form
+       * 
+       * @param {Intent} intent - Raw intent
+       * @returns {Intent} Normalized intent
+       */
+      normalizeIntent(intent) {
+        const normalized = {
+          intent_id: intent.intent_id,
+          intent_type: intent.intent_type,
+          source: {
+            type: intent.source.type,
+            id: intent.source.id
+          },
+          payload: { ...intent.payload },
+          submitted_at: intent.submitted_at
+        };
+        if (intent.intent_type === "restore_objective") {
+          if (normalized.payload.objective_id) {
+            normalized.payload.objective_id = normalized.payload.objective_id.trim();
+          }
+        }
+        return normalized;
+      }
+      /**
+       * Resolve intent (dispatch to handler)
+       * 
+       * @param {Intent} intent - Normalized intent
+       * @returns {Promise<Object>} Resolution result
+       */
+      async resolveIntent(intent) {
+        const handler = this._getHandler(intent.intent_type);
+        if (!handler) {
+          return {
+            accepted: false,
+            error: "no_handler_available"
+          };
+        }
+        try {
+          return await handler.call(this, intent);
+        } catch (error) {
+          console.error(`[IntentGateway] Resolution error for ${intent.intent_type}:`, error);
+          return {
+            accepted: false,
+            error: "resolution_failed",
+            metadata: { error: error.message }
+          };
+        }
+      }
+      /**
+       * Get handler for intent type
+       * 
+       * @private
+       * @param {string} intentType
+       * @returns {Function|null} Handler function
+       */
+      _getHandler(intentType) {
+        const handlers = {
+          "restore_objective": this._handleRestoreObjective,
+          "investigate_objective": this._handleInvestigateObjective,
+          "set_safe_mode": this._handleSetSafeMode,
+          "test_execution": this._handleTestExecution,
+          // Phase 1 validation
+          "check_system_health": this._handleCheckSystemHealth
+          // Phase 28 integration
+        };
+        return handlers[intentType] || null;
+      }
+      /**
+       * Validate intent type-specific requirements
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Object} { valid: boolean, error?: string }
+       */
+      _validateIntentType(intent) {
+        switch (intent.intent_type) {
+          case "test_execution":
+            if (!intent.payload.mode) {
+              return { valid: false, error: "missing_mode" };
+            }
+            const validModes = ["success", "simulation", "quota_block", "budget_block", "failure"];
+            if (!validModes.includes(intent.payload.mode)) {
+              return { valid: false, error: "invalid_mode" };
+            }
+            return { valid: true };
+          case "restore_objective":
+            if (!intent.payload.objective_id) {
+              return { valid: false, error: "missing_objective_id" };
+            }
+            return { valid: true };
+          case "investigate_objective":
+            if (!intent.payload.objective_id) {
+              return { valid: false, error: "missing_objective_id" };
+            }
+            return { valid: true };
+          case "set_safe_mode":
+            if (typeof intent.payload.enabled !== "boolean") {
+              return { valid: false, error: "missing_enabled_flag" };
+            }
+            if (intent.payload.enabled && !intent.payload.reason) {
+              return { valid: false, error: "missing_reason" };
+            }
+            return { valid: true };
+          case "check_system_health":
+            return { valid: true };
+          default:
+            return { valid: false, error: "unknown_intent_type" };
+        }
+      }
+      // ============================================================
+      // INTENT HANDLERS
+      /**
+       * Handle restore_objective intent
+       * 
+       * Action: Submit reconciliation admission request
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleRestoreObjective(intent) {
+        const { objective_id } = intent.payload;
+        const objective = this.stateGraph.getObjective(objective_id);
+        if (!objective) {
+          return {
+            accepted: false,
+            error: "unknown_objective",
+            metadata: { objective_id }
+          };
+        }
+        const { ReconciliationGate } = require_reconciliation_gate();
+        const gate = new ReconciliationGate(this.stateGraph);
+        const admission = gate.requestAdmission(objective_id, {
+          drift_reason: "operator_restore_request",
+          triggered_by: intent.source.id,
+          intent_id: intent.intent_id
+        });
+        if (!admission.admitted) {
+          return {
+            accepted: false,
+            error: "admission_denied",
+            message: `Reconciliation admission denied: ${admission.reason}`,
+            metadata: {
+              objective_id,
+              admission_reason: admission.reason,
+              current_status: objective.reconciliation_status
+            }
+          };
+        }
+        return {
+          accepted: true,
+          action: "reconciliation_requested",
+          message: "Objective restoration submitted to governance pipeline.",
+          metadata: {
+            objective_id,
+            generation: admission.generation,
+            reconciliation_status: "reconciling"
+          }
+        };
+      }
+      /**
+       * Handle investigate_objective intent
+       * 
+       * Action: Return State Graph summary (no execution)
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleInvestigateObjective(intent) {
+        const { objective_id } = intent.payload;
+        const objective = this.stateGraph.getObjective(objective_id);
+        if (!objective) {
+          return {
+            accepted: false,
+            error: "unknown_objective",
+            metadata: { objective_id }
+          };
+        }
+        const evaluations = this.stateGraph.listObjectiveEvaluations(objective_id, 5);
+        const history = this.stateGraph.listObjectiveHistory(objective_id, 10);
+        return {
+          accepted: true,
+          action: "investigation_report",
+          message: `Objective ${objective_id} investigation complete.`,
+          metadata: {
+            objective,
+            recent_evaluations: evaluations,
+            recent_history: history,
+            summary: {
+              current_status: objective.status,
+              reconciliation_status: objective.reconciliation_status,
+              consecutive_failures: objective.consecutive_failures,
+              last_evaluated: objective.last_evaluated_at,
+              last_violation: objective.last_violation_at
+            }
+          }
+        };
+      }
+      /**
+       * Handle set_safe_mode intent
+       * 
+       * Action: Call safe mode runtime control
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleSetSafeMode(intent) {
+        const { enabled, reason } = intent.payload;
+        const operator = intent.source.id;
+        if (enabled) {
+          this.stateGraph.enableSafeMode(reason, operator, { intent_id: intent.intent_id });
+          return {
+            accepted: true,
+            action: "safe_mode_enabled",
+            message: `Safe mode enabled: ${reason}`,
+            metadata: {
+              safe_mode: this.stateGraph.getSafeModeStatus()
+            }
+          };
+        } else {
+          this.stateGraph.disableSafeMode(operator, { intent_id: intent.intent_id });
+          return {
+            accepted: true,
+            action: "safe_mode_disabled",
+            message: "Safe mode disabled. Autonomous reconciliation resumed.",
+            metadata: {
+              safe_mode: this.stateGraph.getSafeModeStatus()
+            }
+          };
+        }
+      }
+      /**
+       * Handle test_execution intent (Phase 1 validation)
+       * 
+       * Synthetic execution for validation testing
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleTestExecution(intent) {
+        const { mode } = intent.payload;
+        const execution_id = `exec-${uuidv4()}`;
+        await this.tracer.recordEvent(intent.intent_id, "execution.started", {
+          execution_id,
+          mode
+        });
+        let result;
+        switch (mode) {
+          case "success":
+            result = {
+              accepted: true,
+              action: "test_execution_success",
+              execution_id,
+              message: "Test execution completed successfully",
+              metadata: { mode, synthetic: true }
+            };
+            break;
+          case "simulation":
+            result = {
+              accepted: true,
+              action: "test_execution_simulated",
+              execution_id,
+              message: "Test execution simulated (no real action)",
+              metadata: { mode, synthetic: true, simulated: true }
+            };
+            break;
+          case "quota_block":
+            return {
+              accepted: false,
+              error: "quota_exceeded",
+              message: "Test execution blocked by quota",
+              metadata: { mode, synthetic: true, blocked_by: "quota" }
+            };
+          case "budget_block":
+            return {
+              accepted: false,
+              error: "budget_exceeded",
+              message: "Test execution blocked by budget",
+              metadata: { mode, synthetic: true, blocked_by: "budget" }
+            };
+          case "failure":
+            return {
+              accepted: false,
+              error: "execution_failed",
+              message: "Test execution failed (synthetic)",
+              metadata: { mode, synthetic: true, failed: true }
+            };
+          default:
+            return {
+              accepted: false,
+              error: "invalid_mode",
+              message: `Unknown test mode: ${mode}`
+            };
+        }
+        await this.tracer.recordEvent(intent.intent_id, "execution.completed", {
+          execution_id,
+          mode,
+          action: result.action
+        });
+        return result;
+      }
+      /**
+       * Handle check_system_health intent (Phase 28 integration proof)
+       * 
+       * Real external health check with governed execution path
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleCheckSystemHealth(intent) {
+        const target = intent.payload.target || "vienna_backend";
+        const tenant_id = intent.payload.tenant || "system";
+        const simulation = intent.simulation === true || intent.payload.simulation === true;
+        const execution_id = `exec-${uuidv4()}`;
+        const tenantContext = {
+          tenant_id,
+          source: intent.source
+        };
+        await this.tracer.recordEvent(intent.intent_id, "execution.started", {
+          execution_id,
+          target,
+          simulation
+        });
+        const quotaCheck = await this.quotaEnforcer.checkQuota(tenantContext, {
+          action_type: "integration",
+          target,
+          cost_estimate: 1e-3
+          // Minimal cost for health check
+        });
+        if (!quotaCheck.allowed) {
+          await this.tracer.recordEvent(intent.intent_id, "execution.blocked", {
+            reason: "quota_exceeded",
+            available: quotaCheck.available
+          });
+          return {
+            accepted: false,
+            error: "quota_exceeded",
+            message: quotaCheck.reason || "Quota exceeded",
+            metadata: {
+              tenant: tenant_id,
+              status: "blocked_quota",
+              available: quotaCheck.available
+            }
+          };
+        }
+        let healthResult;
+        let actualCost = null;
+        if (simulation) {
+          healthResult = {
+            ok: true,
+            status_code: 200,
+            target,
+            simulated: true
+          };
+          await this.tracer.recordEvent(intent.intent_id, "execution.simulated", {
+            execution_id,
+            target
+          });
+        } else {
+          try {
+            const https = require("https");
+            const http = require("http");
+            const endpoint = target === "vienna_backend" ? "https://vienna-os.fly.dev/health" : intent.payload.endpoint;
+            if (!endpoint) {
+              throw new Error("No endpoint configured for target: " + target);
+            }
+            const protocol = endpoint.startsWith("https://") ? https : http;
+            const response = await new Promise((resolve2, reject) => {
+              const req = protocol.get(endpoint, (res) => {
+                let body = "";
+                res.on("data", (chunk) => body += chunk);
+                res.on("end", () => {
+                  resolve2({
+                    status_code: res.statusCode,
+                    body,
+                    ok: res.statusCode >= 200 && res.statusCode < 300
+                  });
+                });
+              });
+              req.on("error", reject);
+              req.setTimeout(5e3, () => {
+                req.destroy();
+                reject(new Error("Health check timeout"));
+              });
+            });
+            healthResult = {
+              ok: response.ok,
+              status_code: response.status_code,
+              target,
+              endpoint
+            };
+            actualCost = 1e-3;
+            await this.tracer.recordEvent(intent.intent_id, "execution.completed", {
+              execution_id,
+              target,
+              status_code: response.status_code,
+              ok: response.ok
+            });
+          } catch (error) {
+            await this.tracer.recordEvent(intent.intent_id, "execution.failed", {
+              execution_id,
+              error: error.message
+            });
+            const attestation2 = await this.attestationEngine.createAttestation({
+              execution_id,
+              tenant_id,
+              status: "failed",
+              input_hash: null,
+              output_hash: null,
+              metadata: {
+                target,
+                error: error.message
+              }
+            });
+            return {
+              accepted: false,
+              action: "health_check_failed",
+              error: error.message,
+              message: `Health check failed: ${error.message}`,
+              metadata: {
+                tenant: tenant_id,
+                status: "failed",
+                execution_id,
+                target,
+                attestation: {
+                  attestation_id: attestation2.attestation_id,
+                  status: attestation2.status
+                }
+              }
+            };
+          }
+        }
+        const attestationStatus = simulation ? "blocked" : "success";
+        const attestation = await this.attestationEngine.createAttestation({
+          execution_id,
+          tenant_id,
+          status: attestationStatus,
+          input_hash: JSON.stringify({ target }),
+          output_hash: JSON.stringify(healthResult),
+          metadata: {
+            target,
+            simulation
+          }
+        });
+        return {
+          accepted: true,
+          action: simulation ? "health_check_simulated" : "health_check_executed",
+          message: simulation ? "Health check simulated (no external call)" : `Health check completed: ${healthResult.ok ? "healthy" : "unhealthy"}`,
+          metadata: {
+            tenant: tenant_id,
+            status: simulation ? "simulated" : "executed",
+            simulation,
+            execution_id,
+            target,
+            cost: actualCost,
+            attestation: {
+              attestation_id: attestation.attestation_id,
+              status: attestation.status
+            },
+            result: healthResult
+          }
+        };
+      }
+      // ============================================================
+      // LIFECYCLE EVENTS
+      /**
+       * Emit intent lifecycle event
+       * @private
+       * @param {string} eventType - Event type (intent.submitted, intent.validated, etc.)
+       * @param {Intent} intent - Intent object
+       * @param {Object} metadata - Event metadata
+       */
+      _emitLifecycleEvent(eventType, intent, metadata) {
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        this.stateGraph.appendLedgerEvent({
+          execution_id: intent.intent_id,
+          event_type: eventType,
+          stage: "intent",
+          actor_type: intent.source?.type || "unknown",
+          actor_id: intent.source?.id || "unknown",
+          event_timestamp: now,
+          payload_json: {
+            intent_type: intent.intent_type,
+            ...metadata
+          }
+        });
+      }
+    };
+    var { patchIntentGateway } = require_intent_gateway_patch();
+    var PatchedIntentGateway = patchIntentGateway(IntentGateway2);
+    module2.exports = { IntentGateway: PatchedIntentGateway };
+  }
+});
+
+// ../../../services/vienna-lib/core/plan-step-schema.js
+var require_plan_step_schema = __commonJS({
+  "../../../services/vienna-lib/core/plan-step-schema.js"(exports2, module2) {
+    var StepStatus = {
+      PENDING: "pending",
+      READY: "ready",
+      RUNNING: "running",
+      COMPLETED: "completed",
+      FAILED: "failed",
+      SKIPPED: "skipped",
+      RETRYING: "retrying",
+      BLOCKED: "blocked"
+    };
+    var FailureStrategy = {
+      ABORT: "abort",
+      // Stop entire plan execution
+      CONTINUE: "continue",
+      // Continue to next step
+      RETRY: "retry",
+      // Retry this step
+      FALLBACK: "fallback",
+      // Execute fallback step
+      ESCALATE: "escalate"
+      // Trigger escalation workflow
+    };
+    function validatePlanStep(step) {
+      const errors = [];
+      if (!step.step_id || typeof step.step_id !== "string") {
+        errors.push("step_id is required and must be a string");
+      }
+      if (typeof step.step_order !== "number" || step.step_order < 1) {
+        errors.push("step_order is required and must be >= 1");
+      }
+      if (!step.step_type || typeof step.step_type !== "string") {
+        errors.push("step_type is required and must be a string");
+      }
+      const validStepTypes = ["action", "query", "conditional", "escalation"];
+      if (step.step_type && !validStepTypes.includes(step.step_type)) {
+        errors.push(`step_type must be one of: ${validStepTypes.join(", ")}`);
+      }
+      if (["action", "query"].includes(step.step_type)) {
+        if (!step.action || typeof step.action !== "object") {
+          errors.push("action is required for action/query steps");
+        } else {
+          if (!step.action.action_id) {
+            errors.push("action.action_id is required");
+          }
+        }
+      }
+      if (step.depends_on && !Array.isArray(step.depends_on)) {
+        errors.push("depends_on must be an array");
+      }
+      if (step.condition !== null && step.condition !== void 0) {
+        if (typeof step.condition !== "object") {
+          errors.push("condition must be an object or null");
+        } else {
+          if (!step.condition.type) {
+            errors.push("condition.type is required when condition is present");
+          }
+          const validConditionTypes = ["always", "if_failed", "if_succeeded", "custom"];
+          if (step.condition.type && !validConditionTypes.includes(step.condition.type)) {
+            errors.push(`condition.type must be one of: ${validConditionTypes.join(", ")}`);
+          }
+        }
+      }
+      if (step.retry_policy !== null && step.retry_policy !== void 0) {
+        if (typeof step.retry_policy !== "object") {
+          errors.push("retry_policy must be an object or null");
+        } else {
+          if (typeof step.retry_policy.max_attempts !== "number" || step.retry_policy.max_attempts < 1) {
+            errors.push("retry_policy.max_attempts must be a number >= 1");
+          }
+          if (typeof step.retry_policy.delay_ms !== "number" || step.retry_policy.delay_ms < 0) {
+            errors.push("retry_policy.delay_ms must be a number >= 0");
+          }
+          const validBackoff = ["fixed", "linear", "exponential"];
+          if (step.retry_policy.backoff && !validBackoff.includes(step.retry_policy.backoff)) {
+            errors.push(`retry_policy.backoff must be one of: ${validBackoff.join(", ")}`);
+          }
+        }
+      }
+      if (!step.on_failure || !Object.values(FailureStrategy).includes(step.on_failure)) {
+        errors.push(`on_failure must be one of: ${Object.values(FailureStrategy).join(", ")}`);
+      }
+      if (step.on_failure === FailureStrategy.FALLBACK && !step.fallback_step_id) {
+        errors.push('fallback_step_id is required when on_failure is "fallback"');
+      }
+      if (typeof step.timeout_ms !== "number" || step.timeout_ms <= 0) {
+        errors.push("timeout_ms is required and must be > 0");
+      }
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    function createPlanStep(stepConfig) {
+      const step = {
+        step_id: stepConfig.step_id,
+        step_order: stepConfig.step_order,
+        step_type: stepConfig.step_type,
+        action: stepConfig.action || null,
+        depends_on: stepConfig.depends_on || [],
+        condition: stepConfig.condition || { type: "always" },
+        retry_policy: stepConfig.retry_policy || null,
+        verification_spec: stepConfig.verification_spec || null,
+        on_failure: stepConfig.on_failure || FailureStrategy.ABORT,
+        fallback_step_id: stepConfig.fallback_step_id || null,
+        timeout_ms: stepConfig.timeout_ms || 3e4,
+        // 30 second default
+        metadata: stepConfig.metadata || {}
+      };
+      return step;
+    }
+    function buildGatewayRecoverySteps(serviceId = "openclaw-gateway") {
+      return [
+        // Step 1: Check current health
+        createPlanStep({
+          step_id: "check_health",
+          step_order: 1,
+          step_type: "query",
+          action: {
+            action_id: "query_service_status",
+            entities: { service: serviceId },
+            params: {}
+          },
+          depends_on: [],
+          condition: { type: "always" },
+          on_failure: FailureStrategy.ABORT,
+          timeout_ms: 1e4
+        }),
+        // Step 2: Restart service (conditional on unhealthy)
+        createPlanStep({
+          step_id: "restart_service",
+          step_order: 2,
+          step_type: "action",
+          action: {
+            action_id: "restart_service",
+            entities: { service: serviceId },
+            params: {}
+          },
+          depends_on: ["check_health"],
+          condition: {
+            type: "custom",
+            step_ref: "check_health",
+            expression: { status_not: "active" }
+            // Only restart if not active
+          },
+          retry_policy: {
+            max_attempts: 2,
+            delay_ms: 5e3,
+            backoff: "fixed"
+          },
+          verification_spec: {
+            template_id: "service_restart",
+            params: { service_id: serviceId }
+          },
+          on_failure: FailureStrategy.ESCALATE,
+          timeout_ms: 3e4
+        }),
+        // Step 3: Verify health after restart
+        createPlanStep({
+          step_id: "verify_health",
+          step_order: 3,
+          step_type: "query",
+          action: {
+            action_id: "query_service_status",
+            entities: { service: serviceId },
+            params: { wait_for_stability: true }
+          },
+          depends_on: ["restart_service"],
+          condition: {
+            type: "if_succeeded",
+            step_ref: "restart_service"
+          },
+          on_failure: FailureStrategy.FALLBACK,
+          fallback_step_id: "escalate_incident",
+          timeout_ms: 15e3
+        }),
+        // Step 4: Escalate incident (fallback)
+        createPlanStep({
+          step_id: "escalate_incident",
+          step_order: 4,
+          step_type: "escalation",
+          action: {
+            action_id: "create_incident",
+            entities: { service: serviceId },
+            params: {
+              severity: "high",
+              category: "service_recovery_failed"
+            }
+          },
+          depends_on: ["verify_health"],
+          condition: {
+            type: "if_failed",
+            step_ref: "verify_health"
+          },
+          on_failure: FailureStrategy.CONTINUE,
+          timeout_ms: 1e4
+        })
+      ];
+    }
+    module2.exports = {
+      StepStatus,
+      FailureStrategy,
+      validatePlanStep,
+      createPlanStep,
+      buildGatewayRecoverySteps
+    };
+  }
+});
+
+// ../../../services/vienna-lib/execution/execution-lock-manager.js
+var require_execution_lock_manager = __commonJS({
+  "../../../services/vienna-lib/execution/execution-lock-manager.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var { getStateGraph: getStateGraph2 } = require_state_graph();
+    var ExecutionLockManager = class {
+      constructor() {
+        this.stateGraph = getStateGraph2();
+      }
+      /**
+       * Acquire lock on target
+       * 
+       * @param {Object} params
+       * @param {string} params.target_type - 'service', 'endpoint', 'provider', 'resource'
+       * @param {string} params.target_id - Target identifier
+       * @param {string} params.execution_id - Owner execution ID
+       * @param {string} [params.plan_id] - Associated plan
+       * @param {string} [params.objective_id] - Associated objective
+       * @param {number} [params.ttl_seconds=300] - Lock TTL (default 5 minutes)
+       * @returns {Promise<Object>} { success, lock_id?, reason?, locked_by?, expires_at? }
+       */
+      async acquireLock({ target_type, target_id, execution_id, plan_id, objective_id, ttl_seconds = 300 }) {
+        if (!target_type || !target_id || !execution_id) {
+          throw new Error("INVALID_LOCK_REQUEST: target_type, target_id, and execution_id required");
+        }
+        const validTargetTypes = ["service", "endpoint", "provider", "resource"];
+        if (!validTargetTypes.includes(target_type)) {
+          throw new Error(`INVALID_TARGET_TYPE: must be one of ${validTargetTypes.join(", ")}`);
+        }
+        await this.expireStaleLocks();
+        const existingLock = await this.getActiveLock({ target_type, target_id });
+        if (existingLock) {
+          if (existingLock.execution_id !== execution_id) {
+            return {
+              success: false,
+              reason: "TARGET_LOCKED",
+              locked_by: existingLock.execution_id,
+              expires_at: existingLock.expires_at,
+              lock_id: existingLock.lock_id
+            };
+          }
+          return {
+            success: true,
+            lock_id: existingLock.lock_id,
+            reentrant: true,
+            acquired_at: existingLock.acquired_at,
+            expires_at: existingLock.expires_at
+          };
+        }
+        const lock_id = `lock_${Date.now()}_${crypto8.randomBytes(8).toString("hex")}`;
+        const acquired_at = Math.floor(Date.now() / 1e3);
+        const expires_at = acquired_at + ttl_seconds;
+        this.stateGraph.db.prepare(`
+      INSERT INTO execution_locks 
+      (lock_id, target_type, target_id, execution_id, plan_id, objective_id, acquired_at, expires_at, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active')
+    `).run(lock_id, target_type, target_id, execution_id, plan_id, objective_id, acquired_at, expires_at);
+        return {
+          success: true,
+          lock_id,
+          acquired_at,
+          expires_at
+        };
+      }
+      /**
+       * Release lock
+       * 
+       * @param {Object} params
+       * @param {string} params.lock_id - Lock to release
+       * @param {string} params.execution_id - Owner execution ID
+       * @returns {Promise<Object>} { success, reason? }
+       */
+      async releaseLock({ lock_id, execution_id }) {
+        if (!lock_id || !execution_id) {
+          throw new Error("INVALID_RELEASE_REQUEST: lock_id and execution_id required");
+        }
+        const lock = await this.stateGraph.query(`
+      SELECT * FROM execution_locks WHERE lock_id = ?
+    `, [lock_id]);
+        if (lock.length === 0) {
+          return { success: true, reason: "ALREADY_RELEASED" };
+        }
+        const lockRecord = lock[0];
+        if (lockRecord.execution_id !== execution_id) {
+          return {
+            success: false,
+            reason: "NOT_OWNER",
+            owner: lockRecord.execution_id
+          };
+        }
+        if (lockRecord.status === "released") {
+          return { success: true, reason: "ALREADY_RELEASED" };
+        }
+        const released_at = Math.floor(Date.now() / 1e3);
+        this.stateGraph.db.prepare(`
+      UPDATE execution_locks 
+      SET status = 'released', released_at = ?
+      WHERE lock_id = ?
+    `).run(released_at, lock_id);
+        return {
+          success: true,
+          released_at,
+          duration_seconds: released_at - lockRecord.acquired_at
+        };
+      }
+      /**
+       * Check if target is locked
+       * 
+       * @param {Object} params
+       * @param {string} params.target_type
+       * @param {string} params.target_id
+       * @returns {Promise<boolean>}
+       */
+      async isLocked({ target_type, target_id }) {
+        const lock = await this.getActiveLock({ target_type, target_id });
+        return lock !== null;
+      }
+      /**
+       * Get active lock for target
+       * 
+       * @param {Object} params
+       * @param {string} params.target_type
+       * @param {string} params.target_id
+       * @returns {Promise<Object|null>}
+       */
+      async getActiveLock({ target_type, target_id }) {
+        const now = Math.floor(Date.now() / 1e3);
+        const locks = await this.stateGraph.query(`
+      SELECT * FROM execution_locks 
+      WHERE target_type = ? 
+        AND target_id = ? 
+        AND status = 'active'
+        AND expires_at > ?
+      ORDER BY acquired_at DESC
+      LIMIT 1
+    `, [target_type, target_id, now]);
+        return locks.length > 0 ? locks[0] : null;
+      }
+      /**
+       * List all active locks
+       * 
+       * @returns {Promise<Array>}
+       */
+      async listActiveLocks() {
+        const now = Math.floor(Date.now() / 1e3);
+        return await this.stateGraph.query(`
+      SELECT * FROM execution_locks 
+      WHERE status = 'active'
+        AND expires_at > ?
+      ORDER BY acquired_at DESC
+    `, [now]);
+      }
+      /**
+       * Expire stale locks (cleanup service)
+       * 
+       * Marks expired locks as 'expired' for audit trail.
+       * Should be run periodically (e.g., every 60 seconds).
+       * 
+       * @returns {Promise<Object>} { expired_count, expired_locks }
+       */
+      async expireStaleLocks() {
+        const now = Math.floor(Date.now() / 1e3);
+        const expiredLocks = await this.stateGraph.query(`
+      SELECT * FROM execution_locks 
+      WHERE status = 'active'
+        AND expires_at <= ?
+    `, [now]);
+        if (expiredLocks.length === 0) {
+          return { expired_count: 0, expired_locks: [] };
+        }
+        for (const lock of expiredLocks) {
+          this.stateGraph.db.prepare(`
+        UPDATE execution_locks 
+        SET status = 'expired', released_at = ?
+        WHERE lock_id = ?
+      `).run(now, lock.lock_id);
+        }
+        return {
+          expired_count: expiredLocks.length,
+          expired_locks: expiredLocks.map((l2) => ({
+            lock_id: l2.lock_id,
+            target_type: l2.target_type,
+            target_id: l2.target_id,
+            execution_id: l2.execution_id,
+            acquired_at: l2.acquired_at,
+            expires_at: l2.expires_at
+          }))
+        };
+      }
+      /**
+       * Extend lock TTL (heartbeat)
+       * 
+       * Used by long-running plans to prevent expiration.
+       * 
+       * @param {Object} params
+       * @param {string} params.lock_id
+       * @param {string} params.execution_id - Owner execution ID
+       * @param {number} [params.extension_seconds=60] - TTL extension
+       * @returns {Promise<Object>} { success, new_expires_at?, reason? }
+       */
+      async extendLock({ lock_id, execution_id, extension_seconds = 60 }) {
+        if (!lock_id || !execution_id) {
+          throw new Error("INVALID_EXTEND_REQUEST: lock_id and execution_id required");
+        }
+        const locks = await this.stateGraph.query(`
+      SELECT * FROM execution_locks WHERE lock_id = ?
+    `, [lock_id]);
+        if (locks.length === 0) {
+          return {
+            success: false,
+            reason: "LOCK_NOT_FOUND"
+          };
+        }
+        const lock = locks[0];
+        if (lock.execution_id !== execution_id) {
+          return {
+            success: false,
+            reason: "NOT_OWNER",
+            owner: lock.execution_id
+          };
+        }
+        if (lock.status !== "active") {
+          return {
+            success: false,
+            reason: "LOCK_NOT_ACTIVE",
+            status: lock.status
+          };
+        }
+        const new_expires_at = lock.expires_at + extension_seconds;
+        this.stateGraph.db.prepare(`
+      UPDATE execution_locks 
+      SET expires_at = ?
+      WHERE lock_id = ?
+    `).run(new_expires_at, lock_id);
+        return {
+          success: true,
+          new_expires_at,
+          extension_seconds
+        };
+      }
+      /**
+       * Get lock statistics
+       * 
+       * @returns {Promise<Object>}
+       */
+      async getStatistics() {
+        const active = await this.stateGraph.query(`
+      SELECT COUNT(*) as count FROM execution_locks WHERE status = 'active'
+    `);
+        const released = await this.stateGraph.query(`
+      SELECT COUNT(*) as count FROM execution_locks WHERE status = 'released'
+    `);
+        const expired = await this.stateGraph.query(`
+      SELECT COUNT(*) as count FROM execution_locks WHERE status = 'expired'
+    `);
+        const byTarget = await this.stateGraph.query(`
+      SELECT target_type, COUNT(*) as count 
+      FROM execution_locks 
+      WHERE status = 'active'
+      GROUP BY target_type
+    `);
+        return {
+          active: active[0].count,
+          released: released[0].count,
+          expired: expired[0].count,
+          by_target: byTarget.reduce((acc, row) => {
+            acc[row.target_type] = row.count;
+            return acc;
+          }, {})
+        };
+      }
+    };
+    module2.exports = { ExecutionLockManager };
+  }
+});
+
+// ../../../services/vienna-lib/core/target-extractor.js
+var require_target_extractor = __commonJS({
+  "../../../services/vienna-lib/core/target-extractor.js"(exports2, module2) {
+    function extractTargets(step) {
+      const targets = [];
+      if (step.target_type && step.target_id) {
+        targets.push({
+          target_type: step.target_type,
+          target_id: buildTargetId(step.target_type, step.target_id)
+        });
+      }
+      if (step.action && step.parameters) {
+        const actionTargets = extractTargetsFromAction(step.action, step.parameters);
+        targets.push(...actionTargets);
+      }
+      return deduplicateTargets(targets);
+    }
+    function extractTargetsFromAction(action, parameters) {
+      const targets = [];
+      if (action.includes("service")) {
+        if (parameters.service_id) {
+          targets.push({
+            target_type: "service",
+            target_id: buildTargetId("service", parameters.service_id)
+          });
+        }
+      }
+      if (action.includes("endpoint")) {
+        if (parameters.endpoint_id) {
+          targets.push({
+            target_type: "endpoint",
+            target_id: buildTargetId("endpoint", parameters.endpoint_id)
+          });
+        }
+      }
+      if (action.includes("provider")) {
+        if (parameters.provider_id) {
+          targets.push({
+            target_type: "provider",
+            target_id: buildTargetId("provider", parameters.provider_id)
+          });
+        }
+      }
+      if (action.includes("resource") || action.includes("disk") || action.includes("memory")) {
+        if (parameters.resource_id) {
+          targets.push({
+            target_type: "resource",
+            target_id: buildTargetId("resource", parameters.resource_id)
+          });
+        }
+      }
+      if (action.includes("objective")) {
+        if (parameters.objective_id) {
+          targets.push({
+            target_type: "objective",
+            target_id: buildTargetId("objective", parameters.objective_id)
+          });
+        }
+      }
+      return targets;
+    }
+    function buildTargetId(targetType, rawId) {
+      return `target:${targetType}:${rawId}`;
+    }
+    function parseTargetId(targetId) {
+      const parts = targetId.split(":");
+      if (parts.length !== 3 || parts[0] !== "target") {
+        throw new Error(`INVALID_TARGET_ID: ${targetId}`);
+      }
+      return {
+        target_type: parts[1],
+        raw_id: parts[2]
+      };
+    }
+    function deduplicateTargets(targets) {
+      const seen = /* @__PURE__ */ new Set();
+      const unique = [];
+      for (const target of targets) {
+        const key = `${target.target_type}:${target.target_id}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(target);
+        }
+      }
+      return unique;
+    }
+    function extractPlanTargets(plan) {
+      const allTargets = [];
+      for (const step of plan.steps) {
+        const stepTargets = extractTargets(step);
+        allTargets.push(...stepTargets);
+      }
+      return deduplicateTargets(allTargets);
+    }
+    module2.exports = {
+      extractTargets,
+      extractPlanTargets,
+      buildTargetId,
+      parseTargetId
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/approval-resolution-handler.js
+var require_approval_resolution_handler = __commonJS({
+  "../../../services/vienna-lib/core/approval-resolution-handler.js"(exports2, module2) {
+    var { ApprovalStatus, isExpired } = require_approval_schema();
+    var ResolutionOutcome = {
+      APPROVED: "approved",
+      // Continue to warrant/execution
+      DENIED: "denied",
+      // Stop permanently
+      EXPIRED: "expired",
+      // Fail closed, no retry
+      MISSING: "missing",
+      // Fail closed, integrity violation
+      MALFORMED: "malformed"
+      // Fail closed, data corruption
+    };
+    function resolveApprovalStatus(approval, step, context) {
+      if (!approval) {
+        return {
+          outcome: ResolutionOutcome.MISSING,
+          can_proceed: false,
+          reason: "Approval record missing",
+          metadata: {
+            step_id: step.step_id,
+            execution_id: context.execution_id
+          }
+        };
+      }
+      if (!approval.approval_id || !approval.status || !approval.tier) {
+        return {
+          outcome: ResolutionOutcome.MALFORMED,
+          can_proceed: false,
+          reason: "Approval record malformed",
+          metadata: {
+            approval_id: approval.approval_id,
+            step_id: step.step_id
+          }
+        };
+      }
+      if (approval.execution_id !== context.execution_id || approval.step_id !== step.step_id) {
+        return {
+          outcome: ResolutionOutcome.MALFORMED,
+          can_proceed: false,
+          reason: "Approval context mismatch",
+          metadata: {
+            approval_id: approval.approval_id,
+            expected_execution: context.execution_id,
+            actual_execution: approval.execution_id,
+            expected_step: step.step_id,
+            actual_step: approval.step_id
+          }
+        };
+      }
+      if (isExpired(approval)) {
+        return {
+          outcome: ResolutionOutcome.EXPIRED,
+          can_proceed: false,
+          reason: "Approval expired",
+          metadata: {
+            approval_id: approval.approval_id,
+            expires_at: approval.expires_at,
+            resolved_at: (/* @__PURE__ */ new Date()).toISOString()
+          }
+        };
+      }
+      switch (approval.status) {
+        case ApprovalStatus.APPROVED:
+          return {
+            outcome: ResolutionOutcome.APPROVED,
+            can_proceed: true,
+            reason: "Approval granted",
+            metadata: {
+              approval_id: approval.approval_id,
+              reviewed_by: approval.reviewed_by,
+              reviewed_at: approval.reviewed_at,
+              decision_reason: approval.decision_reason
+            }
+          };
+        case ApprovalStatus.DENIED:
+          return {
+            outcome: ResolutionOutcome.DENIED,
+            can_proceed: false,
+            reason: approval.decision_reason || "Approval denied",
+            metadata: {
+              approval_id: approval.approval_id,
+              reviewed_by: approval.reviewed_by,
+              reviewed_at: approval.reviewed_at,
+              decision_reason: approval.decision_reason
+            }
+          };
+        case ApprovalStatus.PENDING:
+          return {
+            outcome: ResolutionOutcome.MISSING,
+            can_proceed: false,
+            reason: "Approval still pending",
+            metadata: {
+              approval_id: approval.approval_id,
+              status: approval.status
+            }
+          };
+        default:
+          return {
+            outcome: ResolutionOutcome.MALFORMED,
+            can_proceed: false,
+            reason: `Unknown approval status: ${approval.status}`,
+            metadata: {
+              approval_id: approval.approval_id,
+              status: approval.status
+            }
+          };
+      }
+    }
+    function validateApprovalForResumption(approval, step, context) {
+      if (isExpired(approval)) {
+        return {
+          valid: false,
+          reason: "Approval expired between resolution and execution",
+          metadata: {
+            approval_id: approval.approval_id,
+            expires_at: approval.expires_at,
+            current_time: (/* @__PURE__ */ new Date()).toISOString()
+          }
+        };
+      }
+      if (approval.status !== ApprovalStatus.APPROVED) {
+        return {
+          valid: false,
+          reason: "Approval status changed between resolution and execution",
+          metadata: {
+            approval_id: approval.approval_id,
+            expected_status: ApprovalStatus.APPROVED,
+            actual_status: approval.status
+          }
+        };
+      }
+      if (approval.execution_id !== context.execution_id || approval.step_id !== step.step_id) {
+        return {
+          valid: false,
+          reason: "Approval context changed between resolution and execution",
+          metadata: {
+            approval_id: approval.approval_id
+          }
+        };
+      }
+      return {
+        valid: true,
+        reason: "Approval valid for resumption"
+      };
+    }
+    function getLedgerEventType(outcome) {
+      switch (outcome) {
+        case ResolutionOutcome.APPROVED:
+          return "approval_resolved_approved";
+        case ResolutionOutcome.DENIED:
+          return "approval_resolved_denied";
+        case ResolutionOutcome.EXPIRED:
+          return "approval_resolved_expired";
+        case ResolutionOutcome.MISSING:
+          return "approval_resolved_missing";
+        case ResolutionOutcome.MALFORMED:
+          return "approval_resolved_malformed";
+        default:
+          return "approval_resolved_unknown";
+      }
+    }
+    module2.exports = {
+      ResolutionOutcome,
+      resolveApprovalStatus,
+      validateApprovalForResumption,
+      getLedgerEventType
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/plan-execution-engine.js
+var require_plan_execution_engine = __commonJS({
+  "../../../services/vienna-lib/core/plan-execution-engine.js"(exports2, module2) {
+    var { StepStatus, FailureStrategy } = require_plan_step_schema();
+    var { ExecutionLockManager } = require_execution_lock_manager();
+    var { extractTargets } = require_target_extractor();
+    var {
+      ResolutionOutcome,
+      resolveApprovalStatus,
+      validateApprovalForResumption,
+      getLedgerEventType
+    } = require_approval_resolution_handler();
+    var { AttestationEngine: AttestationEngine2 } = require_attestation_engine();
+    var PlanExecutionContext = class {
+      constructor(planId) {
+        this.planId = planId;
+        this.stepStates = /* @__PURE__ */ new Map();
+        this.executionLog = [];
+        this.startedAt = (/* @__PURE__ */ new Date()).toISOString();
+        this.completedAt = null;
+        this.acquiredLocks = [];
+      }
+      /**
+       * Initialize step state
+       */
+      initializeStep(stepId) {
+        this.stepStates.set(stepId, {
+          status: StepStatus.PENDING,
+          result: null,
+          attempts: 0,
+          started_at: null,
+          completed_at: null,
+          error: null
+        });
+      }
+      /**
+       * Update step state
+       */
+      updateStepState(stepId, updates) {
+        const current = this.stepStates.get(stepId) || {};
+        this.stepStates.set(stepId, { ...current, ...updates });
+      }
+      /**
+       * Get step state
+       */
+      getStepState(stepId) {
+        return this.stepStates.get(stepId);
+      }
+      /**
+       * Log execution event
+       */
+      logEvent(event) {
+        this.executionLog.push({
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          ...event
+        });
+      }
+      /**
+       * Check if all dependencies are satisfied
+       */
+      areDependenciesSatisfied(step) {
+        if (!step.depends_on || step.depends_on.length === 0) {
+          return true;
+        }
+        for (const depStepId of step.depends_on) {
+          const depState = this.stepStates.get(depStepId);
+          if (!depState || !["completed", "skipped"].includes(depState.status)) {
+            return false;
+          }
+        }
+        return true;
+      }
+      /**
+       * Check if step condition is met
+       */
+      isConditionMet(step) {
+        if (!step.condition || step.condition.type === "always") {
+          return true;
+        }
+        const { type, step_ref, expression } = step.condition;
+        if (!step_ref) {
+          return true;
+        }
+        const refState = this.stepStates.get(step_ref);
+        if (!refState) {
+          return false;
+        }
+        switch (type) {
+          case "if_succeeded":
+            return refState.status === StepStatus.COMPLETED;
+          case "if_failed":
+            return refState.status === StepStatus.FAILED;
+          case "custom":
+            return this._evaluateCustomCondition(refState, expression);
+          default:
+            return true;
+        }
+      }
+      /**
+       * Evaluate custom condition expression
+       */
+      _evaluateCustomCondition(refState, expression) {
+        if (!expression) return true;
+        if (expression.status_not && refState.result) {
+          return refState.result.status !== expression.status_not;
+        }
+        if (expression.status_equals && refState.result) {
+          return refState.result.status === expression.status_equals;
+        }
+        if (expression.field && expression.equals && refState.result) {
+          return refState.result[expression.field] === expression.equals;
+        }
+        return false;
+      }
+      /**
+       * Get plan execution summary
+       */
+      getSummary() {
+        const steps = Array.from(this.stepStates.entries()).map(([stepId, state]) => ({
+          step_id: stepId,
+          status: state.status,
+          attempts: state.attempts
+        }));
+        const statusCounts = {};
+        for (const state of this.stepStates.values()) {
+          statusCounts[state.status] = (statusCounts[state.status] || 0) + 1;
+        }
+        return {
+          plan_id: this.planId,
+          started_at: this.startedAt,
+          completed_at: this.completedAt,
+          total_steps: this.stepStates.size,
+          status_counts: statusCounts,
+          steps,
+          execution_log: this.executionLog
+        };
+      }
+    };
+    var PlanExecutionEngine2 = class {
+      constructor(options = {}) {
+        this.stateGraph = options.stateGraph;
+        this.executor = options.executor;
+        this.verificationEngine = options.verificationEngine;
+        this.approvalManager = options.approvalManager;
+        this.lockManager = new ExecutionLockManager();
+        this.attestationEngine = new AttestationEngine2();
+      }
+      /**
+       * Execute a multi-step plan
+       * 
+       * @param {Object} plan - Plan object with steps array
+       * @param {Object} context - Execution context (user, session, etc.)
+       * @returns {Promise<Object>} Execution result
+       */
+      async executePlan(plan, context = {}) {
+        const execContext = new PlanExecutionContext(plan.plan_id);
+        for (const step of plan.steps) {
+          execContext.initializeStep(step.step_id);
+        }
+        execContext.logEvent({
+          type: "plan_execution_started",
+          plan_id: plan.plan_id,
+          total_steps: plan.steps.length
+        });
+        await this._emitLedgerEvent({
+          execution_id: context.execution_id,
+          event_type: "plan_execution_started",
+          stage: "execution",
+          plan_id: plan.plan_id,
+          metadata: { total_steps: plan.steps.length }
+        });
+        try {
+          for (const step of plan.steps) {
+            await this._executeStep(step, execContext, context);
+          }
+          execContext.completedAt = (/* @__PURE__ */ new Date()).toISOString();
+          const outcome = this._determinePlanOutcome(execContext);
+          execContext.logEvent({
+            type: "plan_execution_completed",
+            outcome
+          });
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: "plan_execution_completed",
+            stage: "execution",
+            plan_id: plan.plan_id,
+            metadata: { outcome, summary: execContext.getSummary() }
+          });
+          return {
+            success: outcome === "success",
+            plan_id: plan.plan_id,
+            outcome,
+            summary: execContext.getSummary()
+          };
+        } catch (error) {
+          execContext.completedAt = (/* @__PURE__ */ new Date()).toISOString();
+          execContext.logEvent({
+            type: "plan_execution_failed",
+            error: error.message
+          });
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: "plan_execution_failed",
+            stage: "execution",
+            plan_id: plan.plan_id,
+            metadata: { error: error.message, summary: execContext.getSummary() }
+          });
+          throw error;
+        }
+      }
+      /**
+       * Execute a single step
+       */
+      async _executeStep(step, execContext, context) {
+        const stepState = execContext.getStepState(step.step_id);
+        if (!execContext.areDependenciesSatisfied(step)) {
+          execContext.updateStepState(step.step_id, {
+            status: StepStatus.BLOCKED,
+            error: "Dependencies not satisfied"
+          });
+          execContext.logEvent({
+            type: "step_blocked",
+            step_id: step.step_id,
+            reason: "dependencies_not_satisfied"
+          });
+          return;
+        }
+        if (!execContext.isConditionMet(step)) {
+          execContext.updateStepState(step.step_id, {
+            status: StepStatus.SKIPPED,
+            completed_at: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          execContext.logEvent({
+            type: "step_skipped",
+            step_id: step.step_id,
+            reason: "condition_not_met"
+          });
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: "plan_step_skipped",
+            stage: "execution",
+            plan_id: execContext.planId,
+            step_id: step.step_id,
+            metadata: { reason: "condition_not_met" }
+          });
+          return;
+        }
+        const targets = extractTargets(step);
+        if (targets.length > 0) {
+          const lockResult = await this._acquireStepLocks(step, targets, execContext, context);
+          if (!lockResult.success) {
+            execContext.updateStepState(step.step_id, {
+              status: StepStatus.BLOCKED,
+              error: `Lock conflict: ${lockResult.reason}`,
+              conflicting_targets: lockResult.conflicting_targets
+            });
+            execContext.logEvent({
+              type: "step_blocked",
+              step_id: step.step_id,
+              reason: "lock_conflict",
+              conflicting_targets: lockResult.conflicting_targets
+            });
+            await this._emitLedgerEvent({
+              execution_id: context.execution_id,
+              event_type: "lock_denied",
+              stage: "execution",
+              plan_id: execContext.planId,
+              step_id: step.step_id,
+              metadata: {
+                reason: lockResult.reason,
+                conflicting_targets: lockResult.conflicting_targets,
+                locked_by: lockResult.locked_by
+              }
+            });
+            return;
+          }
+          execContext.logEvent({
+            type: "locks_acquired",
+            step_id: step.step_id,
+            lock_ids: lockResult.lock_ids,
+            targets: targets.map((t2) => t2.target_id)
+          });
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: "lock_acquired",
+            stage: "execution",
+            plan_id: execContext.planId,
+            step_id: step.step_id,
+            metadata: {
+              lock_ids: lockResult.lock_ids,
+              targets: targets.map((t2) => ({ target_type: t2.target_type, target_id: t2.target_id }))
+            }
+          });
+        }
+        execContext.updateStepState(step.step_id, {
+          status: StepStatus.READY
+        });
+        const approvalCheck = await this._checkApprovalResolution(step, execContext, context);
+        if (!approvalCheck.can_proceed) {
+          execContext.updateStepState(step.step_id, {
+            status: approvalCheck.outcome === "pending_approval" ? StepStatus.BLOCKED : StepStatus.FAILED,
+            error: approvalCheck.reason,
+            completed_at: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          execContext.logEvent({
+            type: "step_approval_denied",
+            step_id: step.step_id,
+            outcome: approvalCheck.outcome,
+            reason: approvalCheck.reason
+          });
+          const ledgerEventType = getLedgerEventType(approvalCheck.outcome);
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: ledgerEventType,
+            stage: "approval",
+            plan_id: execContext.planId,
+            step_id: step.step_id,
+            metadata: approvalCheck.metadata
+          });
+          return;
+        }
+        if (approvalCheck.approval_id) {
+          execContext.logEvent({
+            type: "step_approval_granted",
+            step_id: step.step_id,
+            approval_id: approvalCheck.approval_id
+          });
+          await this._emitLedgerEvent({
+            execution_id: context.execution_id,
+            event_type: "approval_resolved_approved",
+            stage: "approval",
+            plan_id: execContext.planId,
+            step_id: step.step_id,
+            metadata: approvalCheck.metadata
+          });
+        }
+        try {
+          await this._executeStepWithRetry(step, execContext, context);
+        } finally {
+          if (targets.length > 0) {
+            await this._releaseStepLocks(step, execContext, context);
+          }
+        }
+      }
+      /**
+       * Execute step with retry logic
+       */
+      async _executeStepWithRetry(step, execContext, context) {
+        const maxAttempts = step.retry_policy ? step.retry_policy.max_attempts : 1;
+        let lastError = null;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            execContext.updateStepState(step.step_id, {
+              status: attempt > 1 ? StepStatus.RETRYING : StepStatus.RUNNING,
+              attempts: attempt,
+              started_at: attempt === 1 ? (/* @__PURE__ */ new Date()).toISOString() : execContext.getStepState(step.step_id).started_at
+            });
+            execContext.logEvent({
+              type: attempt > 1 ? "step_retry" : "step_started",
+              step_id: step.step_id,
+              attempt
+            });
+            await this._emitLedgerEvent({
+              execution_id: context.execution_id,
+              event_type: attempt > 1 ? "plan_step_retried" : "plan_step_started",
+              stage: "execution",
+              plan_id: execContext.planId,
+              step_id: step.step_id,
+              metadata: { attempt, max_attempts: maxAttempts }
+            });
+            const result = await this._executeStepAction(step, context);
+            let verificationResult = null;
+            if (step.verification_spec) {
+              verificationResult = await this._verifyStep(step, result, context);
+            }
+            let attestation = null;
+            if (context.execution_id) {
+              try {
+                attestation = await this.attestationEngine.createAttestation({
+                  execution_id: context.execution_id,
+                  tenant_id: context.tenant_id || null,
+                  status: "success",
+                  metadata: {
+                    step_id: step.step_id,
+                    plan_id: execContext.planId,
+                    verification_passed: verificationResult ? verificationResult.passed : null
+                  }
+                });
+              } catch (err) {
+                console.warn("[PlanExecutionEngine] Attestation creation failed:", err.message);
+              }
+            }
+            execContext.updateStepState(step.step_id, {
+              status: StepStatus.COMPLETED,
+              result,
+              verification_result: verificationResult,
+              attestation,
+              completed_at: (/* @__PURE__ */ new Date()).toISOString()
+            });
+            execContext.logEvent({
+              type: "step_completed",
+              step_id: step.step_id,
+              attempt
+            });
+            await this._emitLedgerEvent({
+              execution_id: context.execution_id,
+              event_type: "plan_step_completed",
+              stage: "execution",
+              plan_id: execContext.planId,
+              step_id: step.step_id,
+              metadata: {
+                attempt,
+                result,
+                verification_result: verificationResult,
+                attestation_id: attestation ? attestation.attestation_id : null
+              }
+            });
+            return;
+          } catch (error) {
+            lastError = error;
+            if (attempt < maxAttempts) {
+              const delay = this._calculateRetryDelay(step.retry_policy, attempt);
+              execContext.logEvent({
+                type: "step_retry_scheduled",
+                step_id: step.step_id,
+                attempt,
+                delay_ms: delay,
+                error: error.message
+              });
+              await this._sleep(delay);
+            }
+          }
+        }
+        execContext.updateStepState(step.step_id, {
+          status: StepStatus.FAILED,
+          error: lastError.message,
+          completed_at: (/* @__PURE__ */ new Date()).toISOString()
+        });
+        execContext.logEvent({
+          type: "step_failed",
+          step_id: step.step_id,
+          error: lastError.message,
+          total_attempts: maxAttempts
+        });
+        await this._emitLedgerEvent({
+          execution_id: context.execution_id,
+          event_type: "plan_step_failed",
+          stage: "execution",
+          plan_id: execContext.planId,
+          step_id: step.step_id,
+          metadata: { error: lastError.message, total_attempts: maxAttempts }
+        });
+        await this._handleStepFailure(step, execContext, context, lastError);
+      }
+      /**
+       * Execute step action
+       */
+      async _executeStepAction(step, context) {
+        if (!step.action) {
+          return { success: true, message: "No action to execute" };
+        }
+        const timeoutPromise = new Promise((_2, reject) => {
+          setTimeout(() => reject(new Error("Step execution timeout")), step.timeout_ms);
+        });
+        const executionPromise = this._callActionExecutor(step.action, context);
+        const result = await Promise.race([executionPromise, timeoutPromise]);
+        if (context.learningCoordinator && result) {
+          try {
+            await context.learningCoordinator.recordExecution({
+              execution_id: context.execution_id,
+              plan_id: context.plan_id,
+              step_id: step.step_id,
+              action_type: step.action?.action_id,
+              target_id: step.action?.entities?.service || step.action?.entities?.target_id,
+              success: result.success,
+              error: result.error?.message,
+              duration_ms: result.duration_ms,
+              timestamp: (/* @__PURE__ */ new Date()).toISOString()
+            });
+          } catch (learningError) {
+            console.warn("Learning system recording failed:", learningError.message);
+          }
+        }
+        return result;
+      }
+      /**
+       * Call action executor (interface to chat-action-bridge or similar)
+       */
+      async _callActionExecutor(action, context) {
+        if (this.executor && typeof this.executor.execute === "function") {
+          return await this.executor.execute(action, context);
+        }
+        return {
+          success: true,
+          action_id: action.action_id,
+          entities: action.entities,
+          result: {
+            status: "completed",
+            message: `Executed ${action.action_id}`
+          }
+        };
+      }
+      /**
+       * Verify step execution
+       */
+      async _verifyStep(step, executionResult, context) {
+        if (!this.verificationEngine || !step.verification_spec) {
+          return null;
+        }
+        const verificationTask = {
+          task_id: `verify_${step.step_id}`,
+          template_id: step.verification_spec.template_id,
+          params: {
+            ...step.verification_spec.params,
+            execution_result: executionResult
+          }
+        };
+        return await this.verificationEngine.runVerification(verificationTask, context);
+      }
+      /**
+       * Handle step failure
+       */
+      async _handleStepFailure(step, execContext, context, error) {
+        switch (step.on_failure) {
+          case FailureStrategy.ABORT:
+            throw new Error(`Step ${step.step_id} failed, aborting plan: ${error.message}`);
+          case FailureStrategy.CONTINUE:
+            execContext.logEvent({
+              type: "step_failure_continued",
+              step_id: step.step_id
+            });
+            break;
+          case FailureStrategy.FALLBACK:
+            if (step.fallback_step_id) {
+              execContext.logEvent({
+                type: "step_failure_fallback",
+                step_id: step.step_id,
+                fallback_step_id: step.fallback_step_id
+              });
+            }
+            break;
+          case FailureStrategy.ESCALATE:
+            execContext.logEvent({
+              type: "step_failure_escalate",
+              step_id: step.step_id
+            });
+            break;
+          case FailureStrategy.RETRY:
+            break;
+        }
+      }
+      /**
+       * Calculate retry delay
+       */
+      _calculateRetryDelay(retryPolicy, attempt) {
+        if (!retryPolicy) return 0;
+        const baseDelay = retryPolicy.delay_ms;
+        const backoff = retryPolicy.backoff || "fixed";
+        switch (backoff) {
+          case "linear":
+            return baseDelay * attempt;
+          case "exponential":
+            return baseDelay * Math.pow(2, attempt - 1);
+          case "fixed":
+          default:
+            return baseDelay;
+        }
+      }
+      /**
+       * Determine overall plan outcome
+       */
+      _determinePlanOutcome(execContext) {
+        const states = Array.from(execContext.stepStates.values());
+        const hasFailed = states.some((s2) => s2.status === StepStatus.FAILED);
+        const hasBlocked = states.some((s2) => s2.status === StepStatus.BLOCKED);
+        const allCompleted = states.every(
+          (s2) => s2.status === StepStatus.COMPLETED || s2.status === StepStatus.SKIPPED
+        );
+        if (hasFailed) return "failed";
+        if (hasBlocked) return "blocked";
+        if (allCompleted) return "success";
+        return "partial";
+      }
+      /**
+       * Emit ledger event
+       */
+      async _emitLedgerEvent(event) {
+        if (this.stateGraph && this.stateGraph.appendLedgerEvent) {
+          if (!event.event_timestamp) {
+            event.event_timestamp = (/* @__PURE__ */ new Date()).toISOString();
+          }
+          await this.stateGraph.appendLedgerEvent(event);
+        }
+      }
+      /**
+       * Acquire locks for step (atomic set acquisition)
+       * 
+       * Core guarantee: ALL locks must succeed, or none are held.
+       * 
+       * @param {Object} step
+       * @param {Array} targets - [{ target_type, target_id }]
+       * @param {Object} execContext
+       * @param {Object} context
+       * @returns {Promise<Object>} { success, lock_ids?, reason?, conflicting_targets?, locked_by? }
+       */
+      async _acquireStepLocks(step, targets, execContext, context) {
+        const acquiredLocks = [];
+        const conflictingTargets = [];
+        try {
+          for (const target of targets) {
+            const { target_type, target_id } = target;
+            const parts = target_id.split(":");
+            const rawTargetId = parts.length === 3 ? parts[2] : target_id;
+            await this._emitLedgerEvent({
+              execution_id: context.execution_id,
+              event_type: "lock_requested",
+              stage: "execution",
+              plan_id: execContext.planId,
+              step_id: step.step_id,
+              metadata: { target_type, target_id }
+            });
+            const lockResult = await this.lockManager.acquireLock({
+              target_type,
+              target_id: rawTargetId,
+              execution_id: context.execution_id,
+              plan_id: execContext.planId,
+              objective_id: context.objective_id,
+              ttl_seconds: step.timeout_ms ? Math.ceil(step.timeout_ms / 1e3) + 60 : 360
+              // Step timeout + 60s buffer
+            });
+            if (!lockResult.success) {
+              conflictingTargets.push({
+                target_type,
+                target_id,
+                locked_by: lockResult.locked_by,
+                expires_at: lockResult.expires_at
+              });
+              for (const acquiredLock of acquiredLocks) {
+                await this.lockManager.releaseLock({
+                  lock_id: acquiredLock.lock_id,
+                  execution_id: context.execution_id
+                });
+              }
+              return {
+                success: false,
+                reason: lockResult.reason || "TARGET_LOCKED",
+                conflicting_targets: conflictingTargets,
+                locked_by: lockResult.locked_by
+              };
+            }
+            acquiredLocks.push({
+              lock_id: lockResult.lock_id,
+              target_type,
+              target_id: rawTargetId
+            });
+          }
+          execContext.acquiredLocks.push(...acquiredLocks);
+          return {
+            success: true,
+            lock_ids: acquiredLocks.map((l2) => l2.lock_id)
+          };
+        } catch (error) {
+          for (const acquiredLock of acquiredLocks) {
+            try {
+              await this.lockManager.releaseLock({
+                lock_id: acquiredLock.lock_id,
+                execution_id: context.execution_id
+              });
+            } catch (releaseError) {
+              console.error(`Failed to release lock ${acquiredLock.lock_id}:`, releaseError.message);
+            }
+          }
+          throw error;
+        }
+      }
+      /**
+       * Release locks for step
+       * 
+       * @param {Object} step
+       * @param {Object} execContext
+       * @param {Object} context
+       */
+      async _releaseStepLocks(step, execContext, context) {
+        const locksToRelease = execContext.acquiredLocks.filter((lock) => {
+          return true;
+        });
+        for (const lock of locksToRelease) {
+          try {
+            const releaseResult = await this.lockManager.releaseLock({
+              lock_id: lock.lock_id,
+              execution_id: context.execution_id
+            });
+            if (releaseResult.success) {
+              execContext.logEvent({
+                type: "lock_released",
+                step_id: step.step_id,
+                lock_id: lock.lock_id,
+                target_id: lock.target_id,
+                duration_seconds: releaseResult.duration_seconds
+              });
+              await this._emitLedgerEvent({
+                execution_id: context.execution_id,
+                event_type: "lock_released",
+                stage: "execution",
+                plan_id: execContext.planId,
+                step_id: step.step_id,
+                metadata: {
+                  lock_id: lock.lock_id,
+                  target_type: lock.target_type,
+                  target_id: lock.target_id,
+                  duration_seconds: releaseResult.duration_seconds
+                }
+              });
+            }
+          } catch (error) {
+            console.error(`Failed to release lock ${lock.lock_id}:`, error.message);
+            execContext.logEvent({
+              type: "lock_release_failed",
+              step_id: step.step_id,
+              lock_id: lock.lock_id,
+              error: error.message
+            });
+          }
+        }
+        execContext.acquiredLocks = [];
+      }
+      /**
+       * Check approval resolution and determine if execution can proceed
+       * 
+       * Core invariant:
+       * No warrant/execution occurs when approval is required but not granted.
+       * 
+       * @param {Object} step - Plan step
+       * @param {Object} execContext - Execution context
+       * @param {Object} context - Runtime context
+       * @returns {Promise<Object>} { can_proceed, outcome, reason, metadata, approval_id? }
+       */
+      async _checkApprovalResolution(step, execContext, context) {
+        if (!this.approvalManager) {
+          return {
+            can_proceed: true,
+            outcome: "no_approval_system",
+            reason: "Approval system not configured",
+            metadata: {}
+          };
+        }
+        if (!step.approval_required) {
+          return {
+            can_proceed: true,
+            outcome: "approval_not_required",
+            reason: "Step does not require approval",
+            metadata: {}
+          };
+        }
+        const approval = await this.approvalManager.getApprovalByContext(
+          context.execution_id,
+          step.step_id
+        );
+        const resolution = resolveApprovalStatus(approval, step, context);
+        if (resolution.outcome !== ResolutionOutcome.APPROVED) {
+          return {
+            can_proceed: false,
+            outcome: resolution.outcome,
+            reason: resolution.reason,
+            metadata: resolution.metadata,
+            approval_id: approval ? approval.approval_id : null
+          };
+        }
+        const validation = validateApprovalForResumption(approval, step, context);
+        if (!validation.valid) {
+          return {
+            can_proceed: false,
+            outcome: ResolutionOutcome.MALFORMED,
+            reason: validation.reason,
+            metadata: validation.metadata,
+            approval_id: approval.approval_id
+          };
+        }
+        return {
+          can_proceed: true,
+          outcome: ResolutionOutcome.APPROVED,
+          reason: "Approval granted and validated",
+          metadata: resolution.metadata,
+          approval_id: approval.approval_id
+        };
+      }
+      /**
+       * Sleep utility
+       */
+      _sleep(ms) {
+        return new Promise((resolve2) => setTimeout(resolve2, ms));
+      }
+    };
+    module2.exports = {
+      PlanExecutionEngine: PlanExecutionEngine2,
+      PlanExecutionContext
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/plan-schema.js
+var require_plan_schema = __commonJS({
+  "../../../services/vienna-lib/core/plan-schema.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    function generatePlanId() {
+      const timestamp = Date.now().toString(36);
+      const random = crypto8.randomBytes(4).toString("hex");
+      return `plan_${timestamp}_${random}`;
+    }
+    function validatePlan(plan) {
+      const errors = [];
+      if (!plan.plan_id || typeof plan.plan_id !== "string") {
+        errors.push("plan_id is required and must be a string");
+      }
+      if (!plan.objective || typeof plan.objective !== "string") {
+        errors.push("objective is required and must be a string");
+      }
+      if (!Array.isArray(plan.steps) || plan.steps.length === 0) {
+        errors.push("steps is required and must be a non-empty array");
+      }
+      if (!["T0", "T1", "T2"].includes(plan.risk_tier)) {
+        errors.push("risk_tier must be T0, T1, or T2");
+      }
+      if (!["pending", "approved", "executing", "completed", "failed", "cancelled"].includes(plan.status)) {
+        errors.push("status must be valid plan status");
+      }
+      if (Array.isArray(plan.steps)) {
+        plan.steps.forEach((step, idx) => {
+          if (typeof step.step_number !== "number") {
+            errors.push(`Step ${idx}: step_number must be a number`);
+          }
+          if (!step.action || typeof step.action !== "string") {
+            errors.push(`Step ${idx}: action is required and must be a string`);
+          }
+          if (!step.description || typeof step.description !== "string") {
+            errors.push(`Step ${idx}: description is required and must be a string`);
+          }
+          if (!["local", "openclaw"].includes(step.executor)) {
+            errors.push(`Step ${idx}: executor must be local or openclaw`);
+          }
+          if (typeof step.required !== "boolean") {
+            errors.push(`Step ${idx}: required must be a boolean`);
+          }
+          if (!Array.isArray(step.verification)) {
+            errors.push(`Step ${idx}: verification must be an array`);
+          }
+        });
+      }
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    function createPlan({
+      objective,
+      intent_id = null,
+      steps,
+      preconditions = [],
+      postconditions = [],
+      risk_tier,
+      estimated_duration_ms = 1e4,
+      verification_spec = null,
+      metadata = {}
+    }) {
+      const now = Date.now();
+      return {
+        plan_id: generatePlanId(),
+        objective,
+        intent_id,
+        steps,
+        preconditions,
+        postconditions,
+        risk_tier,
+        estimated_duration_ms,
+        status: "pending",
+        verification_spec,
+        metadata,
+        created_at: now,
+        updated_at: now
+      };
+    }
+    function createSimplePlan({
+      action,
+      description,
+      args = {},
+      executor,
+      risk_tier,
+      objective = null,
+      verification_spec = null
+    }) {
+      const step = {
+        step_number: 1,
+        action,
+        description,
+        args,
+        executor,
+        timeout_ms: 1e4,
+        required: true,
+        verification: []
+      };
+      return createPlan({
+        objective: objective || description,
+        steps: [step],
+        preconditions: [],
+        postconditions: [],
+        risk_tier,
+        estimated_duration_ms: 1e4,
+        verification_spec,
+        metadata: { plan_type: "simple" }
+      });
+    }
+    module2.exports = {
+      generatePlanId,
+      validatePlan,
+      createPlan,
+      createSimplePlan
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/verification-schema.js
+var require_verification_schema = __commonJS({
+  "../../../services/vienna-lib/core/verification-schema.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    function generateVerificationId() {
+      const timestamp = Date.now().toString(36);
+      const random = crypto8.randomBytes(4).toString("hex");
+      return `verify_${timestamp}_${random}`;
+    }
+    function generateOutcomeId() {
+      const timestamp = Date.now().toString(36);
+      const random = crypto8.randomBytes(4).toString("hex");
+      return `outcome_${timestamp}_${random}`;
+    }
+    var VerificationStrength = {
+      PROCEDURAL: "procedural",
+      LOCAL_STATE: "local_state",
+      SERVICE_HEALTH: "service_health",
+      OBJECTIVE_STABILITY: "objective_stability"
+    };
+    var VerificationStatus = {
+      SUCCESS: "success",
+      FAILED: "failed",
+      INCONCLUSIVE: "inconclusive",
+      TIMED_OUT: "timed_out",
+      SKIPPED: "skipped"
+    };
+    var WorkflowStatus = {
+      PLANNED: "planned",
+      AWAITING_APPROVAL: "awaiting_approval",
+      APPROVED: "approved",
+      DISPATCHED: "dispatched",
+      EXECUTING: "executing",
+      EXECUTION_FAILED: "execution_failed",
+      VERIFYING: "verifying",
+      COMPLETED: "completed",
+      COMPLETED_WITH_WARNINGS: "completed_with_warnings",
+      VERIFICATION_FAILED: "verification_failed",
+      INCONCLUSIVE: "inconclusive",
+      TIMED_OUT: "timed_out",
+      CANCELLED: "cancelled",
+      DENIED: "denied"
+    };
+    var CheckType = {
+      SYSTEMD_ACTIVE: "systemd_active",
+      TCP_PORT_OPEN: "tcp_port_open",
+      HTTP_HEALTHCHECK: "http_healthcheck",
+      FILE_EXISTS: "file_exists",
+      FILE_CONTAINS: "file_contains",
+      STATE_GRAPH_VALUE: "state_graph_value",
+      CUSTOM: "custom"
+    };
+    function createVerificationTask({
+      plan_id,
+      execution_id,
+      objective,
+      verification_type,
+      scope,
+      postconditions,
+      verification_strength = VerificationStrength.SERVICE_HEALTH,
+      timeout_ms = 15e3,
+      stability_window_ms = 0,
+      retry_policy = { max_attempts: 3, backoff_ms: 1e3 },
+      created_by = "vienna-core"
+    }) {
+      return {
+        verification_id: generateVerificationId(),
+        plan_id,
+        execution_id,
+        objective,
+        verification_type,
+        scope,
+        postconditions,
+        verification_strength,
+        timeout_ms,
+        stability_window_ms,
+        retry_policy,
+        created_at: Date.now(),
+        created_by
+      };
+    }
+    function createVerificationResult({
+      verification_id,
+      plan_id,
+      execution_id,
+      status,
+      objective_achieved,
+      verification_strength_achieved,
+      started_at,
+      completed_at,
+      checks,
+      stability = null,
+      summary,
+      metadata = {}
+    }) {
+      return {
+        verification_id,
+        plan_id,
+        execution_id,
+        status,
+        objective_achieved,
+        verification_strength_achieved,
+        started_at,
+        completed_at,
+        duration_ms: completed_at - started_at,
+        checks,
+        stability,
+        summary,
+        metadata
+      };
+    }
+    function createWorkflowOutcome({
+      plan_id,
+      execution_id = null,
+      verification_id = null,
+      workflow_status,
+      objective_achieved,
+      risk_tier,
+      execution_status = null,
+      verification_status = null,
+      operator_visible_summary,
+      next_actions = [],
+      metadata = {}
+    }) {
+      return {
+        outcome_id: generateOutcomeId(),
+        plan_id,
+        execution_id,
+        verification_id,
+        workflow_status,
+        objective_achieved,
+        risk_tier,
+        execution_status,
+        verification_status,
+        finalized_at: Date.now(),
+        operator_visible_summary,
+        next_actions,
+        metadata
+      };
+    }
+    function deriveWorkflowStatus(executionStatus, verificationStatus) {
+      if (executionStatus === "failed" || executionStatus === "error") {
+        return WorkflowStatus.EXECUTION_FAILED;
+      }
+      if (!verificationStatus) {
+        return executionStatus === "success" ? WorkflowStatus.COMPLETED_WITH_WARNINGS : WorkflowStatus.EXECUTION_FAILED;
+      }
+      if (verificationStatus === VerificationStatus.SUCCESS) {
+        return WorkflowStatus.COMPLETED;
+      }
+      if (verificationStatus === VerificationStatus.FAILED) {
+        return WorkflowStatus.VERIFICATION_FAILED;
+      }
+      if (verificationStatus === VerificationStatus.TIMED_OUT) {
+        return WorkflowStatus.TIMED_OUT;
+      }
+      if (verificationStatus === VerificationStatus.INCONCLUSIVE) {
+        return WorkflowStatus.INCONCLUSIVE;
+      }
+      if (verificationStatus === VerificationStatus.SKIPPED) {
+        return WorkflowStatus.COMPLETED_WITH_WARNINGS;
+      }
+      return WorkflowStatus.INCONCLUSIVE;
+    }
+    function validateVerificationTask(task) {
+      const errors = [];
+      if (!task.verification_id) errors.push("verification_id required");
+      if (!task.plan_id) errors.push("plan_id required");
+      if (!task.objective) errors.push("objective required");
+      if (!task.verification_type) errors.push("verification_type required");
+      if (!Array.isArray(task.postconditions)) errors.push("postconditions must be array");
+      if (!Object.values(VerificationStrength).includes(task.verification_strength)) {
+        errors.push("verification_strength must be valid");
+      }
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    module2.exports = {
+      generateVerificationId,
+      generateOutcomeId,
+      VerificationStrength,
+      VerificationStatus,
+      WorkflowStatus,
+      CheckType,
+      createVerificationTask,
+      createVerificationResult,
+      createWorkflowOutcome,
+      deriveWorkflowStatus,
+      validateVerificationTask
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/verification-templates.js
+var require_verification_templates = __commonJS({
+  "../../../services/vienna-lib/core/verification-templates.js"(exports2, module2) {
+    var { CheckType, VerificationStrength } = require_verification_schema();
+    var VERIFICATION_TEMPLATES = {
+      /**
+       * Service Recovery Verification
+       * 
+       * Validates that a service has been successfully restarted and is healthy.
+       */
+      service_recovery: {
+        verification_type: "service_recovery",
+        required_strength: VerificationStrength.OBJECTIVE_STABILITY,
+        timeout_ms: 15e3,
+        stability_window_ms: 5e3,
+        postconditions: [
+          {
+            check_id: "service_active",
+            type: CheckType.SYSTEMD_ACTIVE,
+            required: true,
+            description: "Service is active"
+          },
+          {
+            check_id: "port_listening",
+            type: CheckType.TCP_PORT_OPEN,
+            required: true,
+            description: "Service port is listening"
+          },
+          {
+            check_id: "healthcheck_ok",
+            type: CheckType.HTTP_HEALTHCHECK,
+            required: true,
+            description: "Health endpoint returns OK"
+          }
+        ]
+      },
+      /**
+       * Service Restart Verification
+       * 
+       * Simpler verification for service restart without health endpoint check.
+       */
+      service_restart: {
+        verification_type: "service_restart",
+        required_strength: VerificationStrength.LOCAL_STATE,
+        timeout_ms: 1e4,
+        stability_window_ms: 3e3,
+        postconditions: [
+          {
+            check_id: "service_active",
+            type: CheckType.SYSTEMD_ACTIVE,
+            required: true,
+            description: "Service is active"
+          }
+        ]
+      },
+      /**
+       * HTTP Service Health Verification
+       * 
+       * Validates that an HTTP service is responding correctly.
+       */
+      http_service_health: {
+        verification_type: "http_service_health",
+        required_strength: VerificationStrength.SERVICE_HEALTH,
+        timeout_ms: 1e4,
+        stability_window_ms: 0,
+        postconditions: [
+          {
+            check_id: "http_reachable",
+            type: CheckType.HTTP_HEALTHCHECK,
+            required: true,
+            description: "HTTP endpoint is reachable"
+          }
+        ]
+      },
+      /**
+       * State Graph Update Verification
+       * 
+       * Validates that State Graph was successfully updated.
+       */
+      state_graph_update: {
+        verification_type: "state_graph_update",
+        required_strength: VerificationStrength.LOCAL_STATE,
+        timeout_ms: 5e3,
+        stability_window_ms: 0,
+        postconditions: [
+          {
+            check_id: "state_graph_value",
+            type: CheckType.STATE_GRAPH_VALUE,
+            required: true,
+            description: "State Graph contains expected value"
+          }
+        ]
+      },
+      /**
+       * Endpoint Connectivity Verification
+       * 
+       * Validates that an endpoint is reachable.
+       */
+      endpoint_connectivity: {
+        verification_type: "endpoint_connectivity",
+        required_strength: VerificationStrength.SERVICE_HEALTH,
+        timeout_ms: 1e4,
+        stability_window_ms: 0,
+        postconditions: [
+          {
+            check_id: "tcp_reachable",
+            type: CheckType.TCP_PORT_OPEN,
+            required: true,
+            description: "Endpoint is reachable via TCP"
+          }
+        ]
+      },
+      /**
+       * Query Agent Response Verification
+       * 
+       * Validates that a query agent responded correctly.
+       */
+      query_agent_response: {
+        verification_type: "query_agent_response",
+        required_strength: VerificationStrength.PROCEDURAL,
+        timeout_ms: 5e3,
+        stability_window_ms: 0,
+        postconditions: []
+        // Procedural only - validation happens during execution
+      },
+      /**
+       * File Operation Verification
+       * 
+       * Validates that a file operation completed successfully.
+       */
+      file_operation: {
+        verification_type: "file_operation",
+        required_strength: VerificationStrength.LOCAL_STATE,
+        timeout_ms: 5e3,
+        stability_window_ms: 0,
+        postconditions: [
+          {
+            check_id: "file_exists",
+            type: CheckType.FILE_EXISTS,
+            required: true,
+            description: "File exists at expected location"
+          }
+        ]
+      }
+    };
+    function buildVerificationSpec(templateName, context = {}) {
+      const template = VERIFICATION_TEMPLATES[templateName];
+      if (!template) {
+        throw new Error(`Unknown verification template: ${templateName}`);
+      }
+      const spec = JSON.parse(JSON.stringify(template));
+      spec.postconditions = spec.postconditions.map((check) => {
+        const expandedCheck = { ...check };
+        switch (check.type) {
+          case CheckType.SYSTEMD_ACTIVE:
+            expandedCheck.target = context.service || "unknown-service";
+            break;
+          case CheckType.TCP_PORT_OPEN:
+            if (context.port) {
+              expandedCheck.target = `127.0.0.1:${context.port}`;
+            } else if (context.host && context.port) {
+              expandedCheck.target = `${context.host}:${context.port}`;
+            }
+            break;
+          case CheckType.HTTP_HEALTHCHECK:
+            if (context.health_url) {
+              expandedCheck.target = context.health_url;
+            } else if (context.port) {
+              expandedCheck.target = `http://127.0.0.1:${context.port}/health`;
+            }
+            expandedCheck.expected_value = context.expected_status || 200;
+            break;
+          case CheckType.FILE_EXISTS:
+          case CheckType.FILE_CONTAINS:
+            expandedCheck.target = context.file_path || context.target;
+            if (check.type === CheckType.FILE_CONTAINS && context.expected_content) {
+              expandedCheck.expected_value = context.expected_content;
+            }
+            break;
+          case CheckType.STATE_GRAPH_VALUE:
+            expandedCheck.target = context.entity_type + ":" + context.entity_id;
+            expandedCheck.config = {
+              field: context.field,
+              expected_value: context.expected_value
+            };
+            break;
+        }
+        return expandedCheck;
+      });
+      return spec;
+    }
+    function getRecommendedTemplate(action) {
+      const actionTemplateMap = {
+        restart_service: "service_recovery",
+        start_service: "service_restart",
+        stop_service: "service_restart",
+        check_health: "http_service_health",
+        query_openclaw_agent: "query_agent_response",
+        query_status: "endpoint_connectivity",
+        inspect_gateway: "http_service_health",
+        collect_logs: null,
+        // No verification needed (read-only)
+        run_workflow: null,
+        // Custom verification per workflow
+        run_recovery_workflow: null,
+        // Custom verification per workflow
+        recovery_action: null,
+        // Custom verification per recovery
+        show_status: null,
+        // No verification needed (read-only)
+        show_services: null,
+        // No verification needed (read-only)
+        show_providers: null,
+        // No verification needed (read-only)
+        show_incidents: null,
+        // No verification needed (read-only)
+        show_objectives: null,
+        // No verification needed (read-only)
+        show_endpoints: null
+        // No verification needed (read-only)
+      };
+      return actionTemplateMap[action] || null;
+    }
+    module2.exports = {
+      VERIFICATION_TEMPLATES,
+      buildVerificationSpec,
+      getRecommendedTemplate
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/plan-generator.js
+var require_plan_generator = __commonJS({
+  "../../../services/vienna-lib/core/plan-generator.js"(exports2, module2) {
+    var { createPlan, createSimplePlan } = require_plan_schema();
+    var { buildVerificationSpec, getRecommendedTemplate } = require_verification_templates();
+    var ACTION_TEMPLATES = {
+      // T0 Read-Only Local Actions
+      show_status: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains status fields"]
+      },
+      show_services: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains service list"]
+      },
+      show_providers: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains provider list"]
+      },
+      show_incidents: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains incident list"]
+      },
+      show_objectives: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains objective list"]
+      },
+      show_endpoints: {
+        executor: "local",
+        risk_tier: "T0",
+        timeout_ms: 5e3,
+        verification: ["result contains endpoint list"]
+      },
+      // T0 Remote Query Actions
+      query_openclaw_agent: {
+        executor: "openclaw",
+        risk_tier: "T0",
+        timeout_ms: 1e4,
+        verification: ["answer provided", "confidence >= 0.5"]
+      },
+      query_status: {
+        executor: "openclaw",
+        risk_tier: "T0",
+        timeout_ms: 1e4,
+        verification: ["status returned"]
+      },
+      inspect_gateway: {
+        executor: "openclaw",
+        risk_tier: "T0",
+        timeout_ms: 1e4,
+        verification: ["gateway info returned"]
+      },
+      check_health: {
+        executor: "openclaw",
+        risk_tier: "T0",
+        timeout_ms: 1e4,
+        verification: ["health status returned"]
+      },
+      collect_logs: {
+        executor: "openclaw",
+        risk_tier: "T0",
+        timeout_ms: 15e3,
+        verification: ["logs collected"]
+      },
+      // T1 Side-Effect Actions
+      restart_service: {
+        executor: "local",
+        risk_tier: "T1",
+        timeout_ms: 3e4,
+        verification: ["service restarted", "service healthy"],
+        preconditions: ["service exists"],
+        postconditions: ["service status is active"]
+      },
+      run_recovery_workflow: {
+        executor: "local",
+        risk_tier: "T1",
+        timeout_ms: 6e4,
+        verification: ["workflow completed"],
+        preconditions: ["workflow exists"],
+        postconditions: ["system healthy"]
+      },
+      run_workflow: {
+        executor: "openclaw",
+        risk_tier: "T1",
+        timeout_ms: 6e4,
+        verification: ["workflow completed"],
+        preconditions: ["workflow exists"]
+      },
+      recovery_action: {
+        executor: "openclaw",
+        risk_tier: "T1",
+        timeout_ms: 3e4,
+        verification: ["recovery completed"],
+        preconditions: ["recovery needed"]
+      }
+    };
+    function generatePlan(intentObject) {
+      const { intent_type, normalized_action, entities, confidence, governance_tier } = intentObject;
+      if (intent_type === "unknown" || !normalized_action) {
+        return null;
+      }
+      if (intent_type === "informational") {
+        return null;
+      }
+      const actionId = typeof normalized_action === "object" ? normalized_action.action_id : normalized_action;
+      const template = ACTION_TEMPLATES[actionId];
+      if (!template) {
+        throw new Error(`No plan template for action: ${actionId}`);
+      }
+      const actionArgs = typeof normalized_action === "object" && normalized_action.arguments ? normalized_action.arguments : {};
+      const args = { ...buildActionArgs(actionId, entities), ...actionArgs };
+      const objective = generateObjective(actionId, entities, intentObject.metadata || {});
+      const riskTier = governance_tier || template.risk_tier;
+      const verificationTemplateName = getRecommendedTemplate(actionId);
+      let verificationSpec = null;
+      if (verificationTemplateName) {
+        try {
+          const verificationContext = buildVerificationContext(actionId, args, entities);
+          verificationSpec = buildVerificationSpec(verificationTemplateName, verificationContext);
+        } catch (error) {
+          console.warn(`Failed to build verification spec for ${actionId}:`, error.message);
+        }
+      }
+      const plan = createSimplePlan({
+        action: actionId,
+        description: objective,
+        args,
+        executor: template.executor,
+        risk_tier: riskTier,
+        objective,
+        verification_spec: verificationSpec
+      });
+      if (template.verification) {
+        plan.steps[0].verification = template.verification;
+      }
+      if (template.preconditions) {
+        plan.preconditions = template.preconditions.map(
+          (pc) => expandPrecondition(pc, entities)
+        );
+      }
+      if (template.postconditions) {
+        plan.postconditions = template.postconditions.map(
+          (pc) => expandPostcondition(pc, entities)
+        );
+      }
+      if (template.timeout_ms) {
+        plan.steps[0].timeout_ms = template.timeout_ms;
+        plan.estimated_duration_ms = template.timeout_ms;
+      }
+      plan.metadata.intent = intentObject;
+      plan.metadata.confidence = confidence;
+      return plan;
+    }
+    function buildActionArgs(action, entities) {
+      const args = {};
+      switch (action) {
+        case "restart_service":
+          if (entities.service) {
+            args.service_name = entities.service;
+          }
+          break;
+        case "query_openclaw_agent":
+          if (entities.query) {
+            args.query = entities.query;
+          }
+          break;
+        case "run_workflow":
+        case "run_recovery_workflow":
+          if (entities.workflow) {
+            args.workflow_id = entities.workflow;
+          }
+          break;
+        case "collect_logs":
+          if (entities.timeframe) {
+            args.timeframe = entities.timeframe;
+          }
+          if (entities.service) {
+            args.service = entities.service;
+          }
+          break;
+        default:
+          Object.assign(args, entities);
+      }
+      return args;
+    }
+    function generateObjective(action, entities, metadata) {
+      const templates = {
+        show_status: "Show Vienna OS system status",
+        show_services: "Show registered services",
+        show_providers: "Show LLM providers",
+        show_incidents: "Show incident history",
+        show_objectives: "Show active objectives",
+        show_endpoints: "Show execution endpoints",
+        query_openclaw_agent: `Query OpenClaw agent: "${entities.query || "unknown"}"`,
+        query_status: "Query OpenClaw runtime status",
+        inspect_gateway: "Inspect OpenClaw gateway",
+        check_health: "Check OpenClaw health",
+        collect_logs: `Collect logs${entities.timeframe ? ` (${entities.timeframe})` : ""}`,
+        restart_service: `Restart service: ${entities.service || "unknown"}`,
+        run_recovery_workflow: `Run recovery workflow: ${entities.workflow || "unknown"}`,
+        run_workflow: `Run workflow: ${entities.workflow || "unknown"}`,
+        recovery_action: "Execute recovery action"
+      };
+      return templates[action] || `Execute action: ${action}`;
+    }
+    function expandPrecondition(template, entities) {
+      return template.replace(/\{(\w+)\}/g, (match, key) => {
+        return entities[key] || match;
+      });
+    }
+    function expandPostcondition(template, entities) {
+      return template.replace(/\{(\w+)\}/g, (match, key) => {
+        return entities[key] || match;
+      });
+    }
+    function buildVerificationContext(action, args, entities) {
+      const context = {};
+      switch (action) {
+        case "restart_service":
+          context.service = args.service_name || entities.service || "openclaw-gateway";
+          const servicePortMap = {
+            "openclaw-gateway": 18789,
+            "vienna-backend": 3100,
+            "vienna-frontend": 5174,
+            "ollama": 11434
+          };
+          context.port = servicePortMap[context.service];
+          if (context.port) {
+            context.health_url = `http://127.0.0.1:${context.port}/health`;
+          }
+          break;
+        case "check_health":
+        case "inspect_gateway":
+          context.health_url = args.url || "http://127.0.0.1:18789/health";
+          break;
+        case "query_status":
+        case "query_openclaw_agent":
+          break;
+        default:
+          Object.assign(context, entities);
+      }
+      return context;
+    }
+    module2.exports = {
+      generatePlan,
+      ACTION_TEMPLATES
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/execution-graph.js
+var require_execution_graph = __commonJS({
+  "../../../services/vienna-lib/core/execution-graph.js"(exports2, module2) {
+    var ExecutionGraphBuilder2 = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Build complete execution graph for intent
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {Object} Complete execution graph
+       */
+      async buildIntentGraph(intent_id) {
+        const trace = await this.stateGraph.getIntentTrace(intent_id);
+        if (!trace) {
+          throw new Error(`Intent not found: ${intent_id}`);
+        }
+        const graph = {
+          intent_id,
+          intent_type: trace.intent_type,
+          source: trace.source,
+          submitted_at: trace.submitted_at,
+          status: trace.status,
+          stages: [],
+          timeline: []
+        };
+        graph.timeline = this._buildTimeline(trace.events);
+        const relationships = trace.relationships || {};
+        graph.stages.push({
+          stage: "intent",
+          status: trace.status,
+          timestamp: trace.submitted_at,
+          data: {
+            intent_id: trace.intent_id,
+            intent_type: trace.intent_type,
+            source: trace.source
+          }
+        });
+        const policyDecision = await this._getPolicyDecision(intent_id);
+        if (policyDecision) {
+          graph.stages.push({
+            stage: "policy",
+            status: policyDecision.decision,
+            timestamp: policyDecision.evaluated_at,
+            data: policyDecision
+          });
+        }
+        if (relationships.reconciliation_id) {
+          const reconciliation = await this._getReconciliationData(relationships.reconciliation_id);
+          if (reconciliation) {
+            graph.stages.push({
+              stage: "reconciliation",
+              status: reconciliation.status,
+              timestamp: reconciliation.admitted_at || reconciliation.created_at,
+              data: reconciliation
+            });
+          }
+        }
+        if (relationships.execution_id) {
+          const execution = await this._getExecutionData(relationships.execution_id);
+          if (execution) {
+            graph.stages.push({
+              stage: "execution",
+              status: execution.status,
+              timestamp: execution.started_at,
+              data: execution
+            });
+          }
+        }
+        if (relationships.verification_id) {
+          const verification = await this._getVerificationData(relationships.verification_id);
+          if (verification) {
+            graph.stages.push({
+              stage: "verification",
+              status: verification.status,
+              timestamp: verification.started_at,
+              data: verification
+            });
+          }
+        }
+        if (relationships.outcome_id) {
+          const outcome = await this._getOutcomeData(relationships.outcome_id);
+          if (outcome) {
+            graph.stages.push({
+              stage: "outcome",
+              status: outcome.outcome_type,
+              timestamp: outcome.finalized_at,
+              data: outcome
+            });
+          }
+        }
+        return graph;
+      }
+      /**
+       * Build execution graph for execution ID
+       * 
+       * @param {string} execution_id - Execution identifier
+       * @returns {Object} Execution-focused graph
+       */
+      async buildExecutionGraph(execution_id) {
+        const events = await this.stateGraph.listExecutionLedgerEvents(execution_id);
+        const summary = await this.stateGraph.getExecutionLedgerSummary(execution_id);
+        if (!summary) {
+          throw new Error(`Execution not found: ${execution_id}`);
+        }
+        const graph = {
+          execution_id,
+          objective: summary.objective,
+          risk_tier: summary.risk_tier,
+          status: summary.status,
+          started_at: summary.started_at,
+          completed_at: summary.completed_at,
+          duration_ms: summary.duration_ms,
+          events: this._buildEventTimeline(events),
+          governance: {
+            policy_decision: summary.policy_decision,
+            approval_required: summary.approval_required,
+            approval_status: summary.approval_status
+          },
+          outcome: {
+            objective_achieved: summary.objective_achieved,
+            verification_status: summary.verification_status
+          }
+        };
+        return graph;
+      }
+      /**
+       * Get intent timeline (chronological events)
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {Array<Object>} Timeline events
+       */
+      async getIntentTimeline(intent_id) {
+        const trace = await this.stateGraph.getIntentTrace(intent_id);
+        if (!trace) {
+          throw new Error(`Intent not found: ${intent_id}`);
+        }
+        return this._buildTimeline(trace.events);
+      }
+      /**
+       * Explain why action was taken or denied
+       * 
+       * @param {string} intent_id - Intent identifier
+       * @returns {Object} Explanation with reasoning
+       */
+      async explainDecision(intent_id) {
+        const graph = await this.buildIntentGraph(intent_id);
+        const explanation = {
+          intent_id,
+          intent_type: graph.intent_type,
+          decision: graph.status,
+          reasoning: []
+        };
+        for (const stage of graph.stages) {
+          if (stage.stage === "policy" && stage.status === "deny") {
+            explanation.reasoning.push({
+              stage: "policy",
+              factor: "policy_denial",
+              detail: stage.data.reason || "Policy constraint not satisfied",
+              blocking: true
+            });
+          }
+          if (stage.stage === "reconciliation" && stage.status === "skipped") {
+            explanation.reasoning.push({
+              stage: "reconciliation",
+              factor: "admission_denied",
+              detail: stage.data.skip_reason || "Reconciliation admission denied",
+              blocking: true
+            });
+          }
+          if (stage.stage === "execution" && stage.status === "failed") {
+            explanation.reasoning.push({
+              stage: "execution",
+              factor: "execution_failure",
+              detail: stage.data.error || "Execution failed",
+              blocking: false
+            });
+          }
+          if (stage.stage === "verification" && stage.status === "failed") {
+            explanation.reasoning.push({
+              stage: "verification",
+              factor: "verification_failure",
+              detail: "Postconditions not satisfied",
+              blocking: false
+            });
+          }
+        }
+        if (explanation.reasoning.length === 0) {
+          explanation.reasoning.push({
+            stage: "all",
+            factor: "permitted",
+            detail: "All governance checks passed",
+            blocking: false
+          });
+        }
+        return explanation;
+      }
+      // Private helper methods
+      _buildTimeline(events) {
+        return events.map((event) => ({
+          event_type: event.event_type,
+          timestamp: event.timestamp,
+          metadata: event.metadata
+        })).sort((a2, b2) => new Date(a2.timestamp) - new Date(b2.timestamp));
+      }
+      _buildEventTimeline(events) {
+        return events.map((event) => ({
+          event_type: event.event_type,
+          timestamp: event.event_timestamp,
+          payload: event.event_payload ? JSON.parse(event.event_payload) : null
+        })).sort((a2, b2) => new Date(a2.timestamp) - new Date(b2.timestamp));
+      }
+      async _getPolicyDecision(intent_id) {
+        try {
+          const decisions = this.stateGraph.query(
+            "SELECT * FROM policy_decisions WHERE metadata LIKE ? ORDER BY evaluated_at DESC LIMIT 1",
+            [`%"intent_id":"${intent_id}"%`]
+          );
+          return decisions.length > 0 ? decisions[0] : null;
+        } catch (error) {
+          return null;
+        }
+      }
+      async _getReconciliationData(reconciliation_id) {
+        return {
+          reconciliation_id,
+          status: "completed",
+          created_at: (/* @__PURE__ */ new Date()).toISOString()
+        };
+      }
+      async _getExecutionData(execution_id) {
+        return await this.stateGraph.getExecutionLedgerSummary(execution_id);
+      }
+      async _getVerificationData(verification_id) {
+        return await this.stateGraph.getVerification(verification_id);
+      }
+      async _getOutcomeData(outcome_id) {
+        return await this.stateGraph.getWorkflowOutcome(outcome_id);
+      }
+    };
+    module2.exports = { ExecutionGraphBuilder: ExecutionGraphBuilder2 };
+  }
+});
+
+// ../../../node_modules/nanoid/url-alphabet/index.cjs
+var require_url_alphabet = __commonJS({
+  "../../../node_modules/nanoid/url-alphabet/index.cjs"(exports2, module2) {
+    var urlAlphabet = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
+    module2.exports = { urlAlphabet };
+  }
+});
+
+// ../../../node_modules/nanoid/index.cjs
+var require_nanoid = __commonJS({
+  "../../../node_modules/nanoid/index.cjs"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var { urlAlphabet } = require_url_alphabet();
+    var POOL_SIZE_MULTIPLIER = 128;
+    var pool;
+    var poolOffset;
+    var fillPool = (bytes) => {
+      if (!pool || pool.length < bytes) {
+        pool = Buffer.allocUnsafe(bytes * POOL_SIZE_MULTIPLIER);
+        crypto8.randomFillSync(pool);
+        poolOffset = 0;
+      } else if (poolOffset + bytes > pool.length) {
+        crypto8.randomFillSync(pool);
+        poolOffset = 0;
+      }
+      poolOffset += bytes;
+    };
+    var random = (bytes) => {
+      fillPool(bytes |= 0);
+      return pool.subarray(poolOffset - bytes, poolOffset);
+    };
+    var customRandom = (alphabet2, defaultSize, getRandom) => {
+      let mask = (2 << 31 - Math.clz32(alphabet2.length - 1 | 1)) - 1;
+      let step = Math.ceil(1.6 * mask * defaultSize / alphabet2.length);
+      return (size = defaultSize) => {
+        let id = "";
+        while (true) {
+          let bytes = getRandom(step);
+          let i2 = step;
+          while (i2--) {
+            id += alphabet2[bytes[i2] & mask] || "";
+            if (id.length === size) return id;
+          }
+        }
+      };
+    };
+    var customAlphabet = (alphabet2, size = 21) => customRandom(alphabet2, size, random);
+    var nanoid = (size = 21) => {
+      fillPool(size |= 0);
+      let id = "";
+      for (let i2 = poolOffset - size; i2 < poolOffset; i2++) {
+        id += urlAlphabet[pool[i2] & 63];
+      }
+      return id;
+    };
+    module2.exports = { nanoid, customAlphabet, customRandom, urlAlphabet, random };
+  }
+});
+
+// ../../../services/vienna-lib/core/agent-intent-bridge.js
+var require_agent_intent_bridge = __commonJS({
+  "../../../services/vienna-lib/core/agent-intent-bridge.js"(exports2, module2) {
+    var { nanoid } = require_nanoid();
+    var ACTION_ALLOWLIST = /* @__PURE__ */ new Map([
+      ["check_health", {
+        intent_type: "check_system_health",
+        risk_tier: "T0",
+        schema: {
+          target: "string"
+          // optional
+        }
+      }]
+    ]);
+    var AgentIntentBridge = class {
+      constructor(intentGateway) {
+        this.intentGateway = intentGateway;
+      }
+      /**
+       * Process agent request
+       * 
+       * @param {Object} agentRequest - Agent request
+       * @param {Object} authContext - Authentication context
+       * @returns {Promise<Object>} Vienna response
+       */
+      async processAgentRequest(agentRequest, authContext) {
+        const authResult = this._authenticateRequest(agentRequest, authContext);
+        if (!authResult.valid) {
+          return this._errorResponse("UNAUTHORIZED", authResult.error);
+        }
+        const tenant = this._resolveTenant(authContext);
+        const actionValidation = this._validateAction(agentRequest);
+        if (!actionValidation.valid) {
+          return this._errorResponse("ACTION_NOT_ALLOWED", actionValidation.error, {
+            allowed_actions: Array.from(ACTION_ALLOWLIST.keys())
+          });
+        }
+        const payloadValidation = this._validatePayload(agentRequest);
+        if (!payloadValidation.valid) {
+          return this._errorResponse("INVALID_PAYLOAD", payloadValidation.error);
+        }
+        const viennaIntent = this._translateToIntent(agentRequest, tenant);
+        try {
+          const viennaResponse = await this.intentGateway.submitIntent(viennaIntent);
+          return this._normalizeResponse(viennaResponse, agentRequest, viennaIntent);
+        } catch (error) {
+          return this._errorResponse("VIENNA_UNAVAILABLE", error.message);
+        }
+      }
+      /**
+       * Authenticate agent request
+       * 
+       * @private
+       */
+      _authenticateRequest(agentRequest, authContext) {
+        if (!agentRequest.source || agentRequest.source.platform !== "openclaw") {
+          return {
+            valid: false,
+            error: 'source.platform must be "openclaw"'
+          };
+        }
+        if (!authContext || !authContext.tenant) {
+          return {
+            valid: false,
+            error: "Invalid agent credentials"
+          };
+        }
+        return { valid: true };
+      }
+      /**
+       * Resolve tenant server-side
+       * 
+       * @private
+       */
+      _resolveTenant(authContext) {
+        return authContext.tenant;
+      }
+      /**
+       * Validate action against allowlist
+       * 
+       * @private
+       */
+      _validateAction(agentRequest) {
+        const { action } = agentRequest;
+        if (!action || typeof action !== "string") {
+          return {
+            valid: false,
+            error: "action required (string)"
+          };
+        }
+        if (!ACTION_ALLOWLIST.has(action)) {
+          return {
+            valid: false,
+            error: `Action '${action}' not in allowlist`
+          };
+        }
+        return { valid: true };
+      }
+      /**
+       * Validate payload against action schema
+       * 
+       * @private
+       */
+      _validatePayload(agentRequest) {
+        const { action, payload = {} } = agentRequest;
+        const actionDef = ACTION_ALLOWLIST.get(action);
+        for (const [field, type] of Object.entries(actionDef.schema)) {
+          if (payload[field] !== void 0 && typeof payload[field] !== type) {
+            return {
+              valid: false,
+              error: `Field '${field}' must be ${type}`
+            };
+          }
+        }
+        return { valid: true };
+      }
+      /**
+       * Translate agent request to Vienna intent
+       * 
+       * @private
+       */
+      _translateToIntent(agentRequest, tenant) {
+        const { action, payload = {}, simulation = false, source } = agentRequest;
+        const actionDef = ACTION_ALLOWLIST.get(action);
+        return {
+          intent_type: actionDef.intent_type,
+          payload,
+          simulation,
+          tenant_id: tenant,
+          source: {
+            type: "agent",
+            id: source.agent_id || "unknown",
+            platform: source.platform || "openclaw",
+            user_id: source.user_id,
+            conversation_id: source.conversation_id,
+            message_id: source.message_id
+          },
+          metadata: {
+            original_action: action,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          }
+        };
+      }
+      /**
+       * Normalize Vienna response
+       * 
+       * @private
+       */
+      _normalizeResponse(viennaResponse, agentRequest, viennaIntent) {
+        const status = viennaResponse.simulation ? "simulated" : viennaResponse.accepted ? "executed" : viennaResponse.error ? "failed" : "blocked";
+        return {
+          success: viennaResponse.accepted && !viennaResponse.error,
+          status,
+          simulation: viennaResponse.simulation || false,
+          explanation: viennaResponse.explanation || viennaResponse.message || null,
+          result: viennaResponse.metadata || viennaResponse.result || null,
+          cost: viennaResponse.cost || null,
+          attestation: viennaResponse.attestation || null,
+          error: viennaResponse.error || null,
+          metadata: {
+            agent_request_id: `agent_req_${nanoid(8)}`,
+            vienna_intent_id: viennaResponse.intent_id || null,
+            mapped_action: agentRequest.action,
+            source: agentRequest.source,
+            execution_id: viennaResponse.execution_id || null,
+            quota_state: viennaResponse.quota_state || null
+          }
+        };
+      }
+      /**
+       * Error response
+       * 
+       * @private
+       */
+      _errorResponse(code, message, details = null) {
+        const response = {
+          success: false,
+          error: {
+            code,
+            message
+          }
+        };
+        if (details) {
+          response.error.details = details;
+        }
+        return response;
+      }
+      /**
+       * List allowed actions (for debugging/docs)
+       */
+      listAllowedActions() {
+        return Array.from(ACTION_ALLOWLIST.entries()).map(([action, def]) => ({
+          action,
+          intent_type: def.intent_type,
+          risk_tier: def.risk_tier
+        }));
+      }
+    };
+    module2.exports = { AgentIntentBridge, ACTION_ALLOWLIST };
+  }
+});
+
+// ../../../services/vienna-lib/core/openclaw-bridge.js
+var require_openclaw_bridge = __commonJS({
+  "../../../services/vienna-lib/core/openclaw-bridge.js"(exports2, module2) {
+    var { nanoid } = require_nanoid();
+    var OpenClawBridge = class {
+      constructor() {
+        this.endpointManager = null;
+        this.stateGraph = null;
+        this.instructionTypes = /* @__PURE__ */ new Map();
+        this._registerDefaultInstructionTypes();
+      }
+      /**
+       * Set dependencies
+       */
+      setDependencies(endpointManager, stateGraph) {
+        this.endpointManager = endpointManager;
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Register instruction type
+       */
+      registerInstructionType(instructionType) {
+        const {
+          instruction_type,
+          instruction_name,
+          risk_tier,
+          schema
+        } = instructionType;
+        if (!instruction_type || !instruction_name || !risk_tier) {
+          throw new Error("instruction_type, instruction_name, and risk_tier required");
+        }
+        if (!["T0", "T1", "T2"].includes(risk_tier)) {
+          throw new Error("risk_tier must be T0, T1, or T2");
+        }
+        this.instructionTypes.set(instruction_type, instructionType);
+      }
+      /**
+       * Register default instruction types
+       */
+      _registerDefaultInstructionTypes() {
+        this.registerInstructionType({
+          instruction_type: "query_status",
+          instruction_name: "Query OpenClaw Status",
+          risk_tier: "T0",
+          schema: {}
+        });
+        this.registerInstructionType({
+          instruction_type: "inspect_gateway",
+          instruction_name: "Inspect OpenClaw Gateway",
+          risk_tier: "T0",
+          schema: {}
+        });
+        this.registerInstructionType({
+          instruction_type: "check_health",
+          instruction_name: "Check OpenClaw Health",
+          risk_tier: "T0",
+          schema: {}
+        });
+        this.registerInstructionType({
+          instruction_type: "collect_logs",
+          instruction_name: "Collect OpenClaw Logs",
+          risk_tier: "T0",
+          schema: {
+            service: "string",
+            lines: "number"
+          }
+        });
+        this.registerInstructionType({
+          instruction_type: "query_agent",
+          instruction_name: "Query OpenClaw Agent",
+          risk_tier: "T0",
+          schema: {
+            query: "string"
+          }
+        });
+        this.registerInstructionType({
+          instruction_type: "run_workflow",
+          instruction_name: "Run OpenClaw Workflow",
+          risk_tier: "T1",
+          schema: {
+            workflow: "string",
+            arguments: "object"
+          }
+        });
+        this.registerInstructionType({
+          instruction_type: "restart_service",
+          instruction_name: "Restart OpenClaw Service",
+          risk_tier: "T1",
+          schema: {
+            service: "string"
+          }
+        });
+        this.registerInstructionType({
+          instruction_type: "recovery_action",
+          instruction_name: "OpenClaw Recovery Action",
+          risk_tier: "T1",
+          schema: {
+            action: "string",
+            target: "string"
+          }
+        });
+      }
+      /**
+       * Create instruction envelope
+       * 
+       * @param {Object} params - Instruction parameters
+       * @returns {Object} Instruction envelope
+       */
+      createInstruction(params) {
+        const {
+          instruction_type,
+          arguments: args = {},
+          issued_by = "vienna-operator-chat",
+          warrant_id = null
+        } = params;
+        const instructionTypeDef = this.instructionTypes.get(instruction_type);
+        if (!instructionTypeDef) {
+          throw new Error(`Unknown instruction type: ${instruction_type}`);
+        }
+        const instruction_id = `instr_${nanoid(12)}`;
+        const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+        return {
+          instruction_id,
+          instruction_type,
+          target_endpoint: "openclaw",
+          target_agent: "openclaw-vienna-agent",
+          action: instruction_type,
+          arguments: args,
+          risk_tier: instructionTypeDef.risk_tier,
+          issued_by,
+          warrant_id,
+          request_id: instruction_id,
+          timestamp
+        };
+      }
+      /**
+       * Dispatch instruction to OpenClaw
+       * 
+       * @param {Object} instruction - Instruction envelope
+       * @returns {Promise<Object>} Result
+       */
+      async dispatchInstruction(instruction) {
+        if (!this.endpointManager) {
+          throw new Error("EndpointManager not set");
+        }
+        const result = await this.endpointManager.dispatchInstruction(instruction);
+        return result;
+      }
+      /**
+       * Send structured direction to OpenClaw
+       * 
+       * @param {string} instruction_type - Instruction type
+       * @param {Object} args - Arguments
+       * @param {Object} options - Options
+       * @returns {Promise<Object>} Result
+       */
+      async sendDirection(instruction_type, args = {}, options = {}) {
+        const instruction = this.createInstruction({
+          instruction_type,
+          arguments: args,
+          issued_by: options.issued_by || "vienna-operator-chat",
+          warrant_id: options.warrant_id || null
+        });
+        const result = await this.dispatchInstruction(instruction);
+        return result;
+      }
+      /**
+       * Query OpenClaw status
+       */
+      async queryStatus() {
+        return await this.sendDirection("query_status");
+      }
+      /**
+       * Inspect OpenClaw gateway
+       */
+      async inspectGateway() {
+        return await this.sendDirection("inspect_gateway");
+      }
+      /**
+       * Check OpenClaw health
+       */
+      async checkHealth() {
+        return await this.sendDirection("check_health");
+      }
+      /**
+       * Collect OpenClaw logs
+       */
+      async collectLogs(service, lines = 100) {
+        return await this.sendDirection("collect_logs", { service, lines });
+      }
+      /**
+       * Run OpenClaw workflow (T1)
+       */
+      async runWorkflow(workflow, args = {}, warrant_id = null) {
+        return await this.sendDirection("run_workflow", { workflow, arguments: args }, { warrant_id });
+      }
+      /**
+       * Restart OpenClaw service (T1)
+       */
+      async restartService(service, warrant_id = null) {
+        return await this.sendDirection("restart_service", { service }, { warrant_id });
+      }
+      /**
+       * List registered instruction types
+       */
+      listInstructionTypes() {
+        return Array.from(this.instructionTypes.values()).map((type) => ({
+          instruction_type: type.instruction_type,
+          instruction_name: type.instruction_name,
+          risk_tier: type.risk_tier
+        }));
+      }
+    };
+    module2.exports = { OpenClawBridge };
+  }
+});
+
+// ../../../services/vienna-lib/governance/warrant.js
+var require_warrant = __commonJS({
+  "../../../services/vienna-lib/governance/warrant.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var fs4 = require("fs").promises;
+    var path5 = require("path");
+    var Warrant2 = class {
+      constructor(adapter) {
+        this.adapter = adapter;
+      }
+      /**
+       * Issue new warrant
+       * 
+       * @param {object} options - Warrant options
+       * @param {string} options.truthSnapshotId - Truth snapshot ID
+       * @param {string} options.planId - Plan ID
+       * @param {string} options.approvalId - Approval ID (T2 only)
+       * @param {string} options.objective - Human-readable objective
+       * @param {string} options.riskTier - 'T0' | 'T1' | 'T2'
+       * @param {Array<string>} options.allowedActions - Allowed actions
+       * @param {Array<string>} options.forbiddenActions - Forbidden actions
+       * @param {number} options.expiresInMinutes - Expiration (default 15)
+       * @returns {Promise<object>} Issued warrant
+       */
+      async issue(options) {
+        const {
+          truthSnapshotId,
+          planId,
+          approvalId,
+          objective,
+          riskTier,
+          allowedActions,
+          forbiddenActions = [],
+          expiresInMinutes = 15
+        } = options;
+        this._validateRequired({ truthSnapshotId, planId, objective, riskTier, allowedActions });
+        if (riskTier === "T2" && !approvalId) {
+          throw new Error("T2 warrants require approvalId");
+        }
+        const truth = await this.adapter.loadTruthSnapshot(truthSnapshotId);
+        await this._validateTruthFreshness(truth, riskTier);
+        const changeId = this._generateChangeId();
+        const warrantId = `wrt_${changeId.split("_").slice(1).join("_")}`;
+        const warrant = {
+          change_id: changeId,
+          warrant_id: warrantId,
+          issued_by: "vienna",
+          issued_at: (/* @__PURE__ */ new Date()).toISOString(),
+          expires_at: new Date(Date.now() + expiresInMinutes * 60 * 1e3).toISOString(),
+          risk_tier: riskTier,
+          truth_snapshot_id: truthSnapshotId,
+          truth_snapshot_hash: truth.truth_snapshot_hash || this._hashObject(truth),
+          plan_id: planId,
+          approval_id: approvalId,
+          objective,
+          allowed_actions: allowedActions,
+          forbidden_actions: forbiddenActions,
+          trading_safety: this._assessTradingSafety(allowedActions),
+          status: "issued",
+          invalidated_at: null,
+          invalidation_reason: null
+        };
+        await this.adapter.saveWarrant(warrant);
+        await this.adapter.emitAudit({
+          event_type: "warrant_issued",
+          warrant_id: warrantId,
+          change_id: changeId,
+          risk_tier: riskTier,
+          issued_at: warrant.issued_at
+        });
+        return warrant;
+      }
+      /**
+       * Verify warrant validity
+       * 
+       * @param {string} warrantId - Warrant ID
+       * @returns {Promise<object>} Validation result
+       */
+      async verify(warrantId) {
+        const warrant = await this.adapter.loadWarrant(warrantId);
+        if (!warrant) {
+          return { valid: false, reason: "WARRANT_NOT_FOUND" };
+        }
+        if (warrant.status === "invalidated") {
+          return {
+            valid: false,
+            reason: "WARRANT_INVALIDATED",
+            invalidated_at: warrant.invalidated_at,
+            invalidation_reason: warrant.invalidation_reason
+          };
+        }
+        const now = /* @__PURE__ */ new Date();
+        const expires = new Date(warrant.expires_at);
+        if (now > expires) {
+          return {
+            valid: false,
+            reason: "WARRANT_EXPIRED",
+            expired_at: warrant.expires_at
+          };
+        }
+        return {
+          valid: true,
+          warrant,
+          remaining_minutes: Math.floor((expires - now) / 6e4)
+        };
+      }
+      /**
+       * Invalidate warrant
+       * 
+       * @param {string} warrantId - Warrant ID
+       * @param {string} reason - Invalidation reason
+       * @returns {Promise<void>}
+       */
+      async invalidate(warrantId, reason) {
+        const warrant = await this.adapter.loadWarrant(warrantId);
+        if (!warrant) {
+          throw new Error(`Warrant not found: ${warrantId}`);
+        }
+        warrant.status = "invalidated";
+        warrant.invalidated_at = (/* @__PURE__ */ new Date()).toISOString();
+        warrant.invalidation_reason = reason;
+        await this.adapter.saveWarrant(warrant);
+        await this.adapter.emitAudit({
+          event_type: "warrant_invalidated",
+          warrant_id: warrantId,
+          reason,
+          invalidated_at: warrant.invalidated_at
+        });
+      }
+      /**
+       * List active warrants
+       * 
+       * @returns {Promise<Array>} Active warrants
+       */
+      async listActive() {
+        const warrants = await this.adapter.listWarrants();
+        const now = /* @__PURE__ */ new Date();
+        return warrants.filter(
+          (w2) => w2.status === "issued" && new Date(w2.expires_at) > now
+        );
+      }
+      // Private methods
+      _validateRequired(fields) {
+        const missing = Object.entries(fields).filter(([k2, v2]) => !v2).map(([k2]) => k2);
+        if (missing.length > 0) {
+          throw new Error(`Missing required fields: ${missing.join(", ")}`);
+        }
+      }
+      async _validateTruthFreshness(truth, riskTier) {
+        if (!truth.last_verified_at) {
+          throw new Error("Truth snapshot missing last_verified_at");
+        }
+        const now = /* @__PURE__ */ new Date();
+        const verified = new Date(truth.last_verified_at);
+        const ageMinutes = (now - verified) / 1e3 / 60;
+        const maxAge = {
+          "T0": Infinity,
+          "T1": 30,
+          "T2": 10
+        };
+        if (ageMinutes > maxAge[riskTier]) {
+          throw new Error(
+            `Truth snapshot too old: ${ageMinutes.toFixed(1)} min (max ${maxAge[riskTier]} for ${riskTier})`
+          );
+        }
+      }
+      _generateChangeId() {
+        const date = /* @__PURE__ */ new Date();
+        const dateStr = date.toISOString().split("T")[0].replace(/-/g, "_");
+        const timeStr = date.toISOString().split("T")[1].split(".")[0].replace(/:/g, "");
+        const random = crypto8.randomBytes(3).toString("hex");
+        return `chg_${dateStr}_${timeStr}_${random}`;
+      }
+      _hashObject(obj) {
+        const str = JSON.stringify(obj, Object.keys(obj).sort());
+        return "sha256:" + crypto8.createHash("sha256").update(str).digest("hex");
+      }
+      _assessTradingSafety(allowedActions) {
+        const tradingPatterns = ["kalshi", "trading", "VIENNA_RUNTIME_STATE", "kalshi_mm_bot"];
+        const tradingInScope = allowedActions.some(
+          (action) => tradingPatterns.some((pattern) => action.toLowerCase().includes(pattern.toLowerCase()))
+        );
+        if (!tradingInScope) {
+          return { trading_in_scope: false, risk: "none" };
+        }
+        const highRisk = ["restart_service", "stop_service", "write_db"];
+        const mediumRisk = ["write_file", "replace_text"];
+        let risk = "low";
+        if (allowedActions.some((a2) => highRisk.some((hr2) => a2.startsWith(hr2)))) {
+          risk = "high";
+        } else if (allowedActions.some((a2) => mediumRisk.some((mr2) => a2.startsWith(mr2)))) {
+          risk = "medium";
+        }
+        return { trading_in_scope: true, risk };
+      }
+    };
+    module2.exports = Warrant2;
+  }
+});
+
+// ../../../services/vienna-lib/core/policy-schema.js
+var require_policy_schema = __commonJS({
+  "../../../services/vienna-lib/core/policy-schema.js"(exports2, module2) {
+    var DECISION_TYPES = {
+      ALLOW: "allow",
+      DENY: "deny",
+      REQUIRE_APPROVAL: "require_approval",
+      REQUIRE_STRONGER_VERIFICATION: "require_stronger_verification",
+      REQUIRE_PRECONDITION_CHECK: "require_precondition_check",
+      DEFER_TO_OPERATOR: "defer_to_operator"
+    };
+    var VERIFICATION_STRENGTH = {
+      NONE: "none",
+      BASIC: "basic",
+      OBJECTIVE_STABILITY: "objective_stability",
+      FULL_RECOVERY: "full_recovery"
+    };
+    var ACTOR_TYPES = {
+      OPERATOR: "operator",
+      SYSTEM: "system",
+      AUTOMATION: "automation"
+    };
+    var RISK_TIERS = {
+      T0: "T0",
+      T1: "T1",
+      T2: "T2"
+    };
+    function validatePolicy(policy) {
+      const errors = [];
+      if (!policy.policy_id || typeof policy.policy_id !== "string") {
+        errors.push("policy_id is required and must be a string");
+      }
+      if (!policy.policy_version || typeof policy.policy_version !== "string") {
+        errors.push("policy_version is required and must be a string");
+      }
+      if (!policy.scope || typeof policy.scope !== "object") {
+        errors.push("scope is required and must be an object");
+      }
+      if (!policy.decision || !Object.values(DECISION_TYPES).includes(policy.decision)) {
+        errors.push(`decision must be one of: ${Object.values(DECISION_TYPES).join(", ")}`);
+      }
+      if (typeof policy.priority !== "number") {
+        errors.push("priority must be a number");
+      }
+      if (typeof policy.enabled !== "boolean") {
+        errors.push("enabled must be a boolean");
+      }
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    function createPolicy(policyData) {
+      const now = Date.now();
+      const policy = {
+        policy_id: policyData.policy_id,
+        policy_version: policyData.policy_version || "1.0.0",
+        scope: policyData.scope || {},
+        conditions: policyData.conditions || {},
+        ledger_constraints: policyData.ledger_constraints || {},
+        requirements: policyData.requirements || {},
+        decision: policyData.decision,
+        priority: policyData.priority !== void 0 ? policyData.priority : 0,
+        enabled: policyData.enabled !== void 0 ? policyData.enabled : true,
+        description: policyData.description || "",
+        created_at: policyData.created_at || now,
+        updated_at: policyData.updated_at || now
+      };
+      const validation = validatePolicy(policy);
+      if (!validation.valid) {
+        throw new Error(`Invalid policy: ${validation.errors.join(", ")}`);
+      }
+      return policy;
+    }
+    function matchesScopeCriterion(value, criterion) {
+      if (!criterion) return true;
+      if (Array.isArray(criterion)) {
+        return criterion.includes(value);
+      }
+      return criterion === value;
+    }
+    function policyMatchesPlan(policy, plan) {
+      const scope = policy.scope;
+      if (!matchesScopeCriterion(plan.objective, scope.objective)) {
+        return false;
+      }
+      if (!matchesScopeCriterion(plan.environment, scope.environment)) {
+        return false;
+      }
+      if (!matchesScopeCriterion(plan.risk_tier, scope.risk_tier)) {
+        return false;
+      }
+      if (scope.target_id) {
+        const stepTargets = plan.steps.filter((s2) => s2.target_id).map((s2) => s2.target_id);
+        if (!stepTargets.some((t2) => matchesScopeCriterion(t2, scope.target_id))) {
+          return false;
+        }
+      }
+      if (scope.actor_type && plan.actor) {
+        if (!matchesScopeCriterion(plan.actor.type, scope.actor_type)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    module2.exports = {
+      DECISION_TYPES,
+      VERIFICATION_STRENGTH,
+      ACTOR_TYPES,
+      RISK_TIERS,
+      validatePolicy,
+      createPolicy,
+      matchesScopeCriterion,
+      policyMatchesPlan
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/policy-decision-schema.js
+var require_policy_decision_schema = __commonJS({
+  "../../../services/vienna-lib/core/policy-decision-schema.js"(exports2, module2) {
+    var { DECISION_TYPES } = require_policy_schema();
+    var { v4: uuidv4 } = (init_esm_node(), __toCommonJS(esm_node_exports));
+    function validatePolicyDecision(decision) {
+      const errors = [];
+      if (!decision.decision_id || typeof decision.decision_id !== "string") {
+        errors.push("decision_id is required and must be a string");
+      }
+      if (!decision.plan_id || typeof decision.plan_id !== "string") {
+        errors.push("plan_id is required and must be a string");
+      }
+      if (!decision.decision || !Object.values(DECISION_TYPES).includes(decision.decision)) {
+        errors.push(`decision must be one of: ${Object.values(DECISION_TYPES).join(", ")}`);
+      }
+      if (!Array.isArray(decision.reasons)) {
+        errors.push("reasons must be an array");
+      }
+      if (!decision.requirements || typeof decision.requirements !== "object") {
+        errors.push("requirements must be an object");
+      }
+      if (!decision.evaluated_context || typeof decision.evaluated_context !== "object") {
+        errors.push("evaluated_context must be an object");
+      }
+      if (typeof decision.timestamp !== "number") {
+        errors.push("timestamp must be a number");
+      }
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    function createPolicyDecision({
+      plan_id,
+      policy_id,
+      policy_version,
+      decision,
+      reasons,
+      requirements,
+      evaluated_context,
+      conflict_resolution
+    }) {
+      const policyDecision = {
+        decision_id: uuidv4(),
+        plan_id,
+        policy_id,
+        policy_version,
+        decision,
+        reasons: reasons || [],
+        requirements: requirements || {
+          approval_required: false
+        },
+        evaluated_context: evaluated_context || {
+          plan_summary: {},
+          evaluation_time_ms: 0
+        },
+        conflict_resolution,
+        timestamp: Date.now()
+      };
+      const validation = validatePolicyDecision(policyDecision);
+      if (!validation.valid) {
+        throw new Error(`Invalid policy decision: ${validation.errors.join(", ")}`);
+      }
+      return policyDecision;
+    }
+    function decisionAllowsExecution(decision) {
+      return decision.decision === DECISION_TYPES.ALLOW || decision.decision === DECISION_TYPES.REQUIRE_APPROVAL;
+    }
+    function decisionRequiresApproval(decision) {
+      return decision.decision === DECISION_TYPES.REQUIRE_APPROVAL || decision.requirements.approval_required === true;
+    }
+    function decisionBlocksExecution(decision) {
+      return decision.decision === DECISION_TYPES.DENY;
+    }
+    function mergeRequirements(requirementsArray) {
+      const merged = {
+        approval_required: false,
+        required_preconditions: [],
+        allowed_actor_types: []
+      };
+      for (const reqs of requirementsArray) {
+        if (reqs.approval_required) {
+          merged.approval_required = true;
+        }
+        if (reqs.required_verification_strength) {
+          const current = merged.required_verification_strength;
+          const incoming = reqs.required_verification_strength;
+          const strengths = ["none", "basic", "objective_stability", "full_recovery"];
+          const currentIdx = current ? strengths.indexOf(current) : -1;
+          const incomingIdx = strengths.indexOf(incoming);
+          if (incomingIdx > currentIdx) {
+            merged.required_verification_strength = incoming;
+          }
+        }
+        if (reqs.required_preconditions) {
+          for (const precond of reqs.required_preconditions) {
+            if (!merged.required_preconditions.includes(precond)) {
+              merged.required_preconditions.push(precond);
+            }
+          }
+        }
+        if (reqs.allowed_actor_types && reqs.allowed_actor_types.length > 0) {
+          if (merged.allowed_actor_types.length === 0) {
+            merged.allowed_actor_types = [...reqs.allowed_actor_types];
+          } else {
+            merged.allowed_actor_types = merged.allowed_actor_types.filter(
+              (a2) => reqs.allowed_actor_types.includes(a2)
+            );
+          }
+        }
+        if (reqs.min_time_between_executions_minutes) {
+          const current = merged.min_time_between_executions_minutes || 0;
+          merged.min_time_between_executions_minutes = Math.max(
+            current,
+            reqs.min_time_between_executions_minutes
+          );
+        }
+      }
+      return merged;
+    }
+    module2.exports = {
+      validatePolicyDecision,
+      createPolicyDecision,
+      decisionAllowsExecution,
+      decisionRequiresApproval,
+      decisionBlocksExecution,
+      mergeRequirements
+    };
+  }
+});
+
+// ../../../services/vienna-lib/core/policy-engine.js
+var require_policy_engine = __commonJS({
+  "../../../services/vienna-lib/core/policy-engine.js"(exports2, module2) {
+    var {
+      DECISION_TYPES,
+      VERIFICATION_STRENGTH,
+      policyMatchesPlan
+    } = require_policy_schema();
+    var {
+      createPolicyDecision,
+      mergeRequirements
+    } = require_policy_decision_schema();
+    var PolicyEngine2 = class {
+      /**
+       * @param {Object} params
+       * @param {Object} params.stateGraph - State Graph instance for ledger queries
+       * @param {Function} params.loadPolicies - Function to load active policies
+       */
+      constructor({ stateGraph, loadPolicies }) {
+        this.stateGraph = stateGraph;
+        this.loadPolicies = loadPolicies;
+      }
+      /**
+       * Evaluate a plan against all applicable policies
+       * 
+       * @param {Object} plan - Plan object to evaluate
+       * @param {Object} context - Additional context
+       * @param {Object} [context.actor] - Actor information
+       * @param {Object} [context.runtime_context] - Runtime flags
+       * @returns {Promise<PolicyDecision>}
+       */
+      async evaluate(plan, context = {}) {
+        const startTime = Date.now();
+        const allPolicies = await this.loadPolicies();
+        const activePolicies = allPolicies.filter((p2) => p2.enabled);
+        const matchedPolicies = activePolicies.filter(
+          (policy) => policyMatchesPlan(policy, plan)
+        );
+        if (matchedPolicies.length === 0) {
+          return this._createNoMatchDecision(plan, startTime);
+        }
+        const evaluatedPolicies = [];
+        const ledgerQueryResults = {};
+        for (const policy of matchedPolicies) {
+          const conditionsMet = await this._evaluateConditions(
+            policy,
+            plan,
+            context,
+            ledgerQueryResults
+          );
+          if (conditionsMet) {
+            evaluatedPolicies.push(policy);
+          }
+        }
+        if (evaluatedPolicies.length === 0) {
+          return this._createNoMatchDecision(plan, startTime);
+        }
+        const finalPolicy = this._resolveConflicts(evaluatedPolicies);
+        const conflictResolution = evaluatedPolicies.length > 1 ? {
+          num_policies_matched: evaluatedPolicies.length,
+          matched_policy_ids: evaluatedPolicies.map((p2) => p2.policy_id),
+          resolution_strategy: this._getResolutionStrategy(evaluatedPolicies, finalPolicy),
+          explanation: `${evaluatedPolicies.length} policies matched, selected policy_id=${finalPolicy.policy_id} by ${this._getResolutionStrategy(evaluatedPolicies, finalPolicy)}`
+        } : void 0;
+        const decision = this._buildDecision(
+          finalPolicy,
+          plan,
+          context,
+          ledgerQueryResults,
+          conflictResolution,
+          startTime
+        );
+        return decision;
+      }
+      /**
+       * Evaluate policy conditions
+       * 
+       * @private
+       */
+      async _evaluateConditions(policy, plan, context, ledgerQueryResults) {
+        const conditions = policy.conditions || {};
+        if (conditions.actor_type && context.actor) {
+          if (!conditions.actor_type.includes(context.actor.type)) {
+            return false;
+          }
+        }
+        if (conditions.required_verification_strength) {
+          const planStrength = plan.verification_spec?.strength || "none";
+          const requiredStrength = conditions.required_verification_strength;
+          const strengths = Object.values(VERIFICATION_STRENGTH);
+          const planIdx = strengths.indexOf(planStrength);
+          const requiredIdx = strengths.indexOf(requiredStrength);
+          if (planIdx < requiredIdx) {
+            return false;
+          }
+        }
+        if (conditions.trading_window_active !== void 0) {
+          const tradingActive = context.runtime_context?.trading_window_active || false;
+          if (tradingActive !== conditions.trading_window_active) {
+            return false;
+          }
+        }
+        if (policy.ledger_constraints && Object.keys(policy.ledger_constraints).length > 0) {
+          const constraintsViolated = await this._evaluateLedgerConstraints(
+            policy.ledger_constraints,
+            plan,
+            ledgerQueryResults
+          );
+          if (!constraintsViolated) {
+            return false;
+          }
+        }
+        return true;
+      }
+      /**
+       * Evaluate ledger constraints
+       * 
+       * Constraints are TRIGGER CONDITIONS for the policy.
+       * - Return TRUE when constraint is VIOLATED (trigger met, policy should apply)
+       * - Return FALSE when constraint is SATISFIED (no trigger, policy should not apply)
+       * 
+       * @private
+       */
+      async _evaluateLedgerConstraints(constraints, plan, ledgerQueryResults) {
+        const { objective } = plan;
+        const lookbackWindow = constraints.lookback_window || "1h";
+        const lookbackMs = this._parseLookbackWindow(lookbackWindow);
+        const lookbackTime = Date.now() - lookbackMs;
+        if (constraints.max_executions_per_hour || constraints.max_executions_per_day) {
+          const cacheKey = `executions_${objective}_${lookbackWindow}`;
+          if (!ledgerQueryResults[cacheKey]) {
+            const recentExecutions = await this.stateGraph.listExecutionLedgerSummaries({
+              objective,
+              started_after: lookbackTime
+            });
+            ledgerQueryResults[cacheKey] = recentExecutions;
+          }
+          const executions = ledgerQueryResults[cacheKey];
+          if (constraints.max_executions_per_hour) {
+            const hourMs = 60 * 60 * 1e3;
+            const hourAgo = Date.now() - hourMs;
+            const executionsLastHour = executions.filter((e2) => e2.started_at >= hourAgo);
+            if (executionsLastHour.length >= constraints.max_executions_per_hour) {
+              return true;
+            }
+          }
+          if (constraints.max_executions_per_day) {
+            const dayMs = 24 * 60 * 60 * 1e3;
+            const dayAgo = Date.now() - dayMs;
+            const executionsLastDay = executions.filter((e2) => e2.started_at >= dayAgo);
+            if (executionsLastDay.length >= constraints.max_executions_per_day) {
+              return true;
+            }
+          }
+        }
+        if (constraints.max_failures_before_block) {
+          const cacheKey = `recent_${objective}`;
+          if (!ledgerQueryResults[cacheKey]) {
+            const recent2 = await this.stateGraph.listExecutionLedgerSummaries({
+              objective,
+              limit: constraints.max_failures_before_block
+            });
+            ledgerQueryResults[cacheKey] = recent2;
+          }
+          const recent = ledgerQueryResults[cacheKey];
+          const allFailed = recent.length >= constraints.max_failures_before_block && recent.every((e2) => e2.execution_status === "failed");
+          if (allFailed) {
+            return true;
+          }
+        }
+        if (constraints.must_not_have_status) {
+          const cacheKey = `last_${objective}`;
+          if (!ledgerQueryResults[cacheKey]) {
+            const last = await this.stateGraph.listExecutionLedgerSummaries({
+              objective,
+              limit: 1
+            });
+            ledgerQueryResults[cacheKey] = last[0] || null;
+          }
+          const lastExecution = ledgerQueryResults[cacheKey];
+          if (lastExecution && lastExecution.execution_status === constraints.must_not_have_status) {
+            return true;
+          }
+        }
+        return false;
+      }
+      /**
+       * Parse lookback window string to milliseconds
+       * 
+       * @private
+       */
+      _parseLookbackWindow(window2) {
+        const match = window2.match(/^(\d+)(m|h|d)$/);
+        if (!match) return 60 * 60 * 1e3;
+        const value = parseInt(match[1], 10);
+        const unit = match[2];
+        switch (unit) {
+          case "m":
+            return value * 60 * 1e3;
+          case "h":
+            return value * 60 * 60 * 1e3;
+          case "d":
+            return value * 24 * 60 * 60 * 1e3;
+          default:
+            return 60 * 60 * 1e3;
+        }
+      }
+      /**
+       * Resolve conflicts when multiple policies match
+       * Uses deterministic conflict resolution:
+       * 1. Deny beats allow
+       * 2. Highest priority wins
+       * 3. Requirements merge if compatible
+       * 
+       * @private
+       */
+      _resolveConflicts(policies) {
+        if (policies.length === 1) {
+          return policies[0];
+        }
+        const denyPolicies = policies.filter((p2) => p2.decision === DECISION_TYPES.DENY);
+        if (denyPolicies.length > 0) {
+          return denyPolicies.reduce(
+            (highest, current) => current.priority > highest.priority ? current : highest
+          );
+        }
+        return policies.reduce(
+          (highest, current) => current.priority > highest.priority ? current : highest
+        );
+      }
+      /**
+       * Get resolution strategy description
+       * 
+       * @private
+       */
+      _getResolutionStrategy(policies, selected) {
+        const hasDeny = policies.some((p2) => p2.decision === DECISION_TYPES.DENY);
+        if (hasDeny && selected.decision === DECISION_TYPES.DENY) {
+          return "deny_wins";
+        }
+        return "highest_priority";
+      }
+      /**
+       * Build final policy decision
+       * 
+       * @private
+       */
+      _buildDecision(policy, plan, context, ledgerQueryResults, conflictResolution, startTime) {
+        const reasons = this._buildReasons(policy, plan, context, ledgerQueryResults);
+        const requirements = { ...policy.requirements };
+        const evaluated_context = {
+          plan_summary: {
+            plan_id: plan.plan_id,
+            objective: plan.objective,
+            environment: plan.environment,
+            risk_tier: plan.risk_tier,
+            num_steps: plan.steps.length
+          },
+          ledger_query_results: this._sanitizeLedgerResults(ledgerQueryResults),
+          runtime_context: context.runtime_context || {},
+          evaluation_time_ms: Date.now() - startTime
+        };
+        return createPolicyDecision({
+          plan_id: plan.plan_id,
+          policy_id: policy.policy_id,
+          policy_version: policy.policy_version,
+          decision: policy.decision,
+          reasons,
+          requirements,
+          evaluated_context,
+          conflict_resolution: conflictResolution
+        });
+      }
+      /**
+       * Build human-readable reasons
+       * 
+       * @private
+       */
+      _buildReasons(policy, plan, context, ledgerQueryResults) {
+        const reasons = [];
+        reasons.push(`Policy ${policy.policy_id} matched for objective=${plan.objective}`);
+        if (plan.environment) {
+          reasons.push(`Environment: ${plan.environment}`);
+        }
+        if (plan.risk_tier) {
+          reasons.push(`Risk tier: ${plan.risk_tier}`);
+        }
+        if (context.actor) {
+          reasons.push(`Actor type: ${context.actor.type}`);
+        }
+        for (const [key, value] of Object.entries(ledgerQueryResults)) {
+          if (Array.isArray(value)) {
+            reasons.push(`Recent executions (${key}): ${value.length}`);
+          }
+        }
+        if (policy.requirements.approval_required) {
+          reasons.push("Approval required by policy");
+        }
+        if (policy.requirements.required_verification_strength) {
+          reasons.push(`Verification strength required: ${policy.requirements.required_verification_strength}`);
+        }
+        return reasons;
+      }
+      /**
+       * Sanitize ledger results for storage (remove full objects, keep counts)
+       * 
+       * @private
+       */
+      _sanitizeLedgerResults(ledgerQueryResults) {
+        const sanitized = {};
+        for (const [key, value] of Object.entries(ledgerQueryResults)) {
+          if (Array.isArray(value)) {
+            sanitized[key] = {
+              count: value.length,
+              sample: value.slice(0, 2).map((e2) => ({
+                execution_id: e2.execution_id,
+                status: e2.status,
+                started_at: e2.started_at
+              }))
+            };
+          } else if (value && typeof value === "object") {
+            sanitized[key] = {
+              execution_id: value.execution_id,
+              status: value.status,
+              started_at: value.started_at
+            };
+          } else {
+            sanitized[key] = value;
+          }
+        }
+        return sanitized;
+      }
+      /**
+       * Create a no-match decision (default allow)
+       * 
+       * @private
+       */
+      _createNoMatchDecision(plan, startTime) {
+        return createPolicyDecision({
+          plan_id: plan.plan_id,
+          policy_id: null,
+          policy_version: null,
+          decision: DECISION_TYPES.ALLOW,
+          reasons: ["No matching policy found, defaulting to allow"],
+          requirements: {
+            approval_required: false
+          },
+          evaluated_context: {
+            plan_summary: {
+              plan_id: plan.plan_id,
+              objective: plan.objective,
+              environment: plan.environment,
+              risk_tier: plan.risk_tier
+            },
+            evaluation_time_ms: Date.now() - startTime
+          }
+        });
+      }
+    };
+    module2.exports = PolicyEngine2;
+  }
+});
+
+// ../../../services/vienna-lib/execution/executor.js
+var require_executor = __commonJS({
+  "../../../services/vienna-lib/execution/executor.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var Executor2 = class {
+      constructor(viennaCore) {
+        this.viennaCore = viennaCore;
+        this.adapters = /* @__PURE__ */ new Map();
+      }
+      /**
+       * Register adapter for action type
+       */
+      registerAdapter(actionType, adapter) {
+        this.adapters.set(actionType, adapter);
+      }
+      /**
+       * Execute envelope with warrant authorization
+       * 
+       * @param {object} envelope - Validated envelope
+       * @returns {Promise<object>} Execution result
+       */
+      async execute(envelope) {
+        const executionId = this._generateExecutionId();
+        try {
+          this._validateEnvelope(envelope);
+          const warrant = await this._verifyWarrant(envelope.warrant_id);
+          await this._runPreflightChecks(envelope, warrant);
+          const results = [];
+          for (const action of envelope.actions) {
+            const actionResult = await this._executeAction(action, warrant, envelope);
+            results.push(actionResult);
+            if (!actionResult.success && envelope.fail_fast !== false) {
+              await this._emitAudit({
+                event_type: "execution_failed",
+                execution_id: executionId,
+                envelope_id: envelope.envelope_id,
+                warrant_id: envelope.warrant_id,
+                failed_action: action,
+                error: actionResult.error
+              });
+              throw new ExecutionError(
+                "ACTION_FAILED",
+                `Action ${action.type} failed: ${actionResult.error}`
+              );
+            }
+          }
+          await this._emitAudit({
+            event_type: "execution_success",
+            execution_id: executionId,
+            envelope_id: envelope.envelope_id,
+            warrant_id: envelope.warrant_id,
+            actions_executed: results.length,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          return {
+            success: true,
+            execution_id: executionId,
+            envelope_id: envelope.envelope_id,
+            results
+          };
+        } catch (error) {
+          await this._emitAudit({
+            event_type: "execution_error",
+            execution_id: executionId,
+            envelope_id: envelope.envelope_id,
+            error: error.message,
+            timestamp: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          throw error;
+        }
+      }
+      /**
+       * Validate envelope structure
+       */
+      _validateEnvelope(envelope) {
+        const required = ["envelope_id", "warrant_id", "actions"];
+        const missing = required.filter((f2) => !envelope[f2]);
+        if (missing.length > 0) {
+          throw new ExecutionError(
+            "INVALID_ENVELOPE",
+            `Missing required fields: ${missing.join(", ")}`
+          );
+        }
+        if (!Array.isArray(envelope.actions) || envelope.actions.length === 0) {
+          throw new ExecutionError(
+            "INVALID_ENVELOPE",
+            "Envelope must have at least one action"
+          );
+        }
+        for (const action of envelope.actions) {
+          if (!action.type || !action.target) {
+            throw new ExecutionError(
+              "INVALID_ACTION",
+              "Each action must have type and target"
+            );
+          }
+        }
+      }
+      /**
+       * Verify warrant is valid
+       */
+      async _verifyWarrant(warrantId) {
+        const verification = await this.viennaCore.warrant.verify(warrantId);
+        if (!verification.valid) {
+          throw new ExecutionError(
+            "WARRANT_INVALID",
+            `Warrant verification failed: ${verification.reason}`
+          );
+        }
+        return verification.warrant;
+      }
+      /**
+       * Run preflight checks
+       */
+      async _runPreflightChecks(envelope, warrant) {
+        const tradingCriticalActions = envelope.actions.filter(
+          (a2) => this._isTradingCritical(a2)
+        );
+        if (tradingCriticalActions.length > 0) {
+          const guardResult = await this.viennaCore.tradingGuard.check(
+            tradingCriticalActions
+          );
+          if (!guardResult.safe) {
+            throw new ExecutionError(
+              "TRADING_GUARD_BLOCKED",
+              guardResult.message || guardResult.reason
+            );
+          }
+        }
+        for (const action of envelope.actions) {
+          const actionStr = `${action.type}:${action.target}`;
+          if (!warrant.allowed_actions.includes(actionStr)) {
+            throw new ExecutionError(
+              "ACTION_NOT_IN_SCOPE",
+              `Action ${actionStr} not allowed by warrant`
+            );
+          }
+        }
+        const now = /* @__PURE__ */ new Date();
+        const expires = new Date(warrant.expires_at);
+        if (now > expires) {
+          throw new ExecutionError(
+            "WARRANT_EXPIRED",
+            `Warrant expired at ${warrant.expires_at}`
+          );
+        }
+      }
+      /**
+       * Execute single action via adapter
+       */
+      async _executeAction(action, warrant, envelope) {
+        const adapter = this.adapters.get(action.type);
+        if (!adapter) {
+          return {
+            success: false,
+            error: `No adapter registered for action type: ${action.type}`
+          };
+        }
+        try {
+          const result = await adapter.execute(action, warrant, envelope);
+          return {
+            success: true,
+            action_type: action.type,
+            target: action.target,
+            result
+          };
+        } catch (error) {
+          return {
+            success: false,
+            action_type: action.type,
+            target: action.target,
+            error: error.message
+          };
+        }
+      }
+      /**
+       * Check if action is trading-critical
+       */
+      _isTradingCritical(action) {
+        const tradingPatterns = ["kalshi", "trading", "kalshi_mm_bot"];
+        const criticalTypes = ["restart_service", "stop_service", "write_db"];
+        const targetMatches = tradingPatterns.some(
+          (pattern) => action.target?.toLowerCase().includes(pattern.toLowerCase())
+        );
+        const typeMatches = criticalTypes.some(
+          (critical) => action.type?.startsWith(critical)
+        );
+        return targetMatches && typeMatches;
+      }
+      /**
+       * Emit audit event
+       */
+      async _emitAudit(event) {
+        await this.viennaCore.audit.emit(event);
+      }
+      /**
+       * Generate execution ID
+       */
+      _generateExecutionId() {
+        const timestamp = Date.now();
+        const random = crypto8.randomBytes(3).toString("hex");
+        return `exec_${timestamp}_${random}`;
+      }
+    };
+    var ExecutionError = class extends Error {
+      constructor(code, message) {
+        super(message);
+        this.name = "ExecutionError";
+        this.code = code;
+      }
+    };
+    module2.exports = { Executor: Executor2, ExecutionError };
+  }
+});
+
+// ../../../services/vienna-lib/core/verification-engine.js
+var require_verification_engine = __commonJS({
+  "../../../services/vienna-lib/core/verification-engine.js"(exports2, module2) {
+    var {
+      createVerificationResult,
+      VerificationStatus,
+      VerificationStrength
+    } = require_verification_schema();
+    var { exec } = require("child_process");
+    var { promisify } = require("util");
+    var execAsync = promisify(exec);
+    var http = require("http");
+    var https = require("https");
+    var fs4 = require("fs");
+    var VerificationEngine2 = class {
+      constructor() {
+        this.checkHandlers = /* @__PURE__ */ new Map();
+        this._registerDefaultHandlers();
+      }
+      /**
+       * Register default check handlers
+       */
+      _registerDefaultHandlers() {
+        this.registerCheckHandler("systemd_active", async (check) => {
+          try {
+            const { stdout } = await execAsync(`systemctl is-active ${check.target}`);
+            const status = stdout.trim();
+            const passed = status === "active";
+            return {
+              check_id: check.check_id,
+              status: passed ? "passed" : "failed",
+              observed_value: status,
+              expected_value: "active",
+              checked_at: Date.now(),
+              evidence: {
+                source: "systemctl",
+                detail: `service reported ${status}`
+              }
+            };
+          } catch (error) {
+            return {
+              check_id: check.check_id,
+              status: "failed",
+              observed_value: "inactive",
+              expected_value: "active",
+              checked_at: Date.now(),
+              evidence: {
+                source: "systemctl",
+                detail: error.message
+              }
+            };
+          }
+        });
+        this.registerCheckHandler("tcp_port_open", async (check) => {
+          const [host, port] = check.target.split(":");
+          return new Promise((resolve2) => {
+            const net = require("net");
+            const socket = new net.Socket();
+            const timeout = 3e3;
+            socket.setTimeout(timeout);
+            socket.on("connect", () => {
+              socket.destroy();
+              resolve2({
+                check_id: check.check_id,
+                status: "passed",
+                observed_value: true,
+                expected_value: true,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "tcp_probe",
+                  detail: `${check.target} accepted connection`
+                }
+              });
+            });
+            socket.on("timeout", () => {
+              socket.destroy();
+              resolve2({
+                check_id: check.check_id,
+                status: "failed",
+                observed_value: false,
+                expected_value: true,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "tcp_probe",
+                  detail: `connection to ${check.target} timed out after ${timeout}ms`
+                }
+              });
+            });
+            socket.on("error", (err) => {
+              socket.destroy();
+              resolve2({
+                check_id: check.check_id,
+                status: "failed",
+                observed_value: false,
+                expected_value: true,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "tcp_probe",
+                  detail: `connection failed: ${err.message}`
+                }
+              });
+            });
+            socket.connect(parseInt(port), host);
+          });
+        });
+        this.registerCheckHandler("http_healthcheck", async (check) => {
+          return new Promise((resolve2) => {
+            const url = new URL(check.target);
+            const protocol = url.protocol === "https:" ? https : http;
+            const expectedStatus = check.expected_value || 200;
+            const req = protocol.get(check.target, { timeout: 5e3 }, (res) => {
+              const passed = res.statusCode === expectedStatus;
+              resolve2({
+                check_id: check.check_id,
+                status: passed ? "passed" : "failed",
+                observed_value: res.statusCode,
+                expected_value: expectedStatus,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "http_probe",
+                  detail: `${check.target} returned ${res.statusCode}`
+                }
+              });
+            });
+            req.on("error", (err) => {
+              resolve2({
+                check_id: check.check_id,
+                status: "failed",
+                observed_value: null,
+                expected_value: expectedStatus,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "http_probe",
+                  detail: `request failed: ${err.message}`
+                }
+              });
+            });
+            req.on("timeout", () => {
+              req.destroy();
+              resolve2({
+                check_id: check.check_id,
+                status: "failed",
+                observed_value: null,
+                expected_value: expectedStatus,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "http_probe",
+                  detail: "request timed out after 5000ms"
+                }
+              });
+            });
+          });
+        });
+        this.registerCheckHandler("file_exists", async (check) => {
+          const exists = fs4.existsSync(check.target);
+          return {
+            check_id: check.check_id,
+            status: exists ? "passed" : "failed",
+            observed_value: exists,
+            expected_value: true,
+            checked_at: Date.now(),
+            evidence: {
+              source: "filesystem",
+              detail: exists ? `file exists at ${check.target}` : `file not found at ${check.target}`
+            }
+          };
+        });
+        this.registerCheckHandler("file_contains", async (check) => {
+          try {
+            if (!fs4.existsSync(check.target)) {
+              return {
+                check_id: check.check_id,
+                status: "failed",
+                observed_value: null,
+                expected_value: check.expected_value,
+                checked_at: Date.now(),
+                evidence: {
+                  source: "filesystem",
+                  detail: `file not found at ${check.target}`
+                }
+              };
+            }
+            const content = fs4.readFileSync(check.target, "utf8");
+            const contains = content.includes(check.expected_value);
+            return {
+              check_id: check.check_id,
+              status: contains ? "passed" : "failed",
+              observed_value: contains,
+              expected_value: true,
+              checked_at: Date.now(),
+              evidence: {
+                source: "filesystem",
+                detail: contains ? "expected content found" : "expected content not found"
+              }
+            };
+          } catch (error) {
+            return {
+              check_id: check.check_id,
+              status: "failed",
+              observed_value: null,
+              expected_value: check.expected_value,
+              checked_at: Date.now(),
+              evidence: {
+                source: "filesystem",
+                detail: `error reading file: ${error.message}`
+              }
+            };
+          }
+        });
+      }
+      /**
+       * Register a custom check handler
+       */
+      registerCheckHandler(checkType, handler) {
+        this.checkHandlers.set(checkType, handler);
+      }
+      /**
+       * Run verification task
+       * 
+       * @param {Object} verificationTask - VerificationTask object
+       * @returns {Promise<Object>} VerificationResult
+       */
+      async runVerification(verificationTask) {
+        const startedAt = Date.now();
+        const timeout = verificationTask.timeout_ms || 15e3;
+        const stabilityWindow = verificationTask.stability_window_ms || 0;
+        try {
+          const checkResults = await Promise.race([
+            this._runChecks(verificationTask.postconditions),
+            this._timeout(timeout)
+          ]);
+          const requiredChecks = checkResults.filter((r2) => r2.required !== false);
+          const allRequiredPassed = requiredChecks.every((r2) => r2.status === "passed");
+          let stabilityResult = null;
+          if (allRequiredPassed && stabilityWindow > 0) {
+            stabilityResult = await this._verifyStability(
+              verificationTask.postconditions,
+              stabilityWindow
+            );
+          }
+          const completedAt = Date.now();
+          const objectiveAchieved = allRequiredPassed && (!stabilityResult || stabilityResult.status === "passed");
+          let status;
+          if (objectiveAchieved) {
+            status = VerificationStatus.SUCCESS;
+          } else if (stabilityResult && stabilityResult.status === "failed") {
+            status = VerificationStatus.FAILED;
+          } else if (requiredChecks.some((r2) => r2.status === "failed")) {
+            status = VerificationStatus.FAILED;
+          } else {
+            status = VerificationStatus.INCONCLUSIVE;
+          }
+          const achievedStrength = this._determineAchievedStrength(
+            checkResults,
+            stabilityResult,
+            verificationTask.verification_strength
+          );
+          const summary = this._generateSummary(
+            verificationTask.objective,
+            status,
+            checkResults,
+            stabilityResult
+          );
+          return createVerificationResult({
+            verification_id: verificationTask.verification_id,
+            plan_id: verificationTask.plan_id,
+            execution_id: verificationTask.execution_id,
+            status,
+            objective_achieved: objectiveAchieved,
+            verification_strength_achieved: achievedStrength,
+            started_at: startedAt,
+            completed_at: completedAt,
+            checks: checkResults,
+            stability: stabilityResult,
+            summary
+          });
+        } catch (error) {
+          const completedAt = Date.now();
+          if (error.message === "VERIFICATION_TIMEOUT") {
+            return createVerificationResult({
+              verification_id: verificationTask.verification_id,
+              plan_id: verificationTask.plan_id,
+              execution_id: verificationTask.execution_id,
+              status: VerificationStatus.TIMED_OUT,
+              objective_achieved: false,
+              verification_strength_achieved: VerificationStrength.PROCEDURAL,
+              started_at: startedAt,
+              completed_at: completedAt,
+              checks: [],
+              stability: null,
+              summary: `Verification timed out after ${timeout}ms`
+            });
+          }
+          return createVerificationResult({
+            verification_id: verificationTask.verification_id,
+            plan_id: verificationTask.plan_id,
+            execution_id: verificationTask.execution_id,
+            status: VerificationStatus.FAILED,
+            objective_achieved: false,
+            verification_strength_achieved: VerificationStrength.PROCEDURAL,
+            started_at: startedAt,
+            completed_at: completedAt,
+            checks: [],
+            stability: null,
+            summary: `Verification failed: ${error.message}`
+          });
+        }
+      }
+      /**
+       * Run all postcondition checks
+       */
+      async _runChecks(postconditions) {
+        const results = [];
+        for (const check of postconditions) {
+          const handler = this.checkHandlers.get(check.type);
+          if (!handler) {
+            results.push({
+              check_id: check.check_id,
+              status: "failed",
+              observed_value: null,
+              expected_value: check.expected_value,
+              checked_at: Date.now(),
+              evidence: {
+                source: "verification_engine",
+                detail: `no handler registered for check type: ${check.type}`
+              }
+            });
+            continue;
+          }
+          const result = await handler(check);
+          results.push(result);
+        }
+        return results;
+      }
+      /**
+       * Verify stability over time window
+       */
+      async _verifyStability(postconditions, windowMs) {
+        const startTime = Date.now();
+        const checkInterval = Math.min(1e3, windowMs / 5);
+        const checks = [];
+        while (Date.now() - startTime < windowMs) {
+          await this._sleep(checkInterval);
+          const checkResults = await this._runChecks(postconditions);
+          const allPassed = checkResults.every((r2) => r2.status === "passed");
+          checks.push({
+            timestamp: Date.now(),
+            all_passed: allPassed
+          });
+          if (!allPassed) {
+            return {
+              window_ms: windowMs,
+              status: "failed",
+              detail: "postconditions did not remain stable during window",
+              checks
+            };
+          }
+        }
+        return {
+          window_ms: windowMs,
+          status: "passed",
+          detail: "all required postconditions held for full window",
+          checks
+        };
+      }
+      /**
+       * Determine achieved verification strength
+       */
+      _determineAchievedStrength(checkResults, stabilityResult, targetStrength) {
+        const hasSystemdChecks = checkResults.some((r2) => r2.evidence?.source === "systemctl");
+        const hasNetworkChecks = checkResults.some((r2) => r2.evidence?.source === "tcp_probe" || r2.evidence?.source === "http_probe");
+        const hasStability = stabilityResult && stabilityResult.status === "passed";
+        if (hasStability) {
+          return VerificationStrength.OBJECTIVE_STABILITY;
+        }
+        if (hasNetworkChecks) {
+          return VerificationStrength.SERVICE_HEALTH;
+        }
+        if (hasSystemdChecks) {
+          return VerificationStrength.LOCAL_STATE;
+        }
+        return VerificationStrength.PROCEDURAL;
+      }
+      /**
+       * Generate human-readable summary
+       */
+      _generateSummary(objective, status, checkResults, stabilityResult) {
+        const passedCount = checkResults.filter((r2) => r2.status === "passed").length;
+        const totalCount = checkResults.length;
+        if (status === VerificationStatus.SUCCESS) {
+          if (stabilityResult) {
+            return `${objective} completed successfully. All postconditions verified and remained stable for ${stabilityResult.window_ms}ms.`;
+          }
+          return `${objective} completed successfully. All ${totalCount} postcondition checks passed.`;
+        }
+        if (status === VerificationStatus.FAILED) {
+          const failedChecks = checkResults.filter((r2) => r2.status === "failed");
+          const failedNames = failedChecks.map((r2) => r2.check_id).join(", ");
+          return `${objective} verification failed. ${passedCount}/${totalCount} checks passed. Failed checks: ${failedNames}.`;
+        }
+        return `${objective} verification ${status}. ${passedCount}/${totalCount} checks passed.`;
+      }
+      /**
+       * Timeout helper
+       */
+      _timeout(ms) {
+        return new Promise((_2, reject) => {
+          setTimeout(() => reject(new Error("VERIFICATION_TIMEOUT")), ms);
+        });
+      }
+      /**
+       * Sleep helper
+       */
+      _sleep(ms) {
+        return new Promise((resolve2) => setTimeout(resolve2, ms));
+      }
+    };
+    module2.exports = { VerificationEngine: VerificationEngine2 };
+  }
+});
+
+// ../../../services/vienna-lib/economic/cost-model.js
+var require_cost_model = __commonJS({
+  "../../../services/vienna-lib/economic/cost-model.js"(exports2, module2) {
+    var CostModel2 = class {
+      constructor() {
+        this.baseCosts = {
+          // Compute classes
+          "compute:light": 1,
+          "compute:medium": 5,
+          "compute:heavy": 20,
+          "compute:intensive": 100,
+          // LLM inference
+          "llm:haiku:1k_tokens": 0.25,
+          "llm:sonnet:1k_tokens": 3,
+          "llm:opus:1k_tokens": 15,
+          // Network operations
+          "network:http_request": 0.1,
+          "network:large_payload": 1,
+          "network:distributed_call": 5,
+          // Storage operations
+          "storage:read": 0.1,
+          "storage:write": 0.5,
+          "storage:delete": 0.2,
+          // Verification operations
+          "verification:simple": 1,
+          "verification:complex": 5,
+          // Service operations
+          "service:restart": 10,
+          "service:health_check": 1
+        };
+      }
+      /**
+       * Estimate cost for an action
+       */
+      estimateCost(action, context = {}) {
+        let cost = 0;
+        const actionType = action.action_type || action.type;
+        const computeClass = action.compute_class || "compute:medium";
+        cost += this.baseCosts[computeClass] || 5;
+        if (action.requires_llm) {
+          const model = action.llm_model || context.default_model || "sonnet";
+          const tokens = action.estimated_tokens || 1e3;
+          const costPer1k = this.baseCosts[`llm:${model}:1k_tokens`] || 3;
+          cost += tokens / 1e3 * costPer1k;
+        }
+        if (action.network_operations) {
+          const networkOps = Array.isArray(action.network_operations) ? action.network_operations.length : action.network_operations;
+          cost += networkOps * (this.baseCosts["network:http_request"] || 0.1);
+        }
+        if (action.storage_operations) {
+          for (const op of action.storage_operations) {
+            cost += this.baseCosts[`storage:${op}`] || 0.5;
+          }
+        }
+        if (action.verification_required) {
+          const verificationComplexity = action.verification_complexity || "simple";
+          cost += this.baseCosts[`verification:${verificationComplexity}`] || 1;
+        }
+        if (action.priority) {
+          const multipliers = { low: 0.5, normal: 1, high: 1.5, critical: 2 };
+          cost *= multipliers[action.priority] || 1;
+        }
+        return Math.ceil(cost);
+      }
+      /**
+       * Estimate cost for a plan
+       */
+      estimatePlanCost(plan, context = {}) {
+        let totalCost = 0;
+        if (plan.steps && Array.isArray(plan.steps)) {
+          for (const step of plan.steps) {
+            totalCost += this.estimateCost(step, context);
+          }
+        }
+        const orchestrationCost = plan.steps ? plan.steps.length * 0.5 : 0;
+        totalCost += orchestrationCost;
+        return Math.ceil(totalCost);
+      }
+      /**
+       * Record actual cost
+       */
+      recordActualCost(executionId, actualCost, breakdown = {}) {
+        return {
+          execution_id: executionId,
+          actual_cost: actualCost,
+          breakdown,
+          recorded_at: (/* @__PURE__ */ new Date()).toISOString()
+        };
+      }
+    };
+    var Budget = class {
+      constructor(data) {
+        this.budget_id = data.budget_id;
+        this.scope = data.scope;
+        this.scope_id = data.scope_id;
+        this.limit = data.limit;
+        this.spent = data.spent || 0;
+        this.reserved = data.reserved || 0;
+        this.period = data.period || "monthly";
+        this.period_start = data.period_start || (/* @__PURE__ */ new Date()).toISOString();
+        this.period_end = data.period_end || this._calculatePeriodEnd(data.period_start, data.period);
+        this.status = data.status || "active";
+      }
+      /**
+       * Check if budget can accommodate cost
+       */
+      canAfford(estimatedCost) {
+        const available = this.limit - (this.spent + this.reserved);
+        return available >= estimatedCost;
+      }
+      /**
+       * Reserve budget for planned execution
+       */
+      reserve(estimatedCost) {
+        if (!this.canAfford(estimatedCost)) {
+          throw new Error(`BUDGET_EXCEEDED: Cannot reserve ${estimatedCost} units (available: ${this.getAvailable()})`);
+        }
+        this.reserved += estimatedCost;
+        return this.reserved;
+      }
+      /**
+       * Release reserved budget
+       */
+      releaseReservation(reservedCost) {
+        this.reserved = Math.max(0, this.reserved - reservedCost);
+        return this.reserved;
+      }
+      /**
+       * Charge actual cost
+       */
+      charge(actualCost) {
+        this.spent += actualCost;
+        return this.spent;
+      }
+      /**
+       * Get available budget
+       */
+      getAvailable() {
+        return this.limit - (this.spent + this.reserved);
+      }
+      /**
+       * Get utilization percentage
+       */
+      getUtilization() {
+        return (this.spent + this.reserved) / this.limit * 100;
+      }
+      /**
+       * Check if budget is exhausted
+       */
+      isExhausted() {
+        return this.getAvailable() <= 0;
+      }
+      /**
+       * Calculate period end
+       */
+      _calculatePeriodEnd(periodStart, period) {
+        const start2 = new Date(periodStart);
+        switch (period) {
+          case "daily":
+            return new Date(start2.getTime() + 24 * 60 * 60 * 1e3).toISOString();
+          case "weekly":
+            return new Date(start2.getTime() + 7 * 24 * 60 * 60 * 1e3).toISOString();
+          case "monthly":
+            return new Date(start2.setMonth(start2.getMonth() + 1)).toISOString();
+          case "annual":
+            return new Date(start2.setFullYear(start2.getFullYear() + 1)).toISOString();
+          default:
+            return new Date(start2.getTime() + 30 * 24 * 60 * 60 * 1e3).toISOString();
+        }
+      }
+      toJSON() {
+        return {
+          budget_id: this.budget_id,
+          scope: this.scope,
+          scope_id: this.scope_id,
+          limit: this.limit,
+          spent: this.spent,
+          reserved: this.reserved,
+          available: this.getAvailable(),
+          utilization: this.getUtilization(),
+          period: this.period,
+          period_start: this.period_start,
+          period_end: this.period_end,
+          status: this.status
+        };
+      }
+    };
+    var BudgetManager = class {
+      constructor() {
+        this.budgets = /* @__PURE__ */ new Map();
+        this.costModel = new CostModel2();
+      }
+      /**
+       * Create a budget
+       */
+      createBudget(budgetData) {
+        const budget = new Budget({
+          budget_id: budgetData.budget_id || this._generateBudgetId(),
+          ...budgetData
+        });
+        this.budgets.set(budget.budget_id, budget);
+        return budget;
+      }
+      /**
+       * Get budget by ID
+       */
+      getBudget(budgetId) {
+        return this.budgets.get(budgetId);
+      }
+      /**
+       * Get budget for scope
+       */
+      getBudgetForScope(scope, scopeId) {
+        for (const budget of this.budgets.values()) {
+          if (budget.scope === scope && budget.scope_id === scopeId && budget.status === "active") {
+            return budget;
+          }
+        }
+        return null;
+      }
+      /**
+       * Check if action can be afforded
+       */
+      async checkAffordability(action, context) {
+        const estimatedCost = this.costModel.estimateCost(action, context);
+        const checks = [];
+        if (context.tenant_id) {
+          const tenantBudget = this.getBudgetForScope("tenant", context.tenant_id);
+          if (tenantBudget) {
+            checks.push({
+              scope: "tenant",
+              budget_id: tenantBudget.budget_id,
+              can_afford: tenantBudget.canAfford(estimatedCost),
+              available: tenantBudget.getAvailable(),
+              estimated_cost: estimatedCost
+            });
+          }
+        }
+        if (context.workspace_id) {
+          const workspaceBudget = this.getBudgetForScope("workspace", context.workspace_id);
+          if (workspaceBudget) {
+            checks.push({
+              scope: "workspace",
+              budget_id: workspaceBudget.budget_id,
+              can_afford: workspaceBudget.canAfford(estimatedCost),
+              available: workspaceBudget.getAvailable(),
+              estimated_cost: estimatedCost
+            });
+          }
+        }
+        if (context.operator_id) {
+          const operatorBudget = this.getBudgetForScope("operator", context.operator_id);
+          if (operatorBudget) {
+            checks.push({
+              scope: "operator",
+              budget_id: operatorBudget.budget_id,
+              can_afford: operatorBudget.canAfford(estimatedCost),
+              available: operatorBudget.getAvailable(),
+              estimated_cost: estimatedCost
+            });
+          }
+        }
+        const allAffordable = checks.every((c2) => c2.can_afford);
+        return {
+          affordable: allAffordable,
+          estimated_cost: estimatedCost,
+          checks
+        };
+      }
+      /**
+       * Reserve budget for execution
+       */
+      async reserveBudget(executionId, estimatedCost, context) {
+        const reservations = [];
+        if (context.tenant_id) {
+          const budget = this.getBudgetForScope("tenant", context.tenant_id);
+          if (budget) {
+            budget.reserve(estimatedCost);
+            reservations.push({ scope: "tenant", budget_id: budget.budget_id, amount: estimatedCost });
+          }
+        }
+        if (context.workspace_id) {
+          const budget = this.getBudgetForScope("workspace", context.workspace_id);
+          if (budget) {
+            budget.reserve(estimatedCost);
+            reservations.push({ scope: "workspace", budget_id: budget.budget_id, amount: estimatedCost });
+          }
+        }
+        return {
+          execution_id: executionId,
+          reservations,
+          total_reserved: estimatedCost
+        };
+      }
+      /**
+       * Charge actual cost after execution
+       */
+      async chargeExecution(executionId, actualCost, estimatedCost, context) {
+        const charges = [];
+        if (context.tenant_id) {
+          const budget = this.getBudgetForScope("tenant", context.tenant_id);
+          if (budget) {
+            budget.releaseReservation(estimatedCost);
+            budget.charge(actualCost);
+            charges.push({ scope: "tenant", budget_id: budget.budget_id, amount: actualCost });
+          }
+        }
+        if (context.workspace_id) {
+          const budget = this.getBudgetForScope("workspace", context.workspace_id);
+          if (budget) {
+            budget.releaseReservation(estimatedCost);
+            budget.charge(actualCost);
+            charges.push({ scope: "workspace", budget_id: budget.budget_id, amount: actualCost });
+          }
+        }
+        return {
+          execution_id: executionId,
+          charges,
+          total_charged: actualCost
+        };
+      }
+      /**
+       * List budgets
+       */
+      listBudgets(filters = {}) {
+        let budgets = Array.from(this.budgets.values());
+        if (filters.scope) {
+          budgets = budgets.filter((b2) => b2.scope === filters.scope);
+        }
+        if (filters.scope_id) {
+          budgets = budgets.filter((b2) => b2.scope_id === filters.scope_id);
+        }
+        if (filters.status) {
+          budgets = budgets.filter((b2) => b2.status === filters.status);
+        }
+        return budgets;
+      }
+      /**
+       * Generate budget ID
+       */
+      _generateBudgetId() {
+        return `budget_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+    };
+    var globalBudgetManager = null;
+    function getBudgetManager() {
+      if (!globalBudgetManager) {
+        globalBudgetManager = new BudgetManager();
+      }
+      return globalBudgetManager;
+    }
+    module2.exports = {
+      CostModel: CostModel2,
+      Budget,
+      BudgetManager,
+      getBudgetManager
+    };
+  }
+});
+
+// ../../../services/vienna-lib/learning/pattern-detector.js
+var require_pattern_detector = __commonJS({
+  "../../../services/vienna-lib/learning/pattern-detector.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var PatternType = {
+      FAILURE_CLUSTER: "failure_cluster",
+      POLICY_CONFLICT: "policy_conflict",
+      REMEDIATION_EFFECTIVENESS: "remediation_effectiveness"
+    };
+    var PatternDetector = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Detect failure clusters
+       * 
+       * Groups similar failures by action_type, target_id, failure_reason
+       */
+      async detectFailureClusters(options = {}) {
+        const {
+          lookbackDays = 7,
+          minOccurrences = 3,
+          minConfidence = 0.7
+        } = options;
+        const since = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1e3).toISOString();
+        const failures = await this.stateGraph.listExecutionLedgerSummaries({
+          status: "failed",
+          created_since: since,
+          limit: 1e3
+        });
+        const clusters = /* @__PURE__ */ new Map();
+        for (const failure of failures) {
+          const metadata = JSON.parse(failure.metadata || "{}");
+          const key = `${metadata.action_type}:${metadata.target_id}:${this._normalizeFailureReason(metadata.error)}`;
+          if (!clusters.has(key)) {
+            clusters.set(key, {
+              action_type: metadata.action_type,
+              target_id: metadata.target_id,
+              failure_reason: this._normalizeFailureReason(metadata.error),
+              occurrences: [],
+              event_count: 0
+            });
+          }
+          const cluster = clusters.get(key);
+          cluster.occurrences.push({
+            execution_id: failure.execution_id,
+            timestamp: failure.created_at,
+            error: metadata.error
+          });
+          cluster.event_count++;
+        }
+        const patterns = [];
+        for (const [key, cluster] of clusters.entries()) {
+          if (cluster.event_count >= minOccurrences) {
+            const confidence = this._calculateClusterConfidence(cluster, lookbackDays);
+            if (confidence >= minConfidence) {
+              patterns.push({
+                pattern_id: this._generatePatternId(cluster),
+                pattern_type: PatternType.FAILURE_CLUSTER,
+                action_type: cluster.action_type,
+                target_id: cluster.target_id,
+                observation_window_days: lookbackDays,
+                event_count: cluster.event_count,
+                confidence,
+                metadata: {
+                  failure_reason: cluster.failure_reason,
+                  first_observed: cluster.occurrences[0].timestamp,
+                  last_observed: cluster.occurrences[cluster.occurrences.length - 1].timestamp,
+                  evidence: cluster.occurrences.map((o2) => o2.execution_id)
+                }
+              });
+            }
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Detect policy conflicts
+       * 
+       * Identifies policies that repeatedly block legitimate actions
+       */
+      async detectPolicyConflicts(options = {}) {
+        const {
+          lookbackDays = 14,
+          minDenials = 5,
+          minConfidence = 0.7
+        } = options;
+        const since = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1e3).toISOString();
+        const decisions = await this.stateGraph.listPolicyDecisions({
+          decision: "deny",
+          created_since: since,
+          limit: 1e3
+        });
+        const conflicts = /* @__PURE__ */ new Map();
+        for (const decision of decisions) {
+          const metadata = JSON.parse(decision.metadata || "{}");
+          const key = `${decision.policy_id}:${metadata.failed_constraint_type}`;
+          if (!conflicts.has(key)) {
+            conflicts.set(key, {
+              policy_id: decision.policy_id,
+              constraint_type: metadata.failed_constraint_type,
+              denials: [],
+              event_count: 0
+            });
+          }
+          const conflict = conflicts.get(key);
+          conflict.denials.push({
+            execution_id: metadata.execution_id,
+            timestamp: decision.created_at,
+            reason: metadata.failed_constraint_reason
+          });
+          conflict.event_count++;
+        }
+        const patterns = [];
+        for (const [key, conflict] of conflicts.entries()) {
+          if (conflict.event_count >= minDenials) {
+            const confidence = this._calculateConflictConfidence(conflict, lookbackDays);
+            if (confidence >= minConfidence) {
+              patterns.push({
+                pattern_id: this._generatePatternId(conflict),
+                pattern_type: PatternType.POLICY_CONFLICT,
+                policy_id: conflict.policy_id,
+                observation_window_days: lookbackDays,
+                event_count: conflict.event_count,
+                confidence,
+                metadata: {
+                  constraint_type: conflict.constraint_type,
+                  first_denial: conflict.denials[0].timestamp,
+                  last_denial: conflict.denials[conflict.denials.length - 1].timestamp,
+                  evidence: conflict.denials.map((d2) => d2.execution_id)
+                }
+              });
+            }
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Detect remediation effectiveness patterns
+       * 
+       * Tracks remediation success/failure rates
+       */
+      async detectRemediationEffectiveness(options = {}) {
+        const {
+          lookbackDays = 30,
+          minExecutions = 10,
+          minConfidence = 0.7
+        } = options;
+        const since = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1e3).toISOString();
+        const outcomes = await this.stateGraph.listWorkflowOutcomes({
+          created_since: since,
+          limit: 1e3
+        });
+        const effectiveness = /* @__PURE__ */ new Map();
+        for (const outcome of outcomes) {
+          const metadata = JSON.parse(outcome.metadata || "{}");
+          const key = metadata.plan_template || `${metadata.action_type}:${metadata.target_type}`;
+          if (!effectiveness.has(key)) {
+            effectiveness.set(key, {
+              plan_template: metadata.plan_template,
+              action_type: metadata.action_type,
+              target_type: metadata.target_type,
+              executions: [],
+              success_count: 0,
+              failure_count: 0,
+              event_count: 0
+            });
+          }
+          const eff = effectiveness.get(key);
+          eff.executions.push({
+            execution_id: outcome.execution_id,
+            timestamp: outcome.created_at,
+            objective_achieved: outcome.objective_achieved
+          });
+          eff.event_count++;
+          if (outcome.objective_achieved) {
+            eff.success_count++;
+          } else {
+            eff.failure_count++;
+          }
+        }
+        const patterns = [];
+        for (const [key, eff] of effectiveness.entries()) {
+          if (eff.event_count >= minExecutions) {
+            const successRate = eff.success_count / eff.event_count;
+            const confidence = this._calculateEffectivenessConfidence(eff, lookbackDays);
+            if (confidence >= minConfidence) {
+              patterns.push({
+                pattern_id: this._generatePatternId(eff),
+                pattern_type: PatternType.REMEDIATION_EFFECTIVENESS,
+                action_type: eff.action_type,
+                target_type: eff.target_type,
+                observation_window_days: lookbackDays,
+                event_count: eff.event_count,
+                confidence,
+                metadata: {
+                  plan_template: eff.plan_template,
+                  success_count: eff.success_count,
+                  failure_count: eff.failure_count,
+                  success_rate: successRate,
+                  first_execution: eff.executions[0].timestamp,
+                  last_execution: eff.executions[eff.executions.length - 1].timestamp,
+                  evidence: eff.executions.map((e2) => e2.execution_id)
+                }
+              });
+            }
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Normalize failure reason for clustering
+       */
+      _normalizeFailureReason(error) {
+        if (!error) return "unknown";
+        const lower = error.toLowerCase();
+        if (lower.includes("timeout")) return "timeout";
+        if (lower.includes("connection refused")) return "connection_refused";
+        if (lower.includes("permission denied")) return "permission_denied";
+        if (lower.includes("not found") || lower.includes("404")) return "not_found";
+        if (lower.includes("service unavailable") || lower.includes("503")) return "service_unavailable";
+        if (lower.includes("internal server error") || lower.includes("500")) return "internal_error";
+        return error.substring(0, 50);
+      }
+      /**
+       * Calculate cluster confidence
+       */
+      _calculateClusterConfidence(cluster, lookbackDays) {
+        const { event_count, occurrences } = cluster;
+        let confidence = Math.min(0.7 + (event_count - 3) * 0.05, 0.95);
+        const hoursSinceLastOccurrence = (Date.now() - new Date(occurrences[occurrences.length - 1].timestamp).getTime()) / (1e3 * 60 * 60);
+        if (hoursSinceLastOccurrence < 24) confidence += 0.1;
+        else if (hoursSinceLastOccurrence < 72) confidence += 0.05;
+        const avgHoursBetweenFailures = (new Date(occurrences[occurrences.length - 1].timestamp).getTime() - new Date(occurrences[0].timestamp).getTime()) / (1e3 * 60 * 60 * (event_count - 1));
+        if (avgHoursBetweenFailures < 48) confidence += 0.05;
+        return Math.min(confidence, 1);
+      }
+      /**
+       * Calculate conflict confidence
+       */
+      _calculateConflictConfidence(conflict, lookbackDays) {
+        const { event_count, denials } = conflict;
+        let confidence = Math.min(0.7 + (event_count - 5) * 0.04, 0.95);
+        const hoursSinceLastDenial = (Date.now() - new Date(denials[denials.length - 1].timestamp).getTime()) / (1e3 * 60 * 60);
+        if (hoursSinceLastDenial < 48) confidence += 0.1;
+        else if (hoursSinceLastDenial < 168) confidence += 0.05;
+        return Math.min(confidence, 1);
+      }
+      /**
+       * Calculate effectiveness confidence
+       */
+      _calculateEffectivenessConfidence(eff, lookbackDays) {
+        const { event_count, success_count } = eff;
+        let confidence = Math.min(0.7 + (event_count - 10) * 0.015, 0.9);
+        const successRate = success_count / event_count;
+        if (successRate > 0.9 || successRate < 0.3) confidence += 0.1;
+        return Math.min(confidence, 1);
+      }
+      /**
+       * Generate deterministic pattern ID
+       */
+      _generatePatternId(data) {
+        const hash = crypto8.createHash("sha256");
+        hash.update(JSON.stringify({
+          pattern_type: data.pattern_type || PatternType.FAILURE_CLUSTER,
+          action_type: data.action_type,
+          target_id: data.target_id,
+          target_type: data.target_type,
+          policy_id: data.policy_id
+        }));
+        return `pat_${hash.digest("hex").substring(0, 16)}`;
+      }
+    };
+    module2.exports = { PatternDetector, PatternType };
+  }
+});
+
+// ../../../services/vienna-lib/learning/policy-recommender.js
+var require_policy_recommender = __commonJS({
+  "../../../services/vienna-lib/learning/policy-recommender.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var RecommendationType = {
+      CONSTRAINT_RELAXATION: "constraint_relaxation",
+      NEW_POLICY: "new_policy",
+      POLICY_REMOVAL: "policy_removal",
+      PRIORITY_ADJUSTMENT: "priority_adjustment"
+    };
+    var PolicyRecommender = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Generate constraint relaxation recommendations
+       * 
+       * Pattern: Action repeatedly denied by same constraint
+       * Recommendation: Relax constraint parameters
+       */
+      async recommendConstraintRelaxation(pattern, options = {}) {
+        const { minConfidence = 0.75 } = options;
+        if (pattern.pattern_type !== "policy_conflict") {
+          return null;
+        }
+        const metadata = pattern.metadata;
+        const policy = await this.stateGraph.getPolicy(pattern.policy_id);
+        if (!policy) return null;
+        const currentConstraints = JSON.parse(policy.constraints || "{}");
+        const proposedConstraints = { ...currentConstraints };
+        if (metadata.constraint_type === "rate_limit") {
+          const current = currentConstraints.max_executions || 3;
+          proposedConstraints.max_executions = Math.ceil(current * 1.5);
+          proposedConstraints.window_ms = currentConstraints.window_ms;
+        } else if (metadata.constraint_type === "cooldown") {
+          const current = currentConstraints.cooldown_ms || 36e5;
+          proposedConstraints.cooldown_ms = Math.floor(current * 0.75);
+        } else if (metadata.constraint_type === "time_window") {
+          const current = currentConstraints.allowed_windows || [];
+          proposedConstraints.allowed_windows = current;
+          proposedConstraints._suggestion = "Expand time window based on denial patterns";
+        } else {
+          proposedConstraints._relaxed = true;
+        }
+        return {
+          recommendation_id: this._generateRecommendationId(pattern),
+          recommendation_type: RecommendationType.CONSTRAINT_RELAXATION,
+          target_policy_id: pattern.policy_id,
+          proposed_change: {
+            constraints: proposedConstraints
+          },
+          pattern_id: pattern.pattern_id,
+          confidence: pattern.confidence,
+          evidence: {
+            observation_window_days: pattern.observation_window_days,
+            event_count: pattern.event_count,
+            supporting_events: metadata.evidence || []
+          },
+          auto_apply_eligible: pattern.confidence >= 0.9,
+          requires_approval: true,
+          created_at: (/* @__PURE__ */ new Date()).toISOString()
+        };
+      }
+      /**
+       * Generate new policy recommendations
+       * 
+       * Pattern: Remediation success varies by time/environment
+       * Recommendation: Add policy to restrict to successful patterns
+       */
+      async recommendNewPolicy(pattern, options = {}) {
+        const { minConfidence = 0.8 } = options;
+        if (pattern.pattern_type !== "remediation_effectiveness") {
+          return null;
+        }
+        const metadata = pattern.metadata;
+        if (metadata.success_rate > 0.9 || metadata.success_rate < 0.3) {
+          if (metadata.success_rate >= 0.5) {
+            return null;
+          }
+        }
+        const proposedPolicy = {
+          policy_name: `Restrict ${pattern.action_type} based on effectiveness pattern`,
+          action_type: pattern.action_type,
+          target_type: pattern.target_type,
+          constraints: {
+            time_window: {
+              // Suggest off-hours for low success rate actions
+              allowed_windows: [
+                { start: "00:00", end: "06:00" }
+              ],
+              timezone: "UTC"
+            }
+          },
+          priority: 50,
+          enabled: true
+        };
+        return {
+          recommendation_id: this._generateRecommendationId(pattern),
+          recommendation_type: RecommendationType.NEW_POLICY,
+          proposed_change: {
+            new_policy: proposedPolicy
+          },
+          pattern_id: pattern.pattern_id,
+          confidence: pattern.confidence * 0.9,
+          // Slightly lower for new policy
+          evidence: {
+            observation_window_days: pattern.observation_window_days,
+            event_count: pattern.event_count,
+            success_rate: metadata.success_rate,
+            supporting_events: metadata.evidence || []
+          },
+          auto_apply_eligible: false,
+          // New policies require approval
+          requires_approval: true,
+          created_at: (/* @__PURE__ */ new Date()).toISOString()
+        };
+      }
+      /**
+       * Generate policy removal recommendations
+       * 
+       * Pattern: Policy never denies actions
+       * Recommendation: Remove unnecessary policy
+       */
+      async recommendPolicyRemoval(policyId, options = {}) {
+        const { lookbackDays = 30, minConfidence = 0.75 } = options;
+        const since = new Date(Date.now() - lookbackDays * 24 * 60 * 60 * 1e3).toISOString();
+        const decisions = await this.stateGraph.listPolicyDecisions({
+          policy_id: policyId,
+          created_since: since,
+          limit: 100
+        });
+        if (decisions.length === 0) {
+          return null;
+        }
+        const denials = decisions.filter((d2) => d2.decision === "deny");
+        const denialRate = denials.length / decisions.length;
+        if (denialRate === 0 && decisions.length >= 20) {
+          const confidence = Math.min(0.7 + decisions.length / 100 * 0.2, 0.95);
+          return {
+            recommendation_id: this._generateRecommendationId({ policy_id: policyId }),
+            recommendation_type: RecommendationType.POLICY_REMOVAL,
+            target_policy_id: policyId,
+            proposed_change: {
+              action: "remove_policy",
+              reason: "Policy never denies actions"
+            },
+            pattern_id: null,
+            confidence,
+            evidence: {
+              observation_window_days: lookbackDays,
+              event_count: decisions.length,
+              denial_count: 0,
+              approval_count: decisions.length
+            },
+            auto_apply_eligible: confidence >= 0.9,
+            requires_approval: true,
+            created_at: (/* @__PURE__ */ new Date()).toISOString()
+          };
+        }
+        return null;
+      }
+      /**
+       * Generate priority adjustment recommendations
+       * 
+       * Pattern: Policy A blocks what Policy B would allow
+       * Recommendation: Swap priorities
+       */
+      async recommendPriorityAdjustment(pattern, options = {}) {
+        const { minConfidence = 0.8 } = options;
+        const metadata = pattern.metadata;
+        if (!metadata.evidence || metadata.evidence.length === 0) {
+          return null;
+        }
+        const overrides = [];
+        for (const executionId of metadata.evidence.slice(0, 10)) {
+          const approvals = await this.stateGraph.listApprovals({
+            execution_id: executionId,
+            limit: 5
+          });
+          const denied = approvals.find((a2) => a2.status === "denied");
+          const approved = approvals.find((a2) => a2.status === "approved");
+          if (denied && approved && new Date(approved.created_at) > new Date(denied.created_at)) {
+            overrides.push(executionId);
+          }
+        }
+        if (overrides.length >= 3) {
+          return {
+            recommendation_id: this._generateRecommendationId(pattern),
+            recommendation_type: RecommendationType.PRIORITY_ADJUSTMENT,
+            target_policy_id: pattern.policy_id,
+            proposed_change: {
+              action: "decrease_priority",
+              reason: "Policy frequently overridden by operator",
+              suggested_priority: 100
+              // Lower priority
+            },
+            pattern_id: pattern.pattern_id,
+            confidence: pattern.confidence * 0.85,
+            evidence: {
+              observation_window_days: pattern.observation_window_days,
+              event_count: pattern.event_count,
+              override_count: overrides.length,
+              override_examples: overrides
+            },
+            auto_apply_eligible: false,
+            requires_approval: true,
+            created_at: (/* @__PURE__ */ new Date()).toISOString()
+          };
+        }
+        return null;
+      }
+      /**
+       * Generate recommendations from pattern
+       */
+      async generateRecommendations(pattern, options = {}) {
+        const recommendations = [];
+        if (pattern.pattern_type === "policy_conflict") {
+          const relaxation = await this.recommendConstraintRelaxation(pattern, options);
+          if (relaxation) recommendations.push(relaxation);
+          const priorityAdj = await this.recommendPriorityAdjustment(pattern, options);
+          if (priorityAdj) recommendations.push(priorityAdj);
+        }
+        if (pattern.pattern_type === "remediation_effectiveness") {
+          const newPolicy = await this.recommendNewPolicy(pattern, options);
+          if (newPolicy) recommendations.push(newPolicy);
+        }
+        return recommendations;
+      }
+      /**
+       * Generate deterministic recommendation ID
+       */
+      _generateRecommendationId(data) {
+        const hash = crypto8.createHash("sha256");
+        hash.update(JSON.stringify({
+          pattern_id: data.pattern_id,
+          policy_id: data.policy_id || data.target_policy_id,
+          timestamp: Date.now()
+        }));
+        return `rec_${hash.digest("hex").substring(0, 16)}`;
+      }
+    };
+    module2.exports = { PolicyRecommender, RecommendationType };
+  }
+});
+
+// ../../../services/vienna-lib/learning/plan-optimizer.js
+var require_plan_optimizer = __commonJS({
+  "../../../services/vienna-lib/learning/plan-optimizer.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var PlanOptimizer = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Suggest step reordering optimization
+       */
+      async suggestStepReordering(planTemplateId, options = {}) {
+        const minExecutions = options.minExecutions || 10;
+        const minImprovement = options.minImprovement || 0.1;
+        const executions = await this._getExecutionHistory(planTemplateId, { limit: 100 });
+        if (executions.length < minExecutions) {
+          return null;
+        }
+        const stepStats = this._analyzeStepStats(executions);
+        const skippableSteps = stepStats.filter(
+          (s2) => s2.skip_rate > 0.8 && s2.avg_duration_ms > 1e3
+        );
+        if (skippableSteps.length === 0) {
+          return null;
+        }
+        const currentAvgDuration = this._avg(executions.map((e2) => e2.duration_ms));
+        const estimatedNewDuration = currentAvgDuration - skippableSteps.reduce((sum, s2) => sum + s2.avg_duration_ms, 0);
+        const improvementPct = (currentAvgDuration - estimatedNewDuration) / currentAvgDuration;
+        if (improvementPct < minImprovement) {
+          return null;
+        }
+        return {
+          improvement_id: this._generateId("imp"),
+          plan_template_id: planTemplateId,
+          improvement_type: "step_reordering",
+          proposed_change: {
+            remove_steps: skippableSteps.map((s2) => s2.step_id),
+            reason: "Steps frequently skipped or unnecessary"
+          },
+          expected_benefit: {
+            time_reduction_pct: Math.round(improvementPct * 100),
+            steps_removed: skippableSteps.length
+          },
+          evidence: {
+            executions_analyzed: executions.length,
+            avg_duration_current_ms: Math.round(currentAvgDuration),
+            avg_duration_proposed_ms: Math.round(estimatedNewDuration),
+            skippable_steps: skippableSteps.map((s2) => ({
+              step_id: s2.step_id,
+              skip_rate: s2.skip_rate,
+              avg_duration_ms: s2.avg_duration_ms
+            }))
+          },
+          confidence: this._calculateConfidence(executions.length, improvementPct),
+          created_at: (/* @__PURE__ */ new Date()).toISOString()
+        };
+      }
+      /**
+       * Suggest verification strength adjustment
+       */
+      async suggestVerificationAdjustment(planTemplateId, options = {}) {
+        const minExecutions = options.minExecutions || 10;
+        const executions = await this._getExecutionHistory(planTemplateId, { limit: 100 });
+        if (executions.length < minExecutions) {
+          return null;
+        }
+        const verificationStats = this._analyzeVerificationStats(executions);
+        const currentStrength = this._determineVerificationStrength(verificationStats);
+        if (currentStrength === "strong") {
+          const strongChecks = verificationStats.checks.filter((c2) => c2.check_type === "strong");
+          const mediumChecks = verificationStats.checks.filter((c2) => c2.check_type !== "strong");
+          const strongSuccessRate = this._avg(strongChecks.map((c2) => c2.success_rate));
+          const mediumSuccessRate = this._avg(mediumChecks.map((c2) => c2.success_rate));
+          if (Math.abs(strongSuccessRate - mediumSuccessRate) < 0.02) {
+            const timeSavings = this._avg(strongChecks.map((c2) => c2.avg_duration_ms));
+            return {
+              improvement_id: this._generateId("imp"),
+              plan_template_id: planTemplateId,
+              improvement_type: "verification_adjustment",
+              proposed_change: {
+                from_strength: "strong",
+                to_strength: "medium",
+                remove_checks: strongChecks.map((c2) => c2.check_id)
+              },
+              expected_benefit: {
+                time_reduction_pct: Math.round(timeSavings / verificationStats.avg_total_duration_ms * 100),
+                success_rate_impact: strongSuccessRate - mediumSuccessRate
+              },
+              evidence: {
+                executions_analyzed: executions.length,
+                strong_success_rate: strongSuccessRate,
+                medium_success_rate: mediumSuccessRate,
+                avg_strong_duration_ms: Math.round(timeSavings)
+              },
+              confidence: this._calculateConfidence(executions.length, 0.02),
+              created_at: (/* @__PURE__ */ new Date()).toISOString()
+            };
+          }
+        }
+        return null;
+      }
+      /**
+       * Suggest retry policy tuning
+       */
+      async suggestRetryTuning(planTemplateId, options = {}) {
+        const minExecutions = options.minExecutions || 10;
+        const executions = await this._getExecutionHistory(planTemplateId, { limit: 100 });
+        if (executions.length < minExecutions) {
+          return null;
+        }
+        const retryStats = this._analyzeRetryStats(executions);
+        if (!retryStats || retryStats.total_retries === 0) {
+          return null;
+        }
+        const firstRetryRecovery = retryStats.recovery_by_attempt[1] || 0;
+        const secondRetryRecovery = retryStats.recovery_by_attempt[2] || 0;
+        const thirdRetryRecovery = retryStats.recovery_by_attempt[3] || 0;
+        const totalRecovery = firstRetryRecovery + secondRetryRecovery + thirdRetryRecovery;
+        if (totalRecovery === 0) {
+          return null;
+        }
+        if (firstRetryRecovery / totalRecovery >= 0.85) {
+          return {
+            improvement_id: this._generateId("imp"),
+            plan_template_id: planTemplateId,
+            improvement_type: "retry_tuning",
+            proposed_change: {
+              from_max_attempts: retryStats.current_max_attempts,
+              to_max_attempts: 2,
+              reason: "Most failures recover on first retry"
+            },
+            expected_benefit: {
+              retry_overhead_reduction_pct: Math.round(retryStats.avg_retry_duration_ms * 3 / retryStats.avg_total_duration_ms * 100)
+            },
+            evidence: {
+              executions_analyzed: executions.length,
+              first_retry_recovery_rate: firstRetryRecovery / totalRecovery,
+              total_retries: retryStats.total_retries
+            },
+            confidence: this._calculateConfidence(executions.length, firstRetryRecovery / totalRecovery),
+            created_at: (/* @__PURE__ */ new Date()).toISOString()
+          };
+        }
+        return null;
+      }
+      /**
+       * Suggest timeout adjustment
+       */
+      async suggestTimeoutAdjustment(planTemplateId, options = {}) {
+        const minExecutions = options.minExecutions || 10;
+        const executions = await this._getExecutionHistory(planTemplateId, { limit: 100 });
+        if (executions.length < minExecutions) {
+          return null;
+        }
+        const durations = executions.filter((e2) => e2.status === "completed").map((e2) => e2.duration_ms);
+        if (durations.length < minExecutions) {
+          return null;
+        }
+        const p95 = this._percentile(durations, 0.95);
+        const currentTimeout = executions[0]?.timeout_ms || 6e4;
+        if (p95 < currentTimeout * 0.3) {
+          const proposedTimeout = Math.round(p95 * 1.5);
+          return {
+            improvement_id: this._generateId("imp"),
+            plan_template_id: planTemplateId,
+            improvement_type: "timeout_adjustment",
+            proposed_change: {
+              from_timeout_ms: currentTimeout,
+              to_timeout_ms: proposedTimeout,
+              reason: "95th percentile much lower than current timeout"
+            },
+            expected_benefit: {
+              faster_failure_detection: true,
+              timeout_reduction_pct: Math.round((currentTimeout - proposedTimeout) / currentTimeout * 100)
+            },
+            evidence: {
+              executions_analyzed: executions.length,
+              p95_duration_ms: Math.round(p95),
+              current_timeout_ms: currentTimeout
+            },
+            confidence: this._calculateConfidence(executions.length, 0.8),
+            created_at: (/* @__PURE__ */ new Date()).toISOString()
+          };
+        }
+        return null;
+      }
+      // Helper methods
+      async _getExecutionHistory(planTemplateId, options = {}) {
+        return [];
+      }
+      _analyzeStepStats(executions) {
+        const steps = {};
+        for (const exec of executions) {
+          const plan = JSON.parse(exec.plan || "{}");
+          const planSteps = plan.steps || [];
+          const resultSteps = exec.step_results || [];
+          const stepsToAnalyze = planSteps.length > 0 ? planSteps : resultSteps;
+          for (const step of stepsToAnalyze) {
+            const stepId = step.step_id;
+            if (!steps[stepId]) {
+              steps[stepId] = {
+                step_id: stepId,
+                executions: 0,
+                skips: 0,
+                durations: []
+              };
+            }
+            steps[stepId].executions++;
+            const stepResult = resultSteps.find((r2) => r2.step_id === stepId) || step;
+            if (stepResult.skipped) {
+              steps[stepId].skips++;
+            }
+            if (stepResult.duration_ms) {
+              steps[stepId].durations.push(stepResult.duration_ms);
+            }
+          }
+        }
+        return Object.values(steps).map((s2) => ({
+          step_id: s2.step_id,
+          skip_rate: s2.skips / s2.executions,
+          avg_duration_ms: this._avg(s2.durations)
+        }));
+      }
+      _analyzeVerificationStats(executions) {
+        const checks = {};
+        let totalDuration = 0;
+        let count = 0;
+        for (const exec of executions) {
+          const verification = JSON.parse(exec.verification_result || "{}");
+          for (const check of verification.checks || []) {
+            if (!checks[check.check_id]) {
+              checks[check.check_id] = {
+                check_id: check.check_id,
+                check_type: check.check_type,
+                successes: 0,
+                failures: 0,
+                durations: []
+              };
+            }
+            if (check.result === "pass") {
+              checks[check.check_id].successes++;
+            } else {
+              checks[check.check_id].failures++;
+            }
+            if (check.duration_ms) {
+              checks[check.check_id].durations.push(check.duration_ms);
+            }
+          }
+          if (verification.total_duration_ms) {
+            totalDuration += verification.total_duration_ms;
+            count++;
+          }
+        }
+        return {
+          checks: Object.values(checks).map((c2) => ({
+            check_id: c2.check_id,
+            check_type: c2.check_type,
+            success_rate: c2.successes / (c2.successes + c2.failures),
+            avg_duration_ms: this._avg(c2.durations)
+          })),
+          avg_total_duration_ms: count > 0 ? totalDuration / count : 0
+        };
+      }
+      _determineVerificationStrength(verificationStats) {
+        const strongChecks = verificationStats.checks.filter((c2) => c2.check_type === "strong").length;
+        const totalChecks = verificationStats.checks.length;
+        if (strongChecks > 0) return "strong";
+        if (totalChecks >= 3) return "medium";
+        return "weak";
+      }
+      _analyzeRetryStats(executions) {
+        const retries = executions.filter((e2) => e2.retry_count > 0);
+        if (retries.length === 0) return null;
+        const recoveryByAttempt = {};
+        let totalRetryDuration = 0;
+        let totalDuration = 0;
+        for (const exec of executions) {
+          totalDuration += exec.duration_ms;
+          if (exec.retry_count > 0) {
+            if (!recoveryByAttempt[exec.retry_count]) {
+              recoveryByAttempt[exec.retry_count] = 0;
+            }
+            if (exec.status === "completed") {
+              recoveryByAttempt[exec.retry_count]++;
+            }
+            totalRetryDuration += exec.retry_duration_ms || 0;
+          }
+        }
+        return {
+          total_retries: retries.length,
+          recovery_by_attempt: recoveryByAttempt,
+          current_max_attempts: Math.max(...executions.map((e2) => e2.max_retry_attempts || 3)),
+          avg_retry_duration_ms: retries.length > 0 ? totalRetryDuration / retries.length : 0,
+          avg_total_duration_ms: executions.length > 0 ? totalDuration / executions.length : 0
+        };
+      }
+      _avg(numbers) {
+        if (numbers.length === 0) return 0;
+        return numbers.reduce((sum, n2) => sum + n2, 0) / numbers.length;
+      }
+      _percentile(arr, p2) {
+        const sorted = [...arr].sort((a2, b2) => a2 - b2);
+        const index = Math.floor(sorted.length * p2);
+        return sorted[index];
+      }
+      _calculateConfidence(sampleSize, metric) {
+        if (sampleSize < 10) return 0.5;
+        if (sampleSize < 30) return 0.7;
+        if (sampleSize < 50) return 0.85;
+        return 0.9;
+      }
+      _generateId(prefix) {
+        return `${prefix}_${crypto8.randomBytes(6).toString("hex")}`;
+      }
+    };
+    module2.exports = PlanOptimizer;
+  }
+});
+
+// ../../../services/vienna-lib/learning/feedback-integrator.js
+var require_feedback_integrator = __commonJS({
+  "../../../services/vienna-lib/learning/feedback-integrator.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var FeedbackIntegrator = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Analyze approval patterns
+       */
+      async analyzeApprovalPatterns(options = {}) {
+        const lookbackDays = options.lookbackDays || 30;
+        const minOccurrences = options.minOccurrences || 5;
+        const feedback = await this._getOperatorFeedback({
+          source: "approval",
+          since: this._daysAgo(lookbackDays)
+        });
+        if (feedback.length < minOccurrences) {
+          return [];
+        }
+        const groups = this._groupBy(feedback, (f2) => `${f2.action_type}:${f2.target_id}`);
+        const patterns = [];
+        for (const [key, items] of Object.entries(groups)) {
+          if (items.length < minOccurrences) continue;
+          const approvals = items.filter((f2) => f2.decision === "approved");
+          const denials = items.filter((f2) => f2.decision === "denied");
+          const approvalRate = approvals.length / items.length;
+          const avgApprovalTime = this._avg(approvals.map((f2) => f2.time_to_decision_ms));
+          if (approvalRate >= 0.9 && avgApprovalTime < 3e5) {
+            patterns.push({
+              pattern_type: "high_approval_rate",
+              action_type: items[0].action_type,
+              target_id: items[0].target_id,
+              approval_rate: approvalRate,
+              avg_approval_time_ms: avgApprovalTime,
+              sample_size: items.length,
+              recommendation: "auto_approval_candidate",
+              confidence: this._calculateConfidence(items.length, approvalRate)
+            });
+          }
+          if (approvalRate < 0.2) {
+            const denialReasons = this._groupBy(denials, (d2) => d2.reason);
+            const commonReason = Object.entries(denialReasons).sort((a2, b2) => b2[1].length - a2[1].length)[0];
+            patterns.push({
+              pattern_type: "high_denial_rate",
+              action_type: items[0].action_type,
+              target_id: items[0].target_id,
+              denial_rate: 1 - approvalRate,
+              common_denial_reason: commonReason?.[0],
+              sample_size: items.length,
+              recommendation: "blocking_policy_candidate",
+              confidence: this._calculateConfidence(items.length, 1 - approvalRate)
+            });
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Analyze denial patterns
+       */
+      async analyzeDenialPatterns(options = {}) {
+        const lookbackDays = options.lookbackDays || 30;
+        const minOccurrences = options.minOccurrences || 3;
+        const feedback = await this._getOperatorFeedback({
+          source: "denial",
+          since: this._daysAgo(lookbackDays)
+        });
+        if (feedback.length < minOccurrences) {
+          return [];
+        }
+        const reasonGroups = this._groupBy(feedback, (f2) => f2.reason);
+        const patterns = [];
+        for (const [reason, items] of Object.entries(reasonGroups)) {
+          if (items.length < minOccurrences) continue;
+          const timeWindows = this._detectTimeWindows(items);
+          if (timeWindows.length > 0) {
+            patterns.push({
+              pattern_type: "time_based_denial",
+              denial_reason: reason,
+              time_windows: timeWindows,
+              sample_size: items.length,
+              recommendation: "time_window_constraint",
+              confidence: this._calculateConfidence(items.length, 0.8)
+            });
+          }
+          const targetGroups = this._groupBy(items, (i2) => i2.target_id);
+          const dominantTarget = Object.entries(targetGroups).sort((a2, b2) => b2[1].length - a2[1].length)[0];
+          if (dominantTarget && dominantTarget[1].length / items.length >= 0.7) {
+            patterns.push({
+              pattern_type: "target_based_denial",
+              denial_reason: reason,
+              target_id: dominantTarget[0],
+              sample_size: items.length,
+              recommendation: "blocked_entity_constraint",
+              confidence: this._calculateConfidence(items.length, dominantTarget[1].length / items.length)
+            });
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Analyze override patterns
+       */
+      async analyzeOverridePatterns(options = {}) {
+        const lookbackDays = options.lookbackDays || 30;
+        const minOccurrences = options.minOccurrences || 3;
+        const feedback = await this._getOperatorFeedback({
+          source: "override",
+          since: this._daysAgo(lookbackDays)
+        });
+        if (feedback.length < minOccurrences) {
+          return [];
+        }
+        const groups = this._groupBy(feedback, (f2) => `${f2.action_type}:${f2.reason}`);
+        const patterns = [];
+        for (const [key, items] of Object.entries(groups)) {
+          if (items.length < minOccurrences) continue;
+          if (items[0].reason && items[0].reason.includes("policy")) {
+            patterns.push({
+              pattern_type: "policy_override",
+              action_type: items[0].action_type,
+              override_reason: items[0].reason,
+              sample_size: items.length,
+              recommendation: "policy_relaxation",
+              confidence: this._calculateConfidence(items.length, 0.75)
+            });
+          }
+          if (items[0].source === "safe_mode_override") {
+            patterns.push({
+              pattern_type: "safe_mode_override",
+              action_type: items[0].action_type,
+              sample_size: items.length,
+              recommendation: "safe_mode_threshold_adjustment",
+              confidence: this._calculateConfidence(items.length, 0.7)
+            });
+          }
+        }
+        return patterns;
+      }
+      /**
+       * Record operator feedback
+       */
+      async recordFeedback(feedback) {
+        const feedbackId = this._generateId("fb");
+        if (!feedback.source || !feedback.decision) {
+          throw new Error("Invalid feedback: missing source or decision");
+        }
+        const record = {
+          feedback_id: feedbackId,
+          source: feedback.source,
+          action_type: feedback.action_type,
+          target_id: feedback.target_id,
+          operator: feedback.operator,
+          decision: feedback.decision,
+          reason: feedback.reason,
+          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+          context: JSON.stringify(feedback.context || {}),
+          processed: 0
+        };
+        await this.stateGraph.run(
+          `INSERT INTO operator_feedback (
+        feedback_id, source, action_type, target_id, operator, 
+        decision, reason, timestamp, context, processed
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            record.feedback_id,
+            record.source,
+            record.action_type,
+            record.target_id,
+            record.operator,
+            record.decision,
+            record.reason,
+            record.timestamp,
+            record.context,
+            record.processed
+          ]
+        );
+        return record;
+      }
+      /**
+       * Mark feedback as processed
+       */
+      async markFeedbackProcessed(feedbackId, metadata = {}) {
+        await this.stateGraph.run(
+          `UPDATE operator_feedback 
+       SET processed = 1, processed_at = ? 
+       WHERE feedback_id = ?`,
+          [(/* @__PURE__ */ new Date()).toISOString(), feedbackId]
+        );
+      }
+      // Helper methods
+      async _getOperatorFeedback(filters = {}) {
+        return [];
+      }
+      _groupBy(items, keyFn) {
+        const groups = {};
+        for (const item of items) {
+          const key = typeof keyFn === "function" ? keyFn(item) : item[keyFn];
+          if (!groups[key]) {
+            groups[key] = [];
+          }
+          groups[key].push(item);
+        }
+        return groups;
+      }
+      _detectTimeWindows(items) {
+        const hourCounts = new Array(24).fill(0);
+        for (const item of items) {
+          const hour = new Date(item.timestamp).getHours();
+          hourCounts[hour]++;
+        }
+        const threshold = items.length * 0.3;
+        const windows = [];
+        for (let i2 = 0; i2 < 24; i2++) {
+          if (hourCounts[i2] >= threshold) {
+            windows.push({
+              start_hour: i2,
+              end_hour: i2 + 1,
+              denial_count: hourCounts[i2]
+            });
+          }
+        }
+        return windows;
+      }
+      _avg(numbers) {
+        if (numbers.length === 0) return 0;
+        return numbers.reduce((sum, n2) => sum + n2, 0) / numbers.length;
+      }
+      _daysAgo(days) {
+        const date = /* @__PURE__ */ new Date();
+        date.setDate(date.getDate() - days);
+        return date.toISOString();
+      }
+      _calculateConfidence(sampleSize, metric) {
+        if (sampleSize < 5) return 0.5;
+        if (sampleSize < 10) return 0.7;
+        if (sampleSize < 20) return 0.85;
+        return 0.9;
+      }
+      _generateId(prefix) {
+        return `${prefix}_${crypto8.randomBytes(6).toString("hex")}`;
+      }
+    };
+    module2.exports = FeedbackIntegrator;
+  }
+});
+
+// ../../../services/vienna-lib/learning/learning-coordinator.js
+var require_learning_coordinator = __commonJS({
+  "../../../services/vienna-lib/learning/learning-coordinator.js"(exports2, module2) {
+    var { PatternDetector } = require_pattern_detector();
+    var { PolicyRecommender } = require_policy_recommender();
+    var PlanOptimizer = require_plan_optimizer();
+    var FeedbackIntegrator = require_feedback_integrator();
+    var LearningPhase = {
+      OBSERVATION: "observation",
+      ANALYSIS: "analysis",
+      RECOMMENDATION: "recommendation",
+      APPLICATION: "application"
+    };
+    var LearningCoordinator2 = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+        this.patternDetector = new PatternDetector(stateGraph);
+        this.policyRecommender = new PolicyRecommender(stateGraph);
+        this.planOptimizer = new PlanOptimizer(stateGraph);
+        this.feedbackIntegrator = new FeedbackIntegrator(stateGraph);
+        this.lastAnalysisAt = null;
+        this.lastRecommendationAt = null;
+        this.isRunning = false;
+      }
+      /**
+       * Start learning loop
+       */
+      start(options = {}) {
+        if (this.isRunning) {
+          throw new Error("Learning coordinator already running");
+        }
+        this.isRunning = true;
+        const {
+          analysisIntervalMs = 6 * 60 * 60 * 1e3,
+          // 6 hours
+          recommendationIntervalMs = 12 * 60 * 60 * 1e3
+          // 12 hours
+        } = options;
+        this.analysisInterval = setInterval(async () => {
+          if (this.isRunning) {
+            await this.runAnalysisPhase();
+          }
+        }, analysisIntervalMs);
+        this.recommendationInterval = setInterval(async () => {
+          if (this.isRunning) {
+            await this.runRecommendationPhase();
+          }
+        }, recommendationIntervalMs);
+        this.runAnalysisPhase().catch((err) => {
+          console.error("Initial analysis phase failed:", err);
+        });
+      }
+      /**
+       * Stop learning loop
+       */
+      stop() {
+        this.isRunning = false;
+        if (this.analysisInterval) {
+          clearInterval(this.analysisInterval);
+          this.analysisInterval = null;
+        }
+        if (this.recommendationInterval) {
+          clearInterval(this.recommendationInterval);
+          this.recommendationInterval = null;
+        }
+      }
+      /**
+       * Record execution for pattern detection (called from plan-execution-engine)
+       */
+      async recordExecution(executionData) {
+        if (this.stateGraph && this.stateGraph.appendLedgerEvent) {
+          await this.stateGraph.appendLedgerEvent({
+            execution_id: executionData.execution_id,
+            event_type: "learning_execution_recorded",
+            stage: "learning",
+            event_timestamp: executionData.timestamp,
+            payload_json: executionData
+          });
+        }
+      }
+      /**
+       * Run observation phase
+       * 
+       * Continuous: patterns detected from live execution data
+       */
+      async runObservationPhase(options = {}) {
+        return { phase: LearningPhase.OBSERVATION, status: "continuous" };
+      }
+      /**
+       * Run analysis phase
+       * 
+       * Every 6 hours: detect patterns, filter by confidence
+       */
+      async runAnalysisPhase(options = {}) {
+        const { minConfidence = 0.7 } = options;
+        const startTime = Date.now();
+        const [failureClusters, policyConflicts, remediationEffectiveness] = await Promise.all([
+          this.patternDetector.detectFailureClusters({ minConfidence }),
+          this.patternDetector.detectPolicyConflicts({ minConfidence }),
+          this.patternDetector.detectRemediationEffectiveness({ minConfidence })
+        ]);
+        const allPatterns = [
+          ...failureClusters,
+          ...policyConflicts,
+          ...remediationEffectiveness
+        ];
+        const storedPatterns = [];
+        for (const pattern of allPatterns) {
+          if (pattern.confidence >= minConfidence) {
+            await this._storePattern(pattern);
+            storedPatterns.push(pattern.pattern_id);
+          }
+        }
+        this.lastAnalysisAt = (/* @__PURE__ */ new Date()).toISOString();
+        return {
+          phase: LearningPhase.ANALYSIS,
+          patterns_detected: allPatterns.length,
+          patterns_stored: storedPatterns.length,
+          pattern_types: {
+            failure_clusters: failureClusters.length,
+            policy_conflicts: policyConflicts.length,
+            remediation_effectiveness: remediationEffectiveness.length
+          },
+          duration_ms: Date.now() - startTime,
+          completed_at: this.lastAnalysisAt
+        };
+      }
+      /**
+       * Run recommendation phase
+       * 
+       * Every 12 hours: generate recommendations from patterns
+       */
+      async runRecommendationPhase(options = {}) {
+        const { minConfidence = 0.75 } = options;
+        const startTime = Date.now();
+        const patterns = await this._loadActivePatterns({ minConfidence });
+        const recommendations = [];
+        for (const pattern of patterns) {
+          const recs = await this.policyRecommender.generateRecommendations(pattern, { minConfidence });
+          recommendations.push(...recs);
+        }
+        const storedRecommendations = [];
+        for (const rec of recommendations) {
+          await this._storeRecommendation(rec);
+          storedRecommendations.push(rec.recommendation_id);
+        }
+        this.lastRecommendationAt = (/* @__PURE__ */ new Date()).toISOString();
+        return {
+          phase: LearningPhase.RECOMMENDATION,
+          patterns_analyzed: patterns.length,
+          recommendations_generated: recommendations.length,
+          recommendations_stored: storedRecommendations.length,
+          recommendation_types: this._countRecommendationTypes(recommendations),
+          duration_ms: Date.now() - startTime,
+          completed_at: this.lastRecommendationAt
+        };
+      }
+      /**
+       * Run application phase
+       * 
+       * Gated: auto-apply or await operator approval
+       */
+      async runApplicationPhase(options = {}) {
+        const { dryRun = false, maxAutoApply = 3 } = options;
+        const startTime = Date.now();
+        const pending = await this._loadPendingRecommendations();
+        const autoApplyEligible = pending.filter(
+          (r2) => r2.auto_apply_eligible && r2.confidence >= 0.9
+        ).slice(0, maxAutoApply);
+        const applied = [];
+        const requiresApproval = [];
+        for (const rec of pending) {
+          if (autoApplyEligible.includes(rec) && !dryRun) {
+            const result = await this._applyRecommendation(rec);
+            applied.push({ recommendation_id: rec.recommendation_id, result });
+          } else {
+            requiresApproval.push(rec.recommendation_id);
+          }
+        }
+        return {
+          phase: LearningPhase.APPLICATION,
+          pending_count: pending.length,
+          auto_applied: applied.length,
+          requires_approval: requiresApproval.length,
+          dry_run: dryRun,
+          applied_recommendations: applied,
+          duration_ms: Date.now() - startTime
+        };
+      }
+      /**
+       * Get learning status
+       */
+      getStatus() {
+        return {
+          is_running: this.isRunning,
+          last_analysis_at: this.lastAnalysisAt,
+          last_recommendation_at: this.lastRecommendationAt,
+          next_analysis_in_ms: this._getTimeUntilNextRun(this.analysisInterval),
+          next_recommendation_in_ms: this._getTimeUntilNextRun(this.recommendationInterval)
+        };
+      }
+      /**
+       * Store pattern
+       */
+      async _storePattern(pattern) {
+        await this.stateGraph.query(
+          `INSERT OR REPLACE INTO learning_patterns (
+        pattern_id, pattern_type, action_type, target_id,
+        observation_window_days, event_count, confidence,
+        metadata, created_at, last_observed_at, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            pattern.pattern_id,
+            pattern.pattern_type,
+            pattern.action_type,
+            pattern.target_id,
+            pattern.observation_window_days,
+            pattern.event_count,
+            pattern.confidence,
+            JSON.stringify(pattern.metadata || {}),
+            (/* @__PURE__ */ new Date()).toISOString(),
+            (/* @__PURE__ */ new Date()).toISOString(),
+            "active"
+          ]
+        );
+      }
+      /**
+       * Load active patterns
+       */
+      async _loadActivePatterns(options = {}) {
+        const { minConfidence = 0.7 } = options;
+        const rows = await this.stateGraph.query(
+          `SELECT * FROM learning_patterns 
+       WHERE status = 'active' AND confidence >= ?
+       ORDER BY confidence DESC`,
+          [minConfidence]
+        );
+        return rows.map((row) => ({
+          pattern_id: row.pattern_id,
+          pattern_type: row.pattern_type,
+          action_type: row.action_type,
+          target_id: row.target_id,
+          observation_window_days: row.observation_window_days,
+          event_count: row.event_count,
+          confidence: row.confidence,
+          metadata: JSON.parse(row.metadata || "{}"),
+          created_at: row.created_at,
+          last_observed_at: row.last_observed_at
+        }));
+      }
+      /**
+       * Store recommendation
+       */
+      async _storeRecommendation(recommendation) {
+        await this.stateGraph.query(
+          `INSERT OR REPLACE INTO learning_recommendations (
+        recommendation_id, recommendation_type, target_policy_id,
+        proposed_change, pattern_id, confidence, evidence,
+        auto_apply_eligible, requires_approval, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            recommendation.recommendation_id,
+            recommendation.recommendation_type,
+            recommendation.target_policy_id,
+            JSON.stringify(recommendation.proposed_change || {}),
+            recommendation.pattern_id,
+            recommendation.confidence,
+            JSON.stringify(recommendation.evidence || {}),
+            recommendation.auto_apply_eligible ? 1 : 0,
+            recommendation.requires_approval ? 1 : 0,
+            "pending",
+            recommendation.created_at
+          ]
+        );
+      }
+      /**
+       * Load pending recommendations
+       */
+      async _loadPendingRecommendations() {
+        const rows = await this.stateGraph.query(
+          `SELECT * FROM learning_recommendations 
+       WHERE status = 'pending'
+       ORDER BY confidence DESC`
+        );
+        return rows.map((row) => ({
+          recommendation_id: row.recommendation_id,
+          recommendation_type: row.recommendation_type,
+          target_policy_id: row.target_policy_id,
+          proposed_change: JSON.parse(row.proposed_change || "{}"),
+          pattern_id: row.pattern_id,
+          confidence: row.confidence,
+          evidence: JSON.parse(row.evidence || "{}"),
+          auto_apply_eligible: row.auto_apply_eligible === 1,
+          requires_approval: row.requires_approval === 1,
+          created_at: row.created_at
+        }));
+      }
+      /**
+       * Apply recommendation
+       */
+      async _applyRecommendation(recommendation) {
+        const historyId = `hist_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        await this.stateGraph.query(
+          `INSERT INTO learning_history (
+        history_id, recommendation_id, action, reason, operator, timestamp, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            historyId,
+            recommendation.recommendation_id,
+            "applied",
+            "Auto-applied by learning coordinator",
+            "system",
+            (/* @__PURE__ */ new Date()).toISOString(),
+            JSON.stringify({ auto_applied: true })
+          ]
+        );
+        await this.stateGraph.query(
+          `UPDATE learning_recommendations 
+       SET status = 'applied', applied_at = ?
+       WHERE recommendation_id = ?`,
+          [(/* @__PURE__ */ new Date()).toISOString(), recommendation.recommendation_id]
+        );
+        return { status: "applied", history_id: historyId };
+      }
+      /**
+       * Count recommendation types
+       */
+      _countRecommendationTypes(recommendations) {
+        const counts = {};
+        for (const rec of recommendations) {
+          counts[rec.recommendation_type] = (counts[rec.recommendation_type] || 0) + 1;
+        }
+        return counts;
+      }
+      /**
+       * Get time until next scheduled run
+       */
+      _getTimeUntilNextRun(interval) {
+        if (!interval || !interval._idleStart) {
+          return null;
+        }
+        const elapsed = Date.now() - interval._idleStart;
+        const remaining = interval._idleTimeout - elapsed;
+        return Math.max(0, remaining);
+      }
+    };
+    module2.exports = { LearningCoordinator: LearningCoordinator2, LearningPhase };
+  }
+});
+
+// ../../../services/vienna-lib/distributed/lock-manager.js
+var require_lock_manager = __commonJS({
+  "../../../services/vienna-lib/distributed/lock-manager.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var LockManager = class {
+      constructor(stateGraph) {
+        this.stateGraph = stateGraph;
+      }
+      /**
+       * Acquire lock
+       */
+      async acquireLock(lockRequest) {
+        const { target_type, target_id, locked_by_node_id, locked_by_execution_id, timeout } = lockRequest;
+        const existing = await this.stateGraph.get(
+          `SELECT * FROM distributed_locks 
+       WHERE target_type = ? AND target_id = ? AND status = 'active'`,
+          [target_type, target_id]
+        );
+        if (existing) {
+          throw new Error(`Lock held by ${existing.locked_by_node_id} (execution: ${existing.locked_by_execution_id})`);
+        }
+        const lockId = this._generateId("lock");
+        const expiresAt = new Date(Date.now() + (timeout || 3e5)).toISOString();
+        await this.stateGraph.run(
+          `INSERT INTO distributed_locks (
+        lock_id, target_type, target_id, locked_by_node_id,
+        locked_by_execution_id, acquired_at, expires_at, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            lockId,
+            target_type,
+            target_id,
+            locked_by_node_id,
+            locked_by_execution_id,
+            (/* @__PURE__ */ new Date()).toISOString(),
+            expiresAt,
+            "active"
+          ]
+        );
+        return lockId;
+      }
+      /**
+       * Release lock
+       */
+      async releaseLock(lockId) {
+        await this.stateGraph.run(
+          `UPDATE distributed_locks SET status = 'released' WHERE lock_id = ?`,
+          [lockId]
+        );
+      }
+      /**
+       * Get lock
+       */
+      async getLock(lockId) {
+        const row = await this.stateGraph.get(
+          `SELECT * FROM distributed_locks WHERE lock_id = ?`,
+          [lockId]
+        );
+        if (!row) return null;
+        return {
+          lock_id: row.lock_id,
+          target_type: row.target_type,
+          target_id: row.target_id,
+          locked_by_node_id: row.locked_by_node_id,
+          locked_by_execution_id: row.locked_by_execution_id,
+          acquired_at: row.acquired_at,
+          expires_at: row.expires_at,
+          status: row.status
+        };
+      }
+      /**
+       * Check lock expiry and cleanup
+       */
+      async cleanupExpiredLocks() {
+        const now = (/* @__PURE__ */ new Date()).toISOString();
+        const expired = await this.stateGraph.all(
+          `SELECT * FROM distributed_locks 
+       WHERE status = 'active' AND expires_at < ?`,
+          [now]
+        );
+        for (const lock of expired) {
+          await this.stateGraph.run(
+            `UPDATE distributed_locks SET status = 'expired' WHERE lock_id = ?`,
+            [lock.lock_id]
+          );
+        }
+        return expired.map((l2) => l2.lock_id);
+      }
+      /**
+       * List locks by node
+       */
+      async listLocksByNode(nodeId) {
+        const rows = await this.stateGraph.all(
+          `SELECT * FROM distributed_locks 
+       WHERE locked_by_node_id = ? AND status = 'active'`,
+          [nodeId]
+        );
+        return rows.map((r2) => ({
+          lock_id: r2.lock_id,
+          target_type: r2.target_type,
+          target_id: r2.target_id,
+          acquired_at: r2.acquired_at,
+          expires_at: r2.expires_at
+        }));
+      }
+      /**
+       * Release all locks for node
+       */
+      async releaseAllLocksForNode(nodeId) {
+        await this.stateGraph.run(
+          `UPDATE distributed_locks 
+       SET status = 'released' 
+       WHERE locked_by_node_id = ? AND status = 'active'`,
+          [nodeId]
+        );
+      }
+      _generateId(prefix) {
+        return `${prefix}_${crypto8.randomBytes(8).toString("hex")}`;
+      }
+    };
+    module2.exports = LockManager;
+  }
+});
+
+// ../../../services/vienna-lib/economic/resource-scheduler.js
+var require_resource_scheduler = __commonJS({
+  "../../../services/vienna-lib/economic/resource-scheduler.js"(exports2, module2) {
+    var { getBudgetManager } = require_cost_model();
+    var ResourceRequirements = class {
+      constructor(data) {
+        this.compute = data.compute || "medium";
+        this.memory_mb = data.memory_mb || 512;
+        this.network_bandwidth_mbps = data.network_bandwidth_mbps || 10;
+        this.storage_mb = data.storage_mb || 100;
+        this.estimated_duration_ms = data.estimated_duration_ms || 5e3;
+        this.max_cost = data.max_cost || null;
+        this.min_success_probability = data.min_success_probability || 0.8;
+      }
+    };
+    var STRATEGIES = {
+      CHEAPEST: "cheapest",
+      // Minimize cost
+      FASTEST: "fastest",
+      // Minimize latency
+      MOST_RELIABLE: "most_reliable",
+      // Maximize success probability
+      BALANCED: "balanced"
+      // Balance cost, latency, reliability
+    };
+    var ExecutionPath = class {
+      constructor(data) {
+        this.path_id = data.path_id;
+        this.node_id = data.node_id;
+        this.estimated_cost = data.estimated_cost;
+        this.estimated_latency_ms = data.estimated_latency_ms;
+        this.success_probability = data.success_probability || 0.95;
+        this.node_load = data.node_load || 0.5;
+        this.compute_available = data.compute_available !== false;
+        this.score = 0;
+      }
+      /**
+       * Calculate score based on strategy
+       */
+      calculateScore(strategy, weights = {}) {
+        const defaultWeights = {
+          cost: 0.33,
+          latency: 0.33,
+          reliability: 0.34
+        };
+        const w2 = { ...defaultWeights, ...weights };
+        switch (strategy) {
+          case STRATEGIES.CHEAPEST:
+            this.score = 100 - this.estimated_cost * 10;
+            break;
+          case STRATEGIES.FASTEST:
+            this.score = 100 - this.estimated_latency_ms / 100;
+            break;
+          case STRATEGIES.MOST_RELIABLE:
+            this.score = this.success_probability * 100;
+            break;
+          case STRATEGIES.BALANCED:
+            const costScore = 100 - this.estimated_cost * 10;
+            const latencyScore = 100 - this.estimated_latency_ms / 100;
+            const reliabilityScore = this.success_probability * 100;
+            this.score = costScore * w2.cost + latencyScore * w2.latency + reliabilityScore * w2.reliability;
+            break;
+          default:
+            this.score = this.success_probability * 100;
+        }
+        this.score *= 1 - this.node_load * 0.3;
+        if (!this.compute_available) {
+          this.score *= 0.1;
+        }
+        return this.score;
+      }
+    };
+    var ResourceScheduler = class {
+      constructor() {
+        this.budgetManager = getBudgetManager();
+      }
+      /**
+       * Schedule an execution
+       */
+      async schedule(plan, context = {}) {
+        const strategy = context.strategy || STRATEGIES.BALANCED;
+        const resourceReqs = new ResourceRequirements(plan.resource_requirements || {});
+        const paths = await this._getAvailablePaths(plan, context);
+        if (paths.length === 0) {
+          return {
+            scheduled: false,
+            reason: "NO_AVAILABLE_PATHS",
+            paths: []
+          };
+        }
+        const affordablePaths = await this._filterByBudget(paths, context);
+        if (affordablePaths.length === 0) {
+          return {
+            scheduled: false,
+            reason: "BUDGET_EXCEEDED",
+            paths: paths.map((p2) => p2.toJSON())
+          };
+        }
+        const viablePaths = this._filterByResources(affordablePaths, resourceReqs);
+        if (viablePaths.length === 0) {
+          return {
+            scheduled: false,
+            reason: "NO_VIABLE_PATHS",
+            paths: affordablePaths.map((p2) => p2.toJSON())
+          };
+        }
+        const rankedPaths = this._rankPaths(viablePaths, strategy, context.weights);
+        const selectedPath = rankedPaths[0];
+        return {
+          scheduled: true,
+          selected_path: selectedPath,
+          alternative_paths: rankedPaths.slice(1, 3),
+          strategy,
+          total_paths_considered: paths.length
+        };
+      }
+      /**
+       * Get available execution paths
+       */
+      async _getAvailablePaths(plan, context) {
+        const paths = [];
+        paths.push(new ExecutionPath({
+          path_id: "local",
+          node_id: "local",
+          estimated_cost: this.budgetManager.costModel.estimatePlanCost(plan, context),
+          estimated_latency_ms: this._estimateLocalLatency(plan),
+          success_probability: 0.95,
+          node_load: 0.3,
+          compute_available: true
+        }));
+        if (context.distributed_nodes) {
+          for (const node of context.distributed_nodes) {
+            if (node.status === "active") {
+              paths.push(new ExecutionPath({
+                path_id: `remote_${node.node_id}`,
+                node_id: node.node_id,
+                estimated_cost: this.budgetManager.costModel.estimatePlanCost(plan, context) * 1.2,
+                // Remote overhead
+                estimated_latency_ms: this._estimateRemoteLatency(plan, node),
+                success_probability: node.health_score || 0.9,
+                node_load: node.load || 0.5,
+                compute_available: node.compute_available !== false
+              }));
+            }
+          }
+        }
+        return paths;
+      }
+      /**
+       * Filter paths by budget
+       */
+      async _filterByBudget(paths, context) {
+        const affordablePaths = [];
+        for (const path5 of paths) {
+          const affordability = await this.budgetManager.checkAffordability(
+            { compute_class: "compute:medium", estimated_tokens: 1e3 },
+            { ...context, estimated_cost: path5.estimated_cost }
+          );
+          if (affordability.affordable) {
+            affordablePaths.push(path5);
+          }
+        }
+        return affordablePaths;
+      }
+      /**
+       * Filter paths by resource requirements
+       */
+      _filterByResources(paths, resourceReqs) {
+        return paths.filter((path5) => {
+          if (resourceReqs.max_cost !== null && path5.estimated_cost > resourceReqs.max_cost) {
+            return false;
+          }
+          if (path5.success_probability < resourceReqs.min_success_probability) {
+            return false;
+          }
+          if (!path5.compute_available) {
+            return false;
+          }
+          return true;
+        });
+      }
+      /**
+       * Rank paths by strategy
+       */
+      _rankPaths(paths, strategy, weights) {
+        for (const path5 of paths) {
+          path5.calculateScore(strategy, weights);
+        }
+        return paths.sort((a2, b2) => b2.score - a2.score);
+      }
+      /**
+       * Estimate local execution latency
+       */
+      _estimateLocalLatency(plan) {
+        const stepCount = plan.steps ? plan.steps.length : 1;
+        const baseLatency = 500;
+        return stepCount * baseLatency;
+      }
+      /**
+       * Estimate remote execution latency
+       */
+      _estimateRemoteLatency(plan, node) {
+        const localLatency = this._estimateLocalLatency(plan);
+        const networkLatency = node.network_latency_ms || 100;
+        return localLatency + networkLatency;
+      }
+      /**
+       * Compare scheduling strategies
+       */
+      async compareStrategies(plan, context = {}) {
+        const strategies = [
+          STRATEGIES.CHEAPEST,
+          STRATEGIES.FASTEST,
+          STRATEGIES.MOST_RELIABLE,
+          STRATEGIES.BALANCED
+        ];
+        const results = [];
+        for (const strategy of strategies) {
+          const result = await this.schedule(plan, { ...context, strategy });
+          results.push({
+            strategy,
+            ...result
+          });
+        }
+        return results;
+      }
+    };
+    var PriorityQueue = class {
+      constructor() {
+        this.queue = [];
+      }
+      /**
+       * Enqueue execution with priority
+       */
+      enqueue(execution, priority = 5) {
+        const item = {
+          execution,
+          priority,
+          enqueued_at: (/* @__PURE__ */ new Date()).toISOString(),
+          estimated_cost: execution.estimated_cost || 0
+        };
+        this.queue.push(item);
+        this.queue.sort((a2, b2) => {
+          if (a2.priority !== b2.priority) {
+            return b2.priority - a2.priority;
+          }
+          return new Date(a2.enqueued_at) - new Date(b2.enqueued_at);
+        });
+      }
+      /**
+       * Dequeue next execution
+       */
+      dequeue() {
+        return this.queue.shift();
+      }
+      /**
+       * Peek at next execution without removing
+       */
+      peek() {
+        return this.queue[0];
+      }
+      /**
+       * Get queue size
+       */
+      size() {
+        return this.queue.length;
+      }
+      /**
+       * Check if queue is empty
+       */
+      isEmpty() {
+        return this.queue.length === 0;
+      }
+      /**
+       * Get total estimated cost in queue
+       */
+      getTotalCost() {
+        return this.queue.reduce((sum, item) => sum + item.estimated_cost, 0);
+      }
+      /**
+       * List queue items
+       */
+      list() {
+        return this.queue.map((item) => ({
+          execution_id: item.execution.execution_id,
+          priority: item.priority,
+          estimated_cost: item.estimated_cost,
+          enqueued_at: item.enqueued_at
+        }));
+      }
+    };
+    var globalScheduler = null;
+    function getResourceScheduler() {
+      if (!globalScheduler) {
+        globalScheduler = new ResourceScheduler();
+      }
+      return globalScheduler;
+    }
+    module2.exports = {
+      ResourceRequirements,
+      STRATEGIES,
+      ExecutionPath,
+      ResourceScheduler,
+      PriorityQueue,
+      getResourceScheduler
+    };
+  }
+});
+
+// ../../../services/vienna-lib/simulation/simulator.js
+var require_simulator = __commonJS({
+  "../../../services/vienna-lib/simulation/simulator.js"(exports2, module2) {
+    var { PlanGenerator: PlanGenerator2 } = require_plan_generator();
+    var { getBudgetManager } = require_cost_model();
+    var { getResourceScheduler } = require_resource_scheduler();
+    var SIMULATION_MODES = {
+      POLICY_ONLY: "policy_only",
+      // Simulate policy evaluation only
+      SCHEDULING: "scheduling",
+      // Simulate scheduling decisions
+      FULL_EXECUTION: "full_execution"
+      // Simulate full execution graph
+    };
+    var SimulatedResult = class {
+      constructor(data) {
+        this.simulation_id = data.simulation_id || this._generateId();
+        this.mode = data.mode;
+        this.intent = data.intent;
+        this.plan = data.plan;
+        this.predicted_cost = data.predicted_cost || 0;
+        this.predicted_latency_ms = data.predicted_latency_ms || 0;
+        this.predicted_success_probability = data.predicted_success_probability || 0.95;
+        this.policy_evaluation = data.policy_evaluation || null;
+        this.approval_required = data.approval_required || false;
+        this.scheduling_decision = data.scheduling_decision || null;
+        this.predicted_steps = data.predicted_steps || [];
+        this.predicted_verification = data.predicted_verification || null;
+        this.predicted_blockers = data.predicted_blockers || [];
+        this.confidence = data.confidence || 0.8;
+        this.confidence_breakdown = data.confidence_breakdown || {};
+        this.simulated_at = data.simulated_at || (/* @__PURE__ */ new Date()).toISOString();
+        this.simulation_duration_ms = data.simulation_duration_ms || 0;
+      }
+      /**
+       * Generate simulation ID
+       */
+      _generateId() {
+        return `sim_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+      toJSON() {
+        return {
+          simulation_id: this.simulation_id,
+          mode: this.mode,
+          intent: this.intent,
+          plan: this.plan,
+          predicted_cost: this.predicted_cost,
+          predicted_latency_ms: this.predicted_latency_ms,
+          predicted_success_probability: this.predicted_success_probability,
+          policy_evaluation: this.policy_evaluation,
+          approval_required: this.approval_required,
+          scheduling_decision: this.scheduling_decision,
+          predicted_steps: this.predicted_steps,
+          predicted_verification: this.predicted_verification,
+          predicted_blockers: this.predicted_blockers,
+          confidence: this.confidence,
+          confidence_breakdown: this.confidence_breakdown,
+          simulated_at: this.simulated_at,
+          simulation_duration_ms: this.simulation_duration_ms
+        };
+      }
+    };
+    var ExecutionSimulator = class {
+      constructor() {
+        this.planGenerator = new PlanGenerator2();
+        this.budgetManager = getBudgetManager();
+        this.resourceScheduler = getResourceScheduler();
+        this.simulations = /* @__PURE__ */ new Map();
+      }
+      /**
+       * Simulate intent execution
+       */
+      async simulate(intent, context = {}) {
+        const startTime = Date.now();
+        const mode = context.mode || SIMULATION_MODES.FULL_EXECUTION;
+        const plan = await this.planGenerator.generatePlan(intent, {
+          ...context,
+          dry_run: true
+        });
+        let result = new SimulatedResult({
+          mode,
+          intent,
+          plan
+        });
+        if (mode === SIMULATION_MODES.POLICY_ONLY || mode === SIMULATION_MODES.FULL_EXECUTION) {
+          result.policy_evaluation = await this._simulatePolicyEvaluation(plan, context);
+          result.approval_required = plan.risk_tier === "T1" || plan.risk_tier === "T2";
+        }
+        if (mode === SIMULATION_MODES.SCHEDULING || mode === SIMULATION_MODES.FULL_EXECUTION) {
+          result.scheduling_decision = await this._simulateScheduling(plan, context);
+          result.predicted_cost = result.scheduling_decision.selected_path?.estimated_cost || 0;
+          result.predicted_latency_ms = result.scheduling_decision.selected_path?.estimated_latency_ms || 0;
+        }
+        if (mode === SIMULATION_MODES.FULL_EXECUTION) {
+          result.predicted_steps = await this._simulateSteps(plan, context);
+          result.predicted_verification = await this._simulateVerification(plan, context);
+          result.predicted_blockers = this._identifyBlockers(result);
+          result.predicted_success_probability = this._calculateSuccessProbability(result);
+        }
+        result.confidence = this._calculateConfidence(result);
+        result.confidence_breakdown = this._getConfidenceBreakdown(result);
+        result.simulation_duration_ms = Date.now() - startTime;
+        this.simulations.set(result.simulation_id, result);
+        return result;
+      }
+      /**
+       * Simulate policy evaluation
+       */
+      async _simulatePolicyEvaluation(plan, context) {
+        return {
+          evaluated: true,
+          policies_checked: ["budget", "rate_limit", "risk_tier"],
+          all_passed: true,
+          denial_reasons: [],
+          simulated: true
+        };
+      }
+      /**
+       * Simulate scheduling decision
+       */
+      async _simulateScheduling(plan, context) {
+        return await this.resourceScheduler.schedule(plan, {
+          ...context,
+          dry_run: true
+        });
+      }
+      /**
+       * Simulate execution steps
+       */
+      async _simulateSteps(plan, context) {
+        if (!plan.steps) {
+          return [];
+        }
+        return plan.steps.map((step, index) => ({
+          step_index: index,
+          step_action: step.action,
+          predicted_status: "completed",
+          predicted_duration_ms: this._predictStepDuration(step),
+          predicted_cost: this.budgetManager.costModel.estimateCost(step, context),
+          predicted_success_probability: 0.95,
+          dependencies_met: true,
+          simulated: true
+        }));
+      }
+      /**
+       * Simulate verification
+       */
+      async _simulateVerification(plan, context) {
+        if (!plan.verification_spec) {
+          return null;
+        }
+        return {
+          predicted_checks: plan.verification_spec.checks || [],
+          predicted_checks_passed: (plan.verification_spec.checks || []).length,
+          predicted_checks_failed: 0,
+          predicted_objective_achieved: true,
+          predicted_duration_ms: 1e3,
+          simulated: true
+        };
+      }
+      /**
+       * Identify potential blockers
+       */
+      _identifyBlockers(result) {
+        const blockers = [];
+        if (result.policy_evaluation && !result.policy_evaluation.all_passed) {
+          blockers.push({
+            type: "policy_denial",
+            severity: "high",
+            reason: "Policy evaluation would deny execution"
+          });
+        }
+        if (result.approval_required) {
+          blockers.push({
+            type: "approval_required",
+            severity: "medium",
+            reason: "T1/T2 action requires operator approval"
+          });
+        }
+        if (result.scheduling_decision && !result.scheduling_decision.scheduled) {
+          blockers.push({
+            type: "scheduling_failed",
+            severity: "high",
+            reason: result.scheduling_decision.reason
+          });
+        }
+        return blockers;
+      }
+      /**
+       * Calculate predicted success probability
+       */
+      _calculateSuccessProbability(result) {
+        if (result.predicted_blockers.length > 0) {
+          const highSeverityBlockers = result.predicted_blockers.filter((b2) => b2.severity === "high");
+          if (highSeverityBlockers.length > 0) {
+            return 0.1;
+          }
+          return 0.6;
+        }
+        if (result.predicted_steps.length > 0) {
+          const avgStepProbability = result.predicted_steps.reduce(
+            (sum, step) => sum + step.predicted_success_probability,
+            0
+          ) / result.predicted_steps.length;
+          return avgStepProbability;
+        }
+        return 0.95;
+      }
+      /**
+       * Calculate overall confidence in simulation
+       */
+      _calculateConfidence(result) {
+        const factors = this._getConfidenceBreakdown(result);
+        const weights = {
+          policy: 0.3,
+          scheduling: 0.2,
+          execution: 0.3,
+          verification: 0.2
+        };
+        let confidence = 0;
+        confidence += factors.policy * weights.policy;
+        confidence += factors.scheduling * weights.scheduling;
+        confidence += factors.execution * weights.execution;
+        confidence += factors.verification * weights.verification;
+        return confidence;
+      }
+      /**
+       * Get confidence breakdown
+       */
+      _getConfidenceBreakdown(result) {
+        return {
+          policy: result.policy_evaluation ? 0.9 : 0.5,
+          scheduling: result.scheduling_decision?.scheduled ? 0.9 : 0.5,
+          execution: result.predicted_steps.length > 0 ? 0.8 : 0.5,
+          verification: result.predicted_verification ? 0.85 : 0.5
+        };
+      }
+      /**
+       * Predict step duration
+       */
+      _predictStepDuration(step) {
+        const baseDuration = 500;
+        const multipliers = {
+          "restart_service": 3,
+          "health_check": 1,
+          "query_agent": 2,
+          "default": 1
+        };
+        const multiplier = multipliers[step.action] || multipliers.default;
+        return baseDuration * multiplier;
+      }
+      /**
+       * Compare multiple simulations
+       */
+      async compareSimulations(intent, scenarios) {
+        const results = [];
+        for (const scenario of scenarios) {
+          const result = await this.simulate(intent, scenario.context);
+          results.push({
+            scenario_name: scenario.name,
+            ...result.toJSON()
+          });
+        }
+        return {
+          intent,
+          scenarios: results,
+          comparison: this._generateComparison(results)
+        };
+      }
+      /**
+       * Generate comparison matrix
+       */
+      _generateComparison(results) {
+        return {
+          cheapest: this._findBest(results, "predicted_cost", "min"),
+          fastest: this._findBest(results, "predicted_latency_ms", "min"),
+          most_reliable: this._findBest(results, "predicted_success_probability", "max"),
+          highest_confidence: this._findBest(results, "confidence", "max")
+        };
+      }
+      /**
+       * Find best simulation by metric
+       */
+      _findBest(results, metric, direction) {
+        if (results.length === 0) {
+          return null;
+        }
+        let best = results[0];
+        for (const result of results) {
+          if (direction === "min") {
+            if (result[metric] < best[metric]) {
+              best = result;
+            }
+          } else {
+            if (result[metric] > best[metric]) {
+              best = result;
+            }
+          }
+        }
+        return {
+          scenario_name: best.scenario_name,
+          value: best[metric]
+        };
+      }
+      /**
+       * Get simulation by ID
+       */
+      getSimulation(simulationId) {
+        return this.simulations.get(simulationId);
+      }
+      /**
+       * List simulations
+       */
+      listSimulations(filters = {}) {
+        let simulations = Array.from(this.simulations.values());
+        if (filters.mode) {
+          simulations = simulations.filter((s2) => s2.mode === filters.mode);
+        }
+        return simulations;
+      }
+    };
+    var globalSimulator = null;
+    function getSimulator() {
+      if (!globalSimulator) {
+        globalSimulator = new ExecutionSimulator();
+      }
+      return globalSimulator;
+    }
+    module2.exports = {
+      SIMULATION_MODES,
+      SimulatedResult,
+      ExecutionSimulator,
+      getSimulator
+    };
+  }
+});
+
+// ../../../services/vienna-lib/federation/federation.js
+var require_federation = __commonJS({
+  "../../../services/vienna-lib/federation/federation.js"(exports2, module2) {
+    var crypto8 = require("crypto");
+    var FederationNode = class {
+      constructor(data) {
+        this.node_id = data.node_id;
+        this.node_type = data.node_type;
+        this.endpoint_url = data.endpoint_url;
+        this.capabilities = data.capabilities || [];
+        this.trust_level = data.trust_level || "untrusted";
+        this.public_key = data.public_key || null;
+        this.status = data.status || "active";
+        this.health_score = data.health_score || 1;
+        this.last_heartbeat = data.last_heartbeat || null;
+        this.registered_at = data.registered_at || (/* @__PURE__ */ new Date()).toISOString();
+        this.metadata = data.metadata || {};
+      }
+      /**
+       * Check if node can execute action
+       */
+      canExecute(action) {
+        if (this.status !== "active") {
+          return false;
+        }
+        if (!this.capabilities || this.capabilities.length === 0) {
+          return false;
+        }
+        const requiredCapability = action.required_capability || action.action_type;
+        return this.capabilities.includes(requiredCapability) || this.capabilities.includes("*");
+      }
+      /**
+       * Verify trust
+       */
+      isTrusted() {
+        return this.trust_level === "trusted" || this.trust_level === "verified";
+      }
+      toJSON() {
+        return {
+          node_id: this.node_id,
+          node_type: this.node_type,
+          endpoint_url: this.endpoint_url,
+          capabilities: this.capabilities,
+          trust_level: this.trust_level,
+          status: this.status,
+          health_score: this.health_score,
+          last_heartbeat: this.last_heartbeat,
+          registered_at: this.registered_at,
+          metadata: this.metadata
+        };
+      }
+    };
+    var FederatedExecutionRequest = class {
+      constructor(data) {
+        this.request_id = data.request_id || this._generateId();
+        this.source_node = data.source_node;
+        this.target_node = data.target_node;
+        this.plan = data.plan;
+        this.context = data.context || {};
+        this.governance_context = data.governance_context || {};
+        this.signature = data.signature || null;
+        this.created_at = data.created_at || (/* @__PURE__ */ new Date()).toISOString();
+      }
+      /**
+       * Sign the request
+       */
+      sign(privateKey) {
+        const payload = {
+          request_id: this.request_id,
+          source_node: this.source_node,
+          target_node: this.target_node,
+          plan: this.plan,
+          context: this.context,
+          governance_context: this.governance_context,
+          created_at: this.created_at
+        };
+        const hash = crypto8.createHash("sha256");
+        hash.update(JSON.stringify(payload));
+        this.signature = hash.digest("hex");
+        return this.signature;
+      }
+      /**
+       * Verify signature
+       */
+      verify(publicKey) {
+        if (!this.signature) {
+          return false;
+        }
+        const payload = {
+          request_id: this.request_id,
+          source_node: this.source_node,
+          target_node: this.target_node,
+          plan: this.plan,
+          context: this.context,
+          governance_context: this.governance_context,
+          created_at: this.created_at
+        };
+        const hash = crypto8.createHash("sha256");
+        hash.update(JSON.stringify(payload));
+        const expectedSignature = hash.digest("hex");
+        return this.signature === expectedSignature;
+      }
+      _generateId() {
+        return `fed_req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
+      toJSON() {
+        return {
+          request_id: this.request_id,
+          source_node: this.source_node,
+          target_node: this.target_node,
+          plan: this.plan,
+          context: this.context,
+          governance_context: this.governance_context,
+          signature: this.signature,
+          created_at: this.created_at
+        };
+      }
+    };
+    var FederatedExecutionResult = class {
+      constructor(data) {
+        this.request_id = data.request_id;
+        this.executed_by = data.executed_by;
+        this.status = data.status;
+        this.result = data.result || {};
+        this.execution_id = data.execution_id || null;
+        this.verification_id = data.verification_id || null;
+        this.ledger_events = data.ledger_events || [];
+        this.provenance_chain = data.provenance_chain || null;
+        this.signature = data.signature || null;
+        this.completed_at = data.completed_at || (/* @__PURE__ */ new Date()).toISOString();
+      }
+      sign(privateKey) {
+        const payload = {
+          request_id: this.request_id,
+          executed_by: this.executed_by,
+          status: this.status,
+          result: this.result,
+          execution_id: this.execution_id,
+          verification_id: this.verification_id,
+          completed_at: this.completed_at
+        };
+        const hash = crypto8.createHash("sha256");
+        hash.update(JSON.stringify(payload));
+        this.signature = hash.digest("hex");
+        return this.signature;
+      }
+      toJSON() {
+        return {
+          request_id: this.request_id,
+          executed_by: this.executed_by,
+          status: this.status,
+          result: this.result,
+          execution_id: this.execution_id,
+          verification_id: this.verification_id,
+          ledger_events: this.ledger_events,
+          provenance_chain: this.provenance_chain,
+          signature: this.signature,
+          completed_at: this.completed_at
+        };
+      }
+    };
+    var FederationManager = class {
+      constructor() {
+        this.nodes = /* @__PURE__ */ new Map();
+        this.pendingRequests = /* @__PURE__ */ new Map();
+      }
+      /**
+       * Register a federation node
+       */
+      registerNode(nodeData) {
+        const node = new FederationNode(nodeData);
+        this.nodes.set(node.node_id, node);
+        return node;
+      }
+      /**
+       * Get node by ID
+       */
+      getNode(nodeId) {
+        return this.nodes.get(nodeId);
+      }
+      /**
+       * List nodes
+       */
+      listNodes(filters = {}) {
+        let nodes = Array.from(this.nodes.values());
+        if (filters.status) {
+          nodes = nodes.filter((n2) => n2.status === filters.status);
+        }
+        if (filters.trust_level) {
+          nodes = nodes.filter((n2) => n2.trust_level === filters.trust_level);
+        }
+        if (filters.capability) {
+          nodes = nodes.filter((n2) => n2.capabilities.includes(filters.capability));
+        }
+        return nodes;
+      }
+      /**
+       * Find capable nodes for action
+       */
+      findCapableNodes(action) {
+        return Array.from(this.nodes.values()).filter((node) => {
+          return node.canExecute(action) && node.isTrusted();
+        });
+      }
+      /**
+       * Delegate execution to remote node
+       */
+      async delegateExecution(plan, targetNodeId, context = {}) {
+        const targetNode = this.getNode(targetNodeId);
+        if (!targetNode) {
+          throw new Error(`NODE_NOT_FOUND: ${targetNodeId}`);
+        }
+        if (!targetNode.isTrusted()) {
+          throw new Error(`NODE_NOT_TRUSTED: ${targetNodeId}`);
+        }
+        const request = new FederatedExecutionRequest({
+          source_node: context.source_node || "local",
+          target_node: targetNodeId,
+          plan,
+          context,
+          governance_context: {
+            approval_id: context.approval_id || null,
+            warrant_id: context.warrant_id || null,
+            policy_evaluation: context.policy_evaluation || null,
+            tenant_id: context.tenant_id
+          }
+        });
+        request.sign();
+        this.pendingRequests.set(request.request_id, {
+          request,
+          status: "pending",
+          created_at: (/* @__PURE__ */ new Date()).toISOString()
+        });
+        const result = await this._simulateRemoteExecution(request, targetNode);
+        this.pendingRequests.set(request.request_id, {
+          request,
+          result,
+          status: "completed",
+          completed_at: (/* @__PURE__ */ new Date()).toISOString()
+        });
+        return result;
+      }
+      /**
+       * Accept execution request from remote node
+       */
+      async acceptExecutionRequest(request, localContext = {}) {
+        if (!request.verify()) {
+          throw new Error("INVALID_SIGNATURE: Request signature verification failed");
+        }
+        const sourceNode = this.getNode(request.source_node);
+        if (!sourceNode || !sourceNode.isTrusted()) {
+          throw new Error(`SOURCE_NOT_TRUSTED: ${request.source_node}`);
+        }
+        this._verifyGovernanceContext(request.governance_context);
+        const result = new FederatedExecutionResult({
+          request_id: request.request_id,
+          executed_by: localContext.node_id || "local",
+          status: "completed",
+          result: { simulated: true },
+          execution_id: `exec_${Date.now()}`,
+          verification_id: `verif_${Date.now()}`
+        });
+        result.sign();
+        return result;
+      }
+      /**
+       * Verify governance context from federated request
+       */
+      _verifyGovernanceContext(governanceContext) {
+        if (!governanceContext.tenant_id) {
+          throw new Error("GOVERNANCE_VIOLATION: Missing tenant_id");
+        }
+        return true;
+      }
+      /**
+       * Simulate remote execution (placeholder for real HTTP call)
+       */
+      async _simulateRemoteExecution(request, targetNode) {
+        return new FederatedExecutionResult({
+          request_id: request.request_id,
+          executed_by: targetNode.node_id,
+          status: "completed",
+          result: {
+            simulated: true,
+            plan_id: request.plan.plan_id,
+            steps_executed: request.plan.steps?.length || 0
+          },
+          execution_id: `exec_${Date.now()}`,
+          verification_id: `verif_${Date.now()}`
+        });
+      }
+      /**
+       * Get pending request
+       */
+      getPendingRequest(requestId) {
+        return this.pendingRequests.get(requestId);
+      }
+      /**
+       * List pending requests
+       */
+      listPendingRequests(filters = {}) {
+        let requests = Array.from(this.pendingRequests.values());
+        if (filters.status) {
+          requests = requests.filter((r2) => r2.status === filters.status);
+        }
+        return requests;
+      }
+      /**
+       * Update node health
+       */
+      updateNodeHealth(nodeId, healthScore, heartbeat) {
+        const node = this.getNode(nodeId);
+        if (!node) {
+          throw new Error(`NODE_NOT_FOUND: ${nodeId}`);
+        }
+        node.health_score = healthScore;
+        node.last_heartbeat = heartbeat || (/* @__PURE__ */ new Date()).toISOString();
+        if (healthScore >= 0.8) {
+          node.status = "active";
+        } else if (healthScore >= 0.5) {
+          node.status = "degraded";
+        } else {
+          node.status = "offline";
+        }
+        return node;
+      }
+      /**
+       * Establish trust with remote node
+       */
+      async establishTrust(nodeId, verificationProof) {
+        const node = this.getNode(nodeId);
+        if (!node) {
+          throw new Error(`NODE_NOT_FOUND: ${nodeId}`);
+        }
+        node.trust_level = "verified";
+        return node;
+      }
+    };
+    var CrossSystemAdapter = class {
+      constructor(config) {
+        this.system_type = config.system_type;
+        this.endpoint = config.endpoint;
+        this.auth = config.auth || {};
+      }
+      /**
+       * Reconcile state with external system
+       */
+      async reconcile(targetState, currentState) {
+        return {
+          reconciled: true,
+          changes_applied: [],
+          system_type: this.system_type
+        };
+      }
+      /**
+       * Query external system state
+       */
+      async queryState(query) {
+        return {
+          state: {},
+          system_type: this.system_type
+        };
+      }
+    };
+    var globalFederationManager = null;
+    function getFederationManager() {
+      if (!globalFederationManager) {
+        globalFederationManager = new FederationManager();
+      }
+      return globalFederationManager;
+    }
+    module2.exports = {
+      FederationNode,
+      FederatedExecutionRequest,
+      FederatedExecutionResult,
+      FederationManager,
+      CrossSystemAdapter,
+      getFederationManager
+    };
+  }
+});
+
+// ../../../services/vienna-lib/runtime-stub.js
+var require_runtime_stub = __commonJS({
+  "../../../services/vienna-lib/runtime-stub.js"(exports2, module2) {
+    var startTime = Date.now();
+    var queuedExecutorStub = {
+      connectEventStream(eventStream2) {
+        console.log("[Stub] Event stream connected");
+      },
+      getHealth() {
+        return {
+          status: "degraded",
+          reason: "Runtime stub (not full Vienna Core)",
+          uptime_seconds: Math.floor((Date.now() - startTime) / 1e3)
+        };
+      },
+      getQueueState() {
+        return {
+          pending: 0,
+          active: 0,
+          completed: 0,
+          failed: 0
+        };
+      },
+      getExecutionControlState() {
+        return {
+          paused: false,
+          kill_switch_active: false,
+          pause_reason: null,
+          kill_switch_reason: null
+        };
+      },
+      getServiceHealth(serviceName) {
+        return {
+          service: serviceName,
+          status: "unknown",
+          health: "unknown",
+          last_check: null
+        };
+      }
+    };
+    var deadLetterQueueStub = {
+      getStats() {
+        return {
+          total: 0,
+          by_state: {}
+        };
+      },
+      listItems(options) {
+        return {
+          items: [],
+          total: 0,
+          hasMore: false
+        };
+      },
+      clear() {
+        return { cleared: 0 };
+      }
+    };
+    module2.exports = {
+      init(config) {
+        console.log("[Runtime Stub] Initialized with config:", config);
+      },
+      // Stub properties expected by ViennaRuntimeService
+      queuedExecutor: queuedExecutorStub,
+      deadLetterQueue: deadLetterQueueStub
+    };
+  }
+});
+
+// ../../../services/vienna-lib/index.js
+var require_vienna_lib = __commonJS({
+  "../../../services/vienna-lib/index.js"(exports2, module2) {
+    module2.exports = {
+      // Core execution
+      IntentGateway: require_intent_gateway().IntentGateway,
+      PlanExecutionEngine: require_plan_execution_engine().PlanExecutionEngine || require_plan_execution_engine(),
+      PlanGenerator: require_plan_generator().PlanGenerator || require_plan_generator(),
+      ExecutionGraphBuilder: require_execution_graph().ExecutionGraphBuilder || require_execution_graph(),
+      // Agent Integration
+      AgentIntentBridge: require_agent_intent_bridge().AgentIntentBridge,
+      OpenClawBridge: require_openclaw_bridge().OpenClawBridge,
+      // Governance
+      Warrant: require_warrant(),
+      PolicyEngine: require_policy_engine(),
+      QuotaEnforcer: require_quota_enforcer(),
+      // State management
+      getStateGraph: require_state_graph().getStateGraph,
+      // Workspace
+      WorkspaceManager: require_workspace_manager().WorkspaceManager,
+      // Execution
+      Executor: require_executor().Executor,
+      // Verification & Attestation
+      VerificationEngine: require_verification_engine(),
+      AttestationEngine: require_attestation_engine(),
+      // Cost & Accounting
+      CostTracker: require_cost_tracker(),
+      CostModel: require_cost_model(),
+      // Approval workflow
+      ApprovalManager: require_approval_manager(),
+      // Learning
+      LearningCoordinator: require_learning_coordinator(),
+      // Distributed execution
+      DistributedLockManager: require_lock_manager(),
+      // Simulation
+      Simulator: require_simulator(),
+      // Federation
+      Federation: require_federation(),
+      // Runtime stub for console compatibility
+      default: require_runtime_stub()
+      // Note: ProviderManager is ESM-only, import directly via @vienna/lib/providers/manager
+    };
+  }
+});
+
+// ../../../services/vienna-lib/index.mjs
+var vienna_lib_exports = {};
+__export(vienna_lib_exports, {
+  ApprovalManager: () => ApprovalManager,
+  AttestationEngine: () => AttestationEngine,
+  CostModel: () => CostModel,
+  CostTracker: () => CostTracker,
+  DistributedLockManager: () => DistributedLockManager,
+  ExecutionGraphBuilder: () => ExecutionGraphBuilder,
+  Executor: () => Executor,
+  Federation: () => Federation,
+  IntentGateway: () => IntentGateway,
+  LearningCoordinator: () => LearningCoordinator,
+  PlanExecutionEngine: () => PlanExecutionEngine,
+  PlanGenerator: () => PlanGenerator,
+  PolicyEngine: () => PolicyEngine,
+  QuotaEnforcer: () => QuotaEnforcer,
+  Simulator: () => Simulator,
+  VerificationEngine: () => VerificationEngine,
+  Warrant: () => Warrant,
+  WorkspaceManager: () => WorkspaceManager,
+  default: () => vienna_lib_default,
+  getStateGraph: () => getStateGraph
+});
+var import_index, IntentGateway, PlanExecutionEngine, PlanGenerator, ExecutionGraphBuilder, Warrant, PolicyEngine, QuotaEnforcer, getStateGraph, WorkspaceManager, Executor, VerificationEngine, AttestationEngine, CostTracker, CostModel, ApprovalManager, LearningCoordinator, DistributedLockManager, Simulator, Federation, vienna_lib_default;
+var init_vienna_lib = __esm({
+  "../../../services/vienna-lib/index.mjs"() {
+    import_index = __toESM(require_vienna_lib(), 1);
+    IntentGateway = import_index.default.IntentGateway;
+    PlanExecutionEngine = import_index.default.PlanExecutionEngine;
+    PlanGenerator = import_index.default.PlanGenerator;
+    ExecutionGraphBuilder = import_index.default.ExecutionGraphBuilder;
+    Warrant = import_index.default.Warrant;
+    PolicyEngine = import_index.default.PolicyEngine;
+    QuotaEnforcer = import_index.default.QuotaEnforcer;
+    getStateGraph = import_index.default.getStateGraph;
+    WorkspaceManager = import_index.default.WorkspaceManager;
+    Executor = import_index.default.Executor;
+    VerificationEngine = import_index.default.VerificationEngine;
+    AttestationEngine = import_index.default.AttestationEngine;
+    CostTracker = import_index.default.CostTracker;
+    CostModel = import_index.default.CostModel;
+    ApprovalManager = import_index.default.ApprovalManager;
+    LearningCoordinator = import_index.default.LearningCoordinator;
+    DistributedLockManager = import_index.default.DistributedLockManager;
+    Simulator = import_index.default.Simulator;
+    Federation = import_index.default.Federation;
+    vienna_lib_default = import_index.default.default;
   }
 });
 
@@ -48759,8 +58672,8 @@ function createApprovalsRouter(vienna) {
   const router5 = (0, import_express4.Router)();
   router5.get("/", async (req, res) => {
     try {
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       await stateGraph.initialize();
       const filters = {};
       if (req.query.status) {
@@ -48833,8 +58746,8 @@ function createApprovalsRouter(vienna) {
   });
   router5.get("/:approval_id", async (req, res) => {
     try {
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       await stateGraph.initialize();
       const { approval_id } = req.params;
       const approval = await stateGraph.getApproval(approval_id);
@@ -48915,9 +58828,9 @@ function createApprovalsRouter(vienna) {
   });
   router5.post("/:approval_id/approve", async (req, res) => {
     try {
-      const { ApprovalManager } = await Promise.resolve().then(() => __toESM(require_approval_manager(), 1));
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { ApprovalManager: ApprovalManager2 } = await Promise.resolve().then(() => __toESM(require_approval_manager(), 1));
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       await stateGraph.initialize();
       const { approval_id } = req.params;
       const { reviewed_by, decision_reason } = req.body;
@@ -48930,7 +58843,7 @@ function createApprovalsRouter(vienna) {
         });
         return;
       }
-      const manager = new ApprovalManager(stateGraph);
+      const manager = new ApprovalManager2(stateGraph);
       const approval = await manager.approve(
         approval_id,
         reviewed_by,
@@ -48966,9 +58879,9 @@ function createApprovalsRouter(vienna) {
   });
   router5.post("/:approval_id/deny", async (req, res) => {
     try {
-      const { ApprovalManager } = await Promise.resolve().then(() => __toESM(require_approval_manager(), 1));
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { ApprovalManager: ApprovalManager2 } = await Promise.resolve().then(() => __toESM(require_approval_manager(), 1));
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       await stateGraph.initialize();
       const { approval_id } = req.params;
       const { reviewed_by, decision_reason } = req.body;
@@ -48990,7 +58903,7 @@ function createApprovalsRouter(vienna) {
         });
         return;
       }
-      const manager = new ApprovalManager(stateGraph);
+      const manager = new ApprovalManager2(stateGraph);
       const approval = await manager.deny(
         approval_id,
         reviewed_by,
@@ -51380,8 +61293,8 @@ function createManagedObjectivesRouter(vienna) {
       const pageNum = parseInt(page, 10);
       const limit = Math.min(parseInt(pageSize, 10), 200);
       const offset = (pageNum - 1) * limit;
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       let query = "SELECT * FROM managed_objectives WHERE 1=1";
       const params = [];
       if (status && status !== "all") {
@@ -51456,8 +61369,8 @@ function createManagedObjectivesRouter(vienna) {
   router5.get("/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       const objectives = await stateGraph.query(
         "SELECT * FROM managed_objectives WHERE objective_id = ?",
         [id]
@@ -51515,8 +61428,8 @@ function createManagedObjectivesRouter(vienna) {
         status: statusFilter
       } = req.query;
       const limitNum = Math.min(parseInt(limit, 10), 500);
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       let query = "SELECT * FROM managed_objective_evaluations WHERE objective_id = ?";
       const params = [id];
       if (since) {
@@ -51586,8 +61499,8 @@ function createExecutionsRouter(vienna) {
         limit = "50"
       } = req.query;
       const limitNum = Math.min(parseInt(limit, 10), 200);
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       let query = "SELECT * FROM execution_ledger_summary WHERE 1=1";
       const params = [];
       if (objective) {
@@ -51670,8 +61583,8 @@ function createExecutionsRouter(vienna) {
   router5.get("/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       const summaries = await stateGraph.query(
         "SELECT * FROM execution_ledger_summary WHERE execution_id = ?",
         [id]
@@ -51769,8 +61682,8 @@ function createExecutionsRouter(vienna) {
     try {
       const { id } = req.params;
       const { stage } = req.query;
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       let query = "SELECT * FROM execution_ledger_events WHERE execution_id = ?";
       const params = [id];
       if (stage) {
@@ -52354,11 +62267,11 @@ function createAssistantRouter(vienna, providerHealthService) {
 
 // src/routes/intent.ts
 var import_express30 = __toESM(require_express2(), 1);
-var import_lib = require("@vienna/lib");
+init_vienna_lib();
 function createIntentRouter() {
   const router5 = (0, import_express30.Router)();
-  const stateGraph = (0, import_lib.getStateGraph)();
-  const intentGateway = new import_lib.IntentGateway(stateGraph, {
+  const stateGraph = getStateGraph();
+  const intentGateway = new IntentGateway(stateGraph, {
     supported_intent_types: [
       "restore_objective",
       "investigate_objective",
@@ -52449,11 +62362,11 @@ function createIntentRouter() {
 
 // src/routes/intents.ts
 var import_express31 = __toESM(require_express2(), 1);
-var import_lib2 = require("@vienna/lib");
+init_vienna_lib();
 var router = import_express31.default.Router();
 router.get("/", async (req, res) => {
   try {
-    const stateGraph = (0, import_lib2.getStateGraph)();
+    const stateGraph = getStateGraph();
     await stateGraph.initialize();
     const filters = {};
     if (req.query.intent_type) {
@@ -52481,7 +62394,7 @@ router.get("/", async (req, res) => {
 router.get("/:intent_id", async (req, res) => {
   try {
     const { intent_id } = req.params;
-    const stateGraph = (0, import_lib2.getStateGraph)();
+    const stateGraph = getStateGraph();
     await stateGraph.initialize();
     const trace = stateGraph.getIntentTrace(intent_id);
     if (!trace) {
@@ -52505,9 +62418,9 @@ router.get("/:intent_id", async (req, res) => {
 router.get("/:intent_id/graph", async (req, res) => {
   try {
     const { intent_id } = req.params;
-    const stateGraph = (0, import_lib2.getStateGraph)();
+    const stateGraph = getStateGraph();
     await stateGraph.initialize();
-    const builder = new import_lib2.ExecutionGraphBuilder(stateGraph);
+    const builder = new ExecutionGraphBuilder(stateGraph);
     const graph = await builder.buildIntentGraph(intent_id);
     res.json({
       success: true,
@@ -52530,9 +62443,9 @@ router.get("/:intent_id/graph", async (req, res) => {
 router.get("/:intent_id/timeline", async (req, res) => {
   try {
     const { intent_id } = req.params;
-    const stateGraph = (0, import_lib2.getStateGraph)();
+    const stateGraph = getStateGraph();
     await stateGraph.initialize();
-    const builder = new import_lib2.ExecutionGraphBuilder(stateGraph);
+    const builder = new ExecutionGraphBuilder(stateGraph);
     const timeline = await builder.getIntentTimeline(intent_id);
     res.json({
       success: true,
@@ -52555,9 +62468,9 @@ router.get("/:intent_id/timeline", async (req, res) => {
 router.get("/:intent_id/explanation", async (req, res) => {
   try {
     const { intent_id } = req.params;
-    const stateGraph = (0, import_lib2.getStateGraph)();
+    const stateGraph = getStateGraph();
     await stateGraph.initialize();
-    const builder = new import_lib2.ExecutionGraphBuilder(stateGraph);
+    const builder = new ExecutionGraphBuilder(stateGraph);
     const explanation = await builder.explainDecision(intent_id);
     res.json({
       success: true,
@@ -52887,11 +62800,11 @@ var artifacts_default = router3;
 
 // src/routes/incidents.ts
 var import_express34 = __toESM(require_express2(), 1);
-var import_lib3 = require("@vienna/lib");
+init_vienna_lib();
 var router4 = (0, import_express34.Router)();
 router4.get("/", async (req, res) => {
   try {
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const filters = {};
     if (req.query.status) filters.status = req.query.status;
@@ -52918,7 +62831,7 @@ router4.post("/", async (req, res) => {
         error: "Invalid severity. Must be: low, medium, high, critical"
       });
     }
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const incident = sg.createForensicIncident({
       title,
@@ -52934,7 +62847,7 @@ router4.post("/", async (req, res) => {
 });
 router4.get("/:incident_id", async (req, res) => {
   try {
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const incident = sg.getForensicIncident(req.params.incident_id);
     if (!incident) {
@@ -52948,7 +62861,7 @@ router4.get("/:incident_id", async (req, res) => {
 });
 router4.patch("/:incident_id", async (req, res) => {
   try {
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const incident = sg.getForensicIncident(req.params.incident_id);
     if (!incident) {
@@ -52986,7 +62899,7 @@ router4.post("/:incident_id/link", async (req, res) => {
         error: `Invalid entity_type. Must be: ${validTypes.join(", ")}`
       });
     }
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const incident = sg.getForensicIncident(req.params.incident_id);
     if (!incident) {
@@ -53025,7 +62938,7 @@ router4.post("/:incident_id/unlink", async (req, res) => {
         error: "Missing required fields: entity_type, entity_id"
       });
     }
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     sg.unlinkFromIncident(req.params.incident_id, entity_type, entity_id);
     res.json({
@@ -53041,7 +62954,7 @@ router4.post("/:incident_id/unlink", async (req, res) => {
 });
 router4.get("/:incident_id/graph", async (req, res) => {
   try {
-    const sg = (0, import_lib3.getStateGraph)();
+    const sg = getStateGraph();
     await sg.initialize();
     const graph = sg.getIncidentGraph(req.params.incident_id);
     if (!graph) {
@@ -53057,7 +62970,7 @@ var incidents_default = router4;
 
 // src/routes/validation.ts
 var import_express35 = __toESM(require_express2(), 1);
-var import_lib4 = require("@vienna/lib");
+init_vienna_lib();
 function createValidationRouter() {
   const router5 = (0, import_express35.Router)();
   router5.post("/log", async (req, res) => {
@@ -53071,7 +62984,7 @@ function createValidationRouter() {
         });
         return;
       }
-      const stateGraph = (0, import_lib4.getStateGraph)();
+      const stateGraph = getStateGraph();
       await stateGraph.initialize();
       const validationId = `val_${Date.now()}_${testCase}`;
       const timestamp = (/* @__PURE__ */ new Date()).toISOString();
@@ -53109,7 +63022,7 @@ function createValidationRouter() {
   });
   router5.get("/results", async (req, res) => {
     try {
-      const stateGraph = (0, import_lib4.getStateGraph)();
+      const stateGraph = getStateGraph();
       await stateGraph.initialize();
       const db = stateGraph.db;
       const stmt = db.prepare(`
@@ -53188,8 +63101,7 @@ function createAgentIntentRouter(agentIntentBridge) {
 }
 
 // src/app.ts
-var import_meta = {};
-var __filename = (0, import_url.fileURLToPath)(import_meta.url);
+var __filename = (0, import_url.fileURLToPath)(importMetaUrl);
 var __dirname2 = import_path.default.dirname(__filename);
 function createApp(viennaRuntime, chatService2, bootstrapService, objectivesService, authService, timelineService, runtimeStatsService, providerHealthService, systemNowService, agentIntentBridge) {
   const app = (0, import_express37.default)();
@@ -53226,8 +63138,8 @@ function createApp(viennaRuntime, chatService2, bootstrapService, objectivesServ
         services: {}
       };
       try {
-        const { getStateGraph: getStateGraph5 } = await import("@vienna/lib");
-        const stateGraph = getStateGraph5();
+        const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
+        const stateGraph = getStateGraph2();
         await stateGraph.initialize();
         runtimeHealth.services.state_graph = { status: "operational", health: "healthy" };
       } catch (error) {
@@ -55659,8 +65571,7 @@ var import_fs = __toESM(require("fs"), 1);
 var import_crypto2 = __toESM(require("crypto"), 1);
 var import_url2 = require("url");
 var import_path3 = require("path");
-var import_meta2 = {};
-var __filename2 = (0, import_url2.fileURLToPath)(import_meta2.url);
+var __filename2 = (0, import_url2.fileURLToPath)(importMetaUrl);
 var __dirname3 = (0, import_path3.dirname)(__filename2);
 var ChatHistoryService = class {
   db = null;
@@ -56963,8 +66874,8 @@ var ProviderHealthService = class {
     try {
       let baseStatuses = {};
       try {
-        const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-        const stateGraph = getStateGraph5();
+        const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+        const stateGraph = getStateGraph2();
         await stateGraph.initialize();
         const stateProviders = stateGraph.listProviders();
         for (const provider of stateProviders) {
@@ -57399,8 +67310,8 @@ var ProviderHealthChecker = class {
    */
   async updateStateGraph(providerId, status, health, timestamp, errorMessage = null, latencyMs) {
     try {
-      const { getStateGraph: getStateGraph5 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
-      const stateGraph = getStateGraph5();
+      const { getStateGraph: getStateGraph2 } = await Promise.resolve().then(() => __toESM(require_state_graph(), 1));
+      const stateGraph = getStateGraph2();
       await stateGraph.initialize();
       stateGraph.updateProvider(providerId, {
         status,
@@ -57969,7 +67880,7 @@ var HOST = process.env.HOST || "0.0.0.0";
 async function initializeViennaCore() {
   console.log("Initializing Vienna Core...");
   const workspace = process.env.OPENCLAW_WORKSPACE || import_path5.default.join(import_os.default.homedir(), ".openclaw", "workspace");
-  const ViennaCore = (await import("@vienna/lib")).default;
+  const ViennaCore = (await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports))).default;
   ViennaCore.init({
     adapter: "openclaw",
     workspace
@@ -58047,14 +67958,14 @@ async function start() {
       objectivesService
     );
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService2, objectivesService);
-    const { getStateGraph: getStateGraph5, WorkspaceManager } = await import("@vienna/lib");
-    const stateGraph = getStateGraph5();
+    const { getStateGraph: getStateGraph2, WorkspaceManager: WorkspaceManager2 } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
+    const stateGraph = getStateGraph2();
     await stateGraph.initialize();
     console.log("State Graph initialized");
-    const workspaceManager = new WorkspaceManager(stateGraph);
+    const workspaceManager = new WorkspaceManager2(stateGraph);
     console.log("Workspace Manager initialized");
-    const { IntentGateway: IntentGateway2 } = await import("@vienna/lib");
-    const { AgentIntentBridge } = await import("@vienna/lib");
+    const { IntentGateway: IntentGateway2 } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
+    const { AgentIntentBridge } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
     const intentGateway = new IntentGateway2();
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log("Agent Intent Bridge initialized");
@@ -58570,3 +68481,4 @@ humanize-ms/index.js:
 node-domexception/index.js:
   (*! node-domexception. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> *)
 */
+//# sourceMappingURL=server.cjs.map

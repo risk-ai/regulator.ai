@@ -6,16 +6,11 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 
-// External: native modules and packages that should not be bundled
+// External: ONLY native modules that must be loaded at runtime
 const external = [
-  'better-sqlite3',
-  'bcrypt',
-  'sharp',
-  'dotenv',
-  'express',
-  'cookie-parser',
-  'cors',
-  'multer',
+  'better-sqlite3',  // Native module
+  'bcrypt',          // Native module
+  'sharp',           // Native module
   ...Object.keys(pkg.dependencies || {}).filter(dep => 
     dep.startsWith('@types/') || 
     dep === 'typescript' ||

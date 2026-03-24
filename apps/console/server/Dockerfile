@@ -28,8 +28,14 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install build tools for native modules
+RUN apk add --no-cache python3 make g++
+
 # Copy package.json for proper module resolution
 COPY apps/console/server/package*.json ./
+
+# Install production dependencies (including native modules for Alpine)
+RUN npm install --omit=dev --ignore-scripts=false
 
 # Copy bundled server from builder
 COPY --from=builder /app/apps/console/server/build ./build
@@ -37,9 +43,8 @@ COPY --from=builder /app/apps/console/server/build ./build
 # Copy SQL schema files (needed at runtime)
 COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/
 
-# Copy ALL node_modules (server + vienna-lib)
-COPY --from=builder /app/apps/console/server/node_modules ./node_modules
-COPY --from=builder /app/services/vienna-lib/node_modules ./services/vienna-lib/node_modules
+# Remove build tools to reduce image size
+RUN apk del python3 make g++
 
 # Expose port
 EXPOSE 3100

@@ -58,6 +58,7 @@ import { createReconciliationRouter } from './routes/reconciliation.js';
 import { createAssistantRouter } from './routes/assistant.js';
 import { createIntentRouter } from './routes/intent.js';
 import intentsRouter from './routes/intents.js';
+import { createAgentIntentRouter } from './routes/agent-intent.js';
 import investigationsRouter from './routes/investigations.js';
 import artifactsRouter from './routes/artifacts.js';
 import incidentsRouter from './routes/incidents.js';

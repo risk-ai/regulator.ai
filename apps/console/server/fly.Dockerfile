@@ -14,6 +14,7 @@ RUN npm install --omit=dev
 # Production stage
 FROM base AS production
 COPY --from=deps /app/node_modules ./node_modules
+COPY services/vienna-lib ./node_modules/@vienna/lib
 COPY apps/console/server/build ./build
 COPY services/vienna-lib/state/schema.sql ./build/schema.sql
 COPY apps/console/server/package.json ./

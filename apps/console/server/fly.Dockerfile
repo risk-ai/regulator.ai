@@ -15,6 +15,7 @@ RUN npm install --omit=dev
 FROM base AS production
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/console/server/build ./build
+COPY services/vienna-lib/state/schema.sql ./build/schema.sql
 COPY apps/console/server/package.json ./
 
 EXPOSE 3100

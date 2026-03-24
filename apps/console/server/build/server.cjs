@@ -67958,14 +67958,13 @@ async function start() {
       objectivesService
     );
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService2, objectivesService);
-    const { getStateGraph: getStateGraph2, WorkspaceManager: WorkspaceManager2 } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
+    const ViennaLib = require_vienna_lib();
+    const { getStateGraph: getStateGraph2, WorkspaceManager: WorkspaceManager2, IntentGateway: IntentGateway2, AgentIntentBridge } = ViennaLib;
     const stateGraph = getStateGraph2();
     await stateGraph.initialize();
     console.log("State Graph initialized");
     const workspaceManager = new WorkspaceManager2(stateGraph);
     console.log("Workspace Manager initialized");
-    const { IntentGateway: IntentGateway2 } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
-    const { AgentIntentBridge } = await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports));
     const intentGateway = new IntentGateway2();
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log("Agent Intent Bridge initialized");

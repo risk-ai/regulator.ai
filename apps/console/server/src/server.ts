@@ -26,6 +26,10 @@ import { SystemNowService } from './services/systemNowService.js';
 import { eventStream } from './sse/eventStream.js';
 import { createProviderManagerBridge } from './integrations/providerManager.js';
 
+// Vienna Core components (static imports for bundling compatibility)
+import type { WorkspaceManager as WorkspaceManagerType } from '@vienna/lib';
+import type { StateGraph as StateGraphType } from '@vienna/lib';
+
 // Vienna Core will be dynamically imported (CommonJS → ES module bridge)
 
 const PORT = parseInt(process.env.PORT || '3100', 10);
@@ -160,7 +164,10 @@ async function start() {
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService, objectivesService);
     
     // Initialize State Graph (Phase 13)
-    const { getStateGraph, WorkspaceManager } = await import('@vienna/lib');
+    // Use require() for bundled CommonJS compatibility
+    const ViennaLib = require('@vienna/lib');
+    const { getStateGraph, WorkspaceManager, IntentGateway, AgentIntentBridge } = ViennaLib;
+    
     const stateGraph = getStateGraph();
     await stateGraph.initialize();
     console.log('State Graph initialized');
@@ -170,8 +177,6 @@ async function start() {
     console.log('Workspace Manager initialized');
     
     // Initialize Agent Intent Bridge
-    const { IntentGateway } = await import('@vienna/lib');
-    const { AgentIntentBridge } = await import('@vienna/lib');
     const intentGateway = new IntentGateway();
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log('Agent Intent Bridge initialized');

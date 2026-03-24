@@ -14,8 +14,8 @@ RUN npm install --omit=dev
 # Production stage
 FROM base AS production
 COPY --from=deps /app/node_modules ./node_modules
-COPY apps/console/server/dist ./dist
+COPY apps/console/server/build ./build
 COPY apps/console/server/package.json ./
 
 EXPOSE 3100
-CMD ["node", "dist/server.js"]
+CMD ["node", "build/server.cjs"]

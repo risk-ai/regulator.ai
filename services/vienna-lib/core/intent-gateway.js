@@ -45,7 +45,8 @@ class IntentGateway {
         'restore_objective',
         'investigate_objective',
         'set_safe_mode',
-        'test_execution'  // Phase 1 validation support
+        'test_execution',  // Phase 1 validation support
+        'check_system_health'  // Phase 28 integration proof
       ],
       ...options
     };
@@ -308,7 +309,8 @@ class IntentGateway {
       'restore_objective': this._handleRestoreObjective,
       'investigate_objective': this._handleInvestigateObjective,
       'set_safe_mode': this._handleSetSafeMode,
-      'test_execution': this._handleTestExecution  // Phase 1 validation
+      'test_execution': this._handleTestExecution,  // Phase 1 validation
+      'check_system_health': this._handleCheckSystemHealth  // Phase 28 integration
     };
 
     return handlers[intentType] || null;
@@ -352,6 +354,10 @@ class IntentGateway {
         if (intent.payload.enabled && !intent.payload.reason) {
           return { valid: false, error: 'missing_reason' };
         }
+        return { valid: true };
+
+      case 'check_system_health':
+        // No required fields for health check (target defaults to vienna_backend)
         return { valid: true };
 
       default:
@@ -588,6 +594,225 @@ class IntentGateway {
     });
 
     return result;
+  }
+
+  /**
+   * Handle check_system_health intent (Phase 28 integration proof)
+   * 
+   * Real external health check with governed execution path
+   * 
+   * @private
+   * @param {Intent} intent
+   * @returns {Promise<Object>} Response
+   */
+  async _handleCheckSystemHealth(intent) {
+    const target = intent.payload.target || 'vienna_backend';
+    const tenant_id = intent.payload.tenant || 'system';
+    const simulation = intent.payload.simulation === true;
+    const execution_id = `exec-${uuidv4()}`;
+
+    // Extract tenant context for governance
+    const tenantContext = {
+      tenant_id,
+      source: intent.source
+    };
+
+    // Record execution start
+    await this.tracer.recordEvent(intent.intent_id, 'execution.started', {
+      execution_id,
+      target,
+      simulation
+    });
+
+    // Phase 22: Check quota (BEFORE execution decision)
+    const quotaCheck = await this.quotaEnforcer.checkQuota(tenantContext, {
+      action_type: 'integration',
+      target,
+      cost_estimate: 0.001  // Minimal cost for health check
+    });
+
+    if (!quotaCheck.allowed) {
+      await this.tracer.recordEvent(intent.intent_id, 'execution.blocked', {
+        reason: 'quota_exceeded',
+        available: quotaCheck.available
+      });
+
+      return {
+        tenant: tenant_id,
+        status: 'blocked_quota',
+        explanation: quotaCheck.reason || 'Quota exceeded',
+        simulation: false,
+        cost: null,
+        attestation: null,
+        error: null,
+        result: null
+      };
+    }
+
+    // Phase 29: Check budget (BEFORE execution decision)
+    const costEstimate = 0.001;
+    const budgetCheck = await this.costTracker.checkBudget(tenant_id, costEstimate);
+
+    if (!budgetCheck.allowed) {
+      await this.tracer.recordEvent(intent.intent_id, 'execution.blocked', {
+        reason: 'budget_exceeded',
+        available: budgetCheck.available
+      });
+
+      return {
+        tenant: tenant_id,
+        status: 'blocked_budget',
+        explanation: budgetCheck.reason || 'Budget exceeded',
+        simulation: false,
+        cost: null,
+        attestation: null,
+        error: null,
+        result: null
+      };
+    }
+
+    let healthResult;
+    let actualCost = null;
+
+    if (simulation) {
+      // SIMULATION MODE: Do NOT call external endpoint
+      healthResult = {
+        ok: true,
+        status_code: 200,
+        target,
+        simulated: true
+      };
+
+      await this.tracer.recordEvent(intent.intent_id, 'execution.simulated', {
+        execution_id,
+        target
+      });
+    } else {
+      // EXECUTION MODE: Call real external endpoint
+      try {
+        const https = require('https');
+        const http = require('http');
+
+        const endpoint = target === 'vienna_backend' 
+          ? 'https://vienna-os.fly.dev/health'
+          : intent.payload.endpoint;
+
+        if (!endpoint) {
+          throw new Error('No endpoint configured for target: ' + target);
+        }
+
+        // Perform real HTTP health check
+        const protocol = endpoint.startsWith('https://') ? https : http;
+        const response = await new Promise((resolve, reject) => {
+          const req = protocol.get(endpoint, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+              resolve({
+                status_code: res.statusCode,
+                body,
+                ok: res.statusCode >= 200 && res.statusCode < 300
+              });
+            });
+          });
+          req.on('error', reject);
+          req.setTimeout(5000, () => {
+            req.destroy();
+            reject(new Error('Health check timeout'));
+          });
+        });
+
+        healthResult = {
+          ok: response.ok,
+          status_code: response.status_code,
+          target,
+          endpoint
+        };
+
+        // Calculate actual cost (minimal for health check)
+        actualCost = 0.001;
+
+        // Phase 29: Record cost
+        await this.costTracker.recordCost({
+          execution_id,
+          tenant_id,
+          action_type: 'integration',
+          target,
+          cost: actualCost
+        });
+
+        await this.tracer.recordEvent(intent.intent_id, 'execution.completed', {
+          execution_id,
+          target,
+          status_code: response.status_code,
+          ok: response.ok
+        });
+
+      } catch (error) {
+        // Execution failed
+        await this.tracer.recordEvent(intent.intent_id, 'execution.failed', {
+          execution_id,
+          error: error.message
+        });
+
+        // Phase 23: Create failure attestation
+        const attestation = await this.attestationEngine.createAttestation({
+          execution_id,
+          tenant_id,
+          status: 'failed',
+          input_hash: null,
+          output_hash: null,
+          metadata: {
+            target,
+            error: error.message
+          }
+        });
+
+        return {
+          tenant: tenant_id,
+          status: 'failed',
+          explanation: `Health check failed: ${error.message}`,
+          simulation: false,
+          cost: null,
+          attestation: {
+            attestation_id: attestation.attestation_id,
+            status: attestation.status
+          },
+          error: error.message,
+          result: null
+        };
+      }
+    }
+
+    // Phase 23: Create attestation (for both executed and simulated)
+    const attestationStatus = simulation ? 'simulated' : 'executed';
+    const attestation = await this.attestationEngine.createAttestation({
+      execution_id,
+      tenant_id,
+      status: attestationStatus,
+      input_hash: JSON.stringify({ target }),
+      output_hash: JSON.stringify(healthResult),
+      metadata: {
+        target,
+        simulation
+      }
+    });
+
+    return {
+      tenant: tenant_id,
+      status: simulation ? 'simulated' : 'executed',
+      explanation: simulation 
+        ? 'Health check simulated (no external call)'
+        : `Health check completed: ${healthResult.ok ? 'healthy' : 'unhealthy'}`,
+      simulation,
+      cost: actualCost,
+      attestation: {
+        attestation_id: attestation.attestation_id,
+        status: attestation.status
+      },
+      error: null,
+      result: healthResult
+    };
   }
 
   // ============================================================

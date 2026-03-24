@@ -169,6 +169,13 @@ async function start() {
     const workspaceManager = new WorkspaceManager(stateGraph);
     console.log('Workspace Manager initialized');
     
+    // Initialize Agent Intent Bridge
+    const { IntentGateway } = await import('@vienna/lib');
+    const { AgentIntentBridge } = await import('@vienna/lib');
+    const intentGateway = new IntentGateway();
+    const agentIntentBridge = new AgentIntentBridge(intentGateway);
+    console.log('Agent Intent Bridge initialized');
+    
     // Create Express app
     const app = createApp(
       viennaRuntime, 
@@ -179,7 +186,8 @@ async function start() {
       timelineService, 
       runtimeStatsService,
       providerHealthService,
-      systemNowService
+      systemNowService,
+      agentIntentBridge
     );
     
     // Expose State Graph and Workspace Manager to routes (Phase 13)

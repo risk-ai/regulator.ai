@@ -11,6 +11,10 @@ module.exports = {
   PlanGenerator: require('./core/plan-generator').PlanGenerator || require('./core/plan-generator'),
   ExecutionGraphBuilder: require('./core/execution-graph').ExecutionGraphBuilder || require('./core/execution-graph'),
   
+  // Agent Integration
+  AgentIntentBridge: require('./core/agent-intent-bridge').AgentIntentBridge,
+  OpenClawBridge: require('./core/openclaw-bridge').OpenClawBridge,
+  
   // Governance
   Warrant: require('./governance/warrant'),
   PolicyEngine: require('./core/policy-engine'),

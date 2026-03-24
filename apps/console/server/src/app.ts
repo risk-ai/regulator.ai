@@ -62,6 +62,7 @@ import investigationsRouter from './routes/investigations.js';
 import artifactsRouter from './routes/artifacts.js';
 import incidentsRouter from './routes/incidents.js';
 import { createValidationRouter } from './routes/validation.js';
+import { createAgentIntentRouter } from './routes/agent-intent.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -74,7 +75,8 @@ export function createApp(
   timelineService?: TimelineService,
   runtimeStatsService?: RuntimeStatsService,
   providerHealthService?: ProviderHealthService,
-  systemNowService?: SystemNowService
+  systemNowService?: SystemNowService,
+  agentIntentBridge?: any
 ): Express {
   const app = express();
   
@@ -262,6 +264,11 @@ export function createApp(
   
   // Phase 11.5: Intent Tracing (execution graph visibility)
   app.use(`${apiPrefix}/intents`, requireAuth, intentsRouter);
+  
+  // Agent Intent Layer (OpenClaw agents → Vienna)
+  if (agentIntentBridge) {
+    app.use(`${apiPrefix}/agent`, createAgentIntentRouter(agentIntentBridge));
+  }
   
   // Phase 13: Investigation Workspace
   app.use(`${apiPrefix}/investigations`, requireAuth, investigationsRouter);

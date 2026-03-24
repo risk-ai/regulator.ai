@@ -608,7 +608,8 @@ class IntentGateway {
   async _handleCheckSystemHealth(intent) {
     const target = intent.payload.target || 'vienna_backend';
     const tenant_id = intent.payload.tenant || 'system';
-    const simulation = intent.payload.simulation === true;
+    // Check both top-level and payload for simulation flag (agent layer uses top-level)
+    const simulation = intent.simulation === true || intent.payload.simulation === true;
     const execution_id = `exec-${uuidv4()}`;
 
     // Extract tenant context for governance

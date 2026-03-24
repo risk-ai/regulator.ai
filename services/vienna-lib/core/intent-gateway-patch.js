@@ -37,13 +37,16 @@ function patchIntentGateway(IntentGatewayClass) {
 
     // Phase 21: Attach tenant context
     intent.tenant_id = tenant_id;
-    intent.simulation = simulation;
+    // Preserve intent.simulation if already set (agent layer uses this)
+    if (intent.simulation === undefined) {
+      intent.simulation = simulation;
+    }
 
     // Initialize response object
     const response = {
       intent_id: intent.intent_id,
       tenant_id: tenant_id,
-      simulation: simulation,
+      simulation: intent.simulation !== undefined ? intent.simulation : simulation,
       accepted: false,
       action: null,
       error: null,
@@ -108,7 +111,7 @@ function patchIntentGateway(IntentGatewayClass) {
       });
 
       // Phase 22: Quota check (skip for system tenant and simulation)
-      if (tenant_id !== 'system' && !simulation) {
+      if (tenant_id !== 'system' && !intent.simulation) {
         try {
           if (this.quotaEnforcer) {
             const quotaCheck = await this.quotaEnforcer.checkQuota(tenant_id, intent);
@@ -158,7 +161,10 @@ function patchIntentGateway(IntentGatewayClass) {
 
       // Normalize intent (canonical form)
       const normalized = this.normalizeIntent(intent);
-      normalized.simulation = simulation;
+      // Preserve intent.simulation if already set (agent layer uses this)
+      if (normalized.simulation === undefined) {
+        normalized.simulation = simulation;
+      }
 
       // Resolve intent (dispatch to appropriate handler)
       const resolution = await this.resolveIntent(normalized);

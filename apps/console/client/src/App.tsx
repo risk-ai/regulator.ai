@@ -15,6 +15,7 @@ import { HistoryPage } from './pages/HistoryPage.js';
 import { ServicesPage } from './pages/ServicesPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
 import { ApprovalsPage } from './pages/ApprovalsPage.js';
+import { IntentPage } from './pages/IntentPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { useAuthStore } from './store/authStore.js';
 
@@ -33,7 +34,7 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'workspace', 'approvals', 'history', 'services', 'settings'];
+      const validSections: NavSection[] = ['now', 'runtime', 'workspace', 'approvals', 'intent', 'history', 'services', 'settings'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
@@ -89,6 +90,9 @@ export function App() {
       
       case 'approvals':
         return <ApprovalsPage />;
+      
+      case 'intent':
+        return <IntentPage />;
       
       case 'history':
         return <HistoryPage />;

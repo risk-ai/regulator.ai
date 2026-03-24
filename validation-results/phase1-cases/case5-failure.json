@@ -1,0 +1,1 @@
+{"success":false,"error":"execution_failed","code":"INTENT_REJECTED","data":{"intent_id":"intent-b5f14625-d23f-4b38-a348-840b5be13931","tenant_id":"system","explanation":"Intent denied: execution_failed.","quota_state":null,"cost":null,"metadata":{"mode":"failure","synthetic":true,"failed":true}},"timestamp":"2026-03-24T00:35:59.573Z"}

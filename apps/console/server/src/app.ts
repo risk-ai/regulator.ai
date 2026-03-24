@@ -6,8 +6,14 @@
  */
 
 import express, { Express, Request, Response, NextFunction } from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { ViennaRuntimeService } from './services/viennaRuntime.js';
 import { ChatService } from './services/chatService.js';
 import { DashboardBootstrapService } from './services/dashboardBootstrapService.js';
@@ -277,10 +283,35 @@ export function createApp(
   app.use(`${apiPrefix}/stream`, requireAuth, createStreamRouter(eventStream));
 
   // ============================================================================
+  // ============================================================================
+  // Static Frontend (Serve built React app)
+  // ============================================================================
+  
+  const clientDistPath = path.join(__dirname, '../../client/dist');
+  
+  // Serve static files
+  app.use(express.static(clientDistPath));
+  
+  // SPA fallback: All non-API routes serve index.html
+  app.get('*', (req: Request, res: Response, next: NextFunction) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/') || req.path.startsWith('/health')) {
+      return next();
+    }
+    
+    res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        next(err);
+      }
+    });
+  });
+
+  // ============================================================================
   // Error Handling
   // ============================================================================
 
-  // 404 handler
+  // 404 handler (only for API routes that don't match)
   app.use((req: Request, res: Response) => {
     const error: ErrorResponse = {
       success: false,

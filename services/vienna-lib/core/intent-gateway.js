@@ -44,7 +44,8 @@ class IntentGateway {
       supported_intent_types: [
         'restore_objective',
         'investigate_objective',
-        'set_safe_mode'
+        'set_safe_mode',
+        'test_execution'  // Phase 1 validation support
       ],
       ...options
     };
@@ -306,7 +307,8 @@ class IntentGateway {
     const handlers = {
       'restore_objective': this._handleRestoreObjective,
       'investigate_objective': this._handleInvestigateObjective,
-      'set_safe_mode': this._handleSetSafeMode
+      'set_safe_mode': this._handleSetSafeMode,
+      'test_execution': this._handleTestExecution  // Phase 1 validation
     };
 
     return handlers[intentType] || null;
@@ -321,6 +323,16 @@ class IntentGateway {
    */
   _validateIntentType(intent) {
     switch (intent.intent_type) {
+      case 'test_execution':
+        if (!intent.payload.mode) {
+          return { valid: false, error: 'missing_mode' };
+        }
+        const validModes = ['success', 'simulation', 'quota_block', 'budget_block', 'failure'];
+        if (!validModes.includes(intent.payload.mode)) {
+          return { valid: false, error: 'invalid_mode' };
+        }
+        return { valid: true };
+
       case 'restore_objective':
         if (!intent.payload.objective_id) {
           return { valid: false, error: 'missing_objective_id' };
@@ -492,6 +504,90 @@ class IntentGateway {
         }
       };
     }
+  }
+
+  /**
+   * Handle test_execution intent (Phase 1 validation)
+   * 
+   * Synthetic execution for validation testing
+   * 
+   * @private
+   * @param {Intent} intent
+   * @returns {Promise<Object>} Response
+   */
+  async _handleTestExecution(intent) {
+    const { mode } = intent.payload;
+    const execution_id = `exec-${uuidv4()}`;
+    
+    // Record start
+    await this.tracer.recordEvent(intent.intent_id, 'execution.started', {
+      execution_id,
+      mode
+    });
+
+    let result;
+    
+    switch (mode) {
+      case 'success':
+        result = {
+          accepted: true,
+          action: 'test_execution_success',
+          execution_id,
+          message: 'Test execution completed successfully',
+          metadata: { mode, synthetic: true }
+        };
+        break;
+        
+      case 'simulation':
+        result = {
+          accepted: true,
+          action: 'test_execution_simulated',
+          execution_id,
+          message: 'Test execution simulated (no real action)',
+          metadata: { mode, synthetic: true, simulated: true }
+        };
+        break;
+        
+      case 'quota_block':
+        return {
+          accepted: false,
+          error: 'quota_exceeded',
+          message: 'Test execution blocked by quota',
+          metadata: { mode, synthetic: true, blocked_by: 'quota' }
+        };
+        
+      case 'budget_block':
+        return {
+          accepted: false,
+          error: 'budget_exceeded',
+          message: 'Test execution blocked by budget',
+          metadata: { mode, synthetic: true, blocked_by: 'budget' }
+        };
+        
+      case 'failure':
+        return {
+          accepted: false,
+          error: 'execution_failed',
+          message: 'Test execution failed (synthetic)',
+          metadata: { mode, synthetic: true, failed: true }
+        };
+        
+      default:
+        return {
+          accepted: false,
+          error: 'invalid_mode',
+          message: `Unknown test mode: ${mode}`
+        };
+    }
+
+    // Record completion
+    await this.tracer.recordEvent(intent.intent_id, 'execution.completed', {
+      execution_id,
+      mode,
+      action: result.action
+    });
+
+    return result;
   }
 
   // ============================================================

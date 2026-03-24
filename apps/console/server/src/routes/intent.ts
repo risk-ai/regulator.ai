@@ -11,7 +11,14 @@ import { IntentGateway, getStateGraph } from '@vienna/lib';
 export function createIntentRouter(): Router {
   const router = Router();
   const stateGraph = getStateGraph();
-  const intentGateway = new IntentGateway(stateGraph);
+  const intentGateway = new IntentGateway(stateGraph, {
+    supported_intent_types: [
+      'restore_objective',
+      'investigate_objective',
+      'set_safe_mode',
+      'test_execution'  // Phase 1 validation support
+    ]
+  });
 
   /**
    * POST /api/v1/intent

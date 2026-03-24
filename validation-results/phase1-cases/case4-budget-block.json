@@ -1,0 +1,1 @@
+{"success":false,"error":"budget_exceeded","code":"INTENT_REJECTED","data":{"intent_id":"intent-19f50271-1f14-4c1e-b4c5-2c6c7b05203d","tenant_id":"system","explanation":"Intent denied: budget_exceeded.","quota_state":null,"cost":null,"metadata":{"mode":"budget_block","synthetic":true,"blocked_by":"budget"}},"timestamp":"2026-03-24T00:35:59.564Z"}

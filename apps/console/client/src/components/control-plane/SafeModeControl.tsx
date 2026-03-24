@@ -35,7 +35,7 @@ export function SafeModeControl() {
     try {
       if (status?.active) {
         // Disable (use Intent Gateway)
-        const res = await fetch('/api/v1/intent', {
+        const res = await fetch('/api/v1/recovery/intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -55,7 +55,7 @@ export function SafeModeControl() {
           return;
         }
 
-        const res = await fetch('/api/v1/intent', {
+        const res = await fetch('/api/v1/recovery/intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

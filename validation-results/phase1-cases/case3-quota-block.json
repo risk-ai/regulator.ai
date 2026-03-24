@@ -1,0 +1,1 @@
+{"success":false,"error":"quota_exceeded","code":"INTENT_REJECTED","data":{"intent_id":"intent-c4508fda-ae66-4673-b19b-27cd8b7f5134","tenant_id":"system","explanation":"Intent denied: quota_exceeded.","quota_state":null,"cost":null,"metadata":{"mode":"quota_block","synthetic":true,"blocked_by":"quota"}},"timestamp":"2026-03-24T00:35:59.544Z"}

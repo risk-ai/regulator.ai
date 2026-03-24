@@ -7,7 +7,7 @@
 
 import React from 'react';
 
-export type NavSection = 'now' | 'runtime' | 'workspace' | 'approvals' | 'history' | 'services' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'workspace' | 'approvals' | 'intent' | 'history' | 'services' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -40,6 +40,11 @@ const NAV_ITEMS: NavItem[] = [
     id: 'approvals',
     label: 'Approvals',
     description: 'Review and approve pending T1/T2 actions',
+  },
+  {
+    id: 'intent',
+    label: 'Intent',
+    description: 'Submit structured intents for governed execution',
   },
   {
     id: 'history',

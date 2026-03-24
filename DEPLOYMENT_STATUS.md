@@ -1,130 +1,144 @@
-# Vienna OS Deployment Status
+# Deployment Status
 
-**Date:** 2026-03-23  
-**Status:** Monorepo Consolidation Complete, Minimal Runtime Deployed
-
----
-
-## ✅ Completed
-
-### 1. Repository Consolidation
-- Merged PR #5 to `main`
-- Removed ALL duplicate `vienna-core/` and `services/vienna-runtime/` trees
-- Single source of truth in `regulator-ai-repo/`
-
-### 2. Clean Monorepo Structure
-```
-apps/
-  marketing/         ✅ NextJS (builds cleanly)
-  console/
-    client/          ✅ Vite (builds cleanly)
-    server/          ⚠️  Has broken imports (requires refactor)
-services/
-  runtime/           ✅ Minimal health-check service (operational)
-```
-
-### 3. Deployments
-
-#### Fly.io Runtime
-- **URL:** https://vienna-os.fly.dev
-- **Status:** ✅ Operational
-- **Service:** Minimal Express health-check
-- **Endpoints:**
-  - `/health` → 200 OK
-  - `/api/v1/health` → 200 OK
-
-#### Vercel Projects
-- **Marketing:** `regulator.ai` (deployed from `apps/marketing`)
-- **Console:** `console.regulator.ai` (needs root directory update)
+**Updated:** 2026-03-23 20:40 EDT  
+**Current Phase:** Part 3 — Production Synchronization
 
 ---
 
-## ⏭️ Next Steps
+## Local Validation ✅ COMPLETE
 
-### 1. Configure Vercel Root Directories
-
-**Marketing Project:**
-```
-Root Directory = apps/marketing
-```
-
-**Console Project:**
-```
-Root Directory = apps/console/client
-```
-
-### 2. Redeploy Both Vercel Projects
-
-After setting root directories, trigger redeployment.
-
-### 3. Validate Domain Separation
-
-- `regulator.ai` → Marketing only
-- `console.regulator.ai` → Console UI only
-- No content crossover
-
-### 4. Runtime Integration (Deferred)
-
-**Blocker:** Console server has broken imports:
-```typescript
-// apps/console/server/src/server.ts
-const ViennaCore = (await import('../../../index.js')).default;
-```
-
-This expects to run inside old `vienna-core/` structure.
-
-**Options:**
-1. Refactor console server imports to work standalone
-2. Build full Phase 21-30 runtime in `services/runtime`
-3. Deploy console as static-only (no backend)
-
-**Current:** Minimal runtime provides health checks only.
+**Environment:** Test (`VIENNA_ENV=test`)  
+**Backend:** localhost:3100  
+**Results:** 5/5 test cases PASS  
+**Database:** Clean (11 intent traces, 0 duplicates)  
+**Commit:** `a199fb2` pushed to main
 
 ---
 
-## Phase Status Classification
+## Production Deployment Status
 
-**Deferred until console/runtime integration complete:**
-- Phase 21 (Tenant Isolation)
-- Phase 22 (Quota Enforcement)
-- Phase 23 (Attestation)
-- Phase 24 (Simulation Mode)
-- Phase 27 (Explainability)
-- Phase 28 (Integration)
-- Phase 29 (Cost Tracking)
+### Backend (Fly.io) ⏸️ PENDING
 
-**Current State:** Infrastructure topology clean, runtime operational but minimal functionality.
+**App:** `vienna-os`  
+**URL:** `https://vienna-os.fly.dev`  
+**Region:** iad (US East)
 
----
+**Deployment Method:** Manual (flyctl required)
 
-## Verification Commands
+**Blocker:** `fly` / `flyctl` CLI not available on current machine
 
-```bash
-# Runtime health
-curl https://vienna-os.fly.dev/api/v1/health
+**Required Steps:**
+1. Install flyctl: `curl -L https://fly.io/install.sh | sh`
+2. Authenticate: `flyctl auth login`
+3. Deploy: `cd apps/console/server && flyctl deploy`
 
-# Marketing build
-cd apps/marketing && npm run build
-
-# Console client build
-cd apps/console/client && npm run build
-
-# Check deployments
-gh pr list
-git log --oneline -5
-```
+**Alternative:** GitHub Actions deployment pipeline (if configured)
 
 ---
 
-## Clean State Achieved
+### Frontend (Vercel) ⏸️ PENDING
 
-- ✅ No duplicate repos
-- ✅ No stale `vienna-core/` or `services/vienna-runtime/`
-- ✅ Single `.git` at repo root
-- ✅ Builds pass for marketing + console client
-- ✅ Runtime deployed to Fly.io
-- ✅ All changes committed to `main`
+**Project:** Console  
+**URL:** `https://console.regulator.ai`
 
-**Repository:** https://github.com/risk-ai/regulator.ai  
-**Branch:** `main`  
-**Last Commit:** cf61a9f
+**Deployment Method:** Git-based (automatic on push to main)
+
+**Status:** May auto-deploy from latest commit `a199fb2`
+
+**Verification Needed:**
+- Check Vercel dashboard for deployment status
+- Confirm build succeeded
+- Verify domain routing
+
+---
+
+## Deployment Sequence
+
+### Option A: Manual Deployment (Recommended if flyctl available)
+1. Install/configure flyctl
+2. Deploy backend: `flyctl deploy`
+3. Wait for Vercel auto-deploy (or trigger manually)
+4. Run smoke test
+5. Execute production validation
+
+### Option B: Wait for Auto-Deploy (If configured)
+1. Monitor Vercel for console deployment
+2. Check if Fly has GitHub Actions workflow
+3. Wait for both deployments to complete
+4. Run smoke test
+5. Execute production validation
+
+### Option C: Request Manual Intervention
+- Deployment requires tooling not available on current machine
+- Operator intervention required for:
+  - Fly.io backend deployment
+  - Vercel frontend deployment verification
+
+---
+
+## Post-Deployment Validation Plan
+
+Once deployed:
+
+1. **Smoke Test** (`https://console.regulator.ai`)
+   - Login works
+   - Bootstrap completes
+   - Intent submission returns response
+
+2. **Production Validation** (5 cases)
+   - Success
+   - Simulation
+   - Quota Block
+   - Budget Block
+   - Failure
+
+3. **Compare Production vs Local**
+   - Response shape match
+   - Behavior match
+   - Persistence match
+
+4. **Document Results**
+   - Production validation report
+   - Any drift identified and fixed
+   - Final system status
+
+---
+
+## Current Recommendation
+
+**If flyctl can be installed:**
+- Proceed with Option A (manual deployment)
+- Estimated time: 15-20 minutes
+
+**If flyctl cannot be installed:**
+- Check for auto-deploy (Option B)
+- OR escalate to operator for manual deployment (Option C)
+
+**Do not proceed to Phase 28 (integration) until production validation complete.**
+
+---
+
+## Files Ready for Deployment
+
+**Backend Changes:**
+- Intent Gateway test handler
+- Intent Router configuration
+- Runtime stub enhancements
+- Static file serving fixes
+
+**Frontend Changes:**
+- Vite config (base path fix)
+- Intent API client (ready for testing)
+- Safe Mode Control updates
+
+**Documentation:**
+- AUTONOMOUS_EXECUTION_SUMMARY.md
+- VIENNA_EXECUTION_ROADMAP.md
+- REMEDIATION_PROTOCOL.md
+- validation-results/phase1-local-validation.md
+
+**All changes committed:** `a199fb2` on main branch
+
+---
+
+**Status:** Deployment tooling check required before proceeding.

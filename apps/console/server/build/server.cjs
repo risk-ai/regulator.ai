@@ -1253,7 +1253,7 @@ var require_workspace_schema = __commonJS({
 var require_workspace_manager = __commonJS({
   "../../../services/vienna-lib/workspace/workspace-manager.js"(exports2, module2) {
     var fs4 = require("fs");
-    var path4 = require("path");
+    var path5 = require("path");
     var crypto8 = require("crypto");
     var { v4: uuidv4 } = (init_esm_node(), __toCommonJS(esm_node_exports));
     var {
@@ -1269,7 +1269,7 @@ var require_workspace_manager = __commonJS({
       constructor(stateGraph, options = {}) {
         this.stateGraph = stateGraph;
         this.environment = stateGraph.environment;
-        this.workspaceRoot = options.workspaceRoot || path4.join(process.env.HOME, ".openclaw", "runtime", this.environment, "workspace");
+        this.workspaceRoot = options.workspaceRoot || path5.join(process.env.HOME, ".openclaw", "runtime", this.environment, "workspace");
         this._ensureWorkspaceStructure();
       }
       /**
@@ -1279,10 +1279,10 @@ var require_workspace_manager = __commonJS({
       _ensureWorkspaceStructure() {
         const dirs = [
           this.workspaceRoot,
-          path4.join(this.workspaceRoot, "investigations"),
-          path4.join(this.workspaceRoot, "traces"),
-          path4.join(this.workspaceRoot, "artifacts"),
-          path4.join(this.workspaceRoot, "templates")
+          path5.join(this.workspaceRoot, "investigations"),
+          path5.join(this.workspaceRoot, "traces"),
+          path5.join(this.workspaceRoot, "artifacts"),
+          path5.join(this.workspaceRoot, "templates")
         ];
         dirs.forEach((dir) => {
           if (!fs4.existsSync(dir)) {
@@ -1343,7 +1343,7 @@ var require_workspace_manager = __commonJS({
           investigation.environment,
           investigation.metadata_json
         );
-        const investigationDir = path4.join(
+        const investigationDir = path5.join(
           this.workspaceRoot,
           "investigations",
           this._sanitizeName(name)
@@ -1351,7 +1351,7 @@ var require_workspace_manager = __commonJS({
         if (!fs4.existsSync(investigationDir)) {
           fs4.mkdirSync(investigationDir, { recursive: true });
           const readme = this._generateInvestigationReadme(investigation);
-          fs4.writeFileSync(path4.join(investigationDir, "README.md"), readme);
+          fs4.writeFileSync(path5.join(investigationDir, "README.md"), readme);
         }
         return {
           ...investigation,
@@ -1374,7 +1374,7 @@ var require_workspace_manager = __commonJS({
         return {
           ...row,
           metadata: row.metadata_json ? JSON.parse(row.metadata_json) : {},
-          workspace_path: path4.join(
+          workspace_path: path5.join(
             this.workspaceRoot,
             "investigations",
             this._sanitizeName(row.name)
@@ -1435,7 +1435,7 @@ var require_workspace_manager = __commonJS({
         return rows.map((row) => ({
           ...row,
           metadata: row.metadata_json ? JSON.parse(row.metadata_json) : {},
-          workspace_path: path4.join(
+          workspace_path: path5.join(
             this.workspaceRoot,
             "investigations",
             this._sanitizeName(row.name)
@@ -1478,11 +1478,11 @@ var require_workspace_manager = __commonJS({
             objective_id
           });
         }
-        const fullPath = path4.join(this.workspaceRoot, artifact_path);
+        const fullPath = path5.join(this.workspaceRoot, artifact_path);
         const contentBuffer = Buffer.isBuffer(content) ? content : Buffer.from(content, "utf-8");
         const contentHash = crypto8.createHash("sha256").update(contentBuffer).digest("hex");
         const size_bytes = contentBuffer.length;
-        fs4.mkdirSync(path4.dirname(fullPath), { recursive: true });
+        fs4.mkdirSync(path5.dirname(fullPath), { recursive: true });
         fs4.writeFileSync(fullPath, contentBuffer);
         const artifact = {
           artifact_id,
@@ -1555,7 +1555,7 @@ var require_workspace_manager = __commonJS({
         return {
           ...row,
           metadata: row.metadata_json ? JSON.parse(row.metadata_json) : {},
-          full_path: path4.join(this.workspaceRoot, row.artifact_path)
+          full_path: path5.join(this.workspaceRoot, row.artifact_path)
         };
       }
       /**
@@ -1634,7 +1634,7 @@ var require_workspace_manager = __commonJS({
         return rows.map((row) => ({
           ...row,
           metadata: row.metadata_json ? JSON.parse(row.metadata_json) : {},
-          full_path: path4.join(this.workspaceRoot, row.artifact_path)
+          full_path: path5.join(this.workspaceRoot, row.artifact_path)
         }));
       }
       /**
@@ -1646,7 +1646,7 @@ var require_workspace_manager = __commonJS({
       getArtifactContent(artifact_id) {
         const artifact = this.getArtifact(artifact_id);
         if (!artifact) return null;
-        const fullPath = path4.join(this.workspaceRoot, artifact.artifact_path);
+        const fullPath = path5.join(this.workspaceRoot, artifact.artifact_path);
         if (!fs4.existsSync(fullPath)) return null;
         return fs4.readFileSync(fullPath);
       }
@@ -1918,11 +1918,11 @@ var require_state_graph = __commonJS({
   "../../../services/vienna-lib/state/state-graph.js"(exports2, module2) {
     var Database2 = require("better-sqlite3");
     var fs4 = require("fs");
-    var path4 = require("path");
-    var SCHEMA_PATH = path4.join(__dirname, "schema.sql");
+    var path5 = require("path");
+    var SCHEMA_PATH = path5.join(__dirname, "schema.sql");
     function getDefaultDbPath() {
       const env = process.env.VIENNA_ENV || "prod";
-      return path4.join(
+      return path5.join(
         process.env.HOME,
         ".openclaw",
         "runtime",
@@ -1953,7 +1953,7 @@ var require_state_graph = __commonJS({
           console.log(`[StateGraph] Database: ${this.dbPath}`);
           process.env.VIENNA_STARTUP_LOGGED = "true";
         }
-        const dbDir = path4.dirname(this.dbPath);
+        const dbDir = path5.dirname(this.dbPath);
         if (!fs4.existsSync(dbDir)) {
           fs4.mkdirSync(dbDir, { recursive: true });
         }
@@ -7582,7 +7582,9 @@ var require_intent_gateway = __commonJS({
           supported_intent_types: [
             "restore_objective",
             "investigate_objective",
-            "set_safe_mode"
+            "set_safe_mode",
+            "test_execution"
+            // Phase 1 validation support
           ],
           ...options
         };
@@ -7782,7 +7784,9 @@ var require_intent_gateway = __commonJS({
         const handlers = {
           "restore_objective": this._handleRestoreObjective,
           "investigate_objective": this._handleInvestigateObjective,
-          "set_safe_mode": this._handleSetSafeMode
+          "set_safe_mode": this._handleSetSafeMode,
+          "test_execution": this._handleTestExecution
+          // Phase 1 validation
         };
         return handlers[intentType] || null;
       }
@@ -7795,6 +7799,15 @@ var require_intent_gateway = __commonJS({
        */
       _validateIntentType(intent) {
         switch (intent.intent_type) {
+          case "test_execution":
+            if (!intent.payload.mode) {
+              return { valid: false, error: "missing_mode" };
+            }
+            const validModes = ["success", "simulation", "quota_block", "budget_block", "failure"];
+            if (!validModes.includes(intent.payload.mode)) {
+              return { valid: false, error: "invalid_mode" };
+            }
+            return { valid: true };
           case "restore_objective":
             if (!intent.payload.objective_id) {
               return { valid: false, error: "missing_objective_id" };
@@ -7940,6 +7953,77 @@ var require_intent_gateway = __commonJS({
             }
           };
         }
+      }
+      /**
+       * Handle test_execution intent (Phase 1 validation)
+       * 
+       * Synthetic execution for validation testing
+       * 
+       * @private
+       * @param {Intent} intent
+       * @returns {Promise<Object>} Response
+       */
+      async _handleTestExecution(intent) {
+        const { mode } = intent.payload;
+        const execution_id = `exec-${uuidv4()}`;
+        await this.tracer.recordEvent(intent.intent_id, "execution.started", {
+          execution_id,
+          mode
+        });
+        let result;
+        switch (mode) {
+          case "success":
+            result = {
+              accepted: true,
+              action: "test_execution_success",
+              execution_id,
+              message: "Test execution completed successfully",
+              metadata: { mode, synthetic: true }
+            };
+            break;
+          case "simulation":
+            result = {
+              accepted: true,
+              action: "test_execution_simulated",
+              execution_id,
+              message: "Test execution simulated (no real action)",
+              metadata: { mode, synthetic: true, simulated: true }
+            };
+            break;
+          case "quota_block":
+            return {
+              accepted: false,
+              error: "quota_exceeded",
+              message: "Test execution blocked by quota",
+              metadata: { mode, synthetic: true, blocked_by: "quota" }
+            };
+          case "budget_block":
+            return {
+              accepted: false,
+              error: "budget_exceeded",
+              message: "Test execution blocked by budget",
+              metadata: { mode, synthetic: true, blocked_by: "budget" }
+            };
+          case "failure":
+            return {
+              accepted: false,
+              error: "execution_failed",
+              message: "Test execution failed (synthetic)",
+              metadata: { mode, synthetic: true, failed: true }
+            };
+          default:
+            return {
+              accepted: false,
+              error: "invalid_mode",
+              message: `Unknown test mode: ${mode}`
+            };
+        }
+        await this.tracer.recordEvent(intent.intent_id, "execution.completed", {
+          execution_id,
+          mode,
+          action: result.action
+        });
+        return result;
       }
       // ============================================================
       // LIFECYCLE EVENTS
@@ -10592,7 +10676,7 @@ var require_warrant = __commonJS({
   "../../../services/vienna-lib/governance/warrant.js"(exports2, module2) {
     var crypto8 = require("crypto");
     var fs4 = require("fs").promises;
-    var path4 = require("path");
+    var path5 = require("path");
     var Warrant2 = class {
       constructor(adapter) {
         this.adapter = adapter;
@@ -14112,13 +14196,13 @@ var require_resource_scheduler = __commonJS({
        */
       async _filterByBudget(paths, context) {
         const affordablePaths = [];
-        for (const path4 of paths) {
+        for (const path5 of paths) {
           const affordability = await this.budgetManager.checkAffordability(
             { compute_class: "compute:medium", estimated_tokens: 1e3 },
-            { ...context, estimated_cost: path4.estimated_cost }
+            { ...context, estimated_cost: path5.estimated_cost }
           );
           if (affordability.affordable) {
-            affordablePaths.push(path4);
+            affordablePaths.push(path5);
           }
         }
         return affordablePaths;
@@ -14127,14 +14211,14 @@ var require_resource_scheduler = __commonJS({
        * Filter paths by resource requirements
        */
       _filterByResources(paths, resourceReqs) {
-        return paths.filter((path4) => {
-          if (resourceReqs.max_cost !== null && path4.estimated_cost > resourceReqs.max_cost) {
+        return paths.filter((path5) => {
+          if (resourceReqs.max_cost !== null && path5.estimated_cost > resourceReqs.max_cost) {
             return false;
           }
-          if (path4.success_probability < resourceReqs.min_success_probability) {
+          if (path5.success_probability < resourceReqs.min_success_probability) {
             return false;
           }
-          if (!path4.compute_available) {
+          if (!path5.compute_available) {
             return false;
           }
           return true;
@@ -14144,8 +14228,8 @@ var require_resource_scheduler = __commonJS({
        * Rank paths by strategy
        */
       _rankPaths(paths, strategy, weights) {
-        for (const path4 of paths) {
-          path4.calculateScore(strategy, weights);
+        for (const path5 of paths) {
+          path5.calculateScore(strategy, weights);
         }
         return paths.sort((a2, b2) => b2.score - a2.score);
       }
@@ -14990,13 +15074,68 @@ var require_federation = __commonJS({
 // ../../../services/vienna-lib/runtime-stub.js
 var require_runtime_stub = __commonJS({
   "../../../services/vienna-lib/runtime-stub.js"(exports2, module2) {
+    var startTime = Date.now();
+    var queuedExecutorStub = {
+      connectEventStream(eventStream2) {
+        console.log("[Stub] Event stream connected");
+      },
+      getHealth() {
+        return {
+          status: "degraded",
+          reason: "Runtime stub (not full Vienna Core)",
+          uptime_seconds: Math.floor((Date.now() - startTime) / 1e3)
+        };
+      },
+      getQueueState() {
+        return {
+          pending: 0,
+          active: 0,
+          completed: 0,
+          failed: 0
+        };
+      },
+      getExecutionControlState() {
+        return {
+          paused: false,
+          kill_switch_active: false,
+          pause_reason: null,
+          kill_switch_reason: null
+        };
+      },
+      getServiceHealth(serviceName) {
+        return {
+          service: serviceName,
+          status: "unknown",
+          health: "unknown",
+          last_check: null
+        };
+      }
+    };
+    var deadLetterQueueStub = {
+      getStats() {
+        return {
+          total: 0,
+          by_state: {}
+        };
+      },
+      listItems(options) {
+        return {
+          items: [],
+          total: 0,
+          hasMore: false
+        };
+      },
+      clear() {
+        return { cleared: 0 };
+      }
+    };
     module2.exports = {
       init(config) {
         console.log("[Runtime Stub] Initialized with config:", config);
       },
       // Stub properties expected by ViennaRuntimeService
-      queuedExecutor: null,
-      deadLetterQueue: null
+      queuedExecutor: queuedExecutorStub,
+      deadLetterQueue: deadLetterQueueStub
     };
   }
 });
@@ -15405,24 +15544,24 @@ var init_intentParser = __esm({
 });
 
 // src/services/workspaceResolver.js
-var fs, path, WorkspaceResolver;
+var fs, path2, WorkspaceResolver;
 var init_workspaceResolver = __esm({
   "src/services/workspaceResolver.js"() {
     fs = __toESM(require("fs/promises"), 1);
-    path = __toESM(require("path"), 1);
+    path2 = __toESM(require("path"), 1);
     WorkspaceResolver = class {
       constructor(workspace) {
         this.fileIndex = /* @__PURE__ */ new Map();
         this.lastIndexed = 0;
         this.indexTTL = 3e4;
-        this.workspace = workspace || process.env.OPENCLAW_WORKSPACE || path.join(process.env.HOME || "~", ".openclaw", "workspace");
+        this.workspace = workspace || process.env.OPENCLAW_WORKSPACE || path2.join(process.env.HOME || "~", ".openclaw", "workspace");
       }
       /**
        * Resolve file reference to workspace path
        */
       async resolve(query) {
         await this.refreshIndex();
-        const exactPath = path.resolve(this.workspace, query);
+        const exactPath = path2.resolve(this.workspace, query);
         if (exactPath.startsWith(this.workspace)) {
           try {
             await fs.access(exactPath);
@@ -15430,9 +15569,9 @@ var init_workspaceResolver = __esm({
             if (stats.isFile()) {
               return {
                 status: "resolved",
-                fileName: path.basename(exactPath),
+                fileName: path2.basename(exactPath),
                 path: exactPath,
-                relativePath: path.relative(this.workspace, exactPath)
+                relativePath: path2.relative(this.workspace, exactPath)
               };
             }
           } catch {
@@ -15446,7 +15585,7 @@ var init_workspaceResolver = __esm({
               matches.push({
                 fileName,
                 path: filePath,
-                relativePath: path.relative(this.workspace, filePath)
+                relativePath: path2.relative(this.workspace, filePath)
               });
             }
           }
@@ -15471,7 +15610,7 @@ var init_workspaceResolver = __esm({
               matches.push({
                 fileName,
                 path: filePath,
-                relativePath: path.relative(this.workspace, filePath)
+                relativePath: path2.relative(this.workspace, filePath)
               });
             }
           }
@@ -15517,7 +15656,7 @@ var init_workspaceResolver = __esm({
             if (this.shouldIgnore(entry.name)) {
               continue;
             }
-            const entryPath = path.join(dir, entry.name);
+            const entryPath = path2.join(dir, entry.name);
             if (entry.isFile()) {
               const fileName = entry.name;
               if (!this.fileIndex.has(fileName)) {
@@ -15912,8 +16051,8 @@ function setShims(shims, options = { auto: false }) {
   auto = options.auto;
   kind = shims.kind;
   fetch2 = shims.fetch;
-  Request34 = shims.Request;
-  Response34 = shims.Response;
+  Request35 = shims.Request;
+  Response35 = shims.Response;
   Headers = shims.Headers;
   FormData = shims.FormData;
   Blob = shims.Blob;
@@ -15924,14 +16063,14 @@ function setShims(shims, options = { auto: false }) {
   fileFromPath = shims.fileFromPath;
   isFsReadStream = shims.isFsReadStream;
 }
-var auto, kind, fetch2, Request34, Response34, Headers, FormData, Blob, File, ReadableStream, getMultipartRequestOptions, getDefaultAgent, fileFromPath, isFsReadStream;
+var auto, kind, fetch2, Request35, Response35, Headers, FormData, Blob, File, ReadableStream, getMultipartRequestOptions, getDefaultAgent, fileFromPath, isFsReadStream;
 var init_registry = __esm({
   "../../../node_modules/@anthropic-ai/sdk/_shims/registry.mjs"() {
     auto = false;
     kind = void 0;
     fetch2 = void 0;
-    Request34 = void 0;
-    Response34 = void 0;
+    Request35 = void 0;
+    Response35 = void 0;
     Headers = void 0;
     FormData = void 0;
     Blob = void 0;
@@ -16676,14 +16815,14 @@ var require_url_state_machine = __commonJS({
       return url.replace(/\u0009|\u000A|\u000D/g, "");
     }
     function shortenPath(url) {
-      const path4 = url.path;
-      if (path4.length === 0) {
+      const path5 = url.path;
+      if (path5.length === 0) {
         return;
       }
-      if (url.scheme === "file" && path4.length === 1 && isNormalizedWindowsDriveLetter(path4[0])) {
+      if (url.scheme === "file" && path5.length === 1 && isNormalizedWindowsDriveLetter(path5[0])) {
         return;
       }
-      path4.pop();
+      path5.pop();
     }
     function includesCredentials(url) {
       return url.username !== "" || url.password !== "";
@@ -18463,7 +18602,7 @@ var require_lib2 = __commonJS({
     }
     var INTERNALS$1 = /* @__PURE__ */ Symbol("Response internals");
     var STATUS_CODES = http.STATUS_CODES;
-    var Response36 = class _Response {
+    var Response37 = class _Response {
       constructor() {
         let body = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null;
         let opts = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
@@ -18521,8 +18660,8 @@ var require_lib2 = __commonJS({
         });
       }
     };
-    Body.mixIn(Response36.prototype);
-    Object.defineProperties(Response36.prototype, {
+    Body.mixIn(Response37.prototype);
+    Object.defineProperties(Response37.prototype, {
       url: { enumerable: true },
       status: { enumerable: true },
       ok: { enumerable: true },
@@ -18531,7 +18670,7 @@ var require_lib2 = __commonJS({
       headers: { enumerable: true },
       clone: { enumerable: true }
     });
-    Object.defineProperty(Response36.prototype, Symbol.toStringTag, {
+    Object.defineProperty(Response37.prototype, Symbol.toStringTag, {
       value: "Response",
       writable: false,
       enumerable: false,
@@ -18555,7 +18694,7 @@ var require_lib2 = __commonJS({
       const proto = signal && typeof signal === "object" && Object.getPrototypeOf(signal);
       return !!(proto && proto.constructor.name === "AbortSignal");
     }
-    var Request36 = class _Request {
+    var Request37 = class _Request {
       constructor(input) {
         let init = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
         let parsedURL;
@@ -18627,14 +18766,14 @@ var require_lib2 = __commonJS({
         return new _Request(this);
       }
     };
-    Body.mixIn(Request36.prototype);
-    Object.defineProperty(Request36.prototype, Symbol.toStringTag, {
+    Body.mixIn(Request37.prototype);
+    Object.defineProperty(Request37.prototype, Symbol.toStringTag, {
       value: "Request",
       writable: false,
       enumerable: false,
       configurable: true
     });
-    Object.defineProperties(Request36.prototype, {
+    Object.defineProperties(Request37.prototype, {
       method: { enumerable: true },
       url: { enumerable: true },
       headers: { enumerable: true },
@@ -18713,7 +18852,7 @@ var require_lib2 = __commonJS({
       }
       Body.Promise = fetch3.Promise;
       return new fetch3.Promise(function(resolve2, reject) {
-        const request = new Request36(url, opts);
+        const request = new Request37(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
         const signal = request.signal;
@@ -18845,7 +18984,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve2(fetch3(new Request36(locationURL, requestOpts)));
+                resolve2(fetch3(new Request37(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -18865,7 +19004,7 @@ var require_lib2 = __commonJS({
           };
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-            response = new Response36(body, response_options);
+            response = new Response37(body, response_options);
             resolve2(response);
             return;
           }
@@ -18875,7 +19014,7 @@ var require_lib2 = __commonJS({
           };
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
-            response = new Response36(body, response_options);
+            response = new Response37(body, response_options);
             resolve2(response);
             return;
           }
@@ -18887,12 +19026,12 @@ var require_lib2 = __commonJS({
               } else {
                 body = body.pipe(zlib.createInflateRaw());
               }
-              response = new Response36(body, response_options);
+              response = new Response37(body, response_options);
               resolve2(response);
             });
             raw.on("end", function() {
               if (!response) {
-                response = new Response36(body, response_options);
+                response = new Response37(body, response_options);
                 resolve2(response);
               }
             });
@@ -18900,11 +19039,11 @@ var require_lib2 = __commonJS({
           }
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
-            response = new Response36(body, response_options);
+            response = new Response37(body, response_options);
             resolve2(response);
             return;
           }
-          response = new Response36(body, response_options);
+          response = new Response37(body, response_options);
           resolve2(response);
         });
         writeToStream(req, request);
@@ -18945,8 +19084,8 @@ var require_lib2 = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.default = exports2;
     exports2.Headers = Headers3;
-    exports2.Request = Request36;
-    exports2.Response = Response36;
+    exports2.Request = Request37;
+    exports2.Response = Response37;
     exports2.FetchError = FetchError;
     exports2.AbortError = AbortError;
   }
@@ -22667,14 +22806,14 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-function createFileFromPath(path4, { mtimeMs, size }, filenameOrOptions, options = {}) {
+function createFileFromPath(path5, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
   if (isPlainObject_default2(filenameOrOptions)) {
     [options, filename] = [filenameOrOptions, void 0];
   } else {
     filename = filenameOrOptions;
   }
-  const file = new FileFromPath({ path: path4, size, lastModified: mtimeMs });
+  const file = new FileFromPath({ path: path5, size, lastModified: mtimeMs });
   if (!filename) {
     filename = file.name;
   }
@@ -22683,19 +22822,19 @@ function createFileFromPath(path4, { mtimeMs, size }, filenameOrOptions, options
     lastModified: file.lastModified
   });
 }
-function fileFromPathSync(path4, filenameOrOptions, options = {}) {
-  const stats = (0, import_fs2.statSync)(path4);
-  return createFileFromPath(path4, stats, filenameOrOptions, options);
+function fileFromPathSync(path5, filenameOrOptions, options = {}) {
+  const stats = (0, import_fs2.statSync)(path5);
+  return createFileFromPath(path5, stats, filenameOrOptions, options);
 }
-async function fileFromPath2(path4, filenameOrOptions, options) {
-  const stats = await import_fs2.promises.stat(path4);
-  return createFileFromPath(path4, stats, filenameOrOptions, options);
+async function fileFromPath2(path5, filenameOrOptions, options) {
+  const stats = await import_fs2.promises.stat(path5);
+  return createFileFromPath(path5, stats, filenameOrOptions, options);
 }
-var import_fs2, import_path3, import_node_domexception, __classPrivateFieldSet4, __classPrivateFieldGet5, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
+var import_fs2, import_path4, import_node_domexception, __classPrivateFieldSet4, __classPrivateFieldGet5, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
 var init_fileFromPath = __esm({
   "../../../node_modules/formdata-node/lib/esm/fileFromPath.js"() {
     import_fs2 = require("fs");
-    import_path3 = require("path");
+    import_path4 = require("path");
     import_node_domexception = __toESM(require_node_domexception(), 1);
     init_File();
     init_isPlainObject2();
@@ -22718,7 +22857,7 @@ var init_fileFromPath = __esm({
         _FileFromPath_start.set(this, void 0);
         __classPrivateFieldSet4(this, _FileFromPath_path, input.path, "f");
         __classPrivateFieldSet4(this, _FileFromPath_start, input.start || 0, "f");
-        this.name = (0, import_path3.basename)(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
+        this.name = (0, import_path4.basename)(__classPrivateFieldGet5(this, _FileFromPath_path, "f"));
         this.size = input.size;
         this.lastModified = input.lastModified;
       }
@@ -22750,13 +22889,13 @@ var init_fileFromPath = __esm({
 });
 
 // ../../../node_modules/@anthropic-ai/sdk/_shims/node-runtime.mjs
-async function fileFromPath3(path4, ...args) {
+async function fileFromPath3(path5, ...args) {
   const { fileFromPath: _fileFromPath } = await Promise.resolve().then(() => (init_fileFromPath(), fileFromPath_exports));
   if (!fileFromPathWarned) {
-    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path4)}) instead`);
+    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path5)}) instead`);
     fileFromPathWarned = true;
   }
-  return await _fileFromPath(path4, ...args);
+  return await _fileFromPath(path5, ...args);
 }
 async function getMultipartRequestOptions2(form, opts) {
   const encoder = new FormDataEncoder(form);
@@ -23467,29 +23606,29 @@ var init_core = __esm({
       defaultIdempotencyKey() {
         return `stainless-node-retry-${uuid4()}`;
       }
-      get(path4, opts) {
-        return this.methodRequest("get", path4, opts);
+      get(path5, opts) {
+        return this.methodRequest("get", path5, opts);
       }
-      post(path4, opts) {
-        return this.methodRequest("post", path4, opts);
+      post(path5, opts) {
+        return this.methodRequest("post", path5, opts);
       }
-      patch(path4, opts) {
-        return this.methodRequest("patch", path4, opts);
+      patch(path5, opts) {
+        return this.methodRequest("patch", path5, opts);
       }
-      put(path4, opts) {
-        return this.methodRequest("put", path4, opts);
+      put(path5, opts) {
+        return this.methodRequest("put", path5, opts);
       }
-      delete(path4, opts) {
-        return this.methodRequest("delete", path4, opts);
+      delete(path5, opts) {
+        return this.methodRequest("delete", path5, opts);
       }
-      methodRequest(method, path4, opts) {
+      methodRequest(method, path5, opts) {
         return this.request(Promise.resolve(opts).then(async (opts2) => {
           const body = opts2 && isBlobLike(opts2?.body) ? new DataView(await opts2.body.arrayBuffer()) : opts2?.body instanceof DataView ? opts2.body : opts2?.body instanceof ArrayBuffer ? new DataView(opts2.body) : opts2 && ArrayBuffer.isView(opts2?.body) ? new DataView(opts2.body.buffer) : opts2?.body;
-          return { method, path: path4, ...opts2, body };
+          return { method, path: path5, ...opts2, body };
         }));
       }
-      getAPIList(path4, Page2, opts) {
-        return this.requestAPIList(Page2, { method: "get", path: path4, ...opts });
+      getAPIList(path5, Page2, opts) {
+        return this.requestAPIList(Page2, { method: "get", path: path5, ...opts });
       }
       calculateContentLength(body) {
         if (typeof body === "string") {
@@ -23507,10 +23646,10 @@ var init_core = __esm({
         return null;
       }
       buildRequest(options, { retryCount = 0 } = {}) {
-        const { method, path: path4, query, headers = {} } = options;
+        const { method, path: path5, query, headers = {} } = options;
         const body = ArrayBuffer.isView(options.body) || options.__binaryRequest && typeof options.body === "string" ? options.body : isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
         const contentLength = this.calculateContentLength(body);
-        const url = this.buildURL(path4, query);
+        const url = this.buildURL(path5, query);
         if ("timeout" in options)
           validatePositiveInteger("timeout", options.timeout);
         const timeout = options.timeout ?? this.timeout;
@@ -23623,8 +23762,8 @@ var init_core = __esm({
         const request = this.makeRequest(options, null);
         return new PagePromise(this, request, Page2);
       }
-      buildURL(path4, query) {
-        const url = isAbsoluteURL(path4) ? new URL(path4) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path4.startsWith("/") ? path4.slice(1) : path4));
+      buildURL(path5, query) {
+        const url = isAbsoluteURL(path5) ? new URL(path5) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path5.startsWith("/") ? path5.slice(1) : path5));
         const defaultQuery = this.defaultQuery();
         if (!isEmptyObj(defaultQuery)) {
           query = { ...defaultQuery, ...query };
@@ -26451,12 +26590,14 @@ var init_providers = __esm({
 
 // src/server.ts
 var import_dotenv = __toESM(require("dotenv"), 1);
-var import_path4 = __toESM(require("path"), 1);
+var import_path5 = __toESM(require("path"), 1);
 var import_os = __toESM(require("os"), 1);
 var import_crypto4 = __toESM(require("crypto"), 1);
 
 // src/app.ts
-var import_express35 = __toESM(require("express"), 1);
+var import_express36 = __toESM(require("express"), 1);
+var import_path = __toESM(require("path"), 1);
+var import_url = require("url");
 var import_cors = __toESM(require("cors"), 1);
 var import_cookie_parser = __toESM(require("cookie-parser"), 1);
 
@@ -28441,10 +28582,10 @@ function createFilesRouter(vienna) {
   const router5 = (0, import_express19.Router)();
   router5.get("/list", async (req, res) => {
     try {
-      const path4 = req.query.path || "/";
+      const path5 = req.query.path || "/";
       const operator = req.session?.operator || "unknown";
       const result = await vienna.listFiles({
-        path: path4,
+        path: path5,
         operator
       });
       res.json({
@@ -28503,9 +28644,9 @@ function createFilesRouter(vienna) {
   });
   router5.get("/read", async (req, res) => {
     try {
-      const path4 = req.query.path;
+      const path5 = req.query.path;
       const operator = req.session?.operator || "unknown";
-      if (!path4) {
+      if (!path5) {
         res.status(400).json({
           success: false,
           error: "Missing required parameter: path",
@@ -28515,7 +28656,7 @@ function createFilesRouter(vienna) {
         return;
       }
       const result = await vienna.readFile({
-        path: path4,
+        path: path5,
         operator
       });
       res.json({
@@ -28535,9 +28676,9 @@ function createFilesRouter(vienna) {
   });
   router5.post("/write", async (req, res) => {
     try {
-      const { path: path4, content, createOnly } = req.body;
+      const { path: path5, content, createOnly } = req.body;
       const operator = req.session?.operator || "unknown";
-      if (!path4) {
+      if (!path5) {
         res.status(400).json({
           success: false,
           error: "Missing required field: path",
@@ -28547,7 +28688,7 @@ function createFilesRouter(vienna) {
         return;
       }
       const result = await vienna.writeFile({
-        path: path4,
+        path: path5,
         content: content || "",
         createOnly: createOnly || false,
         operator
@@ -28569,9 +28710,9 @@ function createFilesRouter(vienna) {
   });
   router5.delete("/delete", async (req, res) => {
     try {
-      const path4 = req.query.path;
+      const path5 = req.query.path;
       const operator = req.session?.operator || "unknown";
-      if (!path4) {
+      if (!path5) {
         res.status(400).json({
           success: false,
           error: "Missing required parameter: path",
@@ -28581,7 +28722,7 @@ function createFilesRouter(vienna) {
         return;
       }
       const result = await vienna.deleteFile({
-        path: path4,
+        path: path5,
         operator
       });
       res.json({
@@ -28601,7 +28742,7 @@ function createFilesRouter(vienna) {
   });
   router5.post("/search", async (req, res) => {
     try {
-      const { query, path: path4, contentSearch } = req.body;
+      const { query, path: path5, contentSearch } = req.body;
       const operator = req.session?.operator || "unknown";
       if (!query) {
         res.status(400).json({
@@ -28614,7 +28755,7 @@ function createFilesRouter(vienna) {
       }
       const result = await vienna.searchFiles({
         query,
-        path: path4 || "/",
+        path: path5 || "/",
         contentSearch: contentSearch || false,
         operator
       });
@@ -30440,7 +30581,15 @@ init_vienna_lib();
 function createIntentRouter() {
   const router5 = (0, import_express30.Router)();
   const stateGraph = getStateGraph();
-  const intentGateway = new IntentGateway(stateGraph);
+  const intentGateway = new IntentGateway(stateGraph, {
+    supported_intent_types: [
+      "restore_objective",
+      "investigate_objective",
+      "set_safe_mode",
+      "test_execution"
+      // Phase 1 validation support
+    ]
+  });
   router5.post("/", async (req, res) => {
     try {
       const { intent_type, payload, simulation = false } = req.body;
@@ -31129,9 +31278,98 @@ router4.get("/:incident_id/graph", async (req, res) => {
 });
 var incidents_default = router4;
 
+// src/routes/validation.ts
+var import_express35 = require("express");
+init_vienna_lib();
+function createValidationRouter() {
+  const router5 = (0, import_express35.Router)();
+  router5.post("/log", async (req, res) => {
+    try {
+      const { case: testCase, result, details, ui_observation } = req.body;
+      if (!testCase || !result) {
+        res.status(400).json({
+          success: false,
+          error: "Missing required fields: case, result",
+          timestamp: (/* @__PURE__ */ new Date()).toISOString()
+        });
+        return;
+      }
+      const stateGraph = getStateGraph();
+      await stateGraph.initialize();
+      const validationId = `val_${Date.now()}_${testCase}`;
+      const timestamp = (/* @__PURE__ */ new Date()).toISOString();
+      const db = stateGraph.db;
+      const stmt = db.prepare(`
+        INSERT INTO runtime_context (key, value, metadata, created_at)
+        VALUES (?, ?, ?, ?)
+      `);
+      stmt.run(
+        `validation_${validationId}`,
+        JSON.stringify({
+          case: testCase,
+          result,
+          details,
+          ui_observation,
+          timestamp
+        }),
+        JSON.stringify({ type: "browser_validation" }),
+        timestamp
+      );
+      res.json({
+        success: true,
+        validation_id: validationId,
+        timestamp
+      });
+    } catch (error) {
+      console.error("Validation log error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to log validation",
+        details: error.message,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    }
+  });
+  router5.get("/results", async (req, res) => {
+    try {
+      const stateGraph = getStateGraph();
+      await stateGraph.initialize();
+      const db = stateGraph.db;
+      const stmt = db.prepare(`
+        SELECT key, value, metadata, created_at
+        FROM runtime_context
+        WHERE key LIKE 'validation_%'
+        ORDER BY created_at DESC
+      `);
+      const rows = stmt.all();
+      const results = rows.map((row) => ({
+        validation_id: row.key.replace("validation_", ""),
+        ...JSON.parse(row.value),
+        created_at: row.created_at
+      }));
+      res.json({
+        success: true,
+        results,
+        count: results.length
+      });
+    } catch (error) {
+      console.error("Validation results error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to retrieve validation results",
+        details: error.message,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      });
+    }
+  });
+  return router5;
+}
+
 // src/app.ts
+var __filename = (0, import_url.fileURLToPath)(importMetaUrl);
+var __dirname2 = import_path.default.dirname(__filename);
 function createApp(viennaRuntime, chatService2, bootstrapService, objectivesService, authService, timelineService, runtimeStatsService, providerHealthService, systemNowService) {
-  const app = (0, import_express35.default)();
+  const app = (0, import_express36.default)();
   const requireAuth = createAuthMiddleware(authService);
   const corsOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",").map((o2) => o2.trim()) : [
     // Development defaults (when CORS_ORIGIN not set)
@@ -31142,8 +31380,8 @@ function createApp(viennaRuntime, chatService2, bootstrapService, objectivesServ
     origin: corsOrigins,
     credentials: true
   }));
-  app.use(import_express35.default.json({ limit: "10mb" }));
-  app.use(import_express35.default.urlencoded({ extended: true }));
+  app.use(import_express36.default.json({ limit: "10mb" }));
+  app.use(import_express36.default.urlencoded({ extended: true }));
   app.use((0, import_cookie_parser.default)());
   app.use((req, res, next) => {
     const start2 = Date.now();
@@ -31238,6 +31476,7 @@ function createApp(viennaRuntime, chatService2, bootstrapService, objectivesServ
   app.use(`${apiPrefix}/investigations`, requireAuth, investigations_default);
   app.use(`${apiPrefix}/artifacts`, requireAuth, artifacts_default);
   app.use(`${apiPrefix}/incidents`, requireAuth, incidents_default);
+  app.use(`${apiPrefix}/validation`, createValidationRouter());
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));
   app.use(`${apiPrefix}/deadletters`, requireAuth, createDeadLettersRouter(objectivesService));
@@ -31246,6 +31485,19 @@ function createApp(viennaRuntime, chatService2, bootstrapService, objectivesServ
   app.use(`${apiPrefix}/audit`, requireAuth, createAuditRouter(viennaRuntime));
   app.use(`${apiPrefix}/directives`, requireAuth, createDirectivesRouter(viennaRuntime));
   app.use(`${apiPrefix}/stream`, requireAuth, createStreamRouter(eventStream));
+  const clientDistPath = import_path.default.join(__dirname2, "../../client/dist");
+  app.use(import_express36.default.static(clientDistPath));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api/") || req.path.startsWith("/health")) {
+      return next();
+    }
+    res.sendFile(import_path.default.join(clientDistPath, "index.html"), (err) => {
+      if (err) {
+        console.error("Error serving index.html:", err);
+        next(err);
+      }
+    });
+  });
   app.use((req, res) => {
     const error = {
       success: false,
@@ -33576,20 +33828,20 @@ ${result.envelopes_resumed} envelopes resumed.`
 
 // src/services/chatHistoryService.ts
 var import_better_sqlite3 = __toESM(require("better-sqlite3"), 1);
-var import_path = __toESM(require("path"), 1);
+var import_path2 = __toESM(require("path"), 1);
 var import_fs = __toESM(require("fs"), 1);
 var import_crypto2 = __toESM(require("crypto"), 1);
-var import_url = require("url");
-var import_path2 = require("path");
-var __filename = (0, import_url.fileURLToPath)(importMetaUrl);
-var __dirname2 = (0, import_path2.dirname)(__filename);
+var import_url2 = require("url");
+var import_path3 = require("path");
+var __filename2 = (0, import_url2.fileURLToPath)(importMetaUrl);
+var __dirname3 = (0, import_path3.dirname)(__filename2);
 var ChatHistoryService = class {
   db = null;
   initialized = false;
   dbPath;
   constructor(dataDir) {
-    const defaultDataDir = import_path.default.join(__dirname2, "../../data");
-    this.dbPath = import_path.default.join(dataDir || defaultDataDir, "chat-history.db");
+    const defaultDataDir = import_path2.default.join(__dirname3, "../../data");
+    this.dbPath = import_path2.default.join(dataDir || defaultDataDir, "chat-history.db");
   }
   /**
    * Initialize database and create tables
@@ -33597,7 +33849,7 @@ var ChatHistoryService = class {
   async initialize() {
     if (this.initialized) return;
     try {
-      const dataDir = import_path.default.dirname(this.dbPath);
+      const dataDir = import_path2.default.dirname(this.dbPath);
       if (!import_fs.default.existsSync(dataDir)) {
         import_fs.default.mkdirSync(dataDir, { recursive: true });
       }
@@ -35889,7 +36141,7 @@ var PORT = parseInt(process.env.PORT || "3100", 10);
 var HOST = process.env.HOST || "0.0.0.0";
 async function initializeViennaCore() {
   console.log("Initializing Vienna Core...");
-  const workspace = process.env.OPENCLAW_WORKSPACE || import_path4.default.join(import_os.default.homedir(), ".openclaw", "workspace");
+  const workspace = process.env.OPENCLAW_WORKSPACE || import_path5.default.join(import_os.default.homedir(), ".openclaw", "workspace");
   const ViennaCore = (await Promise.resolve().then(() => (init_vienna_lib(), vienna_lib_exports))).default;
   ViennaCore.init({
     adapter: "openclaw",

@@ -88,8 +88,8 @@ export default function IntegrationsPage() {
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+            <Shield className="w-6 h-6 text-purple-400" />
+            <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
           <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
         </div>
@@ -141,9 +141,9 @@ export default function IntegrationsPage() {
           <p className="text-slate-400 text-sm mb-6">
             If it can make HTTP requests, it works with Vienna OS.
             <br />
-            Check our <a href="/docs#integration" className="text-gold-400 hover:text-gold-300">integration guide</a> for details.
+            Check our <a href="/docs#integration" className="text-purple-400 hover:text-purple-300">integration guide</a> for details.
           </p>
-          <a href="/try" className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
+          <a href="/try" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
             Try the API Live <ArrowRight className="w-4 h-4" />
           </a>
         </div>

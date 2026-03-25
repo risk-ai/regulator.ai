@@ -25,7 +25,7 @@ export default function SuccessPage() {
               <span className="text-slate-500 w-24">URL:</span>
               <a
                 href="https://vienna-os.fly.dev"
-                className="text-gold-400 hover:text-gold-300 transition"
+                className="text-purple-400 hover:text-purple-300 transition"
               >
                 vienna-os.fly.dev
               </a>
@@ -44,7 +44,7 @@ export default function SuccessPage() {
         <div className="flex items-center justify-center gap-4">
           <a
             href="https://vienna-os.fly.dev"
-            className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
+            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
           >
             Open Console
             <ArrowRight className="w-4 h-4" />
@@ -58,7 +58,7 @@ export default function SuccessPage() {
         </div>
 
         <div className="mt-8 flex items-center justify-center gap-2">
-          <Shield className="w-4 h-4 text-gold-400" />
+          <Shield className="w-4 h-4 text-purple-400" />
           <span className="text-xs text-slate-600">
             Vienna OS — Governed AI Execution Layer
           </span>

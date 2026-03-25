@@ -24,10 +24,10 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+            <Shield className="w-6 h-6 text-purple-400" />
+            <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium">
+          <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
             Get Started
           </a>
         </div>
@@ -39,7 +39,7 @@ export default function AboutPage() {
           <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
             AI agents should be governed,
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-amber-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
               not just guardrailed.
             </span>
           </h1>
@@ -68,7 +68,7 @@ export default function AboutPage() {
                   </p>
                 </div>
               </div>
-              <div className="font-mono text-sm text-gold-400 bg-gold-400/10 border border-gold-400/20 rounded-lg px-4 py-3">
+              <div className="font-mono text-sm text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-3">
                 AI explains → Runtime executes → Operator approves.
               </div>
             </div>
@@ -97,7 +97,7 @@ export default function AboutPage() {
               },
             ].map((item) => (
               <div key={item.title} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-                <item.icon className="w-6 h-6 text-gold-400 mb-3" />
+                <item.icon className="w-6 h-6 text-purple-400 mb-3" />
                 <h3 className="text-white font-semibold mb-2 text-sm">{item.title}</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
               </div>
@@ -111,12 +111,12 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gold-400/20 border border-gold-400/30 flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-gold-400" />
+                <div className="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6 text-purple-400" />
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">Max Anderson</h3>
-                  <p className="text-xs text-gold-400">Founder & Lead Developer</p>
+                  <p className="text-xs text-purple-400">Founder & Lead Developer</p>
                 </div>
               </div>
               <p className="text-sm text-slate-400 leading-relaxed">
@@ -167,15 +167,15 @@ export default function AboutPage() {
 
         {/* Contact */}
         <section>
-          <div className="bg-gradient-to-br from-gold-500/10 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8 text-center">
-            <Target className="w-8 h-8 text-gold-400 mx-auto mb-4" />
+          <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
+            <Target className="w-8 h-8 text-purple-400 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-white mb-2">Want to learn more?</h2>
             <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">
               Whether you&apos;re an enterprise evaluating governance solutions,
               an investor, or a developer building agents — we&apos;d love to talk.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/signup" className="bg-gold-500 hover:bg-gold-400 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
+              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
                 Get Started Free
               </a>
               <a href="/contact" className="bg-navy-700 hover:bg-navy-600 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm border border-navy-600">

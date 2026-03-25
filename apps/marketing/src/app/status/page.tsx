@@ -54,8 +54,8 @@ export default function StatusPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+            <Shield className="w-6 h-6 text-purple-400" />
+            <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
           <button
             onClick={checkHealth}
@@ -124,7 +124,7 @@ export default function StatusPage() {
         )}
 
         <p className="text-center text-xs text-slate-600">
-          For incidents or outages, contact <a href="mailto:admin@ai.ventures" className="text-gold-400">admin@ai.ventures</a>
+          For incidents or outages, contact <a href="mailto:admin@ai.ventures" className="text-purple-400">admin@ai.ventures</a>
         </p>
       </main>
     </div>

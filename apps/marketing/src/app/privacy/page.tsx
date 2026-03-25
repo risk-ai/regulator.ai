@@ -7,8 +7,8 @@ export default function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+            <Shield className="w-6 h-6 text-purple-400" />
+            <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
         </div>
       </nav>
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">11. Contact</h2>
-            <p>For privacy inquiries, contact <a href="mailto:admin@ai.ventures" className="text-gold-400 hover:text-gold-300">admin@ai.ventures</a>.</p>
+            <p>For privacy inquiries, contact <a href="mailto:admin@ai.ventures" className="text-purple-400 hover:text-purple-300">admin@ai.ventures</a>.</p>
             <p className="mt-2">Technetwork 2 LLC dba ai.ventures<br/>244 5th Avenue #2283<br/>New York, NY 10001</p>
           </section>
         </div>

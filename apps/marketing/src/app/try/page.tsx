@@ -81,14 +81,14 @@ export default function TryPage() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-gold-400" />
+            <Shield className="w-6 h-6 text-purple-400" />
             <span className="font-bold text-white">
-              Vienna<span className="text-gold-400">OS</span>
+              Vienna<span className="text-purple-400">OS</span>
             </span>
           </a>
           <a
             href="/signup"
-            className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium"
+            className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
           >
             Get Started
           </a>
@@ -118,7 +118,7 @@ export default function TryPage() {
                   onClick={() => setSelected(action.id)}
                   className={`w-full text-left rounded-xl p-4 transition border ${
                     selected === action.id
-                      ? "border-gold-400/30 bg-gold-400/10"
+                      ? "border-purple-500/30 bg-purple-500/10"
                       : "border-navy-700 bg-navy-800 hover:border-navy-600"
                   }`}
                 >
@@ -144,7 +144,7 @@ export default function TryPage() {
             <button
               onClick={runIntent}
               disabled={loading || cooldown > 0}
-              className="w-full inline-flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-400 disabled:bg-gold-500/50 text-white px-6 py-3 rounded-xl transition font-medium"
+              className="w-full inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 text-white px-6 py-3 rounded-xl transition font-medium"
             >
               {loading ? (
                 "Executing..."
@@ -205,7 +205,7 @@ export default function TryPage() {
                 </p>
                 <a
                   href="/signup"
-                  className="inline-flex items-center gap-1 text-sm text-gold-400 font-medium mt-3 hover:text-gold-300 transition"
+                  className="inline-flex items-center gap-1 text-sm text-purple-400 font-medium mt-3 hover:text-purple-300 transition"
                 >
                   Get your own console <ArrowRight className="w-3 h-3" />
                 </a>
@@ -224,7 +224,7 @@ export default function TryPage() {
                 </p>
                 <a
                   href="/signup"
-                  className="inline-flex items-center gap-1 text-sm text-gold-400 font-medium mt-3 hover:text-gold-300 transition"
+                  className="inline-flex items-center gap-1 text-sm text-purple-400 font-medium mt-3 hover:text-purple-300 transition"
                 >
                   Get unlimited access <ArrowRight className="w-3 h-3" />
                 </a>

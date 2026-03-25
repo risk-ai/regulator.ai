@@ -1,153 +1,174 @@
 /**
- * Settings Page
- * Phase 2: Information Architecture
+ * Settings Page — Vienna OS
  * 
- * Operator preferences and system configuration
+ * Operator configuration, session management, and system information.
  */
 
+import React from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { useAuthStore } from '../store/authStore.js';
 
-/**
- * Settings Page - Configuration and preferences
- * 
- * Answers:
- * - How do I configure providers?
- * - How do I change session settings?
- * - How do I export audit logs?
- * - How do I view system info?
- */
 export function SettingsPage() {
-  const { logout } = useAuthStore();
-  
+  const { operator, logout } = useAuthStore();
+
   return (
     <PageLayout
       title="Settings"
-      description="Operator preferences and system configuration"
+      description="Operator configuration and system information"
     >
-      <div className="space-y-6">
-        {/* Session Info Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Session Info
-          </h2>
-          
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Operator</span>
-              <span className="text-white font-medium">vienna</span>
-            </div>
-            
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Session</span>
-              <span className="text-white text-xs">Active</span>
-            </div>
-            
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Login Time</span>
-              <span className="text-white">Current session</span>
-            </div>
-            
-            <div className="flex justify-between py-2">
-              <span className="text-gray-400">Environment</span>
-              <span className="text-white">Production</span>
-            </div>
-          </div>
-          
-          <div className="mt-6 pt-6 border-t border-gray-700">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
+        {/* Session */}
+        <SettingsCard title="Session">
+          <SettingsRow label="Operator" value={operator || 'vienna'} />
+          <SettingsRow label="Status" value="Active" valueColor="#4ade80" />
+          <SettingsRow label="Environment" value="Production" />
+          <SettingsRow label="Tenant" value="system" />
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
             <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
+              onClick={() => { if (confirm('Logout?')) logout(); }}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: '1px solid rgba(248, 113, 113, 0.2)',
+                background: 'rgba(248, 113, 113, 0.08)',
+                color: '#f87171',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
             >
               Logout
             </button>
           </div>
-        </div>
-        
-        {/* System Info Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            System Info
-          </h2>
-          
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Environment</span>
-              <span className="text-white font-medium">Production</span>
-            </div>
-            
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Vienna OS Version</span>
-              <span className="text-white font-mono">8.5.0</span>
-            </div>
-            
-            <div className="flex justify-between py-2 border-b border-gray-700">
-              <span className="text-gray-400">Phase</span>
-              <span className="text-white">
-                Phase 10.3 (Execution Timeouts)
-              </span>
-            </div>
-            
-            <div className="flex justify-between py-2">
-              <span className="text-gray-400">Build Timestamp</span>
-              <span className="text-white font-mono text-xs">2026-03-14</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Provider Configuration Panel - Placeholder */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Provider Configuration
-          </h2>
-          
-          <div className="text-center py-8 text-gray-400">
-            <p>Provider configuration interface</p>
-            <p className="text-sm mt-2">
-              Anthropic API key, Ollama endpoint, model preferences
+        </SettingsCard>
+
+        {/* System Info */}
+        <SettingsCard title="System">
+          <SettingsRow label="Vienna OS" value="v0.9.0" mono />
+          <SettingsRow label="Runtime" value="Node 22 · Express" />
+          <SettingsRow label="State Graph" value="SQLite · 15 tables" />
+          <SettingsRow label="Region" value="US East (iad)" />
+          <SettingsRow label="Host" value="Fly.io · 2 vCPU / 2 GB" />
+        </SettingsCard>
+
+        {/* Governance Config */}
+        <SettingsCard title="Governance Configuration">
+          <SettingsRow label="Risk Tiers" value="T0, T1, T2" />
+          <SettingsRow label="T0 Policy" value="Auto-approve" valueColor="#4ade80" />
+          <SettingsRow label="T1 Policy" value="Single operator approval" valueColor="#fbbf24" />
+          <SettingsRow label="T2 Policy" value="Multi-party approval" valueColor="#f87171" />
+          <SettingsRow label="Warrant TTL (T1)" value="900s" mono />
+          <SettingsRow label="Warrant TTL (T2)" value="300s" mono />
+          <SettingsRow label="Audit Retention" value="7 years" />
+        </SettingsCard>
+
+        {/* API Configuration */}
+        <SettingsCard title="API & Integrations">
+          <SettingsRow label="Intent Gateway" value="Enabled" valueColor="#4ade80" />
+          <SettingsRow label="Agent Auth" value="Source-based" />
+          <SettingsRow label="Rate Limit" value="60 req/min per IP" />
+          <SettingsRow label="CORS Origins" value="regulator.ai, localhost" />
+          <SettingsRow label="SSE Streaming" value="Enabled" valueColor="#4ade80" />
+        </SettingsCard>
+
+        {/* Links */}
+        <SettingsCard title="Resources">
+          <SettingsLink label="📖 Documentation" href="https://regulator.ai/docs" />
+          <SettingsLink label="🔐 Security" href="https://regulator.ai/security" />
+          <SettingsLink label="📋 Changelog" href="https://regulator.ai/changelog" />
+          <SettingsLink label="💻 GitHub" href="https://github.com/risk-ai/regulator.ai" />
+          <SettingsLink label="📧 Support" href="mailto:admin@ai.ventures" />
+        </SettingsCard>
+
+        {/* About */}
+        <SettingsCard title="About">
+          <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', lineHeight: 1.7 }}>
+            <p><strong style={{ color: 'var(--text-secondary)' }}>Vienna OS</strong> is the governance control plane for autonomous AI agents.</p>
+            <p style={{ marginTop: '8px' }}>Built by <strong style={{ color: 'var(--text-secondary)' }}>Max Anderson</strong> (Cornell Law) at <strong style={{ color: 'var(--text-secondary)' }}>ai.ventures</strong>.</p>
+            <p style={{ marginTop: '8px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+              © 2026 Technetwork 2 LLC dba ai.ventures
             </p>
-            <p className="text-xs mt-4 text-gray-500">
-              (Configuration UI to be implemented)
-            </p>
           </div>
-        </div>
-        
-        {/* About Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Documentation & Support
-          </h2>
-          
-          <div className="space-y-2">
-            <a
-              href="https://docs.openclaw.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded text-white transition"
-            >
-              📚 OpenClaw Documentation
-            </a>
-            
-            <a
-              href="https://github.com/openclaw/openclaw"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded text-white transition"
-            >
-              🔧 GitHub Repository
-            </a>
-            
-            <a
-              href="https://discord.com/invite/clawd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded text-white transition"
-            >
-              💬 Community Discord
-            </a>
-          </div>
-        </div>
+        </SettingsCard>
       </div>
     </PageLayout>
+  );
+}
+
+function SettingsCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: '12px',
+      padding: '20px',
+    }}>
+      <h3 style={{
+        fontSize: '12px',
+        fontWeight: 600,
+        color: 'var(--text-tertiary)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        marginBottom: '14px',
+      }}>
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+function SettingsRow({ label, value, valueColor, mono }: {
+  label: string;
+  value: string;
+  valueColor?: string;
+  mono?: boolean;
+}) {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '6px 0',
+      borderBottom: '1px solid var(--border-subtle)',
+    }}>
+      <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{label}</span>
+      <span style={{
+        fontSize: '12px',
+        fontWeight: 600,
+        color: valueColor || 'var(--text-secondary)',
+        fontFamily: mono ? 'var(--font-mono)' : 'inherit',
+      }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function SettingsLink({ label, href }: { label: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'block',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        background: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        textDecoration: 'none',
+        marginBottom: '4px',
+        transition: 'all 150ms',
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212, 165, 32, 0.2)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; }}
+    >
+      {label}
+    </a>
   );
 }

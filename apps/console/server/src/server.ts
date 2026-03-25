@@ -173,8 +173,8 @@ async function start() {
     const workspaceManager = new WorkspaceManager(stateGraph);
     console.log('Workspace Manager initialized');
     
-    // Initialize Agent Intent Bridge
-    const intentGateway = new IntentGateway();
+    // Initialize Agent Intent Bridge (with StateGraph dependency)
+    const intentGateway = new IntentGateway(stateGraph);
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log('Agent Intent Bridge initialized');
     

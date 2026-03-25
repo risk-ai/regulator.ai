@@ -6,3 +6,72 @@ body {
   background: #0B0F19;
   color: #e2e8f0;
 }
+
+/* Governance grid pattern */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Warrant seal glow */
+.warrant-glow {
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.15),
+    0 0 60px rgba(251, 191, 36, 0.05);
+}
+
+/* Pipeline animation */
+@keyframes pipeline-flow {
+  0% { opacity: 0.3; transform: translateX(-4px); }
+  50% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0.3; transform: translateX(4px); }
+}
+
+.pipeline-arrow {
+  animation: pipeline-flow 2s ease-in-out infinite;
+}
+
+/* Status pulse */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-live {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* Smooth gradient borders */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(96, 165, 250, 0.1), rgba(251, 191, 36, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Monospace code blocks */
+.code-block {
+  font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: all 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}

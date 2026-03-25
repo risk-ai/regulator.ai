@@ -202,8 +202,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-navy-900">
       {/* Hero */}
-      <header className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-navy-900 to-blue-900/20" />
+      <header className="relative overflow-hidden grid-bg">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-navy-900/80 to-navy-900" />
         <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24">
           <nav className="flex items-center justify-between mb-20">
             <div className="flex items-center gap-3">
@@ -247,44 +247,74 @@ export default function Home() {
             </div>
           )}
 
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 mb-6">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-              <span className="text-xs text-purple-400 font-medium">
-                Governed AI Execution Layer
-              </span>
+          <div className="max-w-4xl">
+            {/* Live status + badge */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 status-live" />
+                <span className="text-xs text-emerald-400 font-medium">
+                  Production — Operational
+                </span>
+              </div>
+              <a href="/try" className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 hover:bg-purple-500/20 transition">
+                <span className="text-xs text-purple-400 font-medium">
+                  Try the API live →
+                </span>
+              </a>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-              The control plane
+            
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-6 tracking-tight">
+              The governance layer
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-purple-400">
                 agents answer to.
               </span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-              Enterprise-grade governance layer for autonomous AI systems.
-              Agents propose, Vienna enforces policy, operators approve
-              high-stakes actions. No warrant, no execution.
+              Every AI agent action flows through policy evaluation, risk tiering,
+              and cryptographic authorization. No warrant, no execution.
+              Full audit trail, always.
             </p>
 
-            {/* Lifecycle flow */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Animated governance pipeline */}
+            <div className="flex items-center gap-1 flex-wrap mb-10">
               {lifecycle.map((step, i) => (
-                <div key={step} className="flex items-center gap-2">
-                  <span
-                    className={`text-xs font-mono px-3 py-1.5 rounded-lg ${
+                <div key={step} className="flex items-center gap-1">
+                  <div
+                    className={`px-3 py-2 rounded-lg text-xs font-mono font-medium transition-all ${
                       step === "Warrant"
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : "bg-navy-800 text-slate-400 border border-navy-700"
+                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 warrant-glow"
+                        : step === "Execute"
+                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        : step === "Verify"
+                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        : "bg-navy-800/80 text-slate-400 border border-navy-700"
                     }`}
                   >
                     {step}
-                  </span>
+                  </div>
                   {i < lifecycle.length - 1 && (
-                    <ArrowRight className="w-3 h-3 text-navy-600" />
+                    <ArrowRight className="w-3 h-3 text-navy-600 pipeline-arrow" style={{ animationDelay: `${i * 0.2}s` }} />
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* Hero CTAs */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <a
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3.5 rounded-xl transition font-semibold text-sm"
+              >
+                Get Started Free
+                <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="/try"
+                className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-8 py-3.5 rounded-xl transition font-medium text-sm border border-navy-700"
+              >
+                Try it Live →
+              </a>
             </div>
           </div>
         </div>
@@ -302,7 +332,7 @@ export default function Home() {
           {coreServices.map((s) => (
             <div
               key={s.name}
-              className={`${s.bg} border ${s.border} rounded-xl p-6 hover:scale-[1.02] transition-transform`}
+              className={`${s.bg} border ${s.border} rounded-xl p-6 card-hover`}
             >
               <s.icon className={`w-6 h-6 ${s.color} mb-4`} />
               <h3 className="text-white font-semibold mb-2">{s.name}</h3>
@@ -512,6 +542,66 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl font-bold text-white mb-2">Built for regulated industries</h2>
+        <p className="text-slate-500 mb-12 max-w-2xl">
+          Every industry deploying AI agents faces the same governance gap.
+          Vienna OS fills it.
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            {
+              industry: "Financial Services",
+              icon: "🏦",
+              scenario: "AI agent proposes a wire transfer",
+              flow: "Intent → T2 risk tier → Multi-party approval → Time-limited warrant (5 min) → Execute → Verify amount matches → Immutable audit entry",
+              regulation: "SEC AI guidance, SOX compliance",
+            },
+            {
+              industry: "Healthcare",
+              icon: "🏥",
+              scenario: "AI agent updates patient records",
+              flow: "Intent → HIPAA policy check → T1 approval → Warrant with PHI scope constraints → Execute → Verify no scope creep → Audit trail for 7 years",
+              regulation: "HIPAA, HITECH Act",
+            },
+            {
+              industry: "Legal",
+              icon: "⚖️",
+              scenario: "AI agent files a court document",
+              flow: "Intent → Attorney review policy → T2 approval (attorney + supervisor) → Warrant with filing scope → Execute → Verify filing receipt → Permanent record",
+              regulation: "ABA Model Rules, court filing requirements",
+            },
+            {
+              industry: "DevOps / Engineering",
+              icon: "🚀",
+              scenario: "AI agent deploys to production",
+              flow: "Intent → Deployment policy → T1 approval → Warrant with rollback constraint → Execute → Verify deployment health → Auto-rollback on failure",
+              regulation: "SOC 2, change management requirements",
+            },
+          ].map((uc) => (
+            <div
+              key={uc.industry}
+              className="bg-navy-800 border border-navy-700 rounded-xl p-6 card-hover"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-2xl">{uc.icon}</span>
+                <h3 className="text-white font-semibold">{uc.industry}</h3>
+              </div>
+              <p className="text-sm text-purple-400 font-medium mb-2">
+                &quot;{uc.scenario}&quot;
+              </p>
+              <p className="text-xs text-slate-400 leading-relaxed mb-3 font-mono">
+                {uc.flow}
+              </p>
+              <p className="text-xs text-slate-600">
+                Compliance: {uc.regulation}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 

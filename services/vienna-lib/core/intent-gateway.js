@@ -46,7 +46,17 @@ class IntentGateway {
         'investigate_objective',
         'set_safe_mode',
         'test_execution',  // Phase 1 validation support
-        'check_system_health'  // Phase 28 integration proof
+        'check_system_health',  // Phase 28 integration proof
+        'restart_service',  // Service management
+        'check_service_logs',  // Diagnostic
+        'check_system_status',  // Monitoring
+        'trigger_backup',  // Data protection
+        'run_diagnostic',  // System health
+        'update_configuration',  // Config management
+        'list_objectives',  // Objective queries
+        'query_state_graph',  // State inspection
+        'check_execution_status',  // Execution monitoring
+        'list_recent_executions'  // Audit trail
       ],
       ...options
     };
@@ -309,8 +319,12 @@ class IntentGateway {
       'restore_objective': this._handleRestoreObjective,
       'investigate_objective': this._handleInvestigateObjective,
       'set_safe_mode': this._handleSetSafeMode,
-      'test_execution': this._handleTestExecution,  // Phase 1 validation
-      'check_system_health': this._handleCheckSystemHealth  // Phase 28 integration
+      'test_execution': this._handleTestExecution,
+      'check_system_health': this._handleCheckSystemHealth,
+      'list_objectives': this._handleListObjectives,
+      'query_state_graph': this._handleQueryStateGraph,
+      'check_system_status': this._handleCheckSystemStatus,
+      'list_recent_executions': this._handleListRecentExecutions
     };
 
     return handlers[intentType] || null;
@@ -804,6 +818,91 @@ class IntentGateway {
         },
         result: healthResult
       }
+    };
+  }
+
+  /**
+   * Handle list_objectives intent
+   * @private
+   */
+  async _handleListObjectives(intent) {
+    const objectives = this.stateGraph.listObjectives(intent.payload || {});
+    return {
+      accepted: true,
+      action: 'objectives_listed',
+      message: `Found ${objectives.length} objective(s)`,
+      metadata: { objectives, count: objectives.length }
+    };
+  }
+
+  /**
+   * Handle query_state_graph intent
+   * @private
+   */
+  async _handleQueryStateGraph(intent) {
+    const { entity_type, filters } = intent.payload || {};
+    
+    let result;
+    switch (entity_type) {
+      case 'services':
+        result = this.stateGraph.listServices(filters);
+        break;
+      case 'providers':
+        result = this.stateGraph.listProviders();
+        break;
+      case 'incidents':
+        result = this.stateGraph.listIncidents(filters);
+        break;
+      default:
+        return {
+          accepted: false,
+          error: 'invalid_entity_type',
+          message: `Unknown entity type: ${entity_type}`
+        };
+    }
+
+    return {
+      accepted: true,
+      action: 'state_queried',
+      message: `Query returned ${result.length} result(s)`,
+      metadata: { entity_type, results: result, count: result.length }
+    };
+  }
+
+  /**
+   * Handle check_system_status intent
+   * @private
+   */
+  async _handleCheckSystemStatus(intent) {
+    const services = this.stateGraph.listServices();
+    const providers = this.stateGraph.listProviders();
+    const incidents = this.stateGraph.listIncidents({ status: 'open' });
+
+    return {
+      accepted: true,
+      action: 'status_checked',
+      message: `System status: ${services.length} services, ${incidents.length} open incidents`,
+      metadata: {
+        services: services.map(s => ({ id: s.service_id, status: s.status })),
+        providers: providers.map(p => ({ id: p.provider_id, status: p.status })),
+        open_incidents: incidents.length
+      }
+    };
+  }
+
+  /**
+   * Handle list_recent_executions intent
+   * @private
+   */
+  async _handleListRecentExecutions(intent) {
+    const limit = intent.payload?.limit || 20;
+    const executions = this.stateGraph.listExecutions({ limit });
+
+    return {
+      accepted: true,
+      action: 'executions_listed',
+      message: `Found ${executions.length} recent execution(s)`,
+      metadata: { executions, count: executions.length }
     };
   }
 

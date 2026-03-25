@@ -20,6 +20,10 @@
       "dest": "apps/marketing/api/try"
     },
     {
+      "src": "/api/contact",
+      "dest": "apps/marketing/api/contact"
+    },
+    {
       "src": "/api/v1/(.*)",
       "dest": "https://vienna-os.fly.dev/api/v1/$1"
     },

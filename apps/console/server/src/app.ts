@@ -295,7 +295,11 @@ export function createApp(
   // Static Frontend (Serve built React app)
   // ============================================================================
   
-  const clientDistPath = path.join(__dirname, '../../client/dist');
+  // In production (bundled), __dirname = /app/build, client at /app/client/dist
+  // In development, __dirname = /app/apps/console/server/src, client at ../../client/dist
+  const clientDistPath = process.env.NODE_ENV === 'production'
+    ? path.join(__dirname, '../client/dist')
+    : path.join(__dirname, '../../client/dist');
   
   // Serve static files
   app.use(express.static(clientDistPath));

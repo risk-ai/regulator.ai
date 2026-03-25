@@ -1,6 +1,8 @@
 # Vienna OS Monorepo
 
-Governed AI execution layer above OpenClaw.
+Governed AI execution layer for autonomous AI systems.
+
+**Production Endpoint:** https://vienna-os.fly.dev
 
 ## Structure
 
@@ -9,16 +11,19 @@ apps/
   marketing/        NextJS marketing site (regulator.ai)
   console/          
     client/         Vite + React console UI
-    server/         Express backend
+    server/         Express backend (Node 22)
 services/
-  runtime/          Vienna Core governance runtime
+  vienna-lib/       Vienna Core governance engine
 ```
 
 ## Deployment
 
 - **Marketing:** Vercel (`regulator.ai`)
-- **Console UI:** Vercel (`console.regulator.ai`)
-- **Runtime:** Fly.io (`vienna-os.fly.dev`)
+- **Console (Monolithic):** Fly.io (`vienna-os.fly.dev`)
+  - Frontend + Backend unified deployment
+  - Single deployment surface (no CORS complexity)
+  - Better latency (no CDN → API hop)
+  - Unified auth (same-origin cookies)
 
 ## Local Development
 
@@ -27,28 +32,47 @@ services/
 cd apps/marketing
 npm install
 npm run dev
+# Visit http://localhost:3000
 ```
 
-### Console
+### Console (Backend + Frontend)
 ```bash
-# Client
-cd apps/console/client
+# Backend (includes frontend static serving)
+cd apps/console/server
 npm install
 npm run dev
 
-# Server
-cd apps/console/server
+# Frontend development (separate terminal, optional)
+cd apps/console/client
 npm install
-npm start
+npm run dev
 ```
 
-### Runtime
-```bash
-cd services/runtime
-npm install
-npm start
-```
+**Console endpoints:**
+- Frontend: `http://localhost:5174` (dev) or `http://localhost:3100` (prod)
+- API: `http://localhost:3100/api/v1/*`
+- Agent Intent: `POST http://localhost:3100/api/v1/agent/intent`
 
 ## Configuration
 
-See each service's `.env.example` for required environment variables.
+```bash
+# Backend (.env in apps/console/server/)
+VIENNA_OPERATOR_PASSWORD=<secure-password>
+VIENNA_OPERATOR_NAME=vienna
+VIENNA_SESSION_SECRET=<openssl rand -hex 32>
+ANTHROPIC_API_KEY=<your-key>
+CORS_ORIGIN=http://localhost:5174,http://localhost:3100
+```
+
+## Production
+
+**Image:** `registry.fly.io/vienna-os:deployment-*`  
+**Deploy:** `flyctl deploy --app vienna-os`  
+**Status:** 111/111 tests passing, Phase 28 operational
+
+**Architecture:**
+- Intent Gateway (11 agent actions)
+- Multi-tenant identity + quotas
+- T1/T2 operator approval workflow
+- State Graph (SQLite)
+- Audit trail + learning system

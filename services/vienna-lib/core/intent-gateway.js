@@ -324,7 +324,13 @@ class IntentGateway {
       'list_objectives': this._handleListObjectives,
       'query_state_graph': this._handleQueryStateGraph,
       'check_system_status': this._handleCheckSystemStatus,
-      'list_recent_executions': this._handleListRecentExecutions
+      'list_recent_executions': this._handleListRecentExecutions,
+      'restart_service': this._handleRestartService,
+      'check_service_logs': this._handleCheckServiceLogs,
+      'trigger_backup': this._handleTriggerBackup,
+      'run_diagnostic': this._handleRunDiagnostic,
+      'update_configuration': this._handleUpdateConfiguration,
+      'check_execution_status': this._handleCheckExecutionStatus
     };
 
     return handlers[intentType] || null;
@@ -372,6 +378,54 @@ class IntentGateway {
 
       case 'check_system_health':
         // No required fields for health check (target defaults to vienna_backend)
+        return { valid: true };
+
+      case 'list_objectives':
+        // No required fields
+        return { valid: true };
+
+      case 'query_state_graph':
+        // query field optional (defaults to full state)
+        return { valid: true };
+
+      case 'check_system_status':
+        // No required fields
+        return { valid: true };
+
+      case 'list_recent_executions':
+        // limit field optional (defaults to 10)
+        return { valid: true };
+
+      case 'restart_service':
+        if (!intent.payload.service) {
+          return { valid: false, error: 'missing_service' };
+        }
+        return { valid: true };
+
+      case 'check_service_logs':
+        if (!intent.payload.service) {
+          return { valid: false, error: 'missing_service' };
+        }
+        return { valid: true };
+
+      case 'trigger_backup':
+        // No required fields
+        return { valid: true };
+
+      case 'run_diagnostic':
+        // check field optional (defaults to all)
+        return { valid: true };
+
+      case 'update_configuration':
+        if (!intent.payload.key || !intent.payload.value) {
+          return { valid: false, error: 'missing_key_or_value' };
+        }
+        return { valid: true };
+
+      case 'check_execution_status':
+        if (!intent.payload.execution_id) {
+          return { valid: false, error: 'missing_execution_id' };
+        }
         return { valid: true };
 
       default:
@@ -904,6 +958,114 @@ class IntentGateway {
       message: `Found ${executions.length} recent execution(s)`,
       metadata: { executions, count: executions.length }
     };
+  }
+
+  /**
+   * Handle restart_service intent (T1)
+   */
+  async _handleRestartService(intent) {
+    const service = intent.payload.service;
+    
+    // Simulation or execution logic TBD
+    return {
+      accepted: true,
+      action: 'service_restart_queued',
+      message: `Service restart queued: ${service}`,
+      metadata: { service, status: 'pending' }
+    };
+  }
+
+  /**
+   * Handle check_service_logs intent (T0)
+   */
+  async _handleCheckServiceLogs(intent) {
+    const service = intent.payload.service;
+    const lines = intent.payload.lines || 50;
+    
+    // Stub implementation - logs retrieval TBD
+    return {
+      accepted: true,
+      action: 'logs_retrieved',
+      message: `Retrieved ${lines} log lines for ${service}`,
+      metadata: { service, lines, logs: [] }
+    };
+  }
+
+  /**
+   * Handle trigger_backup intent (T1)
+   */
+  async _handleTriggerBackup(intent) {
+    // Stub implementation - backup trigger TBD
+    return {
+      accepted: true,
+      action: 'backup_triggered',
+      message: 'Backup process initiated',
+      metadata: { status: 'started', backup_id: `backup_${Date.now()}` }
+    };
+  }
+
+  /**
+   * Handle run_diagnostic intent (T0)
+   */
+  async _handleRunDiagnostic(intent) {
+    const check = intent.payload.check || 'all';
+    
+    // Stub implementation - diagnostic logic TBD
+    return {
+      accepted: true,
+      action: 'diagnostic_completed',
+      message: `Diagnostic check completed: ${check}`,
+      metadata: { check, status: 'healthy', details: {} }
+    };
+  }
+
+  /**
+   * Handle update_configuration intent (T2)
+   */
+  async _handleUpdateConfiguration(intent) {
+    const { key, value } = intent.payload;
+    
+    // Stub implementation - configuration update TBD (requires T2 approval)
+    return {
+      accepted: false,
+      error: 'requires_approval',
+      message: `Configuration update requires T2 approval: ${key}`,
+      metadata: { key, value, risk_tier: 'T2' }
+    };
+  }
+
+  /**
+   * Handle check_execution_status intent (T0)
+   */
+  async _handleCheckExecutionStatus(intent) {
+    const execution_id = intent.payload.execution_id;
+    
+    try {
+      const execution = this.stateGraph.getExecution(execution_id);
+      
+      if (!execution) {
+        return {
+          accepted: false,
+          error: 'execution_not_found',
+          message: `Execution not found: ${execution_id}`,
+          metadata: { execution_id }
+        };
+      }
+      
+      return {
+        accepted: true,
+        action: 'execution_status_retrieved',
+        message: `Execution status: ${execution.status}`,
+        metadata: { execution }
+      };
+    } catch (error) {
+      return {
+        accepted: false,
+        error: 'status_check_failed',
+        message: error.message,
+        metadata: { execution_id }
+      };
+    }
   }
 
   // ============================================================

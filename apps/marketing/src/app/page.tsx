@@ -301,7 +301,7 @@ export default function Home() {
             </div>
 
             {/* Hero CTAs */}
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap mb-16">
               <a
                 href="/signup"
                 className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3.5 rounded-xl transition font-semibold text-sm"
@@ -315,6 +315,76 @@ export default function Home() {
               >
                 Try it Live →
               </a>
+            </div>
+          </div>
+
+          {/* Visual: Live Warrant Specimen */}
+          <div className="relative max-w-6xl mx-auto mt-4 mb-8">
+            <div className="doc-border rounded-2xl">
+              <div className="bg-navy-800/60 backdrop-blur rounded-2xl p-8 md:p-10">
+                {/* Warrant header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gold-400/15 border border-gold-400/30 flex items-center justify-center">
+                      <Lock className="w-5 h-5 text-gold-400" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gold-400 font-mono font-semibold uppercase tracking-wider">Execution Warrant</div>
+                      <div className="text-xs text-warm-400 font-mono">wrt-7f3a2b1c-e8d4-4a9f-b2c1</div>
+                    </div>
+                  </div>
+                  <div className="stamp bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                    ✓ Verified
+                  </div>
+                </div>
+
+                {/* Warrant body — grid layout */}
+                <div className="grid md:grid-cols-3 gap-6">
+                  {/* Scope */}
+                  <div>
+                    <div className="text-[10px] text-warm-500 uppercase tracking-widest mb-2 font-semibold">Scope</div>
+                    <div className="space-y-1.5 font-mono text-xs">
+                      <div className="flex justify-between"><span className="text-warm-400">action</span><span className="text-white">restart_service</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">target</span><span className="text-white">api-gateway</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">strategy</span><span className="text-emerald-400">rolling</span></div>
+                    </div>
+                  </div>
+                  {/* Authority */}
+                  <div>
+                    <div className="text-[10px] text-warm-500 uppercase tracking-widest mb-2 font-semibold">Authority</div>
+                    <div className="space-y-1.5 font-mono text-xs">
+                      <div className="flex justify-between"><span className="text-warm-400">issuer</span><span className="text-white">operator:jane</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">risk tier</span><span className="text-amber-400">T1</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">policy</span><span className="text-white">svc-restart-v2</span></div>
+                    </div>
+                  </div>
+                  {/* Constraints */}
+                  <div>
+                    <div className="text-[10px] text-warm-500 uppercase tracking-widest mb-2 font-semibold">Constraints</div>
+                    <div className="space-y-1.5 font-mono text-xs">
+                      <div className="flex justify-between"><span className="text-warm-400">ttl</span><span className="text-white">300s</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">max_retries</span><span className="text-white">1</span></div>
+                      <div className="flex justify-between"><span className="text-warm-400">rollback</span><span className="text-emerald-400">enabled</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Signature line */}
+                <div className="mt-6 pt-4 border-t border-warm-700/30 flex items-center justify-between">
+                  <div className="font-mono text-[10px] text-warm-500">
+                    sig: 0x7f3a…b2c1 · sha256 · tamper-evident
+                  </div>
+                  <div className="font-mono text-[10px] text-warm-500">
+                    issued 2026-03-25T14:00:00Z · expires 14:05:00Z
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Subtle label */}
+            <div className="text-center mt-3">
+              <span className="text-[11px] text-warm-500 italic">
+                Every approved action receives a signed warrant like this. No warrant, no execution.
+              </span>
             </div>
           </div>
         </div>

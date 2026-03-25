@@ -14,840 +14,453 @@ import {
   Users,
   Server,
   Check,
-  GraduationCap,
-  Building2,
-  Globe,
   Menu,
   X,
+  BarChart3,
+  Fingerprint,
+  Scale,
 } from "lucide-react";
 
-const coreServices = [
-  {
-    icon: Workflow,
-    name: "Intent Gateway",
-    desc: "Canonical entry point for all agent requests. Normalizes proposals into governed execution pipeline.",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-  },
-  {
-    icon: FileCheck,
-    name: "Policy Engine",
-    desc: "Policy-as-code rule evaluation. Define guardrails, enforce them automatically.",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20",
-  },
-  {
-    icon: Lock,
-    name: "Execution Warrants",
-    desc: "Cryptographic authorization issuance. No warrant, no execution.",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-  },
-  {
-    icon: Server,
-    name: "State Graph",
-    desc: "Canonical system state. Single source of truth for execution, objectives, and governance.",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
-  },
-  {
-    icon: Eye,
-    name: "Verification Engine",
-    desc: "Confirms execution matched intent. Trust, but verify.",
-    color: "text-rose-400",
-    bg: "bg-rose-500/10",
-    border: "border-rose-500/20",
-  },
-  {
-    icon: BookOpen,
-    name: "Audit Trail",
-    desc: "Append-only permanent event ledger. Every action recorded forever.",
-    color: "text-orange-400",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/20",
-  },
-];
-
-const governanceFeatures = [
-  {
-    icon: Users,
-    name: "Multi-Tenant Identity",
-    desc: "Tenant-based isolation with cost tracking and quota enforcement.",
-    color: "text-cyan-400",
-  },
-  {
-    icon: Zap,
-    name: "Operator Approval",
-    desc: "T1/T2 approval workflow for high-impact actions. Operators authorize, agents execute.",
-    color: "text-purple-400",
-  },
-  {
-    icon: Shield,
-    name: "Simulation Mode",
-    desc: "Test agent proposals in dry-run mode. No side effects, full governance validation.",
-    color: "text-emerald-400",
-  },
-];
-
-const riskTiers = [
-  {
-    tier: "T0",
-    label: "Reversible / Low-Stakes",
-    example: "Log reads, status checks, internal queries",
-    color: "text-slate-400",
-    bg: "bg-slate-500/10",
-  },
-  {
-    tier: "T1",
-    label: "Moderate Stakes",
-    example: "Config updates, service restarts, data writes",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    approval: true,
-  },
-  {
-    tier: "T2",
-    label: "Irreversible / High-Impact",
-    example: "Production deployments, payments, data deletion",
-    color: "text-red-400",
-    bg: "bg-red-500/10",
-    approval: true,
-  },
-];
-
-const lifecycle = [
-  "Intent",
-  "Policy",
-  "Plan",
-  "Warrant",
-  "Execute",
-  "Verify",
-  "Learn",
-];
-
-const pricingTiers = [
-  {
-    name: "Community",
-    price: "Free",
-    period: "",
-    desc: "Open-source core, self-hosted",
-    features: [
-      "Up to 5 agents",
-      "Full governance pipeline",
-      "SQLite state graph",
-      "Community support",
-      "Self-hosted deployment",
-    ],
-    cta: "Get Started Free",
-    href: "/signup?plan=community",
-    highlighted: false,
-  },
-  {
-    name: "Team",
-    price: "$49",
-    period: "/agent/mo",
-    desc: "Cloud-hosted for growing teams",
-    features: [
-      "Up to 25 agents",
-      "Cloud-hosted console",
-      "Basic policy templates",
-      "Email support",
-      "SSE real-time streaming",
-    ],
-    cta: "Get Started",
-    href: "/signup?plan=team",
-    highlighted: false,
-  },
-  {
-    name: "Business",
-    price: "$99",
-    period: "/agent/mo",
-    desc: "Advanced governance at scale",
-    features: [
-      "Up to 100 agents",
-      "Custom policy engine rules",
-      "SSO / SAML",
-      "Priority support",
-      "Advanced audit exports",
-    ],
-    cta: "Get Started",
-    href: "/signup?plan=business",
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    desc: "On-prem, unlimited, dedicated",
-    features: [
-      "Unlimited agents",
-      "On-premise deployment",
-      "SLA & dedicated CSM",
-      "Compliance certs (SOC 2)",
-      "Custom integrations",
-    ],
-    cta: "Contact Sales",
-    href: "/signup?plan=enterprise",
-    highlighted: false,
-  },
-];
+/* ============================================================
+   REGULATOR.AI — LANDING PAGE
+   Design reference: fraud.net (visual complexity + succinctness)
+   ============================================================ */
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-navy-900">
-      {/* Hero */}
-      <header className="relative overflow-hidden grid-bg scanline">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/90 to-navy-950 topo-bg" />
-        <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24">
-          <nav className="flex items-center justify-between mb-20">
+
+      {/* ============================================
+          HERO
+          ============================================ */}
+      <header className="relative overflow-hidden grid-bg">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-navy-900/90 to-navy-900" />
+        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-20">
+          {/* Nav */}
+          <nav className="flex items-center justify-between mb-16">
             <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-purple-400" />
-              <span className="text-xl font-bold text-white tracking-tight">
+              <Shield className="w-7 h-7 text-purple-400" />
+              <span className="text-lg font-bold text-white tracking-tight">
                 Vienna<span className="text-purple-400">OS</span>
               </span>
             </div>
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-6">
-              <a href="#services" className="text-sm text-slate-400 hover:text-white transition">Core Services</a>
-              <a href="#pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
-              <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-              <a href="/blog" className="text-sm text-slate-400 hover:text-white transition">Blog</a>
-              <a href="/security" className="text-sm text-slate-400 hover:text-white transition">Security</a>
-              <a
-                href="https://vienna-os.fly.dev"
-                className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
-              >
-                Console
+            <div className="hidden md:flex items-center gap-5">
+              {[
+                ["#platform", "Platform"],
+                ["#industries", "Industries"],
+                ["#pricing", "Pricing"],
+                ["/docs", "Docs"],
+                ["/blog", "Blog"],
+              ].map(([href, label]) => (
+                <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition">{label}</a>
+              ))}
+              <a href="https://console.regulator.ai" className="text-sm text-slate-400 hover:text-white transition">Console</a>
+              <a href="/signup" className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition font-medium">
+                Get Started
               </a>
             </div>
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden text-slate-400 hover:text-white"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
+            <button className="md:hidden text-slate-400" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </nav>
-          {/* Mobile menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden absolute top-20 left-0 right-0 bg-navy-900/95 backdrop-blur border-b border-navy-700 px-6 py-4 space-y-3 z-50">
-              <a href="#services" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Core Services</a>
-              <a href="#pricing" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
-              <a href="/docs" className="block text-sm text-slate-400 hover:text-white transition">Docs</a>
-              <a href="/blog" className="block text-sm text-slate-400 hover:text-white transition">Blog</a>
-              <a href="/security" className="block text-sm text-slate-400 hover:text-white transition">Security</a>
-              <a href="https://vienna-os.fly.dev" className="block text-sm text-purple-400 font-medium">Console</a>
-              <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium">Get Started</a>
+            <div className="md:hidden bg-navy-800 border border-navy-700 rounded-xl px-5 py-4 mb-8 space-y-3">
+              <a href="#platform" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Platform</a>
+              <a href="#industries" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Industries</a>
+              <a href="#pricing" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+              <a href="/docs" className="block text-sm text-slate-300">Docs</a>
+              <a href="/blog" className="block text-sm text-slate-300">Blog</a>
+              <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium mt-2">Get Started</a>
             </div>
           )}
 
-          <div className="max-w-4xl">
-            {/* Live status + badge */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 status-live" />
-                <span className="text-xs text-emerald-400 font-medium">
-                  Production — Operational
-                </span>
-              </div>
-              <a href="/try" className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 hover:bg-purple-500/20 transition">
-                <span className="text-xs text-purple-400 font-medium">
-                  Try the API live →
-                </span>
-              </a>
+          {/* Hero content */}
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 status-live" />
+                <span className="text-[11px] text-emerald-400 font-medium">Live in Production</span>
+              </span>
             </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-6 tracking-tight">
-              The governance layer
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-400 to-blue-400">
-                agents answer to.
+
+            <h1 className="text-4xl md:text-6xl font-bold text-white leading-[1.08] mb-5 tracking-tight">
+              AI Governance for{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                Enterprises
               </span>
             </h1>
-            <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-              Every AI agent action flows through policy evaluation, risk tiering,
-              and cryptographic authorization. No warrant, no execution.
-              Full audit trail, always.
+            <p className="text-base md:text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+              The control plane that sits between agent intent and execution.
+              Policy enforcement, cryptographic warrants, operator approvals,
+              and immutable audit trails — for every AI action.
             </p>
-
-            {/* Animated governance pipeline */}
-            <div className="flex items-center gap-1 flex-wrap mb-10">
-              {lifecycle.map((step, i) => (
-                <div key={step} className="flex items-center gap-1">
-                  <div
-                    className={`px-3 py-2 rounded-lg text-xs font-mono font-medium transition-all ${
-                      step === "Warrant"
-                        ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 warrant-glow"
-                        : step === "Execute"
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : step === "Verify"
-                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                        : "bg-navy-800/80 text-slate-400 border border-navy-700"
-                    }`}
-                  >
-                    {step}
-                  </div>
-                  {i < lifecycle.length - 1 && (
-                    <ArrowRight className="w-3 h-3 text-navy-600 pipeline-arrow" style={{ animationDelay: `${i * 0.2}s` }} />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Hero CTAs */}
-            <div className="flex items-center gap-4 flex-wrap mb-16">
-              <a
-                href="/signup"
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3.5 rounded-xl transition font-semibold text-sm"
-              >
-                Get Started Free
-                <ArrowRight className="w-4 h-4" />
+            <div className="flex items-center gap-3 flex-wrap">
+              <a href="/signup" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm">
+                Start Free <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href="/try"
-                className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-8 py-3.5 rounded-xl transition font-medium text-sm border border-navy-700"
-              >
-                Try it Live →
+              <a href="/try" className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition font-medium text-sm border border-navy-700">
+                Try Live API →
+              </a>
+              <a href="/docs" className="text-sm text-slate-500 hover:text-white transition ml-1">
+                Read Docs
               </a>
             </div>
           </div>
 
-          {/* Visual: Live Warrant Specimen */}
-          <div className="relative max-w-6xl mx-auto mt-4 mb-8">
-            <div className="doc-border rounded-2xl">
-              <div className="bg-navy-800/60 backdrop-blur rounded-2xl p-8 md:p-10">
-                {/* Warrant header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
-                      <Lock className="w-5 h-5 text-purple-400" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-purple-400 font-mono font-semibold uppercase tracking-wider">Execution Warrant</div>
-                      <div className="text-xs text-slate-400 font-mono">wrt-7f3a2b1c-e8d4-4a9f-b2c1</div>
-                    </div>
-                  </div>
-                  <div className="stamp bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                    ✓ Verified
-                  </div>
-                </div>
-
-                {/* Warrant body — grid layout */}
-                <div className="grid md:grid-cols-3 gap-6">
-                  {/* Scope */}
-                  <div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-semibold">Scope</div>
-                    <div className="space-y-1.5 font-mono text-xs">
-                      <div className="flex justify-between"><span className="text-slate-400">action</span><span className="text-white">restart_service</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">target</span><span className="text-white">api-gateway</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">strategy</span><span className="text-emerald-400">rolling</span></div>
-                    </div>
-                  </div>
-                  {/* Authority */}
-                  <div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-semibold">Authority</div>
-                    <div className="space-y-1.5 font-mono text-xs">
-                      <div className="flex justify-between"><span className="text-slate-400">issuer</span><span className="text-white">operator:jane</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">risk tier</span><span className="text-amber-400">T1</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">policy</span><span className="text-white">svc-restart-v2</span></div>
-                    </div>
-                  </div>
-                  {/* Constraints */}
-                  <div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-semibold">Constraints</div>
-                    <div className="space-y-1.5 font-mono text-xs">
-                      <div className="flex justify-between"><span className="text-slate-400">ttl</span><span className="text-white">300s</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">max_retries</span><span className="text-white">1</span></div>
-                      <div className="flex justify-between"><span className="text-slate-400">rollback</span><span className="text-emerald-400">enabled</span></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Signature line */}
-                <div className="mt-6 pt-4 border-t border-slate-700/30 flex items-center justify-between">
-                  <div className="font-mono text-[10px] text-slate-500">
-                    sig: 0x7f3a…b2c1 · sha256 · tamper-evident
-                  </div>
-                  <div className="font-mono text-[10px] text-slate-500">
-                    issued 2026-03-25T14:00:00Z · expires 14:05:00Z
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Subtle label */}
-            <div className="text-center mt-3">
-              <span className="text-[11px] text-slate-500 italic">
-                Every approved action receives a signed warrant like this. No warrant, no execution.
-              </span>
+          {/* Trusted by */}
+          <div className="mt-14 pt-8 border-t border-navy-700/50">
+            <p className="text-[11px] text-slate-600 uppercase tracking-widest mb-4 font-medium">Built for regulated industries</p>
+            <div className="flex items-center gap-8 text-slate-500 text-sm flex-wrap">
+              {["🏦 Financial Services", "🏥 Healthcare", "⚖️ Legal", "🏛️ Government", "🚀 DevOps"].map((v) => (
+                <span key={v} className="flex items-center gap-1.5 whitespace-nowrap">{v}</span>
+              ))}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Core Services */}
-      <section id="services" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">Core Services</h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Vienna OS provides a complete governance layer for AI agents. Each
-          service enforces separation of concerns between reasoning and
-          execution authority.
-        </p>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {coreServices.map((s) => (
-            <div
-              key={s.name}
-              className={`${s.bg} border ${s.border} rounded-xl p-6 card-hover`}
-            >
-              <s.icon className={`w-6 h-6 ${s.color} mb-4`} />
-              <h3 className="text-white font-semibold mb-2">{s.name}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Governance Features */}
-      <section id="governance" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">
-          Governance Layer
-        </h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Vienna OS enforces identity, policy, quotas, and approval workflows.
-          Multi-tenant by design, production-ready from day one.
-        </p>
-        <div className="grid md:grid-cols-3 gap-6">
-          {governanceFeatures.map((f) => (
-            <div
-              key={f.name}
-              className="bg-navy-800 border border-navy-700 rounded-xl p-6"
-            >
-              <f.icon className={`w-8 h-8 ${f.color} mb-4`} />
-              <h3 className="text-white font-semibold mb-2">{f.name}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {f.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Risk Tiers */}
-      <section id="risk-tiers" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">Risk Tiers</h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Every action is classified by risk level. Higher tiers require
-          operator approval. Agents cannot bypass governance.
-        </p>
-        <div className="space-y-3">
-          {riskTiers.map((t) => (
-            <div
-              key={t.tier}
-              className={`${t.bg} border border-navy-700 rounded-xl p-5 flex items-center gap-6`}
-            >
-              <div
-                className={`text-2xl font-bold ${t.color} w-16 text-center`}
-              >
-                {t.tier}
-              </div>
-              <div className="flex-1">
-                <h3 className="text-white font-semibold">{t.label}</h3>
-                <p className="text-sm text-slate-500">{t.example}</p>
-              </div>
-              {t.approval && (
-                <div className="hidden md:flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5">
-                  <Lock className="w-3 h-3 text-amber-400" />
-                  <span className="text-xs text-amber-400 font-medium">
-                    Approval Required
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">How It Works</h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Vienna OS sits between agent intent and real-world execution. Agents
-          remain autonomous within governed boundaries.
-        </p>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-4">
+      {/* ============================================
+          STATS BAR — Fraud.net-style big numbers
+          ============================================ */}
+      <section className="bg-navy-800 border-y border-navy-700 py-12">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              {
-                icon: CheckCircle,
-                text: "Intent Gateway — Canonical entry for all agent requests",
-              },
-              {
-                icon: CheckCircle,
-                text: "Policy Engine — Guardrails enforced automatically",
-              },
-              {
-                icon: CheckCircle,
-                text: "Operator Approval — T1/T2 actions require authorization",
-              },
-              {
-                icon: CheckCircle,
-                text: "Execution Warrants — Cryptographically signed, time-limited",
-              },
-              {
-                icon: CheckCircle,
-                text: "Verification — Every action verified post-execution",
-              },
-              {
-                icon: CheckCircle,
-                text: "Audit Trail — Permanent append-only ledger",
-              },
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <item.icon className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
-                <span className="text-slate-300">{item.text}</span>
+              { stat: "100%", label: "Audit Coverage", sub: "Every action logged" },
+              { stat: "300+", label: "Governance Files", sub: "Full engine codebase" },
+              { stat: "11", label: "Intent Actions", sub: "Governed operations" },
+              { stat: "5", label: "Engine Services", sub: "Policy · Verify · Watch · Reconcile · Circuit" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">{s.stat}</div>
+                <div className="text-sm text-purple-400 font-semibold mb-0.5">{s.label}</div>
+                <div className="text-xs text-slate-500">{s.sub}</div>
               </div>
             ))}
           </div>
-          <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
-            <div className="font-mono text-sm space-y-2">
-              <div className="text-slate-500">
-                {"// Agent submits intent"}
-              </div>
-              <div>
-                <span className="text-purple-400">POST</span>{" "}
-                <span className="text-green-300">
-                  {"/api/v1/agent/intent"}
-                </span>
-              </div>
-              <div>
-                <span className="text-amber-400">{"{"}</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">action</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"restart_service"'}</span>
-                <span className="text-slate-500">,</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">source</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"openclaw"'}</span>
-                <span className="text-slate-500">,</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">tenant_id</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"prod"'}</span>
-              </div>
-              <div>
-                <span className="text-amber-400">{"}"}</span>
-              </div>
-              <div className="mt-3 text-slate-500">
-                {"// Vienna evaluates policy + issues warrant"}
-              </div>
-              <div>
-                <span className="text-amber-400">{"{"}</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">success</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-blue-400">true</span>
-                <span className="text-slate-500">,</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">status</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"executed"'}</span>
-                <span className="text-slate-500">,</span>
-              </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">execution_id</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"exec-a3f2..."'}</span>
-              </div>
-              <div>
-                <span className="text-amber-400">{"}"}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* System Telemetry — Control Room Style */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">
-          System Telemetry
-        </h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Vienna OS is operational in production. Real numbers, real governance.
-        </p>
-        <div className="gradient-border rounded-2xl">
-          <div className="bg-navy-900 rounded-2xl p-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {[
-                { value: "111/111", label: "Tests Passing", color: "text-emerald-400" },
-                { value: "11", label: "Intent Actions", color: "text-blue-400" },
-                { value: "300+", label: "Engine Files", color: "text-purple-400" },
-                { value: "99.9%", label: "Target Uptime", color: "text-amber-400" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className={`text-3xl font-bold font-mono ${stat.color} mb-1`}>
-                    {stat.value}
-                  </div>
-                  <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="section-divider mt-6 mb-6" />
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
-              {["Policy Engine", "Verification", "Watchdog", "Reconciliation", "Circuit Breaker"].map((engine) => (
-                <div key={engine} className="flex items-center gap-2 justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 verified-glow" />
-                  <span className="text-xs text-slate-400 font-mono">{engine}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Open Platform — Wider Uses */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-3">One API. Any agent. Every industry.</h2>
-          <p className="text-slate-400 max-w-2xl mx-auto">
-            Vienna OS is runtime-agnostic and industry-agnostic. The governance pipeline
-            works with any framework, any cloud, any compliance requirement.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { label: "Agent Frameworks", items: "OpenClaw · LangChain · CrewAI · AutoGen · Custom" },
-            { label: "Deployment", items: "Cloud · On-premise · Hybrid · Air-gapped" },
-            { label: "Compliance", items: "EU AI Act · SEC · HIPAA · SOX · NIST AI RMF" },
-            { label: "Industries", items: "FinServ · Healthcare · Legal · Government · DevOps" },
-          ].map((col) => (
-            <div key={col.label} className="bg-navy-800/50 border border-navy-700 rounded-xl p-5">
-              <h3 className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-3">{col.label}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed font-mono">{col.items}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Use Cases */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">Built for regulated industries</h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Every industry deploying AI agents faces the same governance gap.
-          Vienna OS fills it.
-        </p>
-        <div className="grid md:grid-cols-2 gap-4">
-          {[
-            {
-              industry: "Financial Services",
-              icon: "🏦",
-              scenario: "AI agent proposes a wire transfer",
-              flow: "Intent → T2 risk tier → Multi-party approval → Time-limited warrant (5 min) → Execute → Verify amount matches → Immutable audit entry",
-              regulation: "SEC AI guidance, SOX compliance",
-            },
-            {
-              industry: "Healthcare",
-              icon: "🏥",
-              scenario: "AI agent updates patient records",
-              flow: "Intent → HIPAA policy check → T1 approval → Warrant with PHI scope constraints → Execute → Verify no scope creep → Audit trail for 7 years",
-              regulation: "HIPAA, HITECH Act",
-            },
-            {
-              industry: "Legal",
-              icon: "⚖️",
-              scenario: "AI agent files a court document",
-              flow: "Intent → Attorney review policy → T2 approval (attorney + supervisor) → Warrant with filing scope → Execute → Verify filing receipt → Permanent record",
-              regulation: "ABA Model Rules, court filing requirements",
-            },
-            {
-              industry: "DevOps / Engineering",
-              icon: "🚀",
-              scenario: "AI agent deploys to production",
-              flow: "Intent → Deployment policy → T1 approval → Warrant with rollback constraint → Execute → Verify deployment health → Auto-rollback on failure",
-              regulation: "SOC 2, change management requirements",
-            },
-          ].map((uc) => (
-            <div
-              key={uc.industry}
-              className="bg-navy-800 border border-navy-700 rounded-xl p-6 card-hover"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-2xl">{uc.icon}</span>
-                <h3 className="text-white font-semibold">{uc.industry}</h3>
-              </div>
-              <p className="text-sm text-purple-400 font-medium mb-2">
-                &quot;{uc.scenario}&quot;
-              </p>
-              <p className="text-xs text-slate-400 leading-relaxed mb-3 font-mono">
-                {uc.flow}
-              </p>
-              <p className="text-xs text-slate-600">
-                Compliance: {uc.regulation}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">Pricing</h2>
-        <p className="text-slate-500 mb-12 max-w-2xl">
-          Start free with the open-source core. Scale to cloud-hosted or
-          on-premise as your agent fleet grows.
-        </p>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {pricingTiers.map((tier) => (
-            <div
-              key={tier.name}
-              className={`rounded-xl p-6 flex flex-col ${
-                tier.highlighted
-                  ? "bg-purple-500/10 border-2 border-purple-500/30 relative"
-                  : "bg-navy-800 border border-navy-700"
-              }`}
-            >
-              {tier.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full">
-                  Most Popular
-                </div>
-              )}
-              <h3 className="text-white font-semibold text-lg mb-1">
-                {tier.name}
-              </h3>
-              <div className="mb-3">
-                <span className="text-3xl font-bold text-white">
-                  {tier.price}
-                </span>
-                {tier.period && (
-                  <span className="text-sm text-slate-500">{tier.period}</span>
-                )}
-              </div>
-              <p className="text-sm text-slate-500 mb-6">{tier.desc}</p>
-              <ul className="space-y-2 mb-8 flex-1">
-                {tier.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                    <span className="text-slate-300">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={tier.href}
-                className={`text-center text-sm font-medium px-4 py-2.5 rounded-lg transition ${
-                  tier.highlighted
-                    ? "bg-purple-600 hover:bg-purple-500 text-white"
-                    : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600"
-                }`}
-              >
-                {tier.cta}
-              </a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Credibility */}
-      <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
-          <div className="grid md:grid-cols-3 gap-8 items-center">
-            <div className="flex items-center gap-4">
-              <GraduationCap className="w-10 h-10 text-purple-400 shrink-0" />
-              <div>
-                <h3 className="text-white font-semibold">Cornell Law × ai.ventures</h3>
-                <p className="text-sm text-slate-400">
-                  Built by a legal technologist who understands both compliance
-                  and distributed systems.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Building2 className="w-10 h-10 text-blue-400 shrink-0" />
-              <div>
-                <h3 className="text-white font-semibold">Enterprise-First</h3>
-                <p className="text-sm text-slate-400">
-                  Designed for regulated industries: financial services,
-                  healthcare, legal, government.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <Globe className="w-10 h-10 text-emerald-400 shrink-0" />
-              <div>
-                <h3 className="text-white font-semibold">Runtime Agnostic</h3>
-                <p className="text-sm text-slate-400">
-                  Works with OpenClaw, LangChain, CrewAI, AutoGen, or your
-                  custom agent framework.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section id="cta" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to govern your agents?
+      {/* ============================================
+          PLATFORM — Core capabilities
+          ============================================ */}
+      <section id="platform" className="max-w-6xl mx-auto px-6 py-20">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl font-bold text-white mb-3">
+            Complete Governance Platform
           </h2>
-          <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-            Vienna OS is operational in production. Access the console to
-            deploy governed AI execution for your organization.
+          <p className="text-slate-400 max-w-xl mx-auto">
+            Everything you need to govern autonomous AI agents at scale.
+            Modular, extensible, and runtime-agnostic.
           </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <a
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
-            >
-              Get Started Free
-              <ArrowRight className="w-4 h-4" />
+        </div>
+
+        {/* Two-column feature grid */}
+        <div className="grid md:grid-cols-2 gap-4 mb-12">
+          {[
+            { icon: Workflow, title: "Intent Gateway", desc: "Single entry point for all agent requests. Normalizes proposals into the governed pipeline.", color: "text-blue-400", bg: "bg-blue-500/8" },
+            { icon: FileCheck, title: "Policy Engine", desc: "Policy-as-code rule evaluation. Define guardrails that enforce automatically — no manual review for low-risk.", color: "text-emerald-400", bg: "bg-emerald-500/8" },
+            { icon: Lock, title: "Execution Warrants", desc: "Cryptographically signed, time-limited, scope-constrained authorization. No warrant, no execution.", color: "text-amber-400", bg: "bg-amber-500/8" },
+            { icon: Eye, title: "Verification Engine", desc: "Post-execution check: did the agent do exactly what the warrant authorized? Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-rose-500/8" },
+            { icon: BookOpen, title: "Audit Trail", desc: "Append-only immutable ledger. Every intent, policy decision, warrant, execution, and verification — permanently recorded.", color: "text-orange-400", bg: "bg-orange-500/8" },
+            { icon: BarChart3, title: "Risk Tiering", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. Agent actions classified by blast radius.", color: "text-purple-400", bg: "bg-purple-500/8" },
+          ].map((f) => (
+            <div key={f.title} className={`${f.bg} border border-navy-700 rounded-xl p-5 card-hover flex gap-4`}>
+              <f.icon className={`w-6 h-6 ${f.color} shrink-0 mt-0.5`} />
+              <div>
+                <h3 className="text-white font-semibold text-sm mb-1">{f.title}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pipeline visualization */}
+        <div className="doc-border rounded-2xl">
+          <div className="bg-navy-800/50 rounded-2xl p-6 md:p-8">
+            <p className="text-[11px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Governance Pipeline</p>
+            <div className="flex items-center gap-1 flex-wrap justify-center">
+              {["Intent", "Policy", "Risk Tier", "Approval", "Warrant", "Execute", "Verify", "Audit"].map((step, i) => (
+                <div key={step} className="flex items-center gap-1">
+                  <div className={`px-3 py-2 rounded-lg text-xs font-mono font-medium ${
+                    step === "Warrant" ? "bg-amber-500/15 text-amber-400 border border-amber-500/30 seal-glow"
+                    : step === "Approval" ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                    : step === "Execute" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : step === "Verify" ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                    : "bg-navy-900/80 text-slate-400 border border-navy-700"
+                  }`}>
+                    {step}
+                  </div>
+                  {i < 7 && <ArrowRight className="w-3 h-3 text-navy-600 pipeline-arrow" style={{ animationDelay: `${i * 0.15}s` }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Warrant specimen */}
+        <div className="mt-10 doc-border rounded-2xl">
+          <div className="bg-navy-800/40 rounded-2xl p-6 md:p-8">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-amber-400/10 border border-amber-400/25 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-amber-400 font-mono font-semibold uppercase tracking-wider">Execution Warrant</div>
+                  <div className="text-[10px] text-slate-500 font-mono">wrt-7f3a2b1c-e8d4-4a9f-b2c1</div>
+                </div>
+              </div>
+              <div className="stamp bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Verified</div>
+            </div>
+            <div className="grid md:grid-cols-3 gap-5">
+              {[
+                { title: "Scope", rows: [["action", "restart_service"], ["target", "api-gateway"], ["strategy", "rolling"]] },
+                { title: "Authority", rows: [["issuer", "operator:jane"], ["risk tier", "T1"], ["policy", "svc-restart-v2"]] },
+                { title: "Constraints", rows: [["ttl", "300s"], ["max_retries", "1"], ["rollback", "enabled"]] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-semibold">{col.title}</div>
+                  <div className="space-y-1 font-mono text-xs">
+                    {col.rows.map(([k, v]) => (
+                      <div key={k} className="flex justify-between">
+                        <span className="text-slate-500">{k}</span>
+                        <span className={v === "rolling" || v === "enabled" ? "text-emerald-400" : v === "T1" ? "text-amber-400" : "text-white"}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-navy-700/40 flex items-center justify-between font-mono text-[10px] text-slate-600">
+              <span>sig: 0x7f3a…b2c1 · sha256 · tamper-evident</span>
+              <span>issued 14:00:00Z · expires 14:05:00Z</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          INDUSTRIES — Fraud.net-style vertical cards
+          ============================================ */}
+      <section id="industries" className="bg-navy-800/50 py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">
+              Built for Regulated Industries
+            </h2>
+            <p className="text-slate-400 max-w-xl mx-auto">
+              The same governance gap exists everywhere AI agents take real-world actions.
+              Vienna OS fills it.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: "🏦", title: "Financial Services", desc: "Wire transfers, trading, underwriting. SEC compliance, SOX audit trails. T2 multi-party approval for high-value transactions.", reg: "SEC · SOX · FINRA" },
+              { icon: "🏥", title: "Healthcare", desc: "Patient record updates, clinical decisions, billing. HIPAA-scoped warrants with PHI constraints and 7-year retention.", reg: "HIPAA · HITECH" },
+              { icon: "⚖️", title: "Legal", desc: "Court filings, document review, client communications. Attorney-supervisor dual approval for external submissions.", reg: "ABA Rules · Court reqs" },
+              { icon: "🏛️", title: "Government", desc: "Federal AI mandates, classified system governance. Air-gapped deployment option. FedRAMP path.", reg: "NIST AI RMF · FedRAMP" },
+            ].map((ind) => (
+              <div key={ind.title} className="bg-navy-900 border border-navy-700 rounded-xl p-5 card-hover">
+                <div className="text-2xl mb-3">{ind.icon}</div>
+                <h3 className="text-white font-semibold text-sm mb-2">{ind.title}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed mb-3">{ind.desc}</p>
+                <div className="text-[10px] text-purple-400 font-mono font-medium">{ind.reg}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Platform breadth */}
+          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Frameworks", value: "OpenClaw · LangChain · CrewAI · AutoGen · REST" },
+              { label: "Deploy", value: "Cloud · On-prem · Hybrid · Air-gapped" },
+              { label: "Compliance", value: "EU AI Act · SEC · HIPAA · SOX · NIST" },
+              { label: "Stack", value: "Node 22 · SQLite · Express · React · Fly.io" },
+            ].map((c) => (
+              <div key={c.label} className="bg-navy-900/50 border border-navy-700 rounded-lg p-4">
+                <div className="text-[10px] text-purple-400 font-semibold uppercase tracking-wider mb-2">{c.label}</div>
+                <div className="text-[11px] text-slate-400 font-mono leading-relaxed">{c.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          HOW IT WORKS — concise
+          ============================================ */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold text-white mb-4">How it works</h2>
+            <p className="text-slate-400 text-sm mb-6">
+              Vienna OS sits between agent intent and real-world execution. Agents stay autonomous within governed boundaries.
+            </p>
+            <div className="space-y-3">
+              {[
+                { icon: Fingerprint, text: "Agent submits intent to the Gateway" },
+                { icon: FileCheck, text: "Policy Engine evaluates against rules" },
+                { icon: Scale, text: "Risk tier assigned — T0/T1/T2" },
+                { icon: Users, text: "Operator approves if T1/T2" },
+                { icon: Lock, text: "Warrant issued — signed, scoped, time-limited" },
+                { icon: Zap, text: "Execution router runs the action" },
+                { icon: Eye, text: "Verification confirms scope compliance" },
+                { icon: BookOpen, text: "Audit trail records everything" },
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <step.icon className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+                  <span className="text-sm text-slate-300">{step.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Code example */}
+          <div className="bg-navy-800 border border-navy-700 rounded-xl p-5 font-mono text-xs text-slate-300 overflow-x-auto">
+            <div className="text-slate-500 mb-2">{"// Agent submits intent"}</div>
+            <div><span className="text-purple-400">POST</span> <span className="text-emerald-400">/api/v1/agent/intent</span></div>
+            <div className="text-amber-400">{"{"}</div>
+            <div className="pl-3"><span className="text-emerald-400">action</span>: <span className="text-green-300">&quot;restart_service&quot;</span>,</div>
+            <div className="pl-3"><span className="text-emerald-400">source</span>: <span className="text-green-300">&quot;your-agent&quot;</span>,</div>
+            <div className="pl-3"><span className="text-emerald-400">tenant_id</span>: <span className="text-green-300">&quot;prod&quot;</span></div>
+            <div className="text-amber-400">{"}"}</div>
+            <div className="mt-3 text-slate-500">{"// Vienna evaluates → issues warrant → executes"}</div>
+            <div className="text-amber-400">{"{"}</div>
+            <div className="pl-3"><span className="text-emerald-400">success</span>: <span className="text-blue-400">true</span>,</div>
+            <div className="pl-3"><span className="text-emerald-400">status</span>: <span className="text-green-300">&quot;executed&quot;</span>,</div>
+            <div className="pl-3"><span className="text-emerald-400">warrant_id</span>: <span className="text-green-300">&quot;wrt-7f3a...&quot;</span>,</div>
+            <div className="pl-3"><span className="text-emerald-400">verified</span>: <span className="text-blue-400">true</span></div>
+            <div className="text-amber-400">{"}"}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          PRICING
+          ============================================ */}
+      <section id="pricing" className="bg-navy-800/50 py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">Pricing</h2>
+            <p className="text-slate-400">Start free. Scale as your agent fleet grows.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { name: "Community", price: "Free", period: "", desc: "Open-source core", features: ["5 agents", "Full pipeline", "Sandbox console", "Community support"], cta: "Get Started", href: "/signup?plan=community", pop: false },
+              { name: "Team", price: "$49", period: "/agent/mo", desc: "Cloud-hosted teams", features: ["25 agents", "Cloud console", "Policy templates", "Email support"], cta: "Get Started", href: "/signup?plan=team", pop: false },
+              { name: "Business", price: "$99", period: "/agent/mo", desc: "Governance at scale", features: ["100 agents", "Custom policies", "SSO / SAML", "Priority support"], cta: "Get Started", href: "/signup?plan=business", pop: true },
+              { name: "Enterprise", price: "Custom", period: "", desc: "On-prem, unlimited", features: ["Unlimited agents", "On-premise deploy", "SLA + CSM", "SOC 2 cert"], cta: "Contact Sales", href: "/signup?plan=enterprise", pop: false },
+            ].map((t) => (
+              <div key={t.name} className={`rounded-xl p-5 flex flex-col ${t.pop ? "bg-purple-500/10 border-2 border-purple-500/30 relative" : "bg-navy-900 border border-navy-700"}`}>
+                {t.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">Popular</div>}
+                <h3 className="text-white font-semibold mb-1">{t.name}</h3>
+                <div className="mb-2"><span className="text-2xl font-bold text-white">{t.price}</span>{t.period && <span className="text-xs text-slate-500">{t.period}</span>}</div>
+                <p className="text-xs text-slate-500 mb-4">{t.desc}</p>
+                <ul className="space-y-1.5 mb-5 flex-1">
+                  {t.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
+                      <Check className="w-3 h-3 text-emerald-400 shrink-0" />{f}
+                    </li>
+                  ))}
+                </ul>
+                <a href={t.href} className={`text-center text-xs font-semibold px-4 py-2.5 rounded-lg transition ${t.pop ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-navy-800 hover:bg-navy-700 text-white border border-navy-600"}`}>
+                  {t.cta}
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          CREDIBILITY
+          ============================================ */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 flex items-start gap-4">
+            <Shield className="w-8 h-8 text-purple-400 shrink-0" />
+            <div>
+              <h3 className="text-white font-semibold text-sm mb-1">Cornell Law × ai.ventures</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">Built by a legal technologist who understands both compliance frameworks and distributed systems.</p>
+            </div>
+          </div>
+          <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 flex items-start gap-4">
+            <Server className="w-8 h-8 text-blue-400 shrink-0" />
+            <div>
+              <h3 className="text-white font-semibold text-sm mb-1">Production Operational</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">Live at console.regulator.ai. 5 governance engines, 11 intent actions, full audit trail. Not vaporware.</p>
+            </div>
+          </div>
+          <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 flex items-start gap-4">
+            <Zap className="w-8 h-8 text-emerald-400 shrink-0" />
+            <div>
+              <h3 className="text-white font-semibold text-sm mb-1">Runtime Agnostic</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">One API works with OpenClaw, LangChain, CrewAI, AutoGen, or any framework that makes HTTP requests.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          CTA
+          ============================================ */}
+      <section className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-10 text-center">
+          <h2 className="text-2xl font-bold text-white mb-3">Ready to govern your agents?</h2>
+          <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">
+            Free tier available. No credit card. Start in under 60 seconds.
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm">
+              Start Free
             </a>
-            <a
-              href="/try"
-              className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium border border-navy-600"
-            >
-              Try it Live →
+            <a href="/try" className="bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition text-sm border border-navy-700">
+              Try Live API
+            </a>
+            <a href="/contact" className="text-sm text-slate-400 hover:text-white transition">
+              Contact Sales →
             </a>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-navy-700 py-8">
+      {/* ============================================
+          FOOTER
+          ============================================ */}
+      <footer className="border-t border-navy-700 py-10">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-slate-500">
-                Vienna OS — Governed AI Execution Layer
-              </span>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-5 h-5 text-purple-400" />
+                <span className="font-bold text-white text-sm">ViennaOS</span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                The governance layer<br />agents answer to.
+              </p>
             </div>
-            <div className="flex items-center gap-6 flex-wrap justify-center">
-              <a href="/docs" className="text-xs text-slate-600 hover:text-slate-400 transition">Docs</a>
-              <a href="/blog" className="text-xs text-slate-600 hover:text-slate-400 transition">Blog</a>
-              <a href="/security" className="text-xs text-slate-600 hover:text-slate-400 transition">Security</a>
-              <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
-              <a href="/terms" className="text-xs text-slate-600 hover:text-slate-400 transition">Terms</a>
-              <a href="/privacy" className="text-xs text-slate-600 hover:text-slate-400 transition">Privacy</a>
-              <span className="text-xs text-slate-600">
-                © 2026 ai.ventures. All rights reserved.
-              </span>
-            </div>
+            {[
+              { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
+              { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
+              { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
+              { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Email", "mailto:admin@ai.ventures"]] },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{col.title}</h4>
+                <div className="space-y-2">
+                  {col.links.map(([label, href]) => (
+                    <a key={label} href={href} className="block text-xs text-slate-500 hover:text-white transition">{label}</a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="pt-6 border-t border-navy-700/50 text-center">
+            <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
           </div>
         </div>
       </footer>

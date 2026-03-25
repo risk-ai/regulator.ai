@@ -217,6 +217,8 @@ export default function Home() {
               <a href="#services" className="text-sm text-slate-400 hover:text-white transition">Core Services</a>
               <a href="#pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
               <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+              <a href="/blog" className="text-sm text-slate-400 hover:text-white transition">Blog</a>
+              <a href="/security" className="text-sm text-slate-400 hover:text-white transition">Security</a>
               <a
                 href="https://vienna-os.fly.dev"
                 className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
@@ -238,6 +240,8 @@ export default function Home() {
               <a href="#services" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Core Services</a>
               <a href="#pricing" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
               <a href="/docs" className="block text-sm text-slate-400 hover:text-white transition">Docs</a>
+              <a href="/blog" className="block text-sm text-slate-400 hover:text-white transition">Blog</a>
+              <a href="/security" className="block text-sm text-slate-400 hover:text-white transition">Security</a>
               <a href="https://vienna-os.fly.dev" className="block text-sm text-purple-400 font-medium">Console</a>
               <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium">Get Started</a>
             </div>
@@ -646,6 +650,8 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-6 flex-wrap justify-center">
               <a href="/docs" className="text-xs text-slate-600 hover:text-slate-400 transition">Docs</a>
+              <a href="/blog" className="text-xs text-slate-600 hover:text-slate-400 transition">Blog</a>
+              <a href="/security" className="text-xs text-slate-600 hover:text-slate-400 transition">Security</a>
               <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
               <a href="/terms" className="text-xs text-slate-600 hover:text-slate-400 transition">Terms</a>
               <a href="/privacy" className="text-xs text-slate-600 hover:text-slate-400 transition">Privacy</a>

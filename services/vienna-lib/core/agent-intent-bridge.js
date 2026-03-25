@@ -34,6 +34,72 @@ const ACTION_ALLOWLIST = new Map([
     schema: {
       target: 'string' // optional
     }
+  }],
+  ['list_objectives', {
+    intent_type: 'list_objectives',
+    risk_tier: 'T0',
+    schema: {}
+  }],
+  ['query_state_graph', {
+    intent_type: 'query_state_graph',
+    risk_tier: 'T0',
+    schema: {
+      query: 'string'
+    }
+  }],
+  ['check_system_status', {
+    intent_type: 'check_system_status',
+    risk_tier: 'T0',
+    schema: {}
+  }],
+  ['list_recent_executions', {
+    intent_type: 'list_recent_executions',
+    risk_tier: 'T0',
+    schema: {
+      limit: 'number'
+    }
+  }],
+  ['restart_service', {
+    intent_type: 'restart_service',
+    risk_tier: 'T1',
+    schema: {
+      service: 'string'
+    }
+  }],
+  ['check_service_logs', {
+    intent_type: 'check_service_logs',
+    risk_tier: 'T0',
+    schema: {
+      service: 'string',
+      lines: 'number'
+    }
+  }],
+  ['trigger_backup', {
+    intent_type: 'trigger_backup',
+    risk_tier: 'T1',
+    schema: {}
+  }],
+  ['run_diagnostic', {
+    intent_type: 'run_diagnostic',
+    risk_tier: 'T0',
+    schema: {
+      check: 'string'
+    }
+  }],
+  ['update_configuration', {
+    intent_type: 'update_configuration',
+    risk_tier: 'T2',
+    schema: {
+      key: 'string',
+      value: 'string'
+    }
+  }],
+  ['check_execution_status', {
+    intent_type: 'check_execution_status',
+    risk_tier: 'T0',
+    schema: {
+      execution_id: 'string'
+    }
   }]
 ]);
 

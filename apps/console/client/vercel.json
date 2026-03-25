@@ -1,19 +1,35 @@
 {
-  "buildCommand": "npm run build",
-  "framework": "vite",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://vienna-os.fly.dev/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://vienna-os.fly.dev/api/:path*"
     },
     {
-      "handle": "filesystem"
-    },
+      "source": "/health",
+      "destination": "https://vienna-os.fly.dev/health"
+    }
+  ],
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://console.regulator.ai"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, Cookie"
+        }
+      ]
     }
   ]
 }

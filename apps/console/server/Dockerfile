@@ -22,6 +22,12 @@ COPY apps/console/server/esbuild.config.mjs ./apps/console/server/
 # Build bundled artifact
 RUN cd apps/console/server && npm run build:prod
 
+# Build frontend
+COPY apps/console/client/package*.json ./apps/console/client/
+RUN cd apps/console/client && npm ci
+COPY apps/console/client ./apps/console/client
+RUN cd apps/console/client && npm run build
+
 # Production stage
 FROM node:22-alpine
 WORKDIR /app
@@ -43,6 +49,9 @@ COPY --from=builder /app/apps/console/server/build ./build
 # Copy SQL schema files (needed at runtime)
 COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/
 COPY --from=builder /app/apps/console/server/src/services/chatHistorySchema.postgres.sql ./build/
+
+# Copy frontend static files
+COPY --from=builder /app/apps/console/client/dist ./client/dist
 
 # Remove build tools to reduce image size
 RUN apk del python3 make g++

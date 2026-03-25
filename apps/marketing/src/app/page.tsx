@@ -7,24 +7,19 @@ import {
   Workflow,
   ArrowRight,
   CheckCircle,
+  Zap,
+  Users,
+  Server,
 } from "lucide-react";
 
-const services = [
+const coreServices = [
   {
     icon: Workflow,
-    name: "Proposal Gateway",
-    desc: "Entry point for all agent proposals. Every action starts here.",
+    name: "Intent Gateway",
+    desc: "Canonical entry point for all agent requests. Normalizes proposals into governed execution pipeline.",
     color: "text-blue-400",
     bg: "bg-blue-500/10",
     border: "border-blue-500/20",
-  },
-  {
-    icon: Shield,
-    name: "Governance Kernel",
-    desc: "Central state machine orchestration. The brain of the control plane.",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
   },
   {
     icon: FileCheck,
@@ -36,19 +31,19 @@ const services = [
   },
   {
     icon: Lock,
-    name: "Warrant Authority",
+    name: "Execution Warrants",
     desc: "Cryptographic authorization issuance. No warrant, no execution.",
     color: "text-amber-400",
     bg: "bg-amber-500/10",
     border: "border-amber-500/20",
   },
   {
-    icon: ArrowRight,
-    name: "Execution Router",
-    desc: "Routes signed warrants to execution adapters. The last mile.",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/20",
+    icon: Server,
+    name: "State Graph",
+    desc: "Canonical system state. Single source of truth for execution, objectives, and governance.",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10",
+    border: "border-purple-500/20",
   },
   {
     icon: Eye,
@@ -60,7 +55,7 @@ const services = [
   },
   {
     icon: BookOpen,
-    name: "Audit & Learning",
+    name: "Audit Trail",
     desc: "Append-only permanent event ledger. Every action recorded forever.",
     color: "text-orange-400",
     bg: "bg-orange-500/10",
@@ -68,17 +63,57 @@ const services = [
   },
 ];
 
+const governanceFeatures = [
+  {
+    icon: Users,
+    name: "Multi-Tenant Identity",
+    desc: "Tenant-based isolation with cost tracking and quota enforcement.",
+    color: "text-cyan-400",
+  },
+  {
+    icon: Zap,
+    name: "Operator Approval",
+    desc: "T1/T2 approval workflow for high-impact actions. Operators authorize, agents execute.",
+    color: "text-purple-400",
+  },
+  {
+    icon: Shield,
+    name: "Simulation Mode",
+    desc: "Test agent proposals in dry-run mode. No side effects, full governance validation.",
+    color: "text-emerald-400",
+  },
+];
+
 const riskTiers = [
-  { tier: 0, label: "Internal Reasoning", example: "Agent planning, chain-of-thought", color: "text-slate-400", bg: "bg-slate-500/10" },
-  { tier: 1, label: "Read-Only Operations", example: "Database queries, API reads", color: "text-blue-400", bg: "bg-blue-500/10" },
-  { tier: 2, label: "Moderate Changes", example: "Config updates, data writes", color: "text-amber-400", bg: "bg-amber-500/10" },
-  { tier: 3, label: "High-Impact / External", example: "Email sends, deployments, payments", color: "text-red-400", bg: "bg-red-500/10" },
+  {
+    tier: "T0",
+    label: "Reversible / Low-Stakes",
+    example: "Log reads, status checks, internal queries",
+    color: "text-slate-400",
+    bg: "bg-slate-500/10",
+  },
+  {
+    tier: "T1",
+    label: "Moderate Stakes",
+    example: "Config updates, service restarts, data writes",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    approval: true,
+  },
+  {
+    tier: "T2",
+    label: "Irreversible / High-Impact",
+    example: "Production deployments, payments, data deletion",
+    color: "text-red-400",
+    bg: "bg-red-500/10",
+    approval: true,
+  },
 ];
 
 const lifecycle = [
-  "Truth",
+  "Intent",
+  "Policy",
   "Plan",
-  "Validate",
   "Warrant",
   "Execute",
   "Verify",
@@ -96,24 +131,33 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <Shield className="w-8 h-8 text-purple-400" />
               <span className="text-xl font-bold text-white tracking-tight">
-                Regulator<span className="text-purple-400">.ai</span>
+                Vienna<span className="text-purple-400">OS</span>
               </span>
             </div>
             <div className="flex items-center gap-6">
-              <a href="#services" className="text-sm text-slate-400 hover:text-white transition">
-                Services
+              <a
+                href="#services"
+                className="text-sm text-slate-400 hover:text-white transition"
+              >
+                Core Services
               </a>
-              <a href="#lifecycle" className="text-sm text-slate-400 hover:text-white transition">
-                Lifecycle
+              <a
+                href="#governance"
+                className="text-sm text-slate-400 hover:text-white transition"
+              >
+                Governance
               </a>
-              <a href="#risk-tiers" className="text-sm text-slate-400 hover:text-white transition">
+              <a
+                href="#risk-tiers"
+                className="text-sm text-slate-400 hover:text-white transition"
+              >
                 Risk Tiers
               </a>
               <a
-                href="#contact"
+                href="https://vienna-os.fly.dev"
                 className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
               >
-                Request Access
+                Console
               </a>
             </div>
           </nav>
@@ -122,21 +166,20 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 mb-6">
               <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
               <span className="text-xs text-purple-400 font-medium">
-                Vienna Governance System
+                Governed AI Execution Layer
               </span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-              The governance layer
+              The control plane
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
                 agents answer to.
               </span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl">
-              Enterprise-grade control plane that separates reasoning authority
-              from execution authority. Agents propose — Regulator authorizes
-              through cryptographically signed warrants. No warrant, no
-              execution.
+              Enterprise-grade governance layer for autonomous AI systems.
+              Agents propose, Vienna enforces policy, operators approve
+              high-stakes actions. No warrant, no execution.
             </p>
 
             {/* Lifecycle flow */}
@@ -162,15 +205,16 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Seven Services */}
+      {/* Core Services */}
       <section id="services" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">Seven Services</h2>
+        <h2 className="text-3xl font-bold text-white mb-2">Core Services</h2>
         <p className="text-slate-500 mb-12 max-w-2xl">
-          Each service is independently deployable, horizontally scalable, and
-          communicates through an event-driven architecture.
+          Vienna OS provides a complete governance layer for AI agents. Each
+          service enforces separation of concerns between reasoning and
+          execution authority.
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {services.map((s) => (
+          {coreServices.map((s) => (
             <div
               key={s.name}
               className={`${s.bg} border ${s.border} rounded-xl p-6 hover:scale-[1.02] transition-transform`}
@@ -185,12 +229,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Governance Features */}
+      <section id="governance" className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl font-bold text-white mb-2">
+          Governance Layer
+        </h2>
+        <p className="text-slate-500 mb-12 max-w-2xl">
+          Vienna OS enforces identity, policy, quotas, and approval workflows.
+          Multi-tenant by design, production-ready from day one.
+        </p>
+        <div className="grid md:grid-cols-3 gap-6">
+          {governanceFeatures.map((f) => (
+            <div
+              key={f.name}
+              className="bg-navy-800 border border-navy-700 rounded-xl p-6"
+            >
+              <f.icon className={`w-8 h-8 ${f.color} mb-4`} />
+              <h3 className="text-white font-semibold mb-2">{f.name}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {f.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Risk Tiers */}
       <section id="risk-tiers" className="max-w-6xl mx-auto px-6 py-24">
         <h2 className="text-3xl font-bold text-white mb-2">Risk Tiers</h2>
         <p className="text-slate-500 mb-12 max-w-2xl">
-          Every agent action is classified by risk level. Higher tiers require
-          stricter policy checks and more authoritative warrants.
+          Every action is classified by risk level. Higher tiers require
+          operator approval. Agents cannot bypass governance.
         </p>
         <div className="space-y-3">
           {riskTiers.map((t) => (
@@ -199,7 +268,7 @@ export default function Home() {
               className={`${t.bg} border border-navy-700 rounded-xl p-5 flex items-center gap-6`}
             >
               <div
-                className={`text-2xl font-bold ${t.color} w-12 text-center`}
+                className={`text-2xl font-bold ${t.color} w-16 text-center`}
               >
                 {t.tier}
               </div>
@@ -207,45 +276,53 @@ export default function Home() {
                 <h3 className="text-white font-semibold">{t.label}</h3>
                 <p className="text-sm text-slate-500">{t.example}</p>
               </div>
-              <div className="hidden md:flex items-center gap-1.5">
-                {Array.from({ length: t.tier + 1 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-3 h-3 rounded-full ${t.bg} border ${
-                      t.tier === 3
-                        ? "border-red-500/50"
-                        : t.tier === 2
-                        ? "border-amber-500/50"
-                        : t.tier === 1
-                        ? "border-blue-500/50"
-                        : "border-slate-500/50"
-                    }`}
-                  />
-                ))}
-              </div>
+              {t.approval && (
+                <div className="hidden md:flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5">
+                  <Lock className="w-3 h-3 text-amber-400" />
+                  <span className="text-xs text-amber-400 font-medium">
+                    Approval Required
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </section>
 
       {/* How it works */}
-      <section id="lifecycle" className="max-w-6xl mx-auto px-6 py-24">
-        <h2 className="text-3xl font-bold text-white mb-2">
-          How It Works
-        </h2>
+      <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl font-bold text-white mb-2">How It Works</h2>
         <p className="text-slate-500 mb-12 max-w-2xl">
-          Regulator sits between agent intent and real-world execution.
-          It&apos;s a control plane, not a replacement for agents.
+          Vienna OS sits between agent intent and real-world execution. Agents
+          remain autonomous within governed boundaries.
         </p>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             {[
-              { icon: CheckCircle, text: "Audit trails for full compliance" },
-              { icon: CheckCircle, text: "Policy enforcement as guardrails" },
-              { icon: CheckCircle, text: "Warrant expiration prevents stale authorizations" },
-              { icon: CheckCircle, text: "Learning loop improves governance over time" },
-              { icon: CheckCircle, text: "Event-driven — integrates without rearchitecting" },
-              { icon: CheckCircle, text: "Policy-as-code for flexible rule definition" },
+              {
+                icon: CheckCircle,
+                text: "Intent Gateway — Canonical entry for all agent requests",
+              },
+              {
+                icon: CheckCircle,
+                text: "Policy Engine — Guardrails enforced automatically",
+              },
+              {
+                icon: CheckCircle,
+                text: "Operator Approval — T1/T2 actions require authorization",
+              },
+              {
+                icon: CheckCircle,
+                text: "Execution Warrants — Cryptographically signed, time-limited",
+              },
+              {
+                icon: CheckCircle,
+                text: "Verification — Every action verified post-execution",
+              },
+              {
+                icon: CheckCircle,
+                text: "Audit Trail — Permanent append-only ledger",
+              },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3">
                 <item.icon className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
@@ -255,58 +332,98 @@ export default function Home() {
           </div>
           <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
             <div className="font-mono text-sm space-y-2">
-              <div className="text-slate-500">{"// Agent proposes an action"}</div>
-              <div>
-                <span className="text-purple-400">const</span>{" "}
-                <span className="text-white">proposal</span>{" "}
-                <span className="text-slate-500">=</span>{" "}
-                <span className="text-amber-400">{"{"}</span>
+              <div className="text-slate-500">
+                {"// Agent submits intent"}
               </div>
-              <div className="pl-4">
-                <span className="text-emerald-400">agent</span>
-                <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"ellie-email"'}</span>
-                <span className="text-slate-500">,</span>
+              <div>
+                <span className="text-purple-400">POST</span>{" "}
+                <span className="text-green-300">
+                  {"/api/v1/agent/intent"}
+                </span>
+              </div>
+              <div>
+                <span className="text-amber-400">{"{"}</span>
               </div>
               <div className="pl-4">
                 <span className="text-emerald-400">action</span>
                 <span className="text-slate-500">:</span>{" "}
-                <span className="text-green-300">{'"send_campaign"'}</span>
+                <span className="text-green-300">{'"restart_service"'}</span>
                 <span className="text-slate-500">,</span>
               </div>
               <div className="pl-4">
-                <span className="text-emerald-400">riskTier</span>
+                <span className="text-emerald-400">source</span>
                 <span className="text-slate-500">:</span>{" "}
-                <span className="text-amber-400">3</span>
+                <span className="text-green-300">{'"openclaw"'}</span>
                 <span className="text-slate-500">,</span>
               </div>
               <div className="pl-4">
-                <span className="text-emerald-400">recipients</span>
+                <span className="text-emerald-400">tenant_id</span>
                 <span className="text-slate-500">:</span>{" "}
-                <span className="text-amber-400">2847</span>
+                <span className="text-green-300">{'"prod"'}</span>
               </div>
               <div>
                 <span className="text-amber-400">{"}"}</span>
               </div>
-              <div className="mt-3 text-slate-500">{"// Regulator evaluates & issues warrant"}</div>
+              <div className="mt-3 text-slate-500">
+                {"// Vienna evaluates policy + issues warrant"}
+              </div>
               <div>
-                <span className="text-purple-400">const</span>{" "}
-                <span className="text-white">warrant</span>{" "}
-                <span className="text-slate-500">=</span>{" "}
-                <span className="text-purple-400">await</span>{" "}
-                <span className="text-blue-400">regulator</span>
-                <span className="text-slate-500">.</span>
-                <span className="text-amber-400">authorize</span>
-                <span className="text-slate-500">(</span>
-                <span className="text-white">proposal</span>
-                <span className="text-slate-500">)</span>
+                <span className="text-amber-400">{"{"}</span>
               </div>
-              <div className="mt-3 text-slate-500">{"// ✅ Signed warrant with expiration"}</div>
-              <div className="text-emerald-400/60 text-xs mt-1">
-                {"warrant.signature: 0x7f3a...b2c1"}
+              <div className="pl-4">
+                <span className="text-emerald-400">success</span>
+                <span className="text-slate-500">:</span>{" "}
+                <span className="text-blue-400">true</span>
+                <span className="text-slate-500">,</span>
               </div>
-              <div className="text-emerald-400/60 text-xs">
-                {"warrant.expiresAt: 2026-03-14T19:00:00Z"}
+              <div className="pl-4">
+                <span className="text-emerald-400">status</span>
+                <span className="text-slate-500">:</span>{" "}
+                <span className="text-green-300">{'"executed"'}</span>
+                <span className="text-slate-500">,</span>
+              </div>
+              <div className="pl-4">
+                <span className="text-emerald-400">execution_id</span>
+                <span className="text-slate-500">:</span>{" "}
+                <span className="text-green-300">{'"exec-a3f2..."'}</span>
+              </div>
+              <div>
+                <span className="text-amber-400">{"}"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Architecture */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl font-bold text-white mb-2">
+          Production Ready
+        </h2>
+        <p className="text-slate-500 mb-12 max-w-2xl">
+          Vienna OS is operational in production. Agent Intent Layer supports
+          11 actions, multi-tenant isolation, and full governance pipeline.
+        </p>
+        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">111/111</div>
+              <div className="text-sm text-slate-400">
+                Integration tests passing
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">Phase 28</div>
+              <div className="text-sm text-slate-400">
+                Real external integration proven
+              </div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">
+                Multi-Tenant
+              </div>
+              <div className="text-sm text-slate-400">
+                Identity, quotas, cost tracking
               </div>
             </div>
           </div>
@@ -314,22 +431,30 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section id="contact" className="max-w-6xl mx-auto px-6 py-24">
+      <section id="cta" className="max-w-6xl mx-auto px-6 py-24">
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to govern your agents?
           </h2>
           <p className="text-slate-400 mb-8 max-w-lg mx-auto">
-            Regulator.AI is currently in private beta. Request access to be among
-            the first to deploy enterprise-grade agent governance.
+            Vienna OS is operational in production. Access the console to
+            deploy governed AI execution for your organization.
           </p>
-          <a
-            href="mailto:admin@ai.ventures?subject=Regulator.AI%20Access%20Request"
-            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
-          >
-            Request Access
-            <ArrowRight className="w-4 h-4" />
-          </a>
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://vienna-os.fly.dev"
+              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+            >
+              Access Console
+              <ArrowRight className="w-4 h-4" />
+            </a>
+            <a
+              href="mailto:admin@ai.ventures?subject=Vienna%20OS%20Enterprise%20Inquiry"
+              className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium border border-navy-600"
+            >
+              Contact Sales
+            </a>
+          </div>
         </div>
       </section>
 
@@ -339,12 +464,20 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-purple-400" />
             <span className="text-sm text-slate-500">
-              Regulator.AI — Vienna Governance System
+              Vienna OS — Governed AI Execution Layer
             </span>
           </div>
-          <span className="text-xs text-slate-600">
-            © 2026 ai.ventures. All rights reserved.
-          </span>
+          <div className="flex items-center gap-6">
+            <a
+              href="https://github.com/risk-ai/regulator.ai"
+              className="text-xs text-slate-600 hover:text-slate-400 transition"
+            >
+              GitHub
+            </a>
+            <span className="text-xs text-slate-600">
+              © 2026 ai.ventures. All rights reserved.
+            </span>
+          </div>
         </div>
       </footer>
     </div>

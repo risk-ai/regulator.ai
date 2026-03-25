@@ -5,14 +5,14 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Regulator.AI — Governance Control Plane for Autonomous Agents",
+  title: "Vienna OS — Governed AI Execution Layer",
   description:
-    "Enterprise-grade governance for AI agent systems. Warrant-based execution authorization, policy enforcement, cryptographic audit trails.",
+    "Enterprise-grade governance layer for autonomous AI systems. Intent Gateway, policy enforcement, operator approval, cryptographic audit trails.",
   openGraph: {
-    title: "Regulator.AI",
-    description: "Governance Control Plane for Autonomous Agent Systems",
+    title: "Vienna OS",
+    description: "Governed AI Execution Layer for Autonomous Systems",
     url: "https://regulator.ai",
-    siteName: "Regulator.AI",
+    siteName: "Vienna OS",
     type: "website",
   },
 };

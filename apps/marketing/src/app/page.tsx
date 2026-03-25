@@ -620,6 +620,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Open Platform — Wider Uses */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-white mb-3">One API. Any agent. Every industry.</h2>
+          <p className="text-warm-400 max-w-2xl mx-auto">
+            Vienna OS is runtime-agnostic and industry-agnostic. The governance pipeline
+            works with any framework, any cloud, any compliance requirement.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Agent Frameworks", items: "OpenClaw · LangChain · CrewAI · AutoGen · Custom" },
+            { label: "Deployment", items: "Cloud · On-premise · Hybrid · Air-gapped" },
+            { label: "Compliance", items: "EU AI Act · SEC · HIPAA · SOX · NIST AI RMF" },
+            { label: "Industries", items: "FinServ · Healthcare · Legal · Government · DevOps" },
+          ].map((col) => (
+            <div key={col.label} className="bg-navy-800/50 border border-navy-700 rounded-xl p-5">
+              <h3 className="text-xs font-semibold text-gold-400 uppercase tracking-wider mb-3">{col.label}</h3>
+              <p className="text-xs text-warm-400 leading-relaxed font-mono">{col.items}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Use Cases */}
       <section className="max-w-6xl mx-auto px-6 py-24">
         <h2 className="text-3xl font-bold text-white mb-2">Built for regulated industries</h2>

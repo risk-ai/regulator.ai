@@ -78,14 +78,33 @@ export default function SignupPage() {
     setSubmitting(true);
 
     try {
-      // Send signup to Resend via API route
+      // Always capture the signup
       await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, plan: selectedPlan }),
       });
+
+      // For paid plans, redirect to Stripe checkout
+      if (selectedPlan === "team" || selectedPlan === "business") {
+        const checkoutRes = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plan: selectedPlan,
+            email: form.email,
+            name: form.name,
+          }),
+        });
+        const checkout = await checkoutRes.json();
+        if (checkout.url) {
+          window.location.href = checkout.url;
+          return;
+        }
+        // If Stripe fails, still show the success page
+      }
     } catch {
-      // Still proceed — we'll also show console access
+      // Still proceed — show console access
     }
 
     setSubmitting(false);

@@ -163,10 +163,13 @@ export const OperatorNowView: React.FC = () => {
         <div className="metric-card">
           <div className="metric-label">Failure Rate</div>
           <div className={`metric-value ${snapshot.recentFailures.failureRate > 10 ? 'error' : ''}`}>
-            {snapshot.recentFailures.failureRate.toFixed(1)}%
+            {snapshot.recentFailures.count === 0 ? '—' : `${snapshot.recentFailures.failureRate.toFixed(1)}%`}
           </div>
           <div className="metric-detail">
-            {snapshot.recentFailures.count} failures · {snapshot.recentFailures.uniqueEnvelopes} unique
+            {snapshot.recentFailures.count === 0 
+              ? 'No failures recorded' 
+              : `${snapshot.recentFailures.count} failures · ${snapshot.recentFailures.uniqueEnvelopes} unique`
+            }
           </div>
         </div>
         

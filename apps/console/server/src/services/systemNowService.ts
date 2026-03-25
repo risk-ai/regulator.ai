@@ -313,10 +313,16 @@ export class SystemNowService {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
       
+      // Calculate failure rate (avoid 100% when no executions)
+      const totalExecutions = stats.execution.totalExecuted || 0;
+      const failureRate = totalExecutions > 0 
+        ? 100 - stats.execution.successRate 
+        : 0;
+      
       return {
         count: failures.length,
         uniqueEnvelopes: uniqueEnvelopes.size,
-        failureRate: 100 - stats.execution.successRate,
+        failureRate,
         topErrors,
       };
     } catch (error) {

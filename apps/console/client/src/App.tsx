@@ -17,16 +17,30 @@ import { SettingsPage } from './pages/SettingsPage.js';
 import { ApprovalsPage } from './pages/ApprovalsPage.js';
 import { IntentPage } from './pages/IntentPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
+import { OnboardingModal } from './components/OnboardingModal.js';
 import { useAuthStore } from './store/authStore.js';
+
+const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
 export function App() {
   const { authenticated, loading, checkSession } = useAuthStore();
   const [currentSection, setCurrentSection] = useState<NavSection>('now');
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Check session on mount (only once)
   useEffect(() => {
     checkSession();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  
+  // Check if onboarding should be shown (first-time user)
+  useEffect(() => {
+    if (authenticated) {
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      if (!onboardingCompleted) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [authenticated]);
   
   // Hash-based routing (Phase 2: 6-section navigation)
   useEffect(() => {
@@ -108,6 +122,16 @@ export function App() {
     }
   };
   
+  const handleOnboardingComplete = () => {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    setShowOnboarding(false);
+  };
+  
+  const handleOnboardingSkip = () => {
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+    setShowOnboarding(false);
+  };
+  
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       {/* Top Navigation */}
@@ -117,6 +141,14 @@ export function App() {
       <main className="container mx-auto px-6 py-6">
         {renderPage()}
       </main>
+      
+      {/* First-Run Onboarding Modal */}
+      {showOnboarding && (
+        <OnboardingModal
+          onComplete={handleOnboardingComplete}
+          onSkip={handleOnboardingSkip}
+        />
+      )}
     </div>
   );
 }

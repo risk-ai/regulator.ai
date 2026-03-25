@@ -10,6 +10,10 @@ import {
   Zap,
   Users,
   Server,
+  Check,
+  GraduationCap,
+  Building2,
+  Globe,
 } from "lucide-react";
 
 const coreServices = [
@@ -120,6 +124,73 @@ const lifecycle = [
   "Learn",
 ];
 
+const pricingTiers = [
+  {
+    name: "Community",
+    price: "Free",
+    period: "",
+    desc: "Open-source core, self-hosted",
+    features: [
+      "Up to 5 agents",
+      "Full governance pipeline",
+      "SQLite state graph",
+      "Community support",
+      "Self-hosted deployment",
+    ],
+    cta: "Get Started",
+    href: "https://github.com/risk-ai/regulator.ai",
+    highlighted: false,
+  },
+  {
+    name: "Team",
+    price: "$49",
+    period: "/agent/mo",
+    desc: "Cloud-hosted for growing teams",
+    features: [
+      "Up to 25 agents",
+      "Cloud-hosted console",
+      "Basic policy templates",
+      "Email support",
+      "SSE real-time streaming",
+    ],
+    cta: "Request Access",
+    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Team%20Plan",
+    highlighted: false,
+  },
+  {
+    name: "Business",
+    price: "$99",
+    period: "/agent/mo",
+    desc: "Advanced governance at scale",
+    features: [
+      "Up to 100 agents",
+      "Custom policy engine rules",
+      "SSO / SAML",
+      "Priority support",
+      "Advanced audit exports",
+    ],
+    cta: "Request Access",
+    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Business%20Plan",
+    highlighted: true,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    period: "",
+    desc: "On-prem, unlimited, dedicated",
+    features: [
+      "Unlimited agents",
+      "On-premise deployment",
+      "SLA & dedicated CSM",
+      "Compliance certs (SOC 2)",
+      "Custom integrations",
+    ],
+    cta: "Contact Sales",
+    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Enterprise%20Inquiry",
+    highlighted: false,
+  },
+];
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-navy-900">
@@ -142,16 +213,16 @@ export default function Home() {
                 Core Services
               </a>
               <a
-                href="#governance"
+                href="#pricing"
                 className="text-sm text-slate-400 hover:text-white transition"
               >
-                Governance
+                Pricing
               </a>
               <a
-                href="#risk-tiers"
+                href="/docs"
                 className="text-sm text-slate-400 hover:text-white transition"
               >
-                Risk Tiers
+                Docs
               </a>
               <a
                 href="https://vienna-os.fly.dev"
@@ -430,6 +501,101 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24">
+        <h2 className="text-3xl font-bold text-white mb-2">Pricing</h2>
+        <p className="text-slate-500 mb-12 max-w-2xl">
+          Start free with the open-source core. Scale to cloud-hosted or
+          on-premise as your agent fleet grows.
+        </p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {pricingTiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`rounded-xl p-6 flex flex-col ${
+                tier.highlighted
+                  ? "bg-purple-500/10 border-2 border-purple-500/40 relative"
+                  : "bg-navy-800 border border-navy-700"
+              }`}
+            >
+              {tier.highlighted && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  Most Popular
+                </div>
+              )}
+              <h3 className="text-white font-semibold text-lg mb-1">
+                {tier.name}
+              </h3>
+              <div className="mb-3">
+                <span className="text-3xl font-bold text-white">
+                  {tier.price}
+                </span>
+                {tier.period && (
+                  <span className="text-sm text-slate-500">{tier.period}</span>
+                )}
+              </div>
+              <p className="text-sm text-slate-500 mb-6">{tier.desc}</p>
+              <ul className="space-y-2 mb-8 flex-1">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                    <span className="text-slate-300">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={tier.href}
+                className={`text-center text-sm font-medium px-4 py-2.5 rounded-lg transition ${
+                  tier.highlighted
+                    ? "bg-purple-600 hover:bg-purple-500 text-white"
+                    : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600"
+                }`}
+              >
+                {tier.cta}
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Credibility */}
+      <section className="max-w-6xl mx-auto px-6 py-24">
+        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
+          <div className="grid md:grid-cols-3 gap-8 items-center">
+            <div className="flex items-center gap-4">
+              <GraduationCap className="w-10 h-10 text-purple-400 shrink-0" />
+              <div>
+                <h3 className="text-white font-semibold">Cornell Law × ai.ventures</h3>
+                <p className="text-sm text-slate-400">
+                  Built by a legal technologist who understands both compliance
+                  and distributed systems.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Building2 className="w-10 h-10 text-blue-400 shrink-0" />
+              <div>
+                <h3 className="text-white font-semibold">Enterprise-First</h3>
+                <p className="text-sm text-slate-400">
+                  Designed for regulated industries: financial services,
+                  healthcare, legal, government.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Globe className="w-10 h-10 text-emerald-400 shrink-0" />
+              <div>
+                <h3 className="text-white font-semibold">Runtime Agnostic</h3>
+                <p className="text-sm text-slate-400">
+                  Works with OpenClaw, LangChain, CrewAI, AutoGen, or your
+                  custom agent framework.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section id="cta" className="max-w-6xl mx-auto px-6 py-24">
         <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-2xl p-12 text-center">
@@ -468,6 +634,12 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-6">
+            <a
+              href="/docs"
+              className="text-xs text-slate-600 hover:text-slate-400 transition"
+            >
+              Docs
+            </a>
             <a
               href="https://github.com/risk-ai/regulator.ai"
               className="text-xs text-slate-600 hover:text-slate-400 transition"

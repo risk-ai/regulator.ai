@@ -50,9 +50,9 @@ const coreServices = [
     icon: Server,
     name: "State Graph",
     desc: "Canonical system state. Single source of truth for execution, objectives, and governance.",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
+    color: "text-gold-400",
+    bg: "bg-gold-400/10",
+    border: "border-gold-400/20",
   },
   {
     icon: Eye,
@@ -83,7 +83,7 @@ const governanceFeatures = [
     icon: Zap,
     name: "Operator Approval",
     desc: "T1/T2 approval workflow for high-impact actions. Operators authorize, agents execute.",
-    color: "text-purple-400",
+    color: "text-gold-400",
   },
   {
     icon: Shield,
@@ -207,9 +207,9 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24">
           <nav className="flex items-center justify-between mb-20">
             <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-purple-400" />
+              <Shield className="w-8 h-8 text-gold-400" />
               <span className="text-xl font-bold text-white tracking-tight">
-                Vienna<span className="text-purple-400">OS</span>
+                Vienna<span className="text-gold-400">OS</span>
               </span>
             </div>
             {/* Desktop nav */}
@@ -221,7 +221,7 @@ export default function Home() {
               <a href="/security" className="text-sm text-slate-400 hover:text-white transition">Security</a>
               <a
                 href="https://vienna-os.fly.dev"
-                className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
+                className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium"
               >
                 Console
               </a>
@@ -242,8 +242,8 @@ export default function Home() {
               <a href="/docs" className="block text-sm text-slate-400 hover:text-white transition">Docs</a>
               <a href="/blog" className="block text-sm text-slate-400 hover:text-white transition">Blog</a>
               <a href="/security" className="block text-sm text-slate-400 hover:text-white transition">Security</a>
-              <a href="https://vienna-os.fly.dev" className="block text-sm text-purple-400 font-medium">Console</a>
-              <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium">Get Started</a>
+              <a href="https://vienna-os.fly.dev" className="block text-sm text-gold-400 font-medium">Console</a>
+              <a href="/signup" className="block text-sm bg-gold-500 text-white px-4 py-2 rounded-lg text-center font-medium">Get Started</a>
             </div>
           )}
 
@@ -256,8 +256,8 @@ export default function Home() {
                   Production — Operational
                 </span>
               </div>
-              <a href="/try" className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 hover:bg-purple-500/20 transition">
-                <span className="text-xs text-purple-400 font-medium">
+              <a href="/try" className="inline-flex items-center gap-2 bg-gold-400/10 border border-gold-400/20 rounded-full px-4 py-1.5 hover:bg-gold-400/20 transition">
+                <span className="text-xs text-gold-400 font-medium">
                   Try the API live →
                 </span>
               </a>
@@ -266,7 +266,7 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-6 tracking-tight">
               The governance layer
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-purple-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-amber-400">
                 agents answer to.
               </span>
             </h1>
@@ -304,7 +304,7 @@ export default function Home() {
             <div className="flex items-center gap-4 flex-wrap">
               <a
                 href="/signup"
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3.5 rounded-xl transition font-semibold text-sm"
+                className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3.5 rounded-xl transition font-semibold text-sm"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4" />
@@ -451,7 +451,7 @@ export default function Home() {
                 {"// Agent submits intent"}
               </div>
               <div>
-                <span className="text-purple-400">POST</span>{" "}
+                <span className="text-gold-400">POST</span>{" "}
                 <span className="text-green-300">
                   {"/api/v1/agent/intent"}
                 </span>
@@ -524,7 +524,7 @@ export default function Home() {
               {[
                 { value: "111/111", label: "Tests Passing", color: "text-emerald-400" },
                 { value: "11", label: "Intent Actions", color: "text-blue-400" },
-                { value: "300+", label: "Engine Files", color: "text-purple-400" },
+                { value: "300+", label: "Engine Files", color: "text-gold-400" },
                 { value: "99.9%", label: "Target Uptime", color: "text-amber-400" },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
@@ -596,7 +596,7 @@ export default function Home() {
                 <span className="text-2xl">{uc.icon}</span>
                 <h3 className="text-white font-semibold">{uc.industry}</h3>
               </div>
-              <p className="text-sm text-purple-400 font-medium mb-2">
+              <p className="text-sm text-gold-400 font-medium mb-2">
                 &quot;{uc.scenario}&quot;
               </p>
               <p className="text-xs text-slate-400 leading-relaxed mb-3 font-mono">
@@ -623,12 +623,12 @@ export default function Home() {
               key={tier.name}
               className={`rounded-xl p-6 flex flex-col ${
                 tier.highlighted
-                  ? "bg-purple-500/10 border-2 border-purple-500/40 relative"
+                  ? "bg-gold-400/10 border-2 border-gold-400/30 relative"
                   : "bg-navy-800 border border-navy-700"
               }`}
             >
               {tier.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-500 text-white text-xs font-medium px-3 py-1 rounded-full">
                   Most Popular
                 </div>
               )}
@@ -656,7 +656,7 @@ export default function Home() {
                 href={tier.href}
                 className={`text-center text-sm font-medium px-4 py-2.5 rounded-lg transition ${
                   tier.highlighted
-                    ? "bg-purple-600 hover:bg-purple-500 text-white"
+                    ? "bg-gold-500 hover:bg-gold-400 text-white"
                     : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600"
                 }`}
               >
@@ -672,7 +672,7 @@ export default function Home() {
         <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
           <div className="grid md:grid-cols-3 gap-8 items-center">
             <div className="flex items-center gap-4">
-              <GraduationCap className="w-10 h-10 text-purple-400 shrink-0" />
+              <GraduationCap className="w-10 h-10 text-gold-400 shrink-0" />
               <div>
                 <h3 className="text-white font-semibold">Cornell Law × ai.ventures</h3>
                 <p className="text-sm text-slate-400">
@@ -707,7 +707,7 @@ export default function Home() {
 
       {/* CTA */}
       <section id="cta" className="max-w-6xl mx-auto px-6 py-24">
-        <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-2xl p-12 text-center">
+        <div className="bg-gradient-to-br from-gold-500/10 to-navy-800/50 border border-gold-400/20 rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to govern your agents?
           </h2>
@@ -718,7 +718,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <a
               href="/signup"
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+              className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
             >
               Get Started Free
               <ArrowRight className="w-4 h-4" />
@@ -738,7 +738,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-purple-400" />
+              <Shield className="w-4 h-4 text-gold-400" />
               <span className="text-sm text-slate-500">
                 Vienna OS — Governed AI Execution Layer
               </span>

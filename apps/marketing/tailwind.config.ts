@@ -9,29 +9,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Vienna OS institutional palette
+        // Vienna OS — Institutional Governance Palette
+        // Dark foundation with warm undertones (not cold tech blue/purple)
         navy: {
-          950: '#07090E',  // deepest — page bg
-          900: '#0B0F19',  // primary surfaces
-          800: '#111826',  // secondary surfaces
-          700: '#1A2235',  // borders, dividers
-          600: '#2A3448',  // interactive borders
+          950: '#08090C',   // deepest
+          900: '#0D0F14',   // primary bg
+          800: '#141820',   // card bg
+          700: '#1C222E',   // borders
+          600: '#2A3244',   // active borders
         },
-        // Accent: amber for warrants/authority
-        warrant: {
-          400: '#FBBF24',
-          500: '#F59E0B',
+        // Gold/amber for authority, warrants, seals
+        gold: {
+          50:  '#FFF9E6',
+          100: '#FFF0BF',
+          200: '#FFE080',
+          300: '#FFD040',
+          400: '#D4A520',   // classic gold — authority
+          500: '#B8860B',   // dark gold
         },
-        // Steel for data/neutral
-        steel: {
-          400: '#94A3B8',
-          500: '#64748B',
-          600: '#475569',
-          700: '#334155',
+        // Slate with warm undertones
+        warm: {
+          50:  '#F8F7F5',
+          100: '#E8E6E1',
+          200: '#D4D0C8',
+          300: '#B0AAA0',
+          400: '#8A8478',
+          500: '#6B6560',
+          600: '#4A4540',
+          700: '#2D2A26',
         },
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'monospace'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'monospace'],
+        serif: ['Georgia', 'Times New Roman', 'serif'],
       },
     },
   },

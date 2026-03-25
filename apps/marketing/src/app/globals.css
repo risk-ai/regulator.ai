@@ -5,173 +5,134 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 body {
-  background: #07090E;
-  color: #c8cdd5;
-  font-feature-settings: "cv11", "ss01";
+  background: #0D0F14;
+  color: #B0AAA0;
   -webkit-font-smoothing: antialiased;
 }
 
 /* ============================
-   VIENNA OS VISUAL IDENTITY
+   VIENNA OS — GOVERNANCE IDENTITY
    
-   Design language: Institutional Control Room
-   Inspired by: Bloomberg Terminal, mission control, federal dashboards
-   Palette: Deep charcoal + amber warrants + emerald verified + steel blue data
+   Design language: Regulatory Authority
+   Not a tech startup. A governance institution.
+   
+   Palette: Dark charcoal + gold authority + emerald verified + warm neutrals
+   Typography: Inter (body) + JetBrains Mono (data) + Georgia (editorial)
+   Textures: Subtle paper grain, seal stamps, document borders
    ============================ */
 
-/* Governance grid — subtle coordinate system */
+/* Fine grain texture — like high-quality paper */
+.paper-bg {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='40' height='40' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+}
+
+/* Coordinate grid — governance precision */
 .grid-bg {
   background-image: 
-    linear-gradient(rgba(148, 163, 184, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(180, 170, 160, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 170, 160, 0.02) 1px, transparent 1px);
   background-size: 48px 48px;
-  background-position: center;
 }
 
-/* Topographic contour variant for depth */
-.topo-bg {
-  background-image: 
-    radial-gradient(ellipse at 20% 50%, rgba(251, 191, 36, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(96, 165, 250, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(74, 222, 128, 0.02) 0%, transparent 50%);
-}
-
-/* Warrant seal — amber authority glow */
-.warrant-glow {
+/* Gold seal glow — for warrants and authority badges */
+.seal-glow {
   box-shadow: 
-    0 0 12px rgba(251, 191, 36, 0.2),
-    0 0 40px rgba(251, 191, 36, 0.06),
-    inset 0 1px 0 rgba(251, 191, 36, 0.1);
+    0 0 15px rgba(212, 165, 32, 0.15),
+    0 0 40px rgba(212, 165, 32, 0.05),
+    inset 0 1px 0 rgba(212, 165, 32, 0.08);
 }
 
-/* Verified glow — emerald trust */
+/* Verified stamp glow */
 .verified-glow {
-  box-shadow:
-    0 0 12px rgba(74, 222, 128, 0.15),
-    0 0 40px rgba(74, 222, 128, 0.05);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.12);
 }
 
-/* Pipeline flow animation */
+/* Pipeline flow */
 @keyframes pipeline-flow {
   0% { opacity: 0.2; transform: translateX(-3px); }
-  50% { opacity: 0.8; transform: translateX(0); }
+  50% { opacity: 0.7; transform: translateX(0); }
   100% { opacity: 0.2; transform: translateX(3px); }
 }
 .pipeline-arrow {
   animation: pipeline-flow 2.5s ease-in-out infinite;
 }
 
-/* Live status pulse */
+/* Status pulse */
 @keyframes status-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-  50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 .status-live {
   animation: status-pulse 2s ease-in-out infinite;
 }
 
-/* Scan line effect for control room feel */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-.scanline::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.06), transparent);
-  animation: scanline 8s linear infinite;
-  pointer-events: none;
-}
-
-/* Gradient borders — institutional seal style */
-.gradient-border {
+/* Document border — like a certificate/legal document */
+.doc-border {
   position: relative;
 }
-.gradient-border::before {
+.doc-border::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(148, 163, 184, 0.1), rgba(74, 222, 128, 0.15));
+  background: linear-gradient(135deg, rgba(212, 165, 32, 0.3), rgba(180, 170, 160, 0.1), rgba(212, 165, 32, 0.15));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
 }
 
-/* Monospace for data/IDs — terminal aesthetic */
-.code-block, .font-mono {
-  font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
-}
-
-/* Card hover — precise lift */
-.card-hover {
-  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(148, 163, 184, 0.08);
-}
-.card-hover:hover {
-  transform: translateY(-1px);
-  border-color: rgba(148, 163, 184, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(148, 163, 184, 0.05);
-}
-
-/* Section divider — clean institutional line */
+/* Section divider — thin gold line */
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 32, 0.15), transparent);
   margin: 0 auto;
   max-width: 200px;
 }
 
-/* Data table rows — Bloomberg style */
-.data-row {
-  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
-  transition: background 100ms;
+/* Card hover */
+.card-hover {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(180, 170, 160, 0.06);
 }
-.data-row:hover {
-  background: rgba(148, 163, 184, 0.03);
+.card-hover:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212, 165, 32, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Stamp/badge for verified/authorized states */
+/* Stamp/badge */
 .stamp {
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   font-weight: 700;
   font-size: 10px;
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Custom scrollbar — thin and dark */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.15);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.25);
-}
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(180, 170, 160, 0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(180, 170, 160, 0.2); }
 
-/* Focus states — amber for authority */
+/* Focus: gold authority */
 input:focus, textarea:focus, select:focus {
-  border-color: rgba(251, 191, 36, 0.4) !important;
-  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
+  border-color: rgba(212, 165, 32, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(212, 165, 32, 0.08);
 }
 
-/* Selection */
-::selection {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fff;
+/* Selection: gold highlight */
+::selection { background: rgba(212, 165, 32, 0.2); color: #fff; }
+
+/* Data row */
+.data-row {
+  border-bottom: 1px solid rgba(180, 170, 160, 0.05);
+  transition: background 100ms;
+}
+.data-row:hover {
+  background: rgba(180, 170, 160, 0.02);
 }

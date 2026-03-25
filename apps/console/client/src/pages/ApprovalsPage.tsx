@@ -1,64 +1,154 @@
 /**
- * Approvals Page (Phase 17 Stage 4)
+ * Approvals Page — Vienna OS
  * 
- * Main page for approval workflow management.
+ * The approval queue is where governance becomes tangible.
+ * T1/T2 actions wait here for operator authorization.
  */
 
 import React, { useState } from 'react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { PendingApprovalsList } from '../components/approvals/PendingApprovalsList';
 
 export function ApprovalsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
 
   const handleApprovalChange = () => {
     setRefreshKey(prev => prev + 1);
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950">
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-neutral-100 mb-2">
-            Approvals
-          </h1>
-          <p className="text-sm text-neutral-400">
-            Review and approve pending T1/T2 actions requiring operator authorization.
-          </p>
-        </div>
+    <PageLayout
+      title="Approvals"
+      description="Review and authorize pending T1/T2 agent actions"
+    >
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '2px',
+        marginBottom: '24px',
+        borderBottom: '1px solid var(--border-subtle)',
+        paddingBottom: '0',
+      }}>
+        {(['pending', 'history'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: activeTab === tab ? 600 : 400,
+              color: activeTab === tab ? '#a78bfa' : 'var(--text-tertiary)',
+              background: activeTab === tab ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+              border: 'none',
+              borderBottom: activeTab === tab ? '2px solid #7c3aed' : '2px solid transparent',
+              borderRadius: '8px 8px 0 0',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-sans)',
+              transition: 'all 150ms',
+            }}
+          >
+            {tab === 'pending' ? '⏳ Pending' : '📜 History'}
+          </button>
+        ))}
+      </div>
 
-        {/* Pending approvals */}
+      {activeTab === 'pending' && (
         <div>
-          <h2 className="text-lg font-semibold text-neutral-200 mb-4">
-            Pending Actions
-          </h2>
           <PendingApprovalsList
             key={refreshKey}
             onApprovalChange={handleApprovalChange}
           />
         </div>
+      )}
 
-        {/* Info panel */}
-        <div className="mt-8 bg-neutral-900/50 border border-neutral-700/50 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-neutral-300 mb-2">
-            About Approvals
-          </h3>
-          <div className="text-xs text-neutral-400 space-y-2">
-            <p>
-              <strong className="text-neutral-300">T1 (Moderate risk):</strong> Service restarts,
-              configuration changes, non-trading actions.
-            </p>
-            <p>
-              <strong className="text-neutral-300">T2 (High risk):</strong> Trading-critical services,
-              trading configuration, irreversible changes.
-            </p>
-            <p className="pt-2 border-t border-neutral-700">
-              All approval decisions are recorded in the audit trail.
-              Expired approvals cannot be approved and must be re-requested.
-            </p>
-          </div>
+      {activeTab === 'history' && (
+        <div style={{
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '12px',
+          padding: '32px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📜</div>
+          <p style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>
+            Approval history will appear here as actions are approved or rejected.
+          </p>
         </div>
+      )}
+
+      {/* Risk tier reference */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '12px',
+        marginTop: '24px',
+      }}>
+        <TierCard
+          tier="T0"
+          label="Auto-Approve"
+          desc="Read-only, status checks, internal queries"
+          color="#94a3b8"
+        />
+        <TierCard
+          tier="T1"
+          label="Single Approval"
+          desc="Config changes, service restarts, data writes"
+          color="#fbbf24"
+        />
+        <TierCard
+          tier="T2"
+          label="Multi-Party"
+          desc="Deployments, payments, data deletion"
+          color="#f87171"
+        />
       </div>
+    </PageLayout>
+  );
+}
+
+function TierCard({ tier, label, desc, color }: {
+  tier: string;
+  label: string;
+  desc: string;
+  color: string;
+}) {
+  return (
+    <div style={{
+      background: `${color}08`,
+      border: `1px solid ${color}20`,
+      borderRadius: '12px',
+      padding: '16px',
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '6px',
+      }}>
+        <span style={{
+          fontSize: '14px',
+          fontWeight: 700,
+          color: color,
+          fontFamily: 'var(--font-mono)',
+        }}>
+          {tier}
+        </span>
+        <span style={{
+          fontSize: '13px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+        }}>
+          {label}
+        </span>
+      </div>
+      <p style={{
+        fontSize: '12px',
+        color: 'var(--text-tertiary)',
+        lineHeight: 1.5,
+      }}>
+        {desc}
+      </p>
     </div>
   );
 }

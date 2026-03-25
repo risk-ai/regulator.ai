@@ -33,8 +33,9 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action,
-        source: "regulator.ai-try",
+        source: "openclaw",
         tenant_id: "sandbox",
+        context: { origin: "regulator.ai-try" },
       }),
     });
 

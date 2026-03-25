@@ -137,8 +137,8 @@ const pricingTiers = [
       "Community support",
       "Self-hosted deployment",
     ],
-    cta: "Get Started",
-    href: "https://github.com/risk-ai/regulator.ai",
+    cta: "Get Started Free",
+    href: "/signup?plan=community",
     highlighted: false,
   },
   {
@@ -153,8 +153,8 @@ const pricingTiers = [
       "Email support",
       "SSE real-time streaming",
     ],
-    cta: "Request Access",
-    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Team%20Plan",
+    cta: "Get Started",
+    href: "/signup?plan=team",
     highlighted: false,
   },
   {
@@ -169,8 +169,8 @@ const pricingTiers = [
       "Priority support",
       "Advanced audit exports",
     ],
-    cta: "Request Access",
-    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Business%20Plan",
+    cta: "Get Started",
+    href: "/signup?plan=business",
     highlighted: true,
   },
   {
@@ -186,7 +186,7 @@ const pricingTiers = [
       "Custom integrations",
     ],
     cta: "Contact Sales",
-    href: "mailto:admin@ai.ventures?subject=Vienna%20OS%20Enterprise%20Inquiry",
+    href: "/signup?plan=enterprise",
     highlighted: false,
   },
 ];
@@ -608,17 +608,17 @@ export default function Home() {
           </p>
           <div className="flex items-center justify-center gap-4">
             <a
-              href="https://vienna-os.fly.dev"
+              href="/signup"
               className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
             >
-              Access Console
+              Get Started Free
               <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="mailto:admin@ai.ventures?subject=Vienna%20OS%20Enterprise%20Inquiry"
+              href="https://vienna-os.fly.dev"
               className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium border border-navy-600"
             >
-              Contact Sales
+              Open Console
             </a>
           </div>
         </div>

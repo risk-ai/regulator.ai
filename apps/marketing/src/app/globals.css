@@ -2,48 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 body {
-  background: #0B0F19;
-  color: #e2e8f0;
+  background: #07090E;
+  color: #c8cdd5;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Governance grid pattern */
+/* ============================
+   VIENNA OS VISUAL IDENTITY
+   
+   Design language: Institutional Control Room
+   Inspired by: Bloomberg Terminal, mission control, federal dashboards
+   Palette: Deep charcoal + amber warrants + emerald verified + steel blue data
+   ============================ */
+
+/* Governance grid — subtle coordinate system */
 .grid-bg {
   background-image: 
-    linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
-  background-size: 64px 64px;
+    linear-gradient(rgba(148, 163, 184, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
 }
 
-/* Warrant seal glow */
+/* Topographic contour variant for depth */
+.topo-bg {
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(251, 191, 36, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(96, 165, 250, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(74, 222, 128, 0.02) 0%, transparent 50%);
+}
+
+/* Warrant seal — amber authority glow */
 .warrant-glow {
   box-shadow: 
-    0 0 20px rgba(251, 191, 36, 0.15),
-    0 0 60px rgba(251, 191, 36, 0.05);
+    0 0 12px rgba(251, 191, 36, 0.2),
+    0 0 40px rgba(251, 191, 36, 0.06),
+    inset 0 1px 0 rgba(251, 191, 36, 0.1);
 }
 
-/* Pipeline animation */
+/* Verified glow — emerald trust */
+.verified-glow {
+  box-shadow:
+    0 0 12px rgba(74, 222, 128, 0.15),
+    0 0 40px rgba(74, 222, 128, 0.05);
+}
+
+/* Pipeline flow animation */
 @keyframes pipeline-flow {
-  0% { opacity: 0.3; transform: translateX(-4px); }
-  50% { opacity: 1; transform: translateX(0); }
-  100% { opacity: 0.3; transform: translateX(4px); }
+  0% { opacity: 0.2; transform: translateX(-3px); }
+  50% { opacity: 0.8; transform: translateX(0); }
+  100% { opacity: 0.2; transform: translateX(3px); }
 }
-
 .pipeline-arrow {
-  animation: pipeline-flow 2s ease-in-out infinite;
+  animation: pipeline-flow 2.5s ease-in-out infinite;
 }
 
-/* Status pulse */
+/* Live status pulse */
 @keyframes status-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 0.7; box-shadow: 0 0 0 4px transparent; }
 }
-
 .status-live {
   animation: status-pulse 2s ease-in-out infinite;
 }
 
-/* Smooth gradient borders */
+/* Scan line effect for control room feel */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.06), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+}
+
+/* Gradient borders — institutional seal style */
 .gradient-border {
   position: relative;
 }
@@ -53,25 +97,81 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(96, 165, 250, 0.1), rgba(251, 191, 36, 0.2));
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(148, 163, 184, 0.1), rgba(74, 222, 128, 0.15));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
 }
 
-/* Monospace code blocks */
-.code-block {
+/* Monospace for data/IDs — terminal aesthetic */
+.code-block, .font-mono {
   font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
-  font-size: 13px;
-  line-height: 1.6;
 }
 
-/* Card hover lift */
+/* Card hover — precise lift */
 .card-hover {
-  transition: all 200ms ease;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(148, 163, 184, 0.08);
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+  border-color: rgba(148, 163, 184, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(148, 163, 184, 0.05);
+}
+
+/* Section divider — clean institutional line */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.1), transparent);
+  margin: 0 auto;
+  max-width: 200px;
+}
+
+/* Data table rows — Bloomberg style */
+.data-row {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+  transition: background 100ms;
+}
+.data-row:hover {
+  background: rgba(148, 163, 184, 0.03);
+}
+
+/* Stamp/badge for verified/authorized states */
+.stamp {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom scrollbar — thin and dark */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+/* Focus states — amber for authority */
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(251, 191, 36, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.1);
+}
+
+/* Selection */
+::selection {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fff;
 }

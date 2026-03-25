@@ -202,8 +202,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-navy-900">
       {/* Hero */}
-      <header className="relative overflow-hidden grid-bg">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-navy-900/80 to-navy-900" />
+      <header className="relative overflow-hidden grid-bg scanline">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/90 to-navy-950 topo-bg" />
         <div className="relative max-w-6xl mx-auto px-6 pt-20 pb-24">
           <nav className="flex items-center justify-between mb-20">
             <div className="flex items-center gap-3">
@@ -510,36 +510,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Architecture */}
+      {/* System Telemetry — Control Room Style */}
       <section className="max-w-6xl mx-auto px-6 py-24">
         <h2 className="text-3xl font-bold text-white mb-2">
-          Production Ready
+          System Telemetry
         </h2>
         <p className="text-slate-500 mb-12 max-w-2xl">
-          Vienna OS is operational in production. Agent Intent Layer supports
-          11 actions, multi-tenant isolation, and full governance pipeline.
+          Vienna OS is operational in production. Real numbers, real governance.
         </p>
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">111/111</div>
-              <div className="text-sm text-slate-400">
-                Integration tests passing
-              </div>
+        <div className="gradient-border rounded-2xl">
+          <div className="bg-navy-900 rounded-2xl p-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { value: "111/111", label: "Tests Passing", color: "text-emerald-400" },
+                { value: "11", label: "Intent Actions", color: "text-blue-400" },
+                { value: "300+", label: "Engine Files", color: "text-purple-400" },
+                { value: "99.9%", label: "Target Uptime", color: "text-amber-400" },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className={`text-3xl font-bold font-mono ${stat.color} mb-1`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">Phase 28</div>
-              <div className="text-sm text-slate-400">
-                Real external integration proven
-              </div>
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-white mb-2">
-                Multi-Tenant
-              </div>
-              <div className="text-sm text-slate-400">
-                Identity, quotas, cost tracking
-              </div>
+            <div className="section-divider mt-6 mb-6" />
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+              {["Policy Engine", "Verification", "Watchdog", "Reconciliation", "Circuit Breaker"].map((engine) => (
+                <div key={engine} className="flex items-center gap-2 justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 verified-glow" />
+                  <span className="text-xs text-slate-400 font-mono">{engine}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

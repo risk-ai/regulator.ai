@@ -10,6 +10,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +26,7 @@ import { ProviderHealthService } from './services/providerHealthService.js';
 import { SystemNowService } from './services/systemNowService.js';
 import { eventStream } from './sse/eventStream.js';
 import { createAuthMiddleware } from './middleware/requireAuth.js';
+import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
@@ -63,7 +65,6 @@ import investigationsRouter from './routes/investigations.js';
 import artifactsRouter from './routes/artifacts.js';
 import incidentsRouter from './routes/incidents.js';
 import { createValidationRouter } from './routes/validation.js';
-import { createAgentIntentRouter } from './routes/agent-intent.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -87,6 +88,24 @@ export function createApp(
   // ============================================================================
   // Middleware
   // ============================================================================
+
+  // Security headers (helmet)
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"], // Vite dev needs unsafe-inline
+        styleSrc: ["'self'", "'unsafe-inline'"], // Tailwind needs unsafe-inline
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://vienna-os.fly.dev"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Allow embedding for iframes
+  }));
 
   // CORS - environment-driven origins
   const corsOrigins = process.env.CORS_ORIGIN
@@ -203,12 +222,15 @@ export function createApp(
 
   const apiPrefix = '/api/v1';
 
+  // Apply general API rate limiting to all /api/v1/* routes
+  app.use(apiPrefix, apiLimiter);
+
   // ============================================================================
   // Public Routes (no auth required)
   // ============================================================================
   
-  // Auth routes (must be public for login)
-  app.use(`${apiPrefix}/auth`, createAuthRouter(authService));
+  // Auth routes (must be public for login) with stricter rate limiting
+  app.use(`${apiPrefix}/auth`, authLimiter, createAuthRouter(authService));
 
   // ============================================================================
   // Protected Routes (auth required)
@@ -266,9 +288,9 @@ export function createApp(
   // Phase 11.5: Intent Tracing (execution graph visibility)
   app.use(`${apiPrefix}/intents`, requireAuth, intentsRouter);
   
-  // Agent Intent Layer (OpenClaw agents → Vienna)
+  // Agent Intent Layer (OpenClaw agents → Vienna) with higher rate limits
   if (agentIntentBridge) {
-    app.use(`${apiPrefix}/agent`, createAgentIntentRouter(agentIntentBridge));
+    app.use(`${apiPrefix}/agent`, agentLimiter, createAgentIntentRouter(agentIntentBridge));
   }
   
   // Phase 13: Investigation Workspace

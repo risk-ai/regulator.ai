@@ -39,8 +39,10 @@ export default function TryPage() {
   const [result, setResult] = useState<object | null>(null);
   const [loading, setLoading] = useState(false);
   const [latency, setLatency] = useState<number | null>(null);
+  const [cooldown, setCooldown] = useState(0);
 
   const runIntent = async () => {
+    if (cooldown > 0) return;
     setLoading(true);
     setResult(null);
     const start = Date.now();
@@ -55,11 +57,19 @@ export default function TryPage() {
       setLatency(Date.now() - start);
       setResult(data);
     } catch {
-      setResult({ error: "Failed to reach Vienna OS" });
+      setResult({ error: "Failed to reach Vienna OS", success: false });
       setLatency(Date.now() - start);
     }
 
     setLoading(false);
+    // 5-second cooldown between requests to avoid rate limiting
+    setCooldown(5);
+    const timer = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) { clearInterval(timer); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   return (
@@ -133,11 +143,13 @@ export default function TryPage() {
 
             <button
               onClick={runIntent}
-              disabled={loading}
+              disabled={loading || cooldown > 0}
               className="w-full inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 text-white px-6 py-3 rounded-xl transition font-medium"
             >
               {loading ? (
                 "Executing..."
+              ) : cooldown > 0 ? (
+                `Wait ${cooldown}s...`
               ) : (
                 <>
                   <Play className="w-4 h-4" /> Execute Intent
@@ -182,7 +194,7 @@ export default function TryPage() {
               )}
             </div>
 
-            {result && (
+            {result && 'success' in result && (result as Record<string, unknown>).success === true && (
               <div className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
                 <p className="text-sm text-emerald-400 font-medium mb-1">
                   ✅ That just went through the full governance pipeline
@@ -196,6 +208,25 @@ export default function TryPage() {
                   className="inline-flex items-center gap-1 text-sm text-purple-400 font-medium mt-3 hover:text-purple-300 transition"
                 >
                   Get your own console <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+
+            {result && 'success' in result && (result as Record<string, unknown>).success === false && (
+              <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                <p className="text-sm text-red-400 font-medium mb-1">
+                  ⚠️ Request was rate-limited or rejected
+                </p>
+                <p className="text-xs text-slate-400">
+                  {(result as Record<string, unknown>).code === 'RATE_LIMIT_EXCEEDED'
+                    ? 'The sandbox has rate limits to prevent abuse. Wait a moment and try again, or sign up for your own console with higher limits.'
+                    : 'The governance pipeline rejected this request. Check the error details above.'}
+                </p>
+                <a
+                  href="/signup"
+                  className="inline-flex items-center gap-1 text-sm text-purple-400 font-medium mt-3 hover:text-purple-300 transition"
+                >
+                  Get unlimited access <ArrowRight className="w-3 h-3" />
                 </a>
               </div>
             )}

@@ -96,11 +96,15 @@ class AgentIntentBridge {
    * @private
    */
   _authenticateRequest(agentRequest, authContext) {
-    // Validate source.platform
-    if (!agentRequest.source || agentRequest.source.platform !== 'openclaw') {
+    // Validate source.platform (accept both "openclaw" string OR source.platform object)
+    const sourcePlatform = typeof agentRequest.source === 'string' 
+      ? agentRequest.source 
+      : agentRequest.source?.platform;
+    
+    if (sourcePlatform !== 'openclaw') {
       return {
         valid: false,
-        error: 'source.platform must be "openclaw"'
+        error: 'source must be "openclaw" or source.platform must be "openclaw"'
       };
     }
 
@@ -180,8 +184,12 @@ class AgentIntentBridge {
    * @private
    */
   _translateToIntent(agentRequest, tenant) {
-    const { action, payload = {}, simulation = false, source } = agentRequest;
+    const { action, payload = {}, simulation = false, source, context } = agentRequest;
     const actionDef = ACTION_ALLOWLIST.get(action);
+
+    // Support both source object and context object (legacy)
+    const sourceData = source || context || {};
+    const platform = typeof sourceData === 'string' ? sourceData : (sourceData.platform || 'openclaw');
 
     return {
       intent_type: actionDef.intent_type,
@@ -190,11 +198,11 @@ class AgentIntentBridge {
       tenant_id: tenant,
       source: {
         type: 'agent',
-        id: source.agent_id || 'unknown',
-        platform: source.platform || 'openclaw',
-        user_id: source.user_id,
-        conversation_id: source.conversation_id,
-        message_id: source.message_id
+        id: sourceData.agent_id || 'unknown',
+        platform: platform,
+        user_id: sourceData.user_id,
+        conversation_id: sourceData.conversation_id,
+        message_id: sourceData.message_id
       },
       metadata: {
         original_action: action,

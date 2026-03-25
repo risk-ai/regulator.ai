@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import {
   Shield,
   Lock,
@@ -14,6 +17,8 @@ import {
   GraduationCap,
   Building2,
   Globe,
+  Menu,
+  X,
 } from "lucide-react";
 
 const coreServices = [
@@ -192,6 +197,8 @@ const pricingTiers = [
 ];
 
 export default function Home() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-navy-900">
       {/* Hero */}
@@ -205,25 +212,11 @@ export default function Home() {
                 Vienna<span className="text-purple-400">OS</span>
               </span>
             </div>
-            <div className="flex items-center gap-6">
-              <a
-                href="#services"
-                className="text-sm text-slate-400 hover:text-white transition"
-              >
-                Core Services
-              </a>
-              <a
-                href="#pricing"
-                className="text-sm text-slate-400 hover:text-white transition"
-              >
-                Pricing
-              </a>
-              <a
-                href="/docs"
-                className="text-sm text-slate-400 hover:text-white transition"
-              >
-                Docs
-              </a>
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#services" className="text-sm text-slate-400 hover:text-white transition">Core Services</a>
+              <a href="#pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
+              <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
               <a
                 href="https://vienna-os.fly.dev"
                 className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
@@ -231,7 +224,24 @@ export default function Home() {
                 Console
               </a>
             </div>
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden text-slate-400 hover:text-white"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </nav>
+          {/* Mobile menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden absolute top-20 left-0 right-0 bg-navy-900/95 backdrop-blur border-b border-navy-700 px-6 py-4 space-y-3 z-50">
+              <a href="#services" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Core Services</a>
+              <a href="#pricing" className="block text-sm text-slate-400 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+              <a href="/docs" className="block text-sm text-slate-400 hover:text-white transition">Docs</a>
+              <a href="https://vienna-os.fly.dev" className="block text-sm text-purple-400 font-medium">Console</a>
+              <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium">Get Started</a>
+            </div>
+          )}
 
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 mb-6">
@@ -626,29 +636,23 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-navy-700 py-8">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-slate-500">
-              Vienna OS — Governed AI Execution Layer
-            </span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a
-              href="/docs"
-              className="text-xs text-slate-600 hover:text-slate-400 transition"
-            >
-              Docs
-            </a>
-            <a
-              href="https://github.com/risk-ai/regulator.ai"
-              className="text-xs text-slate-600 hover:text-slate-400 transition"
-            >
-              GitHub
-            </a>
-            <span className="text-xs text-slate-600">
-              © 2026 ai.ventures. All rights reserved.
-            </span>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-slate-500">
+                Vienna OS — Governed AI Execution Layer
+              </span>
+            </div>
+            <div className="flex items-center gap-6 flex-wrap justify-center">
+              <a href="/docs" className="text-xs text-slate-600 hover:text-slate-400 transition">Docs</a>
+              <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
+              <a href="/terms" className="text-xs text-slate-600 hover:text-slate-400 transition">Terms</a>
+              <a href="/privacy" className="text-xs text-slate-600 hover:text-slate-400 transition">Privacy</a>
+              <span className="text-xs text-slate-600">
+                © 2026 ai.ventures. All rights reserved.
+              </span>
+            </div>
           </div>
         </div>
       </footer>

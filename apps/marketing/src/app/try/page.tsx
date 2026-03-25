@@ -7,30 +7,42 @@ const actions = [
   {
     id: "check_health",
     label: "Health Check",
-    desc: "Verify system health through the governance pipeline",
+    desc: "Verify system health through the full governance pipeline",
     tier: "T0",
     tierColor: "#94a3b8",
-  },
-  {
-    id: "list_objectives",
-    label: "List Objectives",
-    desc: "Query active governance objectives",
-    tier: "T0",
-    tierColor: "#94a3b8",
+    category: "Monitoring",
   },
   {
     id: "check_system_status",
     label: "System Status",
-    desc: "Full system posture check",
+    desc: "Full system posture — runtime, providers, state graph, engines",
     tier: "T0",
     tierColor: "#94a3b8",
+    category: "Monitoring",
   },
   {
-    id: "list_recent_executions",
-    label: "Recent Executions",
-    desc: "View the execution audit trail",
+    id: "list_objectives",
+    label: "List Objectives",
+    desc: "Query all active governance objectives and their states",
     tier: "T0",
     tierColor: "#94a3b8",
+    category: "Query",
+  },
+  {
+    id: "run_diagnostic",
+    label: "Run Diagnostic",
+    desc: "Execute full system diagnostic — checks all 5 governance engines",
+    tier: "T0",
+    tierColor: "#94a3b8",
+    category: "Operations",
+  },
+  {
+    id: "trigger_backup",
+    label: "Trigger Backup",
+    desc: "Initiate a state graph backup — T1 action, shows approval flow",
+    tier: "T1",
+    tierColor: "#a78bfa",
+    category: "Operations",
   },
 ];
 
@@ -123,14 +135,19 @@ export default function TryPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-white font-medium text-sm">
-                      {action.label}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-medium text-sm">
+                        {action.label}
+                      </span>
+                      <span className="text-[10px] text-slate-600 font-mono">{action.category}</span>
+                    </div>
                     <span
-                      className="text-xs font-mono px-2 py-0.5 rounded"
+                      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
                       style={{
                         color: action.tierColor,
                         background: `${action.tierColor}15`,
+                        border: `1px solid ${action.tierColor}25`,
+                        letterSpacing: '0.05em',
                       }}
                     >
                       {action.tier}

@@ -16,6 +16,8 @@ export async function POST(request: Request) {
       "list_objectives",
       "check_system_status",
       "list_recent_executions",
+      "run_diagnostic",
+      "trigger_backup",
     ];
 
     if (!action || !allowedActions.includes(action)) {

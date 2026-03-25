@@ -8,8 +8,20 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://vienna-os.fly.dev/api/$1"
+      "src": "/api/signup",
+      "dest": "apps/marketing/api/signup"
+    },
+    {
+      "src": "/api/checkout",
+      "dest": "apps/marketing/api/checkout"
+    },
+    {
+      "src": "/api/try",
+      "dest": "apps/marketing/api/try"
+    },
+    {
+      "src": "/api/v1/(.*)",
+      "dest": "https://vienna-os.fly.dev/api/v1/$1"
     },
     {
       "handle": "filesystem"

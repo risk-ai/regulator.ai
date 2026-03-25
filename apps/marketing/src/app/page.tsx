@@ -620,7 +620,7 @@ export default function Home() {
             Vienna OS is operational in production. Access the console to
             deploy governed AI execution for your organization.
           </p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-4 flex-wrap">
             <a
               href="/signup"
               className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
@@ -629,10 +629,10 @@ export default function Home() {
               <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="https://vienna-os.fly.dev"
+              href="/try"
               className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium border border-navy-600"
             >
-              Open Console
+              Try it Live →
             </a>
           </div>
         </div>

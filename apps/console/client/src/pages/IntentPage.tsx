@@ -1,396 +1,399 @@
 /**
- * Intent Submission Page
+ * Intent Submission Page — Vienna OS
  * 
- * Phase 23+: Operator interface for structured intent submission
- * Distinct from conversational chat — this is the governed execution path
+ * The governed execution interface. Submit agent intents through the
+ * full governance pipeline: policy → risk tier → approval → warrant → execute → verify.
  */
 
 import React, { useState } from 'react';
-import { intentApi } from '../api/intent';
 
-interface IntentResult {
-  success: boolean;
-  data?: {
-    intent_id: string;
-    tenant_id: string;
-    action: string;
-    execution_id?: string;
-    simulation?: boolean;
-    explanation?: string;
-    attestation?: {
-      attestation_id: string;
-      status: string;
-      attested_at: string;
-    };
-    cost?: {
-      total_cost: number;
-      input_tokens: number;
-      output_tokens: number;
-    };
-    quota_state?: {
-      available: number;
-      utilization: number;
-    };
-    metadata?: any;
-  };
-  error?: string;
-  code?: string;
-  timestamp: string;
+interface IntentAction {
+  id: string;
+  label: string;
+  desc: string;
+  tier: string;
+  tierColor: string;
+  params?: { key: string; label: string; placeholder: string; required?: boolean }[];
 }
 
-const INTENT_TYPES = [
-  { value: 'test_execution', label: 'Test Execution', description: 'Run a test execution for validation' },
-  { value: 'restore_objective', label: 'Restore Objective', description: 'Restore a failed objective' },
-  { value: 'investigate_objective', label: 'Investigate Objective', description: 'Investigate objective state' },
-  { value: 'set_safe_mode', label: 'Set Safe Mode', description: 'Enable/disable safe mode' },
+const INTENT_ACTIONS: IntentAction[] = [
+  // T0 — Auto-approve
+  {
+    id: 'check_health',
+    label: 'Health Check',
+    desc: 'Verify system health through the governance pipeline',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'list_objectives',
+    label: 'List Objectives',
+    desc: 'Query active governance objectives and their states',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'check_system_status',
+    label: 'System Status',
+    desc: 'Full system posture check — runtime, providers, state graph',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'list_recent_executions',
+    label: 'Recent Executions',
+    desc: 'View the execution audit trail with outcomes',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'limit', label: 'Limit', placeholder: '10' },
+    ],
+  },
+  {
+    id: 'run_diagnostic',
+    label: 'Run Diagnostic',
+    desc: 'Execute system diagnostics — checks all governance engines',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'check_execution_status',
+    label: 'Check Execution Status',
+    desc: 'Query status of a specific execution by ID',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'execution_id', label: 'Execution ID', placeholder: 'exec-xxxxx-xxxx-xxxx', required: true },
+    ],
+  },
+  {
+    id: 'query_state_graph',
+    label: 'Query State Graph',
+    desc: 'Query the canonical state graph for entities',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'entity_type', label: 'Entity Type', placeholder: 'execution | objective | proposal' },
+    ],
+  },
+  // T1 — Operator approval
+  {
+    id: 'restart_service',
+    label: 'Restart Service',
+    desc: 'Restart a specific service — requires operator approval',
+    tier: 'T1',
+    tierColor: '#fbbf24',
+    params: [
+      { key: 'service', label: 'Service Name', placeholder: 'api-gateway', required: true },
+    ],
+  },
+  {
+    id: 'trigger_backup',
+    label: 'Trigger Backup',
+    desc: 'Initiate a state graph backup',
+    tier: 'T1',
+    tierColor: '#fbbf24',
+  },
+  {
+    id: 'update_configuration',
+    label: 'Update Configuration',
+    desc: 'Modify a runtime configuration value',
+    tier: 'T1',
+    tierColor: '#fbbf24',
+    params: [
+      { key: 'key', label: 'Config Key', placeholder: 'rate_limit.max_requests', required: true },
+      { key: 'value', label: 'New Value', placeholder: '100', required: true },
+    ],
+  },
+  {
+    id: 'check_service_logs',
+    label: 'Check Service Logs',
+    desc: 'Retrieve recent logs for a specific service',
+    tier: 'T1',
+    tierColor: '#fbbf24',
+    params: [
+      { key: 'service', label: 'Service Name', placeholder: 'intent-gateway', required: true },
+    ],
+  },
 ];
 
-const TEST_PAYLOADS = {
-  success: { mode: 'success', description: 'Successful execution' },
-  simulation: { mode: 'simulation', description: 'Dry run mode' },
-  quota_block: { mode: 'quota_block', description: 'Quota exhaustion' },
-  budget_block: { mode: 'budget_block', description: 'Budget limit exceeded' },
-  failure: { mode: 'failure', description: 'Execution failure' },
-};
-
 export function IntentPage() {
-  const [intentType, setIntentType] = useState('test_execution');
-  const [payload, setPayload] = useState(JSON.stringify(TEST_PAYLOADS.success, null, 2));
+  const [selectedAction, setSelectedAction] = useState('check_health');
+  const [params, setParams] = useState<Record<string, string>>({});
   const [simulation, setSimulation] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<IntentResult | null>(null);
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
 
-  const handleQuickLoad = (testCase: keyof typeof TEST_PAYLOADS) => {
-    setPayload(JSON.stringify(TEST_PAYLOADS[testCase], null, 2));
-  };
+  const action = INTENT_ACTIONS.find(a => a.id === selectedAction)!;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     setLoading(true);
     setResult(null);
 
     try {
-      const parsedPayload = JSON.parse(payload);
-      
-      const response = await intentApi.submitIntent({
-        intent_type: intentType,
-        payload: parsedPayload,
+      const body: Record<string, unknown> = {
+        action: selectedAction,
+        source: 'openclaw',
+        tenant_id: 'system',
         simulation,
+      };
+
+      // Add params to context
+      if (action.params && action.params.length > 0) {
+        const context: Record<string, string> = {};
+        for (const p of action.params) {
+          if (params[p.key]) {
+            context[p.key] = params[p.key];
+            // Also add at top level for backend compatibility
+            body[p.key] = params[p.key];
+          }
+        }
+        body.context = context;
+      }
+
+      const res = await fetch('/api/v1/agent/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
       });
 
-      setResult(response);
+      const data = await res.json();
+      setResult(data);
     } catch (error) {
-      console.error('[IntentPage] Submission error:', error);
-      
       setResult({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'SUBMISSION_ERROR',
-        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Request failed',
       });
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
-  const selectedIntent = INTENT_TYPES.find(t => t.value === intentType);
+  const isSuccess = result && (result as Record<string, unknown>).success === true;
 
   return (
-    <div className="space-y-6">
+    <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Intent Submission</h1>
-        <p className="text-gray-400 text-sm">
-          Submit structured intents to Vienna OS through the governed execution path.
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
+          Intent Submission
+        </h1>
+        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+          Submit agent intents through the governed execution pipeline. Every action flows through policy → risk tier → warrant → execute → verify.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Input Form */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Submit Intent</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Intent Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Intent Type
-              </label>
-              <select
-                value={intentType}
-                onChange={(e) => setIntentType(e.target.value)}
-                className="w-full bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 focus:outline-none focus:border-blue-500"
-                disabled={loading}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        {/* Left: Intent Selector + Params */}
+        <div>
+          {/* Action Grid */}
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Select Action
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '20px', maxHeight: '400px', overflowY: 'auto' }}>
+            {INTENT_ACTIONS.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => { setSelectedAction(a.id); setParams({}); setResult(null); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: selectedAction === a.id ? '1px solid rgba(212, 165, 32, 0.3)' : '1px solid var(--border-subtle)',
+                  background: selectedAction === a.id ? 'rgba(212, 165, 32, 0.06)' : 'var(--bg-primary)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'inherit',
+                  transition: 'all 150ms',
+                }}
               >
-                {INTENT_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              {selectedIntent && (
-                <p className="text-xs text-gray-400 mt-1">{selectedIntent.description}</p>
-              )}
-            </div>
+                <div style={{
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-mono)',
+                  color: a.tierColor,
+                  background: `${a.tierColor}12`,
+                  border: `1px solid ${a.tierColor}20`,
+                  flexShrink: 0,
+                }}>
+                  {a.tier}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: selectedAction === a.id ? '#D4A520' : 'var(--text-primary)' }}>
+                    {a.label}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>
+                    {a.desc}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
 
-            {/* Quick Load Test Cases */}
-            {intentType === 'test_execution' && (
+          {/* Parameters */}
+          {action.params && action.params.length > 0 && (
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Parameters
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {action.params.map((p) => (
+                  <div key={p.key}>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>
+                      {p.label} {p.required && <span style={{ color: '#D4A520' }}>*</span>}
+                    </label>
+                    <input
+                      value={params[p.key] || ''}
+                      onChange={(e) => setParams({ ...params, [p.key]: e.target.value })}
+                      placeholder={p.placeholder}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-default)',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '13px',
+                        color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-mono)',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Simulation toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <input
+              type="checkbox"
+              id="sim"
+              checked={simulation}
+              onChange={(e) => setSimulation(e.target.checked)}
+              style={{ accentColor: '#D4A520' }}
+            />
+            <label htmlFor="sim" style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+              Simulation mode (dry run — no side effects)
+            </label>
+          </div>
+
+          {/* Submit */}
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: loading ? 'var(--bg-tertiary)' : '#B8860B',
+              color: '#fff',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: loading ? 'default' : 'pointer',
+              fontFamily: 'inherit',
+              transition: 'all 150ms',
+            }}
+          >
+            {loading ? 'Executing...' : `Submit ${action.tier} Intent: ${action.label}`}
+          </button>
+        </div>
+
+        {/* Right: Result */}
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Governance Response
+          </div>
+
+          <div style={{
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '12px',
+            padding: '20px',
+            minHeight: '500px',
+          }}>
+            {result ? (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Quick Load Test Case
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(TEST_PAYLOADS).map(([key, payload]) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => handleQuickLoad(key as keyof typeof TEST_PAYLOADS)}
-                      className="text-xs px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 hover:border-blue-500 transition"
-                      disabled={loading}
-                    >
-                      {payload.description}
-                    </button>
-                  ))}
+                {/* Status badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{
+                    padding: '3px 10px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    fontFamily: 'var(--font-mono)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: isSuccess ? '#4ade80' : '#f87171',
+                    background: isSuccess ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+                    border: `1px solid ${isSuccess ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`,
+                  }}>
+                    {isSuccess ? '✓ Executed' : '✗ Failed'}
+                  </div>
+                  {result.status && (
+                    <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+                      {String(result.status)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Explanation */}
+                {result.explanation && (
+                  <div style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: '16px',
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                  }}>
+                    {String(result.explanation)}
+                  </div>
+                )}
+
+                {/* Full JSON */}
+                <div style={{
+                  background: 'var(--bg-app)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  overflow: 'auto',
+                  maxHeight: '360px',
+                }}>
+                  <pre style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                  }}>
+                    {JSON.stringify(result, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎯</div>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                  Select an intent and execute
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', maxWidth: '300px', lineHeight: 1.6 }}>
+                  Every submission flows through the full governance pipeline: policy check → risk tier → warrant → execution → verification → audit trail.
                 </div>
               </div>
             )}
-
-            {/* Payload JSON */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Payload (JSON)
-              </label>
-              <textarea
-                value={payload}
-                onChange={(e) => setPayload(e.target.value)}
-                className="w-full bg-gray-700 text-white px-4 py-2 rounded border border-gray-600 focus:outline-none focus:border-blue-500 font-mono text-sm"
-                rows={8}
-                disabled={loading}
-                placeholder='{"mode": "success"}'
-              />
-            </div>
-
-            {/* Simulation Toggle */}
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="simulation"
-                checked={simulation}
-                onChange={(e) => setSimulation(e.target.checked)}
-                className="w-4 h-4"
-                disabled={loading}
-              />
-              <label htmlFor="simulation" className="text-sm text-gray-300">
-                Simulation Mode (Dry Run)
-              </label>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-            >
-              {loading ? 'Submitting...' : 'Submit Intent'}
-            </button>
-          </form>
-        </div>
-
-        {/* Result Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Result</h2>
-          
-          {!result && (
-            <div className="text-center text-gray-500 py-8">
-              <p className="text-sm">No result yet. Submit an intent to see the response.</p>
-            </div>
-          )}
-
-          {result && (
-            <div className="space-y-4">
-              {/* Status Badge */}
-              <div className="flex items-center gap-3">
-                <div className={`px-3 py-1 rounded text-sm font-medium ${
-                  result.success 
-                    ? 'bg-green-900 text-green-200 border border-green-700'
-                    : 'bg-red-900 text-red-200 border border-red-700'
-                }`}>
-                  {result.success ? 'Success' : 'Failed'}
-                </div>
-                {result.code && (
-                  <div className="text-xs text-gray-400">
-                    {result.code}
-                  </div>
-                )}
-              </div>
-
-              {/* Error */}
-              {!result.success && result.error && (
-                <div className="bg-red-900 border border-red-700 rounded p-3">
-                  <p className="text-sm text-red-200 font-medium mb-1">Error</p>
-                  <p className="text-xs text-red-300">{result.error}</p>
-                </div>
-              )}
-
-              {/* Success Data */}
-              {result.success && result.data && (
-                <>
-                  {/* Core IDs */}
-                  <div className="space-y-2">
-                    <ResultRow label="Intent ID" value={result.data.intent_id} />
-                    <ResultRow label="Tenant ID" value={result.data.tenant_id} />
-                    {result.data.execution_id && (
-                      <ResultRow label="Execution ID" value={result.data.execution_id} />
-                    )}
-                    <ResultRow label="Action" value={result.data.action} />
-                    {result.data.simulation && (
-                      <ResultRow label="Simulation" value="true" highlight="blue" />
-                    )}
-                  </div>
-
-                  {/* Explanation */}
-                  {result.data.explanation && (
-                    <div className="bg-blue-900 border border-blue-700 rounded p-3">
-                      <p className="text-sm text-blue-200 font-medium mb-1">Explanation</p>
-                      <p className="text-xs text-blue-300">{result.data.explanation}</p>
-                    </div>
-                  )}
-
-                  {/* Attestation */}
-                  {result.data.attestation && (
-                    <div className="bg-purple-900 border border-purple-700 rounded p-3">
-                      <p className="text-sm text-purple-200 font-medium mb-2">Attestation</p>
-                      <div className="space-y-1 text-xs">
-                        <ResultRow 
-                          label="ID" 
-                          value={result.data.attestation.attestation_id} 
-                          compact 
-                        />
-                        <ResultRow 
-                          label="Status" 
-                          value={result.data.attestation.status} 
-                          compact 
-                        />
-                        <ResultRow 
-                          label="Attested At" 
-                          value={new Date(result.data.attestation.attested_at).toLocaleString()} 
-                          compact 
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cost */}
-                  {result.data.cost && (
-                    <div className="bg-yellow-900 border border-yellow-700 rounded p-3">
-                      <p className="text-sm text-yellow-200 font-medium mb-2">Cost</p>
-                      <div className="space-y-1 text-xs">
-                        <ResultRow 
-                          label="Total" 
-                          value={`$${result.data.cost.total_cost.toFixed(6)}`} 
-                          compact 
-                        />
-                        <ResultRow 
-                          label="Input Tokens" 
-                          value={result.data.cost.input_tokens.toString()} 
-                          compact 
-                        />
-                        <ResultRow 
-                          label="Output Tokens" 
-                          value={result.data.cost.output_tokens.toString()} 
-                          compact 
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quota State */}
-                  {result.data.quota_state && (
-                    <div className="bg-orange-900 border border-orange-700 rounded p-3">
-                      <p className="text-sm text-orange-200 font-medium mb-2">Quota State</p>
-                      <div className="space-y-1 text-xs">
-                        <ResultRow 
-                          label="Available" 
-                          value={`${result.data.quota_state.available.toFixed(2)} units`} 
-                          compact 
-                        />
-                        <ResultRow 
-                          label="Utilization" 
-                          value={`${(result.data.quota_state.utilization * 100).toFixed(1)}%`} 
-                          compact 
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Metadata */}
-                  {result.data.metadata && Object.keys(result.data.metadata).length > 0 && (
-                    <div className="bg-gray-700 border border-gray-600 rounded p-3">
-                      <p className="text-sm text-gray-300 font-medium mb-2">Metadata</p>
-                      <pre className="text-xs text-gray-400 overflow-x-auto">
-                        {JSON.stringify(result.data.metadata, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Timestamp */}
-              <div className="text-xs text-gray-500 pt-2 border-t border-gray-700">
-                {new Date(result.timestamp).toLocaleString()}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
-
-      {/* Documentation */}
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-        <h3 className="text-md font-semibold text-white mb-3">Architecture</h3>
-        <div className="space-y-2 text-sm text-gray-400">
-          <p>
-            <strong className="text-gray-300">Governed Execution Path:</strong> This interface submits structured intents 
-            directly to <code className="text-blue-400">POST /api/v1/intent</code> through Vienna's Intent Gateway.
-          </p>
-          <p>
-            <strong className="text-gray-300">Distinct from Chat:</strong> The conversational chat interface (Ollama/LLM) 
-            is for operator guidance and help. This is for explicit, governed execution.
-          </p>
-          <p>
-            <strong className="text-gray-300">Agent Connectivity:</strong> External agents can submit intents through 
-            the same endpoint with proper authentication and tenant context.
-          </p>
-          <p>
-            <strong className="text-gray-300">Governance:</strong> All submissions pass through quota enforcement, 
-            cost tracking, policy evaluation, and attestation generation.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface ResultRowProps {
-  label: string;
-  value: string;
-  compact?: boolean;
-  highlight?: 'blue' | 'green' | 'yellow';
-}
-
-function ResultRow({ label, value, compact = false, highlight }: ResultRowProps) {
-  const highlightClasses = {
-    blue: 'text-blue-300',
-    green: 'text-green-300',
-    yellow: 'text-yellow-300',
-  };
-
-  return (
-    <div className={`flex items-start gap-2 ${compact ? 'text-xs' : 'text-sm'}`}>
-      <span className="text-gray-400 min-w-[100px]">{label}:</span>
-      <span className={`text-gray-200 break-all ${highlight ? highlightClasses[highlight] : ''}`}>
-        {value}
-      </span>
     </div>
   );
 }

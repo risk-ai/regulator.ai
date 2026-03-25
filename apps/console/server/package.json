@@ -16,15 +16,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/multer": "^2.1.0",
+    "@vercel/postgres": "^0.5.1",
     "@vienna/lib": "file:../../../services/vienna-lib",
-    "better-sqlite3": "^12.6.2",
+    "better-sqlite3": "^12.8.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.19.2",
     "multer": "^2.1.1",
+    "pg": "^8.20.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

@@ -20,7 +20,8 @@ module.exports = {
   PolicyEngine: require('./core/policy-engine'),
   QuotaEnforcer: require('./governance/quota-enforcer'),
   
-  // State management
+  // State management (Postgres version for Vercel)
+  // Use SQLite for Phase 1 (portable, no external DB required)
   getStateGraph: require('./state/state-graph').getStateGraph,
   
   // Workspace

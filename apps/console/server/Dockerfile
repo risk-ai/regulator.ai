@@ -42,6 +42,7 @@ COPY --from=builder /app/apps/console/server/build ./build
 
 # Copy SQL schema files (needed at runtime)
 COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/
+COPY --from=builder /app/apps/console/server/src/services/chatHistorySchema.postgres.sql ./build/
 
 # Remove build tools to reduce image size
 RUN apk del python3 make g++

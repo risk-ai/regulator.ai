@@ -14,6 +14,8 @@ import crypto from 'crypto';
 import { createApp } from './app.js';
 import { ViennaRuntimeService } from './services/viennaRuntime.js';
 import { ChatService } from './services/chatServiceSimple.js';
+// Use Postgres version for Vercel compatibility
+// Use SQLite for Phase 1 (portable, no external DB required)
 import { ChatHistoryService } from './services/chatHistoryService.js';
 import { DashboardBootstrapService } from './services/dashboardBootstrapService.js';
 import { ObjectivesService } from './services/objectivesService.js';
@@ -37,27 +39,22 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 /**
  * Initialize Vienna Core runtime
+ * 
+ * Now uses REAL governance pipeline instead of stub
  */
 async function initializeViennaCore() {
-  console.log('Initializing Vienna Core...');
+  // Import real Vienna Core initialization
+  const { initializeViennaCore: initCore } = await import('./services/viennaCore.js');
   
   const workspace = process.env.OPENCLAW_WORKSPACE || path.join(os.homedir(), '.openclaw', 'workspace');
+  const env = process.env.VIENNA_ENV || 'prod';
   
-  // Dynamic import for CommonJS module via workspace package
-  const ViennaCore = (await import('@vienna/lib')).default;
-  
-  // Initialize Vienna Core
-  ViennaCore.init({
-    adapter: 'openclaw',
-    workspace
+  const viennaCore = await initCore({
+    workspace,
+    env: env as 'prod' | 'test',
   });
   
-  console.log('Vienna Core initialized', {
-    adapter: 'openclaw',
-    workspace
-  });
-  
-  return ViennaCore;
+  return viennaCore;
 }
 
 /**

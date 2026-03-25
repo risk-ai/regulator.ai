@@ -64,9 +64,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
-    "better-sqlite3": "^12.6.2",
-    "uuid": "^10.0.0",
-    "nanoid": "^3.3.7"
+    "@vercel/postgres": "^0.5.1",
+    "nanoid": "^3.3.7",
+    "pg": "^8.20.0",
+    "uuid": "^10.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

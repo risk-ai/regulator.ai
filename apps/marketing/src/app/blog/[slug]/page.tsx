@@ -19,7 +19,7 @@ const posts: Record<
     date: "March 25, 2026",
     readTime: "8 min",
     category: "Governance",
-    categoryColor: "text-purple-400 bg-purple-500/10",
+    categoryColor: "text-gold-400 bg-gold-400/10",
     content: `
 ## The Agent Explosion
 
@@ -437,7 +437,7 @@ export default async function BlogPost({
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-5 h-5 text-purple-400" />
+            <Shield className="w-5 h-5 text-gold-400" />
             <span className="text-sm">Back to Blog</span>
           </a>
         </div>
@@ -463,7 +463,7 @@ export default async function BlogPost({
 
         <article className="prose-vienna">{renderContent(post.content)}</article>
 
-        <div className="mt-12 bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-500/20 rounded-xl p-8 text-center">
+        <div className="mt-12 bg-gradient-to-br from-gold-500/10 to-navy-800/50 border border-gold-400/20 rounded-xl p-8 text-center">
           <h3 className="text-xl font-bold text-white mb-3">
             Ready to govern your agents?
           </h3>
@@ -472,7 +472,7 @@ export default async function BlogPost({
           </p>
           <a
             href="/signup"
-            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm"
+            className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm"
           >
             Get Started Free
           </a>

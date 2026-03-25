@@ -121,9 +121,9 @@ export default function SignupPage() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-purple-400" />
+            <Shield className="w-6 h-6 text-gold-400" />
             <span className="font-bold text-white">
-              Vienna<span className="text-purple-400">OS</span>
+              Vienna<span className="text-gold-400">OS</span>
             </span>
           </a>
         </div>
@@ -148,7 +148,7 @@ export default function SignupPage() {
                   onClick={() => setSelectedPlan(plan.id)}
                   className={`text-left rounded-xl p-5 transition border-2 ${
                     selectedPlan === plan.id
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-gold-400 bg-gold-400/10"
                       : "border-navy-700 bg-navy-800 hover:border-navy-600"
                   }`}
                 >
@@ -183,7 +183,7 @@ export default function SignupPage() {
 
             <button
               onClick={() => setStep("details")}
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+              className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
             >
               Continue with {currentPlan.name}
               <ArrowRight className="w-4 h-4" />
@@ -207,7 +207,7 @@ export default function SignupPage() {
             </h1>
             <p className="text-slate-400 mb-8">
               Plan:{" "}
-              <span className="text-purple-400 font-medium">
+              <span className="text-gold-400 font-medium">
                 {currentPlan.name}{" "}
                 {currentPlan.price !== "Free" &&
                   currentPlan.price !== "Custom" &&
@@ -232,7 +232,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="Jane Smith"
                 />
               </div>
@@ -248,7 +248,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, email: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="jane@company.com"
                 />
               </div>
@@ -263,7 +263,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, company: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="Acme Corp"
                 />
               </div>
@@ -277,7 +277,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, agentCount: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                 >
                   <option value="">Select...</option>
                   <option value="1-5">1–5</option>
@@ -298,7 +298,7 @@ export default function SignupPage() {
                     setForm({ ...form, useCase: e.target.value })
                   }
                   rows={3}
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition resize-none"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition resize-none"
                   placeholder="e.g., Govern our DevOps agent fleet, enforce approval policies for financial transactions..."
                 />
               </div>
@@ -306,7 +306,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium disabled:opacity-50"
               >
                 {submitting ? "Setting up..." : "Create Account"}
                 <ArrowRight className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function SignupPage() {
                       <span className="text-slate-500 w-24">URL:</span>
                       <a
                         href="https://vienna-os.fly.dev"
-                        className="text-purple-400 hover:text-purple-300 transition"
+                        className="text-gold-400 hover:text-gold-300 transition"
                       >
                         vienna-os.fly.dev
                       </a>
@@ -360,7 +360,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://vienna-os.fly.dev"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+                    className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Open Console
                     <ArrowRight className="w-4 h-4" />
@@ -396,7 +396,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://vienna-os.fly.dev"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+                    className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />
@@ -421,7 +421,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://vienna-os.fly.dev"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+                    className="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />

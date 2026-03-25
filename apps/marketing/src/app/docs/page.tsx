@@ -26,15 +26,15 @@ export default function DocsPage() {
           <div className="flex items-center gap-4">
             <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
               <ArrowLeft className="w-4 h-4" />
-              <Shield className="w-6 h-6 text-purple-400" />
-              <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
+              <Shield className="w-6 h-6 text-gold-400" />
+              <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
             </a>
             <span className="text-slate-600">|</span>
             <span className="text-slate-400 text-sm font-medium">Documentation</span>
           </div>
           <a
             href="https://vienna-os.fly.dev"
-            className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
+            className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium"
           >
             Console
           </a>
@@ -141,7 +141,7 @@ curl https://vienna-os.fly.dev/api/v1/dashboard/bootstrap \\
           {/* Architecture */}
           <section id="architecture" className="mb-16">
             <div className="flex items-center gap-3 mb-6">
-              <Server className="w-6 h-6 text-purple-400" />
+              <Server className="w-6 h-6 text-gold-400" />
               <h2 className="text-2xl font-bold text-white">Architecture</h2>
             </div>
             <p className="text-slate-400 mb-6">
@@ -151,7 +151,7 @@ curl https://vienna-os.fly.dev/api/v1/dashboard/bootstrap \\
 
             <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
               <div className="font-mono text-sm space-y-1 text-slate-300">
-                <div className="text-purple-400 font-semibold">vienna-os.fly.dev</div>
+                <div className="text-gold-400 font-semibold">vienna-os.fly.dev</div>
                 <div className="text-slate-500">│</div>
                 <div>├─ <span className="text-blue-400">Static Files</span> (React SPA)</div>
                 <div>├─ <span className="text-emerald-400">API Routes</span> (/api/v1/*)</div>
@@ -168,7 +168,7 @@ curl https://vienna-os.fly.dev/api/v1/dashboard/bootstrap \\
                 <div>│  ├─ Warrant Authority</div>
                 <div>│  ├─ Verification Engine</div>
                 <div>│  └─ Agent Intent Bridge</div>
-                <div>├─ <span className="text-purple-400">State Graph</span> (SQLite)</div>
+                <div>├─ <span className="text-gold-400">State Graph</span> (SQLite)</div>
                 <div>└─ <span className="text-slate-400">Health Check</span> (/health)</div>
               </div>
             </div>
@@ -204,7 +204,7 @@ curl https://vienna-os.fly.dev/api/v1/dashboard/bootstrap \\
               <h2 className="text-2xl font-bold text-white">API Reference</h2>
             </div>
             <p className="text-slate-400 mb-6">
-              All endpoints are prefixed with <code className="text-purple-400 bg-navy-800 px-1.5 py-0.5 rounded">/api/v1</code>.
+              All endpoints are prefixed with <code className="text-gold-400 bg-navy-800 px-1.5 py-0.5 rounded">/api/v1</code>.
               Authentication is session-based via login cookie.
             </p>
 
@@ -304,7 +304,7 @@ const result = await response.json();
             <h3 className="text-white font-semibold mb-3">Other Runtimes</h3>
             <p className="text-slate-400 text-sm">
               LangChain, CrewAI, AutoGen, and custom frameworks can integrate via the
-              same HTTP API. Set <code className="text-purple-400 bg-navy-800 px-1.5 py-0.5 rounded">source</code> to
+              same HTTP API. Set <code className="text-gold-400 bg-navy-800 px-1.5 py-0.5 rounded">source</code> to
               your framework identifier. Vienna OS validates the request, evaluates policy,
               and routes execution regardless of the calling runtime.
             </p>
@@ -398,7 +398,7 @@ const result = await response.json();
       <footer className="border-t border-navy-700 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Shield className="w-4 h-4 text-gold-400" />
             <span className="text-sm text-slate-500">
               Vienna OS — Governed AI Execution Layer
             </span>

@@ -17,7 +17,7 @@ const posts = [
     date: "March 25, 2026",
     readTime: "8 min",
     category: "Governance",
-    categoryColor: "text-purple-400 bg-purple-500/10",
+    categoryColor: "text-gold-400 bg-gold-400/10",
   },
   {
     slug: "cryptographic-warrants-explained",
@@ -61,16 +61,16 @@ export default function BlogPage() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-purple-400" />
+            <Shield className="w-6 h-6 text-gold-400" />
             <span className="font-bold text-white">
-              Vienna<span className="text-purple-400">OS</span>
+              Vienna<span className="text-gold-400">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
             <a
               href="/signup"
-              className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
+              className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium"
             >
               Get Started
             </a>
@@ -104,13 +104,13 @@ export default function BlogPage() {
                 </div>
                 <span className="text-xs text-slate-600">{post.date}</span>
               </div>
-              <h2 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-400 transition">
+              <h2 className="text-lg font-semibold text-white mb-2 group-hover:text-gold-400 transition">
                 {post.title}
               </h2>
               <p className="text-sm text-slate-400 leading-relaxed mb-3">
                 {post.excerpt}
               </p>
-              <span className="inline-flex items-center gap-1 text-sm text-purple-400 font-medium">
+              <span className="inline-flex items-center gap-1 text-sm text-gold-400 font-medium">
                 Read more <ArrowRight className="w-3 h-3" />
               </span>
             </Link>

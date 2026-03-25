@@ -11,7 +11,7 @@ const releases = [
     version: "0.9.0",
     date: "March 25, 2026",
     tag: "Latest",
-    tagColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    tagColor: "bg-gold-400/20 text-gold-400 border-gold-400/30",
     changes: [
       { type: "feat", text: "Interactive 'Try it Live' playground — test governance API without signup" },
       { type: "feat", text: "Stripe checkout for Team ($49/agent/mo) and Business ($99/agent/mo) plans" },
@@ -71,10 +71,10 @@ export default function ChangelogPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-purple-400" />
-            <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
+            <Shield className="w-6 h-6 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+          <a href="/signup" className="text-sm bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 px-4 py-2 rounded-lg transition font-medium">
             Get Started
           </a>
         </div>

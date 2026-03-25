@@ -1,27 +1,18 @@
 /**
- * Top Status Bar
+ * Top Status Bar — Vienna OS
  * 
- * Displays Vienna system health, execution state, queue depth, and connection status
- * Phase 21-30: Enhanced with tenant and quota status
+ * Premier design: clean status indicators, branded header, professional spacing.
+ * Uses CSS variables from the Vienna Design System.
  */
 
 import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore.js';
 import { useAuthStore } from '../../store/authStore.js';
-import { TenantStatusBar } from './TenantStatusBar.js';
-import { QuotaStatusWidget } from '../dashboard/QuotaStatusWidget.js';
 
 export function TopStatusBar() {
   const systemStatus = useDashboardStore((state) => state.systemStatus);
   const sseConnected = useDashboardStore((state) => state.sseConnected);
-  const providers = useDashboardStore((state) => state.providers);
-  const services = useDashboardStore((state) => state.services);
   const { operator, logout } = useAuthStore();
-  
-  // Phase 21-30: Tenant and quota state
-  // TODO: Wire these from backend session/API
-  const tenantId = 'system'; // From session
-  const quotaState = null; // From API
   
   const handleLogout = async () => {
     if (confirm('Logout from Vienna Console?')) {
@@ -29,154 +20,179 @@ export function TopStatusBar() {
     }
   };
   
-  // System health badge
-  const healthColor = systemStatus ? ({
-    healthy: 'bg-green-500',
-    degraded: 'bg-yellow-500',
-    critical: 'bg-red-500',
-    offline: 'bg-gray-500',
-  }[systemStatus.system_state] || 'bg-gray-500') : 'bg-gray-500';
+  const systemState = systemStatus?.system_state || 'loading';
+  const executorState = systemStatus?.executor_state || 'loading';
+  const queueDepth = systemStatus?.queue_depth ?? 0;
   
-  // Execution state badge
-  const executionColor = systemStatus ? ({
-    running: 'bg-green-500',
-    paused: 'bg-yellow-500',
-    recovering: 'bg-orange-500',
-    stopped: 'bg-red-500',
-  }[systemStatus.executor_state] || 'bg-gray-500') : 'bg-gray-500';
-  
-  // Provider health
-  const primaryProvider = providers?.primary || 'unknown';
-  const primaryHealth = providers?.providers[primaryProvider];
-  const providerHealthy = primaryHealth?.status === 'healthy';
-  
-  // Service health (OpenClaw)
-  const openclawService = services.find(s => s.service === 'openclaw-gateway');
-  const openclawHealthy = openclawService?.status === 'running';
+  const stateColors: Record<string, string> = {
+    healthy: '#4ade80',
+    running: '#4ade80',
+    degraded: '#fbbf24',
+    paused: '#fbbf24',
+    recovering: '#fb923c',
+    critical: '#f87171',
+    stopped: '#f87171',
+    offline: '#6b7280',
+    loading: '#6b7280',
+  };
   
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-6 py-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          {/* Vienna Title */}
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-semibold text-white">Vienna</span>
-            <span className="text-sm text-gray-400">Operator Shell</span>
-          </div>
-          
-          {/* Workspace Navigation */}
-          <div className="flex items-center gap-1 border-l border-gray-700 pl-6">
-            <a
-              href="#dashboard"
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                window.location.hash === '#dashboard' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
-              }`}
-            >
-              Dashboard
-            </a>
-            <a
-              href="#now"
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                window.location.hash === '#now' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
-              }`}
-              title="Operator Command Center - Phase 5E"
-            >
-              Now ⚡
-            </a>
-            <a
-              href="#files"
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                window.location.hash === '#files' 
-                  ? 'bg-gray-700 text-white' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
-              }`}
-            >
-              Files
-            </a>
-          </div>
-          
-          {/* System Health */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${healthColor}`} />
-            <span className="text-sm text-gray-300">
-              {systemStatus?.system_state || 'loading'}
-            </span>
-          </div>
-          
-          {/* Execution State */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${executionColor}`} />
-            <span className="text-sm text-gray-300">
-              {systemStatus?.executor_state || 'loading'}
-              {systemStatus?.paused && systemStatus.pause_reason && (
-                <span className="text-gray-500 ml-1">({systemStatus.pause_reason})</span>
-              )}
-            </span>
-          </div>
-          
-          {/* Queue Depth */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Queue:</span>
-            <span className="text-sm text-white">
-              {systemStatus?.queue_depth ?? '—'}
-            </span>
-            {systemStatus && systemStatus.active_envelopes > 0 && (
-              <span className="text-sm text-gray-400">
-                ({systemStatus.active_envelopes} active)
-              </span>
-            )}
-          </div>
-          
-          {/* Provider */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${providerHealthy ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-sm text-gray-300">{primaryProvider}</span>
-          </div>
-          
-          {/* OpenClaw */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${openclawHealthy ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-sm text-gray-300">openclaw</span>
-          </div>
-          
-          {/* Phase 21: Tenant Status */}
-          <TenantStatusBar tenantId={tenantId} />
-          
-          {/* Phase 22: Quota Status */}
-          {quotaState && <QuotaStatusWidget quotaState={quotaState} />}
+    <header style={{
+      background: 'var(--bg-primary)',
+      borderBottom: '1px solid var(--border-subtle)',
+      padding: '0 24px',
+      height: '56px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      fontFamily: 'var(--font-sans)',
+    }}>
+      {/* Left: Brand + Status */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          </svg>
+          <span style={{ 
+            fontSize: '16px', 
+            fontWeight: 700, 
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em',
+          }}>
+            Vienna<span style={{ color: '#7c3aed' }}>OS</span>
+          </span>
         </div>
         
-        {/* Connection Status and Operator */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${sseConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <span className="text-sm text-gray-400">
-              {sseConnected ? 'Connected' : 'Disconnected'}
-            </span>
-          </div>
-          
-          {/* Operator */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Operator:</span>
-            <span className="text-sm text-white">{operator || 'unknown'}</span>
-          </div>
-          
-          {/* Logout */}
-          <button
-            onClick={handleLogout}
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-            title="Logout"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
+        {/* Divider */}
+        <div style={{ width: '1px', height: '24px', background: 'var(--border-default)' }} />
+        
+        {/* Status Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <StatusPill 
+            color={stateColors[systemState] || '#6b7280'} 
+            label={systemState === 'healthy' ? 'Healthy' : systemState.charAt(0).toUpperCase() + systemState.slice(1)} 
+          />
+          <StatusPill 
+            color={stateColors[executorState] || '#6b7280'} 
+            label={`Executor: ${executorState}`} 
+          />
+          {queueDepth > 0 && (
+            <StatusPill 
+              color="#60a5fa" 
+              label={`Queue: ${queueDepth}`} 
+            />
+          )}
         </div>
       </div>
+      
+      {/* Right: Connection + Operator + Logout */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Connection */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '6px',
+          padding: '4px 10px',
+          borderRadius: '6px',
+          background: sseConnected ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
+          border: `1px solid ${sseConnected ? 'rgba(74, 222, 128, 0.15)' : 'rgba(248, 113, 113, 0.15)'}`,
+        }}>
+          <div style={{ 
+            width: '6px', 
+            height: '6px', 
+            borderRadius: '50%', 
+            background: sseConnected ? '#4ade80' : '#f87171',
+            boxShadow: sseConnected ? '0 0 6px rgba(74, 222, 128, 0.4)' : 'none',
+          }} />
+          <span style={{ 
+            fontSize: '12px', 
+            color: sseConnected ? '#4ade80' : '#f87171',
+            fontWeight: 500,
+          }}>
+            {sseConnected ? 'Live' : 'Reconnecting…'}
+          </span>
+        </div>
+        
+        {/* Operator */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+        }}>
+          <div style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            background: 'rgba(124, 58, 237, 0.15)',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: 600,
+            color: '#a78bfa',
+          }}>
+            {(operator || 'V').charAt(0).toUpperCase()}
+          </div>
+          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>
+            {operator || 'Operator'}
+          </span>
+        </div>
+        
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px',
+            borderRadius: '6px',
+            color: 'var(--text-tertiary)',
+            transition: 'all 150ms',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--text-primary)';
+            e.currentTarget.style.background = 'var(--bg-hover)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--text-tertiary)';
+            e.currentTarget.style.background = 'none';
+          }}
+          title="Logout"
+        >
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function StatusPill({ color, label }: { color: string; label: string }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '3px 10px',
+      borderRadius: '100px',
+      background: `${color}10`,
+      border: `1px solid ${color}20`,
+      fontSize: '12px',
+      fontWeight: 500,
+      color: color,
+      whiteSpace: 'nowrap',
+    }}>
+      <div style={{
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        background: color,
+      }} />
+      {label}
     </div>
   );
 }

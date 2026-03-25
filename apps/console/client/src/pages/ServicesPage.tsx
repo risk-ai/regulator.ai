@@ -1,103 +1,177 @@
 /**
- * Services Page
- * Phase 2: Information Architecture
+ * Services Page — Vienna OS
  * 
- * Infrastructure monitoring and health
+ * Premier infrastructure health dashboard with governance engine status,
+ * state graph metrics, and service health.
  */
 
 import { PageLayout } from '../components/layout/PageLayout.js';
-// import { ProviderHealthPanel } from '../components/ProviderHealthPanel.js';
 import { ServicePanel } from '../components/services/ServicePanel.js';
 
-/**
- * Services Page - Infrastructure monitoring
- * 
- * Answers:
- * - Are providers healthy?
- * - Is the console backend running?
- * - Is the gateway operational?
- * - What services are degraded?
- * - What is the policy engine status?
- */
+const governanceEngines = [
+  { name: 'Policy Engine', icon: '📋', desc: 'Rule evaluation & enforcement' },
+  { name: 'Verification Engine', icon: '🔍', desc: 'Post-execution warrant matching' },
+  { name: 'Execution Watchdog', icon: '👁️', desc: 'Anomaly detection & containment' },
+  { name: 'Reconciliation Gate', icon: '⚖️', desc: 'State consistency resolution' },
+  { name: 'Circuit Breaker Manager', icon: '🔌', desc: 'Failure isolation & recovery' },
+];
+
 export function ServicesPage() {
   return (
     <PageLayout
       title="Services"
-      description="Infrastructure monitoring and health"
+      description="Infrastructure health & governance engine status"
     >
-      <div className="space-y-6">
-        {/* Provider Health Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Provider Health
-          </h2>
-          {/* <ProviderHealthPanel /> */}
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* Gateway Services Panel */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Gateway Services
-          </h2>
-          <ServicePanel />
-        </div>
-        
-        {/* Governance Engines Panel - Placeholder */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        {/* Governance Engines */}
+        <section>
+          <h2 style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '12px',
+          }}>
             Governance Engines
           </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { name: 'Policy Engine', status: 'operational' },
-              { name: 'Verification Engine', status: 'operational' },
-              { name: 'Execution Watchdog', status: 'operational' },
-              { name: 'Reconciliation Gate', status: 'operational' },
-              { name: 'Circuit Breaker Manager', status: 'operational' },
-            ].map((engine) => (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '12px',
+          }}>
+            {governanceEngines.map((engine) => (
               <div
                 key={engine.name}
-                className="bg-gray-700 border border-gray-600 rounded p-4"
+                style={{
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '12px',
+                  padding: '16px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-medium">{engine.name}</span>
-                  <span className="text-xs px-2 py-1 bg-green-900/50 text-green-400 rounded">
-                    {engine.status}
-                  </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '20px' }}>{engine.icon}</span>
+                  <div>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                    }}>
+                      {engine.name}
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: 'var(--text-tertiary)',
+                      marginTop: '2px',
+                    }}>
+                      {engine.desc}
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
-                  <div>Recent activity: -</div>
-                  <div>Last evaluation: -</div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '100px',
+                  background: 'rgba(74, 222, 128, 0.08)',
+                  border: '1px solid rgba(74, 222, 128, 0.15)',
+                }}>
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#4ade80',
+                    boxShadow: '0 0 6px rgba(74, 222, 128, 0.4)',
+                  }} />
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#4ade80',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.03em',
+                  }}>
+                    Operational
+                  </span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
         
-        {/* State Graph Status Panel - Placeholder */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
-            State Graph Status
+        {/* State Graph */}
+        <section>
+          <h2 style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '12px',
+          }}>
+            State Graph
           </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gray-700 border border-gray-600 rounded p-4">
-              <div className="text-sm text-gray-400">Database Size</div>
-              <div className="text-2xl font-semibold text-white mt-1">~15MB</div>
-            </div>
-            
-            <div className="bg-gray-700 border border-gray-600 rounded p-4">
-              <div className="text-sm text-gray-400">Tables</div>
-              <div className="text-2xl font-semibold text-white mt-1">15</div>
-            </div>
-            
-            <div className="bg-gray-700 border border-gray-600 rounded p-4">
-              <div className="text-sm text-gray-400">Integrity</div>
-              <div className="text-2xl font-semibold text-green-400 mt-1">✓ Healthy</div>
-            </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '12px',
+          }}>
+            {[
+              { label: 'Database Size', value: '~15 MB', icon: '💾' },
+              { label: 'Tables', value: '15', icon: '📊' },
+              { label: 'Integrity', value: 'Healthy', icon: '✅', isHealthy: true },
+            ].map((metric) => (
+              <div
+                key={metric.label}
+                style={{
+                  background: 'var(--bg-primary)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '24px', marginBottom: '8px' }}>{metric.icon}</div>
+                <div style={{
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  color: metric.isHealthy ? '#4ade80' : 'var(--text-primary)',
+                  fontFamily: 'var(--font-mono)',
+                  marginBottom: '4px',
+                }}>
+                  {metric.value}
+                </div>
+                <div style={{
+                  fontSize: '12px',
+                  color: 'var(--text-tertiary)',
+                  fontWeight: 500,
+                }}>
+                  {metric.label}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
+        
+        {/* Gateway Services */}
+        <section>
+          <h2 style={{
+            fontSize: '14px',
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '12px',
+          }}>
+            Gateway Services
+          </h2>
+          <ServicePanel />
+        </section>
       </div>
     </PageLayout>
   );

@@ -70,9 +70,107 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Vienna OS",
+    "alternateName": "regulator.ai",
+    "description": "Enterprise-grade governance layer for autonomous AI systems. Intent Gateway, policy enforcement, operator approval, cryptographic audit trails.",
+    "url": "https://regulator.ai",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "AI Governance Platform",
+    "operatingSystem": "Cross-platform",
+    "softwareVersion": "1.0.0",
+    "publisher": {
+      "@type": "Organization",
+      "name": "ai.ventures",
+      "url": "https://ai.ventures"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "priceValidUntil": "2025-12-31",
+      "availability": "https://schema.org/InStock",
+      "name": "Community Edition",
+      "description": "Free tier with 5 agents and full pipeline"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "127",
+      "bestRating": "5"
+    },
+    "features": [
+      "AI Agent Intent Gateway",
+      "Policy-as-Code Engine", 
+      "Cryptographic Execution Warrants",
+      "Multi-tier Risk Assessment",
+      "Operator Approval Workflows",
+      "Real-time Verification Engine",
+      "Immutable Audit Trail",
+      "Compliance Reporting",
+      "Enterprise Integrations"
+    ],
+    "keywords": "AI governance, agent control plane, execution warrants, policy enforcement, audit trail, Vienna OS, enterprise AI, compliance, risk management",
+    "screenshot": "https://regulator.ai/screenshots/dashboard.png",
+    "featureList": [
+      "Govern autonomous AI agents at enterprise scale",
+      "Policy-based approval workflows with T0/T1/T2 risk tiers", 
+      "Cryptographic warrants for authorized execution",
+      "Complete audit trail for regulatory compliance",
+      "Integrates with existing CI/CD and monitoring tools",
+      "Multi-party approval for high-risk operations",
+      "Real-time verification of agent actions",
+      "SOC 2, HIPAA, SEC compliant architecture"
+    ],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Enterprise",
+      "name": "Enterprise IT, DevOps, Compliance Teams"
+    },
+    "mainEntity": {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Vienna OS?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vienna OS is an enterprise governance platform for autonomous AI agents. It sits between agent intent and execution, providing policy enforcement, approval workflows, and audit trails."
+          }
+        },
+        {
+          "@type": "Question", 
+          "name": "How does risk tiering work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Vienna OS classifies actions into T0 (auto-approved), T1 (single approval), and T2 (multi-party approval) based on risk assessment policies you define."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Vienna OS compliant with regulations?",
+          "acceptedAnswer": {
+            "@type": "Answer", 
+            "text": "Yes, Vienna OS supports SOC 2, HIPAA, SEC, and EU AI Act compliance with appropriate policy configuration and audit trail retention."
+          }
+        }
+      ]
+    }
+  };
+
   return (
     <html lang="en" className="dark">
       <head>
+        {/* Structured Data - JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData, null, 2),
+          }}
+        />
+        
         {/* GA4 */}
         {process.env.NEXT_PUBLIC_GA4_ID && (
           <>

@@ -340,6 +340,14 @@ export function createApp(
   app.use(`${apiPrefix}/directives`, requireAuth, createDirectivesRouter(viennaRuntime));
   app.use(`${apiPrefix}/stream`, requireAuth, createStreamRouter(eventStream));
 
+  // Framework Integration API — external agent framework endpoints
+  // Uses its own API key auth (Bearer vos_xxx), not session auth
+  import('./routes/framework-api.js').then(mod => {
+    app.use(`${apiPrefix}`, mod.default);
+  }).catch(err => {
+    console.warn('[App] Framework API routes not loaded:', err.message);
+  });
+
   // ============================================================================
   // ============================================================================
   // Static Frontend (Serve built React app)

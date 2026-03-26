@@ -13,8 +13,8 @@
 ### INVENTOR(S)
 
 **Maxwell Anderson**
-[Address]
-[City, State, ZIP]
+1150 Tarpon Center Drive, Apt 709
+Venice, Florida, 34285
 Citizenship: United States
 
 ---
@@ -22,8 +22,8 @@ Citizenship: United States
 ### APPLICANT
 
 Maxwell Anderson
-[Address]
-[City, State, ZIP]
+1150 Tarpon Center Drive, 709
+Venice, Florida, 34285
 
 ---
 

@@ -68,6 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_incidents_pattern_id ON incidents(pattern_id);
 -- Objectives: tasks, milestones, projects, investigations
 CREATE TABLE IF NOT EXISTS objectives (
   objective_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   objective_name TEXT NOT NULL,
   objective_type TEXT NOT NULL CHECK(objective_type IN ('task', 'milestone', 'project', 'investigation', 'other')),
   status TEXT NOT NULL CHECK(status IN ('active', 'completed', 'blocked', 'cancelled', 'deferred')),
@@ -85,6 +86,7 @@ CREATE TABLE IF NOT EXISTS objectives (
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE INDEX IF NOT EXISTS idx_objectives_tenant ON objectives(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_objectives_status ON objectives(status);
 CREATE INDEX IF NOT EXISTS idx_objectives_priority ON objectives(priority);
 CREATE INDEX IF NOT EXISTS idx_objectives_assigned_to ON objectives(assigned_to);
@@ -269,6 +271,7 @@ CREATE INDEX IF NOT EXISTS idx_intent_traces_submitted_at ON intent_traces(submi
 -- Append-only event log for workflow execution history
 CREATE TABLE IF NOT EXISTS execution_ledger_events (
   event_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   execution_id TEXT NOT NULL,
   plan_id TEXT,
   verification_id TEXT,
@@ -309,6 +312,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_execution_ledger_events_execution_sequence
 -- Rebuilt from events via deterministic projector
 CREATE TABLE IF NOT EXISTS execution_ledger_summary (
   execution_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   plan_id TEXT,
   verification_id TEXT,
   warrant_id TEXT,
@@ -1221,14 +1225,14 @@ CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC);
 -- Agent Activity: Recent actions per agent (rolling window)
 CREATE VIEW IF NOT EXISTS agent_activity AS
 SELECT 
-  el.agent_id,
+  el.actor_id as agent_id,
   el.tenant_id,
   COUNT(*) as total_actions,
-  SUM(CASE WHEN el.status = 'completed' THEN 1 ELSE 0 END) as successful,
-  SUM(CASE WHEN el.status = 'failed' THEN 1 ELSE 0 END) as failed,
-  SUM(CASE WHEN el.status = 'blocked' THEN 1 ELSE 0 END) as blocked,
-  MAX(el.timestamp) as last_action,
-  CAST(SUM(CASE WHEN el.status = 'completed' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100 as success_rate
-FROM execution_ledger el
-WHERE el.timestamp > datetime('now', '-7 days')
-GROUP BY el.agent_id, el.tenant_id;
+  SUM(CASE WHEN el.workflow_status = 'completed' THEN 1 ELSE 0 END) as successful,
+  SUM(CASE WHEN el.workflow_status = 'failed' THEN 1 ELSE 0 END) as failed,
+  SUM(CASE WHEN el.workflow_status = 'blocked' THEN 1 ELSE 0 END) as blocked,
+  MAX(el.started_at) as last_action,
+  CAST(SUM(CASE WHEN el.workflow_status = 'completed' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100 as success_rate
+FROM execution_ledger_summary el
+WHERE el.started_at > datetime('now', '-7 days')
+GROUP BY el.actor_id, el.tenant_id;

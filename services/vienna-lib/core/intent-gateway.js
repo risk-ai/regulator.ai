@@ -13,6 +13,8 @@
  */
 
 const { v4: uuidv4 } = require('uuid');
+const SlackAdapter = require('../adapters/slack.js');
+const EmailAdapter = require('../adapters/email.js');
 
 /**
  * Intent structure (canonical)
@@ -76,6 +78,10 @@ class IntentGateway {
     // Phase 29: Initialize cost tracker
     const { CostTracker } = require('../accounting/cost-tracker');
     this.costTracker = new CostTracker(stateGraph);
+
+    // Phase 15: Initialize notification adapters
+    this.slackAdapter = new SlackAdapter();
+    this.emailAdapter = new EmailAdapter();
   }
 
   /**
@@ -189,6 +195,47 @@ class IntentGateway {
             console.log(`[IntentGateway] Policy matched: ${policyAction.policy_name}`, {
               intent_id: intent.intent_id,
               policy_id: policyAction.policy_id
+            });
+          }
+
+          if (action.type === 'notify') {
+            // Send notifications via configured adapters
+            const notificationPayload = {
+              intent_id: intent.intent_id,
+              intent_type: intent.intent_type,
+              action: intent.payload?.action || 'unknown',
+              riskTier: intent.risk_tier || 'T0',
+              policy_name: policyAction.policy_name,
+              message: action.params?.message || `Policy matched: ${policyAction.policy_name}`,
+              source: intent.source,
+              timestamp: intent.submitted_at || new Date().toISOString()
+            };
+
+            const channels = action.params?.channels || ['slack', 'email'];
+
+            // Send to Slack
+            if (channels.includes('slack')) {
+              try {
+                await this.slackAdapter.sendPolicyNotification(notificationPayload);
+              } catch (err) {
+                console.error('[IntentGateway] Slack notification failed:', err.message);
+              }
+            }
+
+            // Send to Email
+            if (channels.includes('email')) {
+              try {
+                await this.emailAdapter.sendPolicyNotification(notificationPayload);
+              } catch (err) {
+                console.error('[IntentGateway] Email notification failed:', err.message);
+              }
+            }
+
+            // Record notification event
+            await this.tracer.recordEvent(intent.intent_id, 'policy.notification_sent', {
+              policy_id: policyAction.policy_id,
+              channels,
+              message: notificationPayload.message
             });
           }
         }

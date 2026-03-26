@@ -169,6 +169,104 @@ class EmailAdapter {
       return null;
     }
   }
+
+  /**
+   * Send policy notification (triggered by Policy Builder notify action)
+   */
+  async sendPolicyNotification(notification, recipientEmail) {
+    if (!this.enabled) return null;
+    const to = recipientEmail || this.notificationEmail;
+
+    const tierColors = { T0: '#94a3b8', T1: '#fbbf24', T2: '#ef4444' };
+    const color = tierColors[notification.riskTier] || '#94a3b8';
+
+    const html = `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;">
+        <div style="background:#0D0F14;padding:24px;border-radius:12px;color:#e2e8f0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <span style="color:#7c3aed;font-weight:700;font-size:16px;">🛡️ Vienna OS</span>
+          </div>
+          
+          <div style="background:${color}15;border:1px solid ${color}30;border-radius:8px;padding:16px;margin-bottom:16px;">
+            <h2 style="margin:0 0 8px;font-size:16px;color:#fff;">📋 Policy Notification</h2>
+            <p style="margin:0;color:#94a3b8;font-size:14px;">${notification.policy_name}</p>
+          </div>
+          
+          <div style="background:#161821;border:1px solid #262837;border-radius:8px;padding:16px;margin-bottom:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <div style="color:#64748b;font-size:12px;margin-bottom:4px;">Intent</div>
+                <div style="color:#e2e8f0;font-size:14px;font-weight:500;">${notification.intent_type}</div>
+              </div>
+              <div>
+                <div style="color:#64748b;font-size:12px;margin-bottom:4px;">Risk Tier</div>
+                <div style="color:${color};font-size:14px;font-weight:600;">${notification.riskTier}</div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">Source</div>
+              <div style="color:#e2e8f0;font-size:14px;">${notification.source?.id || 'unknown'}</div>
+            </div>
+            
+            <div style="margin-bottom:12px;">
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">Message</div>
+              <div style="color:#e2e8f0;font-size:14px;">${notification.message}</div>
+            </div>
+            
+            <div>
+              <div style="color:#64748b;font-size:12px;margin-bottom:4px;">Time</div>
+              <div style="color:#94a3b8;font-size:13px;">${new Date(notification.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+          
+          <div style="background:#0f1117;border:1px solid #1e2433;border-radius:8px;padding:12px;margin-bottom:16px;">
+            <div style="color:#64748b;font-size:11px;font-family:monospace;">
+              Intent ID: ${notification.intent_id}
+            </div>
+          </div>
+          
+          <div style="text-align:center;padding-top:16px;border-top:1px solid #262837;">
+            <a href="${this.consoleUrl}/intents/${notification.intent_id}" 
+               style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-weight:600;font-size:14px;">
+              View Intent Details
+            </a>
+          </div>
+          
+          <div style="text-align:center;margin-top:16px;color:#64748b;font-size:12px;">
+            Vienna OS Governance Platform
+          </div>
+        </div>
+      </div>
+    `;
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: this.fromEmail,
+          to,
+          subject: `[Vienna OS] Policy Notification: ${notification.policy_name}`,
+          html,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Resend API error: ${error}`);
+      }
+
+      const data = await response.json();
+      return { sent: true, id: data.id };
+    } catch (error) {
+      console.error('[EmailAdapter] Policy notification error:', error.message);
+      return null;
+    }
+  }
 }
 
 module.exports = { EmailAdapter };

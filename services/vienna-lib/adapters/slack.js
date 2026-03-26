@@ -208,6 +208,75 @@ class SlackAdapter {
       return null;
     }
   }
+
+  /**
+   * Send policy notification (triggered by Policy Builder notify action)
+   */
+  async sendPolicyNotification(notification) {
+    if (!this.enabled) return null;
+
+    const tierColors = {
+      T0: '#94a3b8',
+      T1: '#fbbf24',
+      T2: '#ef4444',
+    };
+
+    const payload = {
+      channel: this.approvalChannel,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `📋 Policy Notification: ${notification.policy_name}`,
+          },
+        },
+        {
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `*Intent:*\n${notification.intent_type}` },
+            { type: 'mrkdwn', text: `*Risk Tier:*\n${notification.riskTier}` },
+            { type: 'mrkdwn', text: `*Source:*\n${notification.source?.id || 'unknown'}` },
+            { type: 'mrkdwn', text: `*Time:*\n${new Date(notification.timestamp).toLocaleString()}` },
+          ],
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: notification.message,
+          },
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `Intent ID: \`${notification.intent_id}\``,
+            },
+          ],
+        },
+      ],
+      attachments: [
+        {
+          color: tierColors[notification.riskTier] || '#94a3b8',
+          blocks: [],
+        },
+      ],
+    };
+
+    try {
+      await fetch(this.webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return { sent: true };
+    } catch (error) {
+      console.error('[SlackAdapter] Policy notification error:', error.message);
+      return null;
+    }
+  }
 }
 
 module.exports = { SlackAdapter };

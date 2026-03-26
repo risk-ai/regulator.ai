@@ -2492,4 +2492,769 @@ class GovernedTool(BaseTool):
 
         if result["status"] == "pending_approval":
             return (
-                f"Action
+                f"Action requires approval (ID: {result['approval']['approval_id']}). "
+                f"An operator must approve before execution."
+            )
+
+        # Warrant issued — proceed with actual execution
+        return self._execute_with_warrant(result["warrant"], **kwargs)
+
+    def _execute_with_warrant(self, warrant: dict, **kwargs) -> str:
+        raise NotImplementedError("Override in subclass")
+
+
+# Example: Governed email sender
+class GovernedEmailTool(GovernedTool):
+    name = "send_email"
+    description = "Send an email (governed by Vienna OS)"
+    vienna_action = "send_email"
+
+    def _execute_with_warrant(self, warrant, **kwargs):
+        # Your actual email sending logic here
+        return f"Email sent (warrant: {warrant['warrant_id']})"
+
+
+# Usage with LangChain agent
+from langchain.agents import initialize_agent, AgentType
+from langchain.llms import OpenAI
+
+tools = [GovernedEmailTool()]
+llm = OpenAI(temperature=0)
+agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION)`}</CodeBlock>
+
+          {/* CrewAI */}
+          <H3 id="int-crewai">CrewAI</H3>
+          <P>
+            CrewAI tasks can be wrapped with Vienna governance using a callback
+            pattern. The crew&apos;s task outputs are submitted as intents before
+            being acted upon.
+          </P>
+
+          <CodeBlock language="python" title="crewai_vienna.py">{`from crewai import Agent, Task, Crew
+import requests, os
+
+VIENNA_URL = os.environ.get("VIENNA_URL", "https://vienna-os.fly.dev")
+VIENNA_KEY = os.environ["VIENNA_AGENT_KEY"]
+
+def governed_callback(output):
+    """Submit task output to Vienna for governance before execution."""
+    response = requests.post(
+        f"{VIENNA_URL}/api/v1/agent/intent",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {VIENNA_KEY}",
+        },
+        json={
+            "action": output.get("action", "task_execution"),
+            "source": {"platform": "crewai", "agent_id": output.get("agent", "unknown")},
+            "tenant_id": os.environ["VIENNA_TENANT_ID"],
+            "parameters": output,
+        },
+    )
+    result = response.json()
+    if not result.get("success") or result["data"]["status"] == "denied":
+        raise Exception(f"Governance denied: {result.get('error', 'Policy violation')}")
+    return result["data"]
+
+# Define agents and tasks
+researcher = Agent(role="Researcher", goal="Find market data", backstory="...")
+analyst = Agent(role="Analyst", goal="Analyze trends", backstory="...")
+
+research_task = Task(
+    description="Research Q1 market trends",
+    agent=researcher,
+    callback=governed_callback,  # Vienna checks before execution
+)
+
+crew = Crew(agents=[researcher, analyst], tasks=[research_task])
+result = crew.kickoff()`}</CodeBlock>
+
+          {/* Generic HTTP */}
+          <H3 id="int-http">Generic HTTP</H3>
+          <P>
+            Any system that can make HTTP requests can integrate with Vienna OS.
+            Here&apos;s the universal pattern.
+          </P>
+
+          <CodeBlock language="bash" title="curl">{`# Submit any agent action through governance
+curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
+  -d '{
+    "action": "your_custom_action",
+    "source": {
+      "platform": "your-framework",
+      "agent_id": "your-agent-id"
+    },
+    "tenant_id": "your-tenant",
+    "parameters": {
+      "key": "value"
+    }
+  }'
+
+# Response:
+# {
+#   "success": true,
+#   "data": {
+#     "intent_id": "int-abc123",
+#     "status": "executed",
+#     "execution_id": "exec-def456",
+#     "warrant": { "warrant_id": "wrt-...", "scope": {...}, "ttl": 300 },
+#     "audit_id": "aud-ghi789"
+#   }
+# }`}</CodeBlock>
+
+          {/* Webhooks */}
+          <H3 id="int-webhooks">Receiving Webhooks</H3>
+          <P>
+            Vienna OS can send webhooks when governance events occur (approvals needed,
+            actions executed, policy violations). Configure integrations via the console
+            or API.
+          </P>
+
+          <CodeBlock language="typescript" title="webhook-handler.ts">{`import express from "express";
+import crypto from "crypto";
+
+const app = express();
+app.use(express.json());
+
+const WEBHOOK_SECRET = process.env.VIENNA_WEBHOOK_SECRET!;
+
+// Verify HMAC-SHA256 signature
+function verifySignature(payload: string, signature: string): boolean {
+  const expected = crypto
+    .createHmac("sha256", WEBHOOK_SECRET)
+    .update(payload)
+    .digest("hex");
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}
+
+app.post("/webhooks/vienna", (req, res) => {
+  const signature = req.headers["x-vienna-signature"] as string;
+  const rawBody = JSON.stringify(req.body);
+
+  if (!verifySignature(rawBody, signature)) {
+    return res.status(401).json({ error: "Invalid signature" });
+  }
+
+  const event = req.body;
+
+  switch (event.type) {
+    case "approval_required":
+      console.log("Approval needed:", event.data.action_type);
+      // Notify your team via Slack, email, etc.
+      break;
+    case "action_executed":
+      console.log("Action completed:", event.data.execution_id);
+      break;
+    case "policy_violation":
+      console.log("ALERT:", event.data.agent_id, event.data.message);
+      break;
+  }
+
+  res.json({ received: true });
+});
+
+app.listen(3001);`}</CodeBlock>
+
+          {/* ================================================
+              POLICY-AS-CODE GUIDE
+              ================================================ */}
+          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+
+          <H2 id="policy-guide" icon={<FileText className="w-6 h-6 text-purple-400" />}>Policy-as-Code Guide</H2>
+          <P>
+            Vienna OS policies are rules that automatically evaluate every agent intent.
+            Rules are evaluated top-down by priority (highest first). First matching rule wins,
+            like firewall rules.
+          </P>
+
+          <H3 id="pol-creating">Creating Rules</H3>
+          <P>
+            Create policies via the API or the visual Policy Builder in the console.
+          </P>
+
+          <CodeBlock language="bash" title="Create a policy rule">{`curl -X POST https://vienna-os.fly.dev/api/v1/policies \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $VIENNA_API_KEY" \\
+  -d '{
+    "name": "High-Value Transaction Gate",
+    "description": "Require T2 multi-party approval for transactions over $10,000",
+    "conditions": [
+      { "field": "action_type", "operator": "equals", "value": "financial_transaction" },
+      { "field": "amount", "operator": "gt", "value": 10000 }
+    ],
+    "action_on_match": "require_approval",
+    "approval_tier": "T2",
+    "priority": 100,
+    "enabled": true
+  }'`}</CodeBlock>
+
+          <H3 id="pol-operators">Condition Operators</H3>
+          <P>
+            Vienna supports 14 condition operators. The available operators depend on the
+            field type being evaluated.
+          </P>
+
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-navy-700">
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Operator</th>
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Description</th>
+                  <th className="text-left py-2 text-slate-400 font-semibold">Example</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-300 font-mono text-xs">
+                {[
+                  ["equals", "Exact match", '{ field: "action_type", operator: "equals", value: "deploy" }'],
+                  ["not_equals", "Not equal", '{ field: "environment", operator: "not_equals", value: "production" }'],
+                  ["contains", "String contains", '{ field: "action_type", operator: "contains", value: "delete" }'],
+                  ["gt", "Greater than (numeric)", '{ field: "amount", operator: "gt", value: 10000 }'],
+                  ["gte", "Greater than or equal", '{ field: "risk_score", operator: "gte", value: 80 }'],
+                  ["lt", "Less than", '{ field: "trust_score", operator: "lt", value: 50 }'],
+                  ["lte", "Less than or equal", '{ field: "retry_count", operator: "lte", value: 3 }'],
+                  ["in", "Value in array", '{ field: "agent_id", operator: "in", value: ["bot-a", "bot-b"] }'],
+                  ["not_in", "Value not in array", '{ field: "environment", operator: "not_in", value: ["prod", "staging"] }'],
+                  ["matches", "Regex match", '{ field: "action_type", operator: "matches", value: "^deploy_.*" }'],
+                  ["between", "Numeric range", '{ field: "amount", operator: "between", value: [1000, 50000] }'],
+                  ["time_between", "Time-of-day range (HH:MM)", '{ field: "time_of_day", operator: "time_between", value: ["18:00", "06:00"] }'],
+                  ["exists", "Field is present", '{ field: "parameters.override", operator: "exists", value: true }'],
+                  ["not_exists", "Field is absent", '{ field: "parameters.approval_bypass", operator: "not_exists", value: true }'],
+                ].map(([op, desc, ex], i) => (
+                  <tr key={op} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
+                    <td className="py-2 pr-4 text-purple-400">{op}</td>
+                    <td className="py-2 pr-4 text-slate-400 font-sans">{desc}</td>
+                    <td className="py-2 text-slate-500 text-[11px]">{ex}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <H3 id="pol-examples">Complex Examples</H3>
+
+          <CodeBlock language="json" title="Block after-hours financial transactions over $50K">{`{
+  "name": "After-Hours High-Value Block",
+  "conditions": [
+    { "field": "action_type", "operator": "equals", "value": "financial_transaction" },
+    { "field": "amount", "operator": "gt", "value": 50000 },
+    { "field": "time_of_day", "operator": "time_between", "value": ["18:00", "06:00"] }
+  ],
+  "action_on_match": "deny",
+  "priority": 200
+}`}</CodeBlock>
+
+          <CodeBlock language="json" title="CTO approval for production database migrations">{`{
+  "name": "Prod DB Migration Gate",
+  "conditions": [
+    { "field": "action_type", "operator": "equals", "value": "database_migration" },
+    { "field": "environment", "operator": "equals", "value": "production" }
+  ],
+  "action_on_match": "require_approval",
+  "approval_tier": "T2",
+  "required_approvers": ["operator-cto"],
+  "priority": 150
+}`}</CodeBlock>
+
+          <CodeBlock language="json" title="Auto-approve reads from high-trust agents">{`{
+  "name": "Trusted Agent Auto-Approve",
+  "conditions": [
+    { "field": "action_type", "operator": "contains", "value": "read" },
+    { "field": "trust_score", "operator": "gt", "value": 80 }
+  ],
+  "action_on_match": "allow",
+  "priority": 50
+}`}</CodeBlock>
+
+          <CodeBlock language="json" title="Rate limit any single agent">{`{
+  "name": "Agent Rate Limiter",
+  "conditions": [
+    { "field": "rate", "operator": "gt", "value": 100 }
+  ],
+  "action_on_match": "rate_limit",
+  "priority": 300
+}`}</CodeBlock>
+
+          <H3 id="pol-dry-run">Dry-Run Testing</H3>
+          <P>
+            Test any intent against all active policies without executing it. The evaluate
+            endpoint returns which rules matched and what action would be taken.
+          </P>
+
+          <CodeBlock language="bash" title="Test a hypothetical intent">{`curl -X POST https://vienna-os.fly.dev/api/v1/policies/evaluate \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $VIENNA_API_KEY" \\
+  -d '{
+    "action_type": "financial_transaction",
+    "amount": 75000,
+    "agent_id": "billing-bot",
+    "environment": "production",
+    "time_of_day": "22:30"
+  }'
+
+# Response:
+# {
+#   "results": [
+#     {
+#       "rule_id": "...",
+#       "rule_name": "After-Hours High-Value Block",
+#       "matched": true,
+#       "action": "deny",
+#       "conditions_detail": [
+#         { "field": "action_type", "passed": true },
+#         { "field": "amount", "passed": true, "actual": 75000, "expected": "> 50000" },
+#         { "field": "time_of_day", "passed": true, "actual": "22:30", "expected": "18:00-06:00" }
+#       ]
+#     }
+#   ],
+#   "final_action": "deny",
+#   "matching_rule": "After-Hours High-Value Block"
+# }`}</CodeBlock>
+
+          <H3 id="pol-templates">Industry Templates</H3>
+          <P>
+            Vienna ships with pre-built policy templates for regulated industries.
+            Import them via the API or the Policy Builder UI.
+          </P>
+
+          <CodeBlock language="bash" title="List available templates">{`curl https://vienna-os.fly.dev/api/v1/policies/templates \\
+  -H "Authorization: Bearer $VIENNA_API_KEY"
+
+# Returns: financial_services, healthcare, devops, legal, general
+# Each template contains 5-8 rules configured for that industry`}</CodeBlock>
+
+          {/* ================================================
+              WARRANT DEEP DIVE
+              ================================================ */}
+          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+
+          <H2 id="warrant-deep-dive" icon={<Lock className="w-6 h-6 text-amber-400" />}>Warrant Deep Dive</H2>
+          <P>
+            The execution warrant is Vienna OS&apos;s core innovation. This section explains
+            why warrants exist, how they work, and why they&apos;re necessary for governing
+            autonomous AI agents.
+          </P>
+
+          <H3 id="wdd-problem">Problem Statement</H3>
+          <P>
+            Traditional authorization (API keys, OAuth tokens, IAM roles) answers one question:
+            <strong className="text-white"> &ldquo;Who are you?&rdquo;</strong> But for AI agents taking
+            real-world actions, we need to answer a different question:
+            <strong className="text-white"> &ldquo;What exactly are you authorized to do, right now,
+            this one time?&rdquo;</strong>
+          </P>
+          <P>
+            An API key that authorizes &ldquo;billing-bot&rdquo; to &ldquo;make payments&rdquo; is dangerously
+            broad. It doesn&apos;t constrain amount, recipient, timing, or frequency. If the
+            agent is compromised or hallucinates, it can drain an account. Traditional auth
+            is identity-based. Agent governance needs to be <em>action-based</em>.
+          </P>
+
+          <H3 id="wdd-model">The Warrant Model</H3>
+          <P>
+            A Vienna execution warrant is a cryptographically signed, time-limited,
+            scope-constrained authorization token. It authorizes exactly one action with
+            specific parameters, issued only after policy evaluation and (optionally)
+            operator approval.
+          </P>
+
+          <CodeBlock language="json" title="Warrant structure">{`{
+  "warrant_id": "wrt-7f3a2b1c-e8d4-4a9f-b2c1-9d8e7f6a5b4c",
+  "scope": {
+    "action": "wire_transfer",
+    "target": "payments-service",
+    "parameters": {
+      "amount": 75000,
+      "currency": "USD",
+      "recipient": "vendor-456"
+    }
+  },
+  "constraints": {
+    "max_amount": 75000,
+    "allowed_recipients": ["vendor-456"],
+    "max_retries": 0,
+    "rollback_on_failure": true
+  },
+  "ttl_seconds": 300,
+  "issued_at": "2026-03-25T21:30:00Z",
+  "expires_at": "2026-03-25T21:35:00Z",
+  "issuer": {
+    "type": "multi_party",
+    "operators": ["operator-jane", "operator-mike"],
+    "approval_id": "appr-abc123"
+  },
+  "chain_of_custody": {
+    "intent_id": "int-xyz789",
+    "policy_match": "high-value-transfer-gate",
+    "risk_tier": "T2",
+    "approval_time_ms": 45200
+  },
+  "signature": "hmac-sha256:a1b2c3d4e5f67890..."
+}`}</CodeBlock>
+
+          <H3 id="wdd-comparison">Comparison with Traditional Auth</H3>
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-navy-700">
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Property</th>
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">API Key / OAuth</th>
+                  <th className="text-left py-2 text-emerald-400 font-semibold">Vienna Warrant</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-300 text-xs">
+                {[
+                  ["Authorizes", "Identity (who you are)", "Specific action (what you can do)"],
+                  ["Scope", "Broad (all permitted actions)", "Narrow (one action, one time)"],
+                  ["Time limit", "Long-lived (months/years)", "Seconds to minutes (TTL)"],
+                  ["Parameters", "None", "Amount, recipient, target constrained"],
+                  ["Post-execution check", "None", "Verification Engine confirms compliance"],
+                  ["Compromise impact", "Full access until revoked", "One action, already expired"],
+                  ["Audit chain", "Who authenticated", "Full intent → policy → approval → execution chain"],
+                  ["Tamper evidence", "None", "HMAC-SHA256 signature"],
+                ].map(([prop, trad, warrant], i) => (
+                  <tr key={prop} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
+                    <td className="py-2 pr-4 text-white font-medium">{prop}</td>
+                    <td className="py-2 pr-4 text-slate-500">{trad}</td>
+                    <td className="py-2 text-emerald-400">{warrant}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <H3 id="wdd-lifecycle">Warrant Lifecycle</H3>
+          <CodeBlock language="text" title="Warrant lifecycle">{`1. INTENT    → Agent submits action request
+2. EVALUATE  → Policy Engine checks against rules
+3. TIER      → Risk tier assigned (T0/T1/T2)
+4. APPROVE   → Operator(s) approve (if T1/T2)
+5. ISSUE     → Warrant Authority creates signed warrant
+                - Scope locked to exact parameters
+                - TTL set (300s default, configurable)
+                - Constraints attached (max amount, allowed targets)
+                - HMAC-SHA256 signature computed
+6. EXECUTE   → Execution Router validates warrant, runs action
+7. VERIFY    → Verification Engine checks:
+                - Did action match warrant scope?
+                - Was amount within constraints?
+                - Was target in allowed list?
+                - Was execution within TTL?
+8. ARCHIVE   → Warrant + verification result → immutable audit trail`}</CodeBlock>
+
+          <H3 id="wdd-security">Security Properties</H3>
+          <P>Vienna warrants provide five security guarantees:</P>
+          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+            <li><strong className="text-white">Non-repudiation</strong> — Every warrant records who approved it and why. The chain of custody is immutable.</li>
+            <li><strong className="text-white">Scope enforcement</strong> — A warrant for $75,000 to vendor-456 cannot be used to send $750,000 to vendor-789.</li>
+            <li><strong className="text-white">Temporal constraint</strong> — Warrants expire. A 300-second TTL means the window for execution is minutes, not months.</li>
+            <li><strong className="text-white">Tamper evidence</strong> — HMAC-SHA256 signature means any modification to the warrant payload invalidates it.</li>
+            <li><strong className="text-white">Post-execution verification</strong> — Even if execution occurs, the Verification Engine confirms the action matched the warrant. Mismatches trigger alerts.</li>
+          </ul>
+
+          <H3 id="wdd-implementation">Implementation</H3>
+          <P>
+            Warrants use HMAC-SHA256 with a server-side signing key. The signature covers
+            the entire warrant payload (minus the signature field itself).
+          </P>
+
+          <CodeBlock language="typescript" title="Warrant signing (server-side)">{`import crypto from "crypto";
+
+function signWarrant(warrant: Omit<Warrant, "signature">, signingKey: string): string {
+  const payload = JSON.stringify(warrant, Object.keys(warrant).sort());
+  return "hmac-sha256:" + crypto
+    .createHmac("sha256", signingKey)
+    .update(payload)
+    .digest("hex");
+}
+
+function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
+  const { signature, ...payload } = warrant;
+  const expected = signWarrant(payload, signingKey);
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}`}</CodeBlock>
+
+          <H3 id="wdd-industry">Industry Use Cases</H3>
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
+            {[
+              { icon: "🏦", title: "Financial Services", desc: "Wire transfer warrants constrain amount, recipient, currency. Multi-party T2 approval for high-value. 60-second TTL on execution. Post-verification confirms exact amount transferred." },
+              { icon: "🏥", title: "Healthcare", desc: "PHI access warrants scope to specific patient ID and data fields. HIPAA-compliant audit trail. 30-second TTL. Verification confirms only authorized fields were accessed." },
+              { icon: "⚖️", title: "Legal", desc: "Court filing warrants constrain to specific case number, document type, and filing deadline. Dual attorney-supervisor approval. Verification confirms correct court and case." },
+              { icon: "🚀", title: "DevOps", desc: "Deploy warrants scope to specific service, environment, and version. Rollback constraints enabled. After-hours escalation. Verification confirms deployment target matched." },
+            ].map((uc) => (
+              <div key={uc.title} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+                <div className="text-2xl mb-2">{uc.icon}</div>
+                <h4 className="text-white font-semibold text-sm mb-1">{uc.title}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed">{uc.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ================================================
+              SECURITY
+              ================================================ */}
+          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+
+          <H2 id="security" icon={<Key className="w-6 h-6 text-red-400" />}>Security</H2>
+
+          <H3 id="sec-authn">Authentication</H3>
+          <P>Vienna OS supports three authentication mechanisms:</P>
+          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+            <li><strong className="text-white">Session-based (operators)</strong> — Login with username/password, receive session cookie. Used by console UI.</li>
+            <li><strong className="text-white">API key (agents)</strong> — Bearer token in Authorization header. Scoped per agent with configurable permissions.</li>
+            <li><strong className="text-white">mTLS (enterprise)</strong> — Mutual TLS for agent identity verification. Certificate-based, no shared secrets.</li>
+          </ul>
+
+          <H3 id="sec-authz">Authorization</H3>
+          <P>
+            Authorization in Vienna is two-layered: <em>identity authorization</em> (who can
+            access the API) and <em>action authorization</em> (what they can do, enforced by
+            warrants). Even an authenticated agent with valid API keys cannot execute an
+            action without a warrant.
+          </P>
+
+          <H3 id="sec-encryption">Encryption</H3>
+          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+            <li><strong className="text-white">In transit</strong> — TLS 1.3 enforced on all connections</li>
+            <li><strong className="text-white">At rest</strong> — Database encryption via provider (Neon/RDS). Sensitive config fields encrypted with AES-256-GCM.</li>
+            <li><strong className="text-white">Warrant signatures</strong> — HMAC-SHA256 with rotating server-side keys</li>
+          </ul>
+
+          <H3 id="sec-audit-integrity">Audit Trail Integrity</H3>
+          <P>
+            The audit trail is append-only. Entries cannot be modified or deleted. Each entry
+            includes a hash of the previous entry, creating a tamper-evident chain (similar to
+            blockchain but without consensus overhead). Any gap or modification in the chain
+            is detectable.
+          </P>
+
+          <H3 id="sec-incident">Incident Response</H3>
+          <P>
+            When Vienna detects a security event (signature mismatch, scope violation,
+            unauthorized access attempt):
+          </P>
+          <ol className="list-decimal list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+            <li>Alert generated with severity level (info/warning/critical)</li>
+            <li>Agent automatically suspended if critical</li>
+            <li>Integration adapters notified (Slack, email, webhook)</li>
+            <li>Full context captured in audit trail</li>
+            <li>Operator review required to reactivate suspended agents</li>
+          </ol>
+
+          <H3 id="sec-compliance">Compliance</H3>
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
+            {[
+              { label: "SOC 2 Type II", status: "In progress", color: "text-amber-400" },
+              { label: "HIPAA BAA", status: "Available on Enterprise", color: "text-emerald-400" },
+              { label: "GDPR", status: "Compliant (EU deployment option)", color: "text-emerald-400" },
+              { label: "EU AI Act", status: "Designed for compliance", color: "text-emerald-400" },
+              { label: "NIST AI RMF", status: "Aligned", color: "text-emerald-400" },
+              { label: "FedRAMP", status: "Planned (2026 Q4)", color: "text-slate-400" },
+            ].map((c) => (
+              <div key={c.label} className="bg-navy-800 border border-navy-700 rounded-lg p-3 flex items-center justify-between">
+                <span className="text-white text-sm font-medium">{c.label}</span>
+                <span className={`text-xs font-medium ${c.color}`}>{c.status}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ================================================
+              SELF-HOSTING
+              ================================================ */}
+          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+
+          <H2 id="self-hosting" icon={<Settings className="w-6 h-6 text-slate-400" />}>Self-Hosting</H2>
+          <P>
+            Vienna OS can be self-hosted for teams that need on-premise deployment,
+            air-gapped environments, or custom infrastructure.
+          </P>
+
+          <H3 id="sh-docker">Docker</H3>
+          <CodeBlock language="bash" title="Docker deployment">{`# Pull the image
+docker pull ghcr.io/risk-ai/vienna-os:latest
+
+# Run with environment variables
+docker run -d \\
+  --name vienna-os \\
+  -p 8080:8080 \\
+  -e VIENNA_ENV=prod \\
+  -e VIENNA_SECRET_KEY=your-secret-key \\
+  -e POSTGRES_URL=postgresql://user:pass@host:5432/vienna \\
+  -e VIENNA_SIMULATION=false \\
+  ghcr.io/risk-ai/vienna-os:latest
+
+# Verify
+curl http://localhost:8080/health
+# {"status":"ok"}`}</CodeBlock>
+
+          <H3 id="sh-env-vars">Environment Variables</H3>
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-navy-700">
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Variable</th>
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Required</th>
+                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Default</th>
+                  <th className="text-left py-2 text-slate-400 font-semibold">Description</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-300 font-mono text-xs">
+                {[
+                  ["VIENNA_SECRET_KEY", "Yes", "—", "Server signing key for warrants and sessions"],
+                  ["POSTGRES_URL", "Yes", "—", "PostgreSQL connection string"],
+                  ["VIENNA_ENV", "No", "prod", "Environment: prod, staging, test"],
+                  ["PORT", "No", "8080", "Server listen port"],
+                  ["VIENNA_SIMULATION", "No", "true", "Enable simulation engine"],
+                  ["VIENNA_LOG_LEVEL", "No", "info", "Logging level: debug, info, warn, error"],
+                  ["VIENNA_CORS_ORIGIN", "No", "*", "Allowed CORS origins"],
+                  ["VIENNA_SESSION_TTL", "No", "86400", "Session TTL in seconds (24h)"],
+                  ["VIENNA_WARRANT_TTL", "No", "300", "Default warrant TTL in seconds (5min)"],
+                  ["VIENNA_MAX_AGENTS", "No", "100", "Maximum registered agents"],
+                ].map(([name, req, def, desc], i) => (
+                  <tr key={name} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
+                    <td className="py-2 pr-4 text-purple-400">{name}</td>
+                    <td className="py-2 pr-4">{req}</td>
+                    <td className="py-2 pr-4 text-slate-500">{def}</td>
+                    <td className="py-2 text-slate-400 font-sans">{desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <H3 id="sh-postgres">PostgreSQL Setup</H3>
+          <CodeBlock language="bash" title="Database setup">{`# Create database
+createdb vienna
+
+# Run migrations (auto-runs on first boot, or manually)
+cd apps/console/server
+for f in src/db/migrations/*.sql; do
+  psql vienna < "$f"
+done`}</CodeBlock>
+
+          <H3 id="sh-flyio">Fly.io</H3>
+          <CodeBlock language="bash" title="Fly.io deployment">{`# Install flyctl
+curl -L https://fly.io/install.sh | sh
+
+# Launch (first time)
+fly launch --name vienna-os --region iad
+
+# Set secrets
+fly secrets set VIENNA_SECRET_KEY=your-secret-key
+fly secrets set POSTGRES_URL=your-connection-string
+
+# Deploy
+fly deploy
+
+# Scale
+fly scale count 2  # Run 2 instances for HA`}</CodeBlock>
+
+          <H3 id="sh-kubernetes">Kubernetes</H3>
+          <CodeBlock language="yaml" title="kubernetes/deployment.yaml">{`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vienna-os
+  labels:
+    app: vienna-os
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vienna-os
+  template:
+    metadata:
+      labels:
+        app: vienna-os
+    spec:
+      containers:
+      - name: vienna-os
+        image: ghcr.io/risk-ai/vienna-os:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: VIENNA_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: vienna-secrets
+              key: secret-key
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              name: vienna-secrets
+              key: postgres-url
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vienna-os
+spec:
+  selector:
+    app: vienna-os
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer`}</CodeBlock>
+
+          {/* End of docs content */}
+          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+
+          <div className="bg-gradient-to-br from-purple-900/20 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
+            <h2 className="text-xl font-bold text-white mb-2">Ready to govern your agents?</h2>
+            <p className="text-slate-400 text-sm mb-4">
+              Start with the free tier. No credit card required.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-semibold text-sm">
+                Get Started
+              </a>
+              <a href="/try" className="bg-navy-800 hover:bg-navy-700 text-white px-6 py-2.5 rounded-xl transition text-sm border border-navy-700">
+                Try Live API
+              </a>
+            </div>
+          </div>
+
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-navy-700 py-8 mt-12">
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-purple-400" />
+            <span className="text-sm text-slate-500">Vienna OS Documentation</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="/" className="text-xs text-slate-600 hover:text-slate-400 transition">Home</a>
+            <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
+            <span className="text-xs text-slate-600">© 2026 ai.ventures</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

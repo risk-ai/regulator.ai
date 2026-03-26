@@ -5,7 +5,7 @@
  */
 
 import { create } from 'zustand';
-import { login, logout, checkSession } from '../api/auth.js';
+import { login, logout, checkSession, register } from '../api/auth.js';
 import { setAuthErrorCallback } from '../api/client.js';
 
 interface AuthState {
@@ -16,8 +16,11 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   
+  tenantId: string | null;
+  
   // Actions
-  login: (password: string) => Promise<boolean>;
+  login: (password: string, username?: string) => Promise<boolean>;
+  register: (params: { username: string; password: string; email?: string; company?: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
   clearError: () => void;
@@ -40,16 +43,40 @@ export const useAuthStore = create<AuthState>((set) => {
   // Initial state
   authenticated: false,
   operator: null,
+  tenantId: null,
   sessionExpiresAt: null,
   loading: true,
   error: null,
   
+  // Register action
+  register: async (params) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await register(params);
+      set({
+        authenticated: true,
+        operator: response.operator,
+        tenantId: response.tenantId,
+        sessionExpiresAt: response.expiresAt,
+        loading: false,
+        error: null,
+      });
+      return true;
+    } catch (error: any) {
+      set({
+        loading: false,
+        error: error?.message || 'Registration failed',
+      });
+      return false;
+    }
+  },
+
   // Login action
-  login: async (password: string) => {
+  login: async (password: string, username?: string) => {
     set({ loading: true, error: null });
     
     try {
-      const response = await login(password);
+      const response = await login(password, username);
       
       set({
         authenticated: true,

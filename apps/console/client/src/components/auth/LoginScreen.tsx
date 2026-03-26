@@ -1,146 +1,250 @@
 /**
- * Login Screen
+ * Login Screen — Vienna OS
  * 
- * Operator authentication gate for Vienna Console.
- * Dark theme, Vienna OS branding.
+ * Supports both login (existing operators) and registration (new operators).
+ * Dark theme with Vienna OS branding.
  */
 
 import React, { useState, FormEvent } from 'react';
-import { Shield, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore.js';
 
 export function LoginScreen() {
-  const [username, setUsername] = useState('vienna');
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading, error, clearError } = useAuthStore();
-  
+  const [email, setEmail] = useState('');
+  const [company, setCompany] = useState('');
+  const { login, register, loading, error, clearError } = useAuthStore();
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    if (!password.trim()) {
-      return;
+    if (!password.trim()) return;
+
+    if (mode === 'register') {
+      if (!username.trim() || username.length < 3) return;
+      await register({ username: username.trim(), password, email: email.trim() || undefined, company: company.trim() || undefined });
+    } else {
+      await login(password, username.trim() || undefined);
     }
-    
-    // Current auth system uses password-only
-    // Username field is for future multi-operator support
-    await login(password);
   };
-  
+
+  const switchMode = () => {
+    setMode(mode === 'login' ? 'register' : 'login');
+    clearError();
+  };
+
   return (
-    <div className="min-h-screen bg-navy-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        {/* Vienna OS Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-              <Shield className="w-8 h-8 text-purple-400" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-bold text-white">
-                Vienna<span className="text-purple-400">OS</span>
-              </h1>
-              <p className="text-sm text-slate-400">
-                Operator Console
-              </p>
-            </div>
+    <div style={{
+      minHeight: '100vh',
+      background: '#0D0F14',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+      fontFamily: 'var(--font-sans)',
+    }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        {/* Brand */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+            </svg>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>
+              Vienna<span style={{ color: '#7c3aed' }}>OS</span>
+            </span>
           </div>
-          <p className="text-slate-500 text-sm">
-            Governed AI Execution Layer
+          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+            {mode === 'login' ? 'Sign in to the governance console' : 'Create your operator account'}
           </p>
         </div>
-        
-        {/* Login Card */}
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 shadow-2xl">
-          {/* Error display */}
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6 animate-in fade-in">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm text-red-400">{error}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={clearError}
-                  className="text-red-400 hover:text-red-300 transition"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{
+          background: '#111826',
+          border: '1px solid #1E293B',
+          borderRadius: '12px',
+          padding: '24px',
+        }}>
+          {/* Username */}
+          <div style={{ marginBottom: '14px' }}>
+            <label htmlFor="username" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+              Username {mode === 'register' && <span style={{ color: '#7c3aed' }}>*</span>}
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => { setUsername(e.target.value); clearError(); }}
+              placeholder={mode === 'login' ? 'vienna' : 'your-username'}
+              autoComplete="username"
+              style={{
+                width: '100%',
+                background: '#0D0F14',
+                border: '1px solid #1E293B',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                fontSize: '14px',
+                color: '#fff',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Email (register only) */}
+          {mode === 'register' && (
+            <div style={{ marginBottom: '14px' }}>
+              <label htmlFor="email" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                autoComplete="email"
+                style={{
+                  width: '100%',
+                  background: '#0D0F14',
+                  border: '1px solid #1E293B',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                  fontSize: '14px',
+                  color: '#fff',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
           )}
-          
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username input */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-2">
-                Operator Username
+
+          {/* Company (register only) */}
+          {mode === 'register' && (
+            <div style={{ marginBottom: '14px' }}>
+              <label htmlFor="company" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+                Company
               </label>
               <input
-                id="username"
+                id="company"
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                disabled={loading}
-                className="w-full px-4 py-2.5 bg-navy-900 border border-navy-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition"
-                placeholder="vienna"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder="Acme Corp"
+                style={{
+                  width: '100%',
+                  background: '#0D0F14',
+                  border: '1px solid #1E293B',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                  fontSize: '14px',
+                  color: '#fff',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
-            
-            {/* Password input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                className="w-full px-4 py-2.5 bg-navy-900 border border-navy-600 rounded-lg text-white placeholder-slate-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition"
-                placeholder="••••••••"
-                autoFocus
-              />
-            </div>
-            
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={loading || !password.trim()}
-              className="w-full bg-purple-600 text-white py-2.5 px-4 rounded-lg font-medium hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-navy-800 disabled:bg-navy-700 disabled:text-slate-500 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  <Shield className="w-4 h-4" />
-                  Sign In
-                </>
-              )}
-            </button>
-          </form>
-          
-          {/* Demo credentials hint */}
-          <div className="mt-6 pt-6 border-t border-navy-700">
-            <p className="text-xs text-slate-500 text-center">
-              Demo credentials: <span className="text-purple-400 font-mono">vienna</span> / <span className="text-purple-400 font-mono">vienna2024</span>
-            </p>
+          )}
+
+          {/* Password */}
+          <div style={{ marginBottom: '18px' }}>
+            <label htmlFor="password" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+              Password <span style={{ color: '#7c3aed' }}>*</span>
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); clearError(); }}
+              placeholder={mode === 'register' ? 'min 8 characters' : '••••••••'}
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              required
+              style={{
+                width: '100%',
+                background: '#0D0F14',
+                border: '1px solid #1E293B',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                fontSize: '14px',
+                color: '#fff',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
           </div>
+
+          {/* Error */}
+          {error && (
+            <div style={{
+              background: 'rgba(248, 113, 113, 0.08)',
+              border: '1px solid rgba(248, 113, 113, 0.2)',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              marginBottom: '14px',
+              fontSize: '13px',
+              color: '#f87171',
+            }}>
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: loading ? '#334155' : '#7c3aed',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: loading ? 'default' : 'pointer',
+              fontFamily: 'inherit',
+              transition: 'background 150ms',
+            }}
+          >
+            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+
+        {/* Toggle mode */}
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <button
+            onClick={switchMode}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#7c3aed',
+              fontSize: '13px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {mode === 'login' ? "Don't have an account? Create one" : 'Already have an account? Sign in'}
+          </button>
         </div>
-        
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-600">
-            Vienna OS v8.0 — Governed AI Execution Layer
+
+        {/* Demo credentials hint */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: '20px',
+          padding: '12px',
+          background: 'rgba(124, 58, 237, 0.05)',
+          border: '1px solid rgba(124, 58, 237, 0.1)',
+          borderRadius: '8px',
+        }}>
+          <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>
+            <strong style={{ color: '#94a3b8' }}>Sandbox:</strong> vienna / vienna2024
           </p>
-          <p className="text-xs text-slate-700 mt-1">
+        </div>
+
+        {/* Footer */}
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <p style={{ fontSize: '11px', color: '#334155', margin: 0 }}>
             Built at Cornell Law × ai.ventures
           </p>
         </div>

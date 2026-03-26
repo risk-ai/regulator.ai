@@ -1,0 +1,1349 @@
+openapi: 3.1.0
+info:
+  title: Vienna OS API
+  description: |
+    **Vienna OS**: Governance and orchestration platform for multi-agent systems.
+    
+    Vienna OS provides structured intent submission, policy enforcement, warrant-based execution,
+    and comprehensive audit capabilities for AI agents operating at scale.
+    
+    ## Authentication
+    - **Bearer Token**: JWT access token from `/api/v1/auth/login`
+    - **API Key**: Use `vos_` prefixed keys in Authorization header: `Bearer vos_xxx`
+    
+    ## Tenant Isolation
+    All resources are scoped to tenants. API keys and JWT tokens carry tenant context.
+    
+    ## Rate Limits
+    - **Community**: 100 requests/minute
+    - **Team**: 500 requests/minute  
+    - **Business**: 2000 requests/minute
+    - **Enterprise**: 10000 requests/minute
+  version: 1.0.0
+  contact:
+    name: Vienna OS API Support
+    url: https://regulator.ai/support
+    email: support@regulator.ai
+  license:
+    name: Vienna OS License
+    url: https://regulator.ai/license
+
+servers:
+  - url: https://api.regulator.ai/api/v1
+    description: Production API
+  - url: https://staging.regulator.ai/api/v1
+    description: Staging API
+  - url: http://localhost:3001/api/v1
+    description: Local Development
+
+security:
+  - bearerAuth: []
+  - apiKey: []
+
+paths:
+  # Intent Management
+  /intents:
+    post:
+      tags: [Intents]
+      summary: Submit Intent for Governance
+      description: |
+        Submit a structured intent for governance evaluation and execution authorization.
+        
+        **Flow:**
+        1. Intent submitted with action and parameters
+        2. Risk tier classification (T0-T3)
+        3. Policy evaluation against conditions
+        4. Auto-approval (T0/T1) or human approval required (T2/T3)
+        5. Warrant issued if approved
+        
+        **Risk Tiers:**
+        - **T0**: Read-only, auto-approved
+        - **T1**: Low risk writes, auto-approved  
+        - **T2**: Medium risk, requires 1 approval
+        - **T3**: High risk, requires 2+ approvals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntentSubmission'
+            examples:
+              test_execution:
+                summary: Test execution intent
+                value:
+                  agent_id: "agent_12345"
+                  framework: "openclaw"
+                  action: "test_execution"
+                  params:
+                    mode: "success"
+                    description: "Successful execution test"
+                  objective: "Validate system functionality"
+                  metadata:
+                    version: "1.0.0"
+              file_read:
+                summary: File read (T0 - auto-approved)
+                value:
+                  agent_id: "agent_reader"
+                  framework: "langchain"
+                  action: "file.read"
+                  params:
+                    path: "/data/reports/summary.txt"
+                  objective: "Read quarterly summary"
+      responses:
+        '200':
+          description: Intent approved and warrant issued (T0/T1)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntentApproved'
+        '202':
+          description: Intent pending approval (T2/T3)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntentPending'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimit'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /intents/{intent_id}:
+    get:
+      tags: [Intents]
+      summary: Check Intent Status
+      description: |
+        Check the current status of a submitted intent. Use this to poll for approval
+        status on T2/T3 intents requiring human approval.
+      parameters:
+        - name: intent_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^int_[a-zA-Z0-9_]+$'
+          example: "int_1679834567_abc123"
+      responses:
+        '200':
+          description: Intent status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntentStatus'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # Execution Reporting
+  /executions:
+    post:
+      tags: [Executions]
+      summary: Report Execution Result
+      description: |
+        Report the result of an executed action. Must include the warrant_id that
+        authorized the execution. This creates an immutable audit record.
+        
+        **Required after every warranted action** to maintain compliance.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionReport'
+            examples:
+              success:
+                summary: Successful execution
+                value:
+                  warrant_id: "wrt_1679834567_def456"
+                  agent_id: "agent_12345"
+                  success: true
+                  output: "File read successfully: 1,247 bytes"
+                  metrics:
+                    duration_ms: 150
+                    bytes_read: 1247
+              failure:
+                summary: Failed execution
+                value:
+                  warrant_id: "wrt_1679834567_ghi789"
+                  agent_id: "agent_writer"
+                  success: false
+                  error: "Permission denied: /etc/shadow"
+                  metrics:
+                    duration_ms: 50
+      responses:
+        '200':
+          description: Execution recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionRecorded'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Warrant not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Warrant not found or expired"
+                code: "WARRANT_EXPIRED"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # Agent Management
+  /agents:
+    post:
+      tags: [Agents]
+      summary: Register Agent
+      description: |
+        Register a new agent with Vienna OS. This establishes the agent's identity,
+        capabilities, and framework integration for governance and tracking.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRegistration'
+            example:
+              agent_id: "agent_data_processor"
+              framework: "crewai"
+              name: "Data Processing Agent"
+              capabilities: ["file.read", "file.write", "data.transform"]
+              config:
+                max_file_size: "10MB"
+                allowed_extensions: [".csv", ".json", ".txt"]
+      responses:
+        '201':
+          description: Agent registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentRegistered'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Agent ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Agent ID already exists"
+                code: "AGENT_EXISTS"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /agents/{agent_id}/heartbeat:
+    post:
+      tags: [Agents]
+      summary: Agent Heartbeat
+      description: |
+        Send periodic heartbeat to confirm agent is operational. Vienna OS uses
+        this for fleet monitoring and automatic failover detection.
+        
+        **Recommended interval**: 30-60 seconds
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "agent_data_processor"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [healthy, degraded, error]
+                  default: healthy
+                metrics:
+                  type: object
+                  properties:
+                    cpu_usage:
+                      type: number
+                      minimum: 0
+                      maximum: 100
+                    memory_usage:
+                      type: number
+                      minimum: 0
+                      maximum: 100
+                    active_tasks:
+                      type: integer
+                      minimum: 0
+            example:
+              status: "healthy"
+              metrics:
+                cpu_usage: 23.5
+                memory_usage: 45.2
+                active_tasks: 3
+      responses:
+        '200':
+          description: Heartbeat acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  agent_id:
+                    type: string
+                  acknowledged:
+                    type: boolean
+                  server_time:
+                    type: string
+                    format: date-time
+                example:
+                  success: true
+                  agent_id: "agent_data_processor"
+                  acknowledged: true
+                  server_time: "2026-03-26T18:15:30Z"
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # Warrant Management  
+  /warrants/{warrant_id}:
+    get:
+      tags: [Warrants]
+      summary: Verify Warrant
+      description: |
+        Verify a warrant's validity and retrieve its scope. Use this before
+        executing actions to ensure authorization is still valid.
+        
+        **Warrants expire** - check expiration before use.
+      parameters:
+        - name: warrant_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^wrt_[a-zA-Z0-9_]+$'
+          example: "wrt_1679834567_def456"
+      responses:
+        '200':
+          description: Warrant details and validity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarrantDetails'
+        '404':
+          description: Warrant not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Warrant expired or not found"
+                code: "WARRANT_NOT_FOUND"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # Policy Management
+  /policies:
+    get:
+      tags: [Policies]
+      summary: List Policies
+      description: |
+        List active policies visible to the authenticated agent/tenant.
+        Policies define governance rules that are evaluated during intent submission.
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: type
+          in: query
+          description: Filter by policy type
+          schema:
+            type: string
+            enum: [approval, denial, quota, rate_limit, time_window]
+      responses:
+        '200':
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      policies:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Policy'
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Policies]
+      summary: Create Policy
+      description: |
+        Create a new governance policy. Policies contain conditions that are
+        evaluated against intents and actions that are applied when conditions match.
+        
+        **Admin access required** for policy creation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCreation'
+            examples:
+              file_size_limit:
+                summary: File size limit policy
+                value:
+                  name: "File Size Limit"
+                  description: "Prevent agents from processing files larger than 100MB"
+                  conditions:
+                    - field: "action"
+                      operator: "equals"
+                      value: "file.read"
+                    - field: "params.file_size"
+                      operator: "greater_than"
+                      value: 104857600
+                  actions:
+                    - type: "deny"
+                      message: "File size exceeds 100MB limit"
+                  priority: 100
+              business_hours:
+                summary: Business hours restriction
+                value:
+                  name: "Business Hours Only"
+                  description: "Require approval for T2+ actions outside business hours"
+                  conditions:
+                    - field: "risk_tier"
+                      operator: "in"
+                      value: ["T2", "T3"]
+                    - field: "time.hour"
+                      operator: "not_between"
+                      value: [9, 17]
+                  actions:
+                    - type: "require_approval"
+                      approvers: 2
+                  priority: 200
+      responses:
+        '201':
+          description: Policy created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      policy_id:
+                        type: string
+                      message:
+                        type: string
+                example:
+                  success: true
+                  data:
+                    policy_id: "pol_1679834567_abc123"
+                    message: "Policy 'File Size Limit' created successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # Event Stream
+  /events/stream:
+    get:
+      tags: [Events]
+      summary: SSE Event Stream
+      description: |
+        Server-Sent Events (SSE) stream for real-time event monitoring.
+        
+        **Event Types:**
+        - `intent.submitted`, `intent.approved`, `intent.denied`
+        - `execution.started`, `execution.completed`
+        - `warrant.issued`, `warrant.expired`
+        - `agent.registered`, `agent.heartbeat`, `agent.offline`
+        - `policy.created`, `policy.updated`, `policy.triggered`
+        
+        **Connection Management:**
+        - Keep-alive: 30 seconds
+        - Auto-reconnect recommended with exponential backoff
+        - Filter events using `types` query parameter
+      parameters:
+        - name: types
+          in: query
+          description: Comma-separated event types to subscribe to
+          schema:
+            type: string
+          example: "intent.approved,execution.completed,agent.offline"
+        - name: agent_id
+          in: query
+          description: Filter events for specific agent
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  Server-sent events in the format:
+                  ```
+                  event: intent.approved
+                  data: {"intent_id": "int_123", "warrant_id": "wrt_456"}
+                  
+                  event: execution.completed
+                  data: {"execution_id": "exec_789", "success": true}
+                  ```
+              example: |
+                event: intent.approved
+                data: {"intent_id": "int_1679834567_abc123", "warrant_id": "wrt_1679834567_def456", "risk_tier": "T1"}
+
+                event: execution.completed  
+                data: {"execution_id": "exec_1679834567_ghi789", "success": true, "duration_ms": 1250}
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Authentication
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register Tenant
+      description: |
+        Create new tenant account with first admin user. This establishes
+        a new organization within Vienna OS with isolated resources.
+        
+        **Plans Available:**
+        - **Community** (Free): 5 agents, 10 policies
+        - **Team** ($29/month): 25 agents, 50 policies  
+        - **Business** ($99/month): 100 agents, 100 policies
+        - **Enterprise** (Custom): Unlimited agents/policies
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Admin user email
+                password:
+                  type: string
+                  minLength: 8
+                  description: Admin user password (minimum 8 characters)
+                name:
+                  type: string
+                  description: Admin user display name
+                company:
+                  type: string
+                  description: Organization/company name
+                plan:
+                  type: string
+                  enum: [community, team, business, enterprise]
+                  default: community
+            example:
+              email: "admin@acme.com"
+              password: "SecurePassword123!"
+              name: "John Smith"
+              company: "Acme Corporation"
+              plan: "business"
+      responses:
+        '201':
+          description: Tenant and admin user created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "User already exists"
+                code: "USER_EXISTS"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: |
+        Authenticate with email and password to receive JWT access and refresh tokens.
+        
+        **Token Lifetimes:**
+        - Access token: 15 minutes
+        - Refresh token: 30 days
+        
+        Use the access token in `Authorization: Bearer <token>` header for API requests.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              email: "admin@acme.com"
+              password: "SecurePassword123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error: "Invalid credentials"
+                code: "INVALID_CREDENTIALS"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /auth/api-keys:
+    post:
+      tags: [Auth]
+      summary: Create API Key
+      description: |
+        Create a new API key for programmatic access. API keys are prefixed with `vos_`
+        and provide specific scopes for agent frameworks.
+        
+        **Security**: API keys are returned only once. Store securely.
+        
+        **Scopes Available:**
+        - `intent:submit` - Submit intents for approval
+        - `execution:report` - Report execution results
+        - `policy:read` - Read policies
+        - `policy:write` - Create/update policies (admin)
+        - `admin:read` - Read admin resources
+        - `admin:write` - Modify admin resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  description: Human-readable key name
+                scopes:
+                  type: array
+                  items:
+                    type: string
+                    enum: [intent:submit, execution:report, policy:read, policy:write, admin:read, admin:write]
+                  default: [intent:submit, execution:report]
+                agentId:
+                  type: string
+                  description: Bind key to specific agent ID
+                rateLimit:
+                  type: integer
+                  minimum: 1
+                  maximum: 10000
+                  default: 1000
+                  description: Requests per hour
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: Key expiration (optional)
+            example:
+              name: "Production Agent Key"
+              scopes: ["intent:submit", "execution:report"]
+              agentId: "agent_data_processor"
+              rateLimit: 2000
+      responses:
+        '201':
+          description: API key created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      apiKey:
+                        type: string
+                        description: Full API key (vos_ prefixed)
+                      scopes:
+                        type: array
+                        items:
+                          type: string
+                      agentId:
+                        type: string
+                      rateLimit:
+                        type: integer
+                      expiresAt:
+                        type: string
+                        format: date-time
+                      message:
+                        type: string
+                example:
+                  success: true
+                  data:
+                    id: "key_1679834567_abc123"
+                    name: "Production Agent Key"
+                    apiKey: "vos_1679834567_def456_abcdefghijklmnopqrstuvwxyz"
+                    scopes: ["intent:submit", "execution:report"]
+                    agentId: "agent_data_processor"
+                    rateLimit: 2000
+                    message: "Store this API key securely. It will not be shown again."
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token from login
+    apiKey:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: API key with vos_ prefix
+
+  schemas:
+    # Intent Schemas
+    IntentSubmission:
+      type: object
+      required: [agent_id, framework, action, params, objective]
+      properties:
+        agent_id:
+          type: string
+          description: Unique identifier for the submitting agent
+          example: "agent_data_processor"
+        framework:
+          type: string
+          description: Agent framework (openclaw, langchain, crewai, etc.)
+          enum: [openclaw, langchain, crewai, autogen, openai, google_adk, custom]
+          example: "openclaw"
+        action:
+          type: string
+          description: Action to be executed
+          example: "file.read"
+        params:
+          type: object
+          description: Action-specific parameters
+          example:
+            path: "/data/reports/summary.txt"
+            encoding: "utf-8"
+        objective:
+          type: string
+          description: Human-readable description of the intent
+          example: "Read quarterly summary report for analysis"
+        metadata:
+          type: object
+          description: Additional context and metadata
+          properties:
+            version:
+              type: string
+            priority:
+              type: string
+              enum: [low, normal, high, urgent]
+            tags:
+              type: array
+              items:
+                type: string
+
+    IntentApproved:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        intent_id:
+          type: string
+          pattern: '^int_[a-zA-Z0-9_]+$'
+        status:
+          type: string
+          enum: [approved]
+        risk_tier:
+          type: string
+          enum: [T0, T1, T2, T3]
+        warrant_id:
+          type: string
+          pattern: '^wrt_[a-zA-Z0-9_]+$'
+        warrant:
+          $ref: '#/components/schemas/Warrant'
+        timestamp:
+          type: string
+          format: date-time
+
+    IntentPending:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        intent_id:
+          type: string
+          pattern: '^int_[a-zA-Z0-9_]+$'
+        status:
+          type: string
+          enum: [pending]
+        risk_tier:
+          type: string
+          enum: [T2, T3]
+        approval_id:
+          type: string
+          pattern: '^app_[a-zA-Z0-9_]+$'
+        approval_required:
+          type: integer
+          minimum: 1
+        message:
+          type: string
+        poll_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+
+    IntentStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+        intent_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, denied, expired]
+        warrant_id:
+          type: string
+          description: Present if approved
+        denial_reason:
+          type: string
+          description: Present if denied
+        expires_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Execution Schemas
+    ExecutionReport:
+      type: object
+      required: [warrant_id, agent_id, success]
+      properties:
+        warrant_id:
+          type: string
+          pattern: '^wrt_[a-zA-Z0-9_]+$'
+          description: Warrant that authorized this execution
+        agent_id:
+          type: string
+          description: Agent that performed the execution
+        success:
+          type: boolean
+          description: Whether execution succeeded
+        output:
+          type: string
+          description: Execution output (if successful)
+        error:
+          type: string
+          description: Error details (if failed)
+        metrics:
+          type: object
+          properties:
+            duration_ms:
+              type: integer
+              minimum: 0
+            bytes_processed:
+              type: integer
+              minimum: 0
+            cpu_usage:
+              type: number
+              minimum: 0
+            memory_usage:
+              type: number
+              minimum: 0
+
+    ExecutionRecorded:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        execution_id:
+          type: string
+          pattern: '^exec_[a-zA-Z0-9_]+$'
+        warrant_id:
+          type: string
+        recorded:
+          type: boolean
+        verified:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+
+    # Agent Schemas
+    AgentRegistration:
+      type: object
+      required: [agent_id, name]
+      properties:
+        agent_id:
+          type: string
+          description: Unique agent identifier
+          pattern: '^[a-zA-Z0-9_-]+$'
+        framework:
+          type: string
+          enum: [openclaw, langchain, crewai, autogen, openai, google_adk, custom]
+        name:
+          type: string
+          description: Human-readable agent name
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: List of actions this agent can perform
+        config:
+          type: object
+          description: Agent-specific configuration
+
+    AgentRegistered:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        agent_id:
+          type: string
+        registered:
+          type: boolean
+          enum: [true]
+        framework:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        registered_at:
+          type: string
+          format: date-time
+
+    # Warrant Schemas
+    Warrant:
+      type: object
+      properties:
+        warrant_id:
+          type: string
+          pattern: '^wrt_[a-zA-Z0-9_]+$'
+        issued_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        risk_tier:
+          type: string
+          enum: [T0, T1, T2, T3]
+        allowed_actions:
+          type: array
+          items:
+            type: string
+        agent_id:
+          type: string
+        framework:
+          type: string
+        scope:
+          type: object
+          description: Action-specific scope restrictions
+
+    WarrantDetails:
+      type: object
+      properties:
+        success:
+          type: boolean
+        warrant_id:
+          type: string
+        valid:
+          type: boolean
+        warrant:
+          $ref: '#/components/schemas/Warrant'
+        expires_in_seconds:
+          type: integer
+          description: Seconds until expiration
+
+    # Policy Schemas
+    Policy:
+      type: object
+      properties:
+        policy_id:
+          type: string
+          pattern: '^pol_[a-zA-Z0-9_]+$'
+        name:
+          type: string
+        description:
+          type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyCondition'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyAction'
+        priority:
+          type: integer
+        enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+
+    PolicyCondition:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Field path to evaluate (e.g., "action", "params.file_size")
+        operator:
+          type: string
+          enum: [equals, not_equals, greater_than, less_than, contains, in, not_in, between, not_between, regex]
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: array
+        case_sensitive:
+          type: boolean
+          default: true
+
+    PolicyAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [allow, deny, require_approval, set_quota, rate_limit, log, alert]
+        message:
+          type: string
+          description: Human-readable message
+        approvers:
+          type: integer
+          minimum: 1
+          description: Required approvers (for require_approval)
+        quota:
+          type: object
+          description: Quota settings (for set_quota)
+        rate:
+          type: object
+          description: Rate limit settings (for rate_limit)
+
+    PolicyCreation:
+      type: object
+      required: [name, conditions, actions]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyCondition'
+          minItems: 1
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyAction'
+          minItems: 1
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+
+    # Auth Schemas
+    RegisterResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+            tenant:
+              type: object
+              properties:
+                id:
+                  type: string
+                slug:
+                  type: string
+                plan:
+                  type: string
+            tokens:
+              $ref: '#/components/schemas/TokenPair'
+        timestamp:
+          type: string
+          format: date-time
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                email:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+            tenant:
+              type: object
+              properties:
+                id:
+                  type: string
+            tokens:
+              $ref: '#/components/schemas/TokenPair'
+        timestamp:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token (15 min lifetime)
+        refreshToken:
+          type: string
+          description: Refresh token (30 day lifetime)
+        expiresIn:
+          type: integer
+          description: Access token expiration in seconds
+
+    # Common Schemas
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        details:
+          type: object
+          description: Additional error context
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Missing required field: agent_id"
+            code: "VALIDATION_ERROR"
+            timestamp: "2026-03-26T18:15:30Z"
+
+    Unauthorized:
+      description: Authentication required or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Invalid or expired authentication token"
+            code: "AUTH_INVALID"
+            timestamp: "2026-03-26T18:15:30Z"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Insufficient permissions for this action"
+            code: "PERMISSION_DENIED"
+            timestamp: "2026-03-26T18:15:30Z"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Resource not found"
+            code: "NOT_FOUND"
+            timestamp: "2026-03-26T18:15:30Z"
+
+    RateLimit:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Rate limit exceeded. Try again in 60 seconds"
+            code: "RATE_LIMIT_EXCEEDED"
+            details:
+              retry_after_seconds: 60
+              limit: 100
+              reset_time: "2026-03-26T18:16:30Z"
+            timestamp: "2026-03-26T18:15:30Z"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "An internal error occurred"
+            code: "INTERNAL_ERROR"
+            timestamp: "2026-03-26T18:15:30Z"
+
+tags:
+  - name: Intents
+    description: |
+      Submit intents for governance evaluation and warrant issuance.
+      Core Vienna OS workflow for authorized action execution.
+  - name: Executions
+    description: |
+      Report execution results to maintain audit compliance.
+      Required after every warranted action.
+  - name: Agents
+    description: |
+      Agent registration and fleet management.
+      Establish agent identity and monitor operational status.
+  - name: Warrants
+    description: |
+      Warrant verification and scope validation.
+      Authorize specific actions within defined parameters.
+  - name: Policies
+    description: |
+      Governance policy management and evaluation.
+      Define rules that control agent behavior and approvals.
+  - name: Events
+    description: |
+      Real-time event streaming via Server-Sent Events.
+      Monitor Vienna OS operations and state changes.
+  - name: Auth
+    description: |
+      Authentication, authorization, and API key management.
+      Multi-tenant access control and credential management.
+
+externalDocs:
+  description: Vienna OS Documentation
+  url: https://docs.regulator.ai

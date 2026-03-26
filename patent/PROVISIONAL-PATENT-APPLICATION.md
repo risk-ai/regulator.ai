@@ -12,7 +12,7 @@
 
 ### INVENTOR(S)
 
-**Max Anderson**
+**Maxwell Anderson**
 [Address]
 [City, State, ZIP]
 Citizenship: United States
@@ -21,9 +21,9 @@ Citizenship: United States
 
 ### APPLICANT
 
-Technetwork 2 LLC dba ai.ventures
-244 5th Avenue #2283
-New York, NY 10001
+Maxwell Anderson
+[Address]
+[City, State, ZIP]
 
 ---
 
@@ -54,6 +54,8 @@ Current approaches to AI agent governance suffer from significant limitations:
 What is needed is a framework-agnostic governance control plane that interposes a cryptographic execution control system between agent intent and action execution, providing risk-tiered authorization, cryptographically bound capability tokens with scope constraints, an execution isolation layer that prevents agent-side invocation, post-execution trace verification, and an immutable audit trail.
 
 ### SUMMARY OF THE INVENTION
+
+In certain embodiments, the system is implemented as an operating layer referred to as "Vienna OS," representing a governed execution runtime for autonomous systems.
 
 The present invention provides a governed execution system for untrusted autonomous execution actors (including but not limited to AI agents, automated scripts, API clients, and autonomous devices) comprising:
 
@@ -129,6 +131,8 @@ This architecture is distinguished from conventional authorization systems (OAut
 │  (APIs, databases, infrastructure, external services)        │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+The architecture illustrated in FIG. 1 is exemplary and not limiting; variations in component arrangement, communication protocols, and implementation details may be employed without departing from the scope of the invention.
 
 #### 2. Intent Gateway
 
@@ -492,7 +496,13 @@ The system supports multiple independent tenants (organizations) within a single
 
 ### CLAIMS
 
-**Claim 1.** A computer-implemented system for governing execution of actions requested by autonomous software agents, comprising:
+**Claim 1.** A system for governing execution of actions requested by an autonomous system, comprising:
+- receiving a request for execution of an action from an autonomous execution actor;
+- determining whether the action is authorized under a defined set of constraints;
+- issuing a bounded authorization artifact representing permission to execute the action, wherein the authorization artifact cryptographically binds the defined constraints such that any modification to the constraints renders the artifact invalid; and
+- executing the action through a controlled execution layer that enforces the constraints of the authorization artifact, wherein the autonomous execution actor is architecturally prevented from executing the action directly.
+
+**Claim 2.** A computer-implemented system for governing execution of actions requested by autonomous software agents, comprising:
 
 (a) a processor and a memory storing instructions that, when executed by the processor, cause the system to:
 
@@ -519,26 +529,26 @@ The system supports multiple independent tenants (organizations) within a single
 
 (i) record, in an immutable audit ledger, tamper-evident entries for each step of the authorization and execution lifecycle.
 
-**Claim 2.** The system of claim 1, wherein the cryptographic signature of the capability token is computed using one or more of: HMAC-SHA256, RSA digital signatures, ECDSA, Ed25519, JWT with signed claims, or hardware-backed key operations via a Trusted Platform Module (TPM) or Hardware Security Module (HSM).
+**Claim 3.** The system of claim 2, wherein the cryptographic signature of the capability token is computed using one or more of: HMAC-SHA256, RSA digital signatures, ECDSA, Ed25519, JWT with signed claims, or hardware-backed key operations via a Trusted Platform Module (TPM) or Hardware Security Module (HSM).
 
-**Claim 3.** The system of claim 1, wherein the risk classification module assigns risk tiers with inversely proportional capability token time-to-live values, such that a highest risk tier has a maximum time-to-live of five minutes and a lowest risk tier has a maximum time-to-live of sixty minutes.
+**Claim 4.** The system of claim 2, wherein the risk classification module assigns risk tiers with inversely proportional capability token time-to-live values, such that a highest risk tier has a maximum time-to-live of five minutes and a lowest risk tier has a maximum time-to-live of sixty minutes.
 
-**Claim 4.** The system of claim 1, wherein a highest risk tier requires authorization from a plurality of independent human approvers, and wherein the capability token embeds the full chain of approver identities, and wherein optionally a threshold signature scheme is employed such that no single approver possesses the complete signing key.
+**Claim 5.** The system of claim 2, wherein a highest risk tier requires authorization from a plurality of independent human approvers, and wherein the capability token embeds the full chain of approver identities, and wherein optionally a threshold signature scheme is employed such that no single approver possesses the complete signing key.
 
-**Claim 5.** The system of claim 1, further comprising a behavioral anomaly detection module configured to:
+**Claim 6.** The system of claim 2, further comprising a behavioral anomaly detection module configured to:
 - maintain per-agent statistical baselines of action velocity, error rate, action diversity, and temporal patterns over rolling time windows;
 - detect deviations exceeding a configurable threshold from established baselines; and
 - automatically reduce an agent's trust score upon anomaly detection, causing the risk classification module to escalate the agent's required approval tier.
 
-**Claim 6.** The system of claim 1, further comprising a chaos simulation engine configured to validate governance policy effectiveness by simulating adversarial behaviors including intent flooding, scope escalation, expired token exploitation, and parameter tampering, and producing a structured report of governance control activations.
+**Claim 7.** The system of claim 2, further comprising a chaos simulation engine configured to validate governance policy effectiveness by simulating adversarial behaviors including intent flooding, scope escalation, expired token exploitation, and parameter tampering, and producing a structured report of governance control activations.
 
-**Claim 7.** The system of claim 1, wherein the execution isolation layer enforces separation through at least: (a) network-level isolation preventing agent runtimes from reaching execution endpoints, and (b) credential isolation wherein execution credentials are held exclusively by the trusted execution intermediary and are never exposed to software agents.
+**Claim 8.** The system of claim 2, wherein the execution isolation layer enforces separation through at least: (a) network-level isolation preventing agent runtimes from reaching execution endpoints, and (b) credential isolation wherein execution credentials are held exclusively by the trusted execution intermediary and are never exposed to software agents.
 
-**Claim 8.** The system of claim 1, wherein the structured execution trace further comprises network call records including destination addresses, HTTP methods, request paths, and response codes, and wherein the verification engine compares each network call against the capability token's allowed resource scope.
+**Claim 9.** The system of claim 2, wherein the structured execution trace further comprises network call records including destination addresses, HTTP methods, request paths, and response codes, and wherein the verification engine compares each network call against the capability token's allowed resource scope.
 
-**Claim 9.** The system of claim 1, wherein the verification engine classifies scope drift into a plurality of severity levels including: hard drift requiring automatic rollback, soft drift generating a warning, and timing violations requiring human review of quarantined results.
+**Claim 10.** The system of claim 2, wherein the verification engine classifies scope drift into a plurality of severity levels including: hard drift requiring automatic rollback, soft drift generating a warning, and timing violations requiring human review of quarantined results.
 
-**Claim 10.** A computer-implemented method for authorizing and governing execution of actions requested by untrusted autonomous execution actors, comprising:
+**Claim 11.** A computer-implemented method for authorizing and governing execution of actions requested by untrusted autonomous execution actors, comprising:
 
 (a) receiving, at an intent gateway, a structured action proposal from an untrusted autonomous execution actor, the action proposal comprising at least an action type, parameters, and an actor identifier;
 
@@ -550,28 +560,28 @@ The system supports multiple independent tenants (organizations) within a single
 
 (e) upon authorization, generating a cryptographically bound capability token specifying the authorized action scope, parameter constraints, and a time-to-live inversely proportional to the risk tier, wherein the scope and constraints are cryptographically bound to the token's signature;
 
-(f) enforcing an execution isolation boundary that prevents the software agent from directly invoking execution endpoints;
+(f) enforcing an execution isolation boundary that prevents the autonomous execution actor from directly invoking execution endpoints;
 
-(g) executing, by a trusted execution intermediary, the authorized action on behalf of the agent after verifying the capability token's cryptographic signature and expiration, and recording a structured execution trace during execution;
+(g) executing, by a trusted execution intermediary, the authorized action on behalf of the actor after verifying the capability token's cryptographic signature and expiration, and recording a structured execution trace during execution;
 
 (h) verifying, by comparing the execution trace against the capability token's pre-authorized constraints, that the execution conformed to the authorized scope, and emitting alerts for detected deviations; and
 
 (i) recording each step of the authorization and execution lifecycle in an immutable audit ledger.
 
-**Claim 11.** The method of claim 10, further comprising:
-- maintaining per-agent behavioral baselines over rolling time windows;
-- detecting statistical anomalies in agent behavior exceeding a configurable threshold; and
-- automatically escalating the agent's required risk tier upon anomaly detection.
+**Claim 12.** The method of claim 11, further comprising:
+- maintaining per-actor behavioral baselines over rolling time windows;
+- detecting statistical anomalies in actor behavior exceeding a configurable threshold; and
+- automatically escalating the actor's required risk tier upon anomaly detection.
 
-**Claim 12.** The method of claim 10, further comprising responding to a tampered or expired capability token by: denying execution, emitting a critical security event to the audit ledger, reducing the requesting agent's trust score, and alerting human operators.
+**Claim 13.** The method of claim 11, further comprising responding to a tampered or expired capability token by: denying execution, emitting a critical security event to the audit ledger, reducing the requesting actor's trust score, and alerting human operators.
 
-**Claim 13.** The method of claim 10, wherein the method is applied to govern actions requested by non-agent automated systems including API clients, CI/CD pipelines, automated scripts, and IoT devices, using the same capability token authorization and execution isolation mechanisms.
+**Claim 14.** The method of claim 11, wherein the method is applied to govern actions requested by non-agent automated systems including API clients, CI/CD pipelines, automated scripts, and IoT devices, using the same capability token authorization and execution isolation mechanisms.
 
-**Claim 14.** The system of claim 1, wherein the capability token further comprises a reference to a system state snapshot, and wherein the trusted execution intermediary verifies that the current system state matches the referenced snapshot before execution, preventing use of the token in a changed context.
+**Claim 15.** The system of claim 2, wherein the capability token further comprises a reference to a system state snapshot, and wherein the trusted execution intermediary verifies that the current system state matches the referenced snapshot before execution, preventing use of the token in a changed context.
 
-**Claim 15.** The system of claim 1, further comprising an execution trace verification feedback loop wherein:
+**Claim 16.** The system of claim 2, further comprising an execution trace verification feedback loop wherein:
 - verification results from the verification engine are fed back into the policy engine to dynamically adapt governance rules based on observed execution patterns;
-- successful executions with zero scope drift incrementally increase the requesting agent's trust score, and drift events decrease the trust score proportionally to severity, causing the risk classification module to dynamically adjust the agent's effective risk tier for subsequent action proposals; and
+- successful executions with zero scope drift incrementally increase the requesting actor's trust score, and drift events decrease the trust score proportionally to severity, causing the risk classification module to dynamically adjust the actor's effective risk tier for subsequent action proposals; and
 - aggregate verification data across multiple executions informs the warrant authority's default constraint generation, progressively tightening authorized scope for action types that historically use a narrower range of resources than currently permitted.
 
 ### ABSTRACT

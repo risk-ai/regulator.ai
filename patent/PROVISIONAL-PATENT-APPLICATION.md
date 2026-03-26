@@ -581,6 +581,33 @@ The system supports multiple independent tenants (organizations) within a single
 
 A system and method for governing the execution of actions requested by untrusted autonomous execution actors—including AI agents, automated scripts, API clients, and autonomous devices—through a cryptographic execution control architecture. The system interposes an execution isolation layer between execution actor runtimes and execution endpoints, architecturally preventing execution actors from directly invoking execution resources. Untrusted autonomous execution actors propose structured intents which are evaluated by a policy engine, classified into risk tiers with escalating approval requirements, and authorized through cryptographically bound capability tokens that specify scope constraints, parameter bounds, and time-to-live inversely proportional to risk level. A trusted execution intermediary performs authorized actions on behalf of agents after verifying the token's cryptographic signature and scope constraints, recording a structured execution trace. A post-execution verification engine compares the execution trace against pre-authorized constraints to detect scope drift, parameter violations, and timing deviations. A behavioral anomaly detection system maintains per-agent baselines and escalates approval requirements upon detecting statistical deviations. The system defends against compromised agents, replay attacks, scope escalation, parameter tampering, and insider threats. All governance events are recorded in a tamper-evident audit ledger. The architecture is framework-agnostic and applicable to AI agents, API clients, automated scripts, and IoT devices.
 
+<<<<<<< HEAD
+=======
+---
+
+### FILING NOTES
+
+**Status:** ✅ FILED — March 26, 2026, 7:11:47 PM ET
+**Application #:** 64/018,152
+**Confirmation #:** 3294
+**Patent Center #:** 75037308
+**Filing type:** Utility — Provisional Application (35 U.S.C. §111(b))
+**Filing fee:** $65 (micro entity)
+**Filed by:** Maxwell Anderson
+**Technology center:** TC 2400 (Computer Networks, Multiplex, Cable, and Cryptography/Security)
+
+**Deadlines:**
+- Non-provisional filing deadline: March 26, 2027 (12 months from priority date)
+
+**Next steps:**
+1. ✅ ~~Receive provisional application number~~ — 64/018,152
+2. Use "Patent Pending" on all materials (regulator.ai, marketing site, README, pitch decks)
+3. Within 12 months: file non-provisional utility patent application referencing this provisional
+4. Engage patent attorney for non-provisional claims refinement
+
+---
+
+>>>>>>> 0f0d25e (patent: FILED — USPTO Application #64/018,152, March 26, 2026)
 *Prepared: March 26, 2026*
 *Revised: March 26, 2026 — Incorporating patent-level review recommendations*
-*This document is intended as a draft provisional patent application. The inventor should review all claims and technical descriptions for accuracy before filing.*
+*Filed: March 26, 2026 — USPTO Application #64/018,152*

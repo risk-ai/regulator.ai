@@ -6,6 +6,7 @@
 /* Import Vienna Design System */
 @import './styles/variables.css';
 @import './styles/base.css';
+@import './styles/animations.css';
 @import './styles/presentation.css';
 
 /* Import Tailwind */

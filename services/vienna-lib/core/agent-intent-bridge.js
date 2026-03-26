@@ -162,15 +162,18 @@ class AgentIntentBridge {
    * @private
    */
   _authenticateRequest(agentRequest, authContext) {
-    // Validate source.platform (accept both "openclaw" string OR source.platform object)
+    // Validate source.platform (accept multiple valid sources)
     const sourcePlatform = typeof agentRequest.source === 'string' 
       ? agentRequest.source 
       : agentRequest.source?.platform;
     
-    if (sourcePlatform !== 'openclaw') {
+    // Allowed sources: openclaw (agents), web (marketing /try page), api (direct API), try (demo)
+    const validSources = ['openclaw', 'web', 'api', 'try'];
+    
+    if (!sourcePlatform || !validSources.includes(sourcePlatform)) {
       return {
         valid: false,
-        error: 'source must be "openclaw" or source.platform must be "openclaw"'
+        error: `Invalid source. Must be one of: ${validSources.join(', ')}`
       };
     }
 

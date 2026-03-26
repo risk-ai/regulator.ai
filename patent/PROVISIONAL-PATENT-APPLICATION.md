@@ -27,12 +27,6 @@ New York, NY 10001
 
 ---
 
-### CROSS-REFERENCE TO RELATED APPLICATIONS
-
-This application claims the benefit of U.S. Provisional Patent Application filed on [DATE], the entirety of which is incorporated herein by reference.
-
----
-
 ## SPECIFICATION
 
 ### FIELD OF THE INVENTION
@@ -61,9 +55,9 @@ What is needed is a framework-agnostic governance control plane that interposes 
 
 ### SUMMARY OF THE INVENTION
 
-The present invention provides a governed execution system for autonomous AI agents comprising:
+The present invention provides a governed execution system for untrusted autonomous execution actors (including but not limited to AI agents, automated scripts, API clients, and autonomous devices) comprising:
 
-(a) An **Intent Gateway** that receives structured action proposals ("intents") from AI agents across heterogeneous agent frameworks, normalizing them into a canonical format for governance evaluation;
+(a) An **Intent Gateway** that receives structured action proposals ("intents") from untrusted autonomous execution actors across heterogeneous agent frameworks, normalizing them into a canonical format for governance evaluation;
 
 (b) A **Policy Engine** that evaluates each intent against a configurable set of governance policies, including condition-based rules, natural language-defined policies, and AI-suggested policies derived from behavioral pattern analysis;
 
@@ -85,7 +79,7 @@ The present invention provides a governed execution system for autonomous AI age
 
 #### 1. System Architecture Overview
 
-The governed execution system ("Vienna OS" in the preferred embodiment) operates as a middleware layer positioned between AI agent runtimes and execution endpoints. The system is framework-agnostic, communicating with agents through a standardized REST API and client SDKs.
+The governed execution system ("Vienna OS" in the preferred embodiment) operates as a middleware layer positioned between untrusted autonomous execution actors (hereinafter "execution actors," encompassing AI agent runtimes, automated scripts, API clients, and autonomous devices) and execution endpoints. The system is framework-agnostic, communicating with agents through a standardized REST API and client SDKs.
 
 The system implements a **cryptographic execution control architecture** in which:
 - Agents may only propose actions (intents); they cannot invoke execution endpoints
@@ -393,7 +387,21 @@ Verification failures are classified by severity:
 - **Soft drift:** Execution parameters slightly outside bounds but within tolerance → warning emitted, agent trust score reduced by configurable amount
 - **Timing violation:** Execution completed after warrant expiry → result quarantined pending human review
 
-#### 9. Behavioral Anomaly Detection
+#### 9. Execution Trace Verification Feedback Loop
+
+A distinguishing feature of the present invention is that verification results are not merely logged—they feed back into the governance system to dynamically adapt authorization policy. This creates a closed-loop governance system that learns from execution outcomes:
+
+**(a) Policy engine feedback:** Verification results (scope drift events, constraint violations, timing violations) are ingested by the Policy Engine as historical evidence. When repeated drift patterns are detected for a specific action type, agent, or resource category, the Policy Engine may automatically propose or activate stricter governance rules. For example, if an agent's executions consistently approach parameter constraint boundaries, the system may tighten those constraints or escalate the required approval tier for that agent's future intents.
+
+**(b) Agent trust score adjustment:** Verification outcomes directly modify the requesting agent's trust score. Successful executions with zero drift incrementally increase trust (enabling faster approval for low-risk actions over time). Drift events decrease trust proportionally to severity. Trust score changes propagate to the Risk Classification Module, dynamically shifting the agent's effective risk tier for subsequent intents. An agent that repeatedly produces clean executions may eventually qualify for automatic T1 approval on actions that previously required T2 human approval; conversely, an agent producing drift events is automatically escalated to stricter oversight.
+
+**(c) Anomaly detection baseline update:** Verification results update the Behavioral Anomaly Detection System's per-agent baselines. Drift events are incorporated as negative signals, refining the statistical model of expected agent behavior and improving future anomaly detection accuracy.
+
+**(d) Warrant constraint refinement:** Aggregate verification data across many executions informs the Warrant Authority's constraint generation. If historical traces show that a particular action type consistently uses resources within a narrower range than the current constraints allow, the system may suggest tighter default constraints for future warrants of that type, reducing the attack surface.
+
+This feedback loop transforms the governance system from a static rule-enforcement mechanism into an adaptive control system that continuously improves its authorization precision based on observed execution behavior.
+
+#### 10. Behavioral Anomaly Detection
 
 The system maintains per-agent statistical baselines using rolling time windows. For each agent, the system tracks:
 - Action velocity (intents per hour)
@@ -411,7 +419,7 @@ Anomalies are detected when an agent's behavior deviates beyond a configurable t
 
 Detected anomalies automatically reduce the agent's trust score, which can trigger policy escalation (e.g., a trusted T1 agent is temporarily escalated to T2 approval requirements).
 
-#### 10. Chaos Simulation Engine
+#### 11. Chaos Simulation Engine
 
 The system includes a red team simulation capability for validating governance policy effectiveness. Operators can simulate adversarial agent behaviors including:
 
@@ -424,7 +432,7 @@ The system includes a red team simulation capability for validating governance p
 
 Each simulation produces a structured report indicating which governance controls activated and whether the adversarial behavior was successfully contained.
 
-#### 11. Attack Scenario Mitigation
+#### 12. Attack Scenario Mitigation
 
 The system is designed to defend against specific attack scenarios relevant to autonomous AI agent systems:
 
@@ -464,7 +472,7 @@ A human operator with approval authority attempts to authorize an action outside
 
 *Mitigation:* For T3 (highest risk) actions, multi-party approval is required—no single operator can authorize alone. The audit ledger records the identity of every approver in the warrant's approval chain. Threshold signature schemes (when employed) ensure no single party possesses the complete signing key.
 
-#### 12. Non-Agent Use Cases (Generalized Applicability)
+#### 13. Non-Agent Use Cases (Generalized Applicability)
 
 While the preferred embodiment governs AI agent actions, the invention's architecture is applicable to any system requiring governed execution with cryptographic authorization:
 
@@ -478,7 +486,7 @@ While the preferred embodiment governs AI agent actions, the invention's archite
 
 5. **Multi-Tenant SaaS Governance:** SaaS platforms can use the warrant system to govern cross-tenant operations, ensuring that administrative actions affecting tenant data require cryptographically bound authorization with a full audit trail.
 
-#### 13. Multi-Tenant Isolation
+#### 14. Multi-Tenant Isolation
 
 The system supports multiple independent tenants (organizations) within a single deployment. Tenant isolation is enforced at the data layer through row-level security, at the API layer through JWT-based authentication with tenant context, and at the event layer through filtered Server-Sent Events streams. Each tenant has independent policies, agents, warrants, and audit trails.
 
@@ -530,9 +538,9 @@ The system supports multiple independent tenants (organizations) within a single
 
 **Claim 9.** The system of claim 1, wherein the verification engine classifies scope drift into a plurality of severity levels including: hard drift requiring automatic rollback, soft drift generating a warning, and timing violations requiring human review of quarantined results.
 
-**Claim 10.** A computer-implemented method for authorizing and governing execution of autonomous software agent actions, comprising:
+**Claim 10.** A computer-implemented method for authorizing and governing execution of actions requested by untrusted autonomous execution actors, comprising:
 
-(a) receiving, at an intent gateway, a structured action proposal from an autonomous software agent, the action proposal comprising at least an action type, parameters, and an agent identifier;
+(a) receiving, at an intent gateway, a structured action proposal from an untrusted autonomous execution actor, the action proposal comprising at least an action type, parameters, and an actor identifier;
 
 (b) evaluating the action proposal against a set of governance rules;
 
@@ -561,9 +569,14 @@ The system supports multiple independent tenants (organizations) within a single
 
 **Claim 14.** The system of claim 1, wherein the capability token further comprises a reference to a system state snapshot, and wherein the trusted execution intermediary verifies that the current system state matches the referenced snapshot before execution, preventing use of the token in a changed context.
 
+**Claim 15.** The system of claim 1, further comprising an execution trace verification feedback loop wherein:
+- verification results from the verification engine are fed back into the policy engine to dynamically adapt governance rules based on observed execution patterns;
+- successful executions with zero scope drift incrementally increase the requesting agent's trust score, and drift events decrease the trust score proportionally to severity, causing the risk classification module to dynamically adjust the agent's effective risk tier for subsequent action proposals; and
+- aggregate verification data across multiple executions informs the warrant authority's default constraint generation, progressively tightening authorized scope for action types that historically use a narrower range of resources than currently permitted.
+
 ### ABSTRACT
 
-A system and method for governing the execution of autonomous AI agent actions through a cryptographic execution control architecture. The system interposes an execution isolation layer between AI agent runtimes and execution endpoints, architecturally preventing agents from directly invoking execution resources. Agents propose structured intents which are evaluated by a policy engine, classified into risk tiers with escalating approval requirements, and authorized through cryptographically bound capability tokens that specify scope constraints, parameter bounds, and time-to-live inversely proportional to risk level. A trusted execution intermediary performs authorized actions on behalf of agents after verifying the token's cryptographic signature and scope constraints, recording a structured execution trace. A post-execution verification engine compares the execution trace against pre-authorized constraints to detect scope drift, parameter violations, and timing deviations. A behavioral anomaly detection system maintains per-agent baselines and escalates approval requirements upon detecting statistical deviations. The system defends against compromised agents, replay attacks, scope escalation, parameter tampering, and insider threats. All governance events are recorded in a tamper-evident audit ledger. The architecture is framework-agnostic and applicable to AI agents, API clients, automated scripts, and IoT devices.
+A system and method for governing the execution of actions requested by untrusted autonomous execution actors—including AI agents, automated scripts, API clients, and autonomous devices—through a cryptographic execution control architecture. The system interposes an execution isolation layer between execution actor runtimes and execution endpoints, architecturally preventing execution actors from directly invoking execution resources. Untrusted autonomous execution actors propose structured intents which are evaluated by a policy engine, classified into risk tiers with escalating approval requirements, and authorized through cryptographically bound capability tokens that specify scope constraints, parameter bounds, and time-to-live inversely proportional to risk level. A trusted execution intermediary performs authorized actions on behalf of agents after verifying the token's cryptographic signature and scope constraints, recording a structured execution trace. A post-execution verification engine compares the execution trace against pre-authorized constraints to detect scope drift, parameter violations, and timing deviations. A behavioral anomaly detection system maintains per-agent baselines and escalates approval requirements upon detecting statistical deviations. The system defends against compromised agents, replay attacks, scope escalation, parameter tampering, and insider threats. All governance events are recorded in a tamper-evident audit ledger. The architecture is framework-agnostic and applicable to AI agents, API clients, automated scripts, and IoT devices.
 
 ---
 

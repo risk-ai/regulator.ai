@@ -317,7 +317,7 @@ export function createApp(
   app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter());
   
   // Phase 15: Policy Builder (governance rules engine)
-  app.use(`${apiPrefix}/policies`, requireAuth, createPoliciesRouter());
+  app.use(`${apiPrefix}/policies`, requireAuth, createPoliciesRouter(viennaRuntime));
   
   // Phase 15: Integration Adapters
   app.use(`${apiPrefix}/integrations`, requireAuth, createIntegrationsRouter());

@@ -152,6 +152,55 @@ class IntentGateway {
       intent_type: intent.intent_type
     });
 
+    // Policy Evaluation (Phase 15: Visual Policy Builder)
+    if (intent.tenant_id) {
+      const policyActions = this.stateGraph.evaluatePolicies(intent.tenant_id, intent);
+      
+      if (policyActions.length > 0) {
+        // Apply policy actions
+        for (const policyAction of policyActions) {
+          const { action } = policyAction;
+          
+          // Handle different action types
+          if (action.type === 'block') {
+            // Block execution immediately
+            await this.tracer.recordEvent(intent.intent_id, 'intent.blocked_by_policy', {
+              policy_id: policyAction.policy_id,
+              policy_name: policyAction.policy_name
+            });
+            await this.tracer.updateStatus(intent.intent_id, 'denied');
+            
+            return {
+              intent_id: intent.intent_id,
+              accepted: false,
+              error: `Blocked by policy: ${policyAction.policy_name}`,
+              metadata: { policy: policyAction }
+            };
+          }
+          
+          if (action.type === 'require_approval') {
+            // Modify intent to require approval (will be handled downstream)
+            intent._policyRequiresApproval = true;
+            intent._approvalTier = action.params?.tier || 'T1';
+          }
+          
+          if (action.type === 'log') {
+            // Log policy match
+            console.log(`[IntentGateway] Policy matched: ${policyAction.policy_name}`, {
+              intent_id: intent.intent_id,
+              policy_id: policyAction.policy_id
+            });
+          }
+        }
+        
+        // Record policy evaluation
+        await this.tracer.recordEvent(intent.intent_id, 'policies.evaluated', {
+          policies_matched: policyActions.length,
+          actions_applied: policyActions.map(p => p.action.type)
+        });
+      }
+    }
+
     // Normalize intent (canonical form)
     const normalized = this.normalizeIntent(intent);
 

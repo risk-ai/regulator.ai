@@ -1158,3 +1158,35 @@ CREATE TABLE IF NOT EXISTS custom_actions (
 CREATE INDEX IF NOT EXISTS idx_custom_actions_tenant ON custom_actions(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_custom_actions_enabled ON custom_actions(enabled);
 CREATE INDEX IF NOT EXISTS idx_custom_actions_risk_tier ON custom_actions(risk_tier);
+
+-- Policies: User-defined governance rules
+-- Operators create conditional rules that modify Vienna behavior
+CREATE TABLE IF NOT EXISTS policies (
+  policy_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  
+  -- Conditions: array of { field, operator, value }
+  conditions_json TEXT NOT NULL, -- JSON: [{ field: "action", operator: "==", value: "wire_transfer" }]
+  
+  -- Actions: array of { type, params }
+  actions_json TEXT NOT NULL, -- JSON: [{ type: "require_approval", params: { tier: "T2" } }]
+  
+  -- Priority: higher priority policies evaluated first
+  priority INTEGER DEFAULT 100,
+  
+  -- Status
+  enabled INTEGER DEFAULT 1 CHECK(enabled IN (0, 1)),
+  
+  -- Metadata
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_by TEXT, -- operator_id
+  
+  UNIQUE(tenant_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled);
+CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority DESC);

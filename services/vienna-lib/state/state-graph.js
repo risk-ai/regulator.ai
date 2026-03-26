@@ -4340,6 +4340,231 @@ class StateGraph {
     const stmt = this.db.prepare('DELETE FROM custom_actions WHERE action_id = ?');
     stmt.run(action_id);
   }
+
+  // ============================================================
+  // POLICIES
+  // ============================================================
+
+  /**
+   * Create policy
+   */
+  createPolicy(policy) {
+    const policy_id = policy.policy_id || `policy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const stmt = this.db.prepare(`
+      INSERT INTO policies (
+        policy_id, tenant_id, name, description,
+        conditions_json, actions_json, priority, enabled, created_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    stmt.run(
+      policy_id,
+      policy.tenant_id,
+      policy.name,
+      policy.description || null,
+      JSON.stringify(policy.conditions),
+      JSON.stringify(policy.actions),
+      policy.priority !== undefined ? policy.priority : 100,
+      policy.enabled !== undefined ? policy.enabled : 1,
+      policy.created_by || null
+    );
+    
+    return policy_id;
+  }
+
+  /**
+   * Get policy by ID
+   */
+  getPolicy(policy_id) {
+    const stmt = this.db.prepare('SELECT * FROM policies WHERE policy_id = ?');
+    const row = stmt.get(policy_id);
+    
+    if (!row) return null;
+    
+    return {
+      ...row,
+      conditions: JSON.parse(row.conditions_json),
+      actions: JSON.parse(row.actions_json),
+      enabled: row.enabled === 1
+    };
+  }
+
+  /**
+   * List policies for tenant
+   */
+  listPolicies(tenant_id, filters = {}) {
+    let query = 'SELECT * FROM policies WHERE tenant_id = ?';
+    const params = [tenant_id];
+    
+    if (filters.enabled !== undefined) {
+      query += ' AND enabled = ?';
+      params.push(filters.enabled ? 1 : 0);
+    }
+    
+    query += ' ORDER BY priority DESC, created_at DESC';
+    
+    if (filters.limit) {
+      query += ' LIMIT ?';
+      params.push(filters.limit);
+    }
+    
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...params);
+    
+    return rows.map(row => ({
+      ...row,
+      conditions: JSON.parse(row.conditions_json),
+      actions: JSON.parse(row.actions_json),
+      enabled: row.enabled === 1
+    }));
+  }
+
+  /**
+   * Update policy
+   */
+  updatePolicy(policy_id, updates) {
+    const allowed = ['name', 'description', 'conditions', 'actions', 'priority', 'enabled'];
+    const fields = [];
+    const values = [];
+    
+    for (const key of allowed) {
+      if (updates[key] !== undefined) {
+        if (key === 'conditions' || key === 'actions') {
+          fields.push(`${key}_json = ?`);
+          values.push(JSON.stringify(updates[key]));
+        } else if (key === 'enabled') {
+          fields.push(`${key} = ?`);
+          values.push(updates[key] ? 1 : 0);
+        } else {
+          fields.push(`${key} = ?`);
+          values.push(updates[key]);
+        }
+      }
+    }
+    
+    if (fields.length === 0) return;
+    
+    fields.push('updated_at = datetime("now")');
+    values.push(policy_id);
+    
+    const stmt = this.db.prepare(`
+      UPDATE policies SET ${fields.join(', ')} WHERE policy_id = ?
+    `);
+    
+    stmt.run(...values);
+  }
+
+  /**
+   * Delete policy
+   */
+  deletePolicy(policy_id) {
+    const stmt = this.db.prepare('DELETE FROM policies WHERE policy_id = ?');
+    stmt.run(policy_id);
+  }
+
+  /**
+   * Evaluate policies against intent
+   * Returns array of policy actions that should be applied
+   */
+  evaluatePolicies(tenant_id, intent) {
+    // Get all enabled policies for tenant, ordered by priority
+    const policies = this.listPolicies(tenant_id, { enabled: true });
+    const applicableActions = [];
+    
+    for (const policy of policies) {
+      // Check if all conditions match
+      const allConditionsMet = policy.conditions.every(condition => {
+        return this._evaluateCondition(condition, intent);
+      });
+      
+      if (allConditionsMet) {
+        // Add policy actions to result
+        for (const action of policy.actions) {
+          applicableActions.push({
+            policy_id: policy.policy_id,
+            policy_name: policy.name,
+            action: action
+          });
+        }
+      }
+    }
+    
+    return applicableActions;
+  }
+
+  /**
+   * Evaluate single condition
+   * @private
+   */
+  _evaluateCondition(condition, intent) {
+    const { field, operator, value } = condition;
+    
+    // Get field value from intent (supports nested fields like "payload.amount")
+    const intentValue = this._getNestedValue(intent, field);
+    
+    // Operators
+    switch (operator) {
+      case '==':
+      case 'equals':
+        return intentValue === value;
+      
+      case '!=':
+      case 'not_equals':
+        return intentValue !== value;
+      
+      case '>':
+      case 'greater_than':
+        return Number(intentValue) > Number(value);
+      
+      case '<':
+      case 'less_than':
+        return Number(intentValue) < Number(value);
+      
+      case '>=':
+      case 'greater_than_or_equal':
+        return Number(intentValue) >= Number(value);
+      
+      case '<=':
+      case 'less_than_or_equal':
+        return Number(intentValue) <= Number(value);
+      
+      case 'contains':
+        return String(intentValue).includes(String(value));
+      
+      case 'starts_with':
+        return String(intentValue).startsWith(String(value));
+      
+      case 'ends_with':
+        return String(intentValue).endsWith(String(value));
+      
+      case 'in':
+        return Array.isArray(value) && value.includes(intentValue);
+      
+      case 'not_in':
+        return Array.isArray(value) && !value.includes(intentValue);
+      
+      default:
+        console.warn(`[StateGraph] Unknown operator: ${operator}`);
+        return false;
+    }
+  }
+
+  /**
+   * Get nested value from object
+   * @private
+   */
+  _getNestedValue(obj, path) {
+    const keys = path.split('.');
+    let value = obj;
+    
+    for (const key of keys) {
+      if (value === null || value === undefined) return undefined;
+      value = value[key];
+    }
+    
+    return value;
+  }
 }
 
 // Singleton instance

@@ -16,6 +16,11 @@ import { ServicesPage } from './pages/ServicesPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
 import { ApprovalsPage } from './pages/ApprovalsPage.js';
 import { IntentPage } from './pages/IntentPage.js';
+import { PolicyBuilderPage } from './pages/PolicyBuilderPage.js';
+import { ActionTypesPage } from './pages/ActionTypesPage.js';
+import { FleetDashboardPage } from './pages/FleetDashboardPage.js';
+import { IntegrationsPage } from './pages/IntegrationsPage.js';
+import { CompliancePage } from './pages/CompliancePage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { OnboardingModal } from './components/OnboardingModal.js';
 import { useAuthStore } from './store/authStore.js';
@@ -48,7 +53,7 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'workspace', 'approvals', 'intent', 'history', 'services', 'settings'];
+      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'settings'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
@@ -99,14 +104,29 @@ export function App() {
       case 'runtime':
         return <RuntimePage />;
       
+      case 'fleet':
+        return <FleetDashboardPage />;
+      
       case 'workspace':
         return <WorkspacePage />;
       
       case 'approvals':
         return <ApprovalsPage />;
       
+      case 'policies':
+        return <PolicyBuilderPage />;
+      
       case 'intent':
         return <IntentPage />;
+      
+      case 'action-types':
+        return <ActionTypesPage />;
+      
+      case 'integrations':
+        return <IntegrationsPage />;
+      
+      case 'compliance':
+        return <CompliancePage />;
       
       case 'history':
         return <HistoryPage />;

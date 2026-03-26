@@ -65,6 +65,11 @@ import investigationsRouter from './routes/investigations.js';
 import artifactsRouter from './routes/artifacts.js';
 import incidentsRouter from './routes/incidents.js';
 import { createValidationRouter } from './routes/validation.js';
+import { createComplianceRouter } from './routes/compliance.js';
+import { createIntegrationsRouter } from './routes/integrations.js';
+import { createPoliciesRouter } from './routes/policies.js';
+import { createActionTypesRouter } from './routes/action-types.js';
+import { createFleetRouter } from './routes/fleet.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -300,8 +305,23 @@ export function createApp(
   // Phase 14: Forensic Incidents
   app.use(`${apiPrefix}/incidents`, requireAuth, incidentsRouter);
   
+  // Custom Action Types Registry
+  app.use(`${apiPrefix}/action-types`, requireAuth, createActionTypesRouter());
+  
+  // Phase 15: Agent Fleet Dashboard
+  app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter());
+  
+  // Phase 15: Policy Builder (governance rules engine)
+  app.use(`${apiPrefix}/policies`, requireAuth, createPoliciesRouter());
+  
+  // Phase 15: Integration Adapters
+  app.use(`${apiPrefix}/integrations`, requireAuth, createIntegrationsRouter());
+  
   // Validation logging (browser testing)
   app.use(`${apiPrefix}/validation`, createValidationRouter());
+  
+  // Phase 15.5: Compliance Reports
+  app.use(`${apiPrefix}/compliance`, requireAuth, createComplianceRouter());
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

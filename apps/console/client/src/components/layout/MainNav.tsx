@@ -6,7 +6,7 @@
 
 import React from 'react';
 
-export type NavSection = 'now' | 'runtime' | 'workspace' | 'approvals' | 'intent' | 'history' | 'services' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -23,8 +23,13 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'now', label: 'Now', description: 'System posture & action center', icon: '⚡' },
   { id: 'runtime', label: 'Runtime', description: 'Execution pipeline & reconciliation', icon: '⚙️' },
+  { id: 'fleet', label: 'Fleet', description: 'Agent fleet governance dashboard', icon: '🤖' },
   { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
+  { id: 'policies', label: 'Policies', description: 'Governance rules & policy builder', icon: '🛡️' },
   { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
+  { id: 'action-types', label: 'Actions', description: 'Action type registry', icon: '⚡' },
+  { id: 'integrations', label: 'Integrations', description: 'External service adapters', icon: '🔌' },
+  { id: 'compliance', label: 'Compliance', description: 'Governance reports & compliance', icon: '📊' },
   { id: 'history', label: 'History', description: 'Execution ledger & audit', icon: '📋' },
   { id: 'workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
   { id: 'services', label: 'Services', description: 'Infrastructure health', icon: '🔧' },

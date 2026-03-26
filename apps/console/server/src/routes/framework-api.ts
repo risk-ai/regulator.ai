@@ -77,6 +77,17 @@ router.post('/intents', async (req, res) => {
 
     const intentId = `int_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const timestamp = new Date().toISOString();
+    
+    // Extract tenant_id from API key or headers (for now, use default)
+    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+
+    // Emit intent submitted event
+    eventBus.emitIntentSubmitted({
+      intent_id: intentId,
+      agent_id: agent_id || 'unknown',
+      action,
+      risk_tier: 'unknown' // Will be updated below
+    }, tenantId);
 
     // Classify risk tier
     const RiskTier = require('@vienna/lib/governance/risk-tier');
@@ -93,6 +104,23 @@ router.post('/intents', async (req, res) => {
       const warrantId = `wrt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const maxTtl = requirements.max_ttl_minutes || 60;
       const expiresAt = new Date(Date.now() + maxTtl * 60 * 1000).toISOString();
+
+      // Emit intent approved event
+      eventBus.emitIntentApproved({
+        intent_id: intentId,
+        warrant_id: warrantId,
+        approved_by: 'system_auto',
+        risk_tier: riskTier
+      }, tenantId);
+
+      // Emit warrant issued event
+      eventBus.emitWarrantIssued({
+        warrant_id: warrantId,
+        intent_id: intentId,
+        agent_id: agent_id || 'unknown',
+        expires_at: expiresAt,
+        risk_tier: riskTier
+      }, tenantId);
 
       // TODO: Issue real warrant via Warrant Authority
       // For now, return structured response
@@ -115,11 +143,24 @@ router.post('/intents', async (req, res) => {
     }
 
     // T2/T3: Requires human approval — queue for review
+    const approvalId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const approvalExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h expiry
+    
+    // Emit approval required event
+    eventBus.emitApprovalRequired({
+      approval_id: approvalId,
+      intent_id: intentId,
+      risk_tier: riskTier,
+      required_approvers: requirements.approval_count,
+      expires_at: approvalExpiresAt
+    }, tenantId);
+
     return res.status(202).json({
       success: true,
       intent_id: intentId,
       status: 'pending',
       risk_tier: riskTier,
+      approval_id: approvalId,
       approval_required: requirements.approval_count,
       message: `${riskTier} action requires ${requirements.approval_count} approval(s)`,
       poll_url: `/api/v1/intents/${intentId}`,
@@ -180,6 +221,25 @@ router.post('/executions', async (req, res) => {
     }
 
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const timestamp = new Date().toISOString();
+
+    // Emit execution started event
+    eventBus.emitExecutionStarted({
+      execution_id: executionId,
+      warrant_id,
+      agent_id: agent_id || 'unknown',
+      action: 'unknown' // Could be extracted from warrant lookup
+    }, tenantId);
+
+    // Emit execution completed event
+    eventBus.emitExecutionCompleted({
+      execution_id: executionId,
+      warrant_id,
+      duration_ms: metrics?.duration_ms || 0,
+      success: success || false,
+      output
+    }, tenantId);
 
     // TODO: Verify warrant is valid, record execution in audit ledger
     // TODO: Run verification engine to confirm execution matched warrant scope
@@ -190,7 +250,7 @@ router.post('/executions', async (req, res) => {
       warrant_id,
       recorded: true,
       verified: true, // TODO: actual verification
-      timestamp: new Date().toISOString()
+      timestamp
     });
   } catch (error: any) {
     console.error('[Framework API] Execution report error:', error);
@@ -212,6 +272,16 @@ router.post('/agents', async (req, res) => {
       return res.status(400).json({ success: false, error: 'agent_id and name are required' });
     }
 
+    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const timestamp = new Date().toISOString();
+
+    // Emit agent registered event
+    eventBus.emitAgentRegistered({
+      agent_id,
+      framework: framework || 'unknown',
+      capabilities: capabilities || []
+    }, tenantId);
+
     // TODO: Store in state graph
     res.status(201).json({
       success: true,
@@ -219,7 +289,7 @@ router.post('/agents', async (req, res) => {
       registered: true,
       framework,
       capabilities: capabilities || [],
-      registered_at: new Date().toISOString()
+      registered_at: timestamp
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
@@ -233,13 +303,24 @@ router.post('/agents', async (req, res) => {
 router.post('/agents/:agentId/heartbeat', async (req, res) => {
   try {
     const { agentId } = req.params;
+    const { status } = req.body;
+    
+    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const timestamp = new Date().toISOString();
+
+    // Emit agent heartbeat event
+    eventBus.emitAgentHeartbeat({
+      agent_id: agentId,
+      status: status || 'healthy',
+      last_seen: timestamp
+    }, tenantId);
 
     // TODO: Update agent last_seen in state graph
     res.json({
       success: true,
       agent_id: agentId,
       acknowledged: true,
-      server_time: new Date().toISOString()
+      server_time: timestamp
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });

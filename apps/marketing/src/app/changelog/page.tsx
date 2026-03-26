@@ -8,11 +8,35 @@ export const metadata: Metadata = {
 
 const releases = [
   {
-    version: "0.9.0",
-    date: "March 25, 2026",
+    version: "0.10.0",
+    date: "March 25, 2026 (evening)",
     tag: "Latest",
     tagColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
     changes: [
+      { type: "feat", text: "Multi-tenant auth — individual operator registration with scrypt password hashing" },
+      { type: "feat", text: "API key authentication — agents authenticate via Bearer vos_xxx tokens" },
+      { type: "feat", text: "Visual Policy Builder — create governance rules with IF/THEN conditions" },
+      { type: "feat", text: "Agent Fleet Dashboard — real-time view of all agents under governance" },
+      { type: "feat", text: "Compliance Report Generator — one-click governance reports" },
+      { type: "feat", text: "Custom Action Types — operators define their own governed actions" },
+      { type: "feat", text: "TypeScript SDK (packages/sdk/) — 10 modules for programmatic integration" },
+      { type: "feat", text: "Slack adapter — interactive approval buttons, execution notifications, violation alerts" },
+      { type: "feat", text: "Email adapter — approval emails, execution results, daily governance digest" },
+      { type: "feat", text: "GitHub adapter — governed deployments, PR status checks, audit comments" },
+      { type: "feat", text: "Simulation service — dry-run executions through full governance pipeline" },
+      { type: "feat", text: "Apache 2.0 license + CONTRIBUTING.md — open-source release prep" },
+      { type: "feat", text: "Console expanded to 13 navigation sections" },
+      { type: "fix", text: "SQLite-backed sessions — persist across Fly.io restarts" },
+      { type: "fix", text: "Stripe webhook endpoint for subscription lifecycle events" },
+    ],
+  },
+  {
+    version: "0.9.0",
+    date: "March 25, 2026 (morning)",
+    tag: null,
+    tagColor: "",
+    changes: [
+      { type: "feat", text: "28-page marketing site built from scratch (regulator.ai)" },
       { type: "feat", text: "Interactive 'Try it Live' playground — test governance API without signup" },
       { type: "feat", text: "Stripe checkout for Team ($49/agent/mo) and Business ($99/agent/mo) plans" },
       { type: "feat", text: "Security page with compliance roadmap (SOC 2, HIPAA, FedRAMP)" },

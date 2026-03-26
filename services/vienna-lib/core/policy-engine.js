@@ -28,10 +28,20 @@ class PolicyEngine {
    * @param {Object} params
    * @param {Object} params.stateGraph - State Graph instance for ledger queries
    * @param {Function} params.loadPolicies - Function to load active policies
+   * @param {Object} [params.auditLogger] - Audit logger instance
    */
-  constructor({ stateGraph, loadPolicies }) {
+  constructor({ stateGraph, loadPolicies, auditLogger = null }) {
     this.stateGraph = stateGraph;
     this.loadPolicies = loadPolicies;
+    this.auditLogger = auditLogger;
+    
+    // Policy evaluation cache with TTL
+    this.evaluationCache = new Map(); // key -> { result, timestamp, ttl }
+    this.defaultCacheTtlMs = 5 * 60 * 1000; // 5 minutes
+    
+    // Policy version tracking
+    this.policyVersions = new Map(); // policy_id -> version_number
+    this.publishedPolicies = new Set(); // policy_id set of published policies
   }
 
   /**
@@ -41,28 +51,65 @@ class PolicyEngine {
    * @param {Object} context - Additional context
    * @param {Object} [context.actor] - Actor information
    * @param {Object} [context.runtime_context] - Runtime flags
+   * @param {Object} [options] - Evaluation options
+   * @param {boolean} [options.skipCache] - Skip evaluation cache
    * @returns {Promise<PolicyDecision>}
    */
-  async evaluate(plan, context = {}) {
+  async evaluate(plan, context = {}, options = {}) {
     const startTime = Date.now();
+    const evaluationId = `eval_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Check evaluation cache first (unless explicitly skipped)
+    if (!options.skipCache) {
+      const cacheKey = this._generateCacheKey(plan, context);
+      const cached = this._getCachedEvaluation(cacheKey);
+      
+      if (cached) {
+        this._auditPolicyEvaluation({
+          evaluation_id: evaluationId,
+          plan_id: plan.plan_id,
+          cache_hit: true,
+          cache_key: cacheKey,
+          decision: cached.decision,
+          evaluation_time_ms: Date.now() - startTime
+        });
+        
+        return cached;
+      }
+    }
 
     // Load all active policies
     const allPolicies = await this.loadPolicies();
-    const activePolicies = allPolicies.filter(p => p.enabled);
+    const activePolicies = this._filterActivePolicies(allPolicies);
 
     // Find matching policies
     const matchedPolicies = activePolicies.filter(policy => 
       policyMatchesPlan(policy, plan)
     );
 
+    // Detect policy conflicts early
+    const conflictDetection = this._detectPolicyConflicts(matchedPolicies, plan);
+
     // If no policies match, default to allow (for now - may change to deny)
     if (matchedPolicies.length === 0) {
-      return this._createNoMatchDecision(plan, startTime);
+      const decision = this._createNoMatchDecision(plan, startTime);
+      this._auditPolicyEvaluation({
+        evaluation_id: evaluationId,
+        plan_id: plan.plan_id,
+        matched_policies: [],
+        evaluated_policies: [],
+        final_policy: null,
+        decision: decision.decision,
+        conflicts_detected: conflictDetection,
+        evaluation_time_ms: Date.now() - startTime
+      });
+      return decision;
     }
 
     // Evaluate conditions for matched policies
     const evaluatedPolicies = [];
     const ledgerQueryResults = {};
+    const policyEvaluationDetails = [];
 
     for (const policy of matchedPolicies) {
       const conditionsMet = await this._evaluateConditions(
@@ -72,6 +119,14 @@ class PolicyEngine {
         ledgerQueryResults
       );
 
+      policyEvaluationDetails.push({
+        policy_id: policy.policy_id,
+        policy_version: policy.policy_version || 1,
+        matched: true,
+        conditions_met: conditionsMet,
+        decision: conditionsMet ? policy.decision : null
+      });
+
       if (conditionsMet) {
         evaluatedPolicies.push(policy);
       }
@@ -79,7 +134,19 @@ class PolicyEngine {
 
     // If no policies passed conditions, default to allow
     if (evaluatedPolicies.length === 0) {
-      return this._createNoMatchDecision(plan, startTime);
+      const decision = this._createNoMatchDecision(plan, startTime);
+      this._auditPolicyEvaluation({
+        evaluation_id: evaluationId,
+        plan_id: plan.plan_id,
+        matched_policies: matchedPolicies.map(p => ({ policy_id: p.policy_id, version: p.policy_version || 1 })),
+        evaluated_policies: [],
+        final_policy: null,
+        decision: decision.decision,
+        policy_details: policyEvaluationDetails,
+        conflicts_detected: conflictDetection,
+        evaluation_time_ms: Date.now() - startTime
+      });
+      return decision;
     }
 
     // Resolve conflicts if multiple policies matched
@@ -100,6 +167,27 @@ class PolicyEngine {
       conflictResolution,
       startTime
     );
+
+    // Cache the evaluation result if conditions are met
+    if (!options.skipCache) {
+      const cacheKey = this._generateCacheKey(plan, context);
+      const cacheTtl = finalPolicy.cache_ttl_ms || this.defaultCacheTtlMs;
+      this._setCachedEvaluation(cacheKey, decision, cacheTtl);
+    }
+
+    // Audit the complete evaluation
+    this._auditPolicyEvaluation({
+      evaluation_id: evaluationId,
+      plan_id: plan.plan_id,
+      matched_policies: matchedPolicies.map(p => ({ policy_id: p.policy_id, version: p.policy_version || 1 })),
+      evaluated_policies: evaluatedPolicies.map(p => ({ policy_id: p.policy_id, version: p.policy_version || 1 })),
+      final_policy: { policy_id: finalPolicy.policy_id, version: finalPolicy.policy_version || 1 },
+      decision: decision.decision,
+      policy_details: policyEvaluationDetails,
+      conflicts_detected: conflictDetection,
+      conflict_resolution: conflictResolution,
+      evaluation_time_ms: Date.now() - startTime
+    });
 
     return decision;
   }
@@ -458,6 +546,237 @@ class PolicyEngine {
         evaluation_time_ms: Date.now() - startTime
       }
     });
+  }
+
+  /**
+   * Filter active policies based on version and state
+   * 
+   * @private
+   */
+  _filterActivePolicies(allPolicies) {
+    return allPolicies.filter(policy => {
+      // Must be enabled
+      if (!policy.enabled) return false;
+      
+      // Check if policy is in draft state and draft policies should be ignored
+      if (policy.state === 'draft' && !this._shouldIncludeDraftPolicies()) {
+        return false;
+      }
+      
+      // Only include published policies by default
+      if (policy.state && policy.state !== 'published' && policy.state !== 'draft') {
+        return false;
+      }
+      
+      return true;
+    });
+  }
+
+  /**
+   * Detect conflicts between policies that would apply to the same plan
+   * 
+   * @private
+   */
+  _detectPolicyConflicts(matchedPolicies, plan) {
+    if (matchedPolicies.length <= 1) {
+      return { has_conflicts: false };
+    }
+
+    const conflicts = [];
+    
+    // Group policies by their decision type
+    const decisionGroups = {};
+    matchedPolicies.forEach(policy => {
+      const decision = policy.decision || 'allow';
+      if (!decisionGroups[decision]) {
+        decisionGroups[decision] = [];
+      }
+      decisionGroups[decision].push(policy);
+    });
+
+    // Detect allow vs deny conflicts
+    if (decisionGroups.allow && decisionGroups.deny) {
+      conflicts.push({
+        type: 'allow_deny_conflict',
+        message: 'Conflicting allow and deny policies found for same plan',
+        allow_policies: decisionGroups.allow.map(p => p.policy_id),
+        deny_policies: decisionGroups.deny.map(p => p.policy_id)
+      });
+    }
+
+    // Detect requirement conflicts (different verification strengths, etc.)
+    const requirementConflicts = this._detectRequirementConflicts(matchedPolicies);
+    conflicts.push(...requirementConflicts);
+
+    return {
+      has_conflicts: conflicts.length > 0,
+      conflicts: conflicts
+    };
+  }
+
+  /**
+   * Detect conflicts in policy requirements
+   * 
+   * @private
+   */
+  _detectRequirementConflicts(policies) {
+    const conflicts = [];
+    const verificationStrengths = new Set();
+    
+    policies.forEach(policy => {
+      if (policy.requirements?.required_verification_strength) {
+        verificationStrengths.add(policy.requirements.required_verification_strength);
+      }
+    });
+
+    // If multiple different verification strengths are required, flag as potential conflict
+    if (verificationStrengths.size > 1) {
+      conflicts.push({
+        type: 'verification_strength_conflict',
+        message: 'Multiple policies require different verification strengths',
+        required_strengths: Array.from(verificationStrengths)
+      });
+    }
+
+    return conflicts;
+  }
+
+  /**
+   * Generate cache key for policy evaluation
+   * 
+   * @private
+   */
+  _generateCacheKey(plan, context) {
+    const cacheInputs = {
+      objective: plan.objective,
+      environment: plan.environment,
+      risk_tier: plan.risk_tier,
+      actor_type: context.actor?.type,
+      trading_window: context.runtime_context?.trading_window_active,
+      // Include relevant plan step summaries but not full details
+      step_count: plan.steps?.length || 0,
+      step_types: plan.steps?.map(s => s.type).sort() || []
+    };
+
+    // Create deterministic hash of inputs
+    const inputStr = JSON.stringify(cacheInputs, Object.keys(cacheInputs).sort());
+    return `policy_eval_${this._simpleHash(inputStr)}`;
+  }
+
+  /**
+   * Get cached evaluation result
+   * 
+   * @private
+   */
+  _getCachedEvaluation(cacheKey) {
+    const cached = this.evaluationCache.get(cacheKey);
+    if (!cached) return null;
+
+    const now = Date.now();
+    if (now > cached.timestamp + cached.ttl) {
+      this.evaluationCache.delete(cacheKey);
+      return null;
+    }
+
+    return cached.result;
+  }
+
+  /**
+   * Set cached evaluation result
+   * 
+   * @private
+   */
+  _setCachedEvaluation(cacheKey, result, ttlMs) {
+    // Prevent cache from growing too large
+    if (this.evaluationCache.size > 1000) {
+      // Remove oldest entries
+      const entries = Array.from(this.evaluationCache.entries());
+      entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+      entries.slice(0, 200).forEach(([key]) => {
+        this.evaluationCache.delete(key);
+      });
+    }
+
+    this.evaluationCache.set(cacheKey, {
+      result,
+      timestamp: Date.now(),
+      ttl: ttlMs
+    });
+  }
+
+  /**
+   * Audit policy evaluation
+   * 
+   * @private
+   */
+  _auditPolicyEvaluation(auditData) {
+    if (!this.auditLogger) return;
+
+    try {
+      this.auditLogger.logPolicyEvaluation({
+        timestamp: Date.now(),
+        event_type: 'policy_evaluation',
+        ...auditData
+      });
+    } catch (error) {
+      console.error('[PolicyEngine] Failed to write audit log:', error);
+    }
+  }
+
+  /**
+   * Check if draft policies should be included in evaluation
+   * 
+   * @private
+   */
+  _shouldIncludeDraftPolicies() {
+    // Could be environment-based or configuration-driven
+    return process.env.VIENNA_INCLUDE_DRAFT_POLICIES === 'true';
+  }
+
+  /**
+   * Simple hash function for cache keys
+   * 
+   * @private
+   */
+  _simpleHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash.toString(36);
+  }
+
+  /**
+   * Clear evaluation cache (for testing or emergency)
+   */
+  clearCache() {
+    this.evaluationCache.clear();
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats() {
+    const now = Date.now();
+    let expired = 0;
+    let valid = 0;
+
+    for (const [, cached] of this.evaluationCache) {
+      if (now > cached.timestamp + cached.ttl) {
+        expired++;
+      } else {
+        valid++;
+      }
+    }
+
+    return {
+      total_entries: this.evaluationCache.size,
+      valid_entries: valid,
+      expired_entries: expired,
+      cache_hit_potential: valid / Math.max(1, this.evaluationCache.size)
+    };
   }
 }
 

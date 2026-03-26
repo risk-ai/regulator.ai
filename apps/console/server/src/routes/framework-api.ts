@@ -9,6 +9,7 @@
  */
 
 import express from 'express';
+import { eventBus } from '../services/eventBus.js';
 
 const router = express.Router();
 

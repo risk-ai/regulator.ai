@@ -30,6 +30,7 @@ import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
+import { createEventsRouter } from './routes/events.js';
 import { createStatusRouter } from './routes/status.js';
 import { createDiagnosticsRouter } from './routes/diagnostics.js';
 import { createApprovalsRouter } from './routes/approvals.js';
@@ -312,6 +313,9 @@ export function createApp(
   
   // Custom Actions API (dynamic action registration)
   app.use(`${apiPrefix}/actions`, requireAuth, createActionsRouter(viennaRuntime));
+  
+  // Real-time events (SSE streaming)
+  app.use(`${apiPrefix}/events`, requireAuth, createEventsRouter());
   
   // Phase 15: Agent Fleet Dashboard
   app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter(viennaRuntime));

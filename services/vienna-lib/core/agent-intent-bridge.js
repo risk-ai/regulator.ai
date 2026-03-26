@@ -128,12 +128,20 @@ class AgentIntentBridge {
     // Step 2: Resolve tenant
     const tenant = this._resolveTenant(authContext);
 
-    // Step 3: Validate action
-    const actionValidation = this._validateAction(agentRequest);
+    // Step 3: Validate action (static + custom)
+    const actionValidation = this._validateAction(agentRequest, tenant);
     if (!actionValidation.valid) {
       return this._errorResponse('ACTION_NOT_ALLOWED', actionValidation.error, {
-        allowed_actions: Array.from(ACTION_ALLOWLIST.keys())
+        allowed_actions: Array.from(ACTION_ALLOWLIST.keys()),
+        hint: 'Custom actions can be registered via POST /api/v1/actions'
       });
+    }
+
+    // If custom action, use its configuration
+    if (actionValidation.custom) {
+      const customAction = actionValidation.customAction;
+      // Override action mapping with custom config
+      agentRequest._customAction = customAction;
     }
 
     // Step 4: Validate payload
@@ -200,11 +208,11 @@ class AgentIntentBridge {
   }
 
   /**
-   * Validate action against allowlist
+   * Validate action against allowlist (static + custom)
    * 
    * @private
    */
-  _validateAction(agentRequest) {
+  _validateAction(agentRequest, tenant_id) {
     const { action } = agentRequest;
 
     if (!action || typeof action !== 'string') {
@@ -214,14 +222,29 @@ class AgentIntentBridge {
       };
     }
 
-    if (!ACTION_ALLOWLIST.has(action)) {
-      return {
-        valid: false,
-        error: `Action '${action}' not in allowlist`
-      };
+    // Check static allowlist first
+    if (ACTION_ALLOWLIST.has(action)) {
+      return { valid: true, custom: false };
     }
 
-    return { valid: true };
+    // Check custom actions for this tenant
+    if (tenant_id) {
+      const stateGraph = require('../state/state-graph').getStateGraph();
+      const customAction = stateGraph.getCustomActionByName(tenant_id, action);
+      
+      if (customAction) {
+        return { 
+          valid: true, 
+          custom: true, 
+          customAction 
+        };
+      }
+    }
+
+    return {
+      valid: false,
+      error: `Action '${action}' not found in static or custom actions`
+    };
   }
 
   /**
@@ -254,7 +277,11 @@ class AgentIntentBridge {
    */
   _translateToIntent(agentRequest, tenant) {
     const { action, payload = {}, simulation = false, source, context } = agentRequest;
-    const actionDef = ACTION_ALLOWLIST.get(action);
+    
+    // Check if this is a custom action
+    const actionDef = agentRequest._customAction 
+      ? { intent_type: agentRequest._customAction.intent_type }
+      : ACTION_ALLOWLIST.get(action);
 
     // Support both source object and context object (legacy)
     const sourceData = source || context || {};
@@ -265,6 +292,7 @@ class AgentIntentBridge {
       payload: payload,
       simulation: simulation,
       tenant_id: tenant,
+      custom_action: agentRequest._customAction ? true : false,
       source: {
         type: 'agent',
         id: sourceData.agent_id || 'unknown',

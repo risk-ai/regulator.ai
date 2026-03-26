@@ -1137,3 +1137,24 @@ CREATE INDEX IF NOT EXISTS idx_attestations_tenant ON execution_attestations(ten
 CREATE INDEX IF NOT EXISTS idx_attestations_status ON execution_attestations(status);
 CREATE INDEX IF NOT EXISTS idx_attestations_attested_at ON execution_attestations(attested_at);
 CREATE INDEX IF NOT EXISTS idx_federated_tombstoned ON federated_ledger(tombstoned);
+
+-- Custom Actions: Tenant-defined action types
+-- Allows operators to register custom actions beyond the built-in 11
+CREATE TABLE IF NOT EXISTS custom_actions (
+  action_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  action_name TEXT NOT NULL,
+  intent_type TEXT NOT NULL,
+  risk_tier TEXT NOT NULL CHECK(risk_tier IN ('T0', 'T1', 'T2')),
+  schema_json TEXT, -- JSON schema for payload validation
+  description TEXT,
+  enabled INTEGER DEFAULT 1 CHECK(enabled IN (0, 1)),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  
+  UNIQUE(tenant_id, action_name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_custom_actions_tenant ON custom_actions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_custom_actions_enabled ON custom_actions(enabled);
+CREATE INDEX IF NOT EXISTS idx_custom_actions_risk_tier ON custom_actions(risk_tier);

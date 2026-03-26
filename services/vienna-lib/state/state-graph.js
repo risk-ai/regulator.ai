@@ -4197,6 +4197,149 @@ class StateGraph {
     
     return this._workspaceManager.getArtifact(artifact_id);
   }
+
+  // ============================================================
+  // CUSTOM ACTIONS
+  // ============================================================
+
+  /**
+   * Create custom action
+   */
+  createCustomAction(action) {
+    const action_id = action.action_id || `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const stmt = this.db.prepare(`
+      INSERT INTO custom_actions (
+        action_id, tenant_id, action_name, intent_type, 
+        risk_tier, schema_json, description, enabled
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    stmt.run(
+      action_id,
+      action.tenant_id,
+      action.action_name,
+      action.intent_type,
+      action.risk_tier,
+      action.schema_json ? JSON.stringify(action.schema_json) : null,
+      action.description || null,
+      action.enabled !== undefined ? action.enabled : 1
+    );
+    
+    return action_id;
+  }
+
+  /**
+   * Get custom action by ID
+   */
+  getCustomAction(action_id) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM custom_actions WHERE action_id = ?
+    `);
+    
+    const row = stmt.get(action_id);
+    if (!row) return null;
+    
+    return {
+      ...row,
+      schema_json: row.schema_json ? JSON.parse(row.schema_json) : null,
+      enabled: row.enabled === 1
+    };
+  }
+
+  /**
+   * Get custom action by tenant and name
+   */
+  getCustomActionByName(tenant_id, action_name) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM custom_actions 
+      WHERE tenant_id = ? AND action_name = ? AND enabled = 1
+    `);
+    
+    const row = stmt.get(tenant_id, action_name);
+    if (!row) return null;
+    
+    return {
+      ...row,
+      schema_json: row.schema_json ? JSON.parse(row.schema_json) : null,
+      enabled: row.enabled === 1
+    };
+  }
+
+  /**
+   * List custom actions for tenant
+   */
+  listCustomActions(tenant_id, filters = {}) {
+    let query = 'SELECT * FROM custom_actions WHERE tenant_id = ?';
+    const params = [tenant_id];
+    
+    if (filters.enabled !== undefined) {
+      query += ' AND enabled = ?';
+      params.push(filters.enabled ? 1 : 0);
+    }
+    
+    if (filters.risk_tier) {
+      query += ' AND risk_tier = ?';
+      params.push(filters.risk_tier);
+    }
+    
+    query += ' ORDER BY created_at DESC';
+    
+    if (filters.limit) {
+      query += ' LIMIT ?';
+      params.push(filters.limit);
+    }
+    
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...params);
+    
+    return rows.map(row => ({
+      ...row,
+      schema_json: row.schema_json ? JSON.parse(row.schema_json) : null,
+      enabled: row.enabled === 1
+    }));
+  }
+
+  /**
+   * Update custom action
+   */
+  updateCustomAction(action_id, updates) {
+    const allowed = ['action_name', 'intent_type', 'risk_tier', 'schema_json', 'description', 'enabled'];
+    const fields = [];
+    const values = [];
+    
+    for (const key of allowed) {
+      if (updates[key] !== undefined) {
+        fields.push(`${key} = ?`);
+        if (key === 'schema_json') {
+          values.push(JSON.stringify(updates[key]));
+        } else if (key === 'enabled') {
+          values.push(updates[key] ? 1 : 0);
+        } else {
+          values.push(updates[key]);
+        }
+      }
+    }
+    
+    if (fields.length === 0) return;
+    
+    fields.push('updated_at = datetime("now")');
+    values.push(action_id);
+    
+    const stmt = this.db.prepare(`
+      UPDATE custom_actions SET ${fields.join(', ')} WHERE action_id = ?
+    `);
+    
+    stmt.run(...values);
+  }
+
+  /**
+   * Delete custom action
+   */
+  deleteCustomAction(action_id) {
+    const stmt = this.db.prepare('DELETE FROM custom_actions WHERE action_id = ?');
+    stmt.run(action_id);
+  }
 }
 
 // Singleton instance

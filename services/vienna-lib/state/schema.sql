@@ -1190,3 +1190,45 @@ CREATE TABLE IF NOT EXISTS policies (
 CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled);
 CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority DESC);
+
+-- Agents: Track agents under governance
+-- Auto-populated from execution ledger
+CREATE TABLE IF NOT EXISTS agents (
+  agent_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  name TEXT,
+  type TEXT, -- 'openclaw', 'langchain', 'custom', etc.
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'suspended')),
+  last_seen TEXT,
+  first_seen TEXT NOT NULL DEFAULT (datetime('now')),
+  
+  -- Statistics
+  total_executions INTEGER DEFAULT 0,
+  successful_executions INTEGER DEFAULT 0,
+  failed_executions INTEGER DEFAULT 0,
+  blocked_executions INTEGER DEFAULT 0,
+  
+  -- Metadata
+  metadata_json TEXT, -- JSON: { version, capabilities, etc. }
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_agents_tenant ON agents(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
+CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC);
+
+-- Agent Activity: Recent actions per agent (rolling window)
+CREATE VIEW IF NOT EXISTS agent_activity AS
+SELECT 
+  el.agent_id,
+  el.tenant_id,
+  COUNT(*) as total_actions,
+  SUM(CASE WHEN el.status = 'completed' THEN 1 ELSE 0 END) as successful,
+  SUM(CASE WHEN el.status = 'failed' THEN 1 ELSE 0 END) as failed,
+  SUM(CASE WHEN el.status = 'blocked' THEN 1 ELSE 0 END) as blocked,
+  MAX(el.timestamp) as last_action,
+  CAST(SUM(CASE WHEN el.status = 'completed' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100 as success_rate
+FROM execution_ledger el
+WHERE el.timestamp > datetime('now', '-7 days')
+GROUP BY el.agent_id, el.tenant_id;

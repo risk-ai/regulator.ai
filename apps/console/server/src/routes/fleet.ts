@@ -1,342 +1,187 @@
 /**
- * Fleet Routes — Agent Fleet Dashboard
+ * Agent Fleet Dashboard Route
  * 
- * GET    /api/v1/fleet                    — Fleet overview (all agents + summary stats)
- * GET    /api/v1/fleet/summary            — Aggregate fleet metrics
- * GET    /api/v1/fleet/alerts             — All unresolved alerts across fleet
- * POST   /api/v1/fleet/alerts/:id/resolve — Resolve an alert
- * GET    /api/v1/fleet/:agentId           — Single agent detail with activity history
- * GET    /api/v1/fleet/:agentId/activity  — Paginated activity log for agent
- * GET    /api/v1/fleet/:agentId/metrics   — Agent metrics
- * POST   /api/v1/fleet/:agentId/suspend   — Suspend an agent
- * POST   /api/v1/fleet/:agentId/activate  — Reactivate an agent
- * PUT    /api/v1/fleet/:agentId/trust     — Manually adjust trust score
+ * Monitor all agents under governance
  */
 
 import { Router, Request, Response } from 'express';
-import { query, queryOne, execute } from '../db/postgres.js';
-import { FleetMetricsService } from '../services/fleetMetricsService.js';
-import type { SuccessResponse, ErrorResponse } from '../types/api.js';
+import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
 
-const metricsService = new FleetMetricsService();
-
-export function createFleetRouter(): Router {
+export function createFleetRouter(viennaRuntime: ViennaRuntimeService): Router {
   const router = Router();
 
   /**
-   * GET /api/v1/fleet — Fleet overview
+   * Get fleet overview
+   * GET /api/v1/fleet
    */
-  router.get('/', async (_req: Request, res: Response) => {
+  router.get('/', async (req: Request, res: Response) => {
     try {
-      const agents = await query(
-        `SELECT r.*,
-           (SELECT COUNT(*) FROM agent_activity a WHERE a.agent_id = r.agent_id AND a.created_at >= CURRENT_DATE)::int AS actions_today,
-           (SELECT COALESCE(AVG(a.latency_ms), 0) FROM agent_activity a WHERE a.agent_id = r.agent_id)::int AS avg_latency_ms,
-           (SELECT COUNT(*) FILTER (WHERE a.result = 'failed') * 100.0 / NULLIF(COUNT(*), 0)
-            FROM agent_activity a WHERE a.agent_id = r.agent_id)::int AS error_rate,
-           (SELECT COUNT(*) FROM agent_alerts al WHERE al.agent_id = r.agent_id AND al.resolved = false)::int AS unresolved_alerts
-         FROM agent_registry r
-         ORDER BY r.status ASC, r.trust_score DESC`
-      );
-
-      const summary = await metricsService.getFleetSummary();
-
-      const response: SuccessResponse<any> = {
+      // TODO: Get tenant_id from authenticated session
+      const tenant_id = 'default';
+      
+      const stateGraph = viennaRuntime.getStateGraph();
+      const stats = stateGraph.getAgentStats(tenant_id);
+      
+      res.json({
         success: true,
-        data: { agents, summary },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
+        data: stats
+      });
     } catch (error) {
-      const err: ErrorResponse = {
+      console.error('[FleetRouter] Fleet overview error:', error);
+      res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
+        error: 'Failed to get fleet overview',
+        code: 'FLEET_ERROR'
+      });
     }
   });
 
   /**
-   * GET /api/v1/fleet/summary — Aggregate fleet metrics
+   * List agents
+   * GET /api/v1/fleet/agents
    */
-  router.get('/summary', async (_req: Request, res: Response) => {
+  router.get('/agents', async (req: Request, res: Response) => {
     try {
-      const summary = await metricsService.getFleetSummary();
-      const response: SuccessResponse<any> = {
+      const tenant_id = 'default';
+      const { status, limit } = req.query;
+      
+      const stateGraph = viennaRuntime.getStateGraph();
+      const agents = stateGraph.listAgents(tenant_id, {
+        status: status as string,
+        limit: limit ? parseInt(limit as string) : undefined
+      });
+      
+      res.json({
         success: true,
-        data: summary,
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
+        data: agents
+      });
     } catch (error) {
-      const err: ErrorResponse = {
+      console.error('[FleetRouter] List agents error:', error);
+      res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_SUMMARY_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
+        error: 'Failed to list agents',
+        code: 'LIST_ERROR'
+      });
     }
   });
 
   /**
-   * GET /api/v1/fleet/alerts — All unresolved alerts
+   * Get agent details
+   * GET /api/v1/fleet/agents/:agent_id
    */
-  router.get('/alerts', async (_req: Request, res: Response) => {
+  router.get('/agents/:agent_id', async (req: Request, res: Response) => {
     try {
-      const alerts = await query(
-        `SELECT al.*, r.display_name as agent_name
-         FROM agent_alerts al
-         LEFT JOIN agent_registry r ON al.agent_id = r.agent_id
-         WHERE al.resolved = false
-         ORDER BY
-           CASE al.severity WHEN 'critical' THEN 0 WHEN 'warning' THEN 1 ELSE 2 END,
-           al.created_at DESC`
-      );
-      const response: SuccessResponse<any> = {
-        success: true,
-        data: alerts,
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
-    } catch (error) {
-      const err: ErrorResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_ALERTS_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
-    }
-  });
-
-  /**
-   * POST /api/v1/fleet/alerts/:id/resolve — Resolve an alert
-   */
-  router.post('/alerts/:id/resolve', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { resolved_by } = req.body || {};
-      await execute(
-        `UPDATE agent_alerts SET resolved = true, resolved_by = $1, resolved_at = NOW() WHERE id = $2`,
-        [resolved_by || 'operator', id]
-      );
-      const response: SuccessResponse<any> = {
-        success: true,
-        data: { id, resolved: true },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
-    } catch (error) {
-      const err: ErrorResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'RESOLVE_ALERT_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
-    }
-  });
-
-  /**
-   * GET /api/v1/fleet/:agentId — Single agent detail
-   */
-  router.get('/:agentId', async (req: Request, res: Response) => {
-    try {
-      const { agentId } = req.params;
-      const agent = await queryOne(
-        `SELECT * FROM agent_registry WHERE agent_id = $1`,
-        [agentId]
-      );
+      const { agent_id } = req.params;
+      
+      const stateGraph = viennaRuntime.getStateGraph();
+      const agent = stateGraph.getAgent(agent_id);
+      
       if (!agent) {
-        const err: ErrorResponse = {
+        return res.status(404).json({
           success: false,
           error: 'Agent not found',
-          code: 'NOT_FOUND',
-          timestamp: new Date().toISOString(),
-        };
-        res.status(404).json(err);
-        return;
+          code: 'NOT_FOUND'
+        });
       }
-
-      const recentActivity = await query(
-        `SELECT * FROM agent_activity WHERE agent_id = $1 ORDER BY created_at DESC LIMIT 10`,
-        [agentId]
-      );
-      const alerts = await query(
-        `SELECT * FROM agent_alerts WHERE agent_id = $1 AND resolved = false ORDER BY created_at DESC`,
-        [agentId]
-      );
-      const metrics = await metricsService.getAgentMetrics(agentId);
-
-      const response: SuccessResponse<any> = {
+      
+      // Get recent activity
+      const activity = stateGraph.getAgentActivity(agent_id, 24);
+      
+      res.json({
         success: true,
-        data: { agent, recentActivity, alerts, metrics },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
+        data: {
+          agent,
+          recent_activity: activity
+        }
+      });
     } catch (error) {
-      const err: ErrorResponse = {
+      console.error('[FleetRouter] Get agent error:', error);
+      res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_AGENT_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
+        error: 'Failed to get agent details',
+        code: 'GET_ERROR'
+      });
     }
   });
 
   /**
-   * GET /api/v1/fleet/:agentId/activity — Paginated activity log
+   * Get agent activity timeline
+   * GET /api/v1/fleet/agents/:agent_id/activity
    */
-  router.get('/:agentId/activity', async (req: Request, res: Response) => {
+  router.get('/agents/:agent_id/activity', async (req: Request, res: Response) => {
     try {
-      const { agentId } = req.params;
-      const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
-      const offset = parseInt(req.query.offset as string) || 0;
-
-      const rows = await query(
-        `SELECT * FROM agent_activity WHERE agent_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-        [agentId, limit, offset]
+      const { agent_id } = req.params;
+      const { hours } = req.query;
+      
+      const stateGraph = viennaRuntime.getStateGraph();
+      const activity = stateGraph.getAgentActivity(
+        agent_id,
+        hours ? parseInt(hours as string) : 24
       );
-      const total = await queryOne<{ count: string }>(
-        `SELECT COUNT(*)::text as count FROM agent_activity WHERE agent_id = $1`,
-        [agentId]
-      );
-
-      const response: SuccessResponse<any> = {
+      
+      res.json({
         success: true,
-        data: { rows, total: parseInt(total?.count || '0'), limit, offset },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
+        data: activity
+      });
     } catch (error) {
-      const err: ErrorResponse = {
+      console.error('[FleetRouter] Get activity error:', error);
+      res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_ACTIVITY_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
+        error: 'Failed to get agent activity',
+        code: 'ACTIVITY_ERROR'
+      });
     }
   });
 
   /**
-   * GET /api/v1/fleet/:agentId/metrics — Agent metrics
+   * Update agent status
+   * PATCH /api/v1/fleet/agents/:agent_id
    */
-  router.get('/:agentId/metrics', async (req: Request, res: Response) => {
+  router.patch('/agents/:agent_id', async (req: Request, res: Response) => {
     try {
-      const metrics = await metricsService.getAgentMetrics(req.params.agentId);
-      const response: SuccessResponse<any> = {
-        success: true,
-        data: metrics,
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
-    } catch (error) {
-      const err: ErrorResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'FLEET_METRICS_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
-    }
-  });
-
-  /**
-   * POST /api/v1/fleet/:agentId/suspend — Suspend an agent
-   */
-  router.post('/:agentId/suspend', async (req: Request, res: Response) => {
-    try {
-      const { agentId } = req.params;
-      await execute(
-        `UPDATE agent_registry SET status = 'suspended', updated_at = NOW() WHERE agent_id = $1`,
-        [agentId]
-      );
-      const response: SuccessResponse<any> = {
-        success: true,
-        data: { agent_id: agentId, status: 'suspended' },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
-    } catch (error) {
-      const err: ErrorResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'SUSPEND_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
-    }
-  });
-
-  /**
-   * POST /api/v1/fleet/:agentId/activate — Reactivate an agent
-   */
-  router.post('/:agentId/activate', async (req: Request, res: Response) => {
-    try {
-      const { agentId } = req.params;
-      await execute(
-        `UPDATE agent_registry SET status = 'active', updated_at = NOW() WHERE agent_id = $1`,
-        [agentId]
-      );
-      const response: SuccessResponse<any> = {
-        success: true,
-        data: { agent_id: agentId, status: 'active' },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
-    } catch (error) {
-      const err: ErrorResponse = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'ACTIVATE_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
-    }
-  });
-
-  /**
-   * PUT /api/v1/fleet/:agentId/trust — Manually adjust trust score
-   */
-  router.put('/:agentId/trust', async (req: Request, res: Response) => {
-    try {
-      const { agentId } = req.params;
-      const { trust_score } = req.body;
-
-      if (typeof trust_score !== 'number' || trust_score < 0 || trust_score > 100) {
-        const err: ErrorResponse = {
+      const { agent_id } = req.params;
+      const { status } = req.body;
+      
+      if (!['active', 'inactive', 'suspended'].includes(status)) {
+        return res.status(400).json({
           success: false,
-          error: 'trust_score must be a number between 0 and 100',
-          code: 'INVALID_REQUEST',
-          timestamp: new Date().toISOString(),
-        };
-        res.status(400).json(err);
-        return;
+          error: 'Invalid status. Must be: active, inactive, or suspended',
+          code: 'INVALID_STATUS'
+        });
       }
-
-      await execute(
-        `UPDATE agent_registry SET trust_score = $1, updated_at = NOW() WHERE agent_id = $2`,
-        [trust_score, agentId]
-      );
-      const response: SuccessResponse<any> = {
+      
+      const stateGraph = viennaRuntime.getStateGraph();
+      const agent = stateGraph.getAgent(agent_id);
+      
+      if (!agent) {
+        return res.status(404).json({
+          success: false,
+          error: 'Agent not found',
+          code: 'NOT_FOUND'
+        });
+      }
+      
+      stateGraph.upsertAgent({
+        agent_id,
+        tenant_id: agent.tenant_id,
+        status
+      });
+      
+      res.json({
         success: true,
-        data: { agent_id: agentId, trust_score },
-        timestamp: new Date().toISOString(),
-      };
-      res.json(response);
+        data: {
+          agent_id,
+          status,
+          message: `Agent status updated to ${status}`
+        }
+      });
     } catch (error) {
-      const err: ErrorResponse = {
+      console.error('[FleetRouter] Update agent error:', error);
+      res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        code: 'TRUST_UPDATE_ERROR',
-        timestamp: new Date().toISOString(),
-      };
-      res.status(500).json(err);
+        error: 'Failed to update agent',
+        code: 'UPDATE_ERROR'
+      });
     }
   });
 

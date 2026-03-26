@@ -4565,6 +4565,163 @@ class StateGraph {
     
     return value;
   }
+
+  // ============================================================
+  // AGENT FLEET
+  // ============================================================
+
+  /**
+   * Register or update agent
+   */
+  upsertAgent(agent) {
+    const existing = this.db.prepare('SELECT * FROM agents WHERE agent_id = ?').get(agent.agent_id);
+    
+    if (existing) {
+      // Update existing
+      const stmt = this.db.prepare(`
+        UPDATE agents 
+        SET last_seen = datetime('now'),
+            status = ?,
+            metadata_json = ?,
+            updated_at = datetime('now')
+        WHERE agent_id = ?
+      `);
+      
+      stmt.run(
+        agent.status || existing.status,
+        agent.metadata_json ? JSON.stringify(agent.metadata_json) : existing.metadata_json,
+        agent.agent_id
+      );
+    } else {
+      // Insert new
+      const stmt = this.db.prepare(`
+        INSERT INTO agents (
+          agent_id, tenant_id, name, type, status, last_seen, metadata_json
+        ) VALUES (?, ?, ?, ?, ?, datetime('now'), ?)
+      `);
+      
+      stmt.run(
+        agent.agent_id,
+        agent.tenant_id,
+        agent.name || agent.agent_id,
+        agent.type || 'unknown',
+        agent.status || 'active',
+        agent.metadata_json ? JSON.stringify(agent.metadata_json) : null
+      );
+    }
+  }
+
+  /**
+   * Get agent by ID
+   */
+  getAgent(agent_id) {
+    const stmt = this.db.prepare('SELECT * FROM agents WHERE agent_id = ?');
+    const row = stmt.get(agent_id);
+    
+    if (!row) return null;
+    
+    return {
+      ...row,
+      metadata: row.metadata_json ? JSON.parse(row.metadata_json) : null
+    };
+  }
+
+  /**
+   * List agents for tenant
+   */
+  listAgents(tenant_id, filters = {}) {
+    let query = 'SELECT * FROM agents WHERE tenant_id = ?';
+    const params = [tenant_id];
+    
+    if (filters.status) {
+      query += ' AND status = ?';
+      params.push(filters.status);
+    }
+    
+    query += ' ORDER BY last_seen DESC';
+    
+    if (filters.limit) {
+      query += ' LIMIT ?';
+      params.push(filters.limit);
+    }
+    
+    const stmt = this.db.prepare(query);
+    const rows = stmt.all(...params);
+    
+    return rows.map(row => ({
+      ...row,
+      metadata: row.metadata_json ? JSON.parse(row.metadata_json) : null
+    }));
+  }
+
+  /**
+   * Get agent statistics
+   */
+  getAgentStats(tenant_id) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM agent_activity 
+      WHERE tenant_id = ?
+      ORDER BY total_actions DESC
+    `);
+    
+    const rows = stmt.all(tenant_id);
+    
+    // Overall fleet stats
+    const totalAgents = rows.length;
+    const totalActions = rows.reduce((sum, r) => sum + r.total_actions, 0);
+    const totalSuccessful = rows.reduce((sum, r) => sum + r.successful, 0);
+    const avgSuccessRate = totalActions > 0 ? (totalSuccessful / totalActions * 100) : 0;
+    
+    return {
+      fleet: {
+        total_agents: totalAgents,
+        active_agents: rows.filter(r => r.last_action > new Date(Date.now() - 24*60*60*1000).toISOString()).length,
+        total_actions: totalActions,
+        success_rate: Math.round(avgSuccessRate * 10) / 10
+      },
+      agents: rows
+    };
+  }
+
+  /**
+   * Update agent execution stats
+   * Called after each execution
+   */
+  updateAgentStats(agent_id, execution_status) {
+    const stmt = this.db.prepare(`
+      UPDATE agents SET
+        total_executions = total_executions + 1,
+        successful_executions = successful_executions + CASE WHEN ? = 'completed' THEN 1 ELSE 0 END,
+        failed_executions = failed_executions + CASE WHEN ? = 'failed' THEN 1 ELSE 0 END,
+        blocked_executions = blocked_executions + CASE WHEN ? = 'blocked' THEN 1 ELSE 0 END,
+        last_seen = datetime('now'),
+        updated_at = datetime('now')
+      WHERE agent_id = ?
+    `);
+    
+    stmt.run(execution_status, execution_status, execution_status, agent_id);
+  }
+
+  /**
+   * Get agent activity timeline
+   */
+  getAgentActivity(agent_id, hours = 24) {
+    const stmt = this.db.prepare(`
+      SELECT 
+        execution_id,
+        action,
+        status,
+        timestamp,
+        risk_tier
+      FROM execution_ledger
+      WHERE agent_id = ?
+        AND timestamp > datetime('now', '-' || ? || ' hours')
+      ORDER BY timestamp DESC
+      LIMIT 100
+    `);
+    
+    return stmt.all(agent_id, hours);
+  }
 }
 
 // Singleton instance

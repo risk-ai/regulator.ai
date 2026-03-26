@@ -237,6 +237,22 @@ class IntentGateway {
       });
       await this.tracer.updateStatus(intent.intent_id, 'executing');
 
+      // Phase 15: Track agent activity (Fleet Dashboard)
+      if (intent.source?.id && intent.tenant_id) {
+        this.stateGraph.upsertAgent({
+          agent_id: intent.source.id,
+          tenant_id: intent.tenant_id,
+          name: intent.source.name || intent.source.id,
+          type: intent.source.platform || 'unknown',
+          status: 'active',
+          metadata_json: intent.source.metadata || {}
+        });
+        
+        // Update execution stats
+        const executionStatus = resolution.accepted ? 'completed' : 'failed';
+        this.stateGraph.updateAgentStats(intent.source.id, executionStatus);
+      }
+
       // Link to execution if available
       if (resolution.metadata && resolution.metadata.execution_id) {
         await this.tracer.linkExecution(intent.intent_id, resolution.metadata.execution_id);

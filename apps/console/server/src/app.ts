@@ -314,7 +314,7 @@ export function createApp(
   app.use(`${apiPrefix}/actions`, requireAuth, createActionsRouter(viennaRuntime));
   
   // Phase 15: Agent Fleet Dashboard
-  app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter());
+  app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter(viennaRuntime));
   
   // Phase 15: Policy Builder (governance rules engine)
   app.use(`${apiPrefix}/policies`, requireAuth, createPoliciesRouter(viennaRuntime));

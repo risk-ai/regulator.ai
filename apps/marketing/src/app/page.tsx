@@ -475,8 +475,6 @@ export default function Home() {
             </div>
           </div>
 
-          </div>
-
           {/* Right column — Animated warrant card */}
           <div className="hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
             <div className="relative">
@@ -582,16 +580,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-          </div>
-
-          {/* Trusted by */}
-          <div className="mt-14 pt-8 border-t border-navy-700/50 animate-fade-up" style={{ animationDelay: "0.5s" }}>
-            <p className="text-[11px] text-slate-600 uppercase tracking-widest mb-4 font-medium">Built for regulated industries</p>
-            <div className="flex items-center gap-8 text-slate-500 text-sm flex-wrap">
-              {["🏦 Financial Services", "🏥 Healthcare", "⚖️ Legal", "🏛️ Government", "🚀 DevOps"].map((v) => (
-                <span key={v} className="flex items-center gap-1.5 whitespace-nowrap">{v}</span>
-              ))}
-            </div>
           </div>
         </div>
       </header>

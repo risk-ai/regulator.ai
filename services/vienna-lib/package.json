@@ -45,6 +45,14 @@
       "import": "./simulation/*.js",
       "require": "./simulation/*.js"
     },
+    "./detection/*": {
+      "import": "./detection/*.js",
+      "require": "./detection/*.js"
+    },
+    "./adapters/*": {
+      "import": "./adapters/*.js",
+      "require": "./adapters/*.js"
+    },
     "./federation/*": {
       "import": "./federation/*.js",
       "require": "./federation/*.js"

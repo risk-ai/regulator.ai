@@ -13,7 +13,7 @@ let anomalyDetector: any = null;
 
 async function getAnomalyDetector() {
   if (!anomalyDetector) {
-    const { AgentAnomalyDetector } = require('../../../../services/vienna-lib/detection/anomaly-detector');
+    const { AgentAnomalyDetector } = require('@vienna/lib/detection/anomaly-detector');
     anomalyDetector = new AgentAnomalyDetector(await getStateGraph());
   }
   return anomalyDetector;

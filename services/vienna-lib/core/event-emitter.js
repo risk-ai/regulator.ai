@@ -418,6 +418,11 @@ class ViennaEventEmitter {
     }
     
     try {
+      // Track half-open attempts if in that state
+      if (this.circuitBreakerState === 'half-open') {
+        this.metrics.half_open_attempts++;
+      }
+
       // Publish to all connected clients
       this.eventStream.publish(event);
       

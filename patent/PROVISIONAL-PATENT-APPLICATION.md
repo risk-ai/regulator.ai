@@ -588,26 +588,6 @@ The system supports multiple independent tenants (organizations) within a single
 
 A system and method for governing the execution of actions requested by untrusted autonomous execution actors—including AI agents, automated scripts, API clients, and autonomous devices—through a cryptographic execution control architecture. The system interposes an execution isolation layer between execution actor runtimes and execution endpoints, architecturally preventing execution actors from directly invoking execution resources. Untrusted autonomous execution actors propose structured intents which are evaluated by a policy engine, classified into risk tiers with escalating approval requirements, and authorized through cryptographically bound capability tokens that specify scope constraints, parameter bounds, and time-to-live inversely proportional to risk level. A trusted execution intermediary performs authorized actions on behalf of agents after verifying the token's cryptographic signature and scope constraints, recording a structured execution trace. A post-execution verification engine compares the execution trace against pre-authorized constraints to detect scope drift, parameter violations, and timing deviations. A behavioral anomaly detection system maintains per-agent baselines and escalates approval requirements upon detecting statistical deviations. The system defends against compromised agents, replay attacks, scope escalation, parameter tampering, and insider threats. All governance events are recorded in a tamper-evident audit ledger. The architecture is framework-agnostic and applicable to AI agents, API clients, automated scripts, and IoT devices.
 
----
-
-### FILING NOTES
-
-**Filing type:** Provisional Patent Application (35 U.S.C. §111(b))
-**Filing fee:** $320 (small entity) or $160 (micro entity)
-**File at:** https://patentcenter.uspto.gov
-**Technology center:** TC 2400 (Computer Networks, Multiplex, Cable, and Cryptography/Security)
-
-**Micro entity qualification (if applicable):**
-- Max Anderson may qualify as micro entity if: gross income < $228,648, not named on > 4 previous patent applications, and not obligated to assign to entity that doesn't qualify.
-
-**Next steps after filing:**
-1. Receive provisional application number + filing date (priority date)
-2. Use "Patent Pending" on all materials
-3. Within 12 months: file non-provisional utility patent application referencing this provisional
-4. Engage patent attorney for non-provisional claims refinement
-
----
-
 *Prepared: March 26, 2026*
 *Revised: March 26, 2026 — Incorporating patent-level review recommendations*
 *This document is intended as a draft provisional patent application. The inventor should review all claims and technical descriptions for accuracy before filing.*

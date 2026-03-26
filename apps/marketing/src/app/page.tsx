@@ -436,8 +436,9 @@ export default function Home() {
             </div>
           )}
 
-          {/* Hero content — staggered fade-up */}
-          <div id="main-content" className="max-w-3xl">
+          {/* Hero content — two-column layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div id="main-content">
             <div className="animate-fade-up" style={{ animationDelay: "0s" }}>
               <div className="flex items-center gap-3 mb-5">
                 <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
@@ -474,8 +475,117 @@ export default function Home() {
             </div>
           </div>
 
+          </div>
+
+          {/* Right column — Animated warrant card */}
+          <div className="hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
+            <div className="relative">
+              {/* Glow effect */}
+              <div className="absolute -inset-4 bg-purple-500/5 rounded-3xl blur-xl" />
+              
+              {/* Warrant card */}
+              <div className="relative bg-navy-800/80 border border-navy-700 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-mono text-purple-400 tracking-wider">EXECUTION WARRANT</span>
+                  <span className="flex items-center gap-1.5 text-xs text-emerald-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Verified
+                  </span>
+                </div>
+                
+                <div className="font-mono text-[11px] text-slate-500 mb-4">
+                  wrt-7f3a2b1c-e8d4-4a9f-b2c1
+                </div>
+
+                {/* Scope section */}
+                <div className="mb-4">
+                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Scope</div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">action</span>
+                      <span className="text-white font-mono">deploy_service</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">target</span>
+                      <span className="text-white font-mono">api-gateway</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">version</span>
+                      <span className="text-white font-mono">v2.4.1</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Authority section */}
+                <div className="mb-4">
+                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Authority</div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">issuer</span>
+                      <span className="text-purple-300 font-mono">operator:jane</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">risk tier</span>
+                      <span className="text-yellow-400 font-mono">T2</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">policy</span>
+                      <span className="text-white font-mono">prod-deploy-v3</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Constraints */}
+                <div className="mb-4">
+                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Constraints</div>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">ttl</span>
+                      <span className="text-white font-mono">300s</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">rollback</span>
+                      <span className="text-emerald-400 font-mono">enabled</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-slate-500">max_replicas</span>
+                      <span className="text-white font-mono">3</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Signature */}
+                <div className="pt-3 border-t border-navy-700">
+                  <div className="flex items-center justify-between text-[10px] text-slate-600">
+                    <span className="font-mono">sig: hmac-sha256:7f3a…b2c1</span>
+                    <span>tamper-evident</span>
+                  </div>
+                  <div className="text-[10px] text-slate-700 font-mono mt-1">
+                    issued 14:32:07Z · expires 14:37:07Z
+                  </div>
+                </div>
+              </div>
+
+              {/* Pipeline status below the card */}
+              <div className="mt-4 flex items-center gap-2 text-[10px] font-mono">
+                <span className="text-emerald-400">✓ intent</span>
+                <span className="text-slate-700">→</span>
+                <span className="text-emerald-400">✓ policy</span>
+                <span className="text-slate-700">→</span>
+                <span className="text-emerald-400">✓ approved</span>
+                <span className="text-slate-700">→</span>
+                <span className="text-purple-400 animate-pulse">● warrant</span>
+                <span className="text-slate-700">→</span>
+                <span className="text-slate-600">execute</span>
+                <span className="text-slate-700">→</span>
+                <span className="text-slate-600">verify</span>
+              </div>
+            </div>
+          </div>
+          </div>
+
           {/* Trusted by */}
-          <div className="mt-14 pt-8 border-t border-navy-700/50 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+          <div className="mt-14 pt-8 border-t border-navy-700/50 animate-fade-up" style={{ animationDelay: "0.5s" }}>
             <p className="text-[11px] text-slate-600 uppercase tracking-widest mb-4 font-medium">Built for regulated industries</p>
             <div className="flex items-center gap-8 text-slate-500 text-sm flex-wrap">
               {["🏦 Financial Services", "🏥 Healthcare", "⚖️ Legal", "🏛️ Government", "🚀 DevOps"].map((v) => (

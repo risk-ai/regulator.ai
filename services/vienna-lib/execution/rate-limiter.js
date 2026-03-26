@@ -28,6 +28,7 @@ class RateLimiter {
       burst_window_ms: policy.burst_window_ms || 10 * 1000 // 10 seconds
     };
     
+    // Initialize after policy is set
     // Sliding window tracking using bucketed approach
     this.agentWindows = new Map(); // agent_id → SlidingWindow
     this.tenantWindows = new Map(); // tenant_id → SlidingWindow  
@@ -316,6 +317,110 @@ class RateLimiter {
    */
   _getBurstCapacity(baseLimit, now) {
     return Math.floor(baseLimit * this.policy.burst_allowance_ratio);
+  }
+}
+
+/**
+ * Sliding Window Implementation using time buckets
+ * More efficient than maintaining individual timestamps
+ */
+class SlidingWindow {
+  constructor(policy) {
+    this.windowMs = policy.window_size_ms || 60 * 1000;
+    this.numBuckets = policy.num_window_buckets || 6;
+    this.bucketMs = Math.floor(this.windowMs / this.numBuckets);
+    
+    // Circular buffer of buckets: [timestamp, count]
+    this.buckets = new Array(this.numBuckets).fill(null).map(() => [0, 0]);
+    this.currentBucket = 0;
+    this.lastCleanup = Date.now();
+  }
+
+  /**
+   * Record an event at the given timestamp
+   */
+  record(timestamp) {
+    this._cleanup(timestamp);
+    
+    const bucketIndex = this._getBucketIndex(timestamp);
+    const bucket = this.buckets[bucketIndex];
+    
+    // If bucket is from current time window, increment count
+    if (bucket[0] >= timestamp - this.bucketMs) {
+      bucket[1]++;
+    } else {
+      // Reset bucket for new time period
+      bucket[0] = timestamp;
+      bucket[1] = 1;
+    }
+  }
+
+  /**
+   * Get total count in the sliding window
+   */
+  getCount(now) {
+    this._cleanup(now);
+    
+    let total = 0;
+    const cutoff = now - this.windowMs;
+    
+    for (const [timestamp, count] of this.buckets) {
+      if (timestamp > cutoff) {
+        total += count;
+      }
+    }
+    
+    return total;
+  }
+
+  /**
+   * Get count in recent portion of window
+   */
+  getRecentCount(now, recentWindowMs) {
+    this._cleanup(now);
+    
+    let total = 0;
+    const cutoff = now - recentWindowMs;
+    
+    for (const [timestamp, count] of this.buckets) {
+      if (timestamp > cutoff) {
+        total += count;
+      }
+    }
+    
+    return total;
+  }
+
+  /**
+   * Get bucket index for timestamp
+   * 
+   * @private
+   */
+  _getBucketIndex(timestamp) {
+    return Math.floor((timestamp / this.bucketMs)) % this.numBuckets;
+  }
+
+  /**
+   * Cleanup expired buckets
+   * 
+   * @private
+   */
+  _cleanup(now) {
+    // Only cleanup periodically to avoid excessive computation
+    if (now - this.lastCleanup < this.bucketMs / 2) {
+      return;
+    }
+    
+    const cutoff = now - this.windowMs;
+    
+    for (const bucket of this.buckets) {
+      if (bucket[0] <= cutoff) {
+        bucket[0] = 0;
+        bucket[1] = 0;
+      }
+    }
+    
+    this.lastCleanup = now;
   }
 }
 

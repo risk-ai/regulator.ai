@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vienna-sdk"
+version = "0.1.0"
+description = "Official Python SDK for Vienna OS — AI Agent Governance Platform"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.9"
+authors = [
+    {name = "ai.ventures", email = "admin@ai.ventures"},
+]
+keywords = ["vienna", "ai", "governance", "agents", "sdk", "compliance", "warrants"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://regulator.ai"
+Documentation = "https://regulator.ai/docs"
+Repository = "https://github.com/risk-ai/regulator.ai"
+Issues = "https://github.com/risk-ai/regulator.ai/issues"
+
+[tool.setuptools.packages.find]
+include = ["vienna_sdk*"]

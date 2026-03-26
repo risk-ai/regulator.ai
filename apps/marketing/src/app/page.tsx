@@ -39,7 +39,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-navy-900/90 to-navy-900" />
         <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-20">
           {/* Nav */}
-          <nav className="flex items-center justify-between mb-16">
+          <nav className="flex items-center justify-between mb-16" aria-label="Main navigation">
             <div className="flex items-center gap-3">
               <Shield className="w-7 h-7 text-purple-400" />
               <span className="text-lg font-bold text-white tracking-tight">
@@ -77,7 +77,7 @@ export default function Home() {
           )}
 
           {/* Hero content */}
-          <div className="max-w-3xl">
+          <div id="main-content" className="max-w-3xl">
             <div className="flex items-center gap-3 mb-5">
               <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 status-live" />
@@ -146,7 +146,7 @@ export default function Home() {
       {/* ============================================
           PLATFORM — Core capabilities
           ============================================ */}
-      <section id="platform" className="max-w-6xl mx-auto px-6 py-20">
+      <section id="platform" aria-label="Platform features" className="max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-14">
           <h2 className="text-3xl font-bold text-white mb-3">
             Complete Governance Platform
@@ -245,7 +245,7 @@ export default function Home() {
       {/* ============================================
           INDUSTRIES — Fraud.net-style vertical cards
           ============================================ */}
-      <section id="industries" className="bg-navy-800/50 py-20">
+      <section id="industries" aria-label="Industries served" className="bg-navy-800/50 py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">
@@ -341,7 +341,7 @@ export default function Home() {
       {/* ============================================
           PRICING
           ============================================ */}
-      <section id="pricing" className="bg-navy-800/50 py-20">
+      <section id="pricing" aria-label="Pricing plans" className="bg-navy-800/50 py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">Pricing</h2>

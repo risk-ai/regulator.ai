@@ -222,7 +222,7 @@ export default function SignupPage() {
 
             <form onSubmit={handleSubmit} className="max-w-lg space-y-5">
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">
+                <label htmlFor="signup-name" className="block text-sm text-slate-400 mb-1.5">
                   Full Name *
                 </label>
                 <input
@@ -238,7 +238,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">
+                <label htmlFor="signup-email" className="block text-sm text-slate-400 mb-1.5">
                   Work Email *
                 </label>
                 <input
@@ -254,7 +254,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">
+                <label htmlFor="signup-company" className="block text-sm text-slate-400 mb-1.5">
                   Company
                 </label>
                 <input
@@ -269,7 +269,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">
+                <label htmlFor="signup-agents" className="block text-sm text-slate-400 mb-1.5">
                   How many AI agents are you running?
                 </label>
                 <select
@@ -289,7 +289,7 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">
+                <label htmlFor="signup-usecase" className="block text-sm text-slate-400 mb-1.5">
                   Primary use case (optional)
                 </label>
                 <textarea

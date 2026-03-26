@@ -49,7 +49,7 @@ export default function ContactPage() {
               Enterprise inquiry, partnership, technical question, or just want to chat about AI governance.
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
+            <form onSubmit={handleSubmit} aria-label="Contact form" className="space-y-5 max-w-lg">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-slate-400 mb-1.5">Name *</label>

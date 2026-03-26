@@ -36,8 +36,9 @@ const https = require('https');
 const fs = require('fs');
 
 class VerificationEngine {
-  constructor() {
+  constructor(options = {}) {
     this.checkHandlers = new Map();
+    this.auditLogger = options.auditLogger || null;
     this._registerDefaultHandlers();
   }
 
@@ -267,19 +268,75 @@ class VerificationEngine {
    * Run verification task
    * 
    * @param {Object} verificationTask - VerificationTask object
+   * @param {Object} [warrant] - Associated warrant for scope drift detection
    * @returns {Promise<Object>} VerificationResult
    */
-  async runVerification(verificationTask) {
+  async runVerification(verificationTask, warrant = null) {
     const startedAt = Date.now();
     const timeout = verificationTask.timeout_ms || 15000;
     const stabilityWindow = verificationTask.stability_window_ms || 0;
+    const verificationId = verificationTask.verification_id || `ver_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Emit verification started event
+    this._emitVerificationEvent('verification.started', {
+      verification_id: verificationId,
+      plan_id: verificationTask.plan_id,
+      execution_id: verificationTask.execution_id,
+      timeout_ms: timeout,
+      stability_window_ms: stabilityWindow
+    });
 
     try {
+      // Perform scope drift detection if warrant provided
+      let scopeDriftResult = null;
+      if (warrant) {
+        scopeDriftResult = await this._detectScopeDrift(verificationTask, warrant);
+        
+        if (scopeDriftResult.drift_detected) {
+          this._emitVerificationEvent('verification.scope_drift_detected', {
+            verification_id: verificationId,
+            plan_id: verificationTask.plan_id,
+            execution_id: verificationTask.execution_id,
+            drift_details: scopeDriftResult
+          });
+        }
+      }
+
+      // Perform timing verification if warrant provided
+      let timingResult = null;
+      if (warrant) {
+        timingResult = this._verifyExecutionTiming(verificationTask, warrant, startedAt);
+        
+        if (!timingResult.timing_valid) {
+          this._emitVerificationEvent('verification.timing_violation', {
+            verification_id: verificationId,
+            plan_id: verificationTask.plan_id,
+            execution_id: verificationTask.execution_id,
+            timing_details: timingResult
+          });
+        }
+      }
+
       // Run all postcondition checks
       const checkResults = await Promise.race([
         this._runChecks(verificationTask.postconditions),
         this._timeout(timeout)
       ]);
+
+      // Perform output validation if schema defined
+      let outputValidationResult = null;
+      if (warrant && warrant.constraints && warrant.constraints.output_schema) {
+        outputValidationResult = await this._validateExecutionOutput(verificationTask, warrant);
+        
+        if (!outputValidationResult.schema_valid) {
+          this._emitVerificationEvent('verification.output_schema_violation', {
+            verification_id: verificationId,
+            plan_id: verificationTask.plan_id,
+            execution_id: verificationTask.execution_id,
+            validation_details: outputValidationResult
+          });
+        }
+      }
 
       // Determine if all required checks passed
       const requiredChecks = checkResults.filter(r => r.required !== false);
@@ -295,7 +352,17 @@ class VerificationEngine {
       }
 
       const completedAt = Date.now();
-      const objectiveAchieved = allRequiredPassed && (!stabilityResult || stabilityResult.status === 'passed');
+      
+      // Factor in additional validation results for final objective achievement
+      const scopeOk = !scopeDriftResult || !scopeDriftResult.drift_detected;
+      const timingOk = !timingResult || timingResult.timing_valid;
+      const outputOk = !outputValidationResult || outputValidationResult.schema_valid;
+      
+      const objectiveAchieved = allRequiredPassed && 
+                               scopeOk && 
+                               timingOk && 
+                               outputOk && 
+                               (!stabilityResult || stabilityResult.status === 'passed');
 
       // Determine verification status
       let status;
@@ -304,6 +371,8 @@ class VerificationEngine {
       } else if (stabilityResult && stabilityResult.status === 'failed') {
         status = VerificationStatus.FAILED;
       } else if (requiredChecks.some(r => r.status === 'failed')) {
+        status = VerificationStatus.FAILED;
+      } else if (!scopeOk || !timingOk || !outputOk) {
         status = VerificationStatus.FAILED;
       } else {
         status = VerificationStatus.INCONCLUSIVE;

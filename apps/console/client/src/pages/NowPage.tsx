@@ -24,7 +24,7 @@ export function NowPage() {
   const { systemStatus, loading } = useDashboardStore();
   
   // Show empty state for new users or when no data is available
-  const shouldShowEmpty = !loading && (!systemStatus || systemStatus.is_empty_state);
+  const shouldShowEmpty = !loading && !systemStatus;
   
   const handleSeedDemo = async () => {
     // TODO: Implement demo data seeding

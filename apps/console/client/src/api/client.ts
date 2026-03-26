@@ -148,13 +148,20 @@ export class ApiClient {
   /**
    * GET request
    */
-  async get<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
+  async get<T>(path: string, params?: Record<string, string | number | boolean | undefined> | { timeout?: number }): Promise<T> {
     let url = path;
+    let timeout: number | undefined;
     
-    if (params) {
+    // If params has a 'timeout' key, treat it as options
+    if (params && 'timeout' in params && typeof params.timeout === 'number') {
+      timeout = params.timeout;
+      params = undefined;
+    }
+    
+    if (params && typeof params === 'object') {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && key !== 'timeout') {
           searchParams.append(key, String(value));
         }
       });
@@ -164,7 +171,7 @@ export class ApiClient {
       }
     }
     
-    return this.fetch<T>(url, { method: 'GET' });
+    return this.fetch<T>(url, { method: 'GET', timeout } as any);
   }
 
   /**

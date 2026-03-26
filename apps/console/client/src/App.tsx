@@ -32,19 +32,29 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
 export function App() {
-  const { authenticated, loading, checkSession } = useAuthStore();
+  const { authenticated, loading, error, checkSession } = useAuthStore();
   const [currentSection, setCurrentSection] = useState<NavSection>('now');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [backendDown, setBackendDown] = useState(false);
   
   // Set up keyboard shortcuts
   useKeyboardShortcuts({
     onOpenCommandPalette: () => setShowCommandPalette(true)
   });
 
-  // Check session on mount (only once)
+  // Check session on mount with timeout detection
   useEffect(() => {
-    checkSession();
+    const timeoutId = setTimeout(() => {
+      // If still loading after 6 seconds, backend is likely down
+      if (loading) {
+        setBackendDown(true);
+      }
+    }, 6000);
+    
+    checkSession().catch(() => setBackendDown(true));
+    
+    return () => clearTimeout(timeoutId);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Check if onboarding should be shown (first-time user)
@@ -86,7 +96,7 @@ export function App() {
   };
   
   // Show loading spinner while checking session
-  if (loading) {
+  if (loading && !backendDown) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -95,6 +105,41 @@ export function App() {
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
           <p className="text-gray-600">Loading Vienna Console...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if backend is unreachable
+  if (backendDown || (loading && !authenticated)) {
+    return (
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <div className="text-6xl mb-6">🛡️</div>
+          <h1 className="text-2xl font-bold text-white mb-2">Vienna Console</h1>
+          <p className="text-gray-400 mb-6">
+            Cannot connect to the Vienna OS backend. The server may be starting up or temporarily unavailable.
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                setBackendDown(false);
+                checkSession().catch(() => setBackendDown(true));
+              }}
+              className="w-full px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition"
+            >
+              Retry Connection
+            </button>
+            <a
+              href="https://regulator.ai"
+              className="block w-full px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition"
+            >
+              Visit regulator.ai
+            </a>
+          </div>
+          <p className="text-gray-600 text-xs mt-6">
+            Backend: {window.location.origin}/api/v1/health
+          </p>
         </div>
       </div>
     );

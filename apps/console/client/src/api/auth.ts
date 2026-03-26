@@ -65,7 +65,8 @@ export async function logout(): Promise<LogoutResponse> {
 
 /**
  * Check current session status
+ * Uses a short timeout (5s) so the UI doesn't hang on backend issues
  */
 export async function checkSession(): Promise<SessionInfo> {
-  return apiClient.get<SessionInfo>('/auth/session');
+  return apiClient.get<SessionInfo>('/auth/session', { timeout: 5000 });
 }

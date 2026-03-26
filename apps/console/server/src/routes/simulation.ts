@@ -15,7 +15,8 @@ let chaosEngine: any = null;
 
 async function getChaosEngine() {
   if (!chaosEngine) {
-    const { ChaosEngine } = require('../../../../services/vienna-lib/simulation/chaos-engine');
+    // Import via @vienna/lib package (proper module resolution)
+    const { ChaosEngine } = require('@vienna/lib/simulation/chaos-engine');
     const stateGraph = await getStateGraph();
     chaosEngine = new ChaosEngine(stateGraph, {
       dry_run: process.env.CHAOS_DRY_RUN === 'true' // Enable dry run for safety

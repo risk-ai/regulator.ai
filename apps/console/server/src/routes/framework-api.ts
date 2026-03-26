@@ -272,7 +272,7 @@ router.post('/agents', async (req, res) => {
       return res.status(400).json({ success: false, error: 'agent_id and name are required' });
     }
 
-    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const tenantId = (req.headers['x-vienna-tenant'] as string) || 'default';
     const timestamp = new Date().toISOString();
 
     // Emit agent registered event
@@ -305,7 +305,7 @@ router.post('/agents/:agentId/heartbeat', async (req, res) => {
     const { agentId } = req.params;
     const { status } = req.body;
     
-    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const tenantId = (req.headers['x-vienna-tenant'] as string) || 'default';
     const timestamp = new Date().toISOString();
 
     // Emit agent heartbeat event

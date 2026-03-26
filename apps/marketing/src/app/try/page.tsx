@@ -285,13 +285,45 @@ export default function TryPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* ─── Header ─── */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            Governance Pipeline — Live Demo
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Live Playground</span>
+            </div>
+            <div className="h-4 w-px bg-navy-700"></div>
+            <span className="text-xs text-warm-600 font-mono">
+              {visibleSteps.length > 0 ? `${visibleSteps.length}/8 steps completed` : "Ready to simulate"}
+            </span>
+          </div>
+          
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+            Interactive Governance Pipeline
           </h1>
-          <p className="text-warm-400 text-sm sm:text-base max-w-2xl">
-            Watch every agent action flow through policy evaluation, risk tiering, warrant issuance,
-            and immutable audit logging. No signup required.
+          <p className="text-warm-400 text-sm sm:text-base max-w-2xl mb-4">
+            Submit any AI agent intent and watch it flow through Vienna OS — policy evaluation, 
+            risk tiering, approval workflows, warrant issuance, and immutable audit logging.
           </p>
+          
+          <div className="flex items-center gap-6 text-xs text-warm-600">
+            <div className="flex items-center gap-2">
+              <span className="font-mono">⚡</span>
+              <span>Real-time simulation</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono">🔒</span>
+              <span>Production-grade logic</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono">📋</span>
+              <span>Full audit trail</span>
+            </div>
+            {result && (
+              <div className="flex items-center gap-2">
+                <span className="font-mono">⏱️</span>
+                <span>{result.total_duration_ms}ms total</span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
@@ -455,21 +487,83 @@ export default function TryPage() {
 
             {/* Empty state */}
             {!result && !loading && !error && (
-              <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl p-8 sm:p-12 flex flex-col items-center justify-center text-center min-h-[400px]">
-                <div className="w-16 h-16 rounded-2xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center mb-5">
-                  <Shield className="w-8 h-8 text-gold-400" />
+              <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden min-h-[400px]">
+                {/* Interactive demo header */}
+                <div className="bg-navy-800 border-b border-navy-700/50 px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-gold-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold">Interactive Governance Simulator</h3>
+                        <p className="text-xs text-warm-500">Submit a mock intent and watch it flow through the pipeline</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                      <span className="text-xs text-emerald-400 font-medium">Live Simulation</span>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">Select a scenario and execute</h3>
-                <p className="text-warm-500 text-sm max-w-md mb-4">
-                  Watch every agent action flow through the full governance pipeline — policy evaluation,
-                  risk tiering, approval gates, cryptographic warrants, and immutable audit logging.
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {["Intent", "Policy", "Risk", "Approval", "Warrant", "Execute", "Verify", "Audit"].map((s, i) => (
-                    <span key={s} className="text-[10px] font-mono text-warm-600 bg-navy-800 border border-navy-700 px-2 py-1 rounded-md">
-                      {i + 1}. {s}
-                    </span>
-                  ))}
+
+                {/* Interactive flow preview */}
+                <div className="p-6">
+                  <div className="mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                      {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
+                        <div key={step} className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300">
+                          <div className="text-lg mb-1">
+                            {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                          </div>
+                          <div className="text-xs text-warm-400 font-medium">{step}</div>
+                          <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Step {i + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-navy-900/30 border border-navy-700/30 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-sm text-gold-400 font-medium">💡 Try these scenarios:</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {[
+                          "🚀 Production deployment (T1 approval needed)",
+                          "💸 Large wire transfer (T2 multi-party approval)",
+                          "🏥 Patient record update (HIPAA compliant)", 
+                          "⚡ Read-only query (T0 auto-approved)"
+                        ].map((suggestion) => (
+                          <div key={suggestion} className="text-xs text-warm-500 bg-navy-800/50 rounded px-3 py-2 border border-navy-700/30">
+                            {suggestion}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-warm-400 text-sm mb-4 max-w-md mx-auto">
+                      Select a scenario above and click "Execute Pipeline" to see Vienna OS governance in action.
+                      Every step is simulated with realistic timing and outcomes.
+                    </p>
+                    
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-2 text-xs text-warm-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                        <span>Real-time simulation</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-warm-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gold-400"></div>
+                        <span>Interactive controls</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-warm-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
+                        <span>Full audit trail</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

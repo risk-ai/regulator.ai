@@ -79,7 +79,7 @@ router.post('/intents', async (req, res) => {
     const timestamp = new Date().toISOString();
     
     // Extract tenant_id from API key or headers (for now, use default)
-    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const tenantId = (req.headers['x-vienna-tenant'] as string) || 'default';
 
     // Emit intent submitted event
     eventBus.emitIntentSubmitted({
@@ -221,7 +221,7 @@ router.post('/executions', async (req, res) => {
     }
 
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const tenantId = req.headers['x-vienna-tenant'] || 'default';
+    const tenantId = (req.headers['x-vienna-tenant'] as string) || 'default';
     const timestamp = new Date().toISOString();
 
     // Emit execution started event

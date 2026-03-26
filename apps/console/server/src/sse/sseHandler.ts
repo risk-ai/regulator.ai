@@ -23,7 +23,7 @@ export interface SSEConnectionRequest extends Request {
 /**
  * Handle SSE connection with filtering and tenant isolation
  */
-export function handleSSEConnection(req: SSEConnectionRequest, res: Response): void {
+export function handleSSEConnection(req: SSEConnectionRequest, res: Response) {
   const clientId = uuidv4();
   const userId = req.user?.id;
   const tenantId = req.query.tenant_id || req.user?.tenant_id;
@@ -64,7 +64,7 @@ export function handleSSEConnection(req: SSEConnectionRequest, res: Response): v
 /**
  * Get SSE stream statistics (for monitoring)
  */
-export function getSSEStats(req: Request, res: Response): void {
+export function getSSEStats(req: Request, res: Response) {
   try {
     const stats = eventStream.getEventStats();
     const clients = eventStream.getClients();
@@ -96,7 +96,7 @@ export function getSSEStats(req: Request, res: Response): void {
 /**
  * Get recent events for debugging/testing
  */
-export function getRecentEvents(req: Request, res: Response): void {
+export function getRecentEvents(req: Request, res: Response) {
   try {
     const tenantId = req.query.tenant_id as string;
     const limit = parseInt(req.query.limit as string) || 50;
@@ -132,7 +132,7 @@ export function getRecentEvents(req: Request, res: Response): void {
 /**
  * Test event emission (for development/testing)
  */
-export function emitTestEvent(req: Request, res: Response): void {
+export function emitTestEvent(req: Request, res: Response) {
   try {
     const { type, data, tenant_id, severity } = req.body;
 

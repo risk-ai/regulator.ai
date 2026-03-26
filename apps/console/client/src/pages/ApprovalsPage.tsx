@@ -8,10 +8,13 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { PendingApprovalsList } from '../components/approvals/PendingApprovalsList';
+import { useResponsive } from '../hooks/useResponsive.js';
+import { ErrorBoundary } from '../components/ui/ErrorBoundary.js';
 
 export function ApprovalsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
+  const { isMobile } = useResponsive();
 
   const handleApprovalChange = () => {
     setRefreshKey(prev => prev + 1);
@@ -54,12 +57,12 @@ export function ApprovalsPage() {
       </div>
 
       {activeTab === 'pending' && (
-        <div>
+        <ErrorBoundary>
           <PendingApprovalsList
             key={refreshKey}
             onApprovalChange={handleApprovalChange}
           />
-        </div>
+        </ErrorBoundary>
       )}
 
       {activeTab === 'history' && (
@@ -80,7 +83,7 @@ export function ApprovalsPage() {
       {/* Risk tier reference */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
         gap: '12px',
         marginTop: '24px',
       }}>

@@ -879,13 +879,31 @@ export default function TryPage() {
           </div>
         </div>
 
-        {/* ─── API Snippet ─── */}
-        <div className="mt-12 sm:mt-16">
-          <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-3">
-            Integrate via API
-          </h3>
-          <div className="bg-navy-800 border border-navy-700/50 rounded-xl p-4 sm:p-5">
-            <pre className="font-mono text-xs sm:text-sm text-warm-300 overflow-x-auto">
+        {/* ─── API Integration & Next Steps ─── */}
+        <div className="mt-12 sm:mt-16 space-y-8">
+          {/* API Snippet */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider">
+                Integrate via API
+              </h3>
+              <button 
+                onClick={() => navigator.clipboard?.writeText(`curl -X POST https://api.vienna-os.dev/v1/agent/intent \\
+  -H "Authorization: Bearer $VIENNA_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "action": "${selected === "custom" ? customAction : selected}",
+    "source": "your-agent-id", 
+    "tenant_id": "your-org",
+    "context": { "environment": "production" }
+  }'`)}
+                className="text-xs text-gold-400 hover:text-gold-300 transition px-2 py-1 border border-gold-400/20 rounded"
+              >
+                Copy cURL
+              </button>
+            </div>
+            <div className="bg-navy-800 border border-navy-700/50 rounded-xl p-4 sm:p-5">
+              <pre className="font-mono text-xs sm:text-sm text-warm-300 overflow-x-auto">
 {`curl -X POST https://api.vienna-os.dev/v1/agent/intent \\
   -H "Authorization: Bearer \$VIENNA_API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -895,7 +913,36 @@ export default function TryPage() {
     "tenant_id": "your-org",
     "context": { "environment": "production" }
   }'`}
-            </pre>
+              </pre>
+            </div>
+          </div>
+
+          {/* Next Steps */}
+          <div className="bg-gradient-to-r from-purple-900/20 to-navy-800/50 border border-purple-500/20 rounded-2xl p-6">
+            <h3 className="text-lg font-semibold text-white mb-3">Ready to govern your AI agents?</h3>
+            <p className="text-warm-400 text-sm mb-4 max-w-2xl">
+              This playground shows Vienna OS capabilities. Get started with your own governance infrastructure in minutes.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <a 
+                href="/signup" 
+                className="bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+              >
+                Start Free Trial →
+              </a>
+              <a 
+                href="/docs" 
+                className="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+              >
+                Read Documentation
+              </a>
+              <a 
+                href="/contact" 
+                className="text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+              >
+                Schedule Demo
+              </a>
+            </div>
           </div>
         </div>
       </main>

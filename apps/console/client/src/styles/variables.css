@@ -178,6 +178,14 @@
   --z-modal: 1400;
   --z-popover: 1500;
   --z-tooltip: 1600;
+
+  /* ========================================
+     RESPONSIVE BREAKPOINTS
+     ======================================== */
+  
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
 }
 
 /* ========================================

@@ -1,72 +1,63 @@
-# Vienna Console Server - Production Dockerfile
-# Multi-stage build for optimal size and security
+# syntax = docker/dockerfile:1
 
-# ============================================================================
-# Stage 1: Build
-# ============================================================================
-FROM node:20-alpine AS builder
-
+FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy root package files
-COPY package.json package-lock.json ./
-COPY turbo.json ./
+# Copy and install vienna-lib dependencies first
+COPY services/vienna-lib/package*.json ./services/vienna-lib/
+COPY services/vienna-lib ./services/vienna-lib/
+RUN cd services/vienna-lib && npm install --omit=dev --ignore-scripts
 
-# Copy workspace packages
-COPY services/vienna-lib ./services/vienna-lib
-COPY apps/console/server ./apps/console/server
+# Copy and install server dependencies
+COPY apps/console/server/package*.json ./apps/console/server/
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+RUN cd apps/console/server && npm install
 
-# Install dependencies (including dev dependencies for build)
-RUN npm ci
+# Copy server source + config
+COPY apps/console/server/src ./apps/console/server/src
+COPY apps/console/server/tsconfig*.json ./apps/console/server/
+COPY apps/console/server/esbuild.config.mjs ./apps/console/server/
 
-# Build vienna-lib
-WORKDIR /app/services/vienna-lib
-RUN npm run build || echo "No build script for vienna-lib"
+# Build bundled artifact
+RUN cd apps/console/server && npm run build:prod
 
-# Build console server
-WORKDIR /app/apps/console/server
-RUN npm run build:prod || npm run build
+# Build frontend
+COPY apps/console/client/package*.json ./apps/console/client/
+RUN cd apps/console/client && npm ci
+COPY apps/console/client ./apps/console/client
+RUN cd apps/console/client && npm run build
 
-# ============================================================================
-# Stage 2: Production
-# ============================================================================
-FROM node:20-alpine
-
+# Production stage
+FROM node:22-alpine
 WORKDIR /app
 
-# Install production dependencies only
-COPY package.json package-lock.json ./
-COPY turbo.json ./
-COPY services/vienna-lib/package.json ./services/vienna-lib/
-COPY apps/console/server/package.json ./apps/console/server/
+ENV NODE_ENV=production
 
-RUN npm ci --production --workspace=services/vienna-lib --workspace=apps/console/server
+# Install build tools for native modules
+RUN apk add --no-cache python3 make g++
 
-# Copy built artifacts from builder
-COPY --from=builder /app/services/vienna-lib ./services/vienna-lib
-COPY --from=builder /app/apps/console/server/dist ./apps/console/server/dist
-COPY --from=builder /app/apps/console/server/build ./apps/console/server/build
+# Copy package.json for proper module resolution
+COPY apps/console/server/package*.json ./
 
-# Copy any runtime dependencies
-COPY apps/console/server/.env.example ./apps/console/server/.env.example
+# Install production dependencies (including native modules for Alpine)
+RUN npm install --omit=dev --ignore-scripts=false
 
-# Create runtime directories
-RUN mkdir -p /app/data/state && \
-    mkdir -p /app/data/uploads && \
-    chown -R node:node /app
+# Copy bundled server from builder
+COPY --from=builder /app/apps/console/server/build ./build
 
-# Switch to non-root user
-USER node
+# Copy SQL schema files (needed at runtime)
+COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/
+COPY --from=builder /app/apps/console/server/src/services/chatHistorySchema.postgres.sql ./build/
 
-# Set working directory to server
-WORKDIR /app/apps/console/server
+# Copy frontend static files
+COPY --from=builder /app/apps/console/client/dist ./client/dist
+
+# Remove build tools to reduce image size
+RUN apk del python3 make g++
 
 # Expose port
 EXPOSE 3100
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3100/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# Start server
-CMD ["node", "dist/server.js"]
+# Start bundled server (CommonJS)
+CMD ["node", "build/server.cjs"]

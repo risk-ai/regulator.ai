@@ -338,6 +338,19 @@ async function start() {
     healthChecker.start();
     console.log('Provider health checker started');
     
+    // Auto-start simulation engine if enabled (default: true)
+    const simulationEnabled = process.env.VIENNA_SIMULATION !== 'false';
+    if (simulationEnabled) {
+      const { simulationService } = await import('./services/simulationService.js');
+      try {
+        await simulationService.seed();
+        await simulationService.start();
+        console.log('Simulation engine auto-started');
+      } catch (simErr) {
+        console.warn('Simulation engine failed to auto-start:', simErr);
+      }
+    }
+
     // Start HTTP server
     const server = app.listen(PORT, HOST, () => {
       console.log(`Vienna Console Server listening on http://${HOST}:${PORT}`);
@@ -347,8 +360,15 @@ async function start() {
     });
     
     // Graceful shutdown
-    process.on('SIGTERM', () => {
+    process.on('SIGTERM', async () => {
       console.log('SIGTERM received, shutting down gracefully');
+      
+      // Stop simulation engine
+      if (simulationEnabled) {
+        const { simulationService } = await import('./services/simulationService.js');
+        await simulationService.stop();
+        console.log('Simulation engine stopped');
+      }
       
       server.close(() => {
         console.log('HTTP server closed');

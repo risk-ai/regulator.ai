@@ -1,12 +1,50 @@
 /**
  * Settings Page — Vienna OS
  * 
- * Operator configuration, session management, and system information.
+ * Operator configuration, session management, simulation control, and system information.
  */
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { useAuthStore } from '../store/authStore.js';
+import { apiClient } from '../api/client.js';
+
+// ============================================================================
+// Simulation Types & API
+// ============================================================================
+
+interface SimulationStatus {
+  running: boolean;
+  startedAt: string | null;
+  actionsGenerated: number;
+  alertsGenerated: number;
+  tickCount: number;
+  lastTickAt: string | null;
+}
+
+async function fetchSimulationStatus(): Promise<SimulationStatus> {
+  return apiClient.get<SimulationStatus>('/simulation/status');
+}
+
+async function startSimulation(): Promise<void> {
+  await apiClient.post('/simulation/start', {});
+}
+
+async function stopSimulation(): Promise<void> {
+  await apiClient.post('/simulation/stop', {});
+}
+
+async function seedSimulation(): Promise<{ actions: number; alerts: number }> {
+  return apiClient.post<{ actions: number; alerts: number; message: string }>('/simulation/seed', {});
+}
+
+async function resetSimulation(): Promise<void> {
+  await apiClient.post('/simulation/reset', {});
+}
+
+// ============================================================================
+// Settings Page
+// ============================================================================
 
 export function SettingsPage() {
   const { operator, logout } = useAuthStore();
@@ -43,6 +81,9 @@ export function SettingsPage() {
             </button>
           </div>
         </SettingsCard>
+
+        {/* Simulation Engine */}
+        <SimulationCard />
 
         {/* System Info */}
         <SettingsCard title="System">
@@ -96,6 +137,235 @@ export function SettingsPage() {
     </PageLayout>
   );
 }
+
+// ============================================================================
+// Simulation Card
+// ============================================================================
+
+function SimulationCard() {
+  const [status, setStatus] = useState<SimulationStatus | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [actionLabel, setActionLabel] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const s = await fetchSimulationStatus();
+      setStatus(s);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    const interval = setInterval(refresh, 10000); // Refresh every 10s
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    try {
+      if (status?.running) {
+        await stopSimulation();
+        setActionLabel('Stopped');
+      } else {
+        await startSimulation();
+        setActionLabel('Started');
+      }
+      await refresh();
+    } catch (err) {
+      setActionLabel('Error');
+    }
+    setLoading(false);
+    setTimeout(() => setActionLabel(null), 2000);
+  };
+
+  const handleSeed = async () => {
+    setLoading(true);
+    setActionLabel('Seeding...');
+    try {
+      const result = await seedSimulation();
+      setActionLabel(`Seeded ${result.actions} actions`);
+      await refresh();
+    } catch {
+      setActionLabel('Seed failed');
+    }
+    setLoading(false);
+    setTimeout(() => setActionLabel(null), 3000);
+  };
+
+  const handleReset = async () => {
+    if (!confirm('Reset all simulation data? This will clear generated activity, alerts, and evaluations.')) return;
+    setLoading(true);
+    setActionLabel('Resetting...');
+    try {
+      await resetSimulation();
+      setActionLabel('Data cleared');
+      await refresh();
+    } catch {
+      setActionLabel('Reset failed');
+    }
+    setLoading(false);
+    setTimeout(() => setActionLabel(null), 3000);
+  };
+
+  const formatTime = (iso: string | null) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  const formatDuration = (iso: string | null) => {
+    if (!iso) return '—';
+    const start = new Date(iso).getTime();
+    const now = Date.now();
+    const diff = Math.floor((now - start) / 1000);
+    if (diff < 60) return `${diff}s`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ${diff % 60}s`;
+    const hours = Math.floor(diff / 3600);
+    const mins = Math.floor((diff % 3600) / 60);
+    return `${hours}h ${mins}m`;
+  };
+
+  const running = status?.running ?? false;
+
+  return (
+    <SettingsCard title="Simulation Engine">
+      {/* Status indicator + toggle */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '8px 0',
+        borderBottom: '1px solid var(--border-subtle)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: running ? '#4ade80' : '#6b7280',
+            boxShadow: running ? '0 0 6px rgba(74, 222, 128, 0.5)' : 'none',
+          }} />
+          <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Status</span>
+        </div>
+        <button
+          onClick={handleToggle}
+          disabled={loading}
+          style={{
+            padding: '4px 12px',
+            borderRadius: '4px',
+            border: `1px solid ${running ? 'rgba(248, 113, 113, 0.3)' : 'rgba(74, 222, 128, 0.3)'}`,
+            background: running ? 'rgba(248, 113, 113, 0.08)' : 'rgba(74, 222, 128, 0.08)',
+            color: running ? '#f87171' : '#4ade80',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'wait' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {running ? 'Stop' : 'Start'}
+        </button>
+      </div>
+
+      {/* Stats */}
+      <SettingsRow
+        label="Actions Generated"
+        value={status?.actionsGenerated?.toLocaleString() ?? '—'}
+        mono
+      />
+      <SettingsRow
+        label="Alerts Generated"
+        value={status?.alertsGenerated?.toLocaleString() ?? '—'}
+        mono
+      />
+      <SettingsRow
+        label="Ticks"
+        value={status?.tickCount?.toLocaleString() ?? '—'}
+        mono
+      />
+      <SettingsRow
+        label="Running Since"
+        value={running ? formatDuration(status?.startedAt ?? null) : 'Stopped'}
+        valueColor={running ? '#4ade80' : '#6b7280'}
+      />
+      <SettingsRow
+        label="Last Tick"
+        value={formatTime(status?.lastTickAt ?? null)}
+        mono
+      />
+
+      {/* Action buttons */}
+      <div style={{
+        marginTop: '12px',
+        paddingTop: '12px',
+        borderTop: '1px solid var(--border-subtle)',
+        display: 'flex',
+        gap: '8px',
+      }}>
+        <button
+          onClick={handleSeed}
+          disabled={loading}
+          style={{
+            flex: 1,
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+            background: 'rgba(99, 102, 241, 0.08)',
+            color: '#818cf8',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'wait' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          Seed 24h Data
+        </button>
+        <button
+          onClick={handleReset}
+          disabled={loading}
+          style={{
+            flex: 1,
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(248, 113, 113, 0.2)',
+            background: 'rgba(248, 113, 113, 0.08)',
+            color: '#f87171',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'wait' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          Reset Data
+        </button>
+      </div>
+
+      {/* Action feedback */}
+      {actionLabel && (
+        <div style={{
+          marginTop: '8px',
+          padding: '6px 10px',
+          borderRadius: '4px',
+          background: 'rgba(99, 102, 241, 0.06)',
+          border: '1px solid rgba(99, 102, 241, 0.15)',
+          fontSize: '11px',
+          color: '#a5b4fc',
+          textAlign: 'center',
+        }}>
+          {actionLabel}
+        </div>
+      )}
+    </SettingsCard>
+  );
+}
+
+// ============================================================================
+// Shared Components
+// ============================================================================
 
 function SettingsCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (

@@ -70,6 +70,7 @@ import { createIntegrationsRouter } from './routes/integrations.js';
 import { createPoliciesRouter } from './routes/policies.js';
 import { createActionTypesRouter } from './routes/action-types.js';
 import { createFleetRouter } from './routes/fleet.js';
+import { createSimulationRouter } from './routes/simulation.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -322,6 +323,9 @@ export function createApp(
   
   // Phase 15.5: Compliance Reports
   app.use(`${apiPrefix}/compliance`, requireAuth, createComplianceRouter());
+
+  // Simulation Engine (demo traffic generation)
+  app.use(`${apiPrefix}/simulation`, requireAuth, createSimulationRouter());
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

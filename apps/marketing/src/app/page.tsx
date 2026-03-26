@@ -408,6 +408,7 @@ export default function Home() {
                 ["#platform", "Platform"],
                 ["#industries", "Industries"],
                 ["#pricing", "Pricing"],
+                ["/demo", "Demo"],
                 ["/docs", "Docs"],
                 ["/blog", "Blog"],
               ].map(([href, label]) => (
@@ -427,6 +428,7 @@ export default function Home() {
               <a href="#platform" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Platform</a>
               <a href="#industries" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Industries</a>
               <a href="#pricing" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+              <a href="/demo" className="block text-sm text-slate-300">Demo</a>
               <a href="/docs" className="block text-sm text-slate-300">Docs</a>
               <a href="/blog" className="block text-sm text-slate-300">Blog</a>
               <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium mt-2">Get Started</a>
@@ -461,6 +463,9 @@ export default function Home() {
               </a>
               <a href="/try" className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition font-medium text-sm border border-navy-700">
                 Try Live API →
+              </a>
+              <a href="/demo" className="text-sm text-slate-500 hover:text-white transition ml-1">
+                Watch Demo
               </a>
               <a href="/docs" className="text-sm text-slate-500 hover:text-white transition ml-1">
                 Read Docs
@@ -736,7 +741,7 @@ export default function Home() {
               </p>
             </div>
             {[
-              { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
+              { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
               { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
               { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
               { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Email", "mailto:admin@ai.ventures"]] },

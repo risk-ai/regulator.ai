@@ -1,0 +1,40 @@
+{
+  "name": "@vienna/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript SDK for Vienna OS — AI Agent Governance Platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "vienna",
+    "ai",
+    "governance",
+    "agents",
+    "sdk",
+    "compliance",
+    "policy"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

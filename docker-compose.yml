@@ -1,0 +1,147 @@
+# Vienna OS Local Development Environment
+# Run the complete Vienna OS stack locally with one command
+
+version: '3.8'
+
+services:
+  # PostgreSQL database (optional, can use SQLite instead)
+  postgres:
+    image: postgres:16-alpine
+    container_name: vienna-postgres
+    environment:
+      POSTGRES_DB: vienna_os
+      POSTGRES_USER: vienna
+      POSTGRES_PASSWORD: vienna_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - vienna-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vienna"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for caching, rate limiting, job queues)
+  redis:
+    image: redis:7-alpine
+    container_name: vienna-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - vienna-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Vienna Console Server (backend API)
+  console-server:
+    build:
+      context: .
+      dockerfile: apps/console/server/Dockerfile
+    container_name: vienna-console-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Server
+      NODE_ENV: development
+      PORT: 3100
+      HOST: 0.0.0.0
+      
+      # Database
+      DATABASE_URL: postgresql://vienna:vienna_dev_password@postgres:5432/vienna_os
+      
+      # Redis
+      REDIS_URL: redis://redis:6379
+      
+      # AI Providers (set via .env file)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      
+      # Security
+      SESSION_SECRET: ${SESSION_SECRET:-dev_session_secret_change_in_production}
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      
+      # CORS
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3100
+      
+      # Feature Flags
+      ENABLE_AGENT_INTENT_LAYER: "true"
+      ENABLE_POLICY_ENGINE: "true"
+      ENABLE_WARRANT_SYSTEM: "true"
+      
+      # Logging
+      LOG_LEVEL: debug
+      LOG_FORMAT: pretty
+      
+      # Vienna OS
+      VIENNA_ENV: dev
+    ports:
+      - "3100:3100"
+    volumes:
+      # Mount source code for hot reload (development only)
+      - ./apps/console/server/src:/app/apps/console/server/src
+      - ./services/vienna-lib:/app/services/vienna-lib
+      # Persistent state
+      - vienna-state-data:/app/data
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Vienna Console Client (frontend UI)
+  console-client:
+    build:
+      context: .
+      dockerfile: apps/console/client/Dockerfile.dev
+    container_name: vienna-console-client
+    depends_on:
+      - console-server
+    environment:
+      VITE_API_BASE_URL: http://localhost:3100
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount source for hot reload
+      - ./apps/console/client/src:/app/src
+      - ./apps/console/client/public:/app/public
+    command: npm run dev
+
+  # Ollama (local AI models - optional)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vienna-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - vienna-ollama-data:/root/.ollama
+    # Automatically pull a small model for development
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull qwen2.5:0.5b
+        wait
+
+volumes:
+  vienna-postgres-data:
+    name: vienna-postgres-data
+  vienna-redis-data:
+    name: vienna-redis-data
+  vienna-state-data:
+    name: vienna-state-data
+  vienna-ollama-data:
+    name: vienna-ollama-data
+
+networks:
+  default:
+    name: vienna-network

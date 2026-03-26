@@ -306,3 +306,8 @@ router.get('/scenarios/list', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// Factory function for compatibility with app.ts
+export function createSimulationRouter() {
+  return router;
+}

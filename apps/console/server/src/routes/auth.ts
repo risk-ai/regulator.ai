@@ -653,3 +653,8 @@ router.delete('/api-keys/:id', jwtAuthMiddleware, async (req: AuthenticatedReque
 });
 
 export default router;
+
+// Factory function for compatibility with app.ts
+export function createAuthRouter() {
+  return router;
+}

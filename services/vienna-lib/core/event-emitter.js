@@ -42,7 +42,37 @@ class ViennaEventEmitter {
     this.failureCount = 0;
     this.maxFailures = options.maxFailures || 10;
     this.circuitBreakerOpen = false;
+    this.circuitBreakerHalfOpen = false;
+    this.circuitBreakerState = 'closed'; // closed, open, half-open
+    this.lastFailureTime = 0;
+    this.lastStateTransition = Date.now();
     this.queueCapacity = options.queueCapacity || 1000;
+    
+    // Enhanced circuit breaker configuration
+    this.circuitBreakerConfig = {
+      failure_threshold: options.maxFailures || 10,
+      recovery_timeout_ms: options.recovery_timeout_ms || 60000, // 1 minute
+      half_open_max_calls: options.half_open_max_calls || 3,
+      half_open_success_threshold: options.half_open_success_threshold || 2,
+      failure_thresholds_per_action: options.failure_thresholds_per_action || {
+        'execution.failed': 5,
+        'execution.timeout': 3,
+        'alert.failure.rate.critical': 2
+      }
+    };
+    
+    // Metrics tracking
+    this.metrics = {
+      state_transitions: {
+        open: 0,
+        close: 0,
+        half_open: 0
+      },
+      total_failures: 0,
+      total_successes: 0,
+      half_open_attempts: 0,
+      half_open_successes: 0
+    };
     
     // Alert thresholds (configurable)
     this.queueWarningThreshold = options.queueWarningThreshold || 0.7;
@@ -364,6 +394,11 @@ class ViennaEventEmitter {
    * @param {object} event - Event object
    */
   _emit(event) {
+    // Check circuit breaker state before attempting emit
+    if (!this._canEmit()) {
+      return;
+    }
+
     if (!this.eventStream) {
       // Buffer event until connected
       if (this.buffer.length < this.maxBufferSize) {
@@ -383,28 +418,21 @@ class ViennaEventEmitter {
     }
     
     try {
+      // Track half-open attempts if in that state
+      if (this.circuitBreakerState === 'half-open') {
+        this.metrics.half_open_attempts++;
+      }
+
       // Publish to all connected clients
       this.eventStream.publish(event);
       
-      // Reset failure counter on success
-      this.failureCount = 0;
+      // Record success
+      this._recordSuccess();
     } catch (error) {
       console.error('[ViennaEventEmitter] Failed to emit event:', error);
       
-      this.failureCount++;
-      
-      // Open circuit breaker if too many failures
-      if (this.failureCount >= this.maxFailures) {
-        this.circuitBreakerOpen = true;
-        console.error('[ViennaEventEmitter] Circuit breaker opened after', this.maxFailures, 'failures');
-        
-        // Attempt to recover after delay
-        setTimeout(() => {
-          this.circuitBreakerOpen = false;
-          this.failureCount = 0;
-          console.log('[ViennaEventEmitter] Circuit breaker reset');
-        }, 60000); // 1 minute
-      }
+      // Record failure with action-specific thresholds
+      this._recordFailure(event.event_type);
     }
   }
   
@@ -435,9 +463,15 @@ class ViennaEventEmitter {
       enabled: this.enabled,
       connected: !!this.eventStream,
       buffered_events: this.buffer.length,
+      circuit_breaker_state: this.circuitBreakerState,
       circuit_breaker_open: this.circuitBreakerOpen,
+      circuit_breaker_half_open: this.circuitBreakerHalfOpen,
       failure_count: this.failureCount,
       max_failures: this.maxFailures,
+      last_failure_time: this.lastFailureTime,
+      last_state_transition: this.lastStateTransition,
+      metrics: { ...this.metrics },
+      circuit_breaker_config: { ...this.circuitBreakerConfig },
       alert_states: { ...this.alertStates }, // Phase 5A.3
       recent_failures: this.recentFailures.length,
       recent_executions: this.recentExecutions.length
@@ -453,6 +487,156 @@ class ViennaEventEmitter {
     this.recentFailures = [];
     this.recentExecutions = [];
     this.alertStates.failureRate = 'normal';
+  }
+
+  /**
+   * Enhanced circuit breaker: Check if we can emit events
+   * 
+   * @private
+   */
+  _canEmit() {
+    const now = Date.now();
+
+    // If circuit is closed, allow emit
+    if (this.circuitBreakerState === 'closed') {
+      return true;
+    }
+
+    // If circuit is open, check if we should try half-open
+    if (this.circuitBreakerState === 'open') {
+      if (now - this.lastFailureTime >= this.circuitBreakerConfig.recovery_timeout_ms) {
+        this._transitionToHalfOpen();
+        return true;
+      }
+      return false;
+    }
+
+    // If circuit is half-open, allow limited requests
+    if (this.circuitBreakerState === 'half-open') {
+      return this.metrics.half_open_attempts < this.circuitBreakerConfig.half_open_max_calls;
+    }
+
+    return false;
+  }
+
+  /**
+   * Record successful emit
+   * 
+   * @private
+   */
+  _recordSuccess() {
+    this.metrics.total_successes++;
+    this.failureCount = Math.max(0, this.failureCount - 1); // Gradual recovery
+
+    if (this.circuitBreakerState === 'half-open') {
+      this.metrics.half_open_successes++;
+      
+      // Check if we should close the circuit
+      if (this.metrics.half_open_successes >= this.circuitBreakerConfig.half_open_success_threshold) {
+        this._transitionToClosed();
+      }
+    }
+  }
+
+  /**
+   * Record failed emit with action-specific thresholds
+   * 
+   * @private
+   */
+  _recordFailure(eventType) {
+    this.metrics.total_failures++;
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+
+    // Get failure threshold for this action type
+    const actionThreshold = this.circuitBreakerConfig.failure_thresholds_per_action[eventType] || 
+                           this.circuitBreakerConfig.failure_threshold;
+
+    if (this.circuitBreakerState === 'closed') {
+      if (this.failureCount >= actionThreshold) {
+        this._transitionToOpen();
+      }
+    } else if (this.circuitBreakerState === 'half-open') {
+      // Any failure in half-open state goes back to open
+      this._transitionToOpen();
+    }
+  }
+
+  /**
+   * Transition circuit breaker to open state
+   * 
+   * @private
+   */
+  _transitionToOpen() {
+    if (this.circuitBreakerState !== 'open') {
+      this.circuitBreakerState = 'open';
+      this.circuitBreakerOpen = true;
+      this.circuitBreakerHalfOpen = false;
+      this.lastStateTransition = Date.now();
+      this.metrics.state_transitions.open++;
+
+      console.error(`[ViennaEventEmitter] Circuit breaker OPENED after ${this.failureCount} failures`);
+    }
+  }
+
+  /**
+   * Transition circuit breaker to half-open state
+   * 
+   * @private
+   */
+  _transitionToHalfOpen() {
+    if (this.circuitBreakerState !== 'half-open') {
+      this.circuitBreakerState = 'half-open';
+      this.circuitBreakerOpen = false;
+      this.circuitBreakerHalfOpen = true;
+      this.lastStateTransition = Date.now();
+      this.metrics.state_transitions.half_open++;
+      this.metrics.half_open_attempts = 0;
+      this.metrics.half_open_successes = 0;
+
+      console.log('[ViennaEventEmitter] Circuit breaker HALF-OPEN - testing recovery');
+    }
+  }
+
+  /**
+   * Transition circuit breaker to closed state
+   * 
+   * @private
+   */
+  _transitionToClosed() {
+    if (this.circuitBreakerState !== 'closed') {
+      this.circuitBreakerState = 'closed';
+      this.circuitBreakerOpen = false;
+      this.circuitBreakerHalfOpen = false;
+      this.lastStateTransition = Date.now();
+      this.metrics.state_transitions.close++;
+      this.failureCount = 0;
+
+      console.log('[ViennaEventEmitter] Circuit breaker CLOSED - service recovered');
+    }
+  }
+
+  /**
+   * Manually reset circuit breaker (for emergency or testing)
+   */
+  resetCircuitBreaker() {
+    this._transitionToClosed();
+    this.metrics.half_open_attempts = 0;
+    this.metrics.half_open_successes = 0;
+    console.log('[ViennaEventEmitter] Circuit breaker manually reset');
+  }
+
+  /**
+   * Get circuit breaker metrics for monitoring
+   */
+  getCircuitBreakerMetrics() {
+    return {
+      state: this.circuitBreakerState,
+      state_duration_ms: Date.now() - this.lastStateTransition,
+      failure_count: this.failureCount,
+      metrics: { ...this.metrics },
+      config: { ...this.circuitBreakerConfig }
+    };
   }
 }
 

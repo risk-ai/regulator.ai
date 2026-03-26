@@ -22,8 +22,12 @@ import { FleetDashboardPage } from './pages/FleetDashboardPage.js';
 import { IntegrationsPage } from './pages/IntegrationsPage.js';
 import { CompliancePage } from './pages/CompliancePage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
-import { OnboardingModal } from './components/OnboardingModal.js';
+import { WelcomeWizard } from './components/onboarding/WelcomeWizard.js';
+import { CommandPalette } from './components/search/CommandPalette.js';
+import { ThemeProvider } from './contexts/ThemeContext.js';
 import { useAuthStore } from './store/authStore.js';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
+import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
@@ -31,7 +35,13 @@ export function App() {
   const { authenticated, loading, checkSession } = useAuthStore();
   const [currentSection, setCurrentSection] = useState<NavSection>('now');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   
+  // Set up keyboard shortcuts
+  useKeyboardShortcuts({
+    onOpenCommandPalette: () => setShowCommandPalette(true)
+  });
+
   // Check session on mount (only once)
   useEffect(() => {
     checkSession();
@@ -153,22 +163,43 @@ export function App() {
   };
   
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      {/* Top Navigation */}
-      <MainNav currentSection={currentSection} onNavigate={handleNavigate} />
-      
-      {/* Page Content */}
-      <main className="container mx-auto px-6 py-6">
-        {renderPage()}
-      </main>
-      
-      {/* First-Run Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-        />
-      )}
-    </div>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <div style={{ 
+          minHeight: '100vh', 
+          background: 'var(--bg-app)', 
+          color: 'var(--text-primary)',
+          fontFamily: 'var(--font-sans)'
+        }}>
+          {/* Top Navigation */}
+          <MainNav currentSection={currentSection} onNavigate={handleNavigate} />
+          
+          {/* Page Content */}
+          <main className="container mx-auto px-6 py-6">
+            <ErrorBoundary>
+              {renderPage()}
+            </ErrorBoundary>
+          </main>
+          
+          {/* Command Palette */}
+          <CommandPalette
+            isOpen={showCommandPalette}
+            onClose={() => setShowCommandPalette(false)}
+            onNavigate={(section) => {
+              handleNavigate(section as NavSection);
+              setShowCommandPalette(false);
+            }}
+          />
+          
+          {/* Enhanced Onboarding Wizard */}
+          {showOnboarding && (
+            <WelcomeWizard
+              onComplete={handleOnboardingComplete}
+              onSkip={handleOnboardingSkip}
+            />
+          )}
+        </div>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }

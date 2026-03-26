@@ -94,3 +94,16 @@ export type {
   AuditEntry,
   Warrant,
 } from './types.js';
+
+// ─── Framework Adapters ──────────────────────────────────────────────────────
+export {
+  createForLangChain,
+  createForCrewAI,
+  createForAutoGen,
+  createForOpenClaw,
+} from './frameworks.js';
+
+export type {
+  FrameworkConfig,
+  FrameworkAdapter,
+} from './frameworks.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@vienna/sdk",
+  "name": "@vienna-os/sdk",
   "version": "0.1.0",
   "description": "Official TypeScript SDK for Vienna OS — AI Agent Governance Platform",
   "main": "dist/index.js",
@@ -13,24 +13,39 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "package.json"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "jest",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/risk-ai/regulator.ai.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://regulator.ai",
+  "bugs": {
+    "url": "https://github.com/risk-ai/regulator.ai/issues"
   },
   "keywords": [
+    "vienna-os",
     "vienna",
     "ai",
     "governance",
     "agents",
     "sdk",
     "compliance",
-    "policy"
+    "policy",
+    "risk-management",
+    "agent-framework"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=18.0.0"
   },

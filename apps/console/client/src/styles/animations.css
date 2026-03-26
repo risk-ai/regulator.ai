@@ -1,0 +1,275 @@
+/**
+ * Vienna OS Animations
+ * 
+ * Smooth, professional animations for state changes and interactions
+ */
+
+/* ========================================
+   KEYFRAME ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { 
+    opacity: 0; 
+    transform: translateY(-20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes slideInFromBottom {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes slideInFromLeft {
+  from { 
+    opacity: 0; 
+    transform: translateX(-20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes slideInFromRight {
+  from { 
+    opacity: 0; 
+    transform: translateX(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.slide-in-from-top {
+  animation: slideInFromTop var(--transition-base) ease-out;
+}
+
+.slide-in-from-bottom {
+  animation: slideInFromBottom var(--transition-base) ease-out;
+}
+
+.slide-in-from-left {
+  animation: slideInFromLeft var(--transition-base) ease-out;
+}
+
+.slide-in-from-right {
+  animation: slideInFromRight var(--transition-base) ease-out;
+}
+
+.scale-in {
+  animation: scaleIn var(--transition-base) ease-out;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Duration modifiers */
+.duration-fast {
+  animation-duration: var(--transition-fast);
+}
+
+.duration-base {
+  animation-duration: var(--transition-base);
+}
+
+.duration-slow {
+  animation-duration: var(--transition-slow);
+}
+
+/* Delay modifiers */
+.delay-75 { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+
+/* ========================================
+   LOADING ANIMATIONS
+   ======================================== */
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.04),
+    transparent
+  );
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s steps(3, end) infinite;
+}
+
+@keyframes loadingDots {
+  0%, 33% { content: '.'; }
+  34%, 66% { content: '..'; }
+  67%, 100% { content: '...'; }
+}
+
+/* ========================================
+   HOVER & FOCUS STATES
+   ======================================== */
+
+.hover-lift {
+  transition: transform var(--transition-fast) ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast) ease-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: box-shadow var(--transition-fast) ease-out;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-primary);
+}
+
+/* ========================================
+   STAGGER ANIMATIONS
+   ======================================== */
+
+.stagger-children > * {
+  animation: slideInFromBottom var(--transition-base) ease-out both;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+
+/* ========================================
+   MODAL & OVERLAY ANIMATIONS
+   ======================================== */
+
+.modal-backdrop {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.modal-content {
+  animation: scaleIn var(--transition-base) ease-out;
+}
+
+.drawer-left {
+  animation: slideInFromLeft var(--transition-base) ease-out;
+}
+
+.drawer-right {
+  animation: slideInFromRight var(--transition-base) ease-out;
+}
+
+/* ========================================
+   STATUS INDICATORS
+   ======================================== */
+
+.status-pulse {
+  position: relative;
+}
+
+.status-pulse::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0.3;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ========================================
+   REDUCED MOTION SUPPORT
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .animate-in {
+    animation: none;
+  }
+  
+  .loading-shimmer {
+    animation: none;
+  }
+  
+  .pulse,
+  .status-pulse::before {
+    animation: none;
+  }
+}

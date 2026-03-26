@@ -1,19 +1,22 @@
-# @vienna/sdk
+# @vienna-os/sdk
 
 Official TypeScript SDK for **Vienna OS** — the AI Agent Governance Platform.
 
 Submit intents, manage policies, govern your fleet, and stay compliant — all with full type safety and zero runtime dependencies.
 
+[![npm version](https://badge.fury.io/js/@vienna-os%2Fsdk.svg)](https://www.npmjs.com/package/@vienna-os/sdk)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## Installation
 
 ```bash
-npm install @vienna/sdk
+npm install @vienna-os/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { ViennaClient } from '@vienna/sdk';
+import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
   apiKey: process.env.VIENNA_API_KEY!,
@@ -35,182 +38,257 @@ console.log(result.riskTier);    // 'T0' | 'T1' | 'T2' | 'T3'
 console.log(result.auditId);     // Every action is audited
 ```
 
-## Modules
+## Framework Integration
+
+Vienna OS provides convenience wrappers for popular AI agent frameworks:
+
+### LangChain
+
+```typescript
+import { createForLangChain } from '@vienna-os/sdk';
+
+const vienna = createForLangChain({
+  apiKey: process.env.VIENNA_API_KEY!,
+  agentId: 'langchain-bot',
+});
+
+// Submit tool calls through governance
+const result = await vienna.submitToolIntent('web_search', {
+  query: 'AI governance best practices',
+});
+
+// Wait for T2/T3 approvals
+if (result.status === 'pending_approval') {
+  const status = await vienna.waitForApproval(result.intentId);
+  console.log(`Final status: ${status}`);
+}
+```
+
+### CrewAI
+
+```typescript
+import { createForCrewAI } from '@vienna-os/sdk';
+
+const vienna = createForCrewAI({
+  apiKey: process.env.VIENNA_API_KEY!,
+  agentId: 'crew-researcher',
+});
+
+const result = await vienna.submitTaskIntent('market_research', {
+  topic: 'AI governance trends',
+  depth: 'comprehensive',
+});
+```
+
+### AutoGen
+
+```typescript
+import { createForAutoGen } from '@vienna-os/sdk';
+
+const vienna = createForAutoGen({
+  apiKey: process.env.VIENNA_API_KEY!,
+  agentId: 'autogen-assistant',
+});
+
+const result = await vienna.submitConversationIntent('get_stock_price', {
+  symbol: 'NVDA',
+  exchange: 'NASDAQ',
+});
+```
+
+### OpenClaw
+
+```typescript
+import { createForOpenClaw } from '@vienna-os/sdk';
+
+const vienna = createForOpenClaw({
+  apiKey: process.env.VIENNA_API_KEY!,
+  agentId: 'openclaw-agent',
+});
+
+const result = await vienna.submitSkillIntent('web_search', {
+  query: 'OpenAI news',
+  max_results: 10,
+});
+```
+
+## Risk Tiers
+
+Vienna OS classifies all agent actions by risk level:
+
+| Tier | Description | Examples | Approval Required |
+|------|-------------|----------|-------------------|
+| **T0** | Read-only, no external impact | View files, search web, read databases | No |
+| **T1** | Low-risk writes, reversible | Create temp files, send notifications | No |
+| **T2** | Medium-risk, business impact | Send emails, modify configs, API calls | Optional |
+| **T3** | High-risk, significant impact | Financial transactions, delete data, deploy code | Yes |
+
+## Core API
 
 ### Intent Submission
 
-Submit agent actions through the governance pipeline, check status, or simulate dry-runs.
-
 ```typescript
-// Submit
-const result = await vienna.intent.submit({ action, source, payload });
+// Submit and track intents
+const result = await vienna.intent.submit({
+  action: 'deploy_code',
+  source: 'ci-bot',
+  payload: { 
+    repository: 'api-server',
+    environment: 'production' 
+  },
+});
 
 // Check status
 const status = await vienna.intent.status('int-abc123');
 
-// Dry-run simulation
-const sim = await vienna.intent.simulate({ action, source, payload });
+// Simulate without executing (dry-run)
+const simulation = await vienna.intent.simulate({
+  action: 'wire_transfer',
+  source: 'billing-bot',
+  payload: { amount: 100000 },
+});
 ```
 
 ### Policy Management
 
-Create, update, and evaluate governance policies.
-
 ```typescript
-// List policies
-const policies = await vienna.policies.list({ enabled: true });
-
-// Create a policy
-const rule = await vienna.policies.create({
-  name: 'High-Value Transfer Gate',
-  conditions: [
-    { field: 'action_type', operator: 'equals', value: 'financial_transaction' },
-    { field: 'amount', operator: 'gt', value: 10000 },
-  ],
-  actionOnMatch: 'require_approval',
-  approvalTier: 'T2',
-  priority: 100,
+// Create a new policy
+await vienna.policies.create({
+  name: 'High-Value Transfers',
+  conditions: [{
+    field: 'payload.amount',
+    operator: 'greater_than',
+    value: 50000,
+  }],
+  actions: ['require_approval'],
+  riskTier: 'T3',
 });
 
-// Evaluate policies against test data
-const evaluation = await vienna.policies.evaluate({ action_type: 'wire_transfer', amount: 75000 });
-
-// Browse industry templates
-const templates = await vienna.policies.templates();
-```
-
-### Fleet Management
-
-Monitor agents, manage trust scores, handle alerts.
-
-```typescript
-const fleet = await vienna.fleet.list();
-const agent = await vienna.fleet.get('billing-bot');
-const metrics = await vienna.fleet.metrics('billing-bot');
-
-await vienna.fleet.suspend('billing-bot', { reason: 'Suspicious activity' });
-await vienna.fleet.activate('billing-bot');
-await vienna.fleet.setTrust('billing-bot', { score: 75, reason: 'Manual review passed' });
-
-const alerts = await vienna.fleet.alerts({ resolved: false });
-await vienna.fleet.resolveAlert('alert-123', { resolvedBy: 'operator-jane' });
+// List and evaluate policies
+const policies = await vienna.policies.list({ enabled: true });
+const evaluation = await vienna.policies.evaluate('pol-123', intentRequest);
 ```
 
 ### Approval Workflows
 
-List, approve, or deny pending actions.
-
 ```typescript
+// List pending approvals
 const pending = await vienna.approvals.list({ status: 'pending' });
 
+// Approve an action
 await vienna.approvals.approve('appr-123', {
   operator: 'jane',
   notes: 'Verified with finance team',
 });
 
+// Deny an action
 await vienna.approvals.deny('appr-456', {
   operator: 'jane',
   reason: 'Exceeds quarterly budget',
 });
 ```
 
-### Integrations
-
-Connect Slack, webhooks, PagerDuty, and more.
+### Fleet Management
 
 ```typescript
-await vienna.integrations.create({
-  type: 'slack',
-  name: 'Ops Channel',
-  config: { webhook_url: 'https://hooks.slack.com/...' },
-  eventTypes: ['approval_required', 'policy_violation'],
-});
+// Monitor your agent fleet
+const agents = await vienna.fleet.list();
+const metrics = await vienna.fleet.metrics('agent-1');
 
-const test = await vienna.integrations.test('int-123');
-await vienna.integrations.toggle('int-123', { enabled: false });
+// Manage agent status
+await vienna.fleet.suspend('agent-1', { reason: 'Suspicious activity' });
+await vienna.fleet.activate('agent-1');
 ```
 
-### Compliance Reporting
-
-Generate reports and track compliance metrics.
+### Compliance & Reporting
 
 ```typescript
+// Generate compliance reports
 const report = await vienna.compliance.generate({
   type: 'quarterly',
-  periodStart: '2026-01-01',
-  periodEnd: '2026-03-31',
+  periodStart: '2024-01-01',
+  periodEnd: '2024-03-31',
 });
 
-const data = await vienna.compliance.get(report.id);
+// Get quick statistics
 const stats = await vienna.compliance.quickStats({ days: 30 });
 ```
 
 ## Configuration
 
-| Option    | Type       | Default                        | Description                     |
-| --------- | ---------- | ------------------------------ | ------------------------------- |
-| `apiKey`  | `string`   | *required*                     | Your Vienna API key (`vna_...`) |
-| `baseUrl` | `string`   | `https://vienna-os.fly.dev`    | API base URL                    |
-| `timeout` | `number`   | `30000`                        | Request timeout (ms)            |
-| `retries` | `number`   | `3`                            | Auto-retries on 429/5xx        |
-| `onError` | `function` | `undefined`                    | Global error callback           |
+```typescript
+const vienna = new ViennaClient({
+  apiKey: 'vna_your_api_key',           // Required
+  baseUrl: 'https://vienna-os.fly.dev', // Optional
+  timeout: 30000,                       // Optional, default 30s
+  retries: 3,                          // Optional, default 3
+  onError: (error) => {                // Optional global error handler
+    console.error('Vienna error:', error);
+  },
+});
+```
 
 ## Error Handling
 
-All errors extend `ViennaError` with typed subclasses:
+The SDK provides detailed error types:
 
 ```typescript
-import { ViennaError, ViennaAuthError, ViennaRateLimitError } from '@vienna/sdk';
+import { 
+  ViennaError, 
+  ViennaAuthError, 
+  ViennaRateLimitError 
+} from '@vienna-os/sdk';
 
 try {
-  await vienna.intent.submit({ /* ... */ });
+  await vienna.intent.submit(intent);
 } catch (error) {
   if (error instanceof ViennaAuthError) {
-    console.error('Invalid API key');
+    console.error('Authentication failed');
   } else if (error instanceof ViennaRateLimitError) {
-    console.error(`Rate limited — retry after ${error.retryAfter}s`);
+    console.error('Rate limit exceeded, retry after:', error.retryAfter);
   } else if (error instanceof ViennaError) {
-    console.error(`[${error.code}] ${error.message}`, error.status);
+    console.error('Vienna API error:', error.code, error.message);
   }
 }
 ```
 
-| Error Class              | HTTP Status | When                              |
-| ------------------------ | ----------- | --------------------------------- |
-| `ViennaValidationError`  | 400         | Invalid request parameters        |
-| `ViennaAuthError`        | 401         | Missing or invalid API key        |
-| `ViennaForbiddenError`   | 403         | Insufficient permissions          |
-| `ViennaNotFoundError`    | 404         | Resource doesn't exist            |
-| `ViennaRateLimitError`   | 429         | Too many requests                 |
-| `ViennaServerError`      | 5xx         | Server-side error                 |
-
-## TypeScript
-
-Built with TypeScript strict mode. All methods, parameters, and return types are fully typed. Import types directly:
-
-```typescript
-import type { IntentRequest, PolicyRule, FleetAgent } from '@vienna/sdk';
-```
-
-## Requirements
-
-- Node.js 18+ (uses native `fetch`)
-- No runtime dependencies
-
 ## Examples
 
-See the [`examples/`](./examples/) directory:
+Check out the [examples directory](./examples/) for complete working examples:
 
-- **[quick-start.ts](./examples/quick-start.ts)** — Basic intent submission
-- **[custom-policy.ts](./examples/custom-policy.ts)** — Create and test policies
-- **[multi-agent.ts](./examples/multi-agent.ts)** — Multi-agent fleet governance
-- **[webhook-handler.ts](./examples/webhook-handler.ts)** — Webhook event processing
+- [`basic-usage.ts`](./examples/basic-usage.ts) — Simple intent submission and status checking
+- [`langchain-integration.ts`](./examples/langchain-integration.ts) — Wrapping LangChain tools with governance
+- [`approval-workflow.ts`](./examples/approval-workflow.ts) — T2/T3 approval polling and management
+
+## TypeScript Support
+
+The SDK is written in TypeScript and provides complete type definitions:
+
+```typescript
+import type { 
+  IntentResult, 
+  RiskTier, 
+  PolicyRule,
+  FleetAgent 
+} from '@vienna-os/sdk';
+
+const result: IntentResult = await vienna.intent.submit(intent);
+const tier: RiskTier = result.riskTier; // Typed as 'T0' | 'T1' | 'T2' | 'T3'
+```
+
+## Documentation
+
+- **Full Documentation**: [regulator.ai/docs](https://regulator.ai/docs)
+- **API Reference**: [regulator.ai/docs/api](https://regulator.ai/docs/api)
+- **Governance Guide**: [regulator.ai/docs/governance](https://regulator.ai/docs/governance)
+- **Policy Examples**: [regulator.ai/docs/policies](https://regulator.ai/docs/policies)
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/risk-ai/regulator.ai/issues)
+- **Documentation**: [regulator.ai/docs](https://regulator.ai/docs)
+- **Email**: support@regulator.ai
 
 ## License
 
-MIT — see [LICENSE](../../LICENSE) for details.
-
----
-
-**Vienna OS** — Governance infrastructure for the AI agent economy.  
-[Documentation](https://vienna-os.fly.dev/docs) · [Dashboard](https://vienna-os.fly.dev) · [GitHub](https://github.com/risk-ai/regulator.ai)
+Apache-2.0 — See [LICENSE](./LICENSE) for details.

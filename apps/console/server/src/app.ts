@@ -30,6 +30,7 @@ import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
+import { createEventsRouter } from './routes/events.js';
 import { createStatusRouter } from './routes/status.js';
 import { createDiagnosticsRouter } from './routes/diagnostics.js';
 import { createApprovalsRouter } from './routes/approvals.js';
@@ -313,6 +314,9 @@ export function createApp(
   // Custom Actions API (dynamic action registration)
   app.use(`${apiPrefix}/actions`, requireAuth, createActionsRouter(viennaRuntime));
   
+  // Real-time events (SSE streaming)
+  app.use(`${apiPrefix}/events`, requireAuth, createEventsRouter());
+  
   // Phase 15: Agent Fleet Dashboard
   app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter(viennaRuntime));
   
@@ -339,6 +343,14 @@ export function createApp(
   app.use(`${apiPrefix}/audit`, requireAuth, createAuditRouter(viennaRuntime));
   app.use(`${apiPrefix}/directives`, requireAuth, createDirectivesRouter(viennaRuntime));
   app.use(`${apiPrefix}/stream`, requireAuth, createStreamRouter(eventStream));
+
+  // Framework Integration API — external agent framework endpoints
+  // Uses its own API key auth (Bearer vos_xxx), not session auth
+  import('./routes/framework-api.js').then(mod => {
+    app.use(`${apiPrefix}`, mod.default);
+  }).catch(err => {
+    console.warn('[App] Framework API routes not loaded:', err.message);
+  });
 
   // ============================================================================
   // ============================================================================

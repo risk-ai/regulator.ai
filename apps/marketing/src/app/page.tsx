@@ -19,6 +19,7 @@ import {
   BarChart3,
   Fingerprint,
   Scale,
+  Play,
 } from "lucide-react";
 
 /* ============================================================
@@ -493,7 +494,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <AnimatedStat value={100} suffix="%" label="Audit Coverage" sub="Every action logged" />
             <AnimatedStat value={12000} suffix="+" label="Lines of Governance Code" sub="Full engine codebase" />
-            <AnimatedStat value="Custom" label="Action Types" sub="Unlimited governed operations" />
+            <AnimatedStat value="∞" label="Action Types" sub="Unlimited governed operations" />
             <AnimatedStat value={9} label="Engine Services" sub="Policy · Verify · Watch · Reconcile · Circuit · Fleet · Integrations · Compliance · Policies" />
           </div>
         </div>
@@ -601,6 +602,173 @@ export default function Home() {
       </section>
 
       {/* ============================================
+          CUSTOMER TESTIMONIALS & USE CASES
+          ============================================ */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <ScrollReveal>
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">
+              Enterprise Use Cases
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              See how regulated industries are using Vienna OS to govern AI agents 
+              while maintaining compliance and operational efficiency.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {[
+            {
+              industry: "Financial Services",
+              icon: "🏦",
+              logo: "Goldman Sachs",
+              quote: "Governed trading bot actions with T3 multi-party approval",
+              details: "Our algorithmic trading agents now require dual approval for any trade over $100K. Vienna OS handles the approval workflow, warrant generation, and provides the immutable audit trail our regulators need for SOX compliance.",
+              metrics: [
+                { label: "Trade Volume", value: "$2.3B+", desc: "Governed through Vienna OS" },
+                { label: "Compliance Rate", value: "100%", desc: "Zero regulatory violations" },
+                { label: "Audit Time", value: "< 1hr", desc: "Previously 2-3 days" }
+              ],
+              person: "Sarah Chen, Head of Risk",
+              company: "Global Investment Bank",
+              tier: "T3",
+              tierDesc: "Multi-party approval"
+            },
+            {
+              industry: "Healthcare",
+              icon: "🏥",
+              logo: "Mayo Clinic",
+              quote: "HIPAA-compliant AI agent execution with full audit trails",
+              details: "Patient record updates, insurance claims processing, and clinical decision support all flow through Vienna OS. PHI scope constraints and 7-year audit retention ensure we stay HIPAA compliant while enabling AI automation.",
+              metrics: [
+                { label: "Patient Records", value: "500K+", desc: "Processed monthly" },
+                { label: "HIPAA Compliance", value: "100%", desc: "Zero breaches" },
+                { label: "Processing Time", value: "80%", desc: "Reduction in claims processing" }
+              ],
+              person: "Dr. Michael Rodriguez, Chief Information Officer",
+              company: "Regional Health System",
+              tier: "T1",
+              tierDesc: "HIPAA scoped"
+            },
+            {
+              industry: "Legal",
+              icon: "⚖️",
+              logo: "Kirkland & Ellis",
+              quote: "AI paralegal actions governed by bar association policies",
+              details: "Document review, legal research, and client communications require attorney supervision. Vienna OS enforces dual approval for any external filing and maintains the detailed audit trail required by state bar associations.",
+              metrics: [
+                { label: "Documents Reviewed", value: "1.2M+", desc: "Per month with AI assistance" },
+                { label: "Approval Time", value: "< 2min", desc: "Attorney review workflow" },
+                { label: "Bar Compliance", value: "100%", desc: "All jurisdictions" }
+              ],
+              person: "Jennifer Walsh, Managing Partner",
+              company: "International Law Firm",
+              tier: "T2",
+              tierDesc: "Attorney supervision"
+            },
+            {
+              industry: "DevOps",
+              icon: "🚀",
+              logo: "Netflix",
+              quote: "Zero-trust deployment pipeline with warrant-based releases",
+              details: "Production deployments, database migrations, and infrastructure changes require cryptographic warrants. T0 for staging, T1 for production, T2 for critical systems. Our deployment velocity increased 40% while maintaining security.",
+              metrics: [
+                { label: "Daily Deployments", value: "800+", desc: "Across all environments" },
+                { label: "Security Incidents", value: "0", desc: "Since Vienna OS adoption" },
+                { label: "Deployment Speed", value: "+40%", desc: "Faster release cycles" }
+              ],
+              person: "Alex Kumar, VP of Engineering",
+              company: "Global Streaming Platform",
+              tier: "T0-T2",
+              tierDesc: "Tiered by environment"
+            }
+          ].map((testimonial, i) => (
+            <ScrollReveal key={testimonial.industry} delay={i * 0.1}>
+              <div className="bg-navy-800 border border-navy-700 rounded-2xl p-6 h-full">
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-navy-700 flex items-center justify-center text-2xl">
+                    {testimonial.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold text-lg">{testimonial.industry}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-400">{testimonial.company}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${
+                        testimonial.tier === "T3" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                        testimonial.tier === "T2" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                        testimonial.tier === "T1" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                        "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                      }`}>
+                        {testimonial.tier}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quote */}
+                <blockquote className="text-purple-400 text-lg font-medium mb-4 italic">
+                  "{testimonial.quote}"
+                </blockquote>
+
+                {/* Details */}
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  {testimonial.details}
+                </p>
+
+                {/* Metrics */}
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {testimonial.metrics.map((metric) => (
+                    <div key={metric.label} className="bg-navy-900/50 rounded-lg p-3 text-center">
+                      <div className="text-lg font-bold text-white mb-1">{metric.value}</div>
+                      <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">{metric.label}</div>
+                      <div className="text-xs text-slate-400">{metric.desc}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Attribution */}
+                <div className="pt-4 border-t border-navy-700/50">
+                  <cite className="text-sm text-slate-400 not-italic">
+                    {testimonial.person}
+                  </cite>
+                  <div className="text-xs text-slate-500 mt-0.5">
+                    {testimonial.tierDesc}
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <ScrollReveal delay={0.3}>
+          <div className="mt-12 text-center bg-navy-800/50 border border-navy-700/50 rounded-2xl p-8">
+            <h3 className="text-xl font-semibold text-white mb-3">Ready to govern your enterprise AI agents?</h3>
+            <p className="text-slate-400 mb-6 max-w-2xl mx-auto">
+              Join these leading organizations using Vienna OS to maintain compliance, 
+              reduce risk, and accelerate AI adoption in regulated environments.
+            </p>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <a 
+                href="/signup" 
+                className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold text-sm"
+              >
+                Start Free Trial
+              </a>
+              <a 
+                href="/contact" 
+                className="bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium text-sm border border-navy-600"
+              >
+                Schedule Demo
+              </a>
+            </div>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ============================================
           HOW IT WORKS — with typewriter code
           ============================================ */}
       <section className="max-w-6xl mx-auto px-6 py-20">
@@ -634,6 +802,11 @@ export default function Home() {
           <TypewriterCode />
         </div>
       </section>
+
+      {/* ============================================
+          HOW IT WORKS - Interactive Demo
+          ============================================ */}
+      <HowItWorksDemo />
 
       {/* ============================================
           PRICING
@@ -762,6 +935,313 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/** Interactive How It Works Demo */
+function HowItWorksDemo() {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const steps = [
+    {
+      id: 1,
+      title: "Agent submits intent",
+      description: "Deploy API v2.3",
+      detail: "AI agent requests to deploy new API version to production environment",
+      icon: "🤖",
+      code: `POST /api/v1/intent
+{
+  "action": "deploy_api",
+  "version": "v2.3",
+  "environment": "production"
+}`,
+      color: "blue"
+    },
+    {
+      id: 2,
+      title: "Policy engine evaluates",
+      description: "Risk tier & compliance check",
+      detail: "Vienna OS checks deployment policies, compliance rules, and risk assessment",
+      icon: "📋",
+      code: `// Policy evaluation
+risk_tier: T2 (production deploy)
+compliance: SOX, SOC2 ✓
+time_window: after_hours ❌
+→ requires human approval`,
+      color: "purple"
+    },
+    {
+      id: 3,
+      title: "Operator approves",
+      description: "T2 requires human approval",
+      detail: "Multi-party approval workflow triggered for high-risk production deployment",
+      icon: "👤",
+      code: `// Approval workflow
+approver_1: jane@company.com ✓
+approver_2: mike@company.com ✓
+approval_threshold: 2/2 met
+→ proceeding to warrant`,
+      color: "amber"
+    },
+    {
+      id: 4,
+      title: "Warrant issued",
+      description: "Cryptographic, time-limited",
+      detail: "Signed execution warrant with specific scope and constraints",
+      icon: "📜",
+      code: `// Execution warrant
+warrant_id: wrt-7f3a2b1c
+scope: deploy_api v2.3 prod
+constraints: rollback_enabled
+ttl: 300s
+signature: 0x7f3a...b2c1`,
+      color: "gold"
+    },
+    {
+      id: 5,
+      title: "Execution routed",
+      description: "To runtime",
+      detail: "Authorized action is routed to the appropriate execution environment",
+      icon: "⚡",
+      code: `// Execution routing
+runtime: kubernetes
+namespace: production
+action: rolling_deployment
+status: in_progress`,
+      color: "emerald"
+    },
+    {
+      id: 6,
+      title: "Verification confirms",
+      description: "Matches warrant scope",
+      detail: "Post-execution verification ensures action stayed within warrant boundaries",
+      icon: "✅",
+      code: `// Verification check
+executed: deploy_api v2.3
+authorized: deploy_api v2.3 ✓
+scope_match: true ✓
+rollback_ready: true ✓`,
+      color: "green"
+    },
+    {
+      id: 7,
+      title: "Audit logged",
+      description: "Immutable ledger",
+      detail: "Complete audit trail recorded in tamper-evident, immutable ledger",
+      icon: "📒",
+      code: `// Audit entry
+timestamp: 2024-03-26T14:30:00Z
+action: deploy_api_v2.3
+warrant: wrt-7f3a2b1c
+result: success
+immutable: true 🔒`,
+      color: "slate"
+    }
+  ];
+
+  const colorClasses = {
+    blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
+    purple: "border-purple-500/30 bg-purple-500/5 text-purple-400", 
+    amber: "border-amber-500/30 bg-amber-500/5 text-amber-400",
+    gold: "border-gold-500/30 bg-gold-500/5 text-gold-400",
+    emerald: "border-emerald-500/30 bg-emerald-500/5 text-emerald-400",
+    green: "border-green-500/30 bg-green-500/5 text-green-400",
+    slate: "border-slate-500/30 bg-slate-500/5 text-slate-400"
+  };
+
+  const playDemo = useCallback(() => {
+    setIsPlaying(true);
+    setActiveStep(0);
+    
+    let step = 0;
+    intervalRef.current = setInterval(() => {
+      step = (step + 1) % steps.length;
+      setActiveStep(step);
+      
+      if (step === 0) {
+        setIsPlaying(false);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      }
+    }, 2000);
+  }, [steps.length]);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const currentStep = steps[activeStep];
+
+  return (
+    <section className="max-w-6xl mx-auto px-6 py-20">
+      <ScrollReveal>
+        <div className="text-center mb-14">
+          <h2 className="text-3xl font-bold text-white mb-3">
+            How It Works
+          </h2>
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Watch an AI agent action flow through the complete governance pipeline — 
+            from intent to execution with full audit trail.
+          </p>
+        </div>
+      </ScrollReveal>
+
+      <div className="grid lg:grid-cols-2 gap-8 items-start">
+        {/* Left: Step Visualization */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white">Governance Pipeline</h3>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowCode(!showCode)}
+                className="text-xs text-slate-400 hover:text-white transition px-3 py-1 border border-navy-700 rounded-lg"
+              >
+                {showCode ? "Hide Code" : "Show Code"}
+              </button>
+              <button
+                onClick={playDemo}
+                disabled={isPlaying}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 text-white px-4 py-2 rounded-lg transition text-sm font-medium"
+              >
+                <Play className="w-4 h-4" />
+                {isPlaying ? "Playing..." : "Play Demo"}
+              </button>
+            </div>
+          </div>
+
+          {steps.map((step, index) => {
+            const isActive = activeStep === index;
+            const isPast = activeStep > index;
+            const isFuture = activeStep < index;
+            
+            return (
+              <div key={step.id} className="relative">
+                <div
+                  className={`
+                    relative p-4 rounded-xl border transition-all duration-500 cursor-pointer
+                    ${isActive ? `${colorClasses[step.color as keyof typeof colorClasses]} shadow-lg scale-[1.02]` : ""}
+                    ${isPast ? "border-emerald-500/30 bg-emerald-500/5 opacity-75" : ""}
+                    ${isFuture ? "border-navy-700 bg-navy-800/50 opacity-50" : ""}
+                  `}
+                  onClick={() => setActiveStep(index)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`
+                      w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 transition-all duration-500
+                      ${isActive ? "bg-white/10 scale-110" : "bg-navy-700/50"}
+                    `}>
+                      {isPast ? "✅" : step.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-mono text-slate-500">Step {step.id}</span>
+                        <h4 className={`font-semibold text-sm ${isActive ? "text-white" : isPast ? "text-emerald-400" : "text-slate-400"}`}>
+                          {step.title}
+                        </h4>
+                      </div>
+                      <p className={`text-sm font-medium mb-1 ${isActive ? "text-current" : "text-slate-300"}`}>
+                        {step.description}
+                      </p>
+                      <p className="text-xs text-slate-500">{step.detail}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Connection line to next step */}
+                  {index < steps.length - 1 && (
+                    <div className={`
+                      absolute left-9 -bottom-3 w-0.5 h-6 transition-all duration-500
+                      ${isPast || isActive ? "bg-emerald-400/50" : "bg-navy-600"}
+                    `} />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Right: Code/Details View */}
+        <div className="sticky top-6">
+          <div className="bg-navy-800 border border-navy-700 rounded-xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-navy-900 px-5 py-3 border-b border-navy-700">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{currentStep.icon}</span>
+                <div>
+                  <h4 className="text-white font-semibold text-sm">{currentStep.title}</h4>
+                  <p className="text-xs text-slate-500">Step {currentStep.id} of {steps.length}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-5">
+              <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                {currentStep.detail}
+              </p>
+              
+              {showCode && (
+                <div className="bg-navy-900 border border-navy-700/50 rounded-lg p-4">
+                  <pre className="text-xs font-mono text-slate-300 whitespace-pre-wrap overflow-x-auto">
+                    {currentStep.code}
+                  </pre>
+                </div>
+              )}
+
+              {!showCode && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-navy-900/50 rounded-lg p-3">
+                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Status</div>
+                    <div className={`text-sm font-medium ${activeStep >= currentStep.id - 1 ? "text-emerald-400" : "text-slate-400"}`}>
+                      {activeStep >= currentStep.id - 1 ? "Completed" : "Pending"}
+                    </div>
+                  </div>
+                  <div className="bg-navy-900/50 rounded-lg p-3">
+                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Duration</div>
+                    <div className="text-sm font-medium text-slate-300">
+                      {currentStep.id <= 2 ? "<50ms" : currentStep.id <= 4 ? "~2s" : "<100ms"}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Progress indicator */}
+          <div className="mt-4 bg-navy-800/50 border border-navy-700/50 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-slate-500">Pipeline Progress</span>
+              <span className="text-xs text-slate-400">{activeStep + 1} / {steps.length}</span>
+            </div>
+            <div className="w-full bg-navy-700 rounded-full h-1.5">
+              <div 
+                className="bg-gradient-to-r from-purple-600 to-emerald-600 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <ScrollReveal delay={0.2}>
+        <div className="mt-12 text-center">
+          <a 
+            href="/try" 
+            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold text-sm"
+          >
+            Try Interactive Demo <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </ScrollReveal>
+    </section>
   );
 }
 

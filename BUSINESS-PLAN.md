@@ -1,85 +1,79 @@
 # Regulator.AI — Business Plan
 ## "Vienna OS" — The Governance Control Plane for Autonomous AI Agents
 
-**Version:** 1.0 (Draft)
-**Date:** March 23, 2026
-**Authors:** Aiden (ai.ventures COO) + Vienna (Vienna OS)
-**Founder/Lead:** Max Anderson (Cornell Law 3L)
+**Version:** 2.0
+**Date:** March 26, 2026
+**Lead:** Max Anderson (Cornell Law 3L, ai.ventures Advisor)
 **Parent:** ai.ventures (Technetwork 2 LLC)
 
 ---
 
 ## 1. Executive Summary
 
-**Regulator.AI** is an enterprise governance control plane for autonomous AI agent systems, powered by the **Vienna OS** architecture. It separates *reasoning authority* from *execution authority* through cryptographically signed warrants — ensuring AI agents can take real actions while maintaining human oversight, policy compliance, and full audit trails.
+**Regulator.AI** is an enterprise governance control plane for autonomous AI agents, powered by **Vienna OS**. It separates reasoning authority from execution authority through cryptographically signed warrants — ensuring AI agents take real actions while maintaining human oversight, policy compliance, and full audit trails.
 
 **Core Principle:** AI explains → Runtime executes → Operator approves.
 
-**The Problem:** As enterprises deploy autonomous AI agents (coding, DevOps, customer service, finance), they face an unresolved governance gap: agents can reason and act, but there's no standardized layer for approval workflows, policy enforcement, risk tiering, or audit trails. Current solutions are either fully autonomous (dangerous) or fully manual (defeats the purpose).
+**The Problem:** The autonomous AI agent market will reach $8.5B in 2026 (Deloitte). Gartner projects $492M in AI governance platform spending in 2026, growing to $1B+ by 2030. Enterprises deploying AI agents face an unresolved governance gap: agents can reason and act, but there's no standardized runtime governance layer for approval workflows, policy enforcement, risk tiering, or audit trails.
 
-**The Solution:** Vienna OS sits *above* agent runtimes (OpenClaw, LangChain, CrewAI, AutoGen, etc.) as a governed middleware layer. Every agent action flows through a pipeline:
+**The Solution:** Vienna OS sits above agent runtimes (OpenClaw, LangChain, CrewAI, AutoGen, Google ADK, OpenAI Agents SDK) as a governed middleware layer:
 
 ```
-Intent → Plan → Policy Check → Approval (if T1/T2) → Warrant → Execution → Verification → Ledger
+Intent → Policy Check → Approval (risk-tiered) → Warrant (cryptographic) → Execution → Verification → Audit Ledger
 ```
 
-**Target Market:** Enterprises deploying AI agents at scale — regulated industries first (financial services, healthcare, legal, government).
+**Target Market:** Regulated enterprises deploying AI agents — financial services, healthcare, legal, government.
 
-**Revenue Model:** SaaS — per-agent-seat pricing + enterprise licensing.
+**Revenue Model:** SaaS per-agent-seat pricing + enterprise licensing.
 
-**Competitive Moat:** First-mover in governed AI execution with cryptographic warrant architecture + legal-grade audit trails. Built by a Cornell Law student who understands both the legal and technical requirements.
+**Competitive Moat:** First-mover in warrant-based execution governance. No competitor governs the full action lifecycle with cryptographic authorization.
 
 ---
 
-## 2. Problem Statement
+## 2. Market Analysis
 
-### The Agent Governance Gap
+### 2.1 Market Size (sourced)
 
-The AI agent market is exploding:
-- **2025-2026:** Every major tech company shipping agent frameworks (OpenAI Swarm, Google ADK, Anthropic Claude Code, Microsoft AutoGen)
-- **Enterprise adoption:** 60%+ of Fortune 500 experimenting with AI agents
-- **Regulatory pressure:** EU AI Act, SEC AI guidance, NIST AI RMF — all demanding transparency, auditability, human oversight
+| Segment | 2026 | 2030 | Source |
+|---|---|---|---|
+| Autonomous AI Agent Market | $8.5B | $35-45B | Deloitte 2026 |
+| AI Governance Platforms | $492M | $1B+ | Gartner Feb 2026 |
+| Enterprise AI Governance & Compliance | $2.2B | $5.5B | Future Market Insights |
+| **Our TAM (Agent Governance)** | **$750M** | **$3B** | Market extrapolation |
+| **SAM (Regulated Enterprise)** | **$250M** | **$1B** | |
+| **SOM (Year 1-2)** | **$2M** | **$15M** | |
 
-**But no one is solving governance:**
+### 2.2 Why Now
 
-| Current State | Problem |
-|---|---|
-| Agents execute freely | No approval workflow for high-risk actions |
-| No audit trail | Can't prove compliance to regulators |
-| No policy enforcement | Agents violate business rules |
-| No risk tiering | File rename treated same as wire transfer |
-| No warrant system | No cryptographic proof of authorization |
-| Human-in-the-loop = bottleneck | Blocks low-risk actions that should auto-approve |
+1. **Agent market explosion:** $8.5B in 2026 (Deloitte) — every major tech company shipping agent frameworks
+2. **Regulatory acceleration:** Gartner: by 2030, AI regulation will extend to 75% of world economies, driving $1B+ compliance spend
+3. **EU AI Act enforcement (2026):** Requires transparency, human oversight, audit trails for high-risk AI
+4. **Framework fragmentation:** 7+ major agent frameworks (LangChain, CrewAI, AutoGen, Google ADK, OpenAI Agents SDK, Semantic Kernel, LlamaIndex) — all need governance, none provide it
+5. **Insurance pressure:** Cyber insurers asking about AI agent controls; unmanaged AI risk escalating (Gartner)
+6. **Enterprise procurement:** "How do you govern AI agents?" becoming standard RFP question
 
-**The result:** Enterprises either don't deploy agents (missing value) or deploy them ungoverned (accepting unknown risk).
+### 2.3 Competitive Landscape
 
-### Who Feels This Pain
+| Player | What They Do | What They Don't Do |
+|---|---|---|
+| **Guardrails AI** | Content/prompt safety | No execution governance, no warrants |
+| **Arthur AI** | Model monitoring/observability | No action authorization, no approval flows |
+| **Credo AI** | AI governance documentation | Compliance paperwork, not runtime enforcement |
+| **Patronus AI** | Evaluation/testing | Offline testing, not runtime governance |
+| **Lakera** | Input/output filtering | Prompt security, not execution control |
+| **Anthropic Constitutional AI** | Baked into one model | Model-specific, not framework-agnostic |
+| **Agent frameworks** (LangChain, etc.) | Build agents | No governance layer, no audit trails |
 
-1. **CISOs/CIOs** — "How do I let AI agents act without losing control?"
-2. **Compliance Officers** — "How do I prove our AI agents follow policy?"
-3. **Engineering Leaders** — "How do I give agents execution authority without security nightmares?"
-4. **Regulators** — "How do enterprises demonstrate AI oversight?"
+**The gap:** Nobody provides runtime execution governance with cryptographic warrants across all agent frameworks. This is a whitespace category.
 
 ---
 
 ## 3. Product — Vienna OS Architecture
 
-### 3.1 Core Pipeline
-
-Every agent action flows through 8 stages:
+### 3.1 Core Pipeline (8 stages)
 
 ```
-┌─────────┐    ┌──────┐    ┌────────┐    ┌──────────┐
-│  Intent  │ →  │ Plan │ →  │ Policy │ →  │ Approval │
-└─────────┘    └──────┘    └────────┘    └──────────┘
-                                               │
-┌─────────┐    ┌────────────┐    ┌─────────┐   │
-│ Ledger  │ ←  │ Verification│ ←  │Execute │ ← ┘
-└─────────┘    └────────────┘    └─────────┘
-                                       ↑
-                                  ┌─────────┐
-                                  │ Warrant │
-                                  └─────────┘
+Intent → Plan → Policy Check → Approval → Warrant → Execution → Verification → Audit Ledger
 ```
 
 ### 3.2 Seven Core Services
@@ -88,7 +82,7 @@ Every agent action flows through 8 stages:
 |---|---|
 | **Proposal Gateway** | Ingests agent action requests, normalizes format |
 | **Governance Kernel** | State machine managing proposal lifecycle |
-| **Policy Engine** | Evaluates proposals against configurable policy rules |
+| **Policy Engine** | Evaluates against configurable, versioned policy rules |
 | **Warrant Authority** | Issues cryptographically signed execution warrants |
 | **Execution Router** | Routes warranted actions to appropriate runtime |
 | **Verification Engine** | Confirms execution matches warrant scope |
@@ -96,279 +90,233 @@ Every agent action flows through 8 stages:
 
 ### 3.3 Risk Tiering
 
-| Tier | Risk Level | Approval | Example |
+| Tier | Risk | Approval | Example |
 |---|---|---|---|
-| **T0** | Informational | Auto-approve | Read a file, check status |
+| **T0** | Informational | Auto-approve | Read file, check status |
 | **T1** | Low Risk | Policy auto-approve | Send email, create ticket |
-| **T2** | Medium Risk | Human approval required | Deploy code, modify DB |
-| **T3** | High Risk | Multi-party approval | Wire transfer, delete production, legal filing |
+| **T2** | Medium Risk | Human approval | Deploy code, modify DB |
+| **T3** | High Risk | Multi-party approval | Wire transfer, delete production |
 
-### 3.4 Cryptographic Warrants
+### 3.4 Cryptographic Warrants (Key Differentiator)
 
-Every approved action receives a signed warrant containing:
-- Scope (what the agent is allowed to do)
-- Time-to-live (warrant expires)
-- Issuer (who/what approved it)
-- Constraints (parameter bounds)
-- Signature (tamper-evident)
+Each approved action receives a signed warrant containing:
+- **Scope** — what the agent is authorized to do
+- **TTL** — warrant expires (time-limited execution window)
+- **Issuer** — who/what approved it
+- **Constraints** — parameter bounds, rollback requirements
+- **Signature** — tamper-evident cryptographic proof
 
 Post-execution, the Verification Engine confirms the action matched the warrant. Mismatches trigger alerts + automatic revocation.
 
-### 3.5 Key Differentiators
+### 3.5 Current Implementation Status (v0.9)
 
-- **Runtime-agnostic:** Works with OpenClaw, LangChain, CrewAI, AutoGen, custom frameworks
-- **Policy-as-code:** Policies defined in code, version-controlled, auditable
-- **Legal-grade audit trail:** Every action provably authorized — regulators can verify
-- **Adaptive risk:** ML-based risk scoring that learns from approval patterns
-- **Zero-trust agent model:** Agents never have direct execution authority
+| Component | Status | Details |
+|---|---|---|
+| **Core Engine** | ✅ Built | 84 TypeScript declarations, 198 JS modules |
+| **Console** | ✅ Built | 16 pages: Fleet, Policy Builder, Compliance, Actions, Integrations, etc. |
+| **Marketing Site** | ✅ Live | 28 routes at regulator.ai, Stripe checkout, /try playground |
+| **Integration Adapters** | ✅ Built | Slack, Email, GitHub, Webhook (with circuit breaker) |
+| **SDK** | ✅ Built | TypeScript SDK (packages/sdk/, 10 modules) |
+| **Multi-tenant Auth** | ⏸️ Code Complete | Needs production validation |
+| **Postgres Migration** | ⏸️ Planned | Currently SQLite, needs Neon Postgres |
+| **SSO/SAML** | 🔜 Phase 2 | Enterprise requirement |
 
 ---
 
-## 4. Market Analysis
+## 4. Go-to-Market Strategy
 
-### 4.1 Market Size
+### Phase 1: Open Source Core (Now → Month 6)
+- Open-source Vienna OS core pipeline (Apache 2.0)
+- GitHub-first: docs, examples, framework integrations
+- Target: AI agent developers and DevOps teams
+- Community self-hosted dashboard
+- **Goal:** 2,000 GitHub stars, 100 active deployments, 500 Discord members
 
-| Segment | 2026 | 2028 (Projected) |
-|---|---|---|
-| AI Agent Platforms | $5.2B | $18B |
-| AI Governance/Compliance | $2.1B | $8.5B |
-| **Our TAM (Agent Governance)** | **$1.3B** | **$5.2B** |
-| **SAM (Regulated Enterprise)** | **$400M** | **$1.6B** |
-| **SOM (Year 1-2 target)** | **$2M** | **$15M** |
+### Phase 2: Cloud Platform (Months 6-12)
+- Hosted SaaS at regulator.ai
+- Real-time dashboard, visual policy editor, audit viewer
+- Integrations: OpenClaw, LangChain, CrewAI, Slack/Teams
+- Design partner program (10 enterprises)
+- **Goal:** 30 paying customers, $75K MRR
 
-### 4.2 Competitive Landscape
-
-| Competitor | What They Do | Gap |
-|---|---|---|
-| **OpenAI / Anthropic** | Build agents | No governance layer |
-| **LangChain / CrewAI** | Agent orchestration | No approval/warrant system |
-| **Guardrails AI** | Content safety | Input/output filtering, not execution governance |
-| **Arthur AI** | Model monitoring | Observability, not authorization |
-| **Credo AI** | AI governance docs | Compliance paperwork, not runtime enforcement |
-| **NIST AI RMF** | Framework/standard | Guidelines, not software |
-
-**Nobody is doing runtime execution governance with cryptographic warrants.** This is a whitespace category.
-
-### 4.3 Why Now
-
-1. **Agent explosion (2025-2026):** Every enterprise experimenting → governance gap visible
-2. **EU AI Act enforcement (2026):** Requires transparency, human oversight, audit trails
-3. **SEC AI guidance:** Financial services need provable AI governance
-4. **Insurance pressure:** Cyber insurers asking about AI agent controls
-5. **Enterprise procurement:** "How do you govern AI?" becoming standard RFP question
-
----
-
-## 5. Go-to-Market Strategy
-
-### 5.1 Phase 1: Open Source Core (Months 1-6)
-- Open-source the Vienna OS core pipeline (Proposal → Policy → Warrant → Execute → Verify)
-- Target: developer community, AI agent builders
-- GitHub-first: docs, examples, integrations with popular frameworks
-- Community governance dashboard (self-hosted)
-- **Goal:** 1,000 GitHub stars, 50 active deployments
-
-### 5.2 Phase 2: Cloud Platform (Months 6-12)
-- Hosted regulator.ai SaaS — managed Vienna OS
-- Dashboard: real-time proposal queue, policy editor, audit viewer
-- Integrations: OpenClaw, LangChain, CrewAI, Slack/Teams alerts
-- **Goal:** 20 paying customers, $50K MRR
-
-### 5.3 Phase 3: Enterprise (Months 12-24)
-- On-prem deployment option
-- SOC 2 Type II, HIPAA BAA, FedRAMP (if funded)
-- Custom policy templates per industry (finance, healthcare, legal)
+### Phase 3: Enterprise (Months 12-24)
+- On-prem deployment, SOC 2 Type II, HIPAA BAA
+- Industry-specific policy templates (finance, healthcare, legal, government)
 - Professional services: policy design, integration, training
-- **Goal:** 5 enterprise contracts ($100K+ ACV), $500K MRR
+- **Goal:** 10 enterprise contracts ($100K+ ACV), $500K MRR
 
-### 5.4 Target Verticals (Priority Order)
-
-1. **Financial Services** — Highest regulatory pressure, budget for governance
-2. **Healthcare** — HIPAA + AI creates urgent need
-3. **Legal** — AI agents doing legal work need governance (synergy with law.ai)
+### Target Verticals (Priority)
+1. **Financial Services** — Highest regulatory pressure + budget
+2. **Healthcare** — HIPAA + AI creates urgent governance need
+3. **Legal** — AI agents doing legal work need governance (law.ai synergy)
 4. **Government** — Federal AI mandates, FedRAMP path
-5. **Enterprise SaaS** — Any company deploying internal AI agents
+5. **DevOps/Platform Engineering** — Any team deploying AI agents internally
 
-### 5.5 Sales Motion
-
-- **Bottom-up:** Developers find open-source, adopt, convince org
-- **Top-down:** CISO/CIO conversations at conferences, via corp dev relationships
+### Sales Motion
+- **Bottom-up:** Developers discover open-source → adopt → convince org to buy cloud
+- **Top-down:** CISO/CIO conversations via ai.ventures corp dev relationships
 - **Partner channel:** Agent platform partnerships (OpenClaw, LangChain)
-- **Content marketing:** "AI Governance" thought leadership (Max's legal + tech credibility)
+- **Content:** "AI Governance" thought leadership (Max's legal + technical credibility, Cornell Law)
 
 ---
 
-## 6. Revenue Model
+## 5. Revenue Model
 
-### 6.1 Pricing Tiers
+### 5.1 Pricing
 
-| Tier | Price | Includes |
-|---|---|---|
-| **Community** | Free | Open-source core, self-hosted, 5 agents |
-| **Team** | $49/agent/mo | Cloud-hosted, 25 agents, basic policies, email support |
-| **Business** | $99/agent/mo | 100 agents, custom policies, SSO, priority support |
-| **Enterprise** | Custom | Unlimited agents, on-prem, SLA, dedicated CSM, compliance certs |
+| Tier | Price | Agents | Features |
+|---|---|---|---|
+| **Community** | Free | 5 | Open-source core, self-hosted |
+| **Team** | $49/agent/mo | 25 | Cloud-hosted, basic policies, email support |
+| **Business** | $99/agent/mo | 100 | Custom policies, SSO, priority support, compliance reports |
+| **Enterprise** | Custom | Unlimited | On-prem, SLA, dedicated CSM, compliance certs |
 
-### 6.2 Revenue Projections
+### 5.2 Revenue Projections
 
-| Year | Customers | Agents Under Management | ARR |
+| Year | Customers | Agents Under Governance | ARR |
 |---|---|---|---|
 | **Year 1** | 50 | 500 | $300K |
 | **Year 2** | 200 | 5,000 | $3M |
 | **Year 3** | 500 | 25,000 | $15M |
 
-### 6.3 Additional Revenue Streams
+### 5.3 Additional Revenue
 - **Professional services:** Policy design, integration ($5K-50K per engagement)
-- **Compliance certification:** "Vienna OS Certified" badge for agent platforms
+- **Certification:** "Vienna OS Certified" badge for agent platforms ($2K-10K/yr)
 - **Marketplace:** Third-party policy templates, integrations
-- **Training:** Certification program for AI governance professionals
+- **Training:** AI governance certification program
 
 ---
 
-## 7. Team
+## 6. Team
 
 ### Current
-
 | Role | Person | Background |
 |---|---|---|
-| **Founder / Lead Dev** | Max Anderson | Cornell Law 3L, ai.ventures advisor, legal + technical |
+| **Founder / Lead Dev** | Max Anderson | Cornell Law 3L, ai.ventures advisor |
 | **Platform (COO)** | Aiden (AI) | ai.ventures COO, portfolio coordination |
-| **Agent Architecture** | Vienna (AI) | Vienna OS architect, Talleyrand strategic planning |
+| **Agent Architecture** | Vienna (AI) | Vienna OS architect, strategic planning |
 
-### Needed (Phase 2-3)
-
-| Role | Priority | Notes |
+### Key Hires (Phase 2-3)
+| Role | Priority | Why |
 |---|---|---|
-| **CTO / Co-founder** | P0 | Distributed systems, cryptography background |
-| **Head of Product** | P1 | Enterprise SaaS experience, compliance background |
-| **DevRel / Community** | P1 | Open-source community building |
-| **Enterprise Sales** | P2 | CISO/CIO selling experience |
-| **Security Engineer** | P2 | SOC 2, penetration testing, warrant crypto |
+| CTO / Co-founder | P0 | Distributed systems, cryptography |
+| Head of Product | P1 | Enterprise SaaS, compliance background |
+| DevRel / Community | P1 | Open-source community building |
+| Enterprise Sales | P2 | CISO/CIO selling experience |
 
 ---
 
-## 8. Technical Roadmap
+## 7. Technical Roadmap
 
-### Q2 2026 (Now → June)
-- [x] Domain + Vercel project + GitHub repo
-- [x] Neon DB schema (regulator schema)
-- [x] Landing page
-- [ ] Core pipeline MVP (Proposal → Policy → Warrant → Execute)
-- [ ] OpenClaw integration (first runtime target)
-- [ ] Dashboard v1 (proposal queue, audit log)
-- [ ] Open-source release
+### Q2 2026 — Foundation (Now)
+- [x] Core engine (vienna-lib) — 7 governance services
+- [x] Console — 16 pages, policy builder, fleet dashboard, compliance reports
+- [x] Marketing site — 28 routes, Stripe, GA4, SEO
+- [x] Integration adapters — Slack, Email, GitHub, Webhook
+- [x] TypeScript SDK (10 modules)
+- [x] Open-source prep — Apache 2.0, CONTRIBUTING.md
+- [ ] **Postgres migration** — SQLite → Neon (production-safe)
+- [ ] **Multi-tenant isolation** — Row-level security, tenant quotas
+- [ ] **Console deploy** — Real backend on Fly.io
+- [ ] **Open-source release** — GitHub public, npm publish
 
-### Q3 2026 (July → September)
-- [ ] Cloud-hosted SaaS (regulator.ai/dashboard)
-- [ ] LangChain + CrewAI integrations
-- [ ] Policy editor (visual + code)
-- [ ] Risk scoring ML model v1
-- [ ] Slack/Teams/Discord notification integrations
-- [ ] Beta program: 10 design partners
+### Q3 2026 — Cloud Platform
+- [ ] Cloud-hosted SaaS (managed Vienna OS)
+- [ ] LangChain + CrewAI + Google ADK integrations
+- [ ] Visual policy editor with versioning + rollback
+- [ ] WebSocket real-time push (live fleet, approvals)
+- [ ] SSO/SAML/OIDC (Okta, Azure AD, Google)
+- [ ] RBAC (Admin, Operator, Viewer, Agent roles)
+- [ ] Python SDK published to PyPI
+- [ ] 10 design partners onboarded
 
-### Q4 2026 (October → December)
+### Q4 2026 — Enterprise & GA
 - [ ] GA launch
-- [ ] SOC 2 Type I audit initiated
-- [ ] Enterprise tier: SSO, on-prem, custom policies
-- [ ] API v1 stable
-- [ ] 3 industry-specific policy templates
+- [ ] SOC 2 Type I audit
+- [ ] Enterprise tier: on-prem, custom policies, SLA
+- [ ] AI-powered policy suggestions ("We noticed X pattern, suggest Y rule")
+- [ ] Natural language policy creation
+- [ ] Agent behavior anomaly detection
+- [ ] 3 industry-specific policy template packs
+- [ ] API v1 stable (OpenAPI 3.1)
 
-### 2027
+### H1 2027 — Scale
 - [ ] SOC 2 Type II
+- [ ] Multi-region (EU data residency for GDPR)
 - [ ] FedRAMP assessment (if government traction)
-- [ ] Marketplace for third-party integrations
-- [ ] Certification program launch
+- [ ] Terraform provider
+- [ ] Marketplace for third-party policies + integrations
 - [ ] Series A fundraise ($5-10M target)
 
 ---
 
-## 9. Financial Plan
+## 8. Financial Plan
 
-### 9.1 Startup Costs (Bootstrap Phase)
-
+### Bootstrap Phase (Now — covered by ai.ventures)
 | Item | Monthly | Annual |
 |---|---|---|
-| Infrastructure (Vercel, Neon, etc.) | $200 | $2,400 |
+| Infrastructure (Vercel, Neon, Fly.io) | $200 | $2,400 |
 | Domain (regulator.ai) | — | $50 |
-| Open-source hosting | $0 | $0 |
-| **Total bootstrap** | **$200** | **$2,450** |
+| **Total** | **$200** | **$2,450** |
 
-*Covered by ai.ventures operating budget — no external funding needed for Phase 1.*
-
-### 9.2 Phase 2 Costs (Cloud SaaS)
-
+### Cloud SaaS Phase (Months 6-12)
 | Item | Monthly | Annual |
 |---|---|---|
 | Infrastructure (scaled) | $2,000 | $24,000 |
 | Security audit (SOC 2) | — | $30,000 |
 | Marketing / DevRel | $3,000 | $36,000 |
-| **Total Phase 2** | **$5,000** | **$90,000** |
+| **Total** | **$5,000** | **$90,000** |
 
-### 9.3 Funding Strategy
-
-1. **Phase 1 (Now):** Bootstrap via ai.ventures. $0 external needed.
-2. **Phase 2 (6-12 mo):** Revenue-funded if traction supports it. Otherwise, small angel round ($250K-500K).
-3. **Phase 3 (12-24 mo):** Series A ($5-10M) if enterprise traction validates market. Target investors: AI-focused VCs (Lightspeed, a16z, Sequoia AI), enterprise SaaS investors.
-
----
-
-## 10. Risks & Mitigations
-
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| Agent platforms build governance in-house | High | High | Move fast, establish standard, open-source creates lock-in |
-| Market too early (enterprises not deploying agents yet) | Medium | Medium | Start with developer community, ride the adoption wave |
-| Regulatory landscape shifts | Medium | Low | Legal founder (Max) monitors and adapts |
-| Security breach of warrant system | Low | Critical | Third-party audit, bug bounty, formal verification |
-| Competitor with more funding | Medium | Medium | Open-source moat, community, first-mover advantage |
+### Funding Strategy
+1. **Phase 1:** Bootstrap via ai.ventures ($0 external)
+2. **Phase 2:** Revenue-funded or small angel ($250-500K)
+3. **Phase 3:** Series A ($5-10M) — target AI-focused VCs (a16z, Lightspeed, Sequoia AI)
 
 ---
 
-## 11. ai.ventures Portfolio Synergies
+## 9. Risks & Mitigations
 
-Regulator.AI has unique synergies with the existing portfolio:
+| Risk | Likelihood | Mitigation |
+|---|---|---|
+| Agent platforms build governance in-house | High | Move fast, establish open standard, community lock-in |
+| Market too early | Medium | Start with developers, ride adoption wave |
+| Funded competitor enters | Medium | Open-source moat, first-mover, community |
+| Security breach of warrant system | Low | Third-party audit, bug bounty, formal verification |
+| Regulatory landscape shifts | Medium | Legal founder monitors and adapts |
 
-| Portfolio Site | Synergy |
+---
+
+## 10. Portfolio Synergies
+
+| ai.ventures Site | Synergy |
 |---|---|
-| **law.ai** | Legal AI agents need governance → first vertical customer |
+| **law.ai** | Legal AI agents → first vertical customer |
 | **corporate.ai** | Enterprise AI vendor marketplace → distribution channel |
 | **agents.net** | Agent marketplace → require Vienna OS certification |
-| **risk.ai** | Risk assessment → complementary offering |
-| **biography.ai** | AI writing agents → showcase governance for creative AI |
+| **risk.ai** | Risk assessment → complementary governance offering |
 
 ---
 
-## 12. Key Metrics (North Stars)
+## 11. North Star Metrics (12-month)
 
-| Metric | Target (12 mo) |
+| Metric | Target |
 |---|---|
 | Agents under governance | 5,000 |
 | Proposals processed/day | 50,000 |
 | Paying customers | 200 |
 | ARR | $3M |
 | GitHub stars | 5,000 |
-| Policy templates | 50 |
-| Runtime integrations | 5 |
-| Uptime | 99.9% |
+| Runtime integrations | 5+ |
+| Uptime SLA | 99.9% |
 
 ---
 
-## Appendix A: Vienna OS vs. Existing regulator.ai Architecture
+## Appendix: Key Product Insight
 
-The original regulator.ai concept (March 2026) and Vienna OS converge on the same thesis:
+**"We don't ask agents to behave. We remove their ability to misbehave."**
 
-| Original regulator.ai | Vienna OS | Merged |
-|---|---|---|
-| Proposal Gateway | Intent ingestion | ✅ Same |
-| Governance Kernel | State machine | ✅ Same |
-| Policy Engine | Policy evaluation | ✅ Same |
-| Warrant Authority | Cryptographic signing | ✅ Same |
-| Execution Router | Runtime routing | ✅ Same |
-| Verification Engine | Post-execution verification | ✅ Same |
-| Audit & Learning | Immutable ledger | ✅ Same |
-
-**Decision:** Vienna OS is the implementation. regulator.ai is the product/brand. One codebase, one vision.
+Vienna OS doesn't instruct agents — it controls the execution layer. Agents propose intents; the Execution Router performs actions on their behalf. Warrants are consumed by the runtime, not the agent. Enforcement is at infrastructure layer, not reasoning layer. This is the fundamental insight that makes the product defensible.
 
 ---
 
-*This document is a living plan. Updates will be tracked in the regulator.ai repo.*
+*Living document. Last updated: 2026-03-26 by Aiden (COO)*

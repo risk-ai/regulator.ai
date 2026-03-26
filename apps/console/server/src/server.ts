@@ -91,22 +91,30 @@ async function start() {
     const sessionTTL = parseInt(process.env.VIENNA_SESSION_TTL || '86400000', 10); // 24h default
     
     if (!operatorPassword) {
-      console.error('FATAL: VIENNA_OPERATOR_PASSWORD environment variable is required');
-      console.error('Set it to a secure password for operator authentication');
-      process.exit(1);
+      // In production, generate a random password and log it for first-time setup
+      if (process.env.NODE_ENV === 'production') {
+        const generatedPassword = crypto.randomBytes(16).toString('hex');
+        console.warn('WARNING: VIENNA_OPERATOR_PASSWORD not set. Generated temporary password:');
+        console.warn(`  ${generatedPassword}`);
+        console.warn('Set VIENNA_OPERATOR_PASSWORD as a Fly.io secret for production use.');
+        (process.env as any).VIENNA_OPERATOR_PASSWORD = generatedPassword;
+      } else {
+        console.warn('WARNING: VIENNA_OPERATOR_PASSWORD not set. Using "vienna-dev" for local development.');
+        (process.env as any).VIENNA_OPERATOR_PASSWORD = 'vienna-dev';
+      }
     }
     
-    // Require session secret in production
-    if (process.env.NODE_ENV === 'production' && !process.env.VIENNA_SESSION_SECRET) {
-      console.error('FATAL: VIENNA_SESSION_SECRET is required in production');
-      console.error('Generate with: openssl rand -hex 32');
-      console.error('Set VIENNA_SESSION_SECRET in .env.production');
-      process.exit(1);
-    }
-    
+    // Generate session secret if not provided (warn but don't crash)
     if (!process.env.VIENNA_SESSION_SECRET) {
-      console.warn('WARNING: VIENNA_SESSION_SECRET not set, using random secret (sessions will not persist across restarts)');
+      const generated = crypto.randomBytes(32).toString('hex');
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('WARNING: VIENNA_SESSION_SECRET not set. Generated random secret (sessions won\'t persist across restarts).');
+        console.warn('Set VIENNA_SESSION_SECRET as a Fly.io secret for session persistence.');
+      }
+      (process.env as any).VIENNA_SESSION_SECRET = generated;
     }
+    
+    // Session secret already handled above
     
     // Initialize Auth Service
     const authService = new AuthService({

@@ -4,7 +4,7 @@
  * API endpoints for seeding and managing demo data
  */
 
-import { api } from './index.js';
+import { apiClient } from './client.js';
 
 export interface DemoDataResponse {
   success: boolean;
@@ -30,8 +30,8 @@ export const demoApi = {
    */
   seedDemoData: async (options: DemoDataOptions = {}): Promise<DemoDataResponse> => {
     try {
-      const response = await api.post('/demo/seed', options);
-      return response.data;
+      const response = await apiClient.post('/demo/seed', options);
+      return (response as any).data;
     } catch (error: any) {
       // Mock success response for demo purposes
       console.log('Demo seeding requested:', options);
@@ -57,8 +57,8 @@ export const demoApi = {
    */
   clearDemoData: async (): Promise<DemoDataResponse> => {
     try {
-      const response = await api.delete('/demo/clear');
-      return response.data;
+      const response = await apiClient.delete('/demo/clear');
+      return (response as any).data;
     } catch (error: any) {
       // Mock response
       return {
@@ -77,8 +77,8 @@ export const demoApi = {
     lastSeeded?: string;
   }> => {
     try {
-      const response = await api.get('/demo/status');
-      return response.data;
+      const response = await apiClient.get('/demo/status');
+      return (response as any).data;
     } catch (error: any) {
       // Mock response
       return {

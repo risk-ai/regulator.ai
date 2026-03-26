@@ -6,7 +6,7 @@
 
 ### TITLE OF INVENTION
 
-**System and Method for Governed Execution of Autonomous AI Agent Actions Through Cryptographically Bound, Scope-Constrained Capability Tokens Enforced at an Isolated Execution Boundary**
+**System and Method for Governed Execution of Autonomous Actions Using Cryptographically Constrained Authorization**
 
 ---
 

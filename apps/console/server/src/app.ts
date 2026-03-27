@@ -164,15 +164,17 @@ export function createApp(
         services: {} as Record<string, { status: string; health: string }>,
       };
       
-      // Check State Graph availability
+      // Check State Graph availability (use app.locals.stateGraph which is already initialized)
       try {
-        const { getStateGraph } = await import('@vienna/lib');
-        const stateGraph = getStateGraph();
-        await stateGraph.initialize();
-        runtimeHealth.services.state_graph = { status: 'operational', health: 'healthy' };
+        if (app.locals.stateGraph && app.locals.stateGraph.initialized) {
+          runtimeHealth.services.state_graph = { status: 'operational', health: 'healthy' };
+        } else {
+          throw new Error('StateGraph not initialized: ' + (app.locals.stateGraph ? 'exists but not initialized' : 'not set'));
+        }
       } catch (error) {
         runtimeHealth.status = 'degraded';
         runtimeHealth.services.state_graph = { status: 'failed', health: 'unhealthy' };
+        console.log('[Health] State Graph check failed:', (error as Error).message);
       }
       
       // Provider health (LLM availability)

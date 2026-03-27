@@ -742,7 +742,7 @@ CREATE TABLE IF NOT EXISTS queue_leases (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   FOREIGN KEY (worker_id) REFERENCES scheduler_workers(worker_id),
-  UNIQUE(queue_item_id, status) ON CONFLICT DO NOTHING
+  UNIQUE(queue_item_id, status)
 );
 
 CREATE INDEX IF NOT EXISTS idx_queue_leases_queue_item ON queue_leases(queue_item_id);
@@ -1147,7 +1147,7 @@ CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
 CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC);
 
 -- Agent Activity: Recent actions per agent (rolling window)
-CREATE VIEW IF NOT EXISTS agent_activity AS
+CREATE OR REPLACE VIEW agent_activity AS
 SELECT 
   el.actor_id as agent_id,
   el.tenant_id,

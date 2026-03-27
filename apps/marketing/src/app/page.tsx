@@ -20,6 +20,7 @@ import {
   Fingerprint,
   Scale,
   Play,
+  FileText,
 } from "lucide-react";
 
 /* ============================================================
@@ -437,146 +438,168 @@ export default function Home() {
           )}
 
           {/* Hero content — two-column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div id="main-content">
             <div className="animate-fade-up" style={{ animationDelay: "0s" }}>
-              <div className="flex items-center gap-3 mb-5">
-                <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 status-live" />
-                  <span className="text-[11px] text-emerald-400 font-medium">Live in Production</span>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 hover:bg-emerald-500/15 transition-colors">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs text-emerald-400 font-semibold">Live in Production</span>
                 </span>
               </div>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold text-white leading-[1.08] mb-5 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-6 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
               AI Governance for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 animate-gradient">
                 Enterprises
               </span>
             </h1>
-            <p className="text-base md:text-lg text-slate-400 leading-relaxed mb-8 max-w-xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
+            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
               The control plane that sits between agent intent and execution.
               Policy enforcement, cryptographic warrants, operator approvals,
               and immutable audit trails — for every AI action.
             </p>
-            <div className="flex items-center gap-3 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="/signup" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm">
-                Start Free <ArrowRight className="w-4 h-4" />
+            <div className="flex items-center gap-4 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
+              <a href="/signup" className="group inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-purple-500/25 transform hover:scale-105">
+                Start Free <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </a>
-              <a href="/try" className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition font-medium text-sm border border-navy-700">
+              <a href="/try" className="inline-flex items-center gap-2 bg-navy-800/80 backdrop-blur-sm hover:bg-navy-700 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-sm border border-navy-600 hover:border-purple-500/30">
                 Try Live API →
               </a>
-              <a href="/demo" className="text-sm text-slate-500 hover:text-white transition ml-1">
+            </div>
+            <div className="flex items-center gap-6 mt-6 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+              <a href="/demo" className="text-sm text-slate-500 hover:text-purple-400 transition-colors flex items-center gap-1">
+                <Play className="w-4 h-4" />
                 Watch Demo
               </a>
-              <a href="/docs" className="text-sm text-slate-500 hover:text-white transition ml-1">
+              <a href="/docs" className="text-sm text-slate-500 hover:text-purple-400 transition-colors flex items-center gap-1">
+                <FileText className="w-4 h-4" />
                 Read Docs
               </a>
             </div>
           </div>
 
-          {/* Right column — Animated warrant card */}
+          {/* Right column — Enhanced warrant card */}
           <div className="hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
-            <div className="relative">
-              {/* Glow effect */}
-              <div className="absolute -inset-4 bg-purple-500/5 rounded-3xl blur-xl" />
+            <div className="relative group">
+              {/* Enhanced glow effect */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-purple-500/10 rounded-3xl blur-2xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+              <div className="absolute -inset-3 bg-purple-500/5 rounded-3xl blur-lg" />
               
-              {/* Warrant card */}
-              <div className="relative bg-navy-800/80 border border-navy-700 rounded-2xl p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono text-purple-400 tracking-wider">EXECUTION WARRANT</span>
-                  <span className="flex items-center gap-1.5 text-xs text-emerald-400">
+              {/* Warrant card with enhanced styling */}
+              <div className="relative bg-gradient-to-br from-navy-800/90 to-navy-900/90 border border-navy-600/50 rounded-2xl p-7 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:border-purple-500/30">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></div>
+                    <span className="text-xs font-mono text-amber-400 tracking-wider font-semibold">EXECUTION WARRANT</span>
+                  </div>
+                  <span className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Verified
                   </span>
                 </div>
                 
-                <div className="font-mono text-[11px] text-slate-500 mb-4">
+                <div className="font-mono text-sm text-slate-400 mb-6 bg-navy-900/50 rounded-lg px-3 py-2 border border-navy-700/50">
                   wrt-7f3a2b1c-e8d4-4a9f-b2c1
                 </div>
 
-                {/* Scope section */}
-                <div className="mb-4">
-                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Scope</div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">action</span>
-                      <span className="text-white font-mono">deploy_service</span>
+                {/* Enhanced sections with better spacing */}
+                <div className="grid grid-cols-1 gap-5">
+                  {/* Scope section */}
+                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
+                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Scope</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">action</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">deploy_service</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">target</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">api-gateway</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">version</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">v2.4.1</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">target</span>
-                      <span className="text-white font-mono">api-gateway</span>
+                  </div>
+
+                  {/* Authority section */}
+                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
+                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Authority</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">issuer</span>
+                        <span className="text-purple-300 font-mono bg-purple-500/10 px-2 py-0.5 rounded">operator:jane</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">risk tier</span>
+                        <span className="text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded font-semibold">T2</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">policy</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">prod-deploy-v3</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">version</span>
-                      <span className="text-white font-mono">v2.4.1</span>
+                  </div>
+
+                  {/* Constraints */}
+                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
+                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Constraints</div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">ttl</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">300s</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">rollback</span>
+                        <span className="text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded">enabled</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-500">max_replicas</span>
+                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">3</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Authority section */}
-                <div className="mb-4">
-                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Authority</div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">issuer</span>
-                      <span className="text-purple-300 font-mono">operator:jane</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">risk tier</span>
-                      <span className="text-yellow-400 font-mono">T2</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">policy</span>
-                      <span className="text-white font-mono">prod-deploy-v3</span>
-                    </div>
+                {/* Enhanced signature section */}
+                <div className="mt-6 pt-4 border-t border-purple-500/20">
+                  <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                    <span className="font-mono bg-navy-900/50 px-2 py-1 rounded">sig: hmac-sha256:7f3a…b2c1</span>
+                    <span className="flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      tamper-evident
+                    </span>
                   </div>
-                </div>
-
-                {/* Constraints */}
-                <div className="mb-4">
-                  <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2">Constraints</div>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">ttl</span>
-                      <span className="text-white font-mono">300s</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">rollback</span>
-                      <span className="text-emerald-400 font-mono">enabled</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">max_replicas</span>
-                      <span className="text-white font-mono">3</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Signature */}
-                <div className="pt-3 border-t border-navy-700">
-                  <div className="flex items-center justify-between text-[10px] text-slate-600">
-                    <span className="font-mono">sig: hmac-sha256:7f3a…b2c1</span>
-                    <span>tamper-evident</span>
-                  </div>
-                  <div className="text-[10px] text-slate-700 font-mono mt-1">
-                    issued 14:32:07Z · expires 14:37:07Z
+                  <div className="text-xs text-slate-600 font-mono text-center">
+                    issued 14:32:07Z • expires 14:37:07Z
                   </div>
                 </div>
               </div>
 
-              {/* Pipeline status below the card */}
-              <div className="mt-4 flex items-center gap-2 text-[10px] font-mono">
-                <span className="text-emerald-400">✓ intent</span>
-                <span className="text-slate-700">→</span>
-                <span className="text-emerald-400">✓ policy</span>
-                <span className="text-slate-700">→</span>
-                <span className="text-emerald-400">✓ approved</span>
-                <span className="text-slate-700">→</span>
-                <span className="text-purple-400 animate-pulse">● warrant</span>
-                <span className="text-slate-700">→</span>
-                <span className="text-slate-600">execute</span>
-                <span className="text-slate-700">→</span>
-                <span className="text-slate-600">verify</span>
+              {/* Enhanced pipeline status */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-xs font-mono bg-navy-800/30 backdrop-blur-sm rounded-full px-4 py-2 border border-navy-700/50">
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  intent
+                </span>
+                <span className="text-purple-400">→</span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  policy
+                </span>
+                <span className="text-purple-400">→</span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  approved
+                </span>
+                <span className="text-purple-400">→</span>
+                <span className="text-amber-400 animate-pulse flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  warrant
+                </span>
               </div>
             </div>
           </div>
@@ -585,11 +608,12 @@ export default function Home() {
       </header>
 
       {/* ============================================
-          STATS BAR — Animated count-up
+          STATS BAR — Enhanced with better styling
           ============================================ */}
-      <section className="bg-navy-800 border-y border-navy-700 py-12">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="relative bg-gradient-to-r from-navy-800 via-navy-800/95 to-navy-800 border-y border-navy-600/50 py-16">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/5 to-blue-900/5" />
+        <div className="relative max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             <AnimatedStat value={100} suffix="%" label="Audit Coverage" sub="Every action logged" />
             <AnimatedStat value={12000} suffix="+" label="Lines of Governance Code" sub="Full engine codebase" />
             <AnimatedStat value="∞" label="Action Types" sub="Unlimited governed operations" />
@@ -599,15 +623,18 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          PLATFORM — Core capabilities
+          PLATFORM — Enhanced with better spacing
           ============================================ */}
-      <section id="platform" aria-label="Platform features" className="max-w-6xl mx-auto px-6 py-20">
+      <section id="platform" aria-label="Platform features" className="max-w-6xl mx-auto px-6 py-24">
         <ScrollReveal>
-          <div className="text-center mb-14">
-            <h2 className="text-3xl font-bold text-white mb-3">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-4">
+              <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider">Platform</span>
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
               Complete Governance Platform
             </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
               Everything you need to govern autonomous AI agents at scale.
               Modular, extensible, and runtime-agnostic.
             </p>
@@ -646,16 +673,20 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          INDUSTRIES — Fraud.net-style vertical cards
+          INDUSTRIES — Enhanced visual design
           ============================================ */}
-      <section id="industries" aria-label="Industries served" className="bg-navy-800/50 py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="industries" aria-label="Industries served" className="relative bg-gradient-to-b from-navy-800/30 via-navy-800/50 to-navy-800/30 py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/10 via-transparent to-transparent" />
+        <div className="relative max-w-6xl mx-auto px-6">
           <ScrollReveal>
-            <div className="text-center mb-14">
-              <h2 className="text-3xl font-bold text-white mb-3">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
+                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider">Industries</span>
+              </div>
+              <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
                 Built for Regulated Industries
               </h2>
-              <p className="text-slate-400 max-w-xl mx-auto">
+              <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
                 The same governance gap exists everywhere AI agents take real-world actions.
                 Vienna OS fills it.
               </p>
@@ -700,16 +731,16 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          CUSTOMER TESTIMONIALS & USE CASES
+          INDUSTRY SOLUTIONS
           ============================================ */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <ScrollReveal>
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">
-              Enterprise Use Cases
+              Industry Solutions
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto">
-              See how regulated industries are using Vienna OS to govern AI agents 
+              See how Vienna OS enables AI agent governance across regulated industries 
               while maintaining compliance and operational efficiency.
             </p>
           </div>
@@ -720,119 +751,131 @@ export default function Home() {
             {
               industry: "Financial Services",
               icon: "🏦",
-              logo: "Goldman Sachs",
-              quote: "Governed trading bot actions with T3 multi-party approval",
-              details: "Our algorithmic trading agents now require dual approval for any trade over $100K. Vienna OS handles the approval workflow, warrant generation, and provides the immutable audit trail our regulators need for SOX compliance.",
-              metrics: [
-                { label: "Trade Volume", value: "$2.3B+", desc: "Governed through Vienna OS" },
-                { label: "Compliance Rate", value: "100%", desc: "Zero regulatory violations" },
-                { label: "Audit Time", value: "< 1hr", desc: "Previously 2-3 days" }
+              title: "Trading & Risk Management",
+              details: "Algorithmic trading agents operating under strict regulatory oversight. Multi-party approval workflows for high-value transactions, complete SOX audit trails, and automated risk tier classification based on trade size and market conditions.",
+              capabilities: [
+                "T3 multi-party approval for trades >$100K",
+                "Real-time risk assessment and tier assignment",
+                "SEC/FINRA compliance built into policy engine"
               ],
-              person: "Sarah Chen, Head of Risk",
-              company: "Global Investment Bank",
-              tier: "T3",
-              tierDesc: "Multi-party approval"
+              scenarios: [
+                { label: "Trade Governance", desc: "Designed for high-frequency trading compliance" },
+                { label: "Risk Controls", desc: "Real-time monitoring and circuit breakers" },
+                { label: "Audit Ready", desc: "Immutable trails for regulatory review" }
+              ],
+              tier: "T0-T3",
+              tierDesc: "Risk-based tiering"
             },
             {
               industry: "Healthcare",
               icon: "🏥",
-              logo: "Mayo Clinic",
-              quote: "HIPAA-compliant AI agent execution with full audit trails",
-              details: "Patient record updates, insurance claims processing, and clinical decision support all flow through Vienna OS. PHI scope constraints and 7-year audit retention ensure we stay HIPAA compliant while enabling AI automation.",
-              metrics: [
-                { label: "Patient Records", value: "500K+", desc: "Processed monthly" },
-                { label: "HIPAA Compliance", value: "100%", desc: "Zero breaches" },
-                { label: "Processing Time", value: "80%", desc: "Reduction in claims processing" }
+              title: "Patient Care & Records",
+              details: "HIPAA-compliant AI agent operations for patient record updates, insurance processing, and clinical decision support. PHI-scoped warrants ensure data access is limited and auditable for 7-year retention requirements.",
+              capabilities: [
+                "PHI-scoped warrant constraints for data protection",
+                "Role-based approvals (physician, nurse, admin)",
+                "7-year immutable audit retention for compliance"
               ],
-              person: "Dr. Michael Rodriguez, Chief Information Officer",
-              company: "Regional Health System",
+              scenarios: [
+                { label: "Record Processing", desc: "Designed for secure patient data handling" },
+                { label: "HIPAA Compliance", desc: "Built-in privacy protection controls" },
+                { label: "Clinical Workflows", desc: "Support for care team approvals" }
+              ],
               tier: "T1",
-              tierDesc: "HIPAA scoped"
+              tierDesc: "HIPAA-scoped approvals"
             },
             {
               industry: "Legal",
               icon: "⚖️",
-              logo: "Kirkland & Ellis",
-              quote: "AI paralegal actions governed by bar association policies",
-              details: "Document review, legal research, and client communications require attorney supervision. Vienna OS enforces dual approval for any external filing and maintains the detailed audit trail required by state bar associations.",
-              metrics: [
-                { label: "Documents Reviewed", value: "1.2M+", desc: "Per month with AI assistance" },
-                { label: "Approval Time", value: "< 2min", desc: "Attorney review workflow" },
-                { label: "Bar Compliance", value: "100%", desc: "All jurisdictions" }
+              title: "Document Review & Filing",
+              details: "Attorney-supervised AI paralegal operations for document review, legal research, and client communications. Bar association compliance through mandatory attorney oversight for all external communications and filings.",
+              capabilities: [
+                "Mandatory attorney review for external communications",
+                "Client privilege protection constraints",
+                "Automated blocking of unauthorized filings"
               ],
-              person: "Jennifer Walsh, Managing Partner",
-              company: "International Law Firm",
-              tier: "T2",
-              tierDesc: "Attorney supervision"
+              scenarios: [
+                { label: "Document Review", desc: "Designed for attorney-supervised workflows" },
+                { label: "Client Communications", desc: "Protected privilege and compliance" },
+                { label: "Bar Standards", desc: "Meets professional responsibility rules" }
+              ],
+              tier: "T1-T2",
+              tierDesc: "Attorney supervision required"
             },
             {
               industry: "DevOps",
               icon: "🚀",
-              logo: "Netflix",
-              quote: "Zero-trust deployment pipeline with warrant-based releases",
-              details: "Production deployments, database migrations, and infrastructure changes require cryptographic warrants. T0 for staging, T1 for production, T2 for critical systems. Our deployment velocity increased 40% while maintaining security.",
-              metrics: [
-                { label: "Daily Deployments", value: "800+", desc: "Across all environments" },
-                { label: "Security Incidents", value: "0", desc: "Since Vienna OS adoption" },
-                { label: "Deployment Speed", value: "+40%", desc: "Faster release cycles" }
+              title: "Deployment & Infrastructure",
+              details: "Zero-trust deployment pipeline with warrant-based releases. Environment-tiered approvals ensure production safety while maintaining deployment velocity. Automatic rollback capabilities and canary deployment controls.",
+              capabilities: [
+                "Environment-based risk tiers (T0 staging, T2 prod)",
+                "Cryptographic deployment warrants",
+                "Automated rollback and canary controls"
               ],
-              person: "Alex Kumar, VP of Engineering",
-              company: "Global Streaming Platform",
+              scenarios: [
+                { label: "CI/CD Pipeline", desc: "Designed for rapid, secure deployments" },
+                { label: "Infrastructure Changes", desc: "Governed database and system updates" },
+                { label: "Zero Trust", desc: "Every deployment requires authorization" }
+              ],
               tier: "T0-T2",
-              tierDesc: "Tiered by environment"
+              tierDesc: "Environment-based tiers"
             }
-          ].map((testimonial, i) => (
-            <ScrollReveal key={testimonial.industry} delay={i * 0.1}>
+          ].map((solution, i) => (
+            <ScrollReveal key={solution.industry} delay={i * 0.1}>
               <div className="bg-navy-800 border border-navy-700 rounded-2xl p-6 h-full">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 rounded-xl bg-navy-700 flex items-center justify-center text-2xl">
-                    {testimonial.icon}
+                    {solution.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white font-semibold text-lg">{testimonial.industry}</h3>
+                    <h3 className="text-white font-semibold text-lg">{solution.industry}</h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-slate-400">{testimonial.company}</span>
+                      <span className="text-sm text-slate-400">{solution.title}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${
-                        testimonial.tier === "T3" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
-                        testimonial.tier === "T2" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                        testimonial.tier === "T1" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                        solution.tier.includes("T3") ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                        solution.tier.includes("T2") ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
+                        solution.tier.includes("T1") ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
                         "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                       }`}>
-                        {testimonial.tier}
+                        {solution.tier}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Quote */}
-                <blockquote className="text-purple-400 text-lg font-medium mb-4 italic">
-                  "{testimonial.quote}"
-                </blockquote>
-
                 {/* Details */}
                 <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                  {testimonial.details}
+                  {solution.details}
                 </p>
 
-                {/* Metrics */}
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  {testimonial.metrics.map((metric) => (
-                    <div key={metric.label} className="bg-navy-900/50 rounded-lg p-3 text-center">
-                      <div className="text-lg font-bold text-white mb-1">{metric.value}</div>
-                      <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">{metric.label}</div>
-                      <div className="text-xs text-slate-400">{metric.desc}</div>
+                {/* Capabilities */}
+                <div className="mb-6">
+                  <h4 className="text-white font-medium text-sm mb-3">Key Capabilities</h4>
+                  <ul className="space-y-2">
+                    {solution.capabilities.map((capability, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-xs text-slate-400">
+                        <CheckCircle className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />
+                        {capability}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Use Case Scenarios */}
+                <div className="grid grid-cols-1 gap-2 mb-6">
+                  {solution.scenarios.map((scenario) => (
+                    <div key={scenario.label} className="bg-navy-900/50 rounded-lg p-3">
+                      <div className="text-sm font-medium text-white mb-1">{scenario.label}</div>
+                      <div className="text-xs text-slate-400">{scenario.desc}</div>
                     </div>
                   ))}
                 </div>
 
-                {/* Attribution */}
+                {/* Implementation Note */}
                 <div className="pt-4 border-t border-navy-700/50">
-                  <cite className="text-sm text-slate-400 not-italic">
-                    {testimonial.person}
-                  </cite>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {testimonial.tierDesc}
+                    {solution.tierDesc}
                   </div>
                 </div>
               </div>
@@ -843,10 +886,10 @@ export default function Home() {
         {/* CTA */}
         <ScrollReveal delay={0.3}>
           <div className="mt-12 text-center bg-navy-800/50 border border-navy-700/50 rounded-2xl p-8">
-            <h3 className="text-xl font-semibold text-white mb-3">Ready to govern your enterprise AI agents?</h3>
+            <h3 className="text-xl font-semibold text-white mb-3">Ready to govern your AI agents?</h3>
             <p className="text-slate-400 mb-6 max-w-2xl mx-auto">
-              Join these leading organizations using Vienna OS to maintain compliance, 
-              reduce risk, and accelerate AI adoption in regulated environments.
+              Vienna OS provides the governance framework your regulated industry needs 
+              to deploy AI agents safely and compliantly.
             </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <a 

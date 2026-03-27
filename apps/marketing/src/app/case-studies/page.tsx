@@ -1,29 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, ArrowLeft, Building2, TrendingUp, Clock, Users, CheckCircle, AlertTriangle, FileText, ArrowRight } from "lucide-react";
+import { Shield, ArrowLeft, Building2, TrendingUp, Clock, Users, CheckCircle, AlertTriangle, FileText, ArrowRight, Layers, Settings, Eye } from "lucide-react";
 
-interface CaseStudy {
+interface UseCaseScenario {
   id: string;
   industry: string;
-  company: string;
-  logo: string;
   title: string;
   subtitle: string;
   challenge: string;
   solution: string;
   implementation: string[];
-  results: {
+  outcomes: {
     metric: string;
-    before: string;
-    after: string;
-    improvement: string;
+    description: string;
+    capability: string;
   }[];
-  testimonial: {
-    quote: string;
-    author: string;
-    role: string;
-  };
+  workflow: {
+    step: string;
+    description: string;
+    tier?: string;
+  }[];
   technicalDetails: {
     tier: string;
     policies: string[];
@@ -35,228 +32,220 @@ interface CaseStudy {
   featured?: boolean;
 }
 
-const caseStudies: CaseStudy[] = [
+const useCaseScenarios: UseCaseScenario[] = [
   {
-    id: "global-investment-bank",
+    id: "financial-trading",
     industry: "Financial Services",
-    company: "Global Investment Bank",
-    logo: "GIB",
-    title: "Governing $2.3B in Daily AI Trading",
-    subtitle: "Multi-party approval for high-frequency trading algorithms",
-    challenge: "A tier-1 investment bank needed to comply with post-2008 banking regulations while deploying AI trading algorithms. Every trade above $100K required human oversight, but manual approval processes were too slow for competitive algorithmic trading.",
-    solution: "Vienna OS implemented a tiered approval system: T0 for trades under $10K (auto-approved), T1 for $10K-$100K (single approval), and T2 for $100K+ (dual approval). Custom policies integrated with existing risk management systems.",
+    title: "AI Trading Agent Governance",
+    subtitle: "Multi-tier approval system for algorithmic trading operations",
+    challenge: "Financial institutions need to deploy AI trading agents while maintaining regulatory compliance. Post-2008 regulations require human oversight for significant trades, but manual approval processes are too slow for competitive algorithmic trading markets.",
+    solution: "Vienna OS implements risk-based tiering: T0 for small trades (auto-approved), T1 for mid-size trades (single approval), and T3 for large trades (multi-party approval). Custom policies integrate with existing risk management systems and provide real-time compliance monitoring.",
     implementation: [
-      "Integrated Vienna OS Intent Gateway with existing trading infrastructure",
-      "Configured risk-based policy engine with SEC compliance rules",
-      "Set up dual-approval workflow for T2 transactions",
-      "Implemented real-time audit logging for regulatory reporting",
-      "Created custom warrant scoping for trade-specific constraints"
+      "Deploy Vienna OS Intent Gateway integrated with trading infrastructure",
+      "Configure risk-based policy engine with regulatory compliance rules",
+      "Set up multi-tier approval workflows based on trade size and risk",
+      "Implement real-time audit logging for regulatory reporting",
+      "Create warrant scoping for trade-specific constraints and limits"
     ],
-    results: [
+    outcomes: [
       {
-        metric: "Daily Trade Volume",
-        before: "$1.8B",
-        after: "$2.3B",
-        improvement: "+28%"
+        metric: "Trade Volume Capacity",
+        description: "Designed to handle billions in daily trading volume",
+        capability: "Scalable governance for high-frequency operations"
       },
       {
-        metric: "Approval Latency", 
-        before: "45 minutes",
-        after: "90 seconds",
-        improvement: "-97%"
+        metric: "Approval Speed", 
+        description: "Sub-minute approvals for qualifying trades",
+        capability: "Real-time decision making with human oversight"
       },
       {
-        metric: "Compliance Rate",
-        before: "94%",
-        after: "100%",
-        improvement: "+6%"
+        metric: "Compliance Framework",
+        description: "Built-in SEC, FINRA, and Volcker Rule compliance",
+        capability: "Automated regulatory adherence"
       },
       {
-        metric: "Audit Time",
-        before: "2-3 days",
-        after: "< 1 hour",
-        improvement: "-95%"
+        metric: "Audit Trail",
+        description: "Immutable record of every trading decision",
+        capability: "Complete regulatory transparency"
       }
     ],
-    testimonial: {
-      quote: "Vienna OS transformed our trading operations. We can now deploy AI algorithms confidently, knowing every trade is governed and auditable. The regulators love the transparency.",
-      author: "Sarah Chen",
-      role: "Head of Algorithmic Trading Risk"
-    },
+    workflow: [
+      { step: "Trading Intent", description: "AI agent submits trade proposal with parameters", tier: "Gateway" },
+      { step: "Risk Assessment", description: "Policy engine evaluates trade size, market conditions, and risk factors" },
+      { step: "Tier Classification", description: "Trade assigned T0 (auto), T1 (single approval), or T3 (multi-party)", tier: "Policy" },
+      { step: "Approval Process", description: "Routed to appropriate approval workflow based on tier" },
+      { step: "Warrant Issuance", description: "Cryptographic warrant issued with trade constraints", tier: "Warrant" },
+      { step: "Execution", description: "Trade executed within warrant parameters" },
+      { step: "Verification", description: "Post-trade verification ensures compliance with warrant" }
+    ],
     technicalDetails: {
-      tier: "T0-T2 Multi-tier",
-      policies: ["SEC Rule 15c3-5", "Volcker Rule", "MiFID II", "Position Limits", "Market Risk"],
-      integrations: ["Bloomberg Terminal", "FIX Protocol", "Risk Management Platform", "Trade Surveillance"],
-      timeline: "6 weeks implementation + 2 weeks testing"
+      tier: "T0-T3 Risk-based",
+      policies: ["SEC Rule 15c3-5", "Volcker Rule", "MiFID II", "Position Limits", "Market Risk Controls"],
+      integrations: ["FIX Protocol", "Bloomberg Terminal", "Risk Management Systems", "Trade Surveillance"],
+      timeline: "6-8 weeks implementation + regulatory review"
     },
     icon: "🏦",
     color: "blue",
     featured: true
   },
   {
-    id: "healthcare-system",
+    id: "healthcare-records",
     industry: "Healthcare",
-    company: "Regional Health Network",
-    logo: "RHN",
-    title: "HIPAA-Compliant AI Patient Care",
-    subtitle: "500K+ patient records processed monthly with zero breaches",
-    challenge: "A 12-hospital network wanted to deploy AI for patient record updates, insurance processing, and clinical decision support. HIPAA compliance required strict PHI access controls and complete audit trails for 7 years.",
-    solution: "Vienna OS created HIPAA-scoped warrants with PHI constraints, role-based access policies, and automated audit retention. Every AI action touching patient data required explicit authorization and scope validation.",
+    title: "HIPAA-Compliant Patient Care AI",
+    subtitle: "Secure AI agent operations for patient record management",
+    challenge: "Healthcare networks want to deploy AI for patient record updates, insurance processing, and clinical decision support. HIPAA compliance requires strict PHI access controls and complete audit trails maintained for 7 years, while enabling efficient patient care operations.",
+    solution: "Vienna OS creates HIPAA-scoped warrants with PHI constraints, role-based access policies, and automated audit retention. Every AI action touching patient data requires explicit authorization with scope validation to ensure minimum necessary access principles.",
     implementation: [
-      "Deployed on-premises Vienna OS for PHI data isolation",
-      "Configured HIPAA-compliant policy templates",
-      "Set up role-based approval workflows (physician, nurse, admin)",
-      "Implemented PHI-scoped warrant constraints",
-      "Created 7-year immutable audit retention system"
+      "Deploy on-premises Vienna OS for PHI data isolation and security",
+      "Configure HIPAA-compliant policy templates and access controls",
+      "Set up role-based approval workflows (physician, nurse, administrator)",
+      "Implement PHI-scoped warrant constraints for data access",
+      "Create 7-year immutable audit retention system for compliance"
     ],
-    results: [
+    outcomes: [
       {
-        metric: "Patient Records Processed",
-        before: "200K/month",
-        after: "500K/month",
-        improvement: "+150%"
+        metric: "Patient Data Processing",
+        description: "Designed to handle hundreds of thousands of patient records",
+        capability: "Scalable HIPAA-compliant data operations"
       },
       {
-        metric: "HIPAA Violations",
-        before: "2-3/year",
-        after: "0/year",
-        improvement: "100%"
+        metric: "Privacy Protection",
+        description: "Zero-breach architecture with PHI access controls",
+        capability: "Built-in privacy safeguards and monitoring"
       },
       {
-        metric: "Claims Processing Time",
-        before: "5.2 days",
-        after: "1.1 days",
-        improvement: "-79%"
+        metric: "Clinical Efficiency",
+        description: "Significant reduction in administrative processing time",
+        capability: "Streamlined workflows with compliance built-in"
       },
       {
-        metric: "Audit Preparation",
-        before: "3 weeks",
-        after: "2 hours",
-        improvement: "-99%"
+        metric: "Audit Readiness",
+        description: "Instant audit trail generation for compliance reviews",
+        capability: "Comprehensive regulatory documentation"
       }
     ],
-    testimonial: {
-      quote: "Vienna OS gave us the confidence to deploy AI across our entire patient care workflow. The HIPAA compliance is bulletproof, and our efficiency gains have been remarkable.",
-      author: "Dr. Michael Rodriguez",
-      role: "Chief Information Officer"
-    },
+    workflow: [
+      { step: "Clinical Intent", description: "AI agent requests patient data access or record update", tier: "Gateway" },
+      { step: "HIPAA Evaluation", description: "Policy engine checks PHI access rules and minimum necessary requirements" },
+      { step: "Role Verification", description: "User role and clinical context validated against access policies", tier: "Policy" },
+      { step: "Clinical Approval", description: "Physician or authorized clinician approves data access" },
+      { step: "PHI Warrant", description: "Scoped warrant issued with specific PHI access constraints", tier: "Warrant" },
+      { step: "Secure Execution", description: "AI action performed within PHI constraints" },
+      { step: "Audit Logging", description: "Complete audit trail logged for 7-year retention" }
+    ],
     technicalDetails: {
       tier: "T1 HIPAA-scoped",
       policies: ["HIPAA Privacy Rule", "HIPAA Security Rule", "HITECH Act", "Minimum Necessary", "Patient Consent"],
-      integrations: ["Epic EHR", "Cerner", "HL7 FHIR", "Medical Imaging Systems", "Insurance APIs"],
-      timeline: "8 weeks implementation + 4 weeks HIPAA audit"
+      integrations: ["Epic EHR", "Cerner", "HL7 FHIR", "Medical Imaging", "Insurance Systems"],
+      timeline: "8-10 weeks implementation + HIPAA audit"
     },
     icon: "🏥",
     color: "green"
   },
   {
-    id: "law-firm",
+    id: "legal-operations",
     industry: "Legal",
-    company: "International Law Firm",
-    logo: "ILF",
-    title: "AI Paralegal with Attorney Oversight",
-    subtitle: "1.2M documents reviewed monthly with bar association compliance",
-    challenge: "A 500+ attorney firm needed AI assistance for document review, legal research, and client communications, but state bar associations required attorney supervision for all AI-generated work and external communications.",
-    solution: "Vienna OS enforced attorney-in-the-loop workflows with T1 approval for research, T2 for client communications, and automatic denial for unauthorized external filings. All AI work required attorney review and sign-off.",
+    title: "Attorney-Supervised AI Paralegal",
+    subtitle: "Bar association compliant AI legal assistance",
+    challenge: "Law firms want AI assistance for document review, legal research, and client communications, but state bar associations require attorney supervision for all AI-generated work. External communications and court filings need particular oversight to maintain professional responsibility standards.",
+    solution: "Vienna OS enforces attorney-in-the-loop workflows with tiered supervision: T1 approval for internal research, T2 for client communications, and automatic blocking for unauthorized external filings. All AI work requires attorney review and professional responsibility compliance.",
     implementation: [
-      "Integrated with existing legal document management system",
-      "Created bar association compliance policy templates",
-      "Set up attorney approval workflows by practice area",
-      "Implemented client privilege protection constraints",
-      "Configured automatic external communication blocking"
+      "Integrate with existing legal document management systems",
+      "Deploy bar association compliance policy templates",
+      "Configure attorney approval workflows by practice area and document type",
+      "Implement client privilege protection and confidentiality constraints",
+      "Set up automatic blocking for unauthorized external communications"
     ],
-    results: [
+    outcomes: [
       {
-        metric: "Documents Reviewed",
-        before: "400K/month",
-        after: "1.2M/month",
-        improvement: "+200%"
+        metric: "Document Processing",
+        description: "Designed to handle millions of legal documents monthly",
+        capability: "Scalable document review with attorney oversight"
       },
       {
-        metric: "Attorney Review Time",
-        before: "4.5 hours",
-        after: "45 minutes",
-        improvement: "-83%"
+        metric: "Attorney Efficiency",
+        description: "Significant reduction in routine review time",
+        capability: "AI assistance with professional oversight maintained"
       },
       {
-        metric: "Bar Compliance Rate",
-        before: "97%",
-        after: "100%",
-        improvement: "+3%"
+        metric: "Bar Compliance",
+        description: "100% adherence to professional responsibility rules",
+        capability: "Built-in ethical guardrails and oversight"
       },
       {
-        metric: "Client Response Time",
-        before: "2.3 days",
-        after: "4.2 hours",
-        improvement: "-92%"
+        metric: "Client Protection",
+        description: "Automated privilege and confidentiality protection",
+        capability: "Enhanced client confidentiality safeguards"
       }
     ],
-    testimonial: {
-      quote: "Vienna OS solved the attorney supervision problem elegantly. Our AI paralegals are incredibly productive, but we never worry about bar compliance or unauthorized communications.",
-      author: "Jennifer Walsh",
-      role: "Managing Partner"
-    },
+    workflow: [
+      { step: "Legal Intent", description: "AI paralegal requests to perform legal task or research", tier: "Gateway" },
+      { step: "Bar Rule Check", description: "Policy engine evaluates against state bar association requirements" },
+      { step: "Supervision Tier", description: "Task classified for internal research (T1) or client work (T2)", tier: "Policy" },
+      { step: "Attorney Review", description: "Licensed attorney reviews and approves AI work product" },
+      { step: "Legal Warrant", description: "Warrant issued with privilege and confidentiality constraints", tier: "Warrant" },
+      { step: "Supervised Execution", description: "AI performs task under attorney supervision" },
+      { step: "Professional Compliance", description: "Final work product verified for bar compliance" }
+    ],
     technicalDetails: {
       tier: "T1-T2 Attorney Supervised",
       policies: ["ABA Model Rules", "State Bar Requirements", "Client Confidentiality", "Attorney-Client Privilege", "Professional Liability"],
       integrations: ["iManage", "NetDocuments", "Westlaw", "LexisNexis", "Court Filing Systems"],
-      timeline: "10 weeks implementation + 6 weeks bar association review"
+      timeline: "10-12 weeks implementation + bar association review"
     },
     icon: "⚖️",
     color: "purple"
   },
   {
-    id: "streaming-platform",
+    id: "devops-deployment",
     industry: "Technology",
-    company: "Global Streaming Platform",
-    logo: "GSP",
     title: "Zero-Trust Deployment Pipeline",
-    subtitle: "800+ daily deployments with warrant-based security",
-    challenge: "A major streaming platform needed to maintain rapid deployment velocity while ensuring security. Traditional approval processes were too slow, but unrestricted deployments posed significant security risks to the platform serving 200M+ users.",
-    solution: "Vienna OS implemented environment-based risk tiers: T0 for staging, T1 for production, T2 for critical infrastructure. Cryptographic warrants ensured only authorized changes reached production, with automatic rollback capabilities.",
+    subtitle: "Warrant-based security for CI/CD operations",
+    challenge: "Technology companies need to maintain rapid deployment velocity while ensuring security. Traditional approval processes slow down development cycles, but unrestricted deployments pose significant security risks, especially for platforms serving millions of users.",
+    solution: "Vienna OS implements environment-based risk tiers with cryptographic warrants: T0 for staging environments, T1 for production, T2 for critical infrastructure. Every deployment requires proper authorization with automatic rollback capabilities and compliance monitoring.",
     implementation: [
-      "Integrated Vienna OS with CI/CD pipeline (Jenkins, Kubernetes)",
-      "Configured environment-based risk assessment policies",
-      "Set up automatic warrant generation for deployments",
-      "Implemented rollback constraints and canary deployment controls",
-      "Created real-time deployment audit dashboard"
+      "Integrate Vienna OS with existing CI/CD pipeline infrastructure",
+      "Configure environment-based risk assessment and policy rules",
+      "Set up automatic warrant generation for different deployment types",
+      "Implement rollback constraints and canary deployment controls",
+      "Create real-time deployment monitoring and audit dashboard"
     ],
-    results: [
+    outcomes: [
       {
-        metric: "Daily Deployments",
-        before: "450/day",
-        after: "800+/day",
-        improvement: "+78%"
+        metric: "Deployment Scale",
+        description: "Designed to handle hundreds of daily deployments",
+        capability: "High-velocity deployment with security governance"
       },
       {
-        metric: "Security Incidents",
-        before: "2-3/month",
-        after: "0/month",
-        improvement: "100%"
+        metric: "Security Posture",
+        description: "Zero-trust architecture with warrant-based authorization",
+        capability: "Enhanced security without velocity loss"
       },
       {
         metric: "Rollback Speed",
-        before: "25 minutes",
-        after: "90 seconds",
-        improvement: "-94%"
+        description: "Rapid rollback capabilities for deployment issues",
+        capability: "Built-in safety and recovery mechanisms"
       },
       {
-        metric: "Deployment Confidence",
-        before: "73%",
-        after: "96%",
-        improvement: "+31%"
+        metric: "Audit Trail",
+        description: "Complete deployment history and decision trail",
+        capability: "Full operational transparency and compliance"
       }
     ],
-    testimonial: {
-      quote: "Vienna OS gave us both speed and security. We deploy faster than ever before, but with complete confidence that every change is governed and traceable.",
-      author: "Alex Kumar",
-      role: "VP of Engineering"
-    },
+    workflow: [
+      { step: "Deploy Intent", description: "CI/CD system requests deployment of code or infrastructure", tier: "Gateway" },
+      { step: "Environment Assessment", description: "Policy engine evaluates target environment and deployment risk" },
+      { step: "Security Tier", description: "Deployment classified by environment: T0 staging, T1 prod, T2 critical", tier: "Policy" },
+      { step: "Approval Flow", description: "Automatic approval for T0, engineer approval for T1, manager for T2" },
+      { step: "Deploy Warrant", description: "Cryptographic warrant with deployment constraints issued", tier: "Warrant" },
+      { step: "Controlled Release", description: "Deployment executed with canary and rollback controls" },
+      { step: "Verification", description: "Post-deployment health checks and compliance verification" }
+    ],
     technicalDetails: {
       tier: "T0-T2 Environment-based",
       policies: ["Deployment Windows", "Canary Requirements", "Rollback Controls", "Security Scanning", "Load Testing"],
-      integrations: ["Kubernetes", "Jenkins", "GitLab CI", "Datadog", "PagerDuty"],
-      timeline: "4 weeks implementation + 2 weeks performance testing"
+      integrations: ["Kubernetes", "Jenkins", "GitLab CI", "Monitoring Tools", "Incident Management"],
+      timeline: "4-6 weeks implementation + performance testing"
     },
     icon: "🚀",
     color: "orange",
@@ -264,11 +253,11 @@ const caseStudies: CaseStudy[] = [
   }
 ];
 
-export default function CaseStudiesPage() {
+export default function UseCasesPage() {
   const [selectedCase, setSelectedCase] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "implementation" | "results" | "technical">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "implementation" | "workflow" | "technical">("overview");
 
-  const selectedCaseStudy = selectedCase ? caseStudies.find(c => c.id === selectedCase) : null;
+  const selectedUseCase = selectedCase ? useCaseScenarios.find(c => c.id === selectedCase) : null;
 
   const colorClasses = {
     blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
@@ -278,7 +267,7 @@ export default function CaseStudiesPage() {
     red: "border-red-500/30 bg-red-500/5 text-red-400",
   };
 
-  if (selectedCaseStudy) {
+  if (selectedUseCase) {
     return (
       <div className="min-h-screen bg-navy-950">
         {/* Navigation */}
@@ -290,7 +279,7 @@ export default function CaseStudiesPage() {
                 className="flex items-center gap-2 text-warm-400 hover:text-white transition"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm">Back to Case Studies</span>
+                <span className="text-sm">Back to Industry Solutions</span>
               </button>
               <div className="h-4 w-px bg-navy-700"></div>
               <Shield className="w-5 h-5 text-gold-400" />
@@ -307,32 +296,32 @@ export default function CaseStudiesPage() {
           </div>
         </nav>
 
-        {/* Case Study Detail */}
+        {/* Use Case Detail */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl border ${colorClasses[selectedCaseStudy.color as keyof typeof colorClasses]}`}>
-                {selectedCaseStudy.icon}
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl border ${colorClasses[selectedUseCase.color as keyof typeof colorClasses]}`}>
+                {selectedUseCase.icon}
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-sm text-warm-500">{selectedCaseStudy.industry}</span>
-                  {selectedCaseStudy.featured && (
+                  <span className="text-sm text-warm-500">{selectedUseCase.industry}</span>
+                  {selectedUseCase.featured && (
                     <span className="px-2 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/20 rounded-full text-xs font-medium">
-                      Featured
+                      Featured Solution
                     </span>
                   )}
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">{selectedCaseStudy.title}</h1>
-                <p className="text-warm-400">{selectedCaseStudy.subtitle}</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">{selectedUseCase.title}</h1>
+                <p className="text-warm-400">{selectedUseCase.subtitle}</p>
               </div>
             </div>
           </div>
 
           {/* Tabs */}
           <div className="flex gap-1 mb-6 bg-navy-800/50 rounded-xl p-1 overflow-x-auto">
-            {(["overview", "implementation", "results", "technical"] as const).map((tab) => (
+            {(["overview", "implementation", "workflow", "technical"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -344,7 +333,7 @@ export default function CaseStudiesPage() {
               >
                 {tab === "overview" && "📋 "}
                 {tab === "implementation" && "⚙️ "}
-                {tab === "results" && "📊 "}
+                {tab === "workflow" && "🔄 "}
                 {tab === "technical" && "🔧 "}
                 {tab}
               </button>
@@ -358,19 +347,23 @@ export default function CaseStudiesPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">The Challenge</h3>
-                    <p className="text-warm-300 leading-relaxed">{selectedCaseStudy.challenge}</p>
+                    <p className="text-warm-300 leading-relaxed">{selectedUseCase.challenge}</p>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-3">Vienna OS Solution</h3>
-                    <p className="text-warm-300 leading-relaxed">{selectedCaseStudy.solution}</p>
+                    <p className="text-warm-300 leading-relaxed">{selectedUseCase.solution}</p>
                   </div>
-                  <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
-                    <blockquote className="text-lg text-purple-400 italic mb-4">
-                      "{selectedCaseStudy.testimonial.quote}"
-                    </blockquote>
-                    <cite className="text-sm text-warm-400 not-italic">
-                      — {selectedCaseStudy.testimonial.author}, {selectedCaseStudy.testimonial.role}
-                    </cite>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-4">Key Outcomes</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {selectedUseCase.outcomes.map((outcome, i) => (
+                        <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+                          <h4 className="text-white font-semibold mb-2">{outcome.metric}</h4>
+                          <p className="text-warm-300 text-sm mb-2">{outcome.description}</p>
+                          <div className="text-xs text-warm-500 italic">{outcome.capability}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -379,7 +372,7 @@ export default function CaseStudiesPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-4">Implementation Steps</h3>
                   <div className="space-y-3">
-                    {selectedCaseStudy.implementation.map((step, i) => (
+                    {selectedUseCase.implementation.map((step, i) => (
                       <div key={i} className="flex gap-3">
                         <div className="w-6 h-6 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {i + 1}
@@ -391,33 +384,31 @@ export default function CaseStudiesPage() {
                 </div>
               )}
 
-              {activeTab === "results" && (
+              {activeTab === "workflow" && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Key Results</h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {selectedCaseStudy.results.map((result, i) => (
-                      <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-medium text-warm-400">{result.metric}</h4>
-                          <span className={`text-sm font-bold ${
-                            result.improvement.startsWith('+') ? 'text-emerald-400' : 
-                            result.improvement.startsWith('-') ? 'text-emerald-400' :
-                            'text-gold-400'
-                          }`}>
-                            {result.improvement}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-xs text-warm-600">Before</div>
-                            <div className="font-mono text-warm-300">{result.before}</div>
+                  <h3 className="text-lg font-semibold text-white mb-4">Governance Workflow</h3>
+                  <div className="space-y-4">
+                    {selectedUseCase.workflow.map((step, i) => (
+                      <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                            {i + 1}
                           </div>
-                          <ArrowRight className="w-4 h-4 text-warm-600" />
-                          <div>
-                            <div className="text-xs text-warm-600">After</div>
-                            <div className="font-mono text-white font-semibold">{result.after}</div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-white font-semibold">{step.step}</h4>
+                              {step.tier && (
+                                <span className="text-xs px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full font-mono">
+                                  {step.tier}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-warm-300 text-sm">{step.description}</p>
                           </div>
                         </div>
+                        {i < selectedUseCase.workflow.length - 1 && (
+                          <div className="ml-4 mt-2 w-0.5 h-6 bg-navy-600"></div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -430,12 +421,12 @@ export default function CaseStudiesPage() {
                     <h3 className="text-lg font-semibold text-white mb-4">Technical Implementation</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
-                        <h4 className="text-sm font-medium text-warm-400 mb-2">Risk Tier</h4>
-                        <p className="font-mono text-white">{selectedCaseStudy.technicalDetails.tier}</p>
+                        <h4 className="text-sm font-medium text-warm-400 mb-2">Governance Tier</h4>
+                        <p className="font-mono text-white">{selectedUseCase.technicalDetails.tier}</p>
                       </div>
                       <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
-                        <h4 className="text-sm font-medium text-warm-400 mb-2">Timeline</h4>
-                        <p className="font-mono text-white">{selectedCaseStudy.technicalDetails.timeline}</p>
+                        <h4 className="text-sm font-medium text-warm-400 mb-2">Implementation Timeline</h4>
+                        <p className="font-mono text-white">{selectedUseCase.technicalDetails.timeline}</p>
                       </div>
                     </div>
                   </div>
@@ -443,7 +434,7 @@ export default function CaseStudiesPage() {
                   <div>
                     <h4 className="text-sm font-medium text-warm-400 mb-3">Compliance Policies</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedCaseStudy.technicalDetails.policies.map((policy) => (
+                      {selectedUseCase.technicalDetails.policies.map((policy) => (
                         <span key={policy} className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-medium">
                           {policy}
                         </span>
@@ -454,7 +445,7 @@ export default function CaseStudiesPage() {
                   <div>
                     <h4 className="text-sm font-medium text-warm-400 mb-3">System Integrations</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedCaseStudy.technicalDetails.integrations.map((integration) => (
+                      {selectedUseCase.technicalDetails.integrations.map((integration) => (
                         <span key={integration} className="px-3 py-1 bg-navy-700 text-warm-300 border border-navy-600 rounded-lg text-xs font-medium">
                           {integration}
                         </span>
@@ -467,30 +458,30 @@ export default function CaseStudiesPage() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Company Info */}
+              {/* Solution Info */}
               <div className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-                <h4 className="text-sm font-medium text-warm-400 mb-3">Company Overview</h4>
+                <h4 className="text-sm font-medium text-warm-400 mb-3">Solution Overview</h4>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-xs text-warm-600">Company</div>
-                    <div className="text-white font-medium">{selectedCaseStudy.company}</div>
-                  </div>
-                  <div>
                     <div className="text-xs text-warm-600">Industry</div>
-                    <div className="text-white font-medium">{selectedCaseStudy.industry}</div>
+                    <div className="text-white font-medium">{selectedUseCase.industry}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-warm-600">Governance Tier</div>
-                    <div className="text-white font-medium font-mono">{selectedCaseStudy.technicalDetails.tier}</div>
+                    <div className="text-xs text-warm-600">Governance Approach</div>
+                    <div className="text-white font-medium font-mono">{selectedUseCase.technicalDetails.tier}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-warm-600">Implementation Type</div>
+                    <div className="text-white font-medium">Enterprise Deployment</div>
                   </div>
                 </div>
               </div>
 
               {/* CTA */}
               <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-xl p-5">
-                <h4 className="text-white font-semibold mb-2">Ready to get started?</h4>
+                <h4 className="text-white font-semibold mb-2">Ready to implement?</h4>
                 <p className="text-warm-400 text-sm mb-4">
-                  Implement Vienna OS governance in your organization.
+                  Deploy Vienna OS governance for your {selectedUseCase.industry.toLowerCase()} organization.
                 </p>
                 <div className="space-y-2">
                   <a 
@@ -508,11 +499,11 @@ export default function CaseStudiesPage() {
                 </div>
               </div>
 
-              {/* Other Cases */}
+              {/* Other Solutions */}
               <div className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-                <h4 className="text-sm font-medium text-warm-400 mb-3">Other Case Studies</h4>
+                <h4 className="text-sm font-medium text-warm-400 mb-3">Other Industry Solutions</h4>
                 <div className="space-y-2">
-                  {caseStudies.filter(c => c.id !== selectedCase).slice(0, 3).map((otherCase) => (
+                  {useCaseScenarios.filter(c => c.id !== selectedCase).slice(0, 3).map((otherCase) => (
                     <button
                       key={otherCase.id}
                       onClick={() => {
@@ -550,7 +541,7 @@ export default function CaseStudiesPage() {
             </span>
           </a>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-warm-500 font-mono">Enterprise Case Studies</span>
+            <span className="hidden sm:inline text-xs text-warm-500 font-mono">Industry Solutions</span>
             <a
               href="/signup"
               className="text-sm bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
@@ -565,62 +556,62 @@ export default function CaseStudiesPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="w-6 h-6 text-gold-400" />
-            <span className="text-sm text-gold-400 font-medium uppercase tracking-wider">Enterprise Case Studies</span>
+            <Layers className="w-6 h-6 text-gold-400" />
+            <span className="text-sm text-gold-400 font-medium uppercase tracking-wider">Industry Solutions</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Real Vienna OS Implementations
+            AI Governance Use Cases
           </h1>
           <p className="text-warm-400 text-lg max-w-3xl mx-auto">
-            See how leading organizations across regulated industries are using Vienna OS 
-            to govern AI agents while maintaining compliance and accelerating innovation.
+            Discover how Vienna OS enables AI agent governance across regulated industries. 
+            See the workflows, technical implementations, and compliance frameworks in action.
           </p>
         </div>
 
-        {/* Featured Cases */}
+        {/* Featured Solutions */}
         <div className="mb-12">
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-gold-400" />
-            Featured Case Studies
+            Featured Solutions
           </h2>
           <div className="grid lg:grid-cols-2 gap-6">
-            {caseStudies.filter(c => c.featured).map((caseStudy) => (
+            {useCaseScenarios.filter(c => c.featured).map((useCase) => (
               <button
-                key={caseStudy.id}
-                onClick={() => setSelectedCase(caseStudy.id)}
+                key={useCase.id}
+                onClick={() => setSelectedCase(useCase.id)}
                 className="text-left bg-navy-800 border border-navy-700 hover:border-gold-400/30 rounded-2xl p-6 transition-all duration-300 hover:bg-navy-800/80 group"
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl border ${colorClasses[caseStudy.color as keyof typeof colorClasses]} group-hover:scale-105 transition-transform`}>
-                    {caseStudy.icon}
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl border ${colorClasses[useCase.color as keyof typeof colorClasses]} group-hover:scale-105 transition-transform`}>
+                    {useCase.icon}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm text-warm-500">{caseStudy.industry}</span>
+                      <span className="text-sm text-warm-500">{useCase.industry}</span>
                       <span className="px-2 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/20 rounded-full text-xs font-medium">
                         Featured
                       </span>
                     </div>
                     <h3 className="text-lg font-semibold text-white group-hover:text-gold-400 transition-colors">
-                      {caseStudy.title}
+                      {useCase.title}
                     </h3>
-                    <p className="text-sm text-warm-400">{caseStudy.subtitle}</p>
+                    <p className="text-sm text-warm-400">{useCase.subtitle}</p>
                   </div>
                 </div>
                 
                 <p className="text-sm text-warm-300 leading-relaxed mb-4 line-clamp-3">
-                  {caseStudy.challenge}
+                  {useCase.challenge}
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 text-xs text-warm-600">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      <span>{caseStudy.technicalDetails.timeline}</span>
+                      <span>{useCase.technicalDetails.timeline}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3" />
-                      <span>{caseStudy.technicalDetails.tier}</span>
+                      <Settings className="w-3 h-3" />
+                      <span>{useCase.technicalDetails.tier}</span>
                     </div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-gold-400 group-hover:translate-x-1 transition-transform" />
@@ -630,38 +621,38 @@ export default function CaseStudiesPage() {
           </div>
         </div>
 
-        {/* All Case Studies */}
+        {/* All Solutions */}
         <div>
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-gold-400" />
-            All Case Studies
+            <Building2 className="w-5 h-5 text-gold-400" />
+            All Industry Solutions
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {caseStudies.map((caseStudy) => (
+            {useCaseScenarios.map((useCase) => (
               <button
-                key={caseStudy.id}
-                onClick={() => setSelectedCase(caseStudy.id)}
+                key={useCase.id}
+                onClick={() => setSelectedCase(useCase.id)}
                 className="text-left bg-navy-800 border border-navy-700 hover:border-navy-600 rounded-xl p-5 transition-all hover:bg-navy-700/50 group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorClasses[caseStudy.color as keyof typeof colorClasses]}`}>
-                    {caseStudy.icon}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorClasses[useCase.color as keyof typeof colorClasses]}`}>
+                    {useCase.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-warm-500 mb-0.5">{caseStudy.industry}</div>
+                    <div className="text-xs text-warm-500 mb-0.5">{useCase.industry}</div>
                     <h3 className="text-sm font-semibold text-white group-hover:text-gold-400 transition-colors truncate">
-                      {caseStudy.company}
+                      {useCase.title}
                     </h3>
                   </div>
-                  {caseStudy.featured && (
+                  {useCase.featured && (
                     <div className="w-2 h-2 rounded-full bg-gold-400"></div>
                   )}
                 </div>
                 <p className="text-sm text-warm-300 mb-3 line-clamp-2">
-                  {caseStudy.title}
+                  {useCase.subtitle}
                 </p>
                 <div className="flex items-center justify-between text-xs text-warm-600">
-                  <span className="font-mono">{caseStudy.technicalDetails.tier}</span>
+                  <span className="font-mono">{useCase.technicalDetails.tier}</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </button>
@@ -671,10 +662,10 @@ export default function CaseStudiesPage() {
 
         {/* CTA */}
         <div className="mt-16 bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Ready to Join These Leaders?</h2>
+          <h2 className="text-2xl font-bold text-white mb-3">Ready to Implement AI Governance?</h2>
           <p className="text-warm-400 mb-6 max-w-2xl mx-auto">
-            Vienna OS is helping organizations across regulated industries deploy AI agents 
-            responsibly. Start your governance journey today.
+            Vienna OS provides the governance framework your regulated industry needs 
+            to deploy AI agents safely, compliantly, and efficiently.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <a 

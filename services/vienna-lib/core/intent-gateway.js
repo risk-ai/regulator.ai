@@ -13,8 +13,8 @@
  */
 
 const { v4: uuidv4 } = require('uuid');
-const SlackAdapter = require('../adapters/slack.js');
-const EmailAdapter = require('../adapters/email.js');
+const { SlackAdapter } = require('../adapters/slack.js');
+const { EmailAdapter } = require('../adapters/email.js');
 
 /**
  * Intent structure (canonical)

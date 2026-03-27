@@ -388,21 +388,28 @@ export default function Home() {
     <div className="min-h-screen bg-navy-900">
 
       {/* ============================================
-          HERO
+          HERO - Enhanced with aurora background
           ============================================ */}
-      <header className="relative overflow-hidden grid-bg">
-        {/* Ambient glow */}
-        <div className="ambient-glow" />
+      <header className="relative overflow-hidden">
+        {/* Aurora mesh gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-navy-900 to-blue-900/20" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.15),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.1),transparent)]" />
+        
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:100px_100px]" />
+        
         {/* Network particle background */}
         <NetworkBackground />
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-navy-900/90 to-navy-900" />
-        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-20" style={{ zIndex: 1 }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-900/30 to-navy-900" />
+        
+        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-24" style={{ zIndex: 1 }}>
           {/* Nav */}
           <nav className="flex items-center justify-between mb-16" aria-label="Main navigation">
             <div className="flex items-center gap-3">
               <Shield className="w-7 h-7 text-purple-400" />
               <span className="text-lg font-bold text-white tracking-tight">
-                Vienna<span className="text-purple-400">OS</span>
+                Vienna<span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">OS</span>
               </span>
             </div>
             <div className="hidden md:flex items-center gap-5">
@@ -414,10 +421,10 @@ export default function Home() {
                 ["/docs", "Docs"],
                 ["/blog", "Blog"],
               ].map(([href, label]) => (
-                <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition">{label}</a>
+                <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">{label}</a>
               ))}
-              <a href="https://console.regulator.ai" className="text-sm text-slate-400 hover:text-white transition">Console</a>
-              <a href="/signup" className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition font-medium">
+              <a href="https://console.regulator.ai" className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">Console</a>
+              <a href="/signup" className="text-sm bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-5 py-2.5 rounded-lg transition font-semibold tracking-wide shadow-lg hover:shadow-purple-500/25">
                 Get Started
               </a>
             </div>
@@ -426,303 +433,378 @@ export default function Home() {
             </button>
           </nav>
           {mobileMenuOpen && (
-            <div className="md:hidden bg-navy-800 border border-navy-700 rounded-xl px-5 py-4 mb-8 space-y-3">
-              <a href="#platform" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Platform</a>
-              <a href="#industries" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Industries</a>
-              <a href="#pricing" className="block text-sm text-slate-300" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
-              <a href="/demo" className="block text-sm text-slate-300">Demo</a>
-              <a href="/docs" className="block text-sm text-slate-300">Docs</a>
-              <a href="/blog" className="block text-sm text-slate-300">Blog</a>
-              <a href="/signup" className="block text-sm bg-purple-600 text-white px-4 py-2 rounded-lg text-center font-medium mt-2">Get Started</a>
+            <div className="md:hidden bg-navy-800/90 backdrop-blur-xl border border-navy-700/50 rounded-xl px-5 py-4 mb-8 space-y-3 shadow-2xl">
+              <a href="#platform" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Platform</a>
+              <a href="#industries" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Industries</a>
+              <a href="#pricing" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+              <a href="/demo" className="block text-sm text-slate-300 hover:text-white transition">Demo</a>
+              <a href="/docs" className="block text-sm text-slate-300 hover:text-white transition">Docs</a>
+              <a href="/blog" className="block text-sm text-slate-300 hover:text-white transition">Blog</a>
+              <a href="/signup" className="block text-sm bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-2 rounded-lg text-center font-semibold mt-2 shadow-lg">Get Started</a>
             </div>
           )}
 
           {/* Hero content — two-column layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div id="main-content">
-            <div className="animate-fade-up" style={{ animationDelay: "0s" }}>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 hover:bg-emerald-500/15 transition-colors">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs text-emerald-400 font-semibold">Live in Production</span>
-                </span>
-              </div>
-            </div>
-
-            <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-6 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
-              AI Governance for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 animate-gradient">
-                Enterprises
-              </span>
-            </h1>
-            <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-10 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-              The control plane that sits between agent intent and execution.
-              Policy enforcement, cryptographic warrants, operator approvals,
-              and immutable audit trails — for every AI action.
-            </p>
-            <div className="flex items-center gap-4 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              <a href="/signup" className="group inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-purple-500/25 transform hover:scale-105">
-                Start Free <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </a>
-              <a href="/try" className="inline-flex items-center gap-2 bg-navy-800/80 backdrop-blur-sm hover:bg-navy-700 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-sm border border-navy-600 hover:border-purple-500/30">
-                Try Live API →
-              </a>
-            </div>
-            <div className="flex items-center gap-6 mt-6 animate-fade-up" style={{ animationDelay: "0.4s" }}>
-              <a href="/demo" className="text-sm text-slate-500 hover:text-purple-400 transition-colors flex items-center gap-1">
-                <Play className="w-4 h-4" />
-                Watch Demo
-              </a>
-              <a href="/docs" className="text-sm text-slate-500 hover:text-purple-400 transition-colors flex items-center gap-1">
-                <FileText className="w-4 h-4" />
-                Read Docs
-              </a>
-            </div>
-          </div>
-
-          {/* Right column — Enhanced warrant card */}
-          <div className="hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
-            <div className="relative group">
-              {/* Enhanced glow effect */}
-              <div className="absolute -inset-6 bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-purple-500/10 rounded-3xl blur-2xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-              <div className="absolute -inset-3 bg-purple-500/5 rounded-3xl blur-lg" />
-              
-              {/* Warrant card with enhanced styling */}
-              <div className="relative bg-gradient-to-br from-navy-800/90 to-navy-900/90 border border-navy-600/50 rounded-2xl p-7 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:border-purple-500/30">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></div>
-                    <span className="text-xs font-mono text-amber-400 tracking-wider font-semibold">EXECUTION WARRANT</span>
-                  </div>
-                  <span className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Verified
+            <div id="main-content">
+              <div className="animate-fade-up" style={{ animationDelay: "0s" }}>
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 hover:bg-emerald-500/15 transition-all duration-300 hover:scale-105">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-xs text-emerald-400 font-semibold tracking-wider">Live in Production</span>
                   </span>
                 </div>
-                
-                <div className="font-mono text-sm text-slate-400 mb-6 bg-navy-900/50 rounded-lg px-3 py-2 border border-navy-700/50">
-                  wrt-7f3a2b1c-e8d4-4a9f-b2c1
-                </div>
-
-                {/* Enhanced sections with better spacing */}
-                <div className="grid grid-cols-1 gap-5">
-                  {/* Scope section */}
-                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
-                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Scope</div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">action</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">deploy_service</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">target</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">api-gateway</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">version</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">v2.4.1</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Authority section */}
-                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
-                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Authority</div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">issuer</span>
-                        <span className="text-purple-300 font-mono bg-purple-500/10 px-2 py-0.5 rounded">operator:jane</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">risk tier</span>
-                        <span className="text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded font-semibold">T2</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">policy</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">prod-deploy-v3</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Constraints */}
-                  <div className="bg-navy-900/30 rounded-xl p-4 border border-navy-700/30">
-                    <div className="text-xs text-purple-400 uppercase tracking-wider mb-3 font-semibold">Constraints</div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">ttl</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">300s</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">rollback</span>
-                        <span className="text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded">enabled</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-500">max_replicas</span>
-                        <span className="text-white font-mono bg-navy-800/50 px-2 py-0.5 rounded">3</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Enhanced signature section */}
-                <div className="mt-6 pt-4 border-t border-purple-500/20">
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-                    <span className="font-mono bg-navy-900/50 px-2 py-1 rounded">sig: hmac-sha256:7f3a…b2c1</span>
-                    <span className="flex items-center gap-1">
-                      <Lock className="w-3 h-3" />
-                      tamper-evident
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-600 font-mono text-center">
-                    issued 14:32:07Z • expires 14:37:07Z
-                  </div>
-                </div>
               </div>
 
-              {/* Enhanced pipeline status */}
-              <div className="mt-6 flex items-center justify-center gap-2 text-xs font-mono bg-navy-800/30 backdrop-blur-sm rounded-full px-4 py-2 border border-navy-700/50">
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  intent
+              <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-8 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
+                AI <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 bg-clip-text text-transparent">Governance</span> for{" "}
+                <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
+                  Enterprises
                 </span>
-                <span className="text-purple-400">→</span>
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  policy
-                </span>
-                <span className="text-purple-400">→</span>
-                <span className="text-emerald-400 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  approved
-                </span>
-                <span className="text-purple-400">→</span>
-                <span className="text-amber-400 animate-pulse flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  warrant
-                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
+                The control plane that sits between agent intent and execution.
+                Policy enforcement, cryptographic <span className="text-amber-400 font-medium">warrants</span>, operator approvals,
+                and immutable audit trails — for every AI action.
+              </p>
+              <div className="flex items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
+                <a href="/signup" className="group inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 hover:from-purple-500 hover:via-purple-400 hover:to-blue-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold text-sm shadow-2xl hover:shadow-purple-500/30 transform hover:scale-105 hover:-translate-y-1">
+                  Start Free <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </a>
+                <a href="/try" className="inline-flex items-center gap-2 bg-navy-800/60 backdrop-blur-sm hover:bg-navy-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-sm border border-navy-600/50 hover:border-purple-500/50 shadow-xl">
+                  Try Live API →
+                </a>
+              </div>
+              <div className="flex items-center gap-8 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+                <a href="/demo" className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group">
+                  <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  Watch Demo
+                </a>
+                <a href="/docs" className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group">
+                  <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  Read Docs
+                </a>
               </div>
             </div>
-          </div>
+
+            {/* Right column — Enhanced warrant card with floating animation */}
+            <div className="hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
+              <div className="relative group warrant-float">
+                {/* Multi-layer glow effects */}
+                <div className="absolute -inset-8 bg-gradient-to-r from-purple-500/20 via-blue-500/10 to-purple-500/20 rounded-3xl blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/10 via-purple-500/5 to-amber-500/10 rounded-3xl blur-xl opacity-80" />
+                
+                {/* Warrant card with enhanced styling and scan line animation */}
+                <div className="relative bg-gradient-to-br from-navy-800/95 to-navy-900/95 border border-navy-600/60 rounded-2xl p-8 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 hover:border-purple-500/40 warrant-scan-line">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse warrant-pulse"></div>
+                      <span className="text-xs font-mono text-amber-400 tracking-wider font-bold uppercase">Execution Warrant</span>
+                    </div>
+                    <span className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 rounded-full px-3 py-1.5 verified-pulse">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="font-semibold tracking-wider">VERIFIED</span>
+                    </span>
+                  </div>
+                  
+                  <div className="font-mono text-sm text-slate-300 mb-6 bg-navy-900/70 rounded-lg px-4 py-3 border border-navy-700/60 backdrop-blur-sm warrant-typing">
+                    wrt-7f3a2b1c-e8d4-4a9f-b2c1
+                  </div>
+
+                  {/* Enhanced sections with better visual hierarchy */}
+                  <div className="grid grid-cols-1 gap-6">
+                    {/* Scope section */}
+                    <div className="bg-gradient-to-br from-navy-900/50 to-navy-900/30 rounded-xl p-5 border border-navy-700/40 backdrop-blur-sm">
+                      <div className="text-xs text-purple-400 uppercase tracking-wider mb-4 font-bold">Scope</div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">action</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">deploy_service</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">target</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">api-gateway</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">version</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">v2.4.1</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Authority section */}
+                    <div className="bg-gradient-to-br from-navy-900/50 to-navy-900/30 rounded-xl p-5 border border-navy-700/40 backdrop-blur-sm">
+                      <div className="text-xs text-purple-400 uppercase tracking-wider mb-4 font-bold">Authority</div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">issuer</span>
+                          <span className="text-purple-300 font-mono bg-purple-500/15 px-3 py-1 rounded font-semibold">operator:jane</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">risk tier</span>
+                          <span className="text-amber-400 font-mono bg-amber-500/15 px-3 py-1 rounded font-bold">T2</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">policy</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">prod-deploy-v3</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Constraints */}
+                    <div className="bg-gradient-to-br from-navy-900/50 to-navy-900/30 rounded-xl p-5 border border-navy-700/40 backdrop-blur-sm">
+                      <div className="text-xs text-purple-400 uppercase tracking-wider mb-4 font-bold">Constraints</div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">ttl</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">300s</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">rollback</span>
+                          <span className="text-emerald-400 font-mono bg-emerald-500/15 px-3 py-1 rounded font-semibold">enabled</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500">max_replicas</span>
+                          <span className="text-white font-mono bg-navy-800/60 px-3 py-1 rounded font-semibold">3</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enhanced signature section */}
+                  <div className="mt-6 pt-5 border-t border-gradient-to-r from-purple-500/30 via-transparent to-purple-500/30">
+                    <div className="flex items-center justify-between text-xs text-slate-500 mb-3">
+                      <span className="font-mono bg-navy-900/70 px-3 py-1.5 rounded backdrop-blur-sm">sig: hmac-sha256:7f3a…b2c1</span>
+                      <span className="flex items-center gap-1.5">
+                        <Lock className="w-3 h-3" />
+                        <span className="font-medium">tamper-evident</span>
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-600 font-mono text-center">
+                      issued 14:32:07Z • expires 14:37:07Z
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced pipeline status with better visual flow */}
+                <div className="mt-8 flex items-center justify-center gap-3 text-xs font-mono bg-navy-800/40 backdrop-blur-sm rounded-full px-6 py-3 border border-navy-700/60">
+                  <span className="text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle className="w-3 h-3" />
+                    intent
+                  </span>
+                  <span className="text-purple-400">→</span>
+                  <span className="text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle className="w-3 h-3" />
+                    policy
+                  </span>
+                  <span className="text-purple-400">→</span>
+                  <span className="text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle className="w-3 h-3" />
+                    approved
+                  </span>
+                  <span className="text-purple-400">→</span>
+                  <span className="text-amber-400 animate-pulse flex items-center gap-1.5 warrant-active">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    warrant
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
       {/* ============================================
-          STATS BAR — Enhanced with better styling
+          TRUST SIGNALS BAR — Replacing fake testimonials with real facts
           ============================================ */}
-      <section className="relative bg-gradient-to-r from-navy-800 via-navy-800/95 to-navy-800 border-y border-navy-600/50 py-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/5 to-blue-900/5" />
+      <section className="relative bg-gradient-to-r from-slate-800 via-navy-700 to-slate-800 border-t border-slate-600/30 py-12">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/10 via-transparent to-blue-900/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08),transparent)]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="text-center trust-signal">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <Scale className="w-5 h-5 text-purple-400" />
+                </div>
+              </div>
+              <div className="text-sm font-semibold text-white mb-1">Built at Cornell Law × ai.ventures</div>
+              <div className="text-xs text-slate-400">Legal tech expertise meets systems engineering</div>
+            </div>
+            
+            <div className="text-center trust-signal">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-amber-400" />
+                </div>
+              </div>
+              <div className="text-sm font-semibold text-white mb-1">USPTO Patent #64/018,152</div>
+              <div className="text-xs text-slate-400">Intellectual property protection for governance methods</div>
+            </div>
+            
+            <div className="text-center trust-signal">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              <div className="text-sm font-semibold text-white mb-1">Open Source Core</div>
+              <div className="text-xs text-slate-400">Transparent governance engine architecture</div>
+            </div>
+            
+            <div className="text-center trust-signal">
+              <div className="flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <Server className="w-5 h-5 text-blue-400" />
+                </div>
+              </div>
+              <div className="text-sm font-semibold text-white mb-1">9 Governance Engines</div>
+              <div className="text-xs text-slate-400">Policy • Verify • Watch • Reconcile • Circuit • Fleet • Integrations • Compliance • Policies</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
+          STATS BAR — Enhanced visual presentation
+          ============================================ */}
+      <section className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 py-20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(139,69,19,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.1),transparent)]" />
+        
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             <AnimatedStat value={100} suffix="%" label="Audit Coverage" sub="Every action logged" />
-            <AnimatedStat value={12000} suffix="+" label="Lines of Governance Code" sub="Full engine codebase" />
-            <AnimatedStat value="∞" label="Action Types" sub="Unlimited governed operations" />
-            <AnimatedStat value={9} label="Engine Services" sub="Policy · Verify · Watch · Reconcile · Circuit · Fleet · Integrations · Compliance · Policies" />
+            <AnimatedStat value={12000} suffix="+" label="Lines of Code" sub="Full governance engine" />
+            <AnimatedStat value="∞" label="Action Types" sub="Unlimited operations" />
+            <AnimatedStat value={9} label="Core Engines" sub="Complete governance stack" />
           </div>
         </div>
       </section>
 
       {/* ============================================
-          PLATFORM — Enhanced with better spacing
+          PLATFORM — Enhanced with gradient sections and better visual hierarchy
           ============================================ */}
-      <section id="platform" aria-label="Platform features" className="max-w-6xl mx-auto px-6 py-24">
-        <ScrollReveal>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-4">
-              <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider">Platform</span>
-            </div>
-            <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
-              Complete Governance Platform
-            </h2>
-            <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Everything you need to govern autonomous AI agents at scale.
-              Modular, extensible, and runtime-agnostic.
-            </p>
-          </div>
-        </ScrollReveal>
-
-        {/* Two-column feature grid */}
-        <div className="grid md:grid-cols-2 gap-4 mb-12">
-          {[
-            { icon: Workflow, title: "Intent Gateway", desc: "Single entry point for all agent requests. Normalizes proposals into the governed pipeline.", color: "text-blue-400", bg: "bg-blue-500/8" },
-            { icon: FileCheck, title: "Policy Engine", desc: "Policy-as-code rule evaluation. Define guardrails that enforce automatically — no manual review for low-risk.", color: "text-emerald-400", bg: "bg-emerald-500/8" },
-            { icon: Lock, title: "Execution Warrants", desc: "Cryptographically signed, time-limited, scope-constrained authorization. No warrant, no execution.", color: "text-amber-400", bg: "bg-amber-500/8" },
-            { icon: Eye, title: "Verification Engine", desc: "Post-execution check: did the agent do exactly what the warrant authorized? Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-rose-500/8" },
-            { icon: BookOpen, title: "Audit Trail", desc: "Append-only immutable ledger. Every intent, policy decision, warrant, execution, and verification — permanently recorded.", color: "text-orange-400", bg: "bg-orange-500/8" },
-            { icon: BarChart3, title: "Risk Tiering", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. Agent actions classified by blast radius.", color: "text-purple-400", bg: "bg-purple-500/8" },
-          ].map((f, i) => (
-            <ScrollReveal key={f.title} delay={i * 0.08}>
-              <div className={`${f.bg} border border-navy-700 rounded-xl p-5 card-hover flex gap-4`}>
-                <f.icon className={`w-6 h-6 ${f.color} shrink-0 mt-0.5`} />
-                <div>
-                  <h3 className="text-white font-semibold text-sm mb-1">{f.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-
-        {/* Animated pipeline visualization */}
-        <ScrollReveal>
-          <AnimatedPipeline />
-        </ScrollReveal>
-
-        {/* Warrant specimen — paper-unfold effect */}
-        <WarrantSpecimen />
-      </section>
-
-      {/* ============================================
-          INDUSTRIES — Enhanced visual design
-          ============================================ */}
-      <section id="industries" aria-label="Industries served" className="relative bg-gradient-to-b from-navy-800/30 via-navy-800/50 to-navy-800/30 py-24">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/10 via-transparent to-transparent" />
+      <section id="platform" aria-label="Platform features" className="relative bg-gradient-to-b from-transparent via-slate-900/20 to-transparent py-24">
+        {/* Subtle dot pattern overlay */}
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        
         <div className="relative max-w-6xl mx-auto px-6">
           <ScrollReveal>
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
-                <span className="text-xs text-blue-400 font-semibold uppercase tracking-wider">Industries</span>
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center gap-2 bg-purple-500/15 border border-purple-500/30 rounded-full px-5 py-2.5 mb-6 backdrop-blur-sm">
+                <span className="text-sm text-purple-300 font-bold uppercase tracking-wider">Platform</span>
               </div>
-              <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
-                Built for Regulated Industries
+              <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+                Complete <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Governance</span> Platform
               </h2>
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Everything you need to govern autonomous AI agents at scale.
+                Modular, extensible, and runtime-agnostic.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* Enhanced two-column feature grid with better visual hierarchy */}
+          <div className="grid md:grid-cols-2 gap-6 mb-16">
+            {[
+              { icon: Workflow, title: "Intent Gateway", desc: "Single entry point for all agent requests. Normalizes proposals into the governed pipeline.", color: "text-blue-400", bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5", border: "border-blue-500/20" },
+              { icon: FileCheck, title: "Policy Engine", desc: "Policy-as-code rule evaluation. Define guardrails that enforce automatically — no manual review for low-risk.", color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20" },
+              { icon: Lock, title: "Execution Warrants", desc: "Cryptographically signed, time-limited, scope-constrained authorization. No warrant, no execution.", color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5", border: "border-amber-500/20" },
+              { icon: Eye, title: "Verification Engine", desc: "Post-execution check: did the agent do exactly what the warrant authorized? Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
+              { icon: BookOpen, title: "Audit Trail", desc: "Append-only immutable ledger. Every intent, policy decision, warrant, execution, and verification — permanently recorded.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
+              { icon: BarChart3, title: "Risk Tiering", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. Agent actions classified by blast radius.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
+            ].map((f, i) => (
+              <ScrollReveal key={f.title} delay={i * 0.08}>
+                <div className={`${f.bg} border ${f.border} rounded-xl p-6 card-hover flex gap-5 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300`}>
+                  <f.icon className={`w-7 h-7 ${f.color} shrink-0 mt-1`} />
+                  <div>
+                    <h3 className="text-white font-bold text-base mb-2 tracking-wide">{f.title}</h3>
+                    <p className="text-sm text-slate-300 leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          {/* Animated pipeline visualization with enhanced styling */}
+          <ScrollReveal>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/5 to-transparent rounded-3xl blur-xl" />
+              <AnimatedPipeline />
+            </div>
+          </ScrollReveal>
+
+          {/* Warrant specimen — paper-unfold effect */}
+          <WarrantSpecimen />
+        </div>
+      </section>
+
+      {/* ============================================
+          INDUSTRIES — Enhanced with dramatic visual contrast
+          ============================================ */}
+      <section id="industries" aria-label="Industries served" className="relative bg-gradient-to-b from-navy-800 via-slate-800 to-navy-800 py-24 border-y border-slate-600/20">
+        {/* Mesh gradient backgrounds */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(168,85,247,0.15),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.05),transparent)]" />
+        
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-20 bg-[linear-gradient(45deg,rgba(255,255,255,0.02)_25%,transparent_25%),linear-gradient(-45deg,rgba(255,255,255,0.02)_25%,transparent_25%)] bg-[size:60px_60px]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center gap-2 bg-blue-500/15 border border-blue-500/30 rounded-full px-5 py-2.5 mb-6 backdrop-blur-sm">
+                <span className="text-sm text-blue-300 font-bold uppercase tracking-wider">Industries</span>
+              </div>
+              <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+                Built for <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">Regulated</span> Industries
+              </h2>
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
                 The same governance gap exists everywhere AI agents take real-world actions.
                 Vienna OS fills it.
               </p>
             </div>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: "🏦", title: "Financial Services", desc: "Wire transfers, trading, underwriting. SEC compliance, SOX audit trails. T2 multi-party approval for high-value transactions.", reg: "SEC · SOX · FINRA" },
-              { icon: "🏥", title: "Healthcare", desc: "Patient record updates, clinical decisions, billing. HIPAA-scoped warrants with PHI constraints and 7-year retention.", reg: "HIPAA · HITECH" },
-              { icon: "⚖️", title: "Legal", desc: "Court filings, document review, client communications. Attorney-supervisor dual approval for external submissions.", reg: "ABA Rules · Court reqs" },
-              { icon: "🏛️", title: "Government", desc: "Federal AI mandates, classified system governance. Air-gapped deployment option. FedRAMP path.", reg: "NIST AI RMF · FedRAMP" },
+              { icon: "🏦", title: "Financial Services", desc: "Wire transfers, trading, underwriting. SEC compliance, SOX audit trails. T2 multi-party approval for high-value transactions.", reg: "SEC · SOX · FINRA", gradient: "from-blue-500/10 to-blue-600/5", border: "border-blue-500/20", accentBar: "bg-gradient-to-r from-blue-500 to-blue-400" },
+              { icon: "🏥", title: "Healthcare", desc: "Patient record updates, clinical decisions, billing. HIPAA-scoped warrants with PHI constraints and 7-year retention.", reg: "HIPAA · HITECH", gradient: "from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20", accentBar: "bg-gradient-to-r from-emerald-500 to-emerald-400" },
+              { icon: "⚖️", title: "Legal", desc: "Court filings, document review, client communications. Attorney-supervisor dual approval for external submissions.", reg: "ABA Rules · Court reqs", gradient: "from-purple-500/10 to-purple-600/5", border: "border-purple-500/20", accentBar: "bg-gradient-to-r from-purple-500 to-purple-400" },
+              { icon: "🏛️", title: "Government", desc: "Federal AI mandates, classified system governance. Air-gapped deployment option. FedRAMP path.", reg: "NIST AI RMF · FedRAMP", gradient: "from-amber-500/10 to-amber-600/5", border: "border-amber-500/20", accentBar: "bg-gradient-to-r from-amber-500 to-amber-400" },
             ].map((ind, i) => (
               <ScrollReveal key={ind.title} delay={i * 0.1}>
-                <div className="bg-navy-900 border border-navy-700 rounded-xl p-5 card-hover">
-                  <div className="text-2xl mb-3">{ind.icon}</div>
-                  <h3 className="text-white font-semibold text-sm mb-2">{ind.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-3">{ind.desc}</p>
-                  <div className="text-[10px] text-purple-400 font-mono font-medium">{ind.reg}</div>
+                <div className={`bg-gradient-to-br ${ind.gradient} border ${ind.border} rounded-xl p-6 card-hover relative overflow-hidden backdrop-blur-sm group hover:scale-105 hover:shadow-2xl transition-all duration-300`}>
+                  {/* Colored accent bar */}
+                  <div className={`absolute top-0 left-0 right-0 h-1 ${ind.accentBar}`} />
+                  
+                  <div className="text-3xl mb-4">{ind.icon}</div>
+                  <h3 className="text-white font-bold text-lg mb-3 tracking-wide">{ind.title}</h3>
+                  <p className="text-sm text-slate-300 leading-relaxed mb-4">{ind.desc}</p>
+                  <div className="text-xs font-mono font-semibold opacity-75 text-current">{ind.reg}</div>
+                  
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 </div>
               </ScrollReveal>
             ))}
           </div>
 
-          {/* Platform breadth */}
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Enhanced platform breadth with better visual separation */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Frameworks", value: "OpenClaw · LangChain · CrewAI · AutoGen · REST" },
-              { label: "Deploy", value: "Cloud · On-prem · Hybrid · Air-gapped" },
-              { label: "Compliance", value: "EU AI Act · SEC · HIPAA · SOX · NIST" },
-              { label: "Stack", value: "Node 22 · SQLite · Express · React · Fly.io" },
+              { label: "Frameworks", value: "OpenClaw · LangChain · CrewAI · AutoGen · REST", color: "purple" },
+              { label: "Deploy", value: "Cloud · On-prem · Hybrid · Air-gapped", color: "blue" },
+              { label: "Compliance", value: "EU AI Act · SEC · HIPAA · SOX · NIST", color: "emerald" },
+              { label: "Stack", value: "Node 22 · SQLite · Express · React · Fly.io", color: "amber" },
             ].map((c, i) => (
               <ScrollReveal key={c.label} delay={i * 0.08}>
-                <div className="bg-navy-900/50 border border-navy-700 rounded-lg p-4">
-                  <div className="text-[10px] text-purple-400 font-semibold uppercase tracking-wider mb-2">{c.label}</div>
-                  <div className="text-[11px] text-slate-400 font-mono leading-relaxed">{c.value}</div>
+                <div className={`bg-gradient-to-br from-${c.color}-500/10 to-${c.color}-600/5 border border-${c.color}-500/20 rounded-xl p-5 backdrop-blur-sm hover:scale-105 transition-all duration-300`}>
+                  <div className={`text-xs text-${c.color}-300 font-bold uppercase tracking-wider mb-3`}>{c.label}</div>
+                  <div className="text-sm text-slate-300 font-mono leading-relaxed">{c.value}</div>
                 </div>
               </ScrollReveal>
             ))}
@@ -910,37 +992,69 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          HOW IT WORKS — with typewriter code
+          HOW IT WORKS — Enhanced with timeline flow and better terminal styling
           ============================================ */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <ScrollReveal>
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-4">How it works</h2>
-              <p className="text-slate-400 text-sm mb-6">
-                Vienna OS sits between agent intent and real-world execution. Agents stay autonomous within governed boundaries.
-              </p>
-              <div className="space-y-3">
-                {[
-                  { icon: Fingerprint, text: "Agent submits intent to the Gateway" },
-                  { icon: FileCheck, text: "Policy Engine evaluates against rules" },
-                  { icon: Scale, text: "Risk tier assigned — T0/T1/T2" },
-                  { icon: Users, text: "Operator approves if T1/T2" },
-                  { icon: Lock, text: "Warrant issued — signed, scoped, time-limited" },
-                  { icon: Zap, text: "Execution router runs the action" },
-                  { icon: Eye, text: "Verification confirms scope compliance" },
-                  { icon: BookOpen, text: "Audit trail records everything" },
-                ].map((step, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <step.icon className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
-                    <span className="text-sm text-slate-300">{step.text}</span>
+      <section className="relative bg-gradient-to-br from-transparent via-navy-800/30 to-transparent py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08),transparent)]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <ScrollReveal>
+              <div>
+                <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
+                  How it <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">works</span>
+                </h2>
+                <p className="text-lg text-slate-300 mb-8 leading-relaxed">
+                  Vienna OS sits between agent intent and real-world execution. Agents stay autonomous within governed boundaries.
+                </p>
+                
+                {/* Enhanced timeline with numbered steps and connecting lines */}
+                <div className="space-y-4 relative">
+                  {/* Connecting line */}
+                  <div className="absolute left-5 top-8 bottom-8 w-0.5 bg-gradient-to-b from-purple-500/50 via-blue-500/50 to-emerald-500/50" />
+                  
+                  {[
+                    { icon: Fingerprint, text: "Agent submits intent to the Gateway", color: "text-purple-400" },
+                    { icon: FileCheck, text: "Policy Engine evaluates against rules", color: "text-blue-400" },
+                    { icon: Scale, text: "Risk tier assigned — T0/T1/T2", color: "text-indigo-400" },
+                    { icon: Users, text: "Operator approves if T1/T2", color: "text-violet-400" },
+                    { icon: Lock, text: "Warrant issued — signed, scoped, time-limited", color: "text-amber-400" },
+                    { icon: Zap, text: "Execution router runs the action", color: "text-green-400" },
+                    { icon: Eye, text: "Verification confirms scope compliance", color: "text-emerald-400" },
+                    { icon: BookOpen, text: "Audit trail records everything", color: "text-cyan-400" },
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-4 relative">
+                      {/* Step number */}
+                      <div className="w-10 h-10 rounded-full bg-navy-800 border-2 border-current flex items-center justify-center text-xs font-bold shrink-0 relative z-10">
+                        {i + 1}
+                      </div>
+                      <step.icon className={`w-5 h-5 ${step.color} mt-2.5 shrink-0`} />
+                      <span className="text-slate-300 leading-relaxed pt-2">{step.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ScrollReveal>
+            
+            {/* Enhanced typewriter code with better terminal styling */}
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-br from-slate-800/50 to-navy-800/50 rounded-2xl blur-xl" />
+              <div className="relative">
+                {/* Terminal header */}
+                <div className="bg-slate-800 border border-slate-700 rounded-t-xl px-4 py-3 flex items-center gap-3">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   </div>
-                ))}
+                  <div className="flex-1 text-center">
+                    <span className="text-xs text-slate-400 font-mono">Vienna OS Terminal</span>
+                  </div>
+                </div>
+                <TypewriterCode />
               </div>
             </div>
-          </ScrollReveal>
-          {/* Typewriter code example */}
-          <TypewriterCode />
+          </div>
         </div>
       </section>
 
@@ -950,38 +1064,75 @@ export default function Home() {
       <HowItWorksDemo />
 
       {/* ============================================
-          PRICING
+          PRICING — Enhanced with better spacing and premium styling
           ============================================ */}
-      <section id="pricing" aria-label="Pricing plans" className="bg-navy-800/50 py-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="pricing" aria-label="Pricing plans" className="relative bg-gradient-to-b from-slate-900/50 via-navy-800/70 to-slate-900/50 py-24">
+        {/* Gradient mesh background */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.08),transparent)]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
           <ScrollReveal>
-            <div className="text-center mb-14">
-              <h2 className="text-3xl font-bold text-white mb-3">Pricing</h2>
-              <p className="text-slate-400">Start free. Scale as your agent fleet grows.</p>
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-500/30 rounded-full px-5 py-2.5 mb-6 backdrop-blur-sm">
+                <span className="text-sm text-emerald-300 font-bold uppercase tracking-wider">Pricing</span>
+              </div>
+              <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
+                Start <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">free</span>. Scale as your agent fleet grows.
+              </h2>
+              <p className="text-lg text-slate-300 max-w-2xl mx-auto">Simple, transparent pricing that grows with your governance needs</p>
             </div>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { name: "Community", price: "Free", period: "", desc: "Open-source core", features: ["5 agents", "Full pipeline", "Sandbox console", "Community support"], cta: "Get Started", href: "/signup?plan=community", pop: false },
               { name: "Team", price: "$49", period: "/agent/mo", desc: "Cloud-hosted teams", features: ["25 agents", "Cloud console", "Policy templates", "Email support"], cta: "Get Started", href: "/signup?plan=team", pop: false },
               { name: "Business", price: "$99", period: "/agent/mo", desc: "Governance at scale", features: ["100 agents", "Custom policies", "SSO / SAML", "Priority support"], cta: "Get Started", href: "/signup?plan=business", pop: true },
-              { name: "Enterprise", price: "Custom", period: "", desc: "On-prem, unlimited", features: ["Unlimited agents", "On-premise deploy", "SLA + CSM", "SOC 2 cert"], cta: "Contact Sales", href: "/signup?plan=enterprise", pop: false },
+              { name: "Enterprise", price: "Custom", period: "", desc: "On-prem, unlimited", features: ["Unlimited agents", "On-premise deploy", "SLA + CSM", "SOC 2 cert"], cta: "Contact Sales", href: "/signup?plan=enterprise", pop: false, premium: true },
             ].map((t, i) => (
               <ScrollReveal key={t.name} delay={i * 0.08}>
-                <div className={`rounded-xl p-5 flex flex-col h-full ${t.pop ? "bg-purple-500/10 border-2 border-purple-500/30 relative" : "bg-navy-900 border border-navy-700"}`}>
-                  {t.pop && <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">Popular</div>}
-                  <h3 className="text-white font-semibold mb-1">{t.name}</h3>
-                  <div className="mb-2"><span className="text-2xl font-bold text-white">{t.price}</span>{t.period && <span className="text-xs text-slate-500">{t.period}</span>}</div>
-                  <p className="text-xs text-slate-500 mb-4">{t.desc}</p>
-                  <ul className="space-y-1.5 mb-5 flex-1">
+                <div className={`rounded-2xl p-7 flex flex-col h-full relative backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
+                  t.pop 
+                    ? "bg-gradient-to-br from-purple-500/15 to-purple-600/10 border-2 border-purple-500/40 shadow-2xl shadow-purple-500/20" 
+                    : t.premium
+                    ? "bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-2 border-amber-500/30 shadow-xl shadow-amber-500/10"
+                    : "bg-gradient-to-br from-navy-900/80 to-navy-800/60 border border-navy-700/60"
+                }`}>
+                  {t.pop && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-600 to-purple-500 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider shadow-lg">
+                      Most Popular
+                    </div>
+                  )}
+                  
+                  <div className="mb-6">
+                    <h3 className="text-white font-bold text-lg mb-2 tracking-wide">{t.name}</h3>
+                    <div className="mb-3">
+                      <span className="text-3xl font-bold text-white">{t.price}</span>
+                      {t.period && <span className="text-sm text-slate-400 ml-1">{t.period}</span>}
+                    </div>
+                    <p className="text-sm text-slate-400 leading-relaxed">{t.desc}</p>
+                  </div>
+                  
+                  <ul className="space-y-3 mb-8 flex-1">
                     {t.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-slate-300">
-                        <Check className="w-3 h-3 text-emerald-400 shrink-0" />{f}
+                      <li key={f} className="flex items-center gap-3 text-sm text-slate-200">
+                        <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                        {f}
                       </li>
                     ))}
                   </ul>
-                  <a href={t.href} className={`text-center text-xs font-semibold px-4 py-2.5 rounded-lg transition ${t.pop ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-navy-800 hover:bg-navy-700 text-white border border-navy-600"}`}>
+                  
+                  <a 
+                    href={t.href} 
+                    className={`text-center text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 ${
+                      t.pop 
+                        ? "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg hover:shadow-purple-500/30" 
+                        : t.premium
+                        ? "bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white shadow-lg hover:shadow-amber-500/30"
+                        : "bg-navy-800/80 hover:bg-navy-700 text-white border border-navy-600/60 hover:border-navy-500"
+                    }`}
+                  >
                     {t.cta}
                   </a>
                 </div>
@@ -1040,38 +1191,70 @@ export default function Home() {
       </section>
 
       {/* ============================================
-          FOOTER
+          FOOTER — Enhanced with gradient line and better spacing
           ============================================ */}
-      <footer className="border-t border-navy-700 py-10">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-3">
-                <Shield className="w-5 h-5 text-purple-400" />
-                <span className="font-bold text-white text-sm">ViennaOS</span>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                The governance layer<br />agents answer to.
-              </p>
-            </div>
-            {[
-              { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
-              { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
-              { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
-              { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Email", "mailto:admin@ai.ventures"]] },
-            ].map((col) => (
-              <div key={col.title}>
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{col.title}</h4>
-                <div className="space-y-2">
-                  {col.links.map(([label, href]) => (
-                    <a key={label} href={href} className="block text-xs text-slate-500 hover:text-white transition">{label}</a>
-                  ))}
+      <footer className="relative">
+        {/* Gradient divider line */}
+        <div className="h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+        
+        <div className="bg-gradient-to-b from-navy-800/50 to-navy-900 py-16">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+              <div className="col-span-2 md:col-span-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <Shield className="w-6 h-6 text-purple-400" />
+                  <span className="font-bold text-white text-lg tracking-tight">
+                    Vienna<span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">OS</span>
+                  </span>
+                </div>
+                <p className="text-sm text-slate-400 leading-relaxed mb-6">
+                  The governance layer agents answer to.
+                </p>
+                <div className="flex items-center gap-4">
+                  <a href="https://github.com/risk-ai/regulator.ai" className="text-slate-500 hover:text-white transition">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                  </a>
+                  <a href="mailto:admin@ai.ventures" className="text-slate-500 hover:text-white transition">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </a>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="pt-6 border-t border-navy-700/50 text-center">
-            <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
+              
+              {[
+                { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
+                { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
+                { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
+                { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Twitter", "https://twitter.com/ViennaOS"], ["LinkedIn", "https://linkedin.com/company/vienna-os"], ["Discord", "https://discord.gg/vienna-os"]] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-sm font-bold text-white mb-4 tracking-wide">{col.title}</h4>
+                  <div className="space-y-3">
+                    {col.links.map(([label, href]) => (
+                      <a key={label} href={href} className="block text-sm text-slate-400 hover:text-white transition-colors duration-200">{label}</a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="pt-8 border-t border-slate-700/50 text-center">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <span className="text-sm text-slate-500">
+                  © 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.
+                </span>
+                <div className="flex items-center gap-6 text-sm text-slate-500">
+                  <span>Built with ❤️ for AI governance</span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    All systems operational
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

@@ -54,14 +54,23 @@ export async function initializeViennaCore(config?: {
     WorkspaceManager,
   } = ViennaLib;
 
-  // Initialize State Graph (persistent memory)
-  const stateGraph = getStateGraph();
-  
   // Set environment before initialization
   process.env.VIENNA_ENV = env;
+
+  // Initialize State Graph (persistent memory)
+  // Use Postgres if POSTGRES_URL is set, otherwise SQLite
+  let stateGraph;
+  if (process.env.POSTGRES_URL) {
+    console.log('[ViennaCore] Using Postgres StateGraph');
+    const { StateGraph: PostgresStateGraph } = require('@vienna/lib/state/state-graph.postgres');
+    stateGraph = new PostgresStateGraph();
+  } else {
+    console.log('[ViennaCore] Using SQLite StateGraph');
+    stateGraph = getStateGraph();
+  }
   
   await stateGraph.initialize();
-  console.log('[ViennaCore] State Graph initialized:', stateGraphPath);
+  console.log('[ViennaCore] State Graph initialized:', process.env.POSTGRES_URL ? 'Postgres' : stateGraphPath);
 
   // Initialize Workspace Manager
   const workspaceManager = new WorkspaceManager(stateGraph);

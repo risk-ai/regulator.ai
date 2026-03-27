@@ -1,0 +1,11 @@
+{
+  "name": "@vienna-os/quickstart",
+  "version": "0.1.0",
+  "description": "Vienna OS 5-minute quickstart — see governance in action",
+  "main": "index.js",
+  "bin": {
+    "vienna-quickstart": "./index.js"
+  },
+  "keywords": ["vienna", "ai", "governance", "quickstart"],
+  "license": "Apache-2.0"
+}

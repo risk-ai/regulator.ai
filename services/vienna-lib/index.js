@@ -22,6 +22,7 @@ module.exports = {
   
   // State management (Postgres version for Vercel)
   // Use SQLite for Phase 1 (portable, no external DB required)
+  StateGraph: require('./state/state-graph').StateGraph,
   getStateGraph: require('./state/state-graph').getStateGraph,
   
   // Workspace

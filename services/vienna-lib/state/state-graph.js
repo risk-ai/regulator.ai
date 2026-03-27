@@ -82,66 +82,217 @@ class StateGraph {
 
   /**
    * Run database migrations
+   * 
+   * Uses a schema_migrations table to track which migrations have been applied.
+   * Each migration is idempotent and safe to re-run, but we track them to avoid
+   * unnecessary work and to provide audit trail.
    */
   async _runMigrations() {
-    // Check if reconciliation fields exist (Phase 10.1a)
-    const tableInfo = this.db.prepare(`
-      SELECT sql FROM sqlite_master 
-      WHERE type='table' AND name='managed_objectives'
-    `).get();
+    // Ensure migration tracking table exists
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        migration_id TEXT PRIMARY KEY,
+        applied_at TEXT NOT NULL DEFAULT (datetime('now')),
+        description TEXT
+      )
+    `);
 
-    if (tableInfo && !tableInfo.sql.includes('reconciliation_status')) {
-      console.log('[StateGraph] Running Phase 10.1a migration: Adding reconciliation fields...');
-      
-      // SQLite doesn't support multiple ADD COLUMN in one statement
-      const migrations = [
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_status TEXT NOT NULL DEFAULT 'idle' CHECK(reconciliation_status IN ('idle', 'reconciling', 'cooldown', 'degraded', 'safe_mode'))",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_attempt_count INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_started_at TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_cooldown_until TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_result TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_error TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_execution_id TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_verified_at TEXT",
-        "ALTER TABLE managed_objectives ADD COLUMN reconciliation_generation INTEGER NOT NULL DEFAULT 0",
-        "ALTER TABLE managed_objectives ADD COLUMN manual_hold INTEGER NOT NULL DEFAULT 0 CHECK(manual_hold IN (0, 1))",
-        "CREATE INDEX IF NOT EXISTS idx_managed_objectives_reconciliation_status ON managed_objectives(reconciliation_status)"
-      ];
+    const applied = new Set(
+      this.db.prepare('SELECT migration_id FROM schema_migrations').all()
+        .map(r => r.migration_id)
+    );
 
-      for (const sql of migrations) {
-        this.db.exec(sql);
+    const migrations = [
+      {
+        id: '10.1a-reconciliation-fields',
+        description: 'Add reconciliation fields to managed_objectives',
+        check: () => {
+          const tableInfo = this.db.prepare(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='managed_objectives'"
+          ).get();
+          return tableInfo && !tableInfo.sql.includes('reconciliation_status');
+        },
+        run: () => {
+          const alters = [
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_status TEXT NOT NULL DEFAULT 'idle' CHECK(reconciliation_status IN ('idle', 'reconciling', 'cooldown', 'degraded', 'safe_mode'))",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_attempt_count INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_started_at TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_cooldown_until TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_result TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_error TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_execution_id TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_last_verified_at TEXT",
+            "ALTER TABLE managed_objectives ADD COLUMN reconciliation_generation INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE managed_objectives ADD COLUMN manual_hold INTEGER NOT NULL DEFAULT 0 CHECK(manual_hold IN (0, 1))",
+            "CREATE INDEX IF NOT EXISTS idx_managed_objectives_reconciliation_status ON managed_objectives(reconciliation_status)"
+          ];
+          for (const sql of alters) {
+            this.db.exec(sql);
+          }
+        }
+      },
+      {
+        id: '15-add-tenant-id',
+        description: 'Add tenant_id to objectives, execution_ledger, execution_ledger_events tables',
+        check: () => {
+          // Check if objectives table exists but lacks tenant_id
+          const info = this.db.prepare(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='objectives'"
+          ).get();
+          return info && !info.sql.includes('tenant_id');
+        },
+        run: () => {
+          const alters = [
+            // Add tenant_id to existing tables
+            "ALTER TABLE objectives ADD COLUMN tenant_id TEXT DEFAULT 'default'",
+            "CREATE INDEX IF NOT EXISTS idx_objectives_tenant ON objectives(tenant_id)",
+          ];
+
+          // Check and add tenant_id to execution_ledger if it exists
+          const ledgerInfo = this.db.prepare(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='execution_ledger'"
+          ).get();
+          if (ledgerInfo && !ledgerInfo.sql.includes('tenant_id')) {
+            alters.push(
+              "ALTER TABLE execution_ledger ADD COLUMN tenant_id TEXT DEFAULT 'default'",
+              "CREATE INDEX IF NOT EXISTS idx_execution_ledger_tenant ON execution_ledger(tenant_id)"
+            );
+          }
+
+          // Check and add tenant_id to execution_ledger_events if it exists
+          const eventsInfo = this.db.prepare(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='execution_ledger_events'"
+          ).get();
+          if (eventsInfo && !eventsInfo.sql.includes('tenant_id')) {
+            alters.push(
+              "ALTER TABLE execution_ledger_events ADD COLUMN tenant_id TEXT DEFAULT 'default'",
+              "CREATE INDEX IF NOT EXISTS idx_execution_ledger_events_tenant ON execution_ledger_events(tenant_id)"
+            );
+          }
+
+          // Check and add tenant_id to execution_ledger_summary if it exists
+          const summaryInfo = this.db.prepare(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='execution_ledger_summary'"
+          ).get();
+          if (summaryInfo && !summaryInfo.sql.includes('tenant_id')) {
+            alters.push(
+              "ALTER TABLE execution_ledger_summary ADD COLUMN tenant_id TEXT DEFAULT 'default'",
+              "CREATE INDEX IF NOT EXISTS idx_execution_ledger_summary_tenant ON execution_ledger_summary(tenant_id)"
+            );
+          }
+
+          for (const sql of alters) {
+            try {
+              this.db.exec(sql);
+            } catch (e) {
+              // "duplicate column name" is safe to ignore (column already exists)
+              if (!e.message.includes('duplicate column')) throw e;
+            }
+          }
+        }
+      },
+      {
+        id: '15-multi-tenant-tables',
+        description: 'Create custom_actions, policies, agents tables for multi-tenant support',
+        check: () => {
+          const info = this.db.prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='custom_actions'"
+          ).get();
+          return !info;
+        },
+        run: () => {
+          const migrationPath = path.join(__dirname, 'migrate-add-tenant-id.sql');
+          if (fs.existsSync(migrationPath)) {
+            const sql = fs.readFileSync(migrationPath, 'utf8');
+            this.db.exec(sql);
+          } else {
+            // Inline fallback — create the tables directly
+            this.db.exec(`
+              CREATE TABLE IF NOT EXISTS custom_actions (
+                action_id TEXT PRIMARY KEY,
+                tenant_id TEXT NOT NULL,
+                action_name TEXT NOT NULL UNIQUE,
+                intent_type TEXT NOT NULL,
+                risk_tier TEXT NOT NULL CHECK(risk_tier IN ('T0', 'T1', 'T2')),
+                schema_json TEXT,
+                description TEXT,
+                enabled INTEGER DEFAULT 1 CHECK(enabled IN (0, 1)),
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+              );
+              CREATE INDEX IF NOT EXISTS idx_custom_actions_tenant ON custom_actions(tenant_id);
+              CREATE INDEX IF NOT EXISTS idx_custom_actions_enabled ON custom_actions(enabled);
+
+              CREATE TABLE IF NOT EXISTS policies (
+                policy_id TEXT PRIMARY KEY,
+                tenant_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                conditions_json TEXT NOT NULL,
+                actions_json TEXT NOT NULL,
+                priority INTEGER DEFAULT 100,
+                enabled INTEGER DEFAULT 1 CHECK(enabled IN (0, 1)),
+                created_by TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+              );
+              CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
+              CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled);
+              CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority DESC);
+
+              CREATE TABLE IF NOT EXISTS agents (
+                agent_id TEXT PRIMARY KEY,
+                tenant_id TEXT NOT NULL,
+                name TEXT,
+                type TEXT,
+                status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'suspended')),
+                last_seen TEXT,
+                first_seen TEXT NOT NULL DEFAULT (datetime('now')),
+                total_executions INTEGER DEFAULT 0,
+                successful_executions INTEGER DEFAULT 0,
+                failed_executions INTEGER DEFAULT 0,
+                blocked_executions INTEGER DEFAULT 0,
+                metadata_json TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+              );
+              CREATE INDEX IF NOT EXISTS idx_agents_tenant ON agents(tenant_id);
+              CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
+              CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC);
+            `);
+          }
+        }
+      }
+    ];
+
+    // Run pending migrations in order
+    for (const migration of migrations) {
+      if (applied.has(migration.id)) continue;
+
+      // For older migrations, also check if they're actually needed
+      // (DB might have been created with new schema that includes these columns)
+      if (migration.check && !migration.check()) {
+        // Already applied (schema was created with these fields), just record it
+        this.db.prepare(
+          'INSERT OR IGNORE INTO schema_migrations (migration_id, description) VALUES (?, ?)'
+        ).run(migration.id, migration.description + ' (already present)');
+        continue;
       }
 
-      // Verify migration
-      const verification = this.db.prepare(`
-        SELECT 
-          COUNT(*) as total_objectives,
-          SUM(CASE WHEN reconciliation_status = 'idle' THEN 1 ELSE 0 END) as idle_count,
-          SUM(CASE WHEN reconciliation_attempt_count = 0 THEN 1 ELSE 0 END) as zero_attempts,
-          SUM(CASE WHEN reconciliation_generation = 0 THEN 1 ELSE 0 END) as zero_generation,
-          SUM(CASE WHEN manual_hold = 0 THEN 1 ELSE 0 END) as not_held
-        FROM managed_objectives
-      `).get();
-
-      console.log('[StateGraph] Phase 10.1a migration verification:', verification);
-
-      // All existing objectives should have safe defaults
-      if (verification.total_objectives > 0) {
-        if (verification.idle_count !== verification.total_objectives) {
-          throw new Error('Migration verification failed: Not all objectives set to idle');
-        }
-        if (verification.zero_attempts !== verification.total_objectives) {
-          throw new Error('Migration verification failed: Not all attempt counts zero');
-        }
-        if (verification.zero_generation !== verification.total_objectives) {
-          throw new Error('Migration verification failed: Not all generations zero');
-        }
-        if (verification.not_held !== verification.total_objectives) {
-          throw new Error('Migration verification failed: Not all manual_hold set to false');
-        }
+      console.log(`[StateGraph] Running migration ${migration.id}: ${migration.description}...`);
+      try {
+        this.db.exec('BEGIN TRANSACTION');
+        migration.run();
+        this.db.prepare(
+          'INSERT INTO schema_migrations (migration_id, description) VALUES (?, ?)'
+        ).run(migration.id, migration.description);
+        this.db.exec('COMMIT');
+        console.log(`[StateGraph] Migration ${migration.id} completed successfully.`);
+      } catch (err) {
+        this.db.exec('ROLLBACK');
+        console.error(`[StateGraph] Migration ${migration.id} FAILED:`, err.message);
+        throw err;
       }
-
-      console.log('[StateGraph] Phase 10.1a migration completed successfully.');
     }
   }
 

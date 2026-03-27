@@ -1,568 +1,378 @@
 # Vienna OS
 
-**Governed execution control plane for AI agents**
+```
+██╗   ██╗██╗███████╗███╗   ███╗███╗   ██╗ █████╗      ██████╗ ███████╗
+██║   ██║██║██╔════╝████╗ ████║████╗  ██║██╔══██╗    ██╔═══██╗██╔════╝
+██║   ██║██║█████╗  ██╔████╔██║██╔██╗ ██║███████║    ██║   ██║███████╗
+╚██╗ ██╔╝██║██╔══╝  ██║╚██╔╝██║██║╚██╗██║██╔══██║    ██║   ██║╚════██║
+ ╚████╔╝ ██║███████╗██║ ╚═╝ ██║██║ ╚████║██║  ██║    ╚██████╔╝███████║
+  ╚═══╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚═════╝ ╚══════╝
+```
 
-Vienna OS provides execution-level governance for autonomous AI systems. It ensures that every AI action is validated, authorized, auditable, and reversible before execution.
+[![npm](https://img.shields.io/npm/v/vienna-os?color=cb3837&logo=npm)](https://www.npmjs.com/package/vienna-os)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/risk-ai/regulator.ai/ci.yml?branch=main&logo=github)](https://github.com/risk-ai/regulator.ai/actions)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![GitHub Stars](https://img.shields.io/github/stars/risk-ai/regulator.ai?style=social)](https://github.com/risk-ai/regulator.ai/stargazers)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Phase](https://img.shields.io/badge/Phase-28-green.svg)](docs/PHASES.md)
-[![Tests](https://img.shields.io/badge/Tests-111%2F111-brightgreen.svg)](services/vienna-lib/test/)
+**The governance layer AI agents answer to.**
 
-**Production Status:** Phase 28 operational, Phase 29 in development
+Vienna OS is the first execution control plane designed specifically for autonomous AI systems. It sits between agent intent and execution, ensuring every action is validated, authorized, and auditable before it happens.
 
 ---
 
 ## The Problem
 
-AI agents operate with increasing autonomy — managing infrastructure, executing trades, approving transactions. But most agentic systems lack:
+AI agents are increasingly autonomous — managing cloud infrastructure, executing financial trades, controlling IoT devices, and making business decisions. But most agentic systems today operate without meaningful governance:
 
-- **Pre-execution validation** — Actions are blocked before damage, not detected after
-- **Risk-based authorization** — Different risk levels require different approval workflows
-- **Verifiable audit trails** — Every action is traced, attributable, and verifiable
-- **Policy enforcement** — No-code governance rules that adapt in real-time
+- **🚨 No pre-execution validation** — Agents can cause damage before anyone notices
+- **⚠️ No risk-based authorization** — High-stakes actions get the same treatment as low-risk ones
+- **📝 No verifiable audit trails** — When something goes wrong, there's no clear record of what happened or who authorized it
+- **🔒 No policy enforcement** — Governance rules exist in documentation, not in the execution path
 
-**Vienna OS solves this.**
+This creates an unacceptable risk profile for production AI systems handling real-world consequences.
+
+**Vienna OS changes that.**
 
 ---
 
-## Core Architecture
+## What Vienna OS Does
 
-Vienna OS implements a **governed execution pipeline** with six components:
+Vienna OS implements a **governance-first architecture** that creates a control plane between AI agent intent and actual execution. Every agent action flows through a standardized pipeline:
 
 ```
-┌─────────────────┐     ┌──────────────┐     ┌─────────────┐
-│ Intent Gateway  │────▶│ Policy Engine│────▶│   Warrants  │
-│  (validation)   │     │  (evaluation)│     │(authorization)
-└─────────────────┘     └──────────────┘     └─────────────┘
-                                                     │
-                                                     ▼
-┌─────────────────┐     ┌──────────────┐     ┌─────────────┐
-│ Audit & Verify  │◀────│   Executor   │◀────│ State Graph │
-│  (attestation)  │     │ (execution)  │     │(truth store)│
-└─────────────────┘     └──────────────┘     └─────────────┘
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
+│   AI Agent  │───▶│   Gateway    │───▶│   Policy    │───▶│   Warrant    │
+│  (Intent)   │    │ (Validation) │    │  (Evaluation)│    │(Authorization)│
+└─────────────┘    └──────────────┘    └─────────────┘    └──────────────┘
+                                                                   │
+                                                                   ▼
+┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
+│ Audit Trail │◀───│   Executor   │◀───│ Verification│◀───│ Risk Assessment│
+│ (Evidence)  │    │ (Execution)  │    │ (Attestation)│    │  (Tier T0-T3) │
+└─────────────┘    └──────────────┘    └─────────────┘    └──────────────┘
 ```
 
-### 1. Intent Gateway
-- **What:** Canonical ingress for all agent actions
-- **Why:** Single validation point prevents bypass
-- **How:** Schema validation, source verification, risk classification
-
-### 2. Policy Engine
-- **What:** Visual policy builder with runtime evaluation
-- **Why:** Operators define rules without code changes
-- **How:** Condition matching (11 operators) + actions (block, approve, notify)
-
-### 3. Warrants
-- **What:** Transactional execution authorization
-- **Why:** Binds truth + plan + approval before execution
-- **How:** Signed tokens with preconditions, rollback plans, expiration
-
-### 4. Executor
-- **What:** Deterministic execution with adapter isolation
-- **Why:** All side effects mediated through single pipeline
-- **How:** Execution ledger, adapter pattern, trading guards
-
-### 5. State Graph
-- **What:** Source-of-truth for system state
-- **Why:** Governance decisions require accurate state
-- **How:** SQLite database, versioned snapshots, state reconciliation
-
-### 6. Audit & Verification
-- **What:** Cryptographic attestation + compliance reports
-- **Why:** Prove that governance was enforced
-- **How:** Execution attestations, verification receipts, compliance exports
+Instead of agents executing actions directly, they submit **intents** to Vienna OS, which:
+1. **Validates** the request structure and source
+2. **Evaluates** it against policy rules  
+3. **Classifies** risk tier and approval requirements
+4. **Issues warrants** for approved high-risk actions
+5. **Executes** through controlled adapters
+6. **Verifies** completion and generates audit evidence
+7. **Maintains** cryptographic proof of governance
 
 ---
 
 ## Key Features
 
-### 🛡️ **Three-Tier Risk Model**
+### 🔐 **Cryptographic Warrants**
+Time-limited, scoped execution tokens using HMAC-SHA256 signatures that bind together:
+- Current system state preconditions
+- Specific execution plan
+- Authorized operator approval
+- Rollback procedures
 
-| Tier | Description | Governance |
-|------|-------------|-----------|
-| **T0** | Reversible, low-stakes | Auto-approve, lightweight logging |
-| **T1** | Moderate impact | Operator approval, structured plan |
-| **T2** | Irreversible, high-stakes | Multi-party approval, Metternich review |
+### ⚡ **4-Tier Risk Classification**
+| Tier | Risk Level | Approval Process | Examples |
+|------|------------|------------------|----------|
+| **T0** | Minimal | Auto-approve | Health checks, read operations |
+| **T1** | Moderate | Single operator approval | Deployment, config changes |
+| **T2** | High | Multi-party approval + MFA | Financial transactions, data deletion |
+| **T3** | Critical | Board-level approval | Major infrastructure changes |
 
-### 🔐 **Warrant System**
-Execution warrants bind:
-- Current truth (state preconditions)
-- Execution plan (what will run)
-- Operator approval (who authorized)
-- Rollback procedure (how to undo)
-
-**T1/T2 actions cannot execute without a valid warrant.**
-
-### 📋 **Visual Policy Builder**
-No-code governance rules:
+### 🛠️ **Policy-as-Code Engine**
+Visual policy builder with 11 operators (==, !=, >, <, contains, etc.) for creating governance rules without code deployment:
 
 ```javascript
-IF   action = wire_transfer
-AND  payload.amount > 10000
+IF action == "wire_transfer" 
+AND payload.amount > $50000
 THEN require_approval tier=T2
-     AND notify channels=[slack, email]
+     AND notify channels=[compliance, cfo]
+     AND require_mfa=true
 ```
 
-**11 operators:** ==, !=, >, <, >=, <=, contains, starts_with, ends_with, in, not_in
+### 📡 **Real-Time SSE Event Streaming**
+Server-sent events for live monitoring of all agent activities, policy matches, and approval workflows
 
-### 🤖 **Agent Fleet Dashboard**
-Real-time monitoring:
-- Auto-register agents from execution ledger
-- Success/failure rates per agent
-- Suspend misbehaving agents
-- 24-hour activity timeline
+### 🏢 **Multi-Tenant Architecture**
+Row-level security with tenant isolation, supporting multiple organizations on a single Vienna OS instance
 
-### 📬 **Multi-Channel Notifications**
-Policy-triggered alerts via:
-- **Slack:** Interactive approval buttons
-- **Email:** Dark-theme HTML with CTA links
-- **GitHub:** PR status checks + warrant metadata
+### 🔧 **TypeScript + Python SDKs**
+Native language bindings for seamless integration:
+
+```typescript
+// TypeScript
+import { ViennaClient } from '@vienna-os/client';
+const vienna = new ViennaClient({ endpoint: 'https://vienna.company.com' });
+await vienna.submitIntent('deploy_service', { service: 'api', version: '1.2.3' });
+```
+
+```python
+# Python
+from vienna_os import ViennaClient
+vienna = ViennaClient(endpoint='https://vienna.company.com')
+await vienna.submit_intent('deploy_service', {'service': 'api', 'version': '1.2.3'})
+```
+
+### 🤖 **Framework Integrations**
+Pre-built integrations for popular agent frameworks:
+- **OpenClaw** — Governance middleware for agent skills
+- **LangChain** — Custom tool wrapper with Vienna validation
+- **CrewAI** — Crew-level approval workflows  
+- **AutoGen** — Multi-agent conversation governance
+
+### 🛡️ **SOC 2 Controls Documentation**
+Built-in compliance reporting and audit trail generation for security certifications
+
+### ⚖️ **USPTO Patent Protection**
+Core governance algorithms protected under Patent Application #64/018,152
+
+---
+
+## Architecture Overview
+
+```
+                             ┌─────────────────────────────────────────┐
+                             │              VIENNA OS                  │
+                             └─────────────────────────────────────────┘
+                                              │
+                                              ▼
+    ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+    │   Agent     │────▶ │   Gateway   │────▶ │   Policy    │────▶ │   Risk      │
+    │   Intent    │      │ Validation  │      │   Engine    │      │   Tier      │
+    └─────────────┘      └─────────────┘      └─────────────┘      └─────────────┘
+           │                     │                     │                     │
+           │                     ▼                     ▼                     ▼
+    ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+    │ Audit Trail │◀──── │   Warrant   │◀──── │  Executor   │◀──── │Verification │
+    │  Evidence   │      │ Generation  │      │ (Adapters)  │      │ & Attestation│
+    └─────────────┘      └─────────────┘      └─────────────┘      └─────────────┘
+```
+
+**Flow:**
+1. **Agent** submits execution intent
+2. **Gateway** validates schema and source identity
+3. **Policy Engine** evaluates against governance rules
+4. **Risk Tier** classification determines approval requirements
+5. **Warrant** issued for T1-T3 actions (T0 auto-approved)
+6. **Executor** runs action through secure adapters
+7. **Verification** generates cryptographic execution proof
+8. **Audit Trail** maintains immutable evidence chain
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 18+
-- SQLite 3
-- (Optional) Slack webhook, Resend API key
-
 ### Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/risk-ai/regulator.ai.git
-cd regulator.ai
-
-# Install dependencies
-npm install
-
-# Initialize State Graph
-cd services/vienna-lib
-npm run db:init
-
-# Start console server
-cd ../../apps/console/server
-npm run dev
-
-# Start console client (separate terminal)
-cd ../client
-npm run dev
+npm install @vienna-os/core
 ```
 
-Console available at: **http://localhost:5173**
-
-### Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-```bash
-# Database
-DATABASE_PATH=./vienna-state.db
-
-# Authentication (demo mode)
-DEMO_USERNAME=vienna
-DEMO_PASSWORD=vienna2024
-
-# Notifications (optional)
-SLACK_WEBHOOK_URL=https://hooks.slack.com/...
-RESEND_API_KEY=re_...
-VIENNA_NOTIFICATION_EMAIL=ops@your-company.com
-
-# Risk config
-DEFAULT_RISK_TIER=T0
-ENABLE_AUTO_APPROVAL_T0=true
-```
-
-### First Intent
-
-Submit an intent via API:
-
-```bash
-curl -X POST http://localhost:3120/api/v1/agent/intent \
-  -H "Content-Type: application/json" \
-  -d '{
-    "action": "check_system_health",
-    "payload": {},
-    "source": {
-      "id": "operator-max",
-      "platform": "api"
-    }
-  }'
-```
-
-Response:
-```json
-{
-  "success": true,
-  "data": {
-    "intent_id": "intent-abc123",
-    "accepted": true,
-    "action": "check_system_health",
-    "metadata": {
-      "risk_tier": "T0",
-      "policies_matched": 0
-    }
-  }
-}
-```
-
----
-
-## Architecture Deep Dive
-
-### Execution Pipeline
-
-```
-Agent Request
-    │
-    ▼
-Intent Gateway
-    ├─▶ Validate schema
-    ├─▶ Verify source
-    ├─▶ Classify risk tier
-    │
-    ▼
-Policy Engine
-    ├─▶ Evaluate conditions
-    ├─▶ Apply actions (block/approve/notify)
-    │
-    ▼
-Warrant Check (T1/T2 only)
-    ├─▶ Verify preconditions
-    ├─▶ Check approval status
-    ├─▶ Validate rollback plan
-    │
-    ▼
-Executor
-    ├─▶ Acquire execution lease
-    ├─▶ Run action via adapter
-    ├─▶ Record execution ledger
-    │
-    ▼
-Verification
-    ├─▶ Generate attestation
-    ├─▶ Update State Graph
-    └─▶ Emit audit events
-```
-
-### State Graph Design
-
-**Single source of truth** for:
-- Objectives (what the system should do)
-- Execution ledger (what actions ran)
-- Policies (governance rules)
-- Agents (who is operating)
-- Warrants (active authorizations)
-
-**Key properties:**
-- Append-only execution ledger
-- Versioned state snapshots
-- Foreign key constraints (data integrity)
-- Multi-tenant isolation
-
-### Adapter Pattern
-
-**Execution adapters** provide isolated interfaces to external systems:
+### Basic Usage
 
 ```javascript
-// adapters/slack.js
-class SlackAdapter {
-  async sendApprovalRequest(approval) {
-    // Interactive buttons for approve/deny
-  }
+import { Vienna } from '@vienna-os/core';
 
-  async sendPolicyNotification(notification) {
-    // Policy match alerts
-  }
+// Initialize Vienna OS client
+const vienna = new Vienna({
+  endpoint: 'https://your-vienna-instance.com',
+  apiKey: process.env.VIENNA_API_KEY
+});
+
+// Submit an agent intent
+const result = await vienna.submitIntent({
+  action: 'deploy_service',
+  payload: { service: 'user-api', version: '2.1.0' },
+  source: { id: 'deployment-agent', platform: 'github-actions' }
+});
+
+// Check if approved
+if (result.approved) {
+  console.log('✅ Action approved and executed');
+} else {
+  console.log('⏳ Awaiting approval:', result.warrant_id);
 }
-
-// adapters/email.js
-class EmailAdapter {
-  async sendApprovalRequest(approval, recipientEmail) {
-    // HTML email with CTA
-  }
-
-  async sendDailyDigest(tenant_id) {
-    // Governance summary
-  }
-}
-```
-
-**Why adapters?**
-- Executor has NO direct execution authority
-- Adapters are the only components with `require('fs')` / `require('child_process')`
-- All side effects flow through adapters (enforceable boundary)
-
----
-
-## API Reference
-
-### Intent Submission
-
-**POST** `/api/v1/agent/intent`
-
-Submit an agent action for governance.
-
-**Request:**
-```json
-{
-  "action": "wire_transfer",
-  "payload": {
-    "amount": 15000,
-    "recipient": "acct-xyz"
-  },
-  "source": {
-    "id": "agent-trading-bot",
-    "platform": "langchain"
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "intent_id": "intent-abc123",
-    "accepted": true,
-    "action": "wire_transfer",
-    "metadata": {
-      "risk_tier": "T2",
-      "warrant_required": true,
-      "policies_matched": 1
-    }
-  }
-}
-```
-
-### Policy Management
-
-**POST** `/api/v1/policies`
-
-Create governance policy.
-
-**Request:**
-```json
-{
-  "name": "Block after-hours trading",
-  "conditions": [
-    { "field": "action", "operator": "==", "value": "execute_trade" },
-    { "field": "payload.hour", "operator": "<", "value": 9 }
-  ],
-  "actions": [
-    { "type": "block" }
-  ],
-  "priority": 100
-}
-```
-
-**GET** `/api/v1/policies` — List policies  
-**GET** `/api/v1/policies/:id` — Get policy  
-**PATCH** `/api/v1/policies/:id` — Update policy  
-**DELETE** `/api/v1/policies/:id` — Delete policy  
-**POST** `/api/v1/policies/:id/test` — Test against sample intent
-
-### Fleet Dashboard
-
-**GET** `/api/v1/fleet` — Fleet overview + statistics  
-**GET** `/api/v1/fleet/agents` — List all agents  
-**GET** `/api/v1/fleet/agents/:id` — Agent details  
-**GET** `/api/v1/fleet/agents/:id/activity` — Activity timeline  
-**PATCH** `/api/v1/fleet/agents/:id` — Update status (active/inactive/suspended)
-
-### Custom Actions
-
-**POST** `/api/v1/actions` — Register custom action  
-**GET** `/api/v1/actions` — List actions  
-**GET** `/api/v1/actions/:id` — Get action  
-**PATCH** `/api/v1/actions/:id` — Update action  
-**DELETE** `/api/v1/actions/:id` — Delete action
-
----
-
-## Deployment
-
-### Development
-
-```bash
-npm run dev:all
-```
-
-Starts:
-- Console server (port 3120)
-- Console client (port 5173)
-- Vienna lib tests (watch mode)
-
-### Production (Fly.io)
-
-```bash
-# Install Fly CLI
-curl -L https://fly.io/install.sh | sh
-
-# Login
-flyctl auth login
-
-# Deploy
-flyctl launch
-flyctl deploy
-```
-
-**Unified monolith:** Frontend + backend in single container (164 MB image).
-
-### Environment Variables
-
-Required:
-```bash
-DATABASE_PATH=/data/vienna-state.db
-```
-
-Optional:
-```bash
-SLACK_WEBHOOK_URL=...
-RESEND_API_KEY=...
-VIENNA_NOTIFICATION_EMAIL=...
 ```
 
 ---
 
-## Testing
+## Framework Integration Examples
 
-```bash
-# Run full test suite
-cd services/vienna-lib
-npm test
+### OpenClaw Integration
 
-# Watch mode
-npm run test:watch
+```javascript
+// skills/deploy/SKILL.md implementation
+import { withVienna } from '@vienna-os/openclaw';
 
-# Coverage
-npm run test:coverage
+export default withVienna({
+  riskTier: 'T1',
+  approvers: ['devops-team'],
+  rollback: 'automatic'
+})(async function deployService({ service, version }) {
+  // Deployment logic runs only after Vienna approval
+  await kubectl.apply(`deployment/${service}:${version}`);
+  return { status: 'deployed', endpoint: await getServiceEndpoint(service) };
+});
 ```
 
-**Current status:** 111/111 tests passing
+### LangChain Integration
 
-**Test categories:**
-- Phase 1: Core pipeline (validation, normalization, resolution)
-- Phase 11: Intent tracing
-- Phase 15: Policy engine
-- Phase 22: Quota enforcement
-- Phase 23: Attestation
-- Phase 28: System integration
+```python
+from langchain.tools import BaseTool
+from vienna_os.langchain import ViennaTool
+
+class DeploymentTool(ViennaTool):
+    name = "deploy_service"
+    description = "Deploy a service to production"
+    risk_tier = "T1"
+    
+    def _run(self, service: str, version: str) -> str:
+        # This only runs after Vienna governance approval
+        result = deploy_to_k8s(service, version)
+        return f"Deployed {service}:{version} successfully"
+```
+
+### CrewAI Integration
+
+```python
+from crewai import Agent, Task, Crew
+from vienna_os.crewai import ViennaGoverned
+
+# Vienna governance applies to entire crew execution
+@ViennaGoverned(risk_tier='T2', require_unanimous=True)
+class TradingCrew(Crew):
+    def __init__(self):
+        self.market_analyst = Agent(role='Market Analyst')
+        self.trader = Agent(role='Trader') 
+        self.risk_manager = Agent(role='Risk Manager')
+        
+    def execute_trade(self, symbol, quantity, max_price):
+        # Crew collaboration runs only after governance approval
+        analysis = self.market_analyst.analyze(symbol)
+        decision = self.trader.decide(analysis, quantity, max_price)
+        return self.risk_manager.validate_and_execute(decision)
+```
 
 ---
 
-## Roadmap
+## Risk Tiers in Detail
 
-### Q2 2026 (Current)
-- [x] Core pipeline MVP
-- [x] Dashboard v1 (13 pages)
-- [x] Policy builder
-- [x] Fleet dashboard
-- [x] Custom actions
-- [x] Slack/Email adapters
-- [x] Open-source release
-- [ ] OpenClaw deep integration
-- [ ] Multi-tenant auth
-- [ ] SDK npm publish
+| Tier | Auto-Approve | Human Approval | Multi-Party | MFA Required | Examples |
+|------|--------------|----------------|-------------|--------------|----------|
+| **T0** | ✅ Yes | ❌ No | ❌ No | ❌ No | Health checks, metrics, read-only ops |
+| **T1** | ❌ No | ✅ Single operator | ❌ No | ❌ No | Deployments, config updates, restarts |
+| **T2** | ❌ No | ❌ No | ✅ 2+ approvers | ✅ Yes | Financial transactions, data deletion |
+| **T3** | ❌ No | ❌ No | ✅ Board-level | ✅ Yes | Infrastructure changes, major contracts |
 
-### Q3 2026
-- [ ] Compliance reports (SOC 2, GDPR)
-- [ ] Policy versioning + rollback
-- [ ] Agent sandboxing (VM2)
-- [ ] Cost tracking per agent
-- [ ] SLA enforcement
+**Approval Escalation:**
+- T1: Slack notification → Single click approval
+- T2: Multi-channel notification → 2+ approvers → MFA challenge
+- T3: Executive notification → Board meeting → Formal resolution
 
-### Q4 2026
-- [ ] Federated ledger (cross-node sync)
-- [ ] Warrant marketplace
-- [ ] Policy templates library
-- [ ] Agent certification program
+**Automatic Timeouts:**
+- T1: 4 hours (escalates to T2)
+- T2: 24 hours (escalates to T3)
+- T3: 72 hours (auto-deny)
+
+---
+
+## Links
+
+- 📚 **[Documentation](https://docs.vienna-os.com)** — Complete setup and API reference
+- 🚀 **[Live Demo](https://demo.vienna-os.com)** — Try Vienna OS with sample agents
+- 🖥️ **[Console](https://console.vienna-os.com)** — Manage your Vienna OS instance  
+- 💬 **[Discord](https://discord.gg/vienna-os)** — Community support and discussions
+- 📝 **[Blog](https://blog.vienna-os.com)** — Architecture deep-dives and case studies
 
 ---
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions from the community! Vienna OS is open-source and built in public.
 
-**Areas we'd love help with:**
-- Additional adapters (GitHub, Linear, Jira, PagerDuty)
-- Policy templates (finance, healthcare, legal)
-- Language SDKs (Python, Go, Rust)
-- Documentation improvements
-- Integration examples
+### Getting Started
 
-**Before submitting:**
-1. Run tests: `npm test`
-2. Run linter: `npm run lint`
-3. Update docs if adding features
-4. Add test coverage for new code
+1. **Fork** the repository
+2. **Clone** your fork: `git clone https://github.com/YOUR_USERNAME/regulator.ai.git`
+3. **Install** dependencies: `npm install`
+4. **Run tests**: `npm test`
+5. **Start development**: `npm run dev`
 
----
+### Contribution Areas
 
-## Architecture Decisions
+- 🔧 **Adapters** — Integrations with new external systems (AWS, GCP, GitHub, etc.)
+- 🛠️ **SDK Languages** — Go, Rust, Java client libraries  
+- 🤖 **Framework Integrations** — Support for more agent frameworks
+- 📊 **Policy Templates** — Pre-built governance rules for common scenarios
+- 📖 **Documentation** — Guides, tutorials, and API improvements
+- 🧪 **Testing** — Expand test coverage and add integration tests
 
-### Why SQLite?
-- **Simplicity:** No external database to manage
-- **Portability:** Single file, easy backups
-- **Performance:** 100K+ writes/sec for execution ledger
-- **ACID:** Built-in transactions for consistency
+### Code Style
 
-**Trade-off:** Not horizontally scalable. For multi-node deployments, use federated ledger (Phase 30+).
+- **TypeScript** for all new backend code
+- **React + TypeScript** for frontend components  
+- **ESLint + Prettier** for consistent formatting
+- **Jest** for unit testing
+- **Conventional Commits** for commit messages
 
-### Why Monolithic Deployment?
-- **Faster iteration:** No microservice overhead during MVP
-- **Lower ops cost:** Single container, single process
-- **Easier debugging:** Full stack trace in one place
+### Pull Request Process
 
-**Future:** Extract high-traffic components (Intent Gateway, Policy Engine) when needed.
+1. Create a feature branch from `main`
+2. Make your changes with tests
+3. Update documentation as needed
+4. Run `npm run lint:fix` and `npm test`
+5. Submit PR with clear description
+6. Respond to code review feedback
+7. Merge after approval + CI passing
 
-### Why Node.js?
-- **Ecosystem:** Rich adapter libraries (Slack, Resend, GitHub)
-- **Async I/O:** Good for I/O-bound governance work
-- **TypeScript support:** Type safety for API contracts
-
-**Trade-off:** Not ideal for CPU-bound work. Executor runs in separate process when needed.
+All contributors must agree to our [Contributor License Agreement](CLA.md).
 
 ---
 
 ## License
 
-Apache License 2.0 — See [LICENSE](LICENSE) for details.
+**Apache License 2.0**
 
-**Commercial use permitted.** We encourage companies to:
-- Deploy Vienna OS internally
-- Build proprietary extensions
-- Offer managed services
+Vienna OS is free and open-source software. You are free to use, modify, and distribute it for any purpose, including commercial applications.
 
-**Trademarks:** "Vienna OS" and the shield logo are trademarks of Law.AI Corp.
+```
+Copyright 2024-2026 ai.ventures × Cornell Law
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+---
+
+## Built By
+
+<div align="center">
+
+**🤖 ai.ventures** × **⚖️ Cornell Law**
+
+Vienna OS is developed by [ai.ventures](https://ai.ventures) in partnership with Cornell Law School's AI Policy Institute.
+
+*Combining Silicon Valley's execution speed with Ivy League legal rigor.*
+
+</div>
 
 ---
 
-## Support
-
-- **Documentation:** https://regulator.ai/docs
-- **GitHub Issues:** https://github.com/risk-ai/regulator.ai/issues
-- **Community Discord:** (coming soon)
-- **Commercial support:** hello@regulator.ai
-
----
-
-## Credits
-
-**Vienna OS** is built by the team at [Law.AI](https://law.ai).
-
-**Contributors:**
-- Max Anderson ([@maxanderson](https://github.com/maxanderson95)) — Architecture, backend
-- Aiden ([@aiden](https://github.com/aidenfrog)) — Frontend, adapters, marketing
-
-**Inspiration:**
-- [Anthropic Constitutional AI](https://www.anthropic.com/constitutional-ai)
-- [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)
-- [Temporal Workflow Engine](https://temporal.io)
-
----
+<div align="center">
 
 **Govern your agents. Ship with confidence.**
 
-🛡️ [regulator.ai](https://regulator.ai) | 📧 hello@regulator.ai | 🐙 [GitHub](https://github.com/risk-ai/regulator.ai)
+[🌐 vienna-os.com](https://vienna-os.com) • [📧 hello@vienna-os.com](mailto:hello@vienna-os.com) • [🐙 GitHub](https://github.com/risk-ai/regulator.ai)
+
+</div>

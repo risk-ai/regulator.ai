@@ -72,6 +72,8 @@ class StateGraph {
 
     // Apply schema (with fallback for schema mismatch)
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
+    let databaseRecreated = false;
+    
     try {
       this.db.exec(schema);
     } catch (error) {
@@ -96,14 +98,17 @@ class StateGraph {
         this.db.pragma('foreign_keys = ON');
         this.db.exec(schema);
         
+        databaseRecreated = true;
         console.log('[StateGraph] Database recreated with current schema');
       } else {
         throw error;
       }
     }
 
-    // Run migrations
-    await this._runMigrations();
+    // Run migrations (skip if we just recreated the database with full schema)
+    if (!databaseRecreated) {
+      await this._runMigrations();
+    }
 
     this.initialized = true;
   }

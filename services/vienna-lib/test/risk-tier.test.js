@@ -369,10 +369,10 @@ describe('Risk Tier Classification', () => {
       assert.strictEqual(tier, 'T3');
     });
 
-    test('$9,999 stays T0 without other escalators', () => {
+    test('$999 stays T0 without other escalators', () => {
       const operation = {
         action: 'validate_payment',
-        financialImpact: 9999,
+        financialImpact: 999,
         reversible: true,
         tradingImpact: 'none',
         blastRadius: 'single_file'

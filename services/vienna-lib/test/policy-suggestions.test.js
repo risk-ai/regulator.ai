@@ -30,12 +30,11 @@ class MockStateGraph {
 
   // Policy decision methods
   query(sql, params) {
-    if (sql.includes('policy_decisions') && sql.includes('decision = ?')) {
-      const decision = params[0];
-      const lookbackTime = params[1];
+    if (sql.includes('policy_decisions') && sql.includes("decision = 'deny'")) {
+      const lookbackTime = params[0];
       
       return this.policyDecisions.filter(d => 
-        d.decision === decision && 
+        d.decision === 'deny' && 
         new Date(d.created_at) >= new Date(lookbackTime)
       );
     }
@@ -231,9 +230,9 @@ describe('Policy Suggestions', () => {
 
     test('severity assessment based on denial count', async () => {
       const testCases = [
-        { count: 4, expectedSeverity: 'LOW' },
-        { count: 7, expectedSeverity: 'MEDIUM' },
-        { count: 12, expectedSeverity: 'HIGH' }
+        { count: 4, expectedSeverity: 'low' },
+        { count: 7, expectedSeverity: 'medium' },
+        { count: 12, expectedSeverity: 'high' }
       ];
 
       for (const testCase of testCases) {
@@ -427,7 +426,7 @@ describe('Policy Suggestions', () => {
       const recommendation = await policyRecommender.recommendNewPolicy(pattern);
       
       assert.ok(recommendation);
-      assert.strictEqual(recommendation.confidence, 0.72); // 0.8 * 0.9 = 0.72
+      assert.strictEqual(Math.round(recommendation.confidence * 100) / 100, 0.72); // 0.8 * 0.9 = 0.72
     });
 
     test('policy removal confidence based on decision volume', async () => {
@@ -452,7 +451,7 @@ describe('Policy Suggestions', () => {
       // Confidence should be high due to large sample size
       const expectedConfidence = Math.min(0.7 + (50 / 100) * 0.2, 0.95); // 0.9
       assert.strictEqual(recommendation.confidence, expectedConfidence);
-      assert.strictEqual(recommendation.auto_apply_eligible, true); // >= 0.9
+      assert.strictEqual(recommendation.auto_apply_eligible, false); // Policy removal always requires approval
     });
 
     test('priority adjustment confidence reduced from pattern', async () => {

@@ -70,9 +70,37 @@ class StateGraph {
     this.db.pragma('journal_mode = WAL'); // Write-Ahead Logging for better concurrency
     this.db.pragma('foreign_keys = ON');
 
-    // Apply schema
+    // Apply schema (with fallback for schema mismatch)
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
-    this.db.exec(schema);
+    try {
+      this.db.exec(schema);
+    } catch (error) {
+      // Schema mismatch detected (e.g., missing tenant_id column)
+      if (error.message.includes('no such column') || error.message.includes('duplicate column')) {
+        console.warn('[StateGraph] Schema mismatch detected, recreating database...');
+        console.warn(`[StateGraph] Error: ${error.message}`);
+        
+        // Close existing connection
+        this.db.close();
+        
+        // Backup old DB
+        const backupPath = `${this.dbPath}.backup-${Date.now()}`;
+        if (fs.existsSync(this.dbPath)) {
+          fs.renameSync(this.dbPath, backupPath);
+          console.log(`[StateGraph] Old database backed up to: ${backupPath}`);
+        }
+        
+        // Create fresh database
+        this.db = new Database(this.dbPath);
+        this.db.pragma('journal_mode = WAL');
+        this.db.pragma('foreign_keys = ON');
+        this.db.exec(schema);
+        
+        console.log('[StateGraph] Database recreated with current schema');
+      } else {
+        throw error;
+      }
+    }
 
     // Run migrations
     await this._runMigrations();

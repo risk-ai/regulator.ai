@@ -150,12 +150,180 @@ class StateGraph {
   }
 
   /**
-   * Run migrations (minimal implementation for now)
+   * Run migrations (Postgres implementation)
+   * 
+   * Uses a schema_migrations table to track which migrations have been applied.
+   * Each migration is idempotent and safe to re-run, but we track them to avoid
+   * unnecessary work and to provide audit trail.
    */
   async _runMigrations() {
-    // TODO: Implement migration system if needed
-    // For now, schema creation is idempotent (CREATE TABLE IF NOT EXISTS)
-    console.log('[StateGraph] Migrations complete (none required)');
+    const client = getPgClient();
+    
+    // Ensure migration tracking table exists
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        migration_id TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        description TEXT
+      )
+    `);
+
+    // Get list of applied migrations
+    const appliedResult = await client.query('SELECT migration_id FROM schema_migrations');
+    const applied = new Set(appliedResult.rows.map(r => r.migration_id));
+
+    const migrations = [
+      {
+        id: '15-add-tenant-id',
+        description: 'Add tenant_id to objectives, execution_ledger_events, execution_ledger_summary tables',
+        check: async () => {
+          // Check if objectives table exists but lacks tenant_id
+          const result = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'objectives' AND column_name = 'tenant_id'
+          `);
+          return result.rows.length === 0;
+        },
+        run: async () => {
+          const alterStatements = [
+            // Add tenant_id to objectives if missing
+            `DO $$ BEGIN
+              ALTER TABLE objectives ADD COLUMN tenant_id TEXT DEFAULT 'default';
+            EXCEPTION WHEN duplicate_column THEN NULL;
+            END $$;`,
+            
+            `DO $$ BEGIN
+              CREATE INDEX IF NOT EXISTS idx_objectives_tenant ON objectives(tenant_id);
+            EXCEPTION WHEN duplicate_object THEN NULL;
+            END $$;`,
+            
+            // Add tenant_id to execution_ledger_events if missing
+            `DO $$ BEGIN
+              ALTER TABLE execution_ledger_events ADD COLUMN tenant_id TEXT DEFAULT 'default';
+            EXCEPTION WHEN duplicate_column THEN NULL;
+            END $$;`,
+            
+            // Add tenant_id to execution_ledger_summary if missing
+            `DO $$ BEGIN
+              ALTER TABLE execution_ledger_summary ADD COLUMN tenant_id TEXT DEFAULT 'default';
+            EXCEPTION WHEN duplicate_column THEN NULL;
+            END $$;`
+          ];
+
+          for (const sql of alterStatements) {
+            await client.query(sql);
+          }
+        }
+      },
+      {
+        id: '15-multi-tenant-tables',
+        description: 'Create custom_actions, policies, agents tables for multi-tenant support',
+        check: async () => {
+          const result = await client.query(`
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name = 'custom_actions'
+          `);
+          return result.rows.length === 0;
+        },
+        run: async () => {
+          // These tables should already be created by the main schema
+          // But in case they're missing, create them
+          const createStatements = [
+            `CREATE TABLE IF NOT EXISTS custom_actions (
+              action_id TEXT PRIMARY KEY,
+              tenant_id TEXT NOT NULL,
+              action_name TEXT NOT NULL,
+              intent_type TEXT NOT NULL,
+              risk_tier TEXT NOT NULL CHECK(risk_tier IN ('T0', 'T1', 'T2')),
+              schema_json JSONB,
+              description TEXT,
+              enabled BOOLEAN DEFAULT true,
+              created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              UNIQUE(tenant_id, action_name)
+            )`,
+            
+            `CREATE INDEX IF NOT EXISTS idx_custom_actions_tenant ON custom_actions(tenant_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_custom_actions_enabled ON custom_actions(enabled)`,
+            `CREATE INDEX IF NOT EXISTS idx_custom_actions_risk_tier ON custom_actions(risk_tier)`,
+            
+            `CREATE TABLE IF NOT EXISTS policies (
+              policy_id TEXT PRIMARY KEY,
+              tenant_id TEXT NOT NULL,
+              name TEXT NOT NULL,
+              description TEXT,
+              conditions_json JSONB NOT NULL,
+              actions_json JSONB NOT NULL,
+              priority INTEGER DEFAULT 100,
+              enabled BOOLEAN DEFAULT true,
+              created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              created_by TEXT,
+              UNIQUE(tenant_id, name)
+            )`,
+            
+            `CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled)`,
+            `CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority DESC)`,
+            
+            `CREATE TABLE IF NOT EXISTS agents (
+              agent_id TEXT PRIMARY KEY,
+              tenant_id TEXT NOT NULL,
+              name TEXT,
+              type TEXT,
+              status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'suspended')),
+              last_seen TIMESTAMPTZ,
+              first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              total_executions INTEGER DEFAULT 0,
+              successful_executions INTEGER DEFAULT 0,
+              failed_executions INTEGER DEFAULT 0,
+              blocked_executions INTEGER DEFAULT 0,
+              metadata_json JSONB,
+              created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+              updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )`,
+            
+            `CREATE INDEX IF NOT EXISTS idx_agents_tenant ON agents(tenant_id)`,
+            `CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status)`,
+            `CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC)`
+          ];
+
+          for (const sql of createStatements) {
+            await client.query(sql);
+          }
+        }
+      }
+    ];
+
+    // Run pending migrations
+    for (const migration of migrations) {
+      if (!applied.has(migration.id)) {
+        try {
+          // Check if migration is actually needed
+          const needsMigration = await migration.check();
+          
+          if (needsMigration) {
+            console.log(`[StateGraph] Running migration: ${migration.id}`);
+            await migration.run();
+          }
+          
+          // Record migration as applied
+          await client.query(
+            'INSERT INTO schema_migrations (migration_id, description) VALUES ($1, $2) ON CONFLICT (migration_id) DO NOTHING',
+            [migration.id, migration.description]
+          );
+          
+          console.log(`[StateGraph] Migration applied: ${migration.id}`);
+        } catch (error) {
+          console.error(`[StateGraph] Migration failed: ${migration.id}`, error);
+          throw error;
+        }
+      }
+    }
+
+    console.log('[StateGraph] All migrations complete');
   }
 
   /**

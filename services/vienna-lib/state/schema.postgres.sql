@@ -77,6 +77,7 @@ CREATE INDEX IF NOT EXISTS idx_incidents_pattern_id ON incidents(pattern_id);
 -- Objectives: tasks, milestones, projects, investigations
 CREATE TABLE IF NOT EXISTS objectives (
   objective_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   objective_name TEXT NOT NULL,
   objective_type TEXT NOT NULL CHECK(objective_type IN ('task', 'milestone', 'project', 'investigation', 'other')),
   status TEXT NOT NULL CHECK(status IN ('active', 'completed', 'blocked', 'cancelled', 'deferred')),
@@ -94,6 +95,7 @@ CREATE TABLE IF NOT EXISTS objectives (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_objectives_tenant ON objectives(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_objectives_status ON objectives(status);
 CREATE INDEX IF NOT EXISTS idx_objectives_priority ON objectives(priority);
 CREATE INDEX IF NOT EXISTS idx_objectives_assigned_to ON objectives(assigned_to);
@@ -277,6 +279,7 @@ CREATE INDEX IF NOT EXISTS idx_intent_traces_submitted_at ON intent_traces(submi
 -- Execution Ledger Events: immutable lifecycle facts (forensic record)
 CREATE TABLE IF NOT EXISTS execution_ledger_events (
   event_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   execution_id TEXT NOT NULL,
   plan_id TEXT,
   verification_id TEXT,
@@ -316,6 +319,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_execution_ledger_events_execution_sequence
 -- Execution Ledger Summary: derived current-state projection
 CREATE TABLE IF NOT EXISTS execution_ledger_summary (
   execution_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL DEFAULT 'default',
   plan_id TEXT,
   verification_id TEXT,
   warrant_id TEXT,
@@ -334,9 +338,9 @@ CREATE TABLE IF NOT EXISTS execution_ledger_summary (
   execution_status TEXT,
   verification_status TEXT,
   workflow_status TEXT,
-  objective_achieved INTEGER CHECK(objective_achieved IN (0, 1) OR objective_achieved IS NULL),
+  objective_achieved BOOLEAN DEFAULT false,
 
-  approval_required INTEGER CHECK(approval_required IN (0, 1) OR approval_required IS NULL),
+  approval_required BOOLEAN DEFAULT false,
   approval_status TEXT CHECK(approval_status IN ('pending', 'approved', 'denied', 'not_required') OR approval_status IS NULL),
 
   started_at TIMESTAMPTZ,
@@ -1054,3 +1058,105 @@ CREATE INDEX IF NOT EXISTS idx_attestations_execution ON execution_attestations(
 CREATE INDEX IF NOT EXISTS idx_attestations_tenant ON execution_attestations(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_attestations_status ON execution_attestations(status);
 CREATE INDEX IF NOT EXISTS idx_attestations_attested_at ON execution_attestations(attested_at);
+
+-- Migration tracking table
+CREATE TABLE IF NOT EXISTS schema_migrations (
+  migration_id TEXT PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  description TEXT
+);
+
+-- Custom Actions: Tenant-defined action types
+-- Allows operators to register custom actions beyond the built-in 11
+CREATE TABLE IF NOT EXISTS custom_actions (
+  action_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  action_name TEXT NOT NULL,
+  intent_type TEXT NOT NULL,
+  risk_tier TEXT NOT NULL CHECK(risk_tier IN ('T0', 'T1', 'T2')),
+  schema_json JSONB, -- JSON schema for payload validation
+  description TEXT,
+  enabled BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  
+  UNIQUE(tenant_id, action_name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_custom_actions_tenant ON custom_actions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_custom_actions_enabled ON custom_actions(enabled);
+CREATE INDEX IF NOT EXISTS idx_custom_actions_risk_tier ON custom_actions(risk_tier);
+
+-- Policies: User-defined governance rules
+-- Operators create conditional rules that modify Vienna behavior
+CREATE TABLE IF NOT EXISTS policies (
+  policy_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  
+  -- Conditions: array of { field, operator, value }
+  conditions_json JSONB NOT NULL, -- JSON: [{ field: "action", operator: "==", value: "wire_transfer" }]
+  
+  -- Actions: array of { type, params }
+  actions_json JSONB NOT NULL, -- JSON: [{ type: "require_approval", params: { tier: "T2" } }]
+  
+  -- Priority: higher priority policies evaluated first
+  priority INTEGER DEFAULT 100,
+  
+  -- Status
+  enabled BOOLEAN DEFAULT true,
+  
+  -- Metadata
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by TEXT, -- operator_id
+  
+  UNIQUE(tenant_id, name)
+);
+
+CREATE INDEX IF NOT EXISTS idx_policies_tenant ON policies(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled);
+CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority DESC);
+
+-- Agents: Track agents under governance
+-- Auto-populated from execution ledger
+CREATE TABLE IF NOT EXISTS agents (
+  agent_id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  name TEXT,
+  type TEXT, -- 'openclaw', 'langchain', 'custom', etc.
+  status TEXT DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'suspended')),
+  last_seen TIMESTAMPTZ,
+  first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  
+  -- Statistics
+  total_executions INTEGER DEFAULT 0,
+  successful_executions INTEGER DEFAULT 0,
+  failed_executions INTEGER DEFAULT 0,
+  blocked_executions INTEGER DEFAULT 0,
+  
+  -- Metadata
+  metadata_json JSONB, -- JSON: { version, capabilities, etc. }
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_agents_tenant ON agents(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_agents_status ON agents(status);
+CREATE INDEX IF NOT EXISTS idx_agents_last_seen ON agents(last_seen DESC);
+
+-- Agent Activity: Recent actions per agent (rolling window)
+CREATE VIEW IF NOT EXISTS agent_activity AS
+SELECT 
+  el.actor_id as agent_id,
+  el.tenant_id,
+  COUNT(*) as total_actions,
+  SUM(CASE WHEN el.workflow_status = 'completed' THEN 1 ELSE 0 END) as successful,
+  SUM(CASE WHEN el.workflow_status = 'failed' THEN 1 ELSE 0 END) as failed,
+  SUM(CASE WHEN el.workflow_status = 'blocked' THEN 1 ELSE 0 END) as blocked,
+  MAX(el.started_at) as last_action,
+  CAST(SUM(CASE WHEN el.workflow_status = 'completed' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100 as success_rate
+FROM execution_ledger_summary el
+WHERE el.started_at > NOW() - INTERVAL '7 days'
+GROUP BY el.actor_id, el.tenant_id;

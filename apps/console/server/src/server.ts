@@ -168,21 +168,15 @@ async function start() {
     // Create bootstrap service
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService, objectivesService);
     
-    // Initialize State Graph (Phase 13)
-    // Use require() for bundled CommonJS compatibility
+    // Use Vienna Core's already-initialized StateGraph and components (Phase 13)
     const ViennaLib = require('@vienna/lib');
-    const { getStateGraph, WorkspaceManager, IntentGateway, AgentIntentBridge } = ViennaLib;
+    const { AgentIntentBridge } = ViennaLib;
     
-    const stateGraph = getStateGraph();
-    await stateGraph.initialize();
-    console.log('State Graph initialized');
-    
-    // Initialize Workspace Manager (Phase 13)
-    const workspaceManager = new WorkspaceManager(stateGraph);
-    console.log('Workspace Manager initialized');
+    const stateGraph = viennaCore.stateGraph;
+    const workspaceManager = viennaCore.workspaceManager;
+    const intentGateway = viennaCore.intentGateway;
     
     // Initialize Agent Intent Bridge (with StateGraph dependency)
-    const intentGateway = new IntentGateway(stateGraph);
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log('Agent Intent Bridge initialized');
     

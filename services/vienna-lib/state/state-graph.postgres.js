@@ -97,9 +97,22 @@ class StateGraph {
       // Load and apply schema
       const schema = fs.readFileSync(SCHEMA_PATH, 'utf8');
       
-      // Execute entire schema at once (let Postgres handle statement parsing)
+      // Parse schema into individual statements
+      const statements = this._parseSchema(schema);
       const client = getPgClient();
-      await client.query(schema);
+      
+      // Execute each statement individually
+      let statementIndex = 0;
+      for (const statement of statements) {
+        try {
+          await client.query(statement);
+          statementIndex++;
+        } catch (error) {
+          console.error(`[StateGraph] Failed to execute statement #${statementIndex}:`);
+          console.error(statement);
+          throw error;
+        }
+      }
 
       // Run migrations (if any)
       await this._runMigrations();

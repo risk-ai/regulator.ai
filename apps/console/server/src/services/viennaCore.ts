@@ -49,7 +49,7 @@ export async function initializeViennaCore(config?: {
   // Load Vienna governance components
   const ViennaLib = require('@vienna/lib');
   const {
-    getStateGraph,
+    StateGraph,
     IntentGateway,
     WorkspaceManager,
   } = ViennaLib;
@@ -66,7 +66,7 @@ export async function initializeViennaCore(config?: {
     stateGraph = new PostgresStateGraph();
   } else {
     console.log('[ViennaCore] Using SQLite StateGraph');
-    stateGraph = getStateGraph();
+    stateGraph = new StateGraph({ dbPath: stateGraphPath, environment: env });
   }
   
   await stateGraph.initialize();

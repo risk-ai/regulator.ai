@@ -47,8 +47,9 @@ RUN npm install --omit=dev --ignore-scripts=false
 COPY --from=builder /app/apps/console/server/build ./build
 
 # Copy SQL schema files (needed at runtime)
-COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/
-COPY --from=builder /app/apps/console/server/src/services/chatHistorySchema.postgres.sql ./build/
+# StateGraph expects schema.sql in same directory as server.cjs (__dirname)
+COPY --from=builder /app/services/vienna-lib/state/schema.sql ./build/schema.sql
+COPY --from=builder /app/apps/console/server/src/services/chatHistorySchema.postgres.sql ./build/chatHistorySchema.postgres.sql
 
 # Copy frontend static files
 COPY --from=builder /app/apps/console/client/dist ./client/dist

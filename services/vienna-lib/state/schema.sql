@@ -1236,3 +1236,4 @@ SELECT
 FROM execution_ledger_summary el
 WHERE el.started_at > datetime('now', '-7 days')
 GROUP BY el.actor_id, el.tenant_id;
+-- Cache-bust: 1774583364

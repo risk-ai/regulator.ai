@@ -44,7 +44,8 @@ function getPool() {
         });
       } else {
         pool = new Pool({
-          connectionString: process.env.POSTGRES_URL
+          connectionString: process.env.POSTGRES_URL,
+          options: '-c search_path=regulator,public'
         });
       }
     }

@@ -13,7 +13,8 @@ _Updated: 2026-03-26 14:25 EDT | 76 commits today_
 - ✅ Event bus (100-event buffer, rate tracking)
 - ✅ Policy versioning + evaluation caching + conflict detection
 - ✅ Error boundaries + retry logic
-- ⏸️ Console Fly.io deploy (needs Max on NUC)
+- ✅ Console deployed on NUC + Cloudflare Tunnel (console.regulator.ai)
+- ✅ Fly.io decommissioned — replaced with local NUC + systemd + auto-deploy cron
 
 ## Phase 2: Enterprise Auth ✅ COMPLETE
 - ✅ RBAC (admin/operator/viewer/agent, 30+ permissions)
@@ -49,8 +50,9 @@ _Updated: 2026-03-26 14:25 EDT | 76 commits today_
 - ✅ Test suite (warrant, risk-tier, policy-suggestions, integration, SDK)
 - ✅ CI/CD pipeline (GitHub Actions) + Docker Compose + Makefile
 - ✅ Patent filed (USPTO #64/018,152)
-- 🔜 npm publish + PyPI publish
-- 🔜 SOC 2 Type I audit engagement
+- 🔜 npm publish + PyPI publish (SDKs build-verified, awaiting credentials)
+- ✅ SOC 2 compliance docs complete (5 policy documents)
+- 🔜 SOC 2 Type I audit engagement ($15-30K)
 
 ---
 
@@ -67,8 +69,8 @@ _Updated: 2026-03-26 14:25 EDT | 76 commits today_
 - [x] Real-time event streaming (15 event types)
 - [x] OpenAPI 3.1 spec
 - [x] Billing/metering infrastructure
-- [ ] Console deployed (Fly.io)
-- [ ] Published SDKs (npm + PyPI)
+- [x] Console deployed (NUC + Cloudflare Tunnel at console.regulator.ai)
+- [ ] Published SDKs (npm + PyPI) — builds verified, awaiting publish
 - [ ] 5+ enterprise pilot customers
 - [ ] Demo video recorded
 - [ ] SOC 2 Type I

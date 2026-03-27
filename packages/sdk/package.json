@@ -7,9 +7,9 @@
   "module": "dist/index.mjs",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   },
   "files": [
@@ -18,8 +18,8 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "npm run clean && tsup",
+    "dev": "tsup --watch",
     "test": "jest",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build"
@@ -50,6 +50,7 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
+    "tsup": "^8.5.1",
     "typescript": "^5.4.0"
   }
 }

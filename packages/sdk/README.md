@@ -36,6 +36,13 @@ const result = await vienna.intent.submit({
 console.log(result.status);      // 'executed' | 'pending_approval' | 'denied'
 console.log(result.riskTier);    // 'T0' | 'T1' | 'T2' | 'T3'
 console.log(result.auditId);     // Every action is audited
+console.log(result.warrant);     // Cryptographic proof of authorization
+
+// Handle warrant-based governance flow
+if (result.status === 'pending_approval') {
+  console.log('Waiting for human approval...');
+  console.log(`View at: https://console.regulator.ai/approvals/${result.intentId}`);
+}
 ```
 
 ## Framework Integration
@@ -279,6 +286,7 @@ const tier: RiskTier = result.riskTier; // Typed as 'T0' | 'T1' | 'T2' | 'T3'
 ## Documentation
 
 - **Full Documentation**: [regulator.ai/docs](https://regulator.ai/docs)
+- **Live Console**: [console.regulator.ai](https://console.regulator.ai)
 - **API Reference**: [regulator.ai/docs/api](https://regulator.ai/docs/api)
 - **Governance Guide**: [regulator.ai/docs/governance](https://regulator.ai/docs/governance)
 - **Policy Examples**: [regulator.ai/docs/policies](https://regulator.ai/docs/policies)

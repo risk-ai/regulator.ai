@@ -1,196 +1,410 @@
-import { Shield, ArrowLeft, ArrowRight } from "lucide-react";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Integrations",
-  description: "Vienna OS integrates with agent frameworks, notification channels, deployment pipelines, and cloud providers.",
-};
+import { Shield, ArrowLeft, ArrowRight, Code, Terminal, Check, Copy, Zap, Github } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 const agentFrameworks = [
   {
     name: "OpenClaw",
-    status: "live",
+    status: "live" as const,
     desc: "First-class native integration. OpenClaw agents submit intents through the Agent Intent Bridge.",
+    language: "bash",
     example: `curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
-  -d '{"action":"check_health","source":"openclaw","tenant_id":"prod"}'`,
+  -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
+  -d '{
+    "action": "send_email",
+    "source": {"platform": "openclaw", "agent_id": "agt-123"},
+    "tenant_id": "prod",
+    "parameters": {
+      "to": "customer@example.com",
+      "subject": "Your order has shipped"
+    }
+  }'`,
   },
   {
     name: "LangChain",
-    status: "compatible",
+    status: "compatible" as const,
     desc: "Wrap Vienna's Intent API as a LangChain Tool for governed agent execution.",
-    example: `from langchain.tools import Tool
-vienna = Tool(name="vienna", func=lambda a: requests.post(
-    "https://vienna-os.fly.dev/api/v1/agent/intent",
-    json={"action": a, "source": "langchain", "tenant_id": "prod"}
-).json())`,
+    language: "python",
+    example: `from langchain.tools import BaseTool
+import requests
+
+class ViennaTool(BaseTool):
+    name = "vienna_governed_action"
+    description = "Execute actions through Vienna OS governance"
+    
+    def _run(self, action: str, **kwargs) -> str:
+        response = requests.post(
+            "https://vienna-os.fly.dev/api/v1/agent/intent",
+            headers={"Authorization": f"Bearer {VIENNA_KEY}"},
+            json={
+                "action": action,
+                "source": {"platform": "langchain"},
+                "tenant_id": "prod",
+                "parameters": kwargs
+            }
+        )
+        return response.json()`,
   },
   {
     name: "CrewAI",
-    status: "compatible",
+    status: "compatible" as const,
     desc: "Route high-risk crew actions through Vienna's approval pipeline before execution.",
-    example: `def governed_action(action, payload):
-    return requests.post(
+    language: "python",
+    example: `from crewai import Agent, Task, Crew
+import requests
+
+def governed_callback(output):
+    response = requests.post(
         "https://vienna-os.fly.dev/api/v1/agent/intent",
-        json={"action": action, "source": "crewai", **payload}
-    ).json()`,
+        headers={"Authorization": f"Bearer {VIENNA_KEY}"},
+        json={
+            "action": output.get("action", "crew_task"),
+            "source": {"platform": "crewai"},
+            "tenant_id": "prod",
+            "parameters": output
+        }
+    )
+    
+    result = response.json()
+    if result["data"]["status"] == "denied":
+        raise Exception(f"Governance denied: {result['data']['reason']}")
+    
+    return result["data"]`,
   },
   {
     name: "AutoGen / Custom",
-    status: "compatible",
+    status: "compatible" as const,
     desc: "Any framework that makes HTTP requests integrates via the REST API.",
-    example: `const result = await fetch("/api/v1/agent/intent", {
-  method: "POST",
-  body: JSON.stringify({
-    action: "deploy_service", source: "your-agent", tenant_id: "prod"
-  })
-});`,
+    language: "typescript",
+    example: `const vienna = {
+  async submitIntent(action: string, parameters: any) {
+    const response = await fetch("https://vienna-os.fly.dev/api/v1/agent/intent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": \`Bearer \${process.env.VIENNA_AGENT_KEY}\`
+      },
+      body: JSON.stringify({
+        action,
+        source: { platform: "autogen", agent_id: "your-agent" },
+        tenant_id: "prod",
+        parameters
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.data.status === "denied") {
+      throw new Error(\`Action denied: \${result.data.reason}\`);
+    }
+    
+    return result.data;
+  }
+};`,
   },
 ];
 
 const notificationAdapters = [
   {
     name: "Slack",
-    status: "live",
-    desc: "T1/T2 approval requests sent to Slack with interactive Approve/Deny buttons. Execution notifications and policy violation alerts.",
+    status: "live" as const,
+    desc: "T1/T2 approval requests sent to Slack with interactive buttons. Real-time governance notifications.",
     features: ["Interactive approval buttons", "Execution status notifications", "Policy violation alerts", "Color-coded risk tiers"],
-  },
-  {
-    name: "Email (Resend)",
-    status: "live",
-    desc: "Approval request emails, execution notifications, and daily governance digest. Dark-theme HTML emails matching Vienna OS brand.",
-    features: ["Approval request emails", "Execution result notifications", "Daily governance digest", "One-click console links"],
+    icon: "💬",
   },
   {
     name: "GitHub",
-    status: "live",
-    desc: "Governed deployments with warrant metadata. PR status checks (vienna-os/governance) and audit trail comments on PRs.",
+    status: "live" as const,
+    desc: "Governed deployments with warrant metadata. PR status checks and audit trail comments.",
     features: ["Deployment governance", "PR status checks", "Audit trail comments", "Warrant-gated merges"],
+    icon: "🔄",
+  },
+  {
+    name: "Email",
+    status: "live" as const,
+    desc: "Approval request emails, execution notifications, and daily governance digest.",
+    features: ["Approval request emails", "Execution notifications", "Daily digest reports", "One-click console links"],
+    icon: "📧",
   },
   {
     name: "Webhooks",
-    status: "live",
-    desc: "Generic webhook endpoint for Stripe subscription events and external health monitoring services.",
-    features: ["Stripe checkout events", "Subscription lifecycle", "Health ping endpoint", "Custom event handlers"],
+    status: "live" as const,
+    desc: "Generic webhook endpoints for custom integrations and external monitoring.",
+    features: ["Custom event handlers", "HMAC signature verification", "Retry with backoff", "Event filtering"],
+    icon: "🔗",
   },
 ];
 
-const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
-  live: { label: "Live", color: "#4ade80", bg: "rgba(74, 222, 128, 0.1)" },
-  compatible: { label: "Compatible", color: "#60a5fa", bg: "rgba(96, 165, 250, 0.1)" },
-  coming: { label: "Coming Soon", color: "#fbbf24", bg: "rgba(251, 191, 36, 0.1)" },
-};
+const statusLabels = {
+  live: { label: "Live", color: "emerald", bg: "emerald-500/10", border: "emerald-500/30" },
+  compatible: { label: "Compatible", color: "blue", bg: "blue-500/10", border: "blue-500/30" },
+  coming: { label: "Coming Soon", color: "amber", bg: "amber-500/10", border: "amber-500/30" },
+} as const;
+
+/* ============================================================
+   CODE BLOCK COMPONENT
+   ============================================================ */
+
+function CodeBlock({ children, language, title }: { children: string; language?: string; title?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(children);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [children]);
+
+  return (
+    <div className="bg-navy-900 border border-navy-700 rounded-xl overflow-hidden">
+      {title && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-navy-700 bg-navy-800/50">
+          <span className="text-xs font-mono text-slate-400">{title}</span>
+          <span className="text-xs font-mono text-slate-500">{language}</span>
+        </div>
+      )}
+      <div className="relative">
+        <button
+          onClick={handleCopy}
+          className="absolute top-3 right-3 p-2 rounded-lg bg-navy-800/50 hover:bg-navy-700 text-slate-400 hover:text-white transition opacity-0 group-hover:opacity-100"
+          aria-label="Copy code"
+        >
+          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+        </button>
+        <pre className="p-4 overflow-x-auto group">
+          <code className="font-mono text-sm text-slate-300 leading-relaxed">{children}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   SCROLL REVEAL ANIMATION
+   ============================================================ */
+
+function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return;
+
+    el.style.opacity = "0";
+    el.style.transform = "translateY(20px)";
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+          }, delay * 1000);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return <div ref={ref}>{children}</div>;
+}
 
 export default function IntegrationsPage() {
   return (
     <div className="min-h-screen bg-navy-900">
+      {/* Navigation */}
       <nav className="border-b border-navy-700">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
             <Shield className="w-6 h-6 text-purple-400" />
             <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
-          <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+          <div className="flex items-center gap-6">
+            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+              Get Started
+            </a>
+          </div>
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-white mb-2">Integrations</h1>
-        <p className="text-slate-400 mb-12">
-          Vienna OS connects to your agent frameworks, notification channels, and deployment pipelines.
-        </p>
+      <main className="max-w-6xl mx-auto px-6 py-16">
+        {/* Header */}
+        <ScrollReveal>
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
+                Framework Integrations
+              </span>
+            </h1>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+              Vienna OS connects to your agent frameworks, notification channels, and deployment pipelines.
+              <strong className="text-slate-300"> Any system that makes HTTP requests can integrate.</strong>
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Agent Frameworks */}
-        <section className="mb-16">
-          <h2 className="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-6">Agent Frameworks</h2>
-          <div className="space-y-4">
-            {agentFrameworks.map((intg) => {
+        <section className="mb-20">
+          <ScrollReveal delay={0.2}>
+            <div className="flex items-center gap-3 mb-8">
+              <Code className="w-6 h-6 text-purple-400" />
+              <h2 className="text-2xl font-bold text-white">Agent Frameworks</h2>
+            </div>
+          </ScrollReveal>
+          
+          <div className="space-y-6">
+            {agentFrameworks.map((intg, i) => {
               const status = statusLabels[intg.status];
               return (
-                <div key={intg.name} className="bg-navy-800 border border-navy-700 rounded-xl overflow-hidden card-hover">
-                  <div className="p-5">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-white font-semibold">{intg.name}</h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: status.color, background: status.bg }}>{status.label}</span>
+                <ScrollReveal key={intg.name} delay={0.3 + i * 0.1}>
+                  <div className="bg-navy-800 border border-navy-700 rounded-2xl overflow-hidden hover:border-navy-600 transition-colors">
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <h3 className="text-xl font-bold text-white">{intg.name}</h3>
+                          <div className={`px-3 py-1 rounded-full text-xs font-bold text-${status.color}-400 bg-${status.bg} border border-${status.border}`}>
+                            {status.label}
+                          </div>
+                        </div>
+                        <Terminal className={`w-5 h-5 text-${status.color}-400`} />
+                      </div>
+                      <p className="text-slate-400 mb-6 leading-relaxed">{intg.desc}</p>
                     </div>
-                    <p className="text-xs text-slate-400">{intg.desc}</p>
+                    <CodeBlock language={intg.language} title={`${intg.name} Integration`}>
+                      {intg.example}
+                    </CodeBlock>
                   </div>
-                  <div className="bg-navy-900 border-t border-navy-700 p-4">
-                    <pre className="font-mono text-[11px] text-slate-300 overflow-x-auto whitespace-pre">{intg.example}</pre>
-                  </div>
-                </div>
+                </ScrollReveal>
               );
             })}
           </div>
         </section>
 
         {/* Notification & Deployment Adapters */}
-        <section className="mb-16">
-          <h2 className="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-6">Notifications & Deployment</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            {notificationAdapters.map((adapter) => {
+        <section className="mb-20">
+          <ScrollReveal delay={0.7}>
+            <div className="flex items-center gap-3 mb-8">
+              <Zap className="w-6 h-6 text-blue-400" />
+              <h2 className="text-2xl font-bold text-white">Notifications & Deployment</h2>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {notificationAdapters.map((adapter, i) => {
               const status = statusLabels[adapter.status];
               return (
-                <div key={adapter.name} className="bg-navy-800 border border-navy-700 rounded-xl p-5 card-hover">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-white font-semibold text-sm">{adapter.name}</h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: status.color, background: status.bg }}>{status.label}</span>
+                <ScrollReveal key={adapter.name} delay={0.8 + i * 0.1}>
+                  <div className="bg-navy-800 border border-navy-700 rounded-2xl p-6 hover:border-navy-600 transition-colors h-full">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{adapter.icon}</span>
+                        <h3 className="text-xl font-bold text-white">{adapter.name}</h3>
+                      </div>
+                      <div className={`px-3 py-1 rounded-full text-xs font-bold text-${status.color}-400 bg-${status.bg} border border-${status.border}`}>
+                        {status.label}
+                      </div>
+                    </div>
+                    <p className="text-slate-400 mb-4 leading-relaxed">{adapter.desc}</p>
+                    <div className="space-y-2">
+                      {adapter.features.map((f) => (
+                        <div key={f} className="flex items-center gap-3 text-sm text-slate-300">
+                          <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <span>{f}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-400 mb-3">{adapter.desc}</p>
-                  <ul className="space-y-1">
-                    {adapter.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-[11px] text-slate-500">
-                        <span className="text-emerald-400">✓</span> {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                </ScrollReveal>
               );
             })}
           </div>
         </section>
 
-        {/* SDK */}
-        <section className="mb-16">
-          <h2 className="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-6">TypeScript SDK</h2>
-          <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">@vienna-os/sdk</h3>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-emerald-400 bg-emerald-500/10">Available</span>
-            </div>
-            <p className="text-xs text-slate-400 mb-4">
-              Full TypeScript SDK with typed client, intent submission, policy management, fleet monitoring, compliance reporting, and approval workflows.
-            </p>
-            <div className="bg-navy-900 border border-navy-700 rounded-lg p-4">
-              <pre className="font-mono text-[11px] text-slate-300">{`import { ViennaClient } from '@vienna-os/sdk';
+        {/* TypeScript SDK */}
+        <section className="mb-20">
+          <ScrollReveal delay={1.2}>
+            <div className="bg-gradient-to-br from-purple-900/20 to-navy-800 border border-purple-500/30 rounded-2xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <Github className="w-8 h-8 text-purple-400" />
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">TypeScript SDK</h3>
+                    <p className="text-purple-400 font-mono text-sm">@vienna-os/sdk</p>
+                  </div>
+                </div>
+                <div className="px-4 py-2 rounded-full text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+                  Available
+                </div>
+              </div>
+              <p className="text-slate-300 mb-6 leading-relaxed">
+                Full TypeScript SDK with typed client, intent submission, policy management, 
+                fleet monitoring, compliance reporting, and approval workflows.
+              </p>
+              <CodeBlock language="typescript" title="SDK Usage">
+{`import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
-  baseUrl: 'https://console.regulator.ai',
-  apiKey: 'vos_your_api_key'
+  baseUrl: 'https://vienna-os.fly.dev',
+  apiKey: process.env.VIENNA_API_KEY!
 });
 
 // Submit governed intent
 const result = await vienna.intent.submit({
   action: 'deploy_service',
-  parameters: { service: 'api-gateway', strategy: 'rolling' }
+  parameters: { 
+    service: 'api-gateway', 
+    environment: 'production',
+    strategy: 'rolling' 
+  }
 });
 
-// Check approval status
-const approval = await vienna.approvals.get(result.approvalId);`}</pre>
+// Wait for approval if required
+if (result.status === 'pending_approval') {
+  const approval = await vienna.approvals.wait(result.approvalId, {
+    timeoutMs: 300_000 // 5 minutes
+  });
+  console.log(\`✅ Approved by \${approval.approver}\`);
+}
+
+// Check execution result
+console.log(\`🔒 Warrant: \${result.warrant.warrantId}\`);
+console.log(\`✨ Result: \${result.executionResult}\`);`}
+              </CodeBlock>
             </div>
-          </div>
+          </ScrollReveal>
         </section>
 
-        <div className="text-center">
-          <p className="text-slate-500 text-sm mb-4">Need a custom integration?</p>
-          <p className="text-slate-400 text-sm mb-6">
-            Any system that makes HTTP requests works with Vienna OS.
-          </p>
-          <a href="/try" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
-            Try the API Live <ArrowRight className="w-4 h-4" />
-          </a>
-        </div>
+        {/* Bottom CTA */}
+        <ScrollReveal delay={1.4}>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Need a custom integration?
+            </h2>
+            <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
+              Vienna OS exposes a full REST API. Any system that makes HTTP requests can integrate.
+              Check out our interactive API explorer to get started.
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <a href="/try" className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-purple-500/25">
+                Try API Live <ArrowRight className="w-5 h-5" />
+              </a>
+              <a href="/docs" className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">
+                <Code className="w-5 h-5" />
+                View Docs
+              </a>
+            </div>
+          </div>
+        </ScrollReveal>
       </main>
     </div>
   );

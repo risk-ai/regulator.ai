@@ -1,7 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { Shield, ArrowLeft, Send, CheckCircle } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Shield, ArrowLeft, Send, CheckCircle, Mail, MessageCircle, Building, Github, Clock } from "lucide-react";
+
+/* ============================================================
+   SCROLL REVEAL ANIMATION
+   ============================================================ */
+
+function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return;
+
+    el.style.opacity = "0";
+    el.style.transform = "translateY(20px)";
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+          }, delay * 1000);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return <div ref={ref}>{children}</div>;
+}
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", company: "", type: "general", message: "" });
@@ -24,86 +61,206 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-navy-900">
+      {/* Navigation */}
       <nav className="border-b border-navy-700">
-        <div className="max-w-3xl mx-auto px-6 py-4">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
             <Shield className="w-6 h-6 text-purple-400" />
             <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
+          <div className="flex items-center gap-6">
+            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+              Get Started
+            </a>
+          </div>
         </div>
       </nav>
 
-      <main className="max-w-3xl mx-auto px-6 py-16">
+      <main className="max-w-6xl mx-auto px-6 py-16">
         {sent ? (
-          <div className="text-center py-12">
-            <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-white mb-2">Message sent</h1>
-            <p className="text-slate-400 mb-6">We&apos;ll get back to you within 24 hours.</p>
-            <a href="/" className="text-sm text-purple-400 hover:text-purple-300">← Back to home</a>
-          </div>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold text-white mb-2">Contact us</h1>
-            <p className="text-slate-400 mb-10">
-              Enterprise inquiry, partnership, technical question, or just want to chat about AI governance.
-            </p>
-
-            <form onSubmit={handleSubmit} aria-label="Contact form" className="space-y-5 max-w-lg">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1.5">Name *</label>
-                  <input required type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none" placeholder="Jane Smith" />
-                </div>
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1.5">Email *</label>
-                  <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none" placeholder="jane@company.com" />
-                </div>
+          <ScrollReveal>
+            <div className="text-center py-20">
+              <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-emerald-400" />
               </div>
-
-              <div>
-                <label className="block text-sm text-slate-400 mb-1.5">Company</label>
-                <input type="text" value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none" placeholder="Acme Corp" />
-              </div>
-
-              <div>
-                <label className="block text-sm text-slate-400 mb-1.5">What can we help with?</label>
-                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none">
-                  <option value="general">General inquiry</option>
-                  <option value="enterprise">Enterprise plan</option>
-                  <option value="partnership">Partnership</option>
-                  <option value="technical">Technical question</option>
-                  <option value="investment">Investment</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm text-slate-400 mb-1.5">Message *</label>
-                <textarea required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} rows={5}
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none resize-none"
-                  placeholder="Tell us about your use case..." />
-              </div>
-
-              <button type="submit" disabled={sending}
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white px-8 py-3 rounded-xl transition font-medium text-sm">
-                <Send className="w-4 h-4" />
-                {sending ? "Sending..." : "Send Message"}
-              </button>
-            </form>
-
-            <div className="mt-12 pt-8 border-t border-navy-700">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Or reach us directly</h3>
-              <div className="space-y-2 text-sm text-slate-400">
-                <p>General: <a href="mailto:admin@ai.ventures" className="text-purple-400 hover:text-purple-300">admin@ai.ventures</a></p>
-                <p>Security: <a href="mailto:security@ai.ventures" className="text-purple-400 hover:text-purple-300">security@ai.ventures</a></p>
-                <p>GitHub: <a href="https://github.com/risk-ai/regulator.ai" className="text-purple-400 hover:text-purple-300">risk-ai/regulator.ai</a></p>
+              <h1 className="text-3xl font-bold text-white mb-4">Message sent successfully</h1>
+              <p className="text-slate-400 text-lg mb-8 max-w-lg mx-auto">
+                Thank you for reaching out. We&apos;ll get back to you within 24 hours.
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <a href="/" className="text-purple-400 hover:text-purple-300 font-medium transition">
+                  ← Back to home
+                </a>
+                <a href="/docs" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium">
+                  Explore Docs
+                </a>
               </div>
             </div>
-          </>
+          </ScrollReveal>
+        ) : (
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
+            {/* Left Column - Info */}
+            <ScrollReveal>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-6">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
+                    Let&apos;s talk
+                  </span>
+                </h1>
+                <p className="text-xl text-slate-400 mb-8 leading-relaxed">
+                  Whether you&apos;re evaluating Vienna OS for your enterprise, 
+                  interested in a partnership, or have technical questions — we&apos;d love to hear from you.
+                </p>
+
+                {/* Contact Methods */}
+                <div className="space-y-4 mb-12">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold mb-1">General Inquiries</h3>
+                      <p className="text-slate-400 text-sm mb-1">Questions, partnerships, media</p>
+                      <a href="mailto:admin@ai.ventures" className="text-purple-400 hover:text-purple-300 font-medium transition">
+                        admin@ai.ventures
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold mb-1">Security Issues</h3>
+                      <p className="text-slate-400 text-sm mb-1">Vulnerabilities, compliance concerns</p>
+                      <a href="mailto:security@ai.ventures" className="text-red-400 hover:text-red-300 font-medium transition">
+                        security@ai.ventures
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-slate-500/20 border border-slate-500/30 flex items-center justify-center">
+                      <Github className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold mb-1">Open Source</h3>
+                      <p className="text-slate-400 text-sm mb-1">Issues, contributions, discussions</p>
+                      <a 
+                        href="https://github.com/risk-ai/regulator.ai" 
+                        className="text-slate-400 hover:text-slate-300 font-medium transition"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        risk-ai/regulator.ai
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Response Time */}
+                <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Clock className="w-5 h-5 text-blue-400" />
+                    <h3 className="text-white font-semibold">Response Time</h3>
+                  </div>
+                  <div className="text-sm text-slate-400 space-y-1">
+                    <p>• General inquiries: Within 24 hours</p>
+                    <p>• Enterprise/sales: Within 4 hours</p>
+                    <p>• Security issues: Within 2 hours</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Right Column - Contact Form */}
+            <ScrollReveal delay={0.2}>
+              <div className="bg-gradient-to-br from-navy-800 to-navy-800/50 border border-navy-700 rounded-2xl p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <MessageCircle className="w-6 h-6 text-purple-400" />
+                  <h2 className="text-2xl font-bold text-white">Send us a message</h2>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Name *</label>
+                      <input 
+                        required 
+                        type="text" 
+                        value={form.name} 
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                        placeholder="Jane Smith" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Email *</label>
+                      <input 
+                        required 
+                        type="email" 
+                        value={form.email} 
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                        placeholder="jane@company.com" 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Company</label>
+                    <input 
+                      type="text" 
+                      value={form.company} 
+                      onChange={(e) => setForm({ ...form, company: e.target.value })}
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                      placeholder="Acme Corp" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">What can we help with?</label>
+                    <select 
+                      value={form.type} 
+                      onChange={(e) => setForm({ ...form, type: e.target.value })}
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors"
+                    >
+                      <option value="general">General inquiry</option>
+                      <option value="enterprise">Enterprise plan</option>
+                      <option value="partnership">Partnership opportunity</option>
+                      <option value="technical">Technical question</option>
+                      <option value="investment">Investment discussion</option>
+                      <option value="security">Security concern</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Message *</label>
+                    <textarea 
+                      required 
+                      value={form.message} 
+                      onChange={(e) => setForm({ ...form, message: e.target.value })} 
+                      rows={6}
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors resize-none"
+                      placeholder="Tell us about your use case, requirements, or question..."
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={sending}
+                    className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-purple-500/25"
+                  >
+                    <Send className="w-5 h-5" />
+                    {sending ? "Sending..." : "Send Message"}
+                  </button>
+                </form>
+              </div>
+            </ScrollReveal>
+          </div>
         )}
       </main>
     </div>

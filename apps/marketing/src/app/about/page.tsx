@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Shield,
   ArrowLeft,
@@ -7,183 +9,275 @@ import {
   Target,
   Lightbulb,
   Scale,
+  FileText,
+  Award,
 } from "lucide-react";
-import type { Metadata } from "next";
+import { useEffect, useRef } from "react";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "Vienna OS is built by ai.ventures — the governance layer for autonomous AI systems.",
-};
+/* ============================================================
+   SCROLL REVEAL ANIMATION
+   ============================================================ */
+
+function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return;
+
+    el.style.opacity = "0";
+    el.style.transform = "translateY(20px)";
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+          }, delay * 1000);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return <div ref={ref}>{children}</div>;
+}
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-navy-900 grid-bg">
-      <div className="absolute inset-0 bg-gradient-to-b from-navy-900/50 to-navy-900 pointer-events-none" />
-      <nav className="relative border-b border-navy-700">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-navy-900">
+      {/* Navigation */}
+      <nav className="border-b border-navy-700">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
             <Shield className="w-6 h-6 text-purple-400" />
             <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
-            Get Started
-          </a>
+          <div className="flex items-center gap-6">
+            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+              Get Started
+            </a>
+          </div>
         </div>
       </nav>
 
-      <main className="relative max-w-4xl mx-auto px-6 py-16">
-        {/* Mission */}
-        <section className="mb-20">
-          <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">
-            AI agents should be governed,
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-              not just guardrailed.
-            </span>
-          </h1>
-          <p className="text-lg text-slate-400 leading-relaxed max-w-2xl">
-            Vienna OS exists because the AI industry has a governance gap.
-            As enterprises deploy autonomous agents, there&apos;s no standardized
-            layer for approval workflows, policy enforcement, or audit trails.
-            We&apos;re building that layer.
-          </p>
+      <main className="max-w-5xl mx-auto px-6 py-16">
+        {/* Mission Hero */}
+        <section className="mb-24">
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <h1 className="text-5xl md:text-6xl font-bold mb-8 tracking-tight">
+                <span className="text-white">AI agents should be</span>
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-500 to-blue-500">
+                  governed, not guardrailed
+                </span>
+              </h1>
+              <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
+                Vienna OS exists because the AI industry has a governance gap.
+                As enterprises deploy autonomous agents, there&apos;s no standardized
+                layer for approval workflows, policy enforcement, or audit trails.
+                <strong className="text-slate-300"> We&apos;re building that layer.</strong>
+              </p>
+            </div>
+          </ScrollReveal>
         </section>
 
-        {/* Thesis */}
-        <section className="mb-20">
-          <div className="gradient-border rounded-2xl">
-            <div className="bg-navy-800 rounded-2xl p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <Scale className="w-8 h-8 text-amber-400 shrink-0 mt-1" />
+        {/* Core Thesis */}
+        <ScrollReveal delay={0.2}>
+          <section className="mb-24">
+            <div className="bg-gradient-to-br from-purple-900/20 to-navy-800 border border-purple-500/30 rounded-2xl p-8 md:p-10">
+              <div className="flex items-start gap-6 mb-8">
+                <Scale className="w-10 h-10 text-gold-400 shrink-0 mt-1 seal-glow" />
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-2">Our Thesis</h2>
-                  <p className="text-slate-400 leading-relaxed">
-                    Content guardrails filter what AI <em>says</em>. Governance controls
-                    what AI <em>does</em>. As agents move from demos to production — executing
+                  <h2 className="text-2xl font-bold text-white mb-4">Our Thesis</h2>
+                  <p className="text-lg text-slate-300 leading-relaxed mb-4">
+                    Content guardrails filter what AI <em className="text-purple-400">says</em>. Governance controls
+                    what AI <em className="text-purple-400">does</em>. As agents move from demos to production — executing
                     real transactions, deploying real code, sending real communications —
-                    the question shifts from &quot;Is the output safe?&quot; to
-                    &quot;Is the action authorized?&quot;
+                    the question shifts from <span className="text-slate-200">&quot;Is the output safe?&quot;</span> to{" "}
+                    <span className="text-slate-200">&quot;Is the action authorized?&quot;</span>
                   </p>
                 </div>
               </div>
-              <div className="font-mono text-sm text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded-lg px-4 py-3">
-                AI explains → Runtime executes → Operator approves.
+              <div className="bg-navy-800/50 border border-purple-500/20 rounded-xl p-6">
+                <div className="font-mono text-lg text-purple-400 text-center">
+                  AI explains → Runtime executes → Operator approves
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
 
-        {/* Why now */}
-        <section className="mb-20">
-          <h2 className="text-2xl font-bold text-white mb-8">Why now</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                icon: Users,
-                title: "Agent Explosion",
-                desc: "Every major AI lab shipped agent frameworks in 2025-2026. 60%+ of Fortune 500 are experimenting. The governance gap is visible at scale.",
-              },
-              {
-                icon: Scale,
-                title: "Regulation Arrives",
-                desc: "EU AI Act enforcement (2026), SEC AI guidance, NIST AI RMF — all demanding transparency, human oversight, and audit trails.",
-              },
-              {
-                icon: Lightbulb,
-                title: "Insurance Pressure",
-                desc: "Cyber insurers are asking: 'How do you govern your AI agents?' Companies without answers face higher premiums or coverage denials.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-                <item.icon className="w-6 h-6 text-purple-400 mb-3" />
-                <h3 className="text-white font-semibold mb-2 text-sm">{item.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
+        {/* Patent & IP */}
+        <ScrollReveal delay={0.3}>
+          <section className="mb-24">
+            <div className="bg-gradient-to-br from-gold-400/10 to-navy-800 border border-gold-400/30 rounded-2xl p-8">
+              <div className="flex items-start gap-6">
+                <FileText className="w-10 h-10 text-gold-400 shrink-0 mt-1" />
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                    Patented Innovation
+                    <Award className="w-6 h-6 text-gold-400" />
+                  </h2>
+                  <p className="text-lg text-slate-300 leading-relaxed mb-4">
+                    Vienna OS&apos;s warrant-based governance architecture is protected by
+                    <strong className="text-gold-400"> USPTO Patent Application #64/018,152</strong>.
+                    The invention covers the cryptographic warrant system, scope-constrained authorization,
+                    and post-execution verification that makes Vienna unique.
+                  </p>
+                  <div className="text-sm text-slate-400 bg-navy-800/50 rounded-lg p-4 border border-gold-400/20">
+                    <strong className="text-gold-400">Filing:</strong> &quot;Methods and Systems for Warrant-Based Autonomous Agent Governance&quot;
+                    <br />
+                    <strong className="text-gold-400">Filed:</strong> March 2026 • <strong className="text-gold-400">Status:</strong> Patent Pending
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          </section>
+        </ScrollReveal>
+
+        {/* Market Timing */}
+        <ScrollReveal delay={0.4}>
+          <section className="mb-24">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
+                Why Now
+              </span>
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: Users,
+                  title: "Agent Explosion",
+                  desc: "Every major AI lab shipped agent frameworks in 2025-2026. 60%+ of Fortune 500 are experimenting. The governance gap is visible at scale.",
+                  color: "purple",
+                },
+                {
+                  icon: Scale,
+                  title: "Regulation Arrives",
+                  desc: "EU AI Act enforcement (2026), SEC AI guidance, NIST AI RMF — all demanding transparency, human oversight, and audit trails.",
+                  color: "blue",
+                },
+                {
+                  icon: Lightbulb,
+                  title: "Insurance Pressure",
+                  desc: "Cyber insurers are asking: 'How do you govern your AI agents?' Companies without answers face higher premiums or coverage denials.",
+                  color: "emerald",
+                },
+              ].map((item) => (
+                <div key={item.title} className="bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-navy-600 transition-colors group">
+                  <item.icon className={`w-8 h-8 text-${item.color}-400 mb-4 group-hover:scale-110 transition-transform`} />
+                  <h3 className="text-white font-semibold mb-3 text-lg">{item.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Team */}
-        <section className="mb-20">
-          <h2 className="text-2xl font-bold text-white mb-8">Team</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-purple-400" />
+        <ScrollReveal delay={0.5}>
+          <section className="mb-24">
+            <h2 className="text-3xl font-bold text-center mb-12">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
+                Cornell Law × ai.ventures
+              </span>
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-purple-500/30 transition-colors">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-xl">Max Anderson</h3>
+                    <p className="text-purple-400 font-medium">Founder & Lead Developer</p>
+                    <p className="text-slate-500 text-sm">Cornell Law School 3L</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold">Max Anderson</h3>
-                  <p className="text-xs text-purple-400">Founder & Lead Developer</p>
-                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  Built Vienna OS from the conviction that legal frameworks and distributed systems 
+                  share the same primitives: <strong className="text-white">authority, scope, evidence, and accountability</strong>. 
+                  Combines formal legal training with deep technical expertise in distributed governance.
+                </p>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Cornell Law 3L. Built Vienna OS from the conviction that
-                legal frameworks and distributed systems share the same
-                primitives: authority, scope, evidence, and accountability.
-              </p>
+              
+              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-blue-500/30 transition-colors">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
+                    <Building2 className="w-8 h-8 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-xl">ai.ventures</h3>
+                    <p className="text-blue-400 font-medium">Platform & Operations</p>
+                    <p className="text-slate-500 text-sm">Technetwork 2 LLC</p>
+                  </div>
+                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  Portfolio company with shared infrastructure, agent pool, and cross-portfolio
+                  synergies across 12+ AI-focused sites. Vienna OS benefits from unique distribution 
+                  and customer validation across the entire ai.ventures ecosystem.
+                </p>
+              </div>
             </div>
-            <div className="bg-navy-800 border border-navy-700 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">ai.ventures</h3>
-                  <p className="text-xs text-blue-400">Platform & Operations</p>
-                </div>
-              </div>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Portfolio company of ai.ventures (Technetwork 2 LLC).
-                Shared infrastructure, agent pool, and cross-portfolio
-                synergies across 12 AI-focused sites.
-              </p>
-            </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
 
-        {/* Portfolio synergies */}
-        <section className="mb-20">
-          <h2 className="text-2xl font-bold text-white mb-4">Portfolio synergies</h2>
-          <p className="text-slate-400 text-sm mb-6">
-            Vienna OS has unique synergies across the ai.ventures portfolio.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { name: "law.ai", role: "First vertical customer (legal AI)" },
-              { name: "corporate.ai", role: "Distribution channel (vendor marketplace)" },
-              { name: "agents.net", role: "Agent certification marketplace" },
-              { name: "risk.ai", role: "Complementary risk assessment" },
-            ].map((s) => (
-              <div key={s.name} className="bg-navy-800/50 border border-navy-700 rounded-lg p-3 text-center">
-                <div className="text-sm font-semibold text-white mb-1">{s.name}</div>
-                <div className="text-xs text-slate-500">{s.role}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Contact */}
-        <section>
-          <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
-            <Target className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Want to learn more?</h2>
-            <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">
-              Whether you&apos;re an enterprise evaluating governance solutions,
-              an investor, or a developer building agents — we&apos;d love to talk.
+        {/* Portfolio Synergies */}
+        <ScrollReveal delay={0.6}>
+          <section className="mb-24">
+            <h3 className="text-2xl font-bold text-white mb-6">Portfolio Synergies</h3>
+            <p className="text-slate-400 mb-8">
+              Vienna OS has unique cross-portfolio synergies across the ai.ventures ecosystem.
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm">
-                Get Started Free
-              </a>
-              <a href="/contact" className="bg-navy-700 hover:bg-navy-600 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm border border-navy-600">
-                Contact Us
-              </a>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { name: "law.ai", role: "First vertical customer (legal AI)", color: "amber" },
+                { name: "corporate.ai", role: "Distribution channel (vendor marketplace)", color: "blue" },
+                { name: "agents.net", role: "Agent certification marketplace", color: "emerald" },
+                { name: "risk.ai", role: "Complementary risk assessment", color: "purple" },
+              ].map((s) => (
+                <div key={s.name} className="bg-navy-800/70 border border-navy-600 rounded-xl p-4 text-center hover:bg-navy-700/70 transition-colors">
+                  <div className={`text-lg font-bold text-${s.color}-400 mb-2`}>{s.name}</div>
+                  <div className="text-xs text-slate-500 leading-relaxed">{s.role}</div>
+                </div>
+              ))}
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
+
+        {/* Contact CTA */}
+        <ScrollReveal delay={0.7}>
+          <section>
+            <div className="bg-gradient-to-br from-purple-900/30 to-navy-800 border border-purple-500/30 rounded-2xl p-10 text-center">
+              <Target className="w-12 h-12 text-purple-400 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-white mb-4">Want to learn more?</h2>
+              <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+                Whether you&apos;re an enterprise evaluating governance solutions,
+                an investor interested in our patent portfolio, or a developer building agents — we&apos;d love to talk.
+              </p>
+              <div className="flex items-center justify-center gap-6">
+                <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-purple-500/25">
+                  Get Started Free
+                </a>
+                <a href="/contact" className="bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">
+                  Contact Us
+                </a>
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
       </main>
     </div>
   );

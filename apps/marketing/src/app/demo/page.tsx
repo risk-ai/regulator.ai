@@ -109,7 +109,7 @@ const DIFFERENTIATORS = [
   'Cryptographic Warrants',
   '4 Risk Tiers',
   'Policy-as-Code',
-  'Open Source (Apache 2.0)'
+  'Source Available (BSL 1.1)'
 ];
 
 // Animation components

@@ -46,7 +46,7 @@
 >
 > We don't ask agents to behave — we remove their ability to misbehave.
 >
-> Open source. Apache 2.0. Free tier with 5 agents.
+> Open source. BSL 1.1. Free tier with 5 agents.
 
 ### Tweet 5 (CTA)
 > Built by @[Max's handle] at Cornell Law × ai.ventures
@@ -70,7 +70,7 @@
 >
 > No warrant, no execution.
 >
-> Free tier. Apache 2.0. npm install @vienna-os/sdk
+> Free tier. BSL 1.1. npm install @vienna-os/sdk
 >
 > regulator.ai
 >

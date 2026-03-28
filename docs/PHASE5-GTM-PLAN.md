@@ -90,7 +90,7 @@ Key Features:
 - TypeScript & Python SDKs
 - Framework integrations (OpenClaw, LangChain, CrewAI, AutoGen)
 - Multi-tenant with SSO/OIDC
-- Apache 2.0 open source
+- BSL 1.1 open source
 
 We've been running this in production for 6 months across our portfolio companies. It's prevented several "interesting" incidents and passed SOC 2 audit.
 
@@ -139,7 +139,7 @@ Tech stack:
 
 Demo: console.regulator.ai
 GitHub: github.com/risk-ai/regulator.ai
-Apache 2.0 licensed
+BSL 1.1 licensed
 
 Built by ai.ventures (we run 30+ AI-first companies) + Cornell Law. USPTO patent filed but implementation is open source.
 
@@ -147,7 +147,7 @@ AMA about autonomous AI governance, production war stories, or technical archite
 ```
 
 **r/MachineLearning (2.8M members) - Post Title:**
-`[R] Vienna OS: Cryptographic governance for autonomous AI systems (Apache 2.0)`
+`[R] Vienna OS: Cryptographic governance for autonomous AI systems (BSL 1.1)`
 
 **Post Content:**
 ```
@@ -194,7 +194,7 @@ Code includes:
 - Test suites & benchmarks
 
 Built by ai.ventures (AI-first venture studio) in partnership with Cornell Law School.
-USPTO Patent #64/018,152 filed, but implementation released as Apache 2.0.
+USPTO Patent #64/018,152 filed, but implementation released as BSL 1.1.
 ```
 
 **r/devops (420K members) - Post Title:**
@@ -346,7 +346,7 @@ Like sudo for AI ⚡
 📄 Docs: Full documentation + quickstart guide
 🏢 Built by @aiventures + Cornell Law
 📜 USPTO Patent #64/018,152
-⚖️ Apache 2.0 open source
+⚖️ BSL 1.1 open source
 
 Ship autonomous AI with confidence 🚀
 ```
@@ -388,7 +388,7 @@ Example: Our AI agent wanted to scale a Kubernetes cluster to 500 nodes (cost: $
 • Multi-tenant architecture with SSO/OIDC
 
 🏢 WHY OPEN SOURCE?
-Every company deploying autonomous AI needs this governance layer. We're releasing Vienna OS as Apache 2.0 because the rising risk of ungoverned AI affects everyone.
+Every company deploying autonomous AI needs this governance layer. We're releasing Vienna OS as BSL 1.1 because the rising risk of ungoverned AI affects everyone.
 
 Built in partnership with Cornell Law School. USPTO patent filed (#64/018,152) but implementation is open source.
 
@@ -615,7 +615,7 @@ enterprise-ready, multi-tenant, real-time, event-streaming
 ```markdown
 [![npm](https://img.shields.io/npm/v/vienna-os)](https://www.npmjs.com/package/vienna-os)
 [![PyPI](https://img.shields.io/pypi/v/vienna-os)](https://pypi.org/project/vienna-os/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/risk-ai/regulator.ai/ci.yml)](https://github.com/risk-ai/regulator.ai/actions)
 [![GitHub Stars](https://img.shields.io/github/stars/risk-ai/regulator.ai?style=social)](https://github.com/risk-ai/regulator.ai/stargazers)
 [![Code Coverage](https://img.shields.io/codecov/c/github/risk-ai/regulator.ai)](https://codecov.io/gh/risk-ai/regulator.ai)
@@ -956,7 +956,7 @@ P.S. If this isn't the right time, feel free to forward to whoever owns AI/ML in
 - Contingency: Waitlist management, phased onboarding, partner support
 
 **Risk: Legal/patent concerns from community**
-- Mitigation: Clear IP policy, Apache 2.0 licensing, patent non-assertion
+- Mitigation: Clear IP policy, BSL 1.1 licensing, patent non-assertion
 - Contingency: Legal FAQ, community discussion facilitation
 
 **Risk: Insufficient enterprise interest**

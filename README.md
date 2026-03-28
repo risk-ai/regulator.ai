@@ -10,7 +10,7 @@
 ```
 
 [![npm](https://img.shields.io/npm/v/@vienna-os/sdk?color=cb3837&logo=npm)](https://www.npmjs.com/package/@vienna-os/sdk)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/risk-ai/regulator.ai/ci.yml?branch=main&logo=github)](https://github.com/risk-ai/regulator.ai/actions)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![GitHub Stars](https://img.shields.io/github/stars/risk-ai/regulator.ai?style=social)](https://github.com/risk-ai/regulator.ai/stargazers)
@@ -333,24 +333,20 @@ All contributors must agree to our [Contributor License Agreement](CLA.md).
 
 ## License
 
-**Apache License 2.0**
+**Business Source License 1.1 (BUSL-1.1)**
 
-Vienna OS is free and open-source software. You are free to use, modify, and distribute it for any purpose, including commercial applications.
+Vienna OS is source-available under the Business Source License 1.1.
+
+- **Free for evaluation, testing, and development** — use it, learn from it, build with it
+- **Production use requires a commercial license** — contact admin@ai.ventures
+- **Converts to Apache 2.0 on March 28, 2030** — full open source after 4 years
+
+This protects our work while keeping the code transparent and inspectable. See [LICENSE](LICENSE) for full terms.
 
 ```
-Copyright 2024-2026 ai.ventures × Cornell Law
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Copyright 2024-2026 Technetwork 2 LLC dba ai.ventures
+Licensed under the Business Source License 1.1
+Change Date: 2030-03-28 | Change License: Apache 2.0
 ```
 
 ---

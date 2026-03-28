@@ -8,7 +8,7 @@
 > The governance layer AI agents answer to
 
 **Description** (260 chars):
-> Vienna OS is an open-source execution control plane for AI agents. Every action gets policy evaluation, risk tiering, cryptographic warrants, and immutable audit trails. Works with LangChain, CrewAI, AutoGen & more. Free tier, Apache 2.0.
+> Vienna OS is an open-source execution control plane for AI agents. Every action gets policy evaluation, risk tiering, cryptographic warrants, and immutable audit trails. Works with LangChain, CrewAI, AutoGen & more. Free tier, BSL 1.1.
 
 **Topics:** AI, Developer Tools, Open Source, SaaS, Compliance, DevOps
 
@@ -35,7 +35,7 @@
 >
 > We built this because compliance teams at banks, hospitals, and law firms told us: "We want to use AI agents, but we can't prove governance to our regulators."
 >
-> Vienna OS is open source (Apache 2.0), free to start with 5 agents, and integrates in 5 lines of code. Try it live at regulator.ai/try.
+> Vienna OS is open source (BSL 1.1), free to start with 5 agents, and integrates in 5 lines of code. Try it live at regulator.ai/try.
 >
 > Would love your feedback! 🙏
 
@@ -75,7 +75,7 @@ Additional recommended:
   - Comment with technical details + GitHub link
 - [ ] **Reddit:**
   - r/artificial — "We built an open-source governance layer for AI agents"
-  - r/programming — "Show r/programming: Execution warrants for AI agents (Apache 2.0)"
+  - r/programming — "Show r/programming: Execution warrants for AI agents (BSL 1.1)"
   - r/MachineLearning — "Vienna OS: Policy enforcement + cryptographic warrants for autonomous agents"
   - r/devops — "Governance control plane for AI-assisted deployments"
 - [ ] **LinkedIn:** Announce post from Max Anderson + ai.ventures page

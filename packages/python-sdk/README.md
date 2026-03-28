@@ -3,7 +3,7 @@
 Official Python SDK for [Vienna OS](https://regulator.ai) — the governance control plane for AI agents.
 
 [![PyPI version](https://badge.fury.io/py/vienna-sdk.svg)](https://pypi.org/project/vienna-sdk/)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: BSL-1.1](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](../../LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
 ## Installation
@@ -82,4 +82,4 @@ This SDK uses only Python standard library (`urllib`, `json`, `hashlib`). No ext
 
 ## License
 
-Apache-2.0
+BSL-1.1

@@ -5,7 +5,7 @@ Official TypeScript SDK for **Vienna OS** — the AI Agent Governance Platform.
 Submit intents, manage policies, govern your fleet, and stay compliant — all with full type safety and zero runtime dependencies.
 
 [![npm version](https://badge.fury.io/js/@vienna-os%2Fsdk.svg)](https://www.npmjs.com/package/@vienna-os/sdk)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: BSL-1.1](https://img.shields.io/badge/License-BSL%201.1-blue.svg)](../../LICENSE)
 
 ## Installation
 
@@ -299,4 +299,4 @@ const tier: RiskTier = result.riskTier; // Typed as 'T0' | 'T1' | 'T2' | 'T3'
 
 ## License
 
-Apache-2.0 — See [LICENSE](./LICENSE) for details.
+BSL-1.1 — See [LICENSE](./LICENSE) for details.

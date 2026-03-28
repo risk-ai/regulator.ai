@@ -69,7 +69,7 @@ const result = await client.intent.submit({
 - **Console:** https://console.regulator.ai
 - **npm:** https://www.npmjs.com/package/@vienna-os/sdk
 - **Docs:** https://regulator.ai/docs
-- **License:** Apache 2.0
+- **License:** BSL 1.1 (converts to Apache 2.0 on 2030-03-28)
 
 ---
 

@@ -163,7 +163,7 @@ regulator.ai/
 │
 ├── docs/                      # Documentation
 ├── scripts/                   # Build and deployment scripts
-├── LICENSE                    # Apache 2.0
+├── LICENSE                    # BSL 1.1
 ├── README.md                  # Project overview
 └── CONTRIBUTING.md            # This file
 ```
@@ -580,7 +580,7 @@ Contributors are recognized in:
 
 ## License
 
-By contributing to Vienna OS, you agree that your contributions will be licensed under the **Apache License 2.0**.
+By contributing to Vienna OS, you agree that your contributions will be licensed under the **Business Source License 1.1**.
 
 See [LICENSE](LICENSE) for full terms.
 

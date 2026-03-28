@@ -92,7 +92,7 @@ if result.status == "approved":
 
 > "Cryptographic warrants. Four risk tiers. Natural language policy creation. AI-powered suggestions. Real-time event streaming. Full audit trail."
 > 
-> "And it's open source. Apache 2.0."
+> "And it's open source. BSL 1.1."
 
 ---
 

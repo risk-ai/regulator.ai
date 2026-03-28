@@ -126,7 +126,7 @@ Post-execution, the Verification Engine confirms the action matched the warrant.
 ## 4. Go-to-Market Strategy
 
 ### Phase 1: Open Source Core (Now → Month 6)
-- Open-source Vienna OS core pipeline (Apache 2.0)
+- Open-source Vienna OS core pipeline (BSL 1.1)
 - GitHub-first: docs, examples, framework integrations
 - Target: AI agent developers and DevOps teams
 - Community self-hosted dashboard
@@ -214,7 +214,7 @@ Post-execution, the Verification Engine confirms the action matched the warrant.
 - [x] Marketing site — 28 routes, Stripe, GA4, SEO
 - [x] Integration adapters — Slack, Email, GitHub, Webhook
 - [x] TypeScript SDK (10 modules)
-- [x] Open-source prep — Apache 2.0, CONTRIBUTING.md
+- [x] Open-source prep — BSL 1.1, CONTRIBUTING.md
 - [ ] **Postgres migration** — SQLite → Neon (production-safe)
 - [ ] **Multi-tenant isolation** — Row-level security, tenant quotas
 - [ ] **Console deploy** — Real backend on Fly.io

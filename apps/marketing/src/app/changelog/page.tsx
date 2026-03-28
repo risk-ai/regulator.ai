@@ -59,7 +59,7 @@ const releases = [
       { type: "feat", text: "Agent Fleet Dashboard with real-time monitoring" },
       { type: "feat", text: "Multi-tenant auth with operator registration" },
       { type: "feat", text: "Slack/Email/GitHub adapters for workflow integration" },
-      { type: "feat", text: "Apache 2.0 license + open-source preparation" },
+      { type: "feat", text: "BSL 1.1 license + source-available preparation" },
     ],
   },
   {

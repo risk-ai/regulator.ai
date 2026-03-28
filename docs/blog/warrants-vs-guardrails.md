@@ -722,7 +722,7 @@ The question isn't whether your organization needs better AI governance. It's wh
 
 **About Vienna OS**
 
-*Vienna OS is the open-source governance control plane built by ai.ventures and Cornell Law School. After 18 months of deploying autonomous AI systems and learning from real production incidents, we've created the first execution warrant system for AI agents. USPTO Patent #64/018,152 filed, but the implementation is Apache 2.0 open source.*
+*Vienna OS is the open-source governance control plane built by ai.ventures and Cornell Law School. After 18 months of deploying autonomous AI systems and learning from real production incidents, we've created the first execution warrant system for AI agents. USPTO Patent #64/018,152 filed, but the implementation is BSL 1.1 source-available.*
 
 ---
 

@@ -678,7 +678,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="text-sm font-semibold text-white mb-1">Open Source Infrastructure</div>
-              <div className="text-xs text-slate-400">Apache 2.0 — inspect every line of the control layer</div>
+              <div className="text-xs text-slate-400">BSL 1.1 — free for evaluation, converts to Apache 2.0 in 2030</div>
             </div>
             
             <div className="text-center trust-signal">

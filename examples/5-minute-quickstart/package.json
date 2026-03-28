@@ -7,5 +7,5 @@
     "vienna-quickstart": "./index.js"
   },
   "keywords": ["vienna", "ai", "governance", "quickstart"],
-  "license": "Apache-2.0"
+  "license": "BUSL-1.1"
 }

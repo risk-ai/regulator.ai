@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Visual Policy Builder** — No-code governance rules with 11 operators (==, !=, >, <, >=, <=, contains, starts_with, ends_with, in, not_in)
 - **Agent Fleet Dashboard** — Auto-tracking of all governed agents with success rates and activity timelines
 - **Policy Notifications** — Slack + Email adapters integrated with Policy Builder for runtime alerts
-- **Open-Source Release** — Apache 2.0 license, comprehensive README, contribution guidelines
+- **Source-Available Release — BSL 1.1 license, comprehensive README, contribution guidelines
 - **OpenClaw Integration Tool** — `vienna-intent` tool for OpenClaw agents to submit governed intents
 
 ### Changed
@@ -93,7 +93,7 @@ Q2 Roadmap: 80% complete
 ### Documentation
 - README.md (13.5KB) — Problem statement, architecture, quick start, API reference, deployment guide
 - CONTRIBUTING.md (13.1KB) — Code of conduct, development workflow, testing guidelines, coding standards
-- LICENSE (Apache 2.0) — Commercial-friendly open-source license
+- LICENSE (BSL 1.1) — Source-available with commercial protection
 
 ### Infrastructure
 - Unified monolith deployment (164 MB Docker image)

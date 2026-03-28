@@ -2,12 +2,15 @@
  * Vienna Console Server Entry Point
  * 
  * Starts Express server and event stream.
+ * 
+ * Performance: Runs in cluster mode (1 worker per CPU core) for horizontal scaling
  */
 
 // Load environment variables from .env file
 import dotenv from 'dotenv';
 dotenv.config();
 
+import cluster from 'cluster';
 import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
@@ -361,6 +364,10 @@ async function start() {
       console.log(`Health: http://${HOST}:${PORT}/health`);
     });
     
+    // Enable HTTP keep-alive for better performance
+    server.keepAliveTimeout = 65000; // 65 seconds
+    server.headersTimeout = 66000; // 66 seconds (must be > keepAliveTimeout)
+    
     // Graceful shutdown
     process.on('SIGTERM', async () => {
       console.log('SIGTERM received, shutting down gracefully');
@@ -415,4 +422,30 @@ async function start() {
   }
 }
 
-start();
+// Cluster mode for horizontal scaling (use all CPU cores)
+const ENABLE_CLUSTER = process.env.NODE_ENV === 'production' || process.env.ENABLE_CLUSTER === 'true';
+const numCPUs = os.cpus().length;
+
+if (ENABLE_CLUSTER && cluster.isPrimary) {
+  console.log(`Primary ${process.pid} starting ${numCPUs} workers...`);
+  
+  // Fork workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+  
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died (${signal || code}). Restarting...`);
+    cluster.fork();
+  });
+  
+  cluster.on('online', (worker) => {
+    console.log(`Worker ${worker.process.pid} is online`);
+  });
+} else {
+  // Worker process (or single-process mode)
+  if (ENABLE_CLUSTER) {
+    console.log(`Worker ${process.pid} starting...`);
+  }
+  start();
+}

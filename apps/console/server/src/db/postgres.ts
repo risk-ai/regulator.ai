@@ -31,6 +31,9 @@ function getPool() {
       if (process.env.POSTGRES_URL) {
         pool = new Pool({
           connectionString: process.env.POSTGRES_URL,
+          max: 50, // Increased from default 10 for better concurrency
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 2000,
         });
       } else {
         // Fallback to default local connection

@@ -1,0 +1,33 @@
+{
+  "name": "vienna-langchain-example",
+  "version": "1.0.0",
+  "description": "Vienna OS + LangChain integration example",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --loader ts-node/esm index.ts",
+    "build": "tsc",
+    "demo": "node index.js"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.1.0",
+    "@langchain/openai": "^0.1.0", 
+    "@vienna-os/sdk": "file:../../packages/sdk",
+    "langchain": "^0.1.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0"
+  },
+  "keywords": [
+    "vienna-os",
+    "langchain", 
+    "ai-governance",
+    "agent-framework"
+  ],
+  "author": "Vienna OS",
+  "license": "Apache-2.0"
+}

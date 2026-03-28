@@ -1,0 +1,22 @@
+# Vienna OS + AutoGen Integration Requirements
+
+# Core dependencies
+pyautogen>=0.2.0
+vienna-sdk>=0.1.0
+openai>=1.0.0
+
+# For the mock implementation (remove if using real vienna-sdk)
+requests>=2.28.0
+asyncio
+dataclasses
+typing-extensions>=4.0.0
+
+# Optional: for enhanced features
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+isort>=5.12.0

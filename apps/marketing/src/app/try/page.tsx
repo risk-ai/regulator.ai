@@ -62,6 +62,8 @@ const scenarios = [
     tier: "T2",
     tierLabel: "Multi-Party",
     docs: "/docs/tiers#t2",
+    category: "finance",
+    riskFactors: ["high_value", "external_transfer", "irreversible"],
   },
   {
     id: "production_deploy",
@@ -71,6 +73,8 @@ const scenarios = [
     tier: "T1",
     tierLabel: "Approval",
     docs: "/docs/tiers#t1",
+    category: "devops",
+    riskFactors: ["production_env", "after_hours"],
   },
   {
     id: "patient_record",
@@ -80,6 +84,8 @@ const scenarios = [
     tier: "T1",
     tierLabel: "HIPAA",
     docs: "/docs/compliance#hipaa",
+    category: "healthcare",
+    riskFactors: ["phi_data", "compliance_required"],
   },
   {
     id: "denied_scope_creep",
@@ -89,6 +95,8 @@ const scenarios = [
     tier: "DENY",
     tierLabel: "Blocked",
     docs: "/docs/security#scope",
+    category: "security",
+    riskFactors: ["scope_violation", "unauthorized_access"],
   },
   {
     id: "auto_approved_read",
@@ -98,6 +106,41 @@ const scenarios = [
     tier: "T0",
     tierLabel: "Auto",
     docs: "/docs/tiers#t0",
+    category: "analytics",
+    riskFactors: [],
+  },
+  {
+    id: "ai_model_training",
+    icon: "🧠",
+    label: "AI Model Training",
+    desc: "ML agent trains new model on customer data. Privacy constraints + resource limits.",
+    tier: "T2",
+    tierLabel: "Privacy",
+    docs: "/docs/ai-governance",
+    category: "ai",
+    riskFactors: ["customer_data", "resource_intensive", "model_risk"],
+  },
+  {
+    id: "social_media_post",
+    icon: "📱",
+    label: "Social Media Post",
+    desc: "Marketing agent posts to company social accounts. Brand safety + approval workflow.",
+    tier: "T1",
+    tierLabel: "Brand Safety",
+    docs: "/docs/brand-safety",
+    category: "marketing",
+    riskFactors: ["public_visibility", "brand_reputation"],
+  },
+  {
+    id: "contract_signing",
+    icon: "📝",
+    label: "Contract E-Signature",
+    desc: "Legal agent signs $500K vendor contract. Multi-party approval + legal review.",
+    tier: "T3",
+    tierLabel: "Legal Review",
+    docs: "/docs/legal-governance",
+    category: "legal",
+    riskFactors: ["high_value", "legal_commitment", "multi_party_required"],
   },
   {
     id: "custom",
@@ -107,6 +150,8 @@ const scenarios = [
     tier: "?",
     tierLabel: "Dynamic",
     docs: "/docs/policies",
+    category: "custom",
+    riskFactors: [],
   },
 ];
 
@@ -153,6 +198,10 @@ export default function TryPage() {
 
   // Mobile scenario dropdown
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [showRiskFactors, setShowRiskFactors] = useState(false);
+  const [showWarrantBuilder, setShowWarrantBuilder] = useState(false);
+  const [interactiveMode, setInteractiveMode] = useState<'scenarios' | 'tier_picker' | 'warrant_builder'>('scenarios');
 
   const pipelineRef = useRef<HTMLDivElement>(null);
 
@@ -327,53 +376,222 @@ export default function TryPage() {
         </div>
 
         <div className="grid lg:grid-cols-[320px_1fr] gap-6">
-          {/* ─── Left: Scenario Selector ─── */}
+          {/* ─── Left: Interactive Controls ─── */}
           <div className="space-y-3">
-            {/* Mobile dropdown */}
-            <div className="lg:hidden">
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="w-full flex items-center justify-between bg-navy-800 border border-navy-700 rounded-xl px-4 py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <span>{selectedScenario.icon}</span>
-                  <span className="text-white font-medium text-sm">{selectedScenario.label}</span>
+            {/* Mode Selector */}
+            <div className="bg-navy-800/50 border border-navy-700/50 rounded-xl p-3">
+              <h4 className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">Demo Mode</h4>
+              <div className="grid grid-cols-1 gap-1.5">
+                {[
+                  { id: 'scenarios', label: '🎬 Scenarios', desc: 'Pre-built examples' },
+                  { id: 'tier_picker', label: '⚖️ Risk Tiers', desc: 'Pick T0/T1/T2/T3' },
+                  { id: 'warrant_builder', label: '📜 Warrant Flow', desc: 'Interactive creation' },
+                ].map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setInteractiveMode(mode.id as any)}
+                    className={`
+                      text-left px-3 py-2 rounded-lg border transition-all text-sm
+                      ${interactiveMode === mode.id
+                        ? 'border-gold-400/30 bg-gold-400/5 text-white'
+                        : 'border-navy-700/30 bg-navy-800/30 text-warm-300 hover:border-navy-600 hover:bg-navy-700/30'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm">{mode.label}</span>
+                    </div>
+                    <div className="text-xs text-warm-500">{mode.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Scenario Mode */}
+            {interactiveMode === 'scenarios' && (
+              <>
+                {/* Mobile dropdown */}
+                <div className="lg:hidden">
+                  <button
+                    onClick={() => setMobileOpen(!mobileOpen)}
+                    className="w-full flex items-center justify-between bg-navy-800 border border-navy-700 rounded-xl px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{selectedScenario.icon}</span>
+                      <span className="text-white font-medium text-sm">{selectedScenario.label}</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-warm-400 transition-transform ${mobileOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {mobileOpen && (
+                    <div className="mt-2 space-y-1.5">
+                      {scenarios.map((s) => (
+                        <ScenarioButton
+                          key={s.id}
+                          scenario={s}
+                          active={selected === s.id}
+                          onClick={() => {
+                            setSelected(s.id);
+                            setMobileOpen(false);
+                          }}
+                          tc={tc}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <ChevronDown className={`w-4 h-4 text-warm-400 transition-transform ${mobileOpen ? "rotate-180" : ""}`} />
-              </button>
-              {mobileOpen && (
-                <div className="mt-2 space-y-1.5">
-                  {scenarios.map((s) => (
+              </>
+            )}
+
+            {/* Tier Picker Mode */}
+            {interactiveMode === 'tier_picker' && (
+              <div className="bg-navy-800 border border-navy-700/50 rounded-xl p-4 space-y-3">
+                <h4 className="text-xs font-semibold text-warm-400 uppercase tracking-wider">Risk Tier Explorer</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { tier: 'T0', label: 'Auto-Approved', desc: 'Read-only, no risk', color: 'emerald', example: 'Web search' },
+                    { tier: 'T1', label: 'Policy Approved', desc: 'Low risk, automated', color: 'gold', example: 'Send notification' },
+                    { tier: 'T2', label: 'Human Approval', desc: 'Medium risk, oversight', color: 'orange', example: 'Wire transfer' },
+                    { tier: 'T3', label: 'Multi-Party', desc: 'High risk, committee', color: 'red', example: 'Contract signing' },
+                  ].map((t) => (
+                    <button
+                      key={t.tier}
+                      onClick={() => {
+                        setSelectedTier(t.tier);
+                        // Auto-select a scenario for this tier
+                        const tierScenario = scenarios.find(s => s.tier === t.tier) || scenarios.find(s => s.tier === 'T1');
+                        if (tierScenario) setSelected(tierScenario.id);
+                      }}
+                      className={`
+                        text-left p-3 rounded-lg border transition-all
+                        ${selectedTier === t.tier
+                          ? `border-${t.color}-400/30 bg-${t.color}-400/5`
+                          : 'border-navy-700/30 bg-navy-800/30 hover:border-navy-600'
+                        }
+                      `}
+                    >
+                      <div className={`text-sm font-bold mb-1 ${selectedTier === t.tier ? `text-${t.color}-400` : 'text-white'}`}>
+                        {t.tier}
+                      </div>
+                      <div className="text-xs text-warm-400 mb-1">{t.label}</div>
+                      <div className="text-xs text-warm-600 leading-relaxed">{t.desc}</div>
+                      <div className="text-xs text-warm-700 mt-1 italic">{t.example}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Warrant Builder Mode */}
+            {interactiveMode === 'warrant_builder' && (
+              <div className="bg-navy-800 border border-navy-700/50 rounded-xl p-4 space-y-3">
+                <h4 className="text-xs font-semibold text-warm-400 uppercase tracking-wider">Interactive Warrant Creator</h4>
+                <div className="space-y-2">
+                  <div className="text-xs text-warm-500 mb-2">Follow the warrant creation process step by step:</div>
+                  
+                  <div className="space-y-2">
+                    {[
+                      { step: '1', label: 'Submit Intent', status: 'completed', desc: 'Agent submits action request' },
+                      { step: '2', label: 'Policy Check', status: showWarrantBuilder ? 'completed' : 'pending', desc: 'Evaluate against rules' },
+                      { step: '3', label: 'Risk Assessment', status: showWarrantBuilder ? 'active' : 'pending', desc: 'Calculate risk tier' },
+                      { step: '4', label: 'Generate Warrant', status: 'pending', desc: 'Create authorization proof' },
+                    ].map((s) => (
+                      <div
+                        key={s.step}
+                        className={`
+                          flex items-center gap-3 p-2 rounded-lg border transition-all
+                          ${s.status === 'completed' ? 'border-emerald-400/30 bg-emerald-400/5' : ''}
+                          ${s.status === 'active' ? 'border-gold-400/30 bg-gold-400/5' : ''}
+                          ${s.status === 'pending' ? 'border-navy-700/30 bg-navy-800/30' : ''}
+                        `}
+                      >
+                        <div className={`
+                          w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
+                          ${s.status === 'completed' ? 'bg-emerald-400 text-navy-950' : ''}
+                          ${s.status === 'active' ? 'bg-gold-400 text-navy-950' : ''}
+                          ${s.status === 'pending' ? 'bg-navy-700 text-warm-500' : ''}
+                        `}>
+                          {s.status === 'completed' ? '✓' : s.step}
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm text-white font-medium">{s.label}</div>
+                          <div className="text-xs text-warm-500">{s.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      setShowWarrantBuilder(!showWarrantBuilder);
+                      if (!showWarrantBuilder) {
+                        setSelected('wire_transfer'); // Auto-select a good example
+                      }
+                    }}
+                    className="w-full mt-3 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                  >
+                    {showWarrantBuilder ? '🔄 Reset Flow' : '▶️ Start Warrant Flow'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Desktop Scenario List */}
+            {interactiveMode === 'scenarios' && (
+              <div className="hidden lg:block space-y-1.5">
+                <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-2">
+                  Scenarios <span className="text-warm-600">↑↓ to navigate</span>
+                </h3>
+                {scenarios.map((s) => (
+                  <ScenarioButton
+                    key={s.id}
+                    scenario={s}
+                    active={selected === s.id}
+                    onClick={() => setSelected(s.id)}
+                    tc={tc}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Desktop Tier List */}
+            {interactiveMode === 'tier_picker' && (
+              <div className="hidden lg:block space-y-1.5">
+                <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-2">
+                  Risk Tiers <span className="text-warm-600">explore approval flows</span>
+                </h3>
+                <div className="space-y-2">
+                  {scenarios.filter(s => s.id !== 'custom').map((s) => (
                     <ScenarioButton
                       key={s.id}
                       scenario={s}
                       active={selected === s.id}
-                      onClick={() => {
-                        setSelected(s.id);
-                        setMobileOpen(false);
-                      }}
+                      onClick={() => setSelected(s.id)}
                       tc={tc}
                     />
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Desktop list */}
-            <div className="hidden lg:block space-y-1.5">
-              <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-2">
-                Scenarios <span className="text-warm-600">↑↓ to navigate</span>
-              </h3>
-              {scenarios.map((s) => (
-                <ScenarioButton
-                  key={s.id}
-                  scenario={s}
-                  active={selected === s.id}
-                  onClick={() => setSelected(s.id)}
-                  tc={tc}
-                />
-              ))}
-            </div>
+            {/* Warrant Builder List */}
+            {interactiveMode === 'warrant_builder' && (
+              <div className="hidden lg:block space-y-1.5">
+                <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-2">
+                  Warrant Examples <span className="text-warm-600">step-by-step creation</span>
+                </h3>
+                <div className="space-y-2">
+                  {scenarios.filter(s => s.tier !== 'DENY' && s.id !== 'custom').slice(0, 4).map((s) => (
+                    <ScenarioButton
+                      key={s.id}
+                      scenario={s}
+                      active={selected === s.id}
+                      onClick={() => setSelected(s.id)}
+                      tc={tc}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Custom action fields */}
             {selected === "custom" && (
@@ -509,47 +727,185 @@ export default function TryPage() {
 
                 {/* Interactive flow preview */}
                 <div className="p-6">
-                  <div className="mb-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                      {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
-                        <div key={step} className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300">
-                          <div className="text-lg mb-1">
-                            {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                  {interactiveMode === 'scenarios' && (
+                    <div className="mb-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
+                          <div key={step} className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300">
+                            <div className="text-lg mb-1">
+                              {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                            </div>
+                            <div className="text-xs text-warm-400 font-medium">{step}</div>
+                            <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              Step {i + 1}
+                            </div>
                           </div>
-                          <div className="text-xs text-warm-400 font-medium">{step}</div>
-                          <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            Step {i + 1}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div className="bg-navy-900/30 border border-navy-700/30 rounded-lg p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-sm text-gold-400 font-medium">💡 Try these scenarios:</span>
+                        ))}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      
+                      <div className="bg-navy-900/30 border border-navy-700/30 rounded-lg p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-sm text-gold-400 font-medium">💡 Try these scenarios:</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {[
+                            "🚀 Production deployment (T1 approval needed)",
+                            "💸 Large wire transfer (T2 multi-party approval)",
+                            "🏥 Patient record update (HIPAA compliant)", 
+                            "⚡ Read-only query (T0 auto-approved)"
+                          ].map((suggestion) => (
+                            <div key={suggestion} className="text-xs text-warm-500 bg-navy-800/50 rounded px-3 py-2 border border-navy-700/30">
+                              {suggestion}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {interactiveMode === 'tier_picker' && (
+                    <div className="mb-6 space-y-4">
+                      <div className="text-center mb-6">
+                        <h3 className="text-xl font-semibold text-white mb-2">Risk Tier Explorer</h3>
+                        <p className="text-warm-400 text-sm">Understand how Vienna OS classifies and handles different risk levels</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
-                          "🚀 Production deployment (T1 approval needed)",
-                          "💸 Large wire transfer (T2 multi-party approval)",
-                          "🏥 Patient record update (HIPAA compliant)", 
-                          "⚡ Read-only query (T0 auto-approved)"
-                        ].map((suggestion) => (
-                          <div key={suggestion} className="text-xs text-warm-500 bg-navy-800/50 rounded px-3 py-2 border border-navy-700/30">
-                            {suggestion}
+                          {
+                            tier: 'T0',
+                            label: 'Auto-Approved',
+                            color: 'emerald',
+                            icon: '⚡',
+                            description: 'Read-only operations with no external impact',
+                            examples: ['Database queries', 'Log analysis', 'Web search'],
+                            timing: '< 50ms',
+                            approval: 'Automatic'
+                          },
+                          {
+                            tier: 'T1', 
+                            label: 'Policy Approved',
+                            color: 'blue',
+                            icon: '📋',
+                            description: 'Low-risk operations governed by policies',
+                            examples: ['Internal notifications', 'Report generation', 'Config updates'],
+                            timing: '100-500ms',
+                            approval: 'Policy Engine'
+                          },
+                          {
+                            tier: 'T2',
+                            label: 'Human Approval',
+                            color: 'orange', 
+                            icon: '👤',
+                            description: 'Medium-risk operations requiring oversight',
+                            examples: ['Financial transactions', 'External communications', 'Data exports'],
+                            timing: '1-60 minutes',
+                            approval: 'Single Human'
+                          },
+                          {
+                            tier: 'T3',
+                            label: 'Multi-Party Approval',
+                            color: 'red',
+                            icon: '👥', 
+                            description: 'High-risk operations with significant impact',
+                            examples: ['Contract signing', 'System administration', 'Legal actions'],
+                            timing: 'Hours to days',
+                            approval: 'Multiple Humans'
+                          }
+                        ].map((t) => (
+                          <div
+                            key={t.tier}
+                            className={`
+                              bg-navy-900/30 border rounded-xl p-4 transition-all hover:border-${t.color}-400/30 hover:bg-${t.color}-400/5
+                              ${selectedTier === t.tier ? `border-${t.color}-400/30 bg-${t.color}-400/5` : 'border-navy-700/30'}
+                            `}
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-2xl">{t.icon}</span>
+                              <div>
+                                <h4 className="text-white font-semibold">{t.tier} - {t.label}</h4>
+                                <p className="text-xs text-warm-500">{t.approval} • {t.timing}</p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-warm-400 mb-3 leading-relaxed">{t.description}</p>
+                            <div className="space-y-1">
+                              {t.examples.map((example) => (
+                                <div key={example} className="text-xs text-warm-600 bg-navy-800/50 rounded px-2 py-1">
+                                  {example}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {interactiveMode === 'warrant_builder' && (
+                    <div className="mb-6 space-y-4">
+                      <div className="text-center mb-6">
+                        <h3 className="text-xl font-semibold text-white mb-2">Interactive Warrant Creation</h3>
+                        <p className="text-warm-400 text-sm">See how Vienna OS creates cryptographic authorization proofs</p>
+                      </div>
+
+                      <div className="bg-navy-900/30 border border-navy-700/30 rounded-xl p-6">
+                        <div className="space-y-4">
+                          {/* Warrant Properties Preview */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-semibold text-warm-400">Warrant Properties</h4>
+                              <div className="space-y-2">
+                                <div className="bg-navy-800/50 rounded-lg p-3">
+                                  <div className="text-xs text-warm-500 mb-1">Scope</div>
+                                  <div className="font-mono text-xs text-gold-400">action: {selected}</div>
+                                  <div className="font-mono text-xs text-gold-400">resource: production.api</div>
+                                </div>
+                                <div className="bg-navy-800/50 rounded-lg p-3">
+                                  <div className="text-xs text-warm-500 mb-1">TTL</div>
+                                  <div className="font-mono text-xs text-emerald-400">60 seconds</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-semibold text-warm-400">Security Features</h4>
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                  <span>✓</span> HMAC-SHA256 signature
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                  <span>✓</span> Time-bounded execution
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                  <span>✓</span> Scope-limited permissions
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                  <span>✓</span> Non-transferable
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="border-t border-navy-700/30 pt-4">
+                            <div className="text-xs text-warm-600 space-y-1">
+                              <div>🔐 Warrant ID: warrant_2024{Date.now().toString().slice(-6)}</div>
+                              <div>⚖️ Risk Tier: {selectedScenario.tier}</div>
+                              <div>👤 Approver: {selectedScenario.tier === 'T0' ? 'Auto-system' : selectedScenario.tier === 'T1' ? 'Policy Engine' : 'Human Required'}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="text-center">
                     <p className="text-warm-400 text-sm mb-4 max-w-md mx-auto">
-                      Select a scenario above and click "Execute Pipeline" to see Vienna OS governance in action.
+                      {interactiveMode === 'scenarios' && "Select a scenario above and click \"Execute Pipeline\" to see Vienna OS governance in action."}
+                      {interactiveMode === 'tier_picker' && "Pick a risk tier above to explore different approval workflows and timing."}
+                      {interactiveMode === 'warrant_builder' && "Choose an action above to see how warrants are created with cryptographic proofs."}
                       Every step is simulated with realistic timing and outcomes.
                     </p>
                     
-                    <div className="flex items-center justify-center gap-4">
+                    <div className="flex items-center justify-center gap-4 flex-wrap">
                       <div className="flex items-center gap-2 text-xs text-warm-600">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
                         <span>Real-time simulation</span>
@@ -561,6 +917,10 @@ export default function TryPage() {
                       <div className="flex items-center gap-2 text-xs text-warm-600">
                         <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
                         <span>Full audit trail</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-warm-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                        <span>Cryptographic warrants</span>
                       </div>
                     </div>
                   </div>
@@ -976,7 +1336,7 @@ function ScenarioButton({
     <button
       onClick={onClick}
       className={`
-        w-full text-left rounded-xl p-3 transition-all duration-200 border
+        w-full text-left rounded-xl p-3 transition-all duration-200 border group
         ${active
           ? "border-gold-400/30 bg-gold-400/5 shadow-[0_0_15px_rgba(212,165,32,0.04)]"
           : "border-navy-700/50 bg-navy-800/50 hover:border-navy-600 hover:bg-navy-800"
@@ -992,7 +1352,35 @@ function ScenarioButton({
           {scenario.tier}
         </span>
       </div>
-      <p className="text-[11px] text-warm-500 leading-relaxed pl-7">{scenario.desc}</p>
+      <p className="text-[11px] text-warm-500 leading-relaxed pl-7 mb-1">{scenario.desc}</p>
+      
+      {/* Risk Factors */}
+      {(scenario as any).riskFactors && (scenario as any).riskFactors.length > 0 && (
+        <div className="pl-7 mt-2">
+          <div className="flex flex-wrap gap-1">
+            {(scenario as any).riskFactors.slice(0, 3).map((factor: string) => (
+              <span
+                key={factor}
+                className="text-[9px] px-1.5 py-0.5 rounded border border-warm-700/30 bg-warm-800/20 text-warm-600 font-mono"
+              >
+                {factor.replace(/_/g, ' ')}
+              </span>
+            ))}
+            {(scenario as any).riskFactors.length > 3 && (
+              <span className="text-[9px] text-warm-600">+{(scenario as any).riskFactors.length - 3}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Category Badge */}
+      {(scenario as any).category && (
+        <div className="pl-7 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[9px] text-warm-700 capitalize">
+            {(scenario as any).category} • {scenario.tierLabel}
+          </span>
+        </div>
+      )}
     </button>
   );
 }

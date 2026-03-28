@@ -2,6 +2,7 @@
 
 import { Shield, ArrowLeft, Check, X, Minus, ArrowRight } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import NewsletterSignup from "../../components/NewsletterSignup";
 
 const competitors = [
   {
@@ -272,6 +273,11 @@ export default function ComparePage() {
               Try the Playground
             </a>
           </div>
+        </div>
+
+        {/* Newsletter Signup */}
+        <div className="mt-16 max-w-2xl mx-auto">
+          <NewsletterSignup />
         </div>
       </section>
 

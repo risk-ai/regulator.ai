@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import BlogTracker from "./BlogTracker";
 import BlogCTA from "./BlogCTA";
+import NewsletterSignup from "../../../components/NewsletterSignup";
 
 const posts: Record<
   string,
@@ -1317,13 +1318,29 @@ export default async function BlogPost({
         <article className="prose-vienna">{renderContent(post.content)}</article>
 
         <BlogCTA slug={slug} />
+
+        {/* Newsletter Signup */}
+        <div className="mt-12">
+          <NewsletterSignup 
+            variant="compact" 
+            showSocialProof={true}
+            className="max-w-lg mx-auto"
+          />
+        </div>
       </main>
 
       <footer className="border-t border-navy-700 py-8 mt-12">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <span className="text-xs text-slate-600">
+          <a
+            href="/blog"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Blog
+          </a>
+          <div className="text-xs text-slate-600">
             © 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.
-          </span>
+          </div>
         </div>
       </footer>
     </div>

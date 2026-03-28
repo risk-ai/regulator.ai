@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Shield, ArrowLeft, ArrowRight, Play, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import NewsletterSignup from "../../components/NewsletterSignup";
 
 /* ─── Types ─── */
 interface PipelineStep {
@@ -1284,6 +1285,11 @@ export default function TryPage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* ─── Newsletter Signup ─── */}
+        <div className="mt-12 max-w-2xl mx-auto">
+          <NewsletterSignup />
         </div>
 
         {/* ─── API Integration & Next Steps ─── */}

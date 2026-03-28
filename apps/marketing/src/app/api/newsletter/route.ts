@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     const newSignup: NewsletterEntry = {
       email: trimmedEmail,
       timestamp: new Date().toISOString(),
-      ip: request.ip || request.headers.get("x-forwarded-for") || undefined,
+      ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
       userAgent: request.headers.get("user-agent") || undefined,
     };
 

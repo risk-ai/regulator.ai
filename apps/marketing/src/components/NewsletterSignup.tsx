@@ -58,7 +58,7 @@ export default function NewsletterSignup({
         <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-400/20 border border-emerald-400/30 rounded-full mb-4 animate-pulse">
           <Check className="w-6 h-6 text-emerald-400" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">You're on the waitlist!</</h3>
+        <h3 className="text-lg font-semibold text-white mb-2">You're on the waitlist!</h3>
         <p className="text-sm text-slate-400">
           We'll notify you when Vienna OS is ready for your use case.
         </p>

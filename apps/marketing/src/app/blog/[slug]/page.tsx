@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import BlogTracker from "./BlogTracker";
 import BlogCTA from "./BlogCTA";
 import NewsletterSignup from "../../../components/NewsletterSignup";
+import ReadingProgressBar from "../../../components/ReadingProgressBar";
 
 const posts: Record<
   string,
@@ -1210,6 +1211,57 @@ export default async function BlogPost({
   const post = posts[slug];
   if (!post) notFound();
 
+  // Generate structured data for the blog post
+  const generateStructuredData = () => {
+    const contentText = post.content.replace(/[#\n*`]/g, "").trim();
+    const description = contentText.slice(0, 160) + (contentText.length > 160 ? "..." : "");
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: description,
+      image: {
+        "@type": "ImageObject",
+        url: "https://regulator.ai/og-image.png",
+        width: 1200,
+        height: 630
+      },
+      author: {
+        "@type": "Person",
+        name: "Max Anderson",
+        url: "https://linkedin.com/in/maxanderson-cornell"
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "ai.ventures",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://regulator.ai/logo.png",
+          width: 200,
+          height: 60
+        }
+      },
+      datePublished: new Date(post.date).toISOString(),
+      dateModified: new Date(post.date).toISOString(),
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `https://regulator.ai/blog/${slug}`
+      },
+      articleSection: post.category,
+      keywords: [
+        "AI governance",
+        "execution control", 
+        "AI agents",
+        "Vienna OS",
+        "risk management",
+        "compliance"
+      ].join(", "),
+      wordCount: post.content.split(/\s+/).length,
+      timeRequired: `PT${post.readTime.split(" ")[0]}M`
+    };
+  };
+
   // Simple markdown-ish rendering
   const renderContent = (content: string) => {
     return content.split("\n").map((line, i) => {
@@ -1283,6 +1335,15 @@ export default async function BlogPost({
 
   return (
     <div className="min-h-screen bg-navy-900">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateStructuredData())
+        }}
+      />
+      
+      <ReadingProgressBar />
       <BlogTracker slug={slug} />
       <nav className="border-b border-navy-700">
         <div className="max-w-3xl mx-auto px-6 py-4">

@@ -431,7 +431,7 @@ export default function TryPage() {
                     <ChevronDown className={`w-4 h-4 text-warm-400 transition-transform ${mobileOpen ? "rotate-180" : ""}`} />
                   </button>
                   {mobileOpen && (
-                    <div className="mt-2 space-y-1.5">
+                    <div className="mt-2 max-h-[400px] overflow-y-auto space-y-1.5">
                       {scenarios.map((s) => (
                         <ScenarioButton
                           key={s.id}
@@ -549,15 +549,17 @@ export default function TryPage() {
                 <h3 className="text-[11px] font-semibold text-warm-500 uppercase tracking-wider mb-2">
                   Scenarios <span className="text-warm-600">↑↓ to navigate</span>
                 </h3>
-                {scenarios.map((s) => (
-                  <ScenarioButton
-                    key={s.id}
-                    scenario={s}
-                    active={selected === s.id}
-                    onClick={() => setSelected(s.id)}
-                    tc={tc}
-                  />
-                ))}
+                <div className="max-h-[500px] overflow-y-auto space-y-1.5 pr-2">
+                  {scenarios.map((s) => (
+                    <ScenarioButton
+                      key={s.id}
+                      scenario={s}
+                      active={selected === s.id}
+                      onClick={() => setSelected(s.id)}
+                      tc={tc}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -655,26 +657,55 @@ export default function TryPage() {
               </div>
             )}
 
-            {/* Execute button */}
-            <button
-              onClick={execute}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:bg-gold-400/50 text-navy-950 font-semibold px-6 py-3 rounded-xl transition text-sm"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="inline-block w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin" />
-                  Running Pipeline…
-                </span>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" /> Execute Pipeline
-                </>
-              )}
-            </button>
-            <p className="text-[10px] text-warm-600 text-center">
-              Press Enter to execute · Simulated locally
-            </p>
+            {/* Risk Tier Legend */}
+            <div className="bg-navy-800/50 border border-navy-700/50 rounded-xl p-4">
+              <h4 className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-3">Risk Tier Legend</h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-6 h-4 rounded bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 font-mono text-[10px] font-bold">T0</span>
+                  <span className="text-warm-300">Auto-approved (low risk)</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-6 h-4 rounded bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-gold-400 font-mono text-[10px] font-bold">T1</span>
+                  <span className="text-warm-300">Single approval required</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-6 h-4 rounded bg-orange-400/10 border border-orange-400/30 flex items-center justify-center text-orange-400 font-mono text-[10px] font-bold">T2</span>
+                  <span className="text-warm-300">Multi-party approval</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-6 h-4 rounded bg-red-400/10 border border-red-400/30 flex items-center justify-center text-red-400 font-mono text-[10px] font-bold">T3</span>
+                  <span className="text-warm-300">Legal/executive review</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="w-6 h-4 rounded bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 font-mono text-[9px] font-bold">⚠</span>
+                  <span className="text-warm-300">Policy violation (deny)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Execute button - made more prominent */}
+            <div className="sticky top-4 z-10">
+              <button
+                onClick={execute}
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 disabled:from-gold-400/50 disabled:to-gold-400/50 text-navy-950 font-bold px-6 py-4 rounded-xl transition text-sm shadow-lg shadow-gold-400/20"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="inline-block w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin" />
+                    Running Pipeline…
+                  </span>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" /> Execute Pipeline
+                  </>
+                )}
+              </button>
+              <p className="text-[10px] text-warm-600 text-center mt-2">
+                Press Enter to execute · Simulated locally
+              </p>
+            </div>
           </div>
 
           {/* ─── Right: Results ─── */}
@@ -737,18 +768,26 @@ export default function TryPage() {
                 <div className="p-6">
                   {interactiveMode === 'scenarios' && (
                     <div className="mb-6">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                        {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
-                          <div key={step} className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300">
-                            <div className="text-lg mb-1">
-                              {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                      <div className="mb-4">
+                        <h4 className="text-sm font-semibold text-warm-400 mb-3">Governance Pipeline Flow</h4>
+                        <div className="flex flex-wrap items-center gap-2 justify-center">
+                          {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
+                            <div key={step} className="flex items-center">
+                              <div className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300 min-w-[100px]">
+                                <div className="text-xl mb-1">
+                                  {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                                </div>
+                                <div className="text-xs text-warm-400 font-medium leading-tight">{step}</div>
+                                <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  Step {i + 1}
+                                </div>
+                              </div>
+                              {i < 7 && (
+                                <ArrowRight className="w-4 h-4 text-warm-600 mx-1 flex-shrink-0" />
+                              )}
                             </div>
-                            <div className="text-xs text-warm-400 font-medium">{step}</div>
-                            <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              Step {i + 1}
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                       
                       <div className="bg-navy-900/30 border border-navy-700/30 rounded-lg p-4">
@@ -907,10 +946,10 @@ export default function TryPage() {
 
                   <div className="text-center">
                     <p className="text-warm-400 text-sm mb-4 max-w-md mx-auto">
-                      {interactiveMode === 'scenarios' && "Select a scenario above and click \"Execute Pipeline\" to see Vienna OS governance in action."}
+                      {interactiveMode === 'scenarios' && "Select a scenario and click \"Execute Pipeline\" to see the governance pipeline in action."}
                       {interactiveMode === 'tier_picker' && "Pick a risk tier above to explore different approval workflows and timing."}
                       {interactiveMode === 'warrant_builder' && "Choose an action above to see how warrants are created with cryptographic proofs."}
-                      Every step is simulated with realistic timing and outcomes.
+                      {!result && " Every step is simulated with realistic timing and outcomes."}
                     </p>
                     
                     <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -1321,7 +1360,7 @@ export default function TryPage() {
       {/* ─── Footer ─── */}
       <footer className="border-t border-navy-700/30 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-warm-600">
-          <span>Vienna OS — Governance infrastructure for autonomous agents</span>
+          <span>Vienna OS — The execution control layer for AI systems</span>
           <a href="/docs" className="text-gold-400 hover:text-gold-300 transition">Documentation →</a>
         </div>
       </footer>
@@ -1347,13 +1386,16 @@ function ScenarioButton({
     <button
       onClick={onClick}
       className={`
-        w-full text-left rounded-xl p-3 transition-all duration-200 border group
+        w-full text-left rounded-xl p-3 transition-all duration-200 border group relative
         ${active
-          ? "border-gold-400/30 bg-gold-400/5 shadow-[0_0_15px_rgba(212,165,32,0.04)]"
+          ? "border-gold-400/40 bg-gold-400/8 shadow-[0_0_20px_rgba(212,165,32,0.1)] ring-1 ring-gold-400/20"
           : "border-navy-700/50 bg-navy-800/50 hover:border-navy-600 hover:bg-navy-800"
         }
       `}
     >
+      {active && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold-400 to-gold-600 rounded-l-xl"></div>
+      )}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <span className="text-base">{scenario.icon}</span>
@@ -1372,13 +1414,13 @@ function ScenarioButton({
             {(scenario as any).riskFactors.slice(0, 3).map((factor: string) => (
               <span
                 key={factor}
-                className="text-[9px] px-1.5 py-0.5 rounded border border-warm-700/30 bg-warm-800/20 text-warm-600 font-mono"
+                className="text-[10px] px-2 py-1 rounded border border-warm-600/40 bg-warm-800/30 text-warm-300 font-mono"
               >
                 {factor.replace(/_/g, ' ')}
               </span>
             ))}
             {(scenario as any).riskFactors.length > 3 && (
-              <span className="text-[9px] text-warm-600">+{(scenario as any).riskFactors.length - 3}</span>
+              <span className="text-[10px] text-warm-500 font-medium">+{(scenario as any).riskFactors.length - 3}</span>
             )}
           </div>
         </div>

@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { App } from './App.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import './index.css';
+import './styles/mobile.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

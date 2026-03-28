@@ -5,7 +5,8 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Zap, Shield, FileText, Users, CheckCircle, X } from 'lucide-react';
+import { Search, Zap, Shield, FileText, Users, CheckCircle, X, Play, Pause, RotateCcw, AlertCircle } from 'lucide-react';
+import { useDashboardStore } from '../../store/dashboardStore.js';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ interface SearchResult {
 }
 
 export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPaletteProps) {
+  const systemStatus = useDashboardStore((state) => state.systemStatus);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +74,41 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
       action: () => onNavigate('compliance')
     },
 
+    // System control actions
+    {
+      id: 'action-pause-execution',
+      type: 'action',
+      title: systemStatus?.paused ? 'Resume Execution' : 'Pause Execution',
+      description: systemStatus?.paused ? 'Resume processing queued envelopes' : 'Temporarily halt all execution',
+      icon: systemStatus?.paused ? Play : Pause,
+      action: async () => {
+        if (systemStatus?.paused) {
+          await fetch('/api/v1/execution/resume', { 
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operator: 'system', reason: 'Command palette resume' })
+          });
+        } else {
+          await fetch('/api/v1/execution/pause', { 
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operator: 'system', reason: 'Command palette pause' })
+          });
+        }
+        onClose();
+      }
+    },
+    {
+      id: 'action-view-queue',
+      type: 'action',
+      title: 'View Queue',
+      description: `${systemStatus?.queue_depth || 0} envelopes queued`,
+      icon: AlertCircle,
+      action: () => onNavigate('now')
+    },
+    
     // Quick actions
     {
       id: 'action-create-policy',
@@ -81,7 +118,6 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
       icon: Shield,
       action: () => {
         onNavigate('policies');
-        // TODO: Could trigger a "create new" state
       }
     },
     {

@@ -1,6 +1,6 @@
 # Vienna OS Deployment Guide
 
-**Last Updated:** 2026-03-26  
+**Last Updated:** 2026-03-28  
 **Maintainer:** Vienna OS Core Team
 
 ---
@@ -10,7 +10,7 @@
 1. [Prerequisites](#prerequisites)
 2. [Environment Configuration](#environment-configuration)
 3. [Database Setup](#database-setup)
-4. [Fly.io Deployment](#flyio-deployment)
+4. [NUC Deployment](#nuc-deployment)
 5. [Health Checks](#health-checks)
 6. [Troubleshooting](#troubleshooting)
 
@@ -22,14 +22,15 @@
 
 - **Node.js** 20+ or 22+ (LTS recommended)
 - **npm** 10+
-- **Fly CLI** ([installation guide](https://fly.io/docs/hands-on/install-flyctl/))
-- **Docker** (for local testing of production builds)
+- **systemd** (for service management)
+- **Cloudflare Tunnel** (cloudflared binary)
 
 ### Required Accounts
 
-- **Fly.io account** (free tier sufficient for development)
+- **Cloudflare account** (for tunnel management)
 - **Anthropic API key** (for Claude models)
 - **GitHub account** (for repository access)
+- **Neon account** (for Postgres database)
 
 ---
 
@@ -147,96 +148,112 @@ fly logs --app vienna-os | grep "Running migrations"
 
 ---
 
-## Fly.io Deployment
+## NUC Deployment
 
 ### Initial Setup
 
-**Step 1: Login to Fly.io**
+**Step 1: Clone Repository**
 
 ```bash
-fly auth login
+cd ~/.openclaw/workspace
+git clone https://github.com/risk-ai/regulator.ai.git regulator-ai-repo
+cd regulator-ai-repo
 ```
 
-**Step 2: Launch App (First Time Only)**
+**Step 2: Install Dependencies**
 
 ```bash
-fly launch --config fly.toml
+cd apps/console/server
+npm install
 ```
 
-This creates the app and initial machine.
-
-**Step 3: Verify Configuration**
+**Step 3: Build Production**
 
 ```bash
-fly status
-fly config show
+npm run build:prod
 ```
 
 ### Deploy Updates
 
-**Build and deploy:**
+**Automated deployment (recommended):**
 
 ```bash
-fly deploy --config fly.toml
+# Auto-deploy script runs every 10 minutes via cron
+~/vienna-auto-deploy.sh
 ```
 
-**Deploy specific image:**
+**Manual deployment:**
 
 ```bash
-fly deploy --image registry.fly.io/vienna-os:latest
+cd ~/.openclaw/workspace/regulator-ai-repo
+git pull origin main
+cd apps/console/server
+npm install
+npm run build:prod
+sudo systemctl restart vienna-console
 ```
 
 ### Configuration Reference
 
-**`fly.toml` breakdown:**
+**systemd service file (`/etc/systemd/system/vienna-console.service`):**
 
-```toml
-app = 'vienna-os'             # App name
-primary_region = 'iad'        # US East (Ashburn, VA)
+```ini
+[Unit]
+Description=Vienna OS Console
+After=network.target
 
-[build]
-  dockerfile = "apps/console/server/Dockerfile"  # Build from monorepo
+[Service]
+Type=simple
+User=maxlawai
+WorkingDirectory=/home/maxlawai/.openclaw/workspace/regulator-ai-repo/apps/console/server
+ExecStart=/usr/bin/node build/server.cjs
+EnvironmentFile=/home/maxlawai/.openclaw/workspace/regulator-ai-repo/.env.console
+Restart=always
+RestartSec=10
 
-[env]
-  HOST = '0.0.0.0'
-  NODE_ENV = 'production'
-  PORT = '3100'
-  CORS_ORIGIN = 'https://vienna-os.fly.dev,https://console.regulator.ai'
-
-[http_service]
-  internal_port = 3100
-  force_https = true
-  auto_stop_machines = false    # Keep running (no auto-sleep)
-  auto_start_machines = true
-  min_machines_running = 1
-
-  [[http_service.checks]]
-    interval = '15s'
-    timeout = '10s'
-    grace_period = '30s'
-    method = 'GET'
-    path = '/health'            # Health check endpoint
-
-[[vm]]
-  memory = '2gb'
-  cpu_kind = 'shared'
-  cpus = 2
+[Install]
+WantedBy=multi-user.target
 ```
 
-### Scaling
+**Cloudflare Tunnel service (`/etc/systemd/system/cloudflared-vienna.service`):**
 
-**Vertical scaling (more resources per machine):**
+```ini
+[Unit]
+Description=Cloudflare Tunnel for Vienna Console
+After=network.target
 
-```bash
-fly scale memory 4096          # 4 GB RAM
-fly scale cpu 4                # 4 vCPUs
+[Service]
+Type=simple
+User=maxlawai
+ExecStart=/usr/local/bin/cloudflared tunnel run vienna-console
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-**Horizontal scaling (more machines):**
+### Service Management
+
+**Check service status:**
 
 ```bash
-fly scale count 3              # 3 machines
-fly scale count 3 --region iad --region dfw  # Multi-region
+sudo systemctl status vienna-console
+sudo systemctl status cloudflared-vienna
+```
+
+**View logs:**
+
+```bash
+sudo journalctl -u vienna-console -f
+sudo journalctl -u cloudflared-vienna -f
+```
+
+**Restart services:**
+
+```bash
+sudo systemctl restart vienna-console
+sudo systemctl restart cloudflared-vienna
 ```
 
 ---
@@ -252,8 +269,8 @@ fly scale count 3 --region iad --region dfw  # Multi-region
 ```json
 {
   "status": "healthy",
-  "timestamp": "2026-03-26T15:30:00.000Z",
-  "version": "8.0.0",
+  "timestamp": "2026-03-28T15:30:00.000Z",
+  "version": "0.10.1",
   "uptime_seconds": 3456789
 }
 ```
@@ -266,7 +283,11 @@ fly scale count 3 --region iad --region dfw  # Multi-region
 ### Manual Health Check
 
 ```bash
-curl https://vienna-os.fly.dev/health
+# External (via Cloudflare Tunnel)
+curl https://console.regulator.ai/health
+
+# Local (direct to NUC)
+curl http://localhost:3100/health
 ```
 
 ### Fly.io Health Check Configuration

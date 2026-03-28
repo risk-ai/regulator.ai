@@ -288,9 +288,34 @@ pnpm build
 NODE_ENV=production node apps/console/server/build/server.cjs
 ```
 
-### NUC Deployment
+### NUC Deployment (Production)
 
-See `scripts/nuc-deploy.sh` for automated deployment.
+Vienna OS Console is deployed on a NUC (maxlawai) with Cloudflare Tunnel for secure external access.
+
+**Deployment process:**
+```bash
+# Auto-deploy via cron (every 10 minutes)
+~/vienna-auto-deploy.sh
+
+# Manual deployment
+cd ~/.openclaw/workspace/regulator-ai-repo
+git pull origin main
+cd apps/console/server
+npm install
+npm run build:prod
+sudo systemctl restart vienna-console
+
+# Check status
+sudo systemctl status vienna-console
+sudo journalctl -u vienna-console -n 50
+```
+
+**Infrastructure:**
+- **Host:** maxlawai NUC
+- **Services:** vienna-console (systemd), cloudflared-vienna
+- **URL:** https://console.regulator.ai → Cloudflare Tunnel
+- **Database:** Neon Postgres (shared with portfolio sites)
+- **Auto-deploy:** Git pull + build + restart (10-minute cron)
 
 ## Troubleshooting
 

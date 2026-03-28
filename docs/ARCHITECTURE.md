@@ -528,9 +528,14 @@ User/Agent Intent
 
 ### Scalability
 
-**Single-instance (SQLite):** 100-500 req/sec  
+**Single-instance (NUC + Neon):** 500-1K req/sec  
 **Multi-instance (Postgres):** 1K-10K req/sec  
 **Multi-region:** 10K+ req/sec
+
+**Current deployment:**
+- **Hardware:** NUC (maxlawai) 
+- **Database:** Neon Postgres (cloud-managed)
+- **Tunnel:** Cloudflare Tunnel (low-latency proxy)
 
 **Bottlenecks:**
 1. AI API calls (Anthropic rate limits: 5K req/min)

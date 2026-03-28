@@ -1,18 +1,18 @@
 # Vienna OS — Current Status
 
-**Date:** 2026-03-26
-**Version:** v0.10.0 (pre-release)
+**Date:** 2026-03-28
+**Version:** v0.10.0 (production)
 
 ---
 
 ## Executive Summary
 
 ✅ **Core engine:** 7 governance services operational (300+ modules)
-✅ **Console:** 16 pages built, pending Fly.io deploy
+✅ **Console:** 16 pages built, deployed on NUC infrastructure
 ✅ **Marketing site:** 28+ routes live at regulator.ai
 ✅ **SDK:** TypeScript SDK with framework adapters (npm publish pending)
 ✅ **Integrations:** Slack, Email, GitHub, Webhook adapters + OpenClaw plugin
-⏸️ **Production deployment:** Console backend needs `fly deploy` from NUC
+✅ **Production deployment:** Console backend running on maxlawai NUC via Cloudflare Tunnel
 
 ---
 
@@ -21,30 +21,32 @@
 | Component | URL | Status |
 |---|---|---|
 | Marketing site | https://regulator.ai | ✅ Live (Vercel) |
-| Console | https://console.regulator.ai | ⚠️ Minimal runtime (needs real backend) |
+| Console | https://console.regulator.ai | ✅ Live (NUC + Cloudflare Tunnel) |
 | Try playground | https://regulator.ai/try | ✅ Live (5 scenarios + custom) |
 | Stripe checkout | regulator.ai/signup | ✅ Live (Team $49/mo, Business $99/mo) |
 | GitHub | github.com/risk-ai/regulator.ai | ✅ 160+ commits |
 
-## What's Built (Not Yet Deployed)
+## What's Built (Production Ready)
 
-| Component | Status | Blocker |
+| Component | Status | Notes |
 |---|---|---|
-| Console backend (16 pages) | ✅ Code complete | Needs `fly deploy` from NUC |
-| Framework API (REST) | ✅ Code complete | Needs console deploy |
-| OpenClaw governance plugin | ✅ Code complete | Needs API running |
-| TypeScript SDK | ✅ Code complete | Needs npm publish |
-| Multi-tenant auth | ✅ Code complete | Needs production validation |
+| Console backend (16 pages) | ✅ Deployed | Running on NUC via systemd |
+| Framework API (REST) | ✅ Live | Available at console.regulator.ai |
+| OpenClaw governance plugin | ✅ Code complete | Ready for API integration |
+| TypeScript SDK | ✅ Code complete | Awaiting npm publish credentials |
+| Multi-tenant auth | ✅ Production validated | Running with Neon Postgres |
 
 ---
 
 ## Architecture
 
 ```
-Marketing (Vercel) ←→ Console (Fly.io) ←→ Vienna Engine (vienna-lib)
-                                                    ↑
-                                               Agent SDKs
-                                          (OpenClaw, LangChain, etc.)
+Marketing (Vercel) ←→ Console (NUC + Cloudflare Tunnel) ←→ Vienna Engine (vienna-lib)
+                                    ↑                                ↑
+                            maxlawai infrastructure            Agent SDKs
+                        (systemd + auto-deploy cron)     (OpenClaw, LangChain, etc.)
+                                    ↓
+                              Neon Postgres
 ```
 
 ### Core Engine (services/vienna-lib/)
@@ -79,9 +81,30 @@ Marketing (Vercel) ←→ Console (Fly.io) ←→ Vienna Engine (vienna-lib)
 
 ---
 
+## Infrastructure Details
+
+### NUC Deployment (maxlawai)
+- **Host:** maxlawai (local NUC)
+- **Services:** 
+  - `vienna-console` (systemd service)
+  - `cloudflared-vienna` (Cloudflare Tunnel daemon)
+- **Tunnel ID:** 2aeefb18-ab8c-4580-a23f-8cdaa0425484
+- **Tunnel Name:** vienna-console
+- **Auto-deployment:** ~/vienna-auto-deploy.sh (cron every 10 minutes)
+- **Database:** Neon Postgres (shared with portfolio sites)
+- **Logs:** `sudo journalctl -u vienna-console -f`
+
+### Migration Complete
+✅ Fly.io app DESTROYED (vienna-os.fly.dev offline)  
+✅ DNS updated to point console.regulator.ai → Cloudflare Tunnel  
+✅ Database migrated from Fly Postgres to Neon  
+✅ All services operational on NUC infrastructure
+
+---
+
 ## Critical Path
 
-1. **Console deploy** — Max runs `fly deploy` from NUC → real backend live
+1. ~~**Console deploy**~~ ✅ **COMPLETE** — Console live on NUC via Cloudflare Tunnel
 2. **npm publish** — `@vienna-os/sdk` to npm → developers can install
 3. **Open-source** — Make repo public on GitHub → community adoption
 4. **OpenClaw self-integration** — Govern our own agent fleet → case study #1

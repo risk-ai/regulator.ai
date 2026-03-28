@@ -14,7 +14,7 @@ _Updated: 2026-03-26 14:25 EDT | 76 commits today_
 - ✅ Policy versioning + evaluation caching + conflict detection
 - ✅ Error boundaries + retry logic
 - ✅ Console deployed on NUC + Cloudflare Tunnel (console.regulator.ai)
-- ✅ Fly.io decommissioned — replaced with local NUC + systemd + auto-deploy cron
+- ✅ Infrastructure migrated from Fly.io to NUC (maxlawai) + systemd + auto-deploy cron
 
 ## Phase 2: Enterprise Auth ✅ COMPLETE
 - ✅ RBAC (admin/operator/viewer/agent, 30+ permissions)

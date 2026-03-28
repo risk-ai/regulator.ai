@@ -300,7 +300,7 @@ contacts:
 - [ ] **Web Console** (https://console.regulator.ai)
 - [ ] **Authentication systems** (JWT, SSO, MFA)
 - [ ] **Database layer** (PostgreSQL with RLS)
-- [ ] **Infrastructure** (Fly.io deployment)
+- [ ] **Infrastructure** (NUC + Cloudflare Tunnel deployment)
 - [ ] **Third-party integrations** (monitoring, logging)
 
 ### Out-of-Scope Systems
@@ -368,7 +368,7 @@ const infraTests = [
 
 ### Vendor Selection Criteria
 - [ ] **Industry certifications** (OSCP, CISSP, CEH)
-- [ ] **Cloud platform expertise** (AWS, Fly.io experience)  
+- [ ] **Cloud platform expertise** (AWS, Cloudflare, NUC deployment experience)  
 - [ ] **API security specialization** (REST, GraphQL, JWT)
 - [ ] **Compliance experience** (SOC 2, ISO 27001)
 - [ ] **Reference customers** in similar industries

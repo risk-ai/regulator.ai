@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-03-28
+
+### Infrastructure
+- **BREAKING:** Migrated from Fly.io to NUC (maxlawai) deployment
+- Console now runs on local NUC infrastructure with Cloudflare Tunnel
+- Fly.io app (vienna-os) DESTROYED and decommissioned
+- Database migrated from Fly Postgres to Neon (shared with portfolio sites)
+- Auto-deploy system via cron (~/vienna-auto-deploy.sh every 10 minutes)
+- Systemd services: vienna-console, cloudflared-vienna
+- URL unchanged: https://console.regulator.ai (now via Cloudflare Tunnel)
+
+### Changed
+- Deployment process now uses NUC + Cloudflare instead of Fly.io
+- All documentation updated to reflect new infrastructure
+- Health checks adapted for local deployment + tunnel setup
+
 ### Added
 - **Custom Actions** — Dynamic action registration system for tenant-specific actions
 - **Visual Policy Builder** — No-code governance rules with 11 operators (==, !=, >, <, >=, <=, contains, starts_with, ends_with, in, not_in)

@@ -1,7 +1,8 @@
-# Vienna Console - Deployment Runbook
+# Vienna Console - Deployment Runbook (NUC Infrastructure)
 
-**Version:** 1.0  
-**Last Updated:** 2026-03-27
+**Version:** 2.0  
+**Last Updated:** 2026-03-28  
+**Infrastructure:** NUC (maxlawai) + Cloudflare Tunnel
 
 ---
 
@@ -39,6 +40,9 @@
 ### 1. Prepare
 
 ```bash
+# SSH to NUC (if remote)
+ssh maxlawai
+
 # Navigate to repo
 cd ~/.openclaw/workspace/regulator-ai-repo
 
@@ -96,8 +100,11 @@ sudo journalctl -u vienna-console -n 50 --no-pager
 ### 5. Verify
 
 ```bash
-# Health check
+# Health check (local)
 curl http://localhost:3100/health | jq
+
+# Health check (external via Cloudflare Tunnel)
+curl https://console.regulator.ai/health | jq
 
 # Detailed health
 curl http://localhost:3100/api/v1/system/health/detailed | jq '{overall_status: .data.overall_status}'
@@ -112,6 +119,9 @@ curl http://localhost:3100/api/v1/dashboard/bootstrap | jq '{success, objectives
 
 # Check metrics
 curl http://localhost:3100/metrics | head -20
+
+# Verify Cloudflare Tunnel
+sudo systemctl status cloudflared-vienna
 ```
 
 ### 6. Monitor
@@ -121,10 +131,13 @@ curl http://localhost:3100/metrics | head -20
 sudo journalctl -u vienna-console -f
 
 # Check Cloudflare Tunnel
-sudo systemctl status cloudflared-vienna
+sudo journalctl -u cloudflared-vienna -f
 
 # Monitor metrics
 watch -n 5 'curl -s http://localhost:3100/health | jq'
+
+# Check auto-deploy cron
+crontab -l | grep vienna-auto-deploy
 ```
 
 ---

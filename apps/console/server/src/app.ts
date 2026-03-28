@@ -29,6 +29,7 @@ import { eventStream } from './sse/eventStream.js';
 import { createAuthMiddleware } from './middleware/requireAuth.js';
 import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.js';
+import { createCacheMiddleware } from './middleware/cache.js';
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
@@ -54,6 +55,7 @@ import { createFilesRouter } from './routes/files.js';
 import { createRuntimeRouter } from './routes/runtime.js';
 import { createCommandsRouter } from './routes/commands.js';
 import { createSystemRouter } from './routes/system.js';
+import { createSystemHealthRouter } from './routes/system-health.js';
 import { createRecoveryRouter } from './routes/recovery.js';
 import { createWorkflowRouter } from './routes/workflows.js';
 import { createModelsRouter } from './routes/models.js';
@@ -99,7 +101,7 @@ export function createApp(
   // Middleware
   // ============================================================================
 
-  // Security headers (helmet)
+  // Security headers (helmet) - Enhanced for production
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -107,14 +109,23 @@ export function createApp(
         scriptSrc: ["'self'", "'unsafe-inline'"], // Vite dev needs unsafe-inline
         styleSrc: ["'self'", "'unsafe-inline'"], // Tailwind needs unsafe-inline
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://vienna-os.fly.dev"],
+        connectSrc: ["'self'", "https://vienna-os.fly.dev", "https://console.regulator.ai"],
         fontSrc: ["'self'", "data:"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
         frameSrc: ["'none'"],
+        upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
       },
     },
-    crossOriginEmbedderPolicy: false, // Allow embedding for iframes
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true,
+    },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    noSniff: true,
+    xssFilter: true,
   }));
 
   // CORS - environment-driven origins
@@ -264,10 +275,11 @@ export function createApp(
   app.use(`${apiPrefix}/dashboard/bootstrap`, requireAuth, createBootstrapRouter(bootstrapService));
 
   // System routes (read-only, no auth for status monitoring)
-  app.use(`${apiPrefix}/system/status`, createStatusRouter(viennaRuntime));
-  app.use(`${apiPrefix}/system/diagnostics`, createDiagnosticsRouter(viennaRuntime));
-  app.use(`${apiPrefix}/system/providers`, createProvidersRouter(viennaRuntime, providerHealthService));
-  app.use(`${apiPrefix}/system`, createSystemRouter(systemNowService)); // Phase 5E: Unified "now" view
+  app.use(`${apiPrefix}/system/status`, createCacheMiddleware(30), createStatusRouter(viennaRuntime));
+  app.use(`${apiPrefix}/system/diagnostics`, createStatusRouter(viennaRuntime));
+  app.use(`${apiPrefix}/system/providers`, createCacheMiddleware(15), createProvidersRouter(viennaRuntime, providerHealthService));
+  app.use(`${apiPrefix}/system`, createCacheMiddleware(10), createSystemRouter(systemNowService)); // Phase 5E: Unified "now" view
+  app.use(createSystemHealthRouter()); // Enhanced health dashboard
   
   // Assistant status (Phase 1: State Truth Model)
   app.use(`${apiPrefix}/status/assistant`, createAssistantRouter(viennaRuntime, providerHealthService));

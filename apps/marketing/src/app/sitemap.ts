@@ -33,6 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/roi`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/compare/guardrails-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/compare/arthur-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/security`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/integrations`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     // Company

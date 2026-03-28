@@ -11,13 +11,36 @@ export const metadata: Metadata = {
 const posts = [
   {
     slug: "why-ai-agents-need-governance",
-    title: "Why AI Agents Need a Governance Layer (And Why Guardrails Aren't Enough)",
+    title: "Why Your AI Agents Need a Governance Layer (Before Something Goes Wrong)",
     excerpt:
-      "Content guardrails filter inputs and outputs. Governance controls execution authority. Here's why the distinction matters as agents move from demos to production.",
-    date: "March 25, 2026",
+      "Picture this: 3:17 AM, your phone buzzes with alerts. Your AI agent just scaled your cluster to 500 nodes. Monthly cost? $60,000. This actually happened to us, and it's why we built Vienna OS.",
+    date: "March 27, 2026",
     readTime: "8 min",
     category: "Governance",
     categoryColor: "text-purple-400 bg-purple-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "warrants-vs-guardrails",
+    title: "Warrants vs Guardrails: A Better Model for AI Agent Control",
+    excerpt:
+      "Guardrails react to outputs after AI models decide. Warrants govern actions before they execute. Here's why the distinction matters for autonomous agents with real-world consequences.",
+    date: "March 27, 2026",
+    readTime: "8 min",
+    category: "Architecture",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "soc2-for-ai-systems",
+    title: "SOC 2 Compliance for AI Agent Systems: What Auditors Want to See",
+    excerpt:
+      "Vienna OS became the first AI agent governance platform to achieve SOC 2 Type I compliance. Here's what we learned about bridging traditional IT controls and autonomous AI systems.",
+    date: "March 27, 2026",
+    readTime: "12 min",
+    category: "Compliance",
+    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Max Anderson",
   },
   {
     slug: "cryptographic-warrants-explained",
@@ -28,6 +51,7 @@ const posts = [
     readTime: "10 min",
     category: "Architecture",
     categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Team",
   },
   {
     slug: "eu-ai-act-agent-compliance",
@@ -38,6 +62,7 @@ const posts = [
     readTime: "6 min",
     category: "Compliance",
     categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Team",
   },
   {
     slug: "risk-tiering-framework",
@@ -48,6 +73,7 @@ const posts = [
     readTime: "7 min",
     category: "Framework",
     categoryColor: "text-amber-400 bg-amber-500/10",
+    author: "Team",
   },
 ];
 

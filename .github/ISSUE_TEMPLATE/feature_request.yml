@@ -1,0 +1,99 @@
+name: ✨ Feature Request
+description: Suggest a new feature for Regulator.ai
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide detailed information to help us understand your needs.
+
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem Description
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: Describe the problem or limitation you're experiencing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see implemented
+      placeholder: A clear and concise description of what you want to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives-considered
+    attributes:
+      label: Alternatives Considered
+      description: Alternative solutions or features you've considered
+      placeholder: Describe any alternative solutions or workarounds you've considered...
+
+  - type: dropdown
+    id: use-case-category
+    attributes:
+      label: Use Case Category
+      description: Which area of Regulator.ai does this feature relate to?
+      options:
+        - Governance (Policy management, compliance frameworks)
+        - SDK (Developer tools, APIs, libraries)
+        - Console (Web interface, dashboard, monitoring)
+        - Integrations (Third-party services, webhooks)
+        - Compliance (Auditing, reporting, certification)
+        - Security (Authentication, authorization, encryption)
+        - Performance (Optimization, scaling, reliability)
+        - Documentation (Guides, tutorials, examples)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this feature to you?
+      options:
+        - Critical (Blocking adoption/usage)
+        - High (Significantly improves workflow)
+        - Medium (Nice to have, improves experience)
+        - Low (Minor enhancement)
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Describe this feature as a user story
+      placeholder: "As a [type of user], I want [functionality] so that [benefit/value]..."
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What specific conditions must be met for this feature to be considered complete?
+      placeholder: |
+        - [ ] Feature works as described
+        - [ ] Documentation is updated
+        - [ ] Tests are included
+        - [ ] ...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, mockups, examples, or references
+      placeholder: Add any other context, screenshots, mockups, or links here...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

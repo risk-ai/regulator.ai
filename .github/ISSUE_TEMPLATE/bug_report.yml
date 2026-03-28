@@ -1,0 +1,104 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve Regulator.ai
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk-tier
+    attributes:
+      label: Risk Tier Involved
+      description: Which risk tier is affected by this issue?
+      options:
+        - T0 (Critical Infrastructure)
+        - T1 (Financial/Legal)
+        - T2 (Business Operations)
+        - T3 (General Applications)
+        - Unknown/Not Applicable
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Critical (System unusable, data loss)
+        - High (Major functionality broken)
+        - Medium (Feature impaired but usable)
+        - Low (Minor issue, workaround available)
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Technical environment details
+      placeholder: |
+        - OS: (e.g., Ubuntu 22.04, macOS 14.0)
+        - Node.js version: (e.g., 18.17.0)
+        - SDK version: (e.g., @regulator/core@1.2.3)
+        - Browser (if applicable): (e.g., Chrome 120.0)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem (screenshots, logs, etc.)
+      placeholder: Add any additional context, logs, or screenshots here...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions & General Discussion
+    url: https://github.com/risk-ai/regulator.ai/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation & Support
+    url: https://docs.regulator.ai
+    about: Check our documentation for guides and API references
+  - name: 🔒 Security Issues
+    url: https://github.com/risk-ai/regulator.ai/security/advisories/new
+    about: Report security vulnerabilities privately

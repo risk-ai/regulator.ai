@@ -11,7 +11,7 @@ const agentFrameworks = [
     language: "bash",
     example: `curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
+  -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
     "action": "send_email",
     "source": {"platform": "openclaw", "agent_id": "agt-123"},
@@ -37,7 +37,7 @@ class ViennaTool(BaseTool):
     def _run(self, action: str, **kwargs) -> str:
         response = requests.post(
             "https://console.regulator.ai/api/v1/agent/intent",
-            headers={"Authorization": f"Bearer {VIENNA_KEY}"},
+            headers={"Authorization": f"Bearer {VIENNA_API_KEY}"},
             json={
                 "action": action,
                 "source": {"platform": "langchain"},
@@ -58,7 +58,7 @@ import requests
 def governed_callback(output):
     response = requests.post(
         "https://console.regulator.ai/api/v1/agent/intent",
-        headers={"Authorization": f"Bearer {VIENNA_KEY}"},
+        headers={"Authorization": f"Bearer {VIENNA_API_KEY}"},
         json={
             "action": output.get("action", "crew_task"),
             "source": {"platform": "crewai"},
@@ -84,7 +84,7 @@ def governed_callback(output):
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": \`Bearer \${process.env.VIENNA_AGENT_KEY}\`
+        "Authorization": \`Bearer \${process.env.VIENNA_API_KEY}\`
       },
       body: JSON.stringify({
         action,

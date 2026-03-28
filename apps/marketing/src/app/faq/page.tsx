@@ -37,7 +37,19 @@ const faqs = [
     questions: [
       {
         q: "How do I get started?",
-        a: "Sign up for the free Community plan at regulator.ai/signup. You'll get instant access to the sandbox console at console.regulator.ai. You can submit your first governed intent in under 60 seconds.",
+        a: (
+          <>
+            Sign up for the free Community plan at{" "}
+            <a href="https://regulator.ai/signup" className="text-purple-400 hover:text-purple-300">
+              regulator.ai/signup
+            </a>
+            . You'll get instant access to the sandbox console at{" "}
+            <a href="https://console.regulator.ai" className="text-purple-400 hover:text-purple-300">
+              console.regulator.ai
+            </a>
+            . You can submit your first governed intent in under 60 seconds.
+          </>
+        ),
       },
       {
         q: "Can I self-host Vienna OS?",
@@ -58,7 +70,7 @@ const faqs = [
       },
       {
         q: "What compliance certifications do you have?",
-        a: "We're currently operational with rate limiting, encryption in transit, session management, and append-only audit trails. SOC 2 Type I audit is planned for Q4 2026, HIPAA BAA for H1 2027, and FedRAMP assessment in 2027 if government traction warrants it.",
+        a: "We're currently operational with rate limiting, encryption in transit, session management, and append-only audit trails. SOC 2 Type I audit is planned for Q4 2026, HIPAA BAA for H1 2027, and FedRAMP assessment in 2027 contingent on government sector demand.",
       },
       {
         q: "How long is audit data retained?",
@@ -79,7 +91,15 @@ const faqs = [
       },
       {
         q: "Can I try before I buy?",
-        a: "Absolutely. Visit regulator.ai/try to test the governance API live — no signup required. The Community tier gives you full sandbox console access for free.",
+        a: (
+          <>
+            Absolutely. Visit{" "}
+            <a href="https://regulator.ai/try" className="text-purple-400 hover:text-purple-300">
+              regulator.ai/try
+            </a>
+            {" "}to test the governance API live — no signup required. The Community tier gives you full sandbox console access for free.
+          </>
+        ),
       },
     ],
   },
@@ -117,7 +137,7 @@ export default function FAQPage() {
                 {section.questions.map((faq) => (
                   <div key={faq.q} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
                     <h3 className="text-white font-semibold text-sm mb-2">{faq.q}</h3>
-                    <p className="text-slate-400 text-sm leading-relaxed">{faq.a}</p>
+                    <div className="text-slate-400 text-sm leading-relaxed">{faq.a}</div>
                   </div>
                 ))}
               </div>

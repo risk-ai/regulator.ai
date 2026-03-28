@@ -156,7 +156,7 @@ export default function BlogPage() {
       <footer className="border-t border-navy-700 py-8 mt-12">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-xs text-slate-600">
-            © 2026 ai.ventures. All rights reserved.
+            © 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.
           </span>
         </div>
       </footer>

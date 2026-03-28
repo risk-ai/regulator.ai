@@ -17,13 +17,13 @@ const releases = [
       { type: "feat", text: "3 framework integration examples (LangChain, CrewAI, AutoGen)" },
       { type: "feat", text: "Email onboarding drip sequence (4 automated emails)" },
       { type: "feat", text: "GA4 conversion funnel tracking" },
-      { type: "feat", text: "Mobile-responsive across all pages" },
+      { type: "improved", text: "Mobile-responsive across all pages" },
       { type: "feat", text: "GitHub launch-ready (issue templates, security policy, PR template)" },
       { type: "feat", text: "3 technical blog posts published" },
       { type: "docs", text: "Comprehensive FAQ with 10 common questions" },
       { type: "docs", text: "Step-by-step integration guide with code samples" },
       { type: "feat", text: "OpenGraph social cards for all key pages" },
-      { type: "feat", text: "Enhanced sitemap with complete page discovery" },
+      { type: "improved", text: "Enhanced sitemap with complete page discovery" },
     ],
   },
   {
@@ -73,7 +73,7 @@ const releases = [
       { type: "feat", text: "Monolithic deployment (frontend + backend) on Fly.io" },
       { type: "feat", text: "Stripe checkout integration (Team/Business plans)" },
       { type: "feat", text: "Interactive 'Try it Live' playground" },
-      { type: "fix", text: "Auth schema compatibility improvements" },
+      { type: "improved", text: "Auth schema compatibility improvements" },
       { type: "feat", text: "Rate limiting and security headers" },
       { type: "feat", text: "Error boundaries and toast notifications" },
     ],
@@ -97,7 +97,9 @@ const releases = [
 
 const typeColors: Record<string, { bg: string; text: string; label: string }> = {
   feat: { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "NEW" },
-  fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIX" },
+  fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIXED" },
+  docs: { bg: "bg-amber-500/10", text: "text-amber-400", label: "DOCS" },
+  improved: { bg: "bg-purple-500/10", text: "text-purple-400", label: "IMPROVED" },
   breaking: { bg: "bg-red-500/10", text: "text-red-400", label: "BREAKING" },
 };
 
@@ -160,7 +162,7 @@ export default function ChangelogPage() {
 
       <footer className="border-t border-navy-700 py-8 mt-12">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <span className="text-xs text-slate-600">© 2026 ai.ventures. All rights reserved.</span>
+          <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
         </div>
       </footer>
     </div>

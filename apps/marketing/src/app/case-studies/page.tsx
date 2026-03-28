@@ -79,7 +79,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       { step: "Verification", description: "Post-trade verification ensures compliance with warrant" }
     ],
     technicalDetails: {
-      tier: "T0-T3 Risk-based",
+      tier: "T0-T3 Risk-Based Tiering",
       policies: ["SEC Rule 15c3-5", "Volcker Rule", "MiFID II", "Position Limits", "Market Risk Controls"],
       integrations: ["FIX Protocol", "Bloomberg Terminal", "Risk Management Systems", "Trade Surveillance"],
       timeline: "6-8 weeks implementation + regulatory review"
@@ -134,7 +134,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       { step: "Audit Logging", description: "Complete audit trail logged for 7-year retention" }
     ],
     technicalDetails: {
-      tier: "T1 HIPAA-scoped",
+      tier: "T1 HIPAA-Scoped Approvals",
       policies: ["HIPAA Privacy Rule", "HIPAA Security Rule", "HITECH Act", "Minimum Necessary", "Patient Consent"],
       integrations: ["Epic EHR", "Cerner", "HL7 FHIR", "Medical Imaging", "Insurance Systems"],
       timeline: "8-10 weeks implementation + HIPAA audit"
@@ -188,7 +188,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       { step: "Professional Compliance", description: "Final work product verified for bar compliance" }
     ],
     technicalDetails: {
-      tier: "T1-T2 Attorney Supervised",
+      tier: "T1-T2 Attorney-Supervised Approvals",
       policies: ["ABA Model Rules", "State Bar Requirements", "Client Confidentiality", "Attorney-Client Privilege", "Professional Liability"],
       integrations: ["iManage", "NetDocuments", "Westlaw", "LexisNexis", "Court Filing Systems"],
       timeline: "10-12 weeks implementation + bar association review"
@@ -242,7 +242,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       { step: "Verification", description: "Post-deployment health checks and compliance verification" }
     ],
     technicalDetails: {
-      tier: "T0-T2 Environment-based",
+      tier: "T0-T2 Environment-Based Tiering",
       policies: ["Deployment Windows", "Canary Requirements", "Rollback Controls", "Security Scanning", "Load Testing"],
       integrations: ["Kubernetes", "Jenkins", "GitLab CI", "Monitoring Tools", "Incident Management"],
       timeline: "4-6 weeks implementation + performance testing"

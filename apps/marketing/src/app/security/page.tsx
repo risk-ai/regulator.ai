@@ -126,12 +126,12 @@ const complianceRoadmap = [
   {
     status: "planned",
     label: "HIPAA BAA",
-    detail: "H1 2027 — healthcare vertical",
+    detail: "H1 2027 — for healthcare deployments",
   },
   {
     status: "planned",
     label: "FedRAMP",
-    detail: "2027 — if government traction",
+    detail: "2027 — contingent on government sector demand",
   },
 ];
 
@@ -276,7 +276,7 @@ export default function SecurityPage() {
               Privacy
             </a>
             <span className="text-xs text-slate-600">
-              © 2026 ai.ventures
+              © 2026 Technetwork 2 LLC dba ai.ventures
             </span>
           </div>
         </div>

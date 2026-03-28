@@ -3259,7 +3259,7 @@ spec:
           <div className="flex items-center gap-6">
             <a href="/" className="text-xs text-slate-600 hover:text-slate-400 transition">Home</a>
             <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
-            <span className="text-xs text-slate-600">© 2026 ai.ventures</span>
+            <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           </div>
         </div>
       </footer>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Shield, ArrowRight, ArrowLeft, Check, Zap } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 const plans = [
   {
@@ -71,11 +72,28 @@ export default function SignupPage() {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  // Track page view
+  useEffect(() => {
+    analytics.signupPageView();
+  }, []);
+
+  // Track when form is started (first input interaction)
+  const [formStarted, setFormStarted] = useState(false);
+  const handleFormStart = () => {
+    if (!formStarted) {
+      setFormStarted(true);
+      analytics.signupFormStart();
+    }
+  };
+
   const currentPlan = plans.find((p) => p.id === selectedPlan)!;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    // Track form submit
+    analytics.signupFormSubmit(selectedPlan);
 
     try {
       // Always capture the signup
@@ -109,6 +127,9 @@ export default function SignupPage() {
 
     setSubmitting(false);
     setStep("done");
+    
+    // Track signup success
+    analytics.signupSuccess(selectedPlan);
   };
 
   return (
@@ -141,7 +162,7 @@ export default function SignupPage() {
               credit card required.
             </p>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
               {plans.map((plan) => (
                 <button
                   key={plan.id}
@@ -229,6 +250,7 @@ export default function SignupPage() {
                   required
                   type="text"
                   value={form.name}
+                  onFocus={handleFormStart}
                   onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                   }

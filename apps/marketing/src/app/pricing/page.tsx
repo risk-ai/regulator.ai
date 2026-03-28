@@ -2,6 +2,7 @@
 
 import { Check, X, Zap, Building2, Shield, Rocket, Star, ArrowLeft } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { analytics } from "@/lib/analytics";
 
 const tiers = [
   {
@@ -173,6 +174,11 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 }
 
 export default function PricingPage() {
+  // Track pricing page view
+  useEffect(() => {
+    analytics.pricingView();
+  }, []);
+
   return (
     <main className="min-h-screen bg-navy-900 text-white">
       {/* Navigation */}
@@ -212,7 +218,7 @@ export default function PricingPage() {
 
       {/* Pricing Cards with improved design */}
       <div className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiers.map((tier, i) => (
             <ScrollReveal key={tier.name} delay={i * 0.1}>
               <div
@@ -262,6 +268,7 @@ export default function PricingPage() {
 
                 <a
                   href={tier.ctaHref}
+                  onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
                   className={`block text-center py-3 rounded-xl font-semibold text-sm transition mb-6 ${
                     tier.highlight
                       ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg hover:shadow-purple-500/25"
@@ -313,6 +320,7 @@ export default function PricingPage() {
             </p>
             <a
               href="/contact?subject=enterprise"
+              onClick={() => analytics.ctaClick('volume_discount', 'talk_to_sales')}
               className="inline-block bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
             >
               Talk to Sales
@@ -354,10 +362,18 @@ export default function PricingPage() {
               Join teams already using Vienna OS to secure their agent deployments.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25">
+              <a 
+                href="/signup" 
+                onClick={() => analytics.ctaClick('pricing_bottom', 'start_free_trial')}
+                className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
+              >
                 Start Free Trial
               </a>
-              <a href="/docs" className="bg-navy-800 hover:bg-navy-700 text-white font-medium px-8 py-3 rounded-xl transition border border-navy-600 hover:border-navy-500">
+              <a 
+                href="/docs" 
+                onClick={() => analytics.ctaClick('pricing_bottom', 'read_docs')}
+                className="bg-navy-800 hover:bg-navy-700 text-white font-medium px-8 py-3 rounded-xl transition border border-navy-600 hover:border-navy-500"
+              >
                 Read the Docs
               </a>
             </div>

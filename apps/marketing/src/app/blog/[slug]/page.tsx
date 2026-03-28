@@ -1,6 +1,8 @@
 import { Shield, ArrowLeft, Clock } from "lucide-react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import BlogTracker from "./BlogTracker";
+import BlogCTA from "./BlogCTA";
 
 const posts: Record<
   string,
@@ -601,6 +603,7 @@ export default async function BlogPost({
 
   return (
     <div className="min-h-screen bg-navy-900">
+      <BlogTracker slug={slug} />
       <nav className="border-b border-navy-700">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <a
@@ -634,20 +637,7 @@ export default async function BlogPost({
 
         <article className="prose-vienna">{renderContent(post.content)}</article>
 
-        <div className="mt-12 bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-xl p-8 text-center">
-          <h3 className="text-xl font-bold text-white mb-3">
-            Ready to govern your agents?
-          </h3>
-          <p className="text-slate-400 mb-6 text-sm">
-            Start with the free tier. No credit card required.
-          </p>
-          <a
-            href="/signup"
-            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm"
-          >
-            Get Started Free
-          </a>
-        </div>
+        <BlogCTA slug={slug} />
       </main>
 
       <footer className="border-t border-navy-700 py-8 mt-12">

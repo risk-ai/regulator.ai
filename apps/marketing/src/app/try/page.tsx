@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Shield, ArrowLeft, ArrowRight, Play, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 /* ─── Types ─── */
 interface PipelineStep {
@@ -178,6 +179,10 @@ const stepIcons: Record<string, string> = {
 
 /* ─── Component ─── */
 export default function TryPage() {
+  // Track demo page view
+  useEffect(() => {
+    analytics.tryDemoStart();
+  }, []);
   const [selected, setSelected] = useState("wire_transfer");
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -277,6 +282,9 @@ export default function TryPage() {
       const data: PipelineResult = await res.json();
       setResult(data);
       animatePipeline(data);
+      
+      // Track demo completion
+      analytics.tryDemoComplete();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Pipeline simulation failed");
     } finally {
@@ -1286,18 +1294,21 @@ export default function TryPage() {
             <div className="grid sm:grid-cols-3 gap-3">
               <a 
                 href="/signup" 
+                onClick={() => analytics.ctaClick('try_demo', 'start_free_trial')}
                 className="bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
               >
                 Start Free Trial →
               </a>
               <a 
                 href="/docs" 
+                onClick={() => analytics.ctaClick('try_demo', 'read_documentation')}
                 className="bg-navy-700 hover:bg-navy-600 border border-navy-600 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
               >
                 Read Documentation
               </a>
               <a 
                 href="/contact" 
+                onClick={() => analytics.ctaClick('try_demo', 'schedule_demo')}
                 className="text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 text-sm font-medium px-4 py-3 rounded-xl transition text-center"
               >
                 Schedule Demo

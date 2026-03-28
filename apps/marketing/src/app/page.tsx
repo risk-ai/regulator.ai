@@ -22,6 +22,7 @@ import {
   Play,
   FileText,
 } from "lucide-react";
+import { analytics } from "@/lib/analytics";
 
 /* ============================================================
    ANIMATION COMPONENTS
@@ -424,7 +425,11 @@ export default function Home() {
                 <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">{label}</a>
               ))}
               <a href="https://console.regulator.ai" className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">Console</a>
-              <a href="/signup" className="text-sm bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-5 py-2.5 rounded-lg transition font-semibold tracking-wide shadow-lg hover:shadow-purple-500/25">
+              <a 
+                href="/signup" 
+                onClick={() => analytics.ctaClick('navigation', 'get_started')}
+                className="text-sm bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-5 py-2.5 rounded-lg transition font-semibold tracking-wide shadow-lg hover:shadow-purple-500/25"
+              >
                 Get Started
               </a>
             </div>
@@ -440,7 +445,13 @@ export default function Home() {
               <a href="/demo" className="block text-sm text-slate-300 hover:text-white transition">Demo</a>
               <a href="/docs" className="block text-sm text-slate-300 hover:text-white transition">Docs</a>
               <a href="/blog" className="block text-sm text-slate-300 hover:text-white transition">Blog</a>
-              <a href="/signup" className="block text-sm bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-2 rounded-lg text-center font-semibold mt-2 shadow-lg">Get Started</a>
+              <a 
+                href="/signup" 
+                onClick={() => analytics.ctaClick('mobile_menu', 'get_started')}
+                className="block text-sm bg-gradient-to-r from-purple-600 to-purple-500 text-white px-4 py-3 rounded-lg text-center font-semibold mt-2 shadow-lg min-h-[44px] flex items-center justify-center"
+              >
+                Get Started
+              </a>
             </div>
           )}
 
@@ -456,31 +467,47 @@ export default function Home() {
                 </div>
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-8 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-8 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
                 AI <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 bg-clip-text text-transparent">Governance</span> for{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
                   Enterprises
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
+              <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
                 The control plane that sits between agent intent and execution.
                 Policy enforcement, cryptographic <span className="text-amber-400 font-medium">warrants</span>, operator approvals,
                 and immutable audit trails — for every AI action.
               </p>
-              <div className="flex items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
-                <a href="/signup" className="group inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 hover:from-purple-500 hover:via-purple-400 hover:to-blue-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold text-sm shadow-2xl hover:shadow-purple-500/30 transform hover:scale-105 hover:-translate-y-1">
+              <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
+                <a 
+                  href="/signup" 
+                  onClick={() => analytics.ctaClick('hero', 'start_free')}
+                  className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 hover:from-purple-500 hover:via-purple-400 hover:to-blue-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold text-sm shadow-2xl hover:shadow-purple-500/30 transform hover:scale-105 hover:-translate-y-1 w-full sm:w-auto min-h-[44px]"
+                >
                   Start Free <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </a>
-                <a href="/try" className="inline-flex items-center gap-2 bg-navy-800/60 backdrop-blur-sm hover:bg-navy-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-sm border border-navy-600/50 hover:border-purple-500/50 shadow-xl">
+                <a 
+                  href="/try" 
+                  onClick={() => analytics.ctaClick('hero', 'try_live_api')}
+                  className="inline-flex items-center justify-center gap-2 bg-navy-800/60 backdrop-blur-sm hover:bg-navy-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-sm border border-navy-600/50 hover:border-purple-500/50 shadow-xl w-full sm:w-auto min-h-[44px]"
+                >
                   Try Live API →
                 </a>
               </div>
-              <div className="flex items-center gap-8 animate-fade-up" style={{ animationDelay: "0.4s" }}>
-                <a href="/demo" className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group">
+              <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+                <a 
+                  href="/demo" 
+                  onClick={() => analytics.ctaClick('hero', 'watch_demo')}
+                  className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group"
+                >
                   <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   Watch Demo
                 </a>
-                <a href="/docs" className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group">
+                <a 
+                  href="/docs" 
+                  onClick={() => analytics.ctaClick('hero', 'read_docs')}
+                  className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group"
+                >
                   <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   Read Docs
                 </a>
@@ -621,8 +648,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-900/10 via-transparent to-blue-900/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08),transparent)]" />
         
-        <div className="relative max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             <div className="text-center trust-signal">
               <div className="flex items-center justify-center mb-3">
                 <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
@@ -794,7 +821,7 @@ export default function Home() {
           </div>
 
           {/* Enhanced platform breadth with better visual separation */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: "Frameworks", value: "OpenClaw · LangChain · CrewAI · AutoGen · REST", color: "purple" },
               { label: "Deploy", value: "Cloud · On-prem · Hybrid · Air-gapped", color: "blue" },
@@ -828,7 +855,7 @@ export default function Home() {
           </div>
         </ScrollReveal>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {[
             {
               industry: "Financial Services",
@@ -976,12 +1003,14 @@ export default function Home() {
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <a 
                 href="/signup" 
+                onClick={() => analytics.ctaClick('industry_cta', 'start_free_trial')}
                 className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold text-sm"
               >
                 Start Free Trial
               </a>
               <a 
                 href="/contact" 
+                onClick={() => analytics.ctaClick('industry_cta', 'schedule_demo')}
                 className="bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-medium text-sm border border-navy-600"
               >
                 Schedule Demo
@@ -1084,7 +1113,7 @@ export default function Home() {
             </div>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { name: "Community", price: "Free", period: "", desc: "Open-source core", features: ["5 agents", "Full pipeline", "Sandbox console", "Community support"], cta: "Get Started", href: "/signup?plan=community", pop: false },
               { name: "Team", price: "$49", period: "/agent/mo", desc: "Cloud-hosted teams", features: ["25 agents", "Cloud console", "Policy templates", "Email support"], cta: "Get Started", href: "/signup?plan=team", pop: false },
@@ -1125,6 +1154,7 @@ export default function Home() {
                   
                   <a 
                     href={t.href} 
+                    onClick={() => analytics.pricingPlanClick(t.name.toLowerCase())}
                     className={`text-center text-sm font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 ${
                       t.pop 
                         ? "bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white shadow-lg hover:shadow-purple-500/30" 
@@ -1146,7 +1176,7 @@ export default function Home() {
           CREDIBILITY
           ============================================ */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: Shield, color: "text-purple-400", title: "Cornell Law × ai.ventures", desc: "Built by a legal technologist who understands both compliance frameworks and distributed systems." },
             { icon: Server, color: "text-blue-400", title: "Production Operational", desc: "Live at console.regulator.ai. 9 governance engines, custom action types, full audit trail. Not vaporware." },
@@ -1176,13 +1206,25 @@ export default function Home() {
               Free tier available. No credit card. Start in under 60 seconds.
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm">
+              <a 
+                href="/signup" 
+                onClick={() => analytics.ctaClick('final_cta', 'start_free')}
+                className="bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm"
+              >
                 Start Free
               </a>
-              <a href="/try" className="bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition text-sm border border-navy-700">
+              <a 
+                href="/try" 
+                onClick={() => analytics.ctaClick('final_cta', 'try_live_api')}
+                className="bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition text-sm border border-navy-700"
+              >
                 Try Live API
               </a>
-              <a href="/contact" className="text-sm text-slate-400 hover:text-white transition">
+              <a 
+                href="/contact" 
+                onClick={() => analytics.ctaClick('final_cta', 'contact_sales')}
+                className="text-sm text-slate-400 hover:text-white transition"
+              >
                 Contact Sales →
               </a>
             </div>
@@ -1433,7 +1475,7 @@ immutable: true 🔒`,
               <button
                 onClick={playDemo}
                 disabled={isPlaying}
-                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 text-white px-4 py-2 rounded-lg transition text-sm font-medium"
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-600/50 text-white px-4 py-3 rounded-lg transition text-sm font-medium min-h-[44px]"
               >
                 <Play className="w-4 h-4" />
                 {isPlaying ? "Playing..." : "Play Demo"}
@@ -1559,6 +1601,7 @@ immutable: true 🔒`,
         <div className="mt-12 text-center">
           <a 
             href="/try" 
+            onClick={() => analytics.ctaClick('demo_section', 'try_interactive_demo')}
             className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold text-sm"
           >
             Try Interactive Demo <ArrowRight className="w-4 h-4" />
@@ -1605,7 +1648,7 @@ function WarrantSpecimen() {
           </div>
           <div className="stamp bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Verified</div>
         </div>
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {[
             { title: "Scope", rows: [["action", "restart_service"], ["target", "api-gateway"], ["strategy", "rolling"]] },
             { title: "Authority", rows: [["issuer", "operator:jane"], ["risk tier", "T1"], ["policy", "svc-restart-v2"]] },

@@ -1,6 +1,14 @@
+"use client";
+
 import { Shield, ArrowRight, CheckCircle, Zap, BookOpen, Users } from "lucide-react";
+import { useEffect } from "react";
+import { analytics } from "@/lib/analytics";
 
 export default function SuccessPage() {
+  useEffect(() => {
+    // Track signup success - we'll use a default plan since this is the generic success page
+    analytics.signupSuccess('unknown');
+  }, []);
   return (
     <div className="min-h-screen bg-navy-900 flex items-center justify-center p-6">
       <div className="max-w-2xl mx-auto text-center">

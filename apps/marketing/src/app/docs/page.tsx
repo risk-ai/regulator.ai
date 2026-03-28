@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { analytics } from "@/lib/analytics";
 import {
   Shield,
   ArrowLeft,
@@ -355,6 +356,11 @@ export default function DocsPage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
+  // Track docs page view
+  useEffect(() => {
+    analytics.docsView('overview');
+  }, []);
+
   /* Intersection Observer for active section tracking */
   useEffect(() => {
     const allIds = sections.flatMap((s) => [s.id, ...(s.children?.map((c) => c.id) || [])]);
@@ -364,6 +370,8 @@ export default function DocsPage() {
           if (entry.isIntersecting) {
             const id = entry.target.id;
             setActiveSection(id);
+            // Track docs section view
+            analytics.docsView(id);
             // Expand parent section
             const parent = sections.find((s) => s.id === id || s.children?.some((c) => c.id === id));
             if (parent) {

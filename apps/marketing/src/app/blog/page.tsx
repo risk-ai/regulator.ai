@@ -1,12 +1,11 @@
-import { Shield, ArrowLeft, ArrowRight, Clock } from "lucide-react";
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "Insights on AI governance, agent compliance, and the future of autonomous systems.",
-};
+import { Shield, ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import { useEffect } from "react";
+import Link from "next/link";
+import { analytics } from "@/lib/analytics";
+
+// Note: metadata moved to metadata.ts for client components
 
 const posts = [
   {
@@ -78,6 +77,15 @@ const posts = [
 ];
 
 export default function BlogPage() {
+  // Track blog page view
+  useEffect(() => {
+    analytics.blogView('index');
+  }, []);
+
+  const handlePostClick = (slug: string) => {
+    analytics.blogView(slug);
+  };
+
   return (
     <div className="min-h-screen bg-navy-900">
       <nav className="border-b border-navy-700">
@@ -116,6 +124,7 @@ export default function BlogPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
+              onClick={() => handlePostClick(post.slug)}
               className="block bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-navy-600 transition group"
             >
               <div className="flex items-center gap-3 mb-3">

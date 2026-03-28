@@ -418,9 +418,9 @@ export default function Home() {
                 ["#platform", "Platform"],
                 ["#industries", "Industries"],
                 ["#pricing", "Pricing"],
+                ["/compare", "Compare"],
                 ["/demo", "Demo"],
                 ["/docs", "Docs"],
-                ["/blog", "Blog"],
               ].map(([href, label]) => (
                 <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">{label}</a>
               ))}

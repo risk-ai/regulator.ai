@@ -12,6 +12,19 @@ const COOKIE_NAME = 'vienna_session';
 export function createAuthMiddleware(authService: AuthService) {
   return async function requireAuth(req: Request, res: Response, next: NextFunction) {
     try {
+      // DEV MODE: Bypass auth for localhost testing
+      if (process.env.NODE_ENV === 'development' || process.env.DISABLE_AUTH === 'true') {
+        (req as any).session = {
+          sessionId: 'dev-session',
+          operator: 'dev-operator',
+          tenantId: 'system',
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 86400000).toISOString(),
+          lastActivity: new Date().toISOString(),
+        };
+        return next();
+      }
+      
       const sessionId = req.cookies[COOKIE_NAME];
       
       if (!sessionId) {

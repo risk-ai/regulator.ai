@@ -27,25 +27,17 @@ function getPool() {
       pool = vercelPg.sql;
     } else {
       // Use native pg for local development
-      // For local development, use Unix socket if no password provided
-      const isLocal = !process.env.POSTGRES_URL || 
-                      process.env.POSTGRES_URL.includes('localhost') ||
-                      process.env.POSTGRES_URL.includes('///');
-      
-      if (isLocal) {
-        // Extract database name from connection string if present
-        const dbMatch = process.env.POSTGRES_URL?.match(/\/\/\/([^?]+)/);
-        const database = dbMatch ? dbMatch[1] : 'vienna_dev';
-        
-        pool = new Pool({
-          host: '/var/run/postgresql',  // Unix socket
-          database,
-          port: 5432
-        });
-      } else {
+      // Always use connection string if provided
+      if (process.env.POSTGRES_URL) {
         pool = new Pool({
           connectionString: process.env.POSTGRES_URL,
-          options: '-c search_path=regulator,public'
+        });
+      } else {
+        // Fallback to default local connection
+        pool = new Pool({
+          host: '/var/run/postgresql',  // Unix socket
+          database: 'vienna_dev',
+          port: 5432
         });
       }
     }

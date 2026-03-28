@@ -9,7 +9,7 @@
   ╚═══╝  ╚═╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝     ╚═════╝ ╚══════╝
 ```
 
-[![npm](https://img.shields.io/npm/v/vienna-os?color=cb3837&logo=npm)](https://www.npmjs.com/package/vienna-os)
+[![npm](https://img.shields.io/npm/v/@vienna-os/sdk?color=cb3837&logo=npm)](https://www.npmjs.com/package/@vienna-os/sdk)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/risk-ai/regulator.ai/ci.yml?branch=main&logo=github)](https://github.com/risk-ai/regulator.ai/actions)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

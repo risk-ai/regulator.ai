@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 22
       - name: Run core engine tests
-        run: node --test services/vienna-lib/test/*.test.js || true
+        run: node --test services/vienna-lib/test/*.test.js
       - name: Run integration tests
         run: node scripts/integration-test.js || true
 

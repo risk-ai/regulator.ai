@@ -1,0 +1,40 @@
+name: 🔌 Integration Request
+description: Request integration with an AI framework, tool, or platform
+title: "[Integration] "
+labels: ["integration", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for requesting an integration! Vienna OS aims to work with every major AI framework.
+  - type: input
+    id: framework
+    attributes:
+      label: Framework / Tool / Platform
+      description: What would you like Vienna OS to integrate with?
+      placeholder: e.g., LangGraph, Semantic Kernel, Haystack, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: How would you use this integration? What governance scenarios matter most?
+      placeholder: Describe your use case...
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How important is this to you?
+      options:
+        - Nice to have
+        - Would significantly improve my workflow
+        - Blocking adoption
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other details, links, or examples?

@@ -221,6 +221,10 @@ export class ProviderHealthChecker {
   
   /**
    * Update State Graph with provider health
+   * 
+   * Note: This method is deprecated and should be removed.
+   * Provider health is now tracked in ProviderHealthService only.
+   * State Graph updates are not needed for provider health.
    */
   private async updateStateGraph(
     providerId: string,
@@ -230,22 +234,9 @@ export class ProviderHealthChecker {
     errorMessage: string | null = null,
     latencyMs?: number
   ): Promise<void> {
-    try {
-      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
-      const stateGraph = getStateGraph();
-      await stateGraph.initialize();
-      
-      // Update provider
-      stateGraph.updateProvider(providerId, {
-        status,
-        health,
-        last_health_check: timestamp,
-        error_count: errorMessage ? 1 : 0,
-        last_error_at: errorMessage ? timestamp : null,
-      });
-      
-    } catch (error) {
-      console.error(`[ProviderHealthChecker] Failed to update State Graph for ${providerId}:`, error);
-    }
+    // Deprecated: Provider health is tracked in ProviderHealthService
+    // State Graph updates removed to avoid SQLite/Postgres conflicts
+    // This method is kept for API compatibility but does nothing
+    return;
   }
 }

@@ -5,20 +5,33 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
 
   return [
+    // Core pages
     { url: baseUrl, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: `${baseUrl}/try`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/signup`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/compare`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/demo`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    // Docs
     { url: `${baseUrl}/docs`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${baseUrl}/docs/integration-guide`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/docs/api-reference`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    // Blog
     { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/blog/how-execution-warrants-work`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/blog/vienna-os-vs-guardrails-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/blog/governing-langchain-agents`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/why-ai-agents-need-governance`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/warrants-vs-guardrails`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/soc2-for-ai-systems`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/cryptographic-warrants-explained`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/eu-ai-act-agent-compliance`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/risk-tiering-framework`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    // Industry & features
+    { url: `${baseUrl}/case-studies`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/security`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/integrations`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    // Company
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/changelog`, lastModified: now, changeFrequency: "weekly", priority: 0.5 },

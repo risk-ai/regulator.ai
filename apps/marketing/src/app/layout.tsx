@@ -7,35 +7,35 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 
 export const metadata: Metadata = {
   title: {
-    default: "Vienna OS — Governed AI Execution Layer",
+    default: "Vienna OS — The Execution Control Layer for AI Systems",
     template: "%s | Vienna OS",
   },
   description:
-    "Enterprise-grade governance layer for autonomous AI systems. Intent Gateway, policy enforcement, operator approval, cryptographic audit trails.",
+    "Control what AI agents can do — not just what they say. Cryptographic execution warrants, risk tiering, policy enforcement, and immutable audit trails for autonomous AI systems.",
   metadataBase: new URL("https://regulator.ai"),
   openGraph: {
-    title: "Vienna OS — The control plane agents answer to",
+    title: "Vienna OS — The Execution Control Layer for AI Systems",
     description:
-      "Enterprise governance for AI agents. Policy enforcement, cryptographic warrants, operator approval workflows, and immutable audit trails.",
+      "Control what AI agents can do. Cryptographic warrants, risk tiering, policy enforcement, and immutable audit trails.",
     url: "https://regulator.ai",
     siteName: "Vienna OS",
     type: "website",
     locale: "en_US",
     images: [
       {
-        url: "/og.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Vienna OS — Governed AI Execution Layer",
+        alt: "Vienna OS — The Execution Control Layer for AI Systems",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vienna OS — The control plane agents answer to",
+    title: "Vienna OS — The Execution Control Layer for AI Systems",
     description:
-      "Enterprise governance for AI agents. Policy enforcement, cryptographic warrants, and immutable audit trails.",
-    images: ["/og.png"],
+      "Control what AI agents can do. Cryptographic warrants, risk tiering, and immutable audit trails.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -95,12 +95,7 @@ export default function RootLayout({
       "name": "Community Edition",
       "description": "Free tier with 5 agents and full pipeline"
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "ratingCount": "127",
-      "bestRating": "5"
-    },
+    
     "features": [
       "AI Agent Intent Gateway",
       "Policy-as-Code Engine", 

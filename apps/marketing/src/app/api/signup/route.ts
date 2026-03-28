@@ -204,7 +204,7 @@ function generateWelcomeEmailHtml({ name, firstName, email, plan, company }: {
         <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#718096;">
           See Vienna OS in action with our shared sandbox environment.
         </p>
-        <a href="https://vienna-os.fly.dev" style="display:inline-flex;align-items:center;background-color:#667eea;color:#ffffff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;">
+        <a href="https://console.regulator.ai" style="display:inline-flex;align-items:center;background-color:#667eea;color:#ffffff;text-decoration:none;padding:8px 16px;border-radius:6px;font-size:14px;font-weight:500;">
           Open Console →
         </a>
       </div>
@@ -218,7 +218,7 @@ function generateWelcomeEmailHtml({ name, firstName, email, plan, company }: {
           Try a simple governance request to see how Vienna works.
         </p>
         <div style="background-color:#1a202c;color:#e2e8f0;padding:12px;border-radius:6px;font-size:12px;font-family:Monaco,'Cascadia Code','Roboto Mono',Consolas,'Times New Roman',monospace;overflow:auto;">
-curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\<br/>
+curl -X POST https://console.regulator.ai/api/v1/agent/intent \\<br/>
 &nbsp;&nbsp;-H "Content-Type: application/json" \\<br/>
 &nbsp;&nbsp;-d '{"action":"check_health","source":"test"}'
         </div>

@@ -362,7 +362,7 @@ export default function SignupPage() {
 
                 <div className="flex items-center gap-4">
                   <a
-                    href="https://vienna-os.fly.dev"
+                    href="https://console.regulator.ai"
                     className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Open Console
@@ -382,7 +382,7 @@ export default function SignupPage() {
                     via the API:
                   </p>
                   <pre className="font-mono text-xs text-slate-400 mt-2 overflow-x-auto">
-{`curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+{`curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
   -d '{"action":"check_health","source":"openclaw","tenant_id":"test"}'`}
                   </pre>
@@ -398,7 +398,7 @@ export default function SignupPage() {
                 </p>
                 <div className="flex items-center gap-4">
                   <a
-                    href="https://vienna-os.fly.dev"
+                    href="https://console.regulator.ai"
                     className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox
@@ -423,7 +423,7 @@ export default function SignupPage() {
                 </p>
                 <div className="flex items-center gap-4">
                   <a
-                    href="https://vienna-os.fly.dev"
+                    href="https://console.regulator.ai"
                     className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox

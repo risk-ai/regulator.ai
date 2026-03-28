@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <div className="prose prose-invert prose-slate max-w-none space-y-6 text-slate-300 text-sm leading-relaxed">
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">1. Introduction</h2>
-            <p>Technetwork 2 LLC dba ai.ventures (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;) operates the Vienna OS governance platform at regulator.ai and vienna-os.fly.dev. This Privacy Policy explains how we collect, use, and protect your information.</p>
+            <p>Technetwork 2 LLC dba ai.ventures (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;) operates the Vienna OS governance platform at regulator.ai and console.regulator.ai. This Privacy Policy explains how we collect, use, and protect your information.</p>
           </section>
 
           <section>

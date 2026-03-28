@@ -9,7 +9,7 @@ const agentFrameworks = [
     status: "live" as const,
     desc: "First-class native integration. OpenClaw agents submit intents through the Agent Intent Bridge.",
     language: "bash",
-    example: `curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+    example: `curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
   -d '{
@@ -36,7 +36,7 @@ class ViennaTool(BaseTool):
     
     def _run(self, action: str, **kwargs) -> str:
         response = requests.post(
-            "https://vienna-os.fly.dev/api/v1/agent/intent",
+            "https://console.regulator.ai/api/v1/agent/intent",
             headers={"Authorization": f"Bearer {VIENNA_KEY}"},
             json={
                 "action": action,
@@ -57,7 +57,7 @@ import requests
 
 def governed_callback(output):
     response = requests.post(
-        "https://vienna-os.fly.dev/api/v1/agent/intent",
+        "https://console.regulator.ai/api/v1/agent/intent",
         headers={"Authorization": f"Bearer {VIENNA_KEY}"},
         json={
             "action": output.get("action", "crew_task"),
@@ -80,7 +80,7 @@ def governed_callback(output):
     language: "typescript",
     example: `const vienna = {
   async submitIntent(action: string, parameters: any) {
-    const response = await fetch("https://vienna-os.fly.dev/api/v1/agent/intent", {
+    const response = await fetch("https://console.regulator.ai/api/v1/agent/intent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -354,7 +354,7 @@ export default function IntegrationsPage() {
 {`import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
-  baseUrl: 'https://vienna-os.fly.dev',
+  baseUrl: 'https://console.regulator.ai',
   apiKey: process.env.VIENNA_API_KEY!
 });
 

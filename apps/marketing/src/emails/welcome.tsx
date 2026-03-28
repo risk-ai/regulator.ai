@@ -111,7 +111,7 @@ export function WelcomeEmail({ name, plan, email }: WelcomeEmailProps) {
             }}>
               See Vienna OS in action with our shared sandbox environment.
             </p>
-            <a href="https://vienna-os.fly.dev" style={{
+            <a href="https://console.regulator.ai" style={{
               display: 'inline-flex',
               alignItems: 'center',
               backgroundColor: '#667eea',
@@ -152,7 +152,7 @@ export function WelcomeEmail({ name, plan, email }: WelcomeEmailProps) {
               fontFamily: 'Monaco,"Cascadia Code","Roboto Mono",Consolas,"Times New Roman",monospace',
               overflow: 'auto'
             }}>
-              curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \<br/>
+              curl -X POST https://console.regulator.ai/api/v1/agent/intent \<br/>
               {"  "}-H "Content-Type: application/json" \<br/>
               {"  "}-d '{`{"action":"check_health","source":"test"}`}'
             </div>

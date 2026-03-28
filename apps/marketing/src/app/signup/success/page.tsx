@@ -76,12 +76,12 @@ export default function SuccessPage() {
               <div className="flex items-center gap-3">
                 <span className="text-slate-500 w-20">URL:</span>
                 <a
-                  href="https://vienna-os.fly.dev"
+                  href="https://console.regulator.ai"
                   className="text-purple-400 hover:text-purple-300 transition break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  vienna-os.fly.dev
+                  console.regulator.ai
                 </a>
               </div>
               <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export default function SuccessPage() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://vienna-os.fly.dev"
+              href="https://console.regulator.ai"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-4 rounded-xl transition font-semibold text-lg"

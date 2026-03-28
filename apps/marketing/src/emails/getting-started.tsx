@@ -137,7 +137,7 @@ export function GettingStartedEmail({ name, email }: GettingStartedEmailProps) {
             flexDirection: 'row',
             flexWrap: 'wrap'
           }}>
-            <a href="https://vienna-os.fly.dev" style={{
+            <a href="https://console.regulator.ai" style={{
               display: 'inline-flex',
               alignItems: 'center',
               backgroundColor: '#667eea',

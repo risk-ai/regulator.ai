@@ -429,7 +429,7 @@ export default function DocsPage() {
               GitHub <ExternalLink className="w-3 h-3" />
             </a>
             <a
-              href="https://vienna-os.fly.dev"
+              href="https://console.regulator.ai"
               className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Console
@@ -520,7 +520,7 @@ export default function DocsPage() {
           </P>
 
           <Callout type="info">
-            The production API is live at <InlineCode>https://vienna-os.fly.dev</InlineCode>.
+            The production API is live at <InlineCode>https://console.regulator.ai</InlineCode>.
             All endpoints use the <InlineCode>/api/v1</InlineCode> prefix. For self-hosted
             deployments, replace the base URL with your own.
           </Callout>
@@ -533,7 +533,7 @@ export default function DocsPage() {
             session token.
           </P>
 
-          <CodeBlock language="bash" title="curl — Login">{`curl -X POST https://vienna-os.fly.dev/api/v1/auth/login \\
+          <CodeBlock language="bash" title="curl — Login">{`curl -X POST https://console.regulator.ai/api/v1/auth/login \\
   -H "Content-Type: application/json" \\
   -d '{
     "username": "your-email@company.com",
@@ -561,7 +561,7 @@ export default function DocsPage() {
           </P>
 
           <CodeBlock language="typescript" title="TypeScript">{`const VIENNA_API_KEY = process.env.VIENNA_API_KEY;
-const BASE_URL = "https://vienna-os.fly.dev";
+const BASE_URL = "https://console.regulator.ai";
 
 const headers = {
   "Content-Type": "application/json",
@@ -572,7 +572,7 @@ const headers = {
 import requests
 
 VIENNA_API_KEY = os.environ["VIENNA_API_KEY"]
-BASE_URL = "https://vienna-os.fly.dev"
+BASE_URL = "https://console.regulator.ai"
 
 headers = {
     "Content-Type": "application/json",
@@ -587,7 +587,7 @@ headers = {
             permissions.
           </P>
 
-          <CodeBlock language="bash" title="curl — Register Agent">{`curl -X POST https://vienna-os.fly.dev/api/v1/fleet \\
+          <CodeBlock language="bash" title="curl — Register Agent">{`curl -X POST https://console.regulator.ai/api/v1/fleet \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -630,7 +630,7 @@ headers = {
             verification.
           </P>
 
-          <CodeBlock language="bash" title="curl — Submit Intent">{`curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+          <CodeBlock language="bash" title="curl — Submit Intent">{`curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
   -d '{
@@ -773,7 +773,7 @@ submit_intent("send_email", {
             happened.
           </P>
 
-          <CodeBlock language="bash" title="curl — Query Audit Trail">{`curl https://vienna-os.fly.dev/api/v1/audit \\
+          <CodeBlock language="bash" title="curl — Query Audit Trail">{`curl https://console.regulator.ai/api/v1/audit \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G \\
   -d "limit=10" \\
@@ -1453,7 +1453,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "username": "string — Email or username",
   "password": "string — Account password"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/auth/login \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/auth/login \\
   -H "Content-Type: application/json" \\
   -d '{"username":"admin@company.com","password":"s3cureP@ss"}'`}
             responseJson={`{
@@ -1476,7 +1476,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="POST"
             path="/api/v1/auth/logout"
             description="Invalidate the current session. The session token and any associated cookies are revoked immediately."
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/auth/logout \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/auth/logout \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1505,7 +1505,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "context": "object (optional) — Additional metadata for policy evaluation",
   "idempotency_key": "string (optional) — Prevents duplicate processing"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
   -d '{
@@ -1552,7 +1552,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "reason": "string — Operator's stated reason for the action",
   "override_tier": "string (optional) — 'T0' | 'T1' | 'T2' (admin only)"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/intent \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/intent \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -1584,7 +1584,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/policies"
             description="List all active policies. Supports pagination and filtering by action type, risk tier, or status."
-            curl={`curl https://vienna-os.fly.dev/api/v1/policies \\
+            curl={`curl https://console.regulator.ai/api/v1/policies \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G -d "limit=20" -d "offset=0" -d "enabled=true"`}
             responseJson={`{
@@ -1630,7 +1630,7 @@ Intent → Policy Engine → T2 → Approval Queue
     "reason": "string (optional) — Explanation for deny/escalate"
   }
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/policies \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/policies \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -1658,7 +1658,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/policies/:id"
             description="Get a single policy by ID. Returns the full policy definition including conditions, action, and metadata."
-            curl={`curl https://vienna-os.fly.dev/api/v1/policies/pol-001 \\
+            curl={`curl https://console.regulator.ai/api/v1/policies/pol-001 \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1692,7 +1692,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "conditions": "array (optional) — Full replacement",
   "action": "object (optional)"
 }`}
-            curl={`curl -X PUT https://vienna-os.fly.dev/api/v1/policies/pol-001 \\
+            curl={`curl -X PUT https://console.regulator.ai/api/v1/policies/pol-001 \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"priority": 110, "enabled": true}'`}
@@ -1710,7 +1710,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="DELETE"
             path="/api/v1/policies/:id"
             description="Delete a policy. The policy is soft-deleted (retained in audit trail) but immediately removed from the evaluation set."
-            curl={`curl -X DELETE https://vienna-os.fly.dev/api/v1/policies/pol-001 \\
+            curl={`curl -X DELETE https://console.regulator.ai/api/v1/policies/pol-001 \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1732,7 +1732,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "parameters": "object — Simulated parameters",
   "context": "object (optional) — Simulated context"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/policies/evaluate \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/policies/evaluate \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -1762,7 +1762,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/policies/templates"
             description="List available industry policy templates. Templates provide pre-configured rule sets for common compliance requirements."
-            curl={`curl https://vienna-os.fly.dev/api/v1/policies/templates \\
+            curl={`curl https://console.regulator.ai/api/v1/policies/templates \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1798,7 +1798,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/policies/evaluations"
             description="Audit trail of policy evaluations. Shows historical evaluation results including which rules matched and why."
-            curl={`curl https://vienna-os.fly.dev/api/v1/policies/evaluations \\
+            curl={`curl https://console.regulator.ai/api/v1/policies/evaluations \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G -d "limit=10" -d "decision=deny"`}
             responseJson={`{
@@ -1828,7 +1828,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/action-types"
             description="List all registered action types. Action types define the schema for intent parameters and the default risk tier."
-            curl={`curl https://vienna-os.fly.dev/api/v1/action-types \\
+            curl={`curl https://console.regulator.ai/api/v1/action-types \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1862,7 +1862,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "default_risk_tier": "string — 'T0' | 'T1' | 'T2'",
   "schema": "object — Parameter validation schema (JSON Schema subset)"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/action-types \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/action-types \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -1890,7 +1890,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/action-types/:id"
             description="Get a single action type by ID with full schema definition."
-            curl={`curl https://vienna-os.fly.dev/api/v1/action-types/act-001 \\
+            curl={`curl https://console.regulator.ai/api/v1/action-types/act-001 \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1919,7 +1919,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "default_risk_tier": "string (optional)",
   "schema": "object (optional) — Full replacement"
 }`}
-            curl={`curl -X PUT https://vienna-os.fly.dev/api/v1/action-types/act-024 \\
+            curl={`curl -X PUT https://console.regulator.ai/api/v1/action-types/act-024 \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"default_risk_tier": "T2"}'`}
@@ -1937,7 +1937,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="DELETE"
             path="/api/v1/action-types/:id"
             description="Remove an action type. Agents submitting intents for this action type will receive a validation error."
-            curl={`curl -X DELETE https://vienna-os.fly.dev/api/v1/action-types/act-024 \\
+            curl={`curl -X DELETE https://console.regulator.ai/api/v1/action-types/act-024 \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -1956,7 +1956,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "action_type": "string — Action type name",
   "parameters": "object — Parameters to validate"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/action-types/validate \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/action-types/validate \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -1982,7 +1982,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/fleet"
             description="Get fleet overview with all registered agents, their status, trust scores, and recent activity summary."
-            curl={`curl https://vienna-os.fly.dev/api/v1/fleet \\
+            curl={`curl https://console.regulator.ai/api/v1/fleet \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G -d "status=active" -d "limit=50"`}
             responseJson={`{
@@ -2016,7 +2016,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/fleet/:agentId"
             description="Get detailed information about a specific agent including trust history, capabilities, and configuration."
-            curl={`curl https://vienna-os.fly.dev/api/v1/fleet/agt-9c8b7a6f \\
+            curl={`curl https://console.regulator.ai/api/v1/fleet/agt-9c8b7a6f \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -2049,7 +2049,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/fleet/:agentId/activity"
             description="Get activity log for a specific agent. Shows recent intents, executions, and governance events."
-            curl={`curl https://vienna-os.fly.dev/api/v1/fleet/agt-9c8b7a6f/activity \\
+            curl={`curl https://console.regulator.ai/api/v1/fleet/agt-9c8b7a6f/activity \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G -d "limit=20"`}
             responseJson={`{
@@ -2088,7 +2088,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "reason": "string — Why the agent is being suspended",
   "duration": "string (optional) — 'indefinite' | ISO 8601 duration (e.g., 'PT24H')"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/fleet/agt-9c8b7a6f/suspend \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/fleet/agt-9c8b7a6f/suspend \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"reason": "Anomalous behavior detected", "duration": "PT24H"}'`}
@@ -2112,7 +2112,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "trust_score": "number — New trust score (0-100)",
   "reason": "string — Explanation for the adjustment"
 }`}
-            curl={`curl -X PUT https://vienna-os.fly.dev/api/v1/fleet/agt-9c8b7a6f/trust \\
+            curl={`curl -X PUT https://console.regulator.ai/api/v1/fleet/agt-9c8b7a6f/trust \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"trust_score": 85, "reason": "Promoted to production-ready after review"}'`}
@@ -2135,7 +2135,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/integrations"
             description="List configured integrations (Slack, email, webhooks, etc.). Integrations receive notifications for approvals, alerts, and audit events."
-            curl={`curl https://vienna-os.fly.dev/api/v1/integrations \\
+            curl={`curl https://console.regulator.ai/api/v1/integrations \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -2173,7 +2173,7 @@ Intent → Policy Engine → T2 → Approval Queue
   "config": "object — Type-specific configuration",
   "events": "string[] — Events to subscribe to"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/integrations \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/integrations \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -2198,7 +2198,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="POST"
             path="/api/v1/integrations/:id/test"
             description="Send a test event to an integration to verify connectivity. Returns success/failure with diagnostics."
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/integrations/intg-003/test \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/integrations/intg-003/test \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -2215,7 +2215,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/integrations/types"
             description="List available integration types with their configuration schemas."
-            curl={`curl https://vienna-os.fly.dev/api/v1/integrations/types \\
+            curl={`curl https://console.regulator.ai/api/v1/integrations/types \\
   -H "Authorization: Bearer $VIENNA_API_KEY"`}
             responseJson={`{
   "success": true,
@@ -2248,7 +2248,7 @@ Intent → Policy Engine → T2 → Approval Queue
     "risk_tiers": "string[] (optional)"
   }
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/compliance/reports/generate \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/compliance/reports/generate \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -2272,7 +2272,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/compliance/reports/:id/pdf"
             description="Download a generated compliance report as PDF. Returns 202 if the report is still generating."
-            curl={`curl https://vienna-os.fly.dev/api/v1/compliance/reports/rpt-001/pdf \\
+            curl={`curl https://console.regulator.ai/api/v1/compliance/reports/rpt-001/pdf \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -o compliance-report.pdf`}
             response="Binary PDF file (application/pdf) or 202 Accepted if still generating"
@@ -2285,7 +2285,7 @@ Intent → Policy Engine → T2 → Approval Queue
             method="GET"
             path="/api/v1/approvals"
             description="List pending and recent approvals. Filterable by status, agent, and risk tier."
-            curl={`curl https://vienna-os.fly.dev/api/v1/approvals \\
+            curl={`curl https://console.regulator.ai/api/v1/approvals \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -G -d "status=pending" -d "limit=20"`}
             responseJson={`{
@@ -2319,7 +2319,7 @@ Intent → Policy Engine → T2 → Approval Queue
             body={`{
   "comment": "string (optional) — Approval notes for audit trail"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/approvals/apr-6b8c0d1e/approve \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/approvals/apr-6b8c0d1e/approve \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"comment": "Approved — hotfix deploy is urgent"}'`}
@@ -2343,7 +2343,7 @@ Intent → Policy Engine → T2 → Approval Queue
             body={`{
   "reason": "string — Why the intent was denied (logged in audit trail)"
 }`}
-            curl={`curl -X POST https://vienna-os.fly.dev/api/v1/approvals/apr-6b8c0d1e/deny \\
+            curl={`curl -X POST https://console.regulator.ai/api/v1/approvals/apr-6b8c0d1e/deny \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{"reason": "Service restart not approved during peak traffic"}'`}
@@ -2384,7 +2384,7 @@ Intent → Policy Engine → T2 → Approval Queue
           <CodeBlock language="typescript" title="openclaw-vienna-plugin.ts">{`import { ViennaClient } from "./vienna-client";
 
 const vienna = new ViennaClient({
-  baseUrl: process.env.VIENNA_URL || "https://vienna-os.fly.dev",
+  baseUrl: process.env.VIENNA_URL || "https://console.regulator.ai",
   apiKey: process.env.VIENNA_AGENT_KEY!,
   agentId: process.env.VIENNA_AGENT_ID!,
   tenantId: process.env.VIENNA_TENANT_ID!,
@@ -2451,7 +2451,7 @@ from pydantic import BaseModel, Field
 import requests
 import os
 
-VIENNA_URL = os.environ.get("VIENNA_URL", "https://vienna-os.fly.dev")
+VIENNA_URL = os.environ.get("VIENNA_URL", "https://console.regulator.ai")
 VIENNA_KEY = os.environ["VIENNA_AGENT_KEY"]
 AGENT_ID = os.environ["VIENNA_AGENT_ID"]
 TENANT_ID = os.environ["VIENNA_TENANT_ID"]
@@ -2533,7 +2533,7 @@ agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION
           <CodeBlock language="python" title="crewai_vienna.py">{`from crewai import Agent, Task, Crew
 import requests, os
 
-VIENNA_URL = os.environ.get("VIENNA_URL", "https://vienna-os.fly.dev")
+VIENNA_URL = os.environ.get("VIENNA_URL", "https://console.regulator.ai")
 VIENNA_KEY = os.environ["VIENNA_AGENT_KEY"]
 
 def governed_callback(output):
@@ -2577,7 +2577,7 @@ result = crew.kickoff()`}</CodeBlock>
           </P>
 
           <CodeBlock language="bash" title="curl">{`# Submit any agent action through governance
-curl -X POST https://vienna-os.fly.dev/api/v1/agent/intent \\
+curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_AGENT_KEY" \\
   -d '{
@@ -2677,7 +2677,7 @@ app.listen(3001);`}</CodeBlock>
             Create policies via the API or the visual Policy Builder in the console.
           </P>
 
-          <CodeBlock language="bash" title="Create a policy rule">{`curl -X POST https://vienna-os.fly.dev/api/v1/policies \\
+          <CodeBlock language="bash" title="Create a policy rule">{`curl -X POST https://console.regulator.ai/api/v1/policies \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -2785,7 +2785,7 @@ app.listen(3001);`}</CodeBlock>
             endpoint returns which rules matched and what action would be taken.
           </P>
 
-          <CodeBlock language="bash" title="Test a hypothetical intent">{`curl -X POST https://vienna-os.fly.dev/api/v1/policies/evaluate \\
+          <CodeBlock language="bash" title="Test a hypothetical intent">{`curl -X POST https://console.regulator.ai/api/v1/policies/evaluate \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $VIENNA_API_KEY" \\
   -d '{
@@ -2821,7 +2821,7 @@ app.listen(3001);`}</CodeBlock>
             Import them via the API or the Policy Builder UI.
           </P>
 
-          <CodeBlock language="bash" title="List available templates">{`curl https://vienna-os.fly.dev/api/v1/policies/templates \\
+          <CodeBlock language="bash" title="List available templates">{`curl https://console.regulator.ai/api/v1/policies/templates \\
   -H "Authorization: Bearer $VIENNA_API_KEY"
 
 # Returns: financial_services, healthcare, devops, legal, general

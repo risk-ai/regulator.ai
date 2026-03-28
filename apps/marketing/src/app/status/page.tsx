@@ -20,7 +20,7 @@ export default function StatusPage() {
   const checkHealth = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://vienna-os.fly.dev/health");
+      const res = await fetch("https://console.regulator.ai/health");
       const data = await res.json();
       setHealth(data);
     } catch {

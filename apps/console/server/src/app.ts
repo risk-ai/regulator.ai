@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import compression from 'compression';
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,7 @@ import { SystemNowService } from './services/systemNowService.js';
 import { eventStream } from './sse/eventStream.js';
 import { createAuthMiddleware } from './middleware/requireAuth.js';
 import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
+import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.js';
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
@@ -129,6 +131,12 @@ export function createApp(
     credentials: true,
   }));
 
+  // Compression (gzip responses)
+  app.use(compression());
+  
+  // Metrics (before other middleware to track everything)
+  app.use(metricsMiddleware());
+  
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
@@ -149,6 +157,12 @@ export function createApp(
     
     next();
   });
+
+  // ============================================================================
+  // Metrics Endpoint (Prometheus)
+  // ============================================================================
+  
+  app.get('/metrics', metricsEndpoint());
 
   // ============================================================================
   // Health Check (Separated Runtime + Provider Health)

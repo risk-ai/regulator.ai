@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { PendingApprovalsList } from '../components/approvals/PendingApprovalsList';
+import { ApprovalHistory } from '../components/approvals/ApprovalHistory';
 import { useResponsive } from '../hooks/useResponsive.js';
 import { ErrorBoundary } from '../components/ui/ErrorBoundary.js';
 
@@ -66,18 +67,9 @@ export function ApprovalsPage() {
       )}
 
       {activeTab === 'history' && (
-        <div style={{
-          background: 'var(--bg-primary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '12px',
-          padding: '32px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📜</div>
-          <p style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>
-            Approval history will appear here as actions are approved or rejected.
-          </p>
-        </div>
+        <ErrorBoundary>
+          <ApprovalHistory limit={100} />
+        </ErrorBoundary>
       )}
 
       {/* Risk tier reference */}

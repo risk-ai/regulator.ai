@@ -77,6 +77,7 @@ import { createActionTypesRouter } from './routes/action-types.js';
 import { createFleetRouter } from './routes/fleet.js';
 import { createSimulationRouter } from './routes/simulation.js';
 import { createActionsRouter } from './routes/actions.js';
+import { createDemoRouter } from './routes/demo.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -362,6 +363,9 @@ export function createApp(
 
   // Simulation Engine (demo traffic generation)
   app.use(`${apiPrefix}/simulation`, requireAuth, createSimulationRouter());
+  
+  // Demo data seeding (onboarding)
+  app.use(`${apiPrefix}/demo`, requireAuth, createDemoRouter(viennaRuntime));
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

@@ -31,10 +31,21 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
   const [demoDataSeeded, setDemoDataSeeded] = useState(false);
 
   const seedDemoData = async () => {
-    // Simulate seeding demo data
-    setDemoDataSeeded(true);
-    // TODO: Make actual API call to seed demo data
-    console.log('Seeding demo data...');
+    try {
+      const response = await fetch('/api/v1/demo/seed', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        setDemoDataSeeded(true);
+        console.log('Demo data seeded successfully');
+      } else {
+        console.error('Failed to seed demo data');
+      }
+    } catch (error) {
+      console.error('Error seeding demo data:', error);
+    }
   };
 
   const steps: OnboardingStep[] = [

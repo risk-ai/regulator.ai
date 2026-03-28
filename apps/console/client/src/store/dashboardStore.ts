@@ -5,7 +5,7 @@
  */
 
 import { create } from 'zustand';
-import type { SystemStatus } from '../api/types.js';
+import type { SystemStatus, ObjectiveSummary, DecisionItem } from '../api/types.js';
 import type { ServiceStatus, ProvidersResponse } from '../api/system.js';
 import type { ChatHistoryItem } from '../api/chat.js';
 
@@ -14,6 +14,10 @@ export interface DashboardState {
   systemStatus: SystemStatus | null;
   services: ServiceStatus[];
   providers: ProvidersResponse | null;
+  
+  // Objectives & Decisions
+  objectives: ObjectiveSummary[];
+  decisions: DecisionItem[];
   
   // Chat state
   currentThreadId: string | null;
@@ -43,6 +47,12 @@ export interface DashboardState {
   setSystemStatus: (status: SystemStatus) => void;
   setServices: (services: ServiceStatus[]) => void;
   setProviders: (providers: ProvidersResponse) => void;
+  addObjective: (objective: ObjectiveSummary) => void;
+  updateObjective: (objectiveId: string, updates: Partial<ObjectiveSummary>) => void;
+  setObjectives: (objectives: ObjectiveSummary[]) => void;
+  addDecision: (decision: DecisionItem) => void;
+  removeDecision: (decisionId: string) => void;
+  setDecisions: (decisions: DecisionItem[]) => void;
   setCurrentThreadId: (threadId: string | null) => void;
   addChatMessage: (message: ChatHistoryItem) => void;
   setChatMessages: (messages: ChatHistoryItem[]) => void;
@@ -58,6 +68,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   systemStatus: null,
   services: [],
   providers: null,
+  objectives: [],
+  decisions: [],
   currentThreadId: null,
   chatMessages: [],
   chatLoading: false,
@@ -84,6 +96,38 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setProviders: (providers) => set({ 
     providers, 
     lastUpdate: new Date().toISOString() 
+  }),
+  
+  addObjective: (objective) => set((state) => ({
+    objectives: [objective, ...state.objectives],
+    lastUpdate: new Date().toISOString()
+  })),
+  
+  updateObjective: (objectiveId, updates) => set((state) => ({
+    objectives: state.objectives.map(obj => 
+      obj.objective_id === objectiveId ? { ...obj, ...updates } : obj
+    ),
+    lastUpdate: new Date().toISOString()
+  })),
+  
+  setObjectives: (objectives) => set({
+    objectives,
+    lastUpdate: new Date().toISOString()
+  }),
+  
+  addDecision: (decision) => set((state) => ({
+    decisions: [decision, ...state.decisions],
+    lastUpdate: new Date().toISOString()
+  })),
+  
+  removeDecision: (decisionId) => set((state) => ({
+    decisions: state.decisions.filter(d => d.decision_id !== decisionId),
+    lastUpdate: new Date().toISOString()
+  })),
+  
+  setDecisions: (decisions) => set({
+    decisions,
+    lastUpdate: new Date().toISOString()
   }),
   
   setCurrentThreadId: (threadId) => set({ currentThreadId: threadId }),

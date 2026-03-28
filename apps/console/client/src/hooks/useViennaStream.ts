@@ -16,6 +16,10 @@ export function useViennaStream() {
   const reconnectAttemptsRef = useRef(0);
   const setSSEConnected = useDashboardStore((state) => state.setSSEConnected);
   const setSystemStatus = useDashboardStore((state) => state.setSystemStatus);
+  const addObjective = useDashboardStore((state) => state.addObjective);
+  const updateObjective = useDashboardStore((state) => state.updateObjective);
+  const addDecision = useDashboardStore((state) => state.addDecision);
+  const removeDecision = useDashboardStore((state) => state.removeDecision);
   
   const connect = () => {
     // Clear existing connection
@@ -84,6 +88,105 @@ export function useViennaStream() {
         console.log('[SSE] Service health update:', data);
       } catch (error) {
         console.error('[SSE] Failed to parse service.health event:', error);
+      }
+    });
+    
+    // Objective lifecycle events
+    eventSource.addEventListener('objective.created', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Objective created:', data);
+        addObjective(data);
+      } catch (error) {
+        console.error('[SSE] Failed to parse objective.created event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('objective.updated', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Objective updated:', data);
+        updateObjective(data.objective_id, data);
+      } catch (error) {
+        console.error('[SSE] Failed to parse objective.updated event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('objective.completed', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Objective completed:', data);
+        updateObjective(data.objective_id, { ...data, status: 'completed' });
+      } catch (error) {
+        console.error('[SSE] Failed to parse objective.completed event:', error);
+      }
+    });
+    
+    // Approval workflow events
+    eventSource.addEventListener('approval.created', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Approval created:', data);
+        addDecision(data);
+      } catch (error) {
+        console.error('[SSE] Failed to parse approval.created event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('approval.approved', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Approval approved:', data);
+        removeDecision(data.approval_id || data.decision_id);
+      } catch (error) {
+        console.error('[SSE] Failed to parse approval.approved event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('approval.denied', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Approval denied:', data);
+        removeDecision(data.approval_id || data.decision_id);
+      } catch (error) {
+        console.error('[SSE] Failed to parse approval.denied event:', error);
+      }
+    });
+    
+    // Execution events
+    eventSource.addEventListener('execution.started', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Execution started:', data);
+        // Could update active executions count in system status
+      } catch (error) {
+        console.error('[SSE] Failed to parse execution.started event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('execution.completed', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Execution completed:', data);
+        // Update related objective if exists
+        if (data.objective_id) {
+          updateObjective(data.objective_id, { status: 'completed' });
+        }
+      } catch (error) {
+        console.error('[SSE] Failed to parse execution.completed event:', error);
+      }
+    });
+    
+    eventSource.addEventListener('execution.failed', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[SSE] Execution failed:', data);
+        // Update related objective if exists
+        if (data.objective_id) {
+          updateObjective(data.objective_id, { status: 'failed' });
+        }
+      } catch (error) {
+        console.error('[SSE] Failed to parse execution.failed event:', error);
       }
     });
     

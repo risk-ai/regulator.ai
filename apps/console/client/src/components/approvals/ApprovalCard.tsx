@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { approveApproval, denyApproval, type Approval } from '../../api/approvals';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuthStore } from '../../store/authStore';
 
 interface ApprovalCardProps {
   approval: Approval;
@@ -15,6 +16,7 @@ interface ApprovalCardProps {
 }
 
 export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCardProps) {
+  const operator = useAuthStore((state) => state.operator);
   const [acting, setActing] = useState(false);
   const [showDenyReason, setShowDenyReason] = useState(false);
   const [denyReason, setDenyReason] = useState('');
@@ -32,12 +34,14 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
   }, [approval]);
 
   const handleApprove = async () => {
+    if (!operator) {
+      setError('Not authenticated');
+      return;
+    }
+    
     try {
       setActing(true);
       setError(null);
-      
-      // TODO: Get operator identity from auth context
-      const operator = 'operator'; // Placeholder
       
       await approveApproval(approval.approval_id, operator);
       onAction();
@@ -54,13 +58,15 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
       setError('Denial reason is required');
       return;
     }
+    
+    if (!operator) {
+      setError('Not authenticated');
+      return;
+    }
 
     try {
       setActing(true);
       setError(null);
-      
-      // TODO: Get operator identity from auth context
-      const operator = 'operator'; // Placeholder
       
       await denyApproval(approval.approval_id, operator, denyReason);
       onAction();

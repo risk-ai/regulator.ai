@@ -1,3 +1,4 @@
+import { useAuthStore } from '../../store/authStore.js';
 /**
  * Service Panel
  * 
@@ -19,7 +20,7 @@ export function ServicePanel() {
     setRestartResult(null); // Clear previous result
     
     try {
-      const result = await systemApi.restartService(serviceName, 'vienna-operator');
+      const result = await systemApi.restartService(serviceName, useAuthStore((state) => state.operator) || 'system');
       setRestartResult({
         service: serviceName,
         message: result.message,

@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { chatApi } from '../../api/chat.js';
 import type { SystemCommandProposal } from '../../api/chat.js';
+import { useAuthStore } from '../../store/authStore.js';
 
 interface CommandProposalCardProps {
   proposal: SystemCommandProposal;
@@ -18,6 +19,7 @@ export function CommandProposalCard({
   onExecuted,
   onRejected,
 }: CommandProposalCardProps) {
+  const operator = useAuthStore((state) => state.operator) || 'system';
   const [executing, setExecuting] = useState(false);
   const [executed, setExecuted] = useState(false);
   const [rejected, setRejected] = useState(false);
@@ -40,7 +42,7 @@ export function CommandProposalCard({
       // Call approval endpoint (Phase 7.5e)
       const approvalResult = await chatApi.approveAction(
         action,
-        'vienna-operator' // TODO: Get from auth context
+        operator
       );
 
       setResult(approvalResult.result);

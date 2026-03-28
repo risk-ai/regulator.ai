@@ -1,3 +1,4 @@
+import { useAuthStore } from '../../store/authStore.js';
 /**
  * Objectives Panel
  * 
@@ -99,7 +100,7 @@ export function ObjectivesPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          operator: 'vienna-operator', // TODO: Get from auth
+          operator: useAuthStore((state) => state.operator) || 'system', // TODO: Get from auth
           reason: 'Operator requested retry',
         }),
       });

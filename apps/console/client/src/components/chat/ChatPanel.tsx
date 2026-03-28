@@ -1,3 +1,4 @@
+import { useAuthStore } from '../../store/authStore.js';
 /**
  * Chat Panel
  * Phase 10.5: Chat Cleanup
@@ -162,7 +163,7 @@ export function ChatPanel() {
               content: m.content?.text || '',
             })),
           },
-          operator: 'vienna-operator',
+          operator: useAuthStore((state) => state.operator) || 'system',
         });
         
         // Phase 6.6/6.8 returns { message, timestamp, proposal? }

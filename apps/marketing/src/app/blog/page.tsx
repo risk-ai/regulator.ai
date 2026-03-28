@@ -9,6 +9,28 @@ import { analytics } from "@/lib/analytics";
 
 const posts = [
   {
+    slug: "ai-agent-disasters-prevented",
+    title: "5 AI Agent Disasters That Could Have Been Prevented with Execution Control",
+    excerpt:
+      "Real stories of AI incidents: a $60K overnight cloud bill, PHI exposed to public buckets, unauthorized trading losses. Learn how Vienna OS prevents these disasters through governance.",
+    date: "March 28, 2026",
+    readTime: "9 min",
+    category: "Risk Management",
+    categoryColor: "text-red-400 bg-red-500/10",
+    author: "ai.ventures",
+  },
+  {
+    slug: "hipaa-compliance-ai-agents",
+    title: "HIPAA Compliance for AI Agents: A Practical Guide",
+    excerpt:
+      "Healthcare AI agents need more than content filtering—they need PHI-scoped governance. Complete guide to HIPAA-compliant AI with execution warrants and audit trails.",
+    date: "March 28, 2026",
+    readTime: "8 min",
+    category: "Healthcare",
+    categoryColor: "text-green-400 bg-green-500/10",
+    author: "ai.ventures",
+  },
+  {
     slug: "how-execution-warrants-work",
     title: "How Execution Warrants Work: The Core of Vienna OS",
     excerpt:

@@ -31,6 +31,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/case-studies`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/use-cases`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/roi`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/compare/guardrails-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/compare/arthur-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/security`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/integrations`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     // Company

@@ -249,6 +249,21 @@ export default function ComparePage() {
           </table>
         </div>
 
+        {/* Detailed Comparisons */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Detailed Comparisons</h2>
+          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Guardrails AI</h3>
+              <p className="text-sm text-slate-400">Execution control vs prompt validation — feature-by-feature breakdown</p>
+            </a>
+            <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Arthur AI</h3>
+              <p className="text-sm text-slate-400">When you need more than monitoring — control vs observability</p>
+            </a>
+          </div>
+        </div>
+
         {/* Key insight */}
         <div className="mt-16 bg-gradient-to-br from-purple-900/20 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-3">They&apos;re complementary — but only one is mandatory.</h2>

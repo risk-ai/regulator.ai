@@ -9,6 +9,39 @@ import { analytics } from "@/lib/analytics";
 
 const posts = [
   {
+    slug: "how-execution-warrants-work",
+    title: "How Execution Warrants Work: The Core of Vienna OS",
+    excerpt:
+      "Every action in Vienna OS requires a cryptographic warrant — signed, scoped, and time-limited. Walk through the complete warrant lifecycle from intent to audit, with code examples.",
+    date: "March 28, 2026",
+    readTime: "8 min",
+    category: "Deep Dive",
+    categoryColor: "text-amber-400 bg-amber-500/10",
+    author: "ai.ventures",
+  },
+  {
+    slug: "vienna-os-vs-guardrails-ai",
+    title: "Vienna OS vs Guardrails AI: Execution Control vs Prompt Filtering",
+    excerpt:
+      "There are four layers of AI governance. Only one controls execution. See how Vienna OS compares to Guardrails AI, Arthur, and Credo AI across the full governance stack.",
+    date: "March 28, 2026",
+    readTime: "7 min",
+    category: "Comparison",
+    categoryColor: "text-purple-400 bg-purple-500/10",
+    author: "ai.ventures",
+  },
+  {
+    slug: "governing-langchain-agents",
+    title: "Governing LangChain Agents in Production with Vienna OS",
+    excerpt:
+      "LangChain agents are powerful but ungoverned in production. Add execution control in 5 lines of Python — risk tiering, cryptographic warrants, and immutable audit trails.",
+    date: "March 28, 2026",
+    readTime: "10 min",
+    category: "Integration",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "ai.ventures",
+  },
+  {
     slug: "why-ai-agents-need-governance",
     title: "Why Your AI Agents Need a Governance Layer (Before Something Goes Wrong)",
     excerpt:

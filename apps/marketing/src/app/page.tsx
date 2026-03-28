@@ -404,9 +404,9 @@ export default function Home() {
         <NetworkBackground />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-900/30 to-navy-900" />
         
-        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-24" style={{ zIndex: 1 }}>
+        <div className="relative max-w-6xl mx-auto px-6 pt-8 pb-16" style={{ zIndex: 1 }}>
           {/* Nav */}
-          <nav className="flex items-center justify-between mb-16" aria-label="Main navigation">
+          <nav className="flex items-center justify-between mb-10" aria-label="Main navigation">
             <div className="flex items-center gap-3">
               <Shield className="w-7 h-7 text-purple-400" />
               <span className="text-lg font-bold text-white tracking-tight">
@@ -456,7 +456,7 @@ export default function Home() {
           )}
 
           {/* Hero content — two-column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <div id="main-content">
               <div className="animate-fade-up" style={{ animationDelay: "0s" }}>
                 <div className="flex items-center gap-3 mb-8">
@@ -703,7 +703,7 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             <AnimatedStat value={100} suffix="%" label="Audit Coverage" sub="Every action logged" />
-            <AnimatedStat value={12000} suffix="+" label="Lines of Code" sub="Full governance engine" />
+            <AnimatedStat value={45} suffix="+" label="Policy Rules" sub="Pre-built governance templates" />
             <AnimatedStat value="∞" label="Action Types" sub="Unlimited operations" />
             <AnimatedStat value={9} label="Core Engines" sub="Complete governance stack" />
           </div>

@@ -468,15 +468,16 @@ export default function Home() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.05] mb-8 tracking-tight animate-fade-up" style={{ animationDelay: "0.1s" }}>
-                AI <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 bg-clip-text text-transparent">Governance</span> for{" "}
+                Control what AI{" "}
+                <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-blue-400 bg-clip-text text-transparent">can do</span> —{" "}
                 <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent animate-gradient">
-                  Enterprises
+                  not just what it says
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-                The control plane that sits between agent intent and execution.
-                Policy enforcement, cryptographic <span className="text-amber-400 font-medium">warrants</span>, operator approvals,
-                and immutable audit trails — for every AI action.
+                The execution control layer for autonomous AI systems.
+                Every agent action requires a cryptographic <span className="text-amber-400 font-medium">warrant</span> — signed, scoped,
+                and time-limited. No warrant, no execution.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
                 <a 
@@ -676,8 +677,8 @@ export default function Home() {
                   <BookOpen className="w-5 h-5 text-emerald-400" />
                 </div>
               </div>
-              <div className="text-sm font-semibold text-white mb-1">Open Source Core</div>
-              <div className="text-xs text-slate-400">Transparent governance engine architecture</div>
+              <div className="text-sm font-semibold text-white mb-1">Open Source Infrastructure</div>
+              <div className="text-xs text-slate-400">Apache 2.0 — inspect every line of the control layer</div>
             </div>
             
             <div className="text-center trust-signal">
@@ -702,10 +703,10 @@ export default function Home() {
         
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            <AnimatedStat value={100} suffix="%" label="Audit Coverage" sub="Every action logged" />
-            <AnimatedStat value={45} suffix="+" label="Policy Rules" sub="Pre-built governance templates" />
-            <AnimatedStat value="∞" label="Action Types" sub="Unlimited operations" />
-            <AnimatedStat value={9} label="Core Engines" sub="Complete governance stack" />
+            <AnimatedStat value={100} suffix="%" label="Enforcement Coverage" sub="Every action authorized" />
+            <AnimatedStat value={4} label="Risk Tiers" sub="T0 auto → T3 multi-party" />
+            <AnimatedStat value="∞" label="Action Types" sub="Any agent, any operation" />
+            <AnimatedStat value={9} label="Control Engines" sub="Complete execution stack" />
           </div>
         </div>
       </section>
@@ -724,11 +725,11 @@ export default function Home() {
                 <span className="text-sm text-purple-300 font-bold uppercase tracking-wider">Platform</span>
               </div>
               <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
-                Complete <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Governance</span> Platform
+                Execution <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Control</span> Infrastructure
               </h2>
               <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                Everything you need to govern autonomous AI agents at scale.
-                Modular, extensible, and runtime-agnostic.
+                System primitives for controlling what AI agents can do.
+                Not monitoring. Not documentation. Enforcement.
               </p>
             </div>
           </ScrollReveal>
@@ -736,12 +737,12 @@ export default function Home() {
           {/* Enhanced two-column feature grid with better visual hierarchy */}
           <div className="grid md:grid-cols-2 gap-6 mb-16">
             {[
-              { icon: Workflow, title: "Intent Gateway", desc: "Single entry point for all agent requests. Normalizes proposals into the governed pipeline.", color: "text-blue-400", bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5", border: "border-blue-500/20" },
-              { icon: FileCheck, title: "Policy Engine", desc: "Policy-as-code rule evaluation. Define guardrails that enforce automatically — no manual review for low-risk.", color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20" },
-              { icon: Lock, title: "Execution Warrants", desc: "Cryptographically signed, time-limited, scope-constrained authorization. No warrant, no execution.", color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5", border: "border-amber-500/20" },
-              { icon: Eye, title: "Verification Engine", desc: "Post-execution check: did the agent do exactly what the warrant authorized? Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
-              { icon: BookOpen, title: "Audit Trail", desc: "Append-only immutable ledger. Every intent, policy decision, warrant, execution, and verification — permanently recorded.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
-              { icon: BarChart3, title: "Risk Tiering", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. Agent actions classified by blast radius.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
+              { icon: Workflow, title: "Intent Normalization Layer", desc: "Single entry point for all agent requests. Every proposal is normalized, validated, and routed into the enforcement pipeline.", color: "text-blue-400", bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5", border: "border-blue-500/20" },
+              { icon: FileCheck, title: "Deterministic Policy Engine", desc: "Policy-as-code rule evaluation. Rules execute deterministically — no ambiguity, no exceptions, no manual review for low-risk.", color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20" },
+              { icon: Lock, title: "Cryptographic Warrants", desc: "HMAC-SHA256 signed, time-limited, scope-constrained execution authorization. Tamper with any field and it invalidates. No warrant, no execution.", color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5", border: "border-amber-500/20" },
+              { icon: Eye, title: "Post-Execution Verification", desc: "Did the agent do exactly what the warrant authorized? Scope drift detection, timing verification, constraint enforcement. Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
+              { icon: BookOpen, title: "Immutable Audit Ledger", desc: "Append-only, tamper-evident record. Every intent, policy decision, warrant, execution, and verification — permanently and cryptographically recorded.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
+              { icon: BarChart3, title: "Blast Radius Classification", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. T3 needs justification + rollback plan. Actions classified by impact.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
             ].map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.08}>
                 <div className={`${f.bg} border ${f.border} rounded-xl p-6 card-hover flex gap-5 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300`}>
@@ -787,11 +788,11 @@ export default function Home() {
                 <span className="text-sm text-blue-300 font-bold uppercase tracking-wider">Industries</span>
               </div>
               <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
-                Built for <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">Regulated</span> Industries
+                Without governance, AI <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">cannot operate</span>
               </h2>
               <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                The same governance gap exists everywhere AI agents take real-world actions.
-                Vienna OS fills it.
+                Regulated industries require proof of control. Vienna OS makes autonomous AI deployable
+                where compliance isn&apos;t optional.
               </p>
             </div>
           </ScrollReveal>
@@ -1021,6 +1022,80 @@ export default function Home() {
       </section>
 
       {/* ============================================
+          WHY THIS MUST EXIST — Without/With contrast
+          ============================================ */}
+      <section className="relative bg-gradient-to-b from-transparent via-red-900/5 to-transparent py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-white mb-4 leading-tight">
+                The current state is <span className="text-red-400">unsafe</span>
+              </h2>
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                AI agents are taking real-world actions. The question isn&apos;t whether they need governance — it&apos;s whether you can prove it.
+              </p>
+            </div>
+          </ScrollReveal>
+          <div className="grid md:grid-cols-2 gap-6">
+            <ScrollReveal>
+              <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-8">
+                <div className="text-xs text-red-400 font-bold uppercase tracking-wider mb-4">❌ Without Vienna OS</div>
+                <div className="space-y-4 font-mono text-sm">
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-red-400">→</span>
+                    <span>LLM decides → tool call → action executes</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-red-400">→</span>
+                    <span>No pre-execution validation</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-red-400">→</span>
+                    <span>No authorization proof</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-red-400">→</span>
+                    <span>No audit trail for regulators</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-400">
+                    <span className="text-red-400">→</span>
+                    <span>Damage discovered after the fact</span>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-8">
+                <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-4">✓ With Vienna OS</div>
+                <div className="space-y-4 font-mono text-sm">
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <span className="text-emerald-400">→</span>
+                    <span>LLM decides → intent → policy → <span className="text-amber-400 font-bold">warrant</span> → action</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <span className="text-emerald-400">→</span>
+                    <span>Cryptographic enforcement at runtime</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <span className="text-emerald-400">→</span>
+                    <span>Signed, scoped, time-limited authorization</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <span className="text-emerald-400">→</span>
+                    <span>Immutable audit trail, regulator-ready</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-300">
+                    <span className="text-emerald-400">→</span>
+                    <span>Damage prevented before it happens</span>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================
           HOW IT WORKS — Enhanced with timeline flow and better terminal styling
           ============================================ */}
       <section className="relative bg-gradient-to-br from-transparent via-navy-800/30 to-transparent py-24">
@@ -1034,7 +1109,7 @@ export default function Home() {
                   How it <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">works</span>
                 </h2>
                 <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                  Vienna OS sits between agent intent and real-world execution. Agents stay autonomous within governed boundaries.
+                  Vienna OS is the execution control layer between agent intent and real-world action. Agents stay autonomous — within enforced boundaries.
                 </p>
                 
                 {/* Enhanced timeline with numbered steps and connecting lines */}
@@ -1178,9 +1253,9 @@ export default function Home() {
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { icon: Shield, color: "text-purple-400", title: "Cornell Law × ai.ventures", desc: "Built by a legal technologist who understands both compliance frameworks and distributed systems." },
-            { icon: Server, color: "text-blue-400", title: "Production Operational", desc: "Live at console.regulator.ai. 9 governance engines, custom action types, full audit trail. Not vaporware." },
-            { icon: Zap, color: "text-emerald-400", title: "Runtime Agnostic", desc: "One API works with OpenClaw, LangChain, CrewAI, AutoGen, or any framework that makes HTTP requests." },
+            { icon: Shield, color: "text-purple-400", title: "Cornell Law × ai.ventures", desc: "Built by a legal technologist who understands both compliance frameworks and distributed systems. Patent-protected (USPTO #64/018,152)." },
+            { icon: Server, color: "text-blue-400", title: "Running in Production", desc: "Live at console.regulator.ai. 9 execution control engines, cryptographic warrant issuance, immutable audit ledger. Not a whitepaper." },
+            { icon: Zap, color: "text-emerald-400", title: "Framework Agnostic", desc: "One API. Works with OpenClaw, LangChain, CrewAI, AutoGen — any system that makes HTTP requests. 5 lines to integrate." },
           ].map((card, i) => (
             <ScrollReveal key={card.title} delay={i * 0.1}>
               <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 flex items-start gap-4">
@@ -1250,7 +1325,7 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-sm text-slate-400 leading-relaxed mb-6">
-                  The governance layer agents answer to.
+                  The execution control layer for AI systems.
                 </p>
                 <div className="flex items-center gap-4">
                   <a href="https://github.com/risk-ai/regulator.ai" className="text-slate-500 hover:text-white transition">

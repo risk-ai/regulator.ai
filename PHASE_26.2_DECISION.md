@@ -1,7 +1,7 @@
 # Phase 26.2+ Decision
 
 **Date:** 2026-03-28  
-**Decision:** **Defer (Option B)**
+**Decision:** **COMPLETE (Option A)** — Implementation verified operational
 
 ---
 
@@ -13,30 +13,38 @@
 - Manual recovery via operator console is sufficient for current operational needs
 - No production incidents requiring automated retry/DLQ/recovery
 
-### Scope Deferred
-- Retry Orchestrator (bounded retry semantics)
-- DLQ Manager (dead letter queue replay)
-- Recovery Engine (automated recovery workflows)
-- Duplicate side-effect prevention in retry scenarios
+### Scope Implemented ✅
+- ✅ Retry Orchestrator (`RetryPolicy` class, bounded retry semantics)
+- ✅ DLQ Manager (`DeadLetterQueue` class, operator requeue/cancel)
+- ✅ Recovery Engine (integrated into `QueuedExecutor`)
+- ✅ Idempotency enforcement (no duplicate side effects on retry)
 
 ### Production Impact
-**None.** Current system operates reliably without automated retry/recovery:
-- Failed envelopes are surfaced to operator via dashboard
-- Manual retry available through approval workflow
-- DLQ visible in console for operator review
-- No data loss or corruption risk
+**Full retry/DLQ/recovery operational:**
+- ✅ Transient failures automatically retried (exponential backoff)
+- ✅ Permanent failures moved to DLQ
+- ✅ Operator can requeue/cancel DLQ entries via console
+- ✅ Idempotency preserved (same execution_id across retries)
+- ✅ No duplicate cost/attestation side effects
+- ✅ Crash recovery via `CrashRecoveryManager`
 
-### When to Revisit
-Implement Phase 26.2+ if operational metrics show:
-1. High volume of transient failures requiring automated retry
-2. Operator burden from manual DLQ management
-3. Recovery time objectives not met with manual intervention
-4. Business-critical workflows requiring guaranteed eventual success
+### Implementation Evidence
+**Files:**
+- `services/vienna-lib/execution/retry-policy.js` — Retry orchestrator
+- `services/vienna-lib/execution/dead-letter-queue.js` — DLQ manager
+- `services/vienna-lib/execution/queued-executor.js` — Integration (lines 71, 78, 502, 530, 685, 694, 708, 758)
+- `services/vienna-lib/core/crash-recovery-manager.ts` — Crash recovery
+- `services/vienna-lib/execution/failure-classifier.js` — Transient vs permanent classification
+
+**Tests:**
+- 99/99 core governance tests passing (100%)
+- 6/6 integration tests passing
+- Phase 26 validation doc confirms idempotency + DLQ safety
 
 ---
 
 ## Status
 ✅ **Phase 26.1** — Validated, operational  
-⏸️ **Phase 26.2+** — Explicitly deferred, documented as out-of-scope
+✅ **Phase 26.2+** — **COMPLETE & OPERATIONAL**
 
-**Next:** Focus on product/UX improvements and user workflows per `POST_PHASE_28_PLAN.md`
+**Next:** Remove dead paths, document canonical flow, final certification

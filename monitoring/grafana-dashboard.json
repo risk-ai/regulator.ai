@@ -1,0 +1,128 @@
+{
+  "dashboard": {
+    "title": "Vienna OS - Governance Pipeline",
+    "tags": ["vienna", "governance", "ai"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Intent Submission Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(vienna_intent_submissions_total[5m])",
+            "legendFormat": "{{action_type}} ({{risk_tier}})"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Execution Latency (p50, p95, p99)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, rate(vienna_execution_latency_seconds_bucket[5m]))",
+            "legendFormat": "p50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, rate(vienna_execution_latency_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, rate(vienna_execution_latency_seconds_bucket[5m]))",
+            "legendFormat": "p99"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Queue Depth",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "vienna_queue_depth",
+            "legendFormat": "{{queue_type}}"
+          }
+        ],
+        "alert": {
+          "name": "High Queue Depth",
+          "conditions": [
+            {
+              "evaluator": { "params": [1000], "type": "gt" },
+              "query": { "params": ["A", "5m", "now"] }
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Pending Approvals",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "vienna_pending_approvals",
+            "legendFormat": "{{risk_tier}}"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(vienna_errors_total[5m])",
+            "legendFormat": "{{error_type}} - {{component}}"
+          }
+        ],
+        "alert": {
+          "name": "High Error Rate",
+          "conditions": [
+            {
+              "evaluator": { "params": [0.05], "type": "gt" },
+              "query": { "params": ["A", "5m", "now"] }
+            }
+          ]
+        }
+      },
+      {
+        "id": 6,
+        "title": "Dead Letter Queue Size",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "vienna_dlq_size"
+          }
+        ],
+        "thresholds": [
+          { "value": 0, "color": "green" },
+          { "value": 10, "color": "yellow" },
+          { "value": 50, "color": "red" }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Policy Decisions",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (decision) (vienna_policy_evaluations_total)",
+            "legendFormat": "{{decision}}"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Approval Wait Time (p95)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(vienna_approval_wait_seconds_bucket[5m]))"
+          }
+        ],
+        "unit": "s"
+      }
+    ],
+    "refresh": "10s"
+  }
+}

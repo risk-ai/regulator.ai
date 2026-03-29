@@ -1,0 +1,143 @@
+/**
+ * Theme Variants for Vienna Console
+ * 
+ * Themes: Dark (default), Light, High Contrast
+ */
+
+/* === DEFAULT DARK THEME === */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-tertiary: #737373;
+  
+  --border-subtle: #404040;
+  --border-strong: #525252;
+  
+  --accent-primary: #7c3aed;
+  --accent-secondary: #a78bfa;
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+}
+
+/* === LIGHT THEME === */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e5e5e5;
+  
+  --text-primary: #0a0a0a;
+  --text-secondary: #525252;
+  --text-tertiary: #737373;
+  
+  --border-subtle: #d4d4d4;
+  --border-strong: #a3a3a3;
+  
+  --accent-primary: #7c3aed;
+  --accent-secondary: #9333ea;
+  
+  --success: #059669;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
+}
+
+/* === HIGH CONTRAST THEME === */
+[data-theme="high-contrast"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #333333;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-tertiary: #d4d4d4;
+  
+  --border-subtle: #ffffff;
+  --border-strong: #ffffff;
+  
+  --accent-primary: #a78bfa;
+  --accent-secondary: #c4b5fd;
+  
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+}
+
+/* === COLOR-BLIND FRIENDLY (Deuteranopia) === */
+[data-theme="colorblind"] {
+  --success: #0077bb; /* Blue instead of green */
+  --warning: #ee7733; /* Orange */
+  --error: #cc3311; /* Red */
+  --info: #33bbee; /* Cyan */
+}
+
+/* === THEME TOGGLE BUTTON === */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle button {
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms;
+  font-size: 13px;
+}
+
+.theme-toggle button:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.theme-toggle button.active {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+/* === ACCESSIBILITY === */
+@media (prefers-contrast: high) {
+  :root {
+    --bg-primary: #000000;
+    --text-primary: #ffffff;
+    --border-subtle: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --text-primary: #0a0a0a;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

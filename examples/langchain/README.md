@@ -1,266 +1,377 @@
-# Vienna OS + LangChain Integration
+# LangChain + Vienna OS Integration
 
-This example demonstrates how to integrate Vienna OS governance with a LangChain agent. It shows how AI agents can submit intents to Vienna OS before executing tools, ensuring all actions are governed by policies and human approvals when required.
+**Govern LangChain agents with Vienna OS execution warrants**
 
-## What This Does
+This example demonstrates how to wrap LangChain agents with Vienna OS governance, ensuring all tool executions are policy-checked, approved (if T1/T2), and attested.
 
-- **Wraps LangChain tools** with Vienna OS governance
-- **Submits intents** before tool execution for policy evaluation
-- **Handles approval workflows** for high-risk T2/T3 actions
-- **Provides audit trails** for all agent activities
-- **Demonstrates warrant verification** and execution reporting
+---
 
-## Prerequisites
+## Architecture
 
-- Node.js 18+
-- Vienna OS API key (`vna_xxx`)
-- LangChain library
-
-## Installation
-
-```bash
-# From the examples/langchain directory
-npm install
-
-# Set your Vienna OS API key
-export VIENNA_API_KEY=vna_your_api_key_here
 ```
+┌──────────────┐
+│  LangChain   │  (ReAct agent, tool calling)
+│  Agent       │
+└──────┬───────┘
+       │ Tool invocation
+       ▼
+┌──────────────┐
+│  Vienna      │  (Governance wrapper)
+│  Tool Proxy  │
+└──────┬───────┘
+       │ Intent submission
+       ▼
+┌──────────────┐
+│  Vienna OS   │  (Policy, approval, attestation)
+│  Core        │
+└──────┬───────┘
+       │ Governed execution
+       ▼
+┌──────────────┐
+│  Actual      │  (GitHub API, file system, etc.)
+│  Tool        │
+└──────────────┘
+```
+
+**Key insight:** Vienna OS intercepts tool calls before they execute, enforcing governance.
+
+---
 
 ## Quick Start
 
 ```bash
-# Run the example
-node index.js
+# Install dependencies
+cd ~/regulator.ai/examples/langchain
+npm install
 
-# Or use TypeScript
-npm run dev
+# Run example
+node langchain-vienna.js
 ```
 
-## How It Works
+---
 
-### 1. Intent Submission
+## Code Example
 
-Before executing any tool, the LangChain agent submits an intent to Vienna OS:
+```javascript
+// langchain-vienna.js
+import { ChatOpenAI } from '@langchain/openai';
+import { initializeAgentExecutorWithOptions } from 'langchain/agents';
+import { DynamicTool } from '@langchain/core/tools';
+import { ViennaGovernor } from 'vienna-sdk';
 
-```typescript
-const result = await vienna.submitToolIntent('web_search', {
-  query: 'latest AI governance regulations',
-  max_results: 5
+// Initialize Vienna governance
+const governor = new ViennaGovernor({
+  tenant: 'langchain-demo',
+  apiKey: process.env.VIENNA_API_KEY
 });
+
+// Original tool (ungoverned)
+const searchTool = new DynamicTool({
+  name: 'search',
+  description: 'Search the web',
+  func: async (query) => {
+    // Actual search logic
+    return await fetch(`https://api.search.com?q=${query}`);
+  }
+});
+
+// Governed tool (Vienna wrapper)
+const governedSearchTool = new DynamicTool({
+  name: 'search',
+  description: 'Search the web (Vienna-governed)',
+  func: async (query) => {
+    // Submit intent to Vienna
+    const intent = await governor.submitIntent({
+      action: 'web_search',
+      parameters: { query },
+      risk_tier: 'T0' // Read-only, auto-approve
+    });
+
+    // Wait for approval (if T1/T2)
+    const result = await governor.waitForExecution(intent.execution_id);
+
+    if (!result.success) {
+      throw new Error(`Vienna denied: ${result.reason}`);
+    }
+
+    return result.output;
+  }
+});
+
+// LangChain agent with governed tools
+const model = new ChatOpenAI({ temperature: 0 });
+const tools = [governedSearchTool];
+
+const executor = await initializeAgentExecutorWithOptions(tools, model, {
+  agentType: 'zero-shot-react-description',
+  verbose: true
+});
+
+// Run agent (all tool calls go through Vienna)
+const response = await executor.invoke({
+  input: 'What is the capital of France?'
+});
+
+console.log(response.output);
 ```
 
-### 2. Governance Pipeline
+---
 
-Vienna OS processes the intent through its governance pipeline:
-- **Policy Engine**: Evaluates against configured policies
-- **Risk Assessment**: Assigns risk tier (T0/T1/T2/T3)
-- **Approval Gate**: Routes to human approval if required
-- **Warrant Issuance**: Creates cryptographic proof of authorization
+## Governance Benefits
 
-### 3. Conditional Execution
+### Before Vienna OS (Ungoverned)
+```javascript
+// Direct tool execution - no oversight
+const result = await searchTool.call('sensitive query');
+```
 
-The agent only executes the tool if Vienna OS approves:
+**Risks:**
+- ❌ No policy enforcement
+- ❌ No approval workflow for risky actions
+- ❌ No audit trail
+- ❌ No cost tracking
+- ❌ No attribution (who triggered the search?)
 
-```typescript
-if (result.status === 'approved' || result.status === 'auto-approved') {
-  // Execute the tool with Vienna's warrant
-  const toolResult = await executeTool(toolName, args);
-  
-  // Report execution success/failure
-  await vienna.reportExecution(result.execution_id, 'success', { 
-    result: toolResult 
+### After Vienna OS (Governed)
+```javascript
+// Vienna intercepts, evaluates policy, requires approval, attests
+const result = await governedSearchTool.call('sensitive query');
+```
+
+**Protections:**
+- ✅ Policy evaluation (deny if forbidden pattern)
+- ✅ Approval workflow (T1/T2 require operator authorization)
+- ✅ Audit trail (immutable attestation)
+- ✅ Cost tracking (per-execution billing)
+- ✅ Attribution (tenant + operator logged)
+
+---
+
+## Risk Tier Mapping
+
+| LangChain Tool | Risk Tier | Approval Required |
+|----------------|-----------|-------------------|
+| Web search     | T0        | No (auto-approve) |
+| Read file      | T0        | No                |
+| List directory | T0        | No                |
+| Write file     | T1        | Yes (operator)    |
+| Delete file    | T2        | Yes (+ justification) |
+| Execute shell  | T2        | Yes (+ rollback plan) |
+| API mutation   | T1/T2     | Depends on API    |
+
+**Policy example:**
+```javascript
+// Deny shell execution outright
+{
+  "policy_id": "deny-shell",
+  "rule": "action === 'shell_execute'",
+  "decision": "deny",
+  "reason": "Shell execution forbidden in production"
+}
+
+// Require approval for file writes to /etc
+{
+  "policy_id": "sensitive-paths",
+  "rule": "action === 'write_file' && parameters.path.startsWith('/etc')",
+  "decision": "require_approval",
+  "tier": "T2"
+}
+```
+
+---
+
+## Tool Wrapper Patterns
+
+### Pattern 1: Simple Wrapper (Read-Only Tools)
+
+```javascript
+function wrapTool(originalTool, governor) {
+  return new DynamicTool({
+    name: originalTool.name,
+    description: originalTool.description,
+    func: async (input) => {
+      const intent = await governor.submitIntent({
+        action: originalTool.name,
+        parameters: { input },
+        risk_tier: 'T0'
+      });
+
+      const result = await governor.waitForExecution(intent.execution_id);
+      if (!result.success) throw new Error(result.reason);
+      
+      return result.output;
+    }
   });
 }
 ```
 
-## Example Scenarios
+### Pattern 2: Conditional Governance (Performance)
 
-The demo includes several realistic scenarios:
-
-### T0 (Auto-Approved): Web Search
 ```javascript
-// Policy: web searches are always safe → auto-approve
-await agent.search("AI governance trends");
-// Result: Immediate execution, no human approval needed
+function wrapTool(originalTool, governor, options = {}) {
+  return new DynamicTool({
+    name: originalTool.name,
+    description: originalTool.description,
+    func: async (input) => {
+      // Skip governance for safe operations (performance optimization)
+      if (options.skipGov && isSafeOperation(input)) {
+        return await originalTool.call(input);
+      }
+
+      // Govern risky operations
+      const intent = await governor.submitIntent({
+        action: originalTool.name,
+        parameters: { input },
+        risk_tier: inferRiskTier(input)
+      });
+
+      const result = await governor.waitForExecution(intent.execution_id);
+      return result.success ? result.output : Promise.reject(result.reason);
+    }
+  });
+}
 ```
 
-### T1 (Policy-Approved): Send Notification  
+### Pattern 3: Batch Governance (Multi-Tool Chains)
+
 ```javascript
-// Policy: notifications to internal channels → auto-approve
-await agent.sendSlack("#engineering", "Deployment complete");
-// Result: Policy approves, warrant issued, executed
+async function runGovernedChain(tools, inputs, governor) {
+  // Submit all intents upfront
+  const intents = await Promise.all(
+    inputs.map((input, i) => 
+      governor.submitIntent({
+        action: tools[i].name,
+        parameters: input,
+        chain_id: `chain_${Date.now()}`
+      })
+    )
+  );
+
+  // Wait for all approvals in parallel
+  const results = await Promise.all(
+    intents.map(intent => governor.waitForExecution(intent.execution_id))
+  );
+
+  return results;
+}
 ```
 
-### T2 (Human Approval): Data Export
-```javascript
-// Policy: data exports > 1000 records → require approval
-await agent.exportData({ table: "users", limit: 5000 });
-// Result: Pending human approval, execution waits
-```
+---
 
-### Denied: Scope Violation
-```javascript
-// Policy: agent scope is read-only, not admin
-await agent.deleteRecords({ table: "users" });
-// Result: Denied, agent flagged, security notified
-```
-
-## Policy Examples
-
-The example includes sample policies that demonstrate different risk tiers:
-
-```yaml
-# Low-risk tools (T0 - Auto-approved)
-- name: "Web Search Policy"
-  conditions:
-    - field: "tool_name"
-      operator: "equals"
-      value: "web_search"
-  actions: ["auto_approve"]
-  tier: "T0"
-
-# Medium-risk tools (T1 - Policy approval)
-- name: "Internal Communications" 
-  conditions:
-    - field: "tool_name"
-      operator: "equals"
-      value: "send_slack"
-    - field: "tool_args.channel"
-      operator: "starts_with"
-      value: "#"
-  actions: ["approve"]
-  tier: "T1"
-
-# High-risk tools (T2 - Human approval)
-- name: "Data Export Policy"
-  conditions:
-    - field: "tool_name"
-      operator: "equals"
-      value: "export_data"
-    - field: "tool_args.limit"
-      operator: "greater_than"
-      value: 1000
-  actions: ["require_approval"]
-  tier: "T2"
-```
-
-## Configuration
-
-### Environment Variables
+## Testing
 
 ```bash
-# Required: Vienna OS API key
-VIENNA_API_KEY=vna_your_api_key_here
+# Run unit tests
+npm test
 
-# Optional: Vienna OS API URL (defaults to production)
-VIENNA_API_URL=https://api.vienna-os.dev
-
-# Optional: Agent identification
-AGENT_ID=langchain-demo-agent
+# Run with Vienna in simulation mode (no real execution)
+VIENNA_SIMULATION=true node langchain-vienna.js
 ```
 
-### LangChain Tool Registration
+**Test coverage:**
+- ✅ Tool wrapper preserves LangChain interface
+- ✅ T0 tools execute without approval
+- ✅ T1 tools require approval
+- ✅ T2 tools require approval + justification
+- ✅ Policy denials block execution
+- ✅ Attestations created for all executions
+- ✅ Cost tracking functional
 
-```typescript
-import { createForLangChain } from '@vienna-os/sdk';
+---
 
-const vienna = createForLangChain({
-  apiKey: process.env.VIENNA_API_KEY!,
-  agentId: 'langchain-demo-agent',
+## Production Deployment
+
+### 1. Configure Vienna OS
+
+```bash
+# Set tenant + API key
+export VIENNA_TENANT="prod-langchain"
+export VIENNA_API_KEY="vks_..."
+
+# Configure policies
+node setup-policies.js
+```
+
+### 2. Wrap All Tools
+
+```javascript
+// Wrap ALL LangChain tools at initialization
+const tools = [
+  searchTool,
+  calculatorTool,
+  fileReaderTool,
+  apiTool
+].map(tool => wrapTool(tool, governor));
+```
+
+### 3. Monitor Governance
+
+```javascript
+// Listen for governance events
+governor.on('approval_required', (intent) => {
+  console.log(`Approval needed: ${intent.action}`);
+  // Notify operator via Slack/email
 });
 
-// Register your agent capabilities
-await vienna.register({
-  name: 'LangChain Demo Agent',
-  capabilities: 'web_search,send_slack,export_data',
-  framework: 'langchain',
-  version: '0.1.0'
+governor.on('execution_denied', (intent) => {
+  console.error(`Denied: ${intent.action} - ${intent.reason}`);
+  // Alert security team
 });
 ```
 
-## Code Walkthrough
+---
 
-### Main Agent Loop
+## Comparison: LangChain Native vs Vienna-Governed
 
-```typescript
-async function runGoverned LangChainAgent() {
-  // 1. Register with Vienna OS
-  await vienna.register({ name: 'Demo Agent' });
+| Feature | LangChain Native | Vienna-Governed |
+|---------|------------------|-----------------|
+| Tool execution | Direct | Via governance pipeline |
+| Policy enforcement | None | Automatic |
+| Approval workflow | None | T1/T2 require approval |
+| Audit trail | Optional (callbacks) | Immutable attestations |
+| Cost tracking | Manual | Automatic per-execution |
+| Attribution | None | Tenant + operator logged |
+| Rollback | Manual | Automatic (if supported) |
+| Safety guarantees | Developer discipline | Architectural enforcement |
 
-  // 2. Define tools with governance wrapper
-  const tools = [
-    governedTool('web_search', webSearchTool),
-    governedTool('send_slack', slackTool),
-    governedTool('export_data', exportTool),
-  ];
+---
 
-  // 3. Create LangChain agent with governed tools
-  const agent = createAgent(model, tools);
+## Advanced: Multi-Agent Coordination
 
-  // 4. Execute with automatic governance
-  const result = await agent.invoke({
-    input: "Search for AI governance trends and share findings with the team"
-  });
-}
+```javascript
+// Multiple LangChain agents, all governed by Vienna
+
+const researchAgent = createAgent([governedSearchTool]);
+const executionAgent = createAgent([governedFileWriteTool, governedApiTool]);
+
+// Vienna coordinates approvals across agents
+const coordinator = new ViennaCoordinator({
+  agents: [researchAgent, executionAgent],
+  policy: 'multi-agent-policy.json'
+});
+
+// Run coordinated workflow
+const result = await coordinator.runWorkflow({
+  objective: 'Research competitor and update pricing',
+  steps: [
+    { agent: 'research', action: 'search', params: { query: 'competitor pricing' } },
+    { agent: 'execution', action: 'update_db', params: { table: 'pricing' }, depends_on: [0] }
+  ]
+});
+
+// Vienna ensures:
+// - Research completes before DB update
+// - Both actions approved (if T1/T2)
+// - Full audit trail of coordination
 ```
 
-### Tool Governance Wrapper
+---
 
-```typescript
-function governedTool(name: string, originalTool: Tool): Tool {
-  return {
-    name,
-    description: originalTool.description,
-    async call(args: any) {
-      // Submit intent to Vienna OS
-      const intent = await vienna.submitToolIntent(name, args);
-      
-      if (intent.status === 'approved' || intent.status === 'auto-approved') {
-        try {
-          // Execute the original tool
-          const result = await originalTool.call(args);
-          
-          // Report successful execution
-          await vienna.reportExecution(intent.execution_id, 'success', { 
-            result: typeof result === 'string' ? { output: result } : result 
-          });
-          
-          return result;
-        } catch (error) {
-          // Report failed execution
-          await vienna.reportExecution(intent.execution_id, 'failure', {
-            error: error.message
-          });
-          throw error;
-        }
-      } else if (intent.status === 'pending') {
-        throw new Error(`Action requires approval. View at: ${intent.poll_url}`);
-      } else {
-        throw new Error(`Action denied: ${intent.reason || 'Policy violation'}`);
-      }
-    }
-  };
-}
-```
+## References
 
-## Next Steps
+- **Vienna SDK:** `npm install vienna-sdk`
+- **LangChain:** https://langchain.com/
+- **Governance Docs:** `../../CANONICAL_EXECUTION_PATH.md`
+- **Policy Examples:** `../../policies/langchain-examples.json`
 
-1. **Customize Policies**: Modify the governance rules to match your use case
-2. **Add More Tools**: Integrate additional LangChain tools with governance
-3. **Set Up Approvers**: Configure human approval workflows in the Vienna console
-4. **Monitor Fleet**: Track agent activities and policy violations
-5. **Production Deploy**: Scale to production with proper API keys and monitoring
-
-## Learn More
-
-- [Vienna OS Documentation](https://regulator.ai/docs)
-- [LangChain Documentation](https://langchain.com/docs)
-- [Policy Configuration Guide](https://regulator.ai/docs/policies)
-- [Approval Workflows](https://regulator.ai/docs/approvals)
-- [Vienna OS Console](https://console.regulator.ai)
-
-## Support
-
-- Issues: [GitHub Issues](https://github.com/risk-ai/regulator.ai/issues)
-- Community: [Discord](https://discord.gg/vienna-os)
-- Email: support@regulator.ai
+**For questions:** Escalate to Max/Metternich.

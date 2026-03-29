@@ -1,298 +1,270 @@
-# Vienna OS + CrewAI Integration
+# CrewAI + Vienna OS Integration
 
-This example shows how to integrate Vienna OS governance with CrewAI agents and crews. It demonstrates how multi-agent crews can submit tasks to Vienna OS for policy evaluation and approval before execution.
+**Govern multi-agent crews with Vienna OS coordination**
 
-## What This Does
+This example shows how to wrap CrewAI agents and tasks with Vienna OS governance, ensuring coordinated multi-agent workflows follow policy constraints and approval workflows.
 
-- **Governs CrewAI tasks** through Vienna OS policies
-- **Manages crew coordination** with risk-aware task distribution  
-- **Handles multi-agent approvals** for complex workflows
-- **Provides task audit trails** across entire crew executions
-- **Demonstrates role-based permissions** for different agent types
+---
 
-## Prerequisites
+## Architecture
 
-- Python 3.8+
-- Vienna OS API key (`vna_xxx`)
-- CrewAI library
-
-## Installation
-
-```bash
-# From the examples/crewai directory
-pip install -r requirements.txt
-
-# Set your Vienna OS API key
-export VIENNA_API_KEY=vna_your_api_key_here
 ```
+┌───────────────┐
+│  CrewAI Crew  │  (Orchestrator + multiple agents)
+└───────┬───────┘
+        │
+        ├─ Agent 1 (Researcher) → Vienna governance
+        ├─ Agent 2 (Writer) → Vienna governance
+        └─ Agent 3 (Editor) → Vienna governance
+             │
+             ▼
+     ┌──────────────┐
+     │  Vienna OS   │  (Policy + approval + coordination)
+     └──────────────┘
+```
+
+**Key features:**
+- Each agent's tasks governed independently
+- Cross-agent coordination tracked in State Graph
+- Approval gates can pause multi-agent workflows
+- Full audit trail of agent interactions
+
+---
 
 ## Quick Start
 
 ```bash
-# Run the example
-python main.py
-
-# Or run specific crew scenarios
-python main.py --scenario research_crew
-python main.py --scenario content_crew  
-python main.py --scenario finance_crew
+cd ~/regulator.ai/examples/crewai
+pip install -r requirements.txt
+python crewai_vienna.py
 ```
 
-## How It Works
+---
 
-### 1. Task Intent Submission
-
-Before executing any task, CrewAI agents submit intents to Vienna OS:
+## Code Example
 
 ```python
-from vienna_sdk import create_for_crewai
+# crewai_vienna.py
+from crewai import Agent, Task, Crew
+from vienna_sdk import ViennaGovernor
 
-vienna = create_for_crewai(
-    api_key=os.environ['VIENNA_API_KEY'],
-    agent_id='crew-researcher'
+# Initialize Vienna governance
+governor = ViennaGovernor(
+    tenant='crewai-demo',
+    api_key=os.getenv('VIENNA_API_KEY')
 )
 
-# Submit a task intent
-result = await vienna.submit_task_intent('market_research', {
-    'topic': 'AI governance trends',
-    'depth': 'comprehensive',
-    'sources': ['academic', 'industry', 'regulatory']
-})
-```
+# Define governed task wrapper
+def governed_task(agent, description, expected_output, risk_tier='T0'):
+    \"\"\"Wrap CrewAI task with Vienna governance\"\"\"
+    
+    def execute_task(context):
+        # Submit intent to Vienna
+        intent = governor.submit_intent({
+            'action': f'{agent.role}_task',
+            'parameters': {
+                'description': description,
+                'context': context
+            },
+            'risk_tier': risk_tier
+        })
+        
+        # Wait for approval (if T1/T2)
+        result = governor.wait_for_execution(intent['execution_id'])
+        
+        if not result['success']:
+            raise Exception(f\"Vienna denied: {result['reason']}\")
+        
+        # Execute actual task
+        return agent.execute_task(description, context)
+    
+    return Task(
+        description=description,
+        expected_output=expected_output,
+        agent=agent,
+        callback=execute_task
+    )
 
-### 2. Crew-Level Governance
-
-Vienna OS evaluates tasks based on:
-- **Agent role and capabilities**: Researchers vs. content creators vs. analysts
-- **Task complexity and risk**: Simple searches vs. data processing vs. external APIs
-- **Resource requirements**: Computation, API calls, data access
-- **Coordination policies**: Which agents can work together
-
-### 3. Multi-Agent Approval
-
-For complex crews, Vienna OS can:
-- Require approval for **lead agent** actions that affect the entire crew
-- Auto-approve **individual agent** tasks within approved scope  
-- Block **unauthorized collaboration** between restricted agents
-- Enforce **data sharing policies** between crew members
-
-## Example Crews
-
-### Research Crew (T1 - Policy Approved)
-
-```python
-research_crew = Crew(
-    agents=[researcher, analyst, fact_checker],
-    tasks=[
-        governed_task('web_research', {'query': 'AI governance 2024'}),
-        governed_task('data_analysis', {'sources': ['web_research']}),
-        governed_task('fact_verification', {'claims': ['data_analysis']})
-    ]
+# Define agents
+researcher = Agent(
+    role='Researcher',
+    goal='Find accurate information',
+    backstory='Expert at web research',
+    verbose=True
 )
-```
 
-**Outcome**: Research tasks are medium-risk (T1) and approved by policy automatically.
-
-### Content Crew (T1 - Policy Approved)
-
-```python
-content_crew = Crew(
-    agents=[writer, editor, reviewer],
-    tasks=[
-        governed_task('draft_article', {'topic': 'research_summary'}),
-        governed_task('edit_content', {'draft': ['draft_article']}),
-        governed_task('publish_review', {'content': ['edit_content']})
-    ]
+writer = Agent(
+    role='Writer',
+    goal='Write compelling content',
+    backstory='Professional content writer',
+    verbose=True
 )
-```
 
-**Outcome**: Content creation is approved with content policy constraints.
-
-### Finance Crew (T2 - Human Approval Required)
-
-```python
-finance_crew = Crew(
-    agents=[analyst, trader, risk_manager],
-    tasks=[
-        governed_task('market_analysis', {'symbols': ['NVDA', 'MSFT']}),
-        governed_task('trade_recommendation', {'analysis': ['market_analysis']}), 
-        governed_task('execute_trade', {'recommendation': ['trade_recommendation']})
-    ]
+# Define governed tasks
+research_task = governed_task(
+    agent=researcher,
+    description='Research AI governance best practices',
+    expected_output='Summary of governance approaches',
+    risk_tier='T0'  # Read-only research
 )
+
+writing_task = governed_task(
+    agent=writer,
+    description='Write blog post about AI governance',
+    expected_output='1000-word blog post',
+    risk_tier='T1'  # Requires approval (content creation)
+)
+
+# Create crew with Vienna governance
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, writing_task],
+    verbose=2
+)
+
+# Execute crew (all tasks governed)
+result = crew.kickoff()
+print(result)
 ```
 
-**Outcome**: Trading actions require human approval due to financial risk.
+---
 
-## Policy Configuration
+## Multi-Agent Coordination
 
-Vienna OS evaluates CrewAI tasks using policies like:
-
-```yaml
-# Research tasks (T1 - Auto-approved)
-- name: "CrewAI Research Policy"
-  conditions:
-    - field: "task_type" 
-      operator: "in"
-      value: ["web_research", "data_analysis", "fact_verification"]
-    - field: "agent_role"
-      operator: "equals"
-      value: "researcher"
-  actions: ["approve"]
-  tier: "T1"
-
-# Content creation (T1 - Policy approved)  
-- name: "CrewAI Content Policy"
-  conditions:
-    - field: "task_type"
-      operator: "in" 
-      value: ["draft_article", "edit_content"]
-    - field: "crew_context.domain"
-      operator: "equals"
-      value: "internal_docs"
-  actions: ["approve"]
-  tier: "T1"
-
-# Financial operations (T2 - Human approval)
-- name: "CrewAI Finance Policy"
-  conditions:
-    - field: "task_type"
-      operator: "equals"
-      value: "execute_trade"
-    - field: "task_payload.amount"
-      operator: "greater_than"
-      value: 10000
-  actions: ["require_approval"]
-  tier: "T2"
-```
-
-## Code Structure
+Vienna OS tracks dependencies between agents:
 
 ```python
+# Sequential workflow with governance
+tasks = [
+    governed_task(researcher, 'Research topic', 'Research summary', 'T0'),
+    governed_task(analyst, 'Analyze findings', 'Analysis report', 'T0'),
+    governed_task(writer, 'Write article', 'Article draft', 'T1'),
+    governed_task(editor, 'Edit article', 'Final article', 'T2')  # Publishing = T2
+]
+
+crew = Crew(agents=[researcher, analyst, writer, editor], tasks=tasks)
+
+# Vienna ensures:
+# - Each task policy-checked before execution
+# - T1 writing task requires approval
+# - T2 publishing task requires approval + justification
+# - Full causal chain tracked (research → analysis → writing → editing)
+```
+
+---
+
+## Approval Workflow Example
+
+```python
+# High-risk task requiring approval
+publish_task = governed_task(
+    agent=publisher,
+    description='Publish article to production blog',
+    expected_output='Published URL',
+    risk_tier='T2'  # Requires operator approval
+)
+
+# Vienna OS will:
+# 1. Evaluate policy (check if publishing allowed)
+# 2. Create approval request
+# 3. Wait for operator decision
+# 4. Execute if approved, deny if rejected
+# 5. Attest execution result
+```
+
+**Operator approves via console:**
+```bash
+curl -X POST http://localhost:3100/api/v1/approvals/{approval_id}/approve \
+  -H "Authorization: Bearer $VIENNA_API_KEY" \
+  -d '{"operator": "max", "reason": "Article reviewed and approved"}'
+```
+
+---
+
+## Testing
+
+```python
+# test_crewai_vienna.py
+import pytest
+from crewai_vienna import governed_task, governor
+
+def test_t0_task_auto_approved():
+    \"\"\"T0 tasks should execute without approval\"\"\"
+    task = governed_task(
+        agent=test_agent,
+        description='Read-only research',
+        expected_output='Data',
+        risk_tier='T0'
+    )
+    
+    result = task.execute({})
+    assert result['approved'] == True
+    assert 'attestation_id' in result
+
+def test_t2_task_requires_approval():
+    \"\"\"T2 tasks should wait for approval\"\"\"
+    task = governed_task(
+        agent=test_agent,
+        description='Publish to production',
+        expected_output='URL',
+        risk_tier='T2'
+    )
+    
+    # Should raise pending approval exception
+    with pytest.raises(ApprovalPendingError):
+        task.execute({})
+```
+
+---
+
+## Production Deployment
+
+```python
+# production_crew.py
 import os
 from crewai import Agent, Task, Crew
-from vienna_sdk import create_for_crewai
+from vienna_sdk import ViennaGovernor
 
-# Initialize Vienna adapter
-vienna = create_for_crewai(
-    api_key=os.environ['VIENNA_API_KEY'],
-    agent_id='crewai-demo'
+# Production configuration
+governor = ViennaGovernor(
+    tenant=os.getenv('VIENNA_TENANT'),
+    api_key=os.getenv('VIENNA_API_KEY'),
+    api_url='https://console.regulator.ai'
 )
 
-async def governed_task(task_type: str, payload: dict) -> Task:
-    """Creates a CrewAI task wrapped with Vienna governance."""
-    
-    async def execute_task():
-        # Submit intent to Vienna OS
-        result = await vienna.submit_task_intent(task_type, payload)
-        
-        if result.status in ['approved', 'auto-approved']:
-            # Execute original task logic
-            task_result = await original_task_execution(task_type, payload)
-            
-            # Report execution
-            await vienna.report_execution(result.execution_id, 'success', {
-                'result': task_result
-            })
-            
-            return task_result
-        else:
-            raise Exception(f"Task requires approval: {result.poll_url}")
-    
-    return Task(description=f"Governed {task_type}", execution_function=execute_task)
-```
-
-## Deployment
-
-### Environment Setup
-
-```bash
-# Production Vienna OS
-export VIENNA_API_KEY=vna_prod_key_here
-export VIENNA_API_URL=https://api.vienna-os.dev
-
-# Agent identification  
-export CREW_ID=production-research-crew
-export CREW_ENVIRONMENT=production
-```
-
-### Crew Registration
-
-```python
-# Register the entire crew with Vienna OS
-await vienna.register({
-    'crew_id': 'research-crew-v1',
-    'agents': ['researcher', 'analyst', 'fact-checker'], 
-    'capabilities': 'web_research,data_analysis,fact_verification',
-    'framework': 'crewai',
-    'version': '1.0.0'
-})
-```
-
-## Advanced Features
-
-### Role-Based Task Distribution
-
-```python
-# Different agents have different permissions
-researcher_vienna = create_for_crewai(api_key=key, agent_id='crew-researcher')
-analyst_vienna = create_for_crewai(api_key=key, agent_id='crew-analyst')
-writer_vienna = create_for_crewai(api_key=key, agent_id='crew-writer')
-
-# Researcher: Can access external APIs
-await researcher_vienna.submit_task_intent('web_research', {...})
-
-# Analyst: Can process data but not access external sources  
-await analyst_vienna.submit_task_intent('data_analysis', {...})
-
-# Writer: Can create content but not access raw data
-await writer_vienna.submit_task_intent('content_generation', {...})
-```
-
-### Crew Coordination Policies
-
-```python
-# Crew-level intent for coordinated actions
-await vienna.submit_task_intent('crew_coordination', {
-    'lead_agent': 'researcher',
-    'participating_agents': ['analyst', 'fact_checker'],
-    'coordination_type': 'sequential',
-    'data_sharing': True
-})
-```
-
-## Monitoring & Debugging
-
-```python
-# Get crew execution status
-crew_status = await vienna.get_crew_status('research-crew-v1')
-
-# Monitor individual agent activities
-agent_metrics = await vienna.get_agent_metrics('crew-researcher') 
-
-# Review task audit trails
-audit_trail = await vienna.get_audit_trail(
-    crew_id='research-crew-v1',
-    time_range='24h'
+# Set up approval notifications
+governor.on('approval_required', lambda intent: 
+    notify_slack(f\"Approval needed: {intent['action']}\")
 )
+
+# Define production crew
+crew = Crew(
+    agents=[...],
+    tasks=[...],
+    verbose=True
+)
+
+# Run with full governance
+result = crew.kickoff()
 ```
 
-## Next Steps
+---
 
-1. **Configure crew policies** in the Vienna console
-2. **Set up approval workflows** for high-risk crew activities  
-3. **Monitor crew performance** with Vienna's fleet management
-4. **Scale to production** with proper error handling and retries
-5. **Integrate with CI/CD** for automated crew deployments
+## Comparison: CrewAI Native vs Vienna-Governed
 
-## Learn More
+| Feature | CrewAI Native | Vienna-Governed |
+|---------|---------------|-----------------|
+| Multi-agent coordination | Built-in | Enhanced with governance |
+| Policy enforcement | None | Automatic per task |
+| Approval workflow | None | T1/T2 require approval |
+| Audit trail | Task logs | Immutable attestations |
+| Cross-agent visibility | Limited | Full causal chain |
+| Rollback | Manual | Automatic (if supported) |
 
-- [Vienna OS Documentation](https://regulator.ai/docs)
-- [CrewAI Documentation](https://crewai.com/docs)
-- [Multi-Agent Governance Guide](https://regulator.ai/docs/multi-agent)
-- [Policy Templates for CrewAI](https://regulator.ai/docs/templates/crewai)
+---
 
-## Support
+## References
 
-- Issues: [GitHub Issues](https://github.com/risk-ai/regulator.ai/issues)
-- Community: [Discord](https://discord.gg/vienna-os)  
-- Email: support@regulator.ai
+- Vienna SDK (Python): `pip install vienna-sdk`
+- CrewAI: https://crewai.com/
+- Governance Docs: `../../CANONICAL_EXECUTION_PATH.md`

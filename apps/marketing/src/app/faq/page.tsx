@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Shield, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -213,7 +214,7 @@ export default function FAQPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-6 h-6 text-purple-400" />
+            <Image src="/logo-mark.png" alt="Vienna OS" width={28} height={28} className="w-7 h-7" />
             <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
           <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">

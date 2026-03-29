@@ -48,6 +48,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  icons: {
+    icon: "/logo-mark.png",
+    apple: "/logo-mark.png",
+  },
   keywords: [
     "AI governance",
     "AI agent governance",

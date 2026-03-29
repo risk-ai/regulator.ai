@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import {
   Shield,
   Lock,
@@ -517,7 +518,7 @@ export default function Home() {
           {/* Nav */}
           <nav className="flex items-center justify-between mb-10" aria-label="Main navigation">
             <div className="flex items-center gap-3">
-              <Shield className="w-7 h-7 text-purple-400" />
+              <Image src="/logo-mark.png" alt="Vienna OS" width={32} height={32} className="w-8 h-8" />
               <span className="text-lg font-bold text-white tracking-tight">
                 Vienna<span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">OS</span>
               </span>
@@ -1428,7 +1429,7 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
               <div className="col-span-2 md:col-span-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <Shield className="w-6 h-6 text-purple-400" />
+                  <Image src="/logo-mark.png" alt="Vienna OS" width={28} height={28} className="w-7 h-7" />
                   <span className="font-bold text-white text-lg tracking-tight">
                     Vienna<span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">OS</span>
                   </span>

@@ -49,8 +49,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/logo-mark.png",
-    apple: "/logo-mark.png",
+    icon: "/logo-icon.png",
+    apple: "/logo-icon.png",
   },
   keywords: [
     "AI governance",

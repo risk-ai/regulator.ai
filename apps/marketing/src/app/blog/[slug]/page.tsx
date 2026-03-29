@@ -2644,7 +2644,7 @@ export default async function BlogPost({
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Image src="/logo-mark.png" alt="Vienna OS" width={24} height={24} className="w-6 h-6" />
+            <Image src="/logo-icon.png" alt="Vienna OS" width={24} height={24} className="w-6 h-6" />
             <span className="text-sm">Back to Blog</span>
           </a>
         </div>

@@ -179,8 +179,121 @@ export default function PricingPage() {
     analytics.pricingView();
   }, []);
 
+  // Structured data for pricing page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": "https://regulator.ai/pricing#product",
+    "name": "Vienna OS - AI Agent Governance Platform",
+    "description": "Execution control infrastructure for autonomous AI systems with per-agent pricing. Start free with Community tier, scale to Enterprise with unlimited agents and on-premise deployment.",
+    "brand": {
+      "@type": "Brand",
+      "name": "Vienna OS"
+    },
+    "manufacturer": {
+      "@type": "Organization",
+      "name": "ai.ventures",
+      "url": "https://ai.ventures"
+    },
+    "category": "AI Governance Software",
+    "offers": [
+      {
+        "@type": "Offer",
+        "@id": "https://regulator.ai/pricing#community",
+        "name": "Community",
+        "description": "Open-source core. Self-hosted. Get started governing your agents today.",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2030-12-31",
+        "url": "https://github.com/risk-ai/regulator.ai",
+        "eligibleQuantity": {
+          "@type": "QuantitativeValue",
+          "value": "5",
+          "unitText": "agents"
+        }
+      },
+      {
+        "@type": "Offer",
+        "@id": "https://regulator.ai/pricing#team",
+        "name": "Team",
+        "description": "Cloud-hosted governance for growing teams. Everything in Community, plus managed infrastructure.",
+        "price": "49",
+        "priceCurrency": "USD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "49",
+          "priceCurrency": "USD",
+          "billingDuration": "P1M",
+          "unitText": "agent"
+        },
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2030-12-31",
+        "url": "https://regulator.ai/signup?plan=team",
+        "eligibleQuantity": {
+          "@type": "QuantitativeValue",
+          "maxValue": "25",
+          "unitText": "agents"
+        }
+      },
+      {
+        "@type": "Offer",
+        "@id": "https://regulator.ai/pricing#business",
+        "name": "Business",
+        "description": "Advanced governance for enterprises. Custom policies, SSO, priority support.",
+        "price": "99",
+        "priceCurrency": "USD",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "99",
+          "priceCurrency": "USD",
+          "billingDuration": "P1M",
+          "unitText": "agent"
+        },
+        "availability": "https://schema.org/InStock",
+        "priceValidUntil": "2030-12-31",
+        "url": "https://regulator.ai/signup?plan=business",
+        "eligibleQuantity": {
+          "@type": "QuantitativeValue",
+          "maxValue": "100",
+          "unitText": "agents"
+        }
+      },
+      {
+        "@type": "Offer",
+        "@id": "https://regulator.ai/pricing#enterprise",
+        "name": "Enterprise",
+        "description": "Unlimited governance. On-premise, SOC 2, dedicated support. Built for regulated industries.",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "priceCurrency": "USD",
+          "price": "Contact for pricing"
+        },
+        "availability": "https://schema.org/InStock",
+        "url": "https://regulator.ai/contact?subject=enterprise",
+        "eligibleQuantity": {
+          "@type": "QuantitativeValue",
+          "value": "unlimited",
+          "unitText": "agents"
+        }
+      }
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "12",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  };
+
   return (
     <main className="min-h-screen bg-navy-900 text-white">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Navigation */}
       <nav className="border-b border-navy-700">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">

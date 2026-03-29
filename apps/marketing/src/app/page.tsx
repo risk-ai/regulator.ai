@@ -385,8 +385,117 @@ function ScrollReveal({ children, className = "", delay = 0 }: { children: React
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Structured data for homepage
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://ai.ventures/#organization",
+        "name": "ai.ventures",
+        "alternateName": "Technetwork 2 LLC dba ai.ventures",
+        "url": "https://ai.ventures",
+        "logo": "https://ai.ventures/logo.png",
+        "description": "AI venture capital and technology development company focused on autonomous AI systems and governance infrastructure.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "US"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "admin@ai.ventures",
+          "contactType": "customer support"
+        },
+        "sameAs": [
+          "https://github.com/risk-ai",
+          "https://twitter.com/ViennaOS"
+        ],
+        "foundingDate": "2026"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://regulator.ai/#software",
+        "name": "Vienna OS",
+        "alternateName": "Vienna Operating System",
+        "description": "The execution control layer for autonomous AI systems. Provides cryptographic warrants, policy enforcement, risk tiering, and immutable audit trails for AI agent governance.",
+        "url": "https://regulator.ai",
+        "downloadUrl": "https://github.com/risk-ai/regulator.ai",
+        "operatingSystem": "Cross-platform",
+        "applicationCategory": "SecurityApplication",
+        "applicationSubCategory": "AI Governance",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Community",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "Open-source core for up to 5 agents",
+            "availability": "https://schema.org/InStock"
+          },
+          {
+            "@type": "Offer",
+            "name": "Team",
+            "price": "49",
+            "priceCurrency": "USD",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "49",
+              "priceCurrency": "USD",
+              "billingDuration": "P1M",
+              "unitText": "agent"
+            },
+            "description": "Cloud-hosted governance for up to 25 agents",
+            "availability": "https://schema.org/InStock"
+          },
+          {
+            "@type": "Offer",
+            "name": "Business",
+            "price": "99",
+            "priceCurrency": "USD",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "99",
+              "priceCurrency": "USD",
+              "billingDuration": "P1M",
+              "unitText": "agent"
+            },
+            "description": "Advanced governance for up to 100 agents with SSO and custom policies",
+            "availability": "https://schema.org/InStock"
+          }
+        ],
+        "author": {
+          "@id": "https://ai.ventures/#organization"
+        },
+        "publisher": {
+          "@id": "https://ai.ventures/#organization"
+        },
+        "license": "https://mariadb.com/bsl11/",
+        "programmingLanguage": "JavaScript",
+        "runtimePlatform": "Node.js",
+        "requirements": "Node.js 22+, SQLite/PostgreSQL",
+        "featureList": [
+          "Cryptographic execution warrants",
+          "Policy-as-code engine",
+          "Risk tier classification (T0-T3)",
+          "Multi-party approval workflows",
+          "Immutable audit trail",
+          "Post-execution verification",
+          "Framework-agnostic integration",
+          "Real-time governance dashboard"
+        ],
+        "screenshot": "https://regulator.ai/screenshot.png",
+        "softwareVersion": "1.0"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-navy-900">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* ============================================
           HERO - Enhanced with aurora background

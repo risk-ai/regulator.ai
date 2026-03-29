@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/docs/api-reference`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     // Blog
     { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/blog/zero-trust-ai-agent-pipeline`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/how-execution-warrants-work`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/vienna-os-vs-guardrails-ai`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/blog/governing-langchain-agents`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },

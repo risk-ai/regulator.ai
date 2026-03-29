@@ -9,6 +9,17 @@ import { analytics } from "@/lib/analytics";
 
 const posts = [
   {
+    slug: "zero-trust-ai-agent-pipeline",
+    title: "Building a Zero-Trust AI Agent Pipeline",
+    excerpt:
+      "Zero trust isn't just for networks — it applies to AI agents too. Learn how to implement zero-trust security with Vienna OS: never trust, always verify, every action, every time.",
+    date: "March 28, 2026",
+    readTime: "8 min",
+    category: "Security",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Vienna OS Team",
+  },
+  {
     slug: "ai-agent-disasters-prevented",
     title: "5 AI Agent Disasters That Could Have Been Prevented with Execution Control",
     excerpt:

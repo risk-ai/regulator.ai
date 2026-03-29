@@ -113,8 +113,89 @@ function FeatureIcon({ value }: { value: boolean | string }) {
 }
 
 export default function ComparePage() {
+  // Structured data for compare page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://regulator.ai/compare#software",
+        "name": "Vienna OS",
+        "description": "Execution control layer for AI agents. Unlike prompt filtering (Guardrails AI), model monitoring (Arthur AI), or compliance documentation (Credo AI), Vienna OS controls what agents can actually do through cryptographic warrants and policy enforcement.",
+        "url": "https://regulator.ai",
+        "applicationCategory": "SecurityApplication",
+        "applicationSubCategory": "AI Governance",
+        "operatingSystem": "Cross-platform",
+        "offers": {
+          "@type": "Offer",
+          "name": "Vienna OS Governance Platform",
+          "priceRange": "$0-99+ per agent/month",
+          "availability": "https://schema.org/InStock"
+        },
+        "featureList": [
+          "Pre-execution enforcement",
+          "Cryptographic warrants (HMAC-SHA256)",
+          "Risk tiering (T0-T3)",
+          "Post-execution scope verification",
+          "Tamper detection",
+          "Policy-as-code engine",
+          "Multi-party approval workflows",
+          "Immutable audit trail"
+        ],
+        "competitorOf": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Guardrails AI"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Arthur AI"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Credo AI"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What makes Vienna OS different from AI guardrails?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Guardrails AI filters prompts and outputs at the LLM layer. Vienna OS controls execution - what agents can actually do. While prompt filtering validates content, Vienna OS enforces authorization with cryptographic warrants before any real-world action happens."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Vienna OS compare to model monitoring solutions?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Model monitoring tools like Arthur AI observe performance after the fact. Vienna OS prevents unauthorized actions before they happen through pre-execution policy enforcement and cryptographic authorization."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is execution control mandatory for AI agents?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can deploy AI agents without prompt filtering, model monitoring, or compliance documentation. You cannot deploy responsibly without execution control. Vienna OS ensures every agent action is authorized, scoped, and auditable."
+            }
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-navy-900">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* Nav */}
       <nav className="max-w-6xl mx-auto px-6 pt-8 pb-6">
         <div className="flex items-center justify-between">

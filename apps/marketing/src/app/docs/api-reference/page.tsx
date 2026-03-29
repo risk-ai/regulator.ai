@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -339,7 +338,7 @@ export default function ApiReferencePage() {
             </a>
             <span className="text-slate-700 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <Image src="/logo-icon.png" alt="Vienna OS" width={24} height={24} className="w-6 h-6" />
+              <Shield className="w-6 h-6 text-violet-400" />
               <span className="font-bold text-white text-sm">Vienna<span className="text-purple-400">OS</span></span>
             </div>
             <span className="text-slate-700 text-xs font-mono hidden sm:inline">API v1</span>

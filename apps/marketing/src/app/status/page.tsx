@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 
 import { useState, useEffect } from "react";
 import { Shield, ArrowLeft, RefreshCw } from "lucide-react";
@@ -55,7 +54,7 @@ export default function StatusPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Image src="/logo-icon.png" alt="Vienna OS" width={28} height={28} className="w-7 h-7" />
+            <Shield className="w-7 h-7 text-violet-400" />
             <span className="font-bold text-white">Vienna<span className="text-purple-400">OS</span></span>
           </a>
           <button

@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 
 import { Shield, ArrowLeft, Check, X, Minus, ArrowRight } from "lucide-react";
 import { analytics } from "@/lib/analytics";
@@ -201,9 +200,9 @@ export default function ComparePage() {
       <nav className="max-w-6xl mx-auto px-6 pt-8 pb-6">
         <div className="flex items-center justify-between">
           <a href="/" className="flex items-center gap-3">
-            <Image src="/logo-icon.png" alt="Vienna OS" width={28} height={28} className="w-7 h-7" />
+            <Shield className="w-7 h-7 text-violet-400" />
             <span className="text-lg font-bold text-white tracking-tight">
-              Vienna<span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">OS</span>
+              Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-4">
@@ -229,7 +228,7 @@ export default function ComparePage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             Four layers of AI governance.{" "}
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
               Only one controls execution.
             </span>
           </h1>

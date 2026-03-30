@@ -9,7 +9,7 @@ export const config = {
   runtime: 'edge',
 };
 
-const BACKEND_URL = 'https://conservation-vital-membrane-ssl.trycloudflare.com';
+const BACKEND_URL = 'https://rogers-exposed-respiratory-cruise.trycloudflare.com';
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);

@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /signup/success
+
+Sitemap: https://regulator.ai/sitemap.xml

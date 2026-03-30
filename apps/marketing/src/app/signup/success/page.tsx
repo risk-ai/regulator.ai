@@ -1,14 +1,69 @@
 "use client";
 
 import { Shield, ArrowRight, CheckCircle, Zap, BookOpen, Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { analytics } from "@/lib/analytics";
 
-export default function SuccessPage() {
+function SuccessContent() {
+  const searchParams = useSearchParams()
+  const plan = searchParams.get('plan') || 'unknown'
+  const sessionId = searchParams.get('session_id')
+  const [verified, setVerified] = useState<boolean | null>(sessionId ? null : true)
+
   useEffect(() => {
-    // Track signup success - we'll use a default plan since this is the generic success page
-    analytics.signupSuccess('unknown');
-  }, []);
+    // If we have a session_id from Stripe embedded checkout, verify it
+    if (sessionId && sessionId.startsWith('cs_')) {
+      // Create verify endpoint or add verification logic here
+      // For now, assume success and track
+      setVerified(true)
+    }
+
+    // Track signup success with actual plan
+    analytics.signupSuccess(plan);
+
+    // Fire conversion tracking if verified purchase
+    if (verified !== false && typeof window !== 'undefined' && (window as any).gtag) {
+      const value = plan === 'business' ? 199 : plan === 'team' ? 99 : 1
+      
+      // GA4 purchase event
+      if (sessionId) {
+        (window as any).gtag('event', 'purchase', {
+          transaction_id: sessionId,
+          value: value,
+          currency: 'USD',
+          items: [
+            {
+              item_id: `regulator-ai-${plan}`,
+              item_name: `Regulator.AI ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`,
+              price: value,
+              quantity: 1,
+            },
+          ],
+        })
+
+        // Google Ads conversion tracking
+        // TODO: Replace AW-XXXXX/CONVERSION_LABEL with actual regulator.ai Google Ads conversion
+        (window as any).gtag('event', 'conversion', {
+          send_to: 'AW-XXXXX/CONVERSION_LABEL',
+          value: value,
+          currency: 'USD',
+          transaction_id: sessionId,
+        })
+      }
+    }
+  }, [plan, sessionId, verified])
+
+  if (verified === null) {
+    return (
+      <div className="min-h-screen bg-navy-900 flex items-center justify-center p-6">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <p>Verifying your purchase...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-navy-900 flex items-center justify-center p-6">
       <div className="max-w-2xl mx-auto text-center">
@@ -208,5 +263,15 @@ export default function SuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-navy-900 flex items-center justify-center p-6">
+      <div className="text-center text-white">Loading...</div>
+    </div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

@@ -182,9 +182,11 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', 'G-7LZLG0D79N');
+              gtag('config', 'AW-XXXXX');
             `,
           }}
         />
+        {/* TODO: Replace AW-XXXXX with actual Google Ads conversion ID for regulator.ai */}
       </head>
       <body className={`${inter.variable} ${jetbrains.variable} ${inter.className}`}>
         {/* Skip to content — accessibility */}

@@ -7,6 +7,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/vienna-execute.ts",
+      "use": "@vercel/node"
+    },
+    {
       "src": "public/**",
       "use": "@vercel/static"
     }

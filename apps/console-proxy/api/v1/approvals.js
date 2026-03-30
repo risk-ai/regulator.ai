@@ -1,53 +1,39 @@
 /**
  * Approval Management API
- * Handle approval requests for T1/T2/T3 actions
+ * TENANT-ISOLATED: All queries filter by tenant_id
  */
 
-const { requireAuth } = require('./_auth');
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { requireAuth, pool } = require('./_auth');
 
 module.exports = async function handler(req, res) {
-  // Vercel passes the path without the route prefix
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/approvals/, '');
-  const params = Object.fromEntries(url.searchParams);
+  const queryParams = Object.fromEntries(url.searchParams);
 
-  // Auth required
-  const user = requireAuth(req, res);
-  if (!user) return; // 401 already sent
+  const user = await requireAuth(req, res);
+  if (!user) return;
   const tenantId = user.tenant_id;
   
   try {
-    // List all pending approvals
+    // List approvals
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
-      const status = params.status || 'pending';
-      const tier = params.tier;
+      const status = queryParams.status || 'pending';
+      const tier = queryParams.tier;
       
       let query = `
-        SELECT 
-          a.*,
-          e.event_type,
-          e.stage
-        FROM public.approval_requests a
-        LEFT JOIN public.execution_ledger_events e 
-          ON e.execution_id = a.execution_id
-        WHERE a.status = $1
+        SELECT * FROM public.approval_requests
+        WHERE tenant_id = $1 AND status = $2
       `;
-      const params = [status];
+      const values = [tenantId, status];
       
       if (tier) {
-        query += ` AND a.required_tier = $2`;
-        params.push(tier);
+        values.push(tier);
+        query += ` AND required_tier = $${values.length}`;
       }
       
-      query += ` ORDER BY a.requested_at DESC LIMIT 100`;
+      query += ` ORDER BY requested_at DESC LIMIT 100`;
       
-      const result = await pool.query(query, params);
+      const result = await pool.query(query, values);
       
       return res.json({
         success: true,
@@ -55,33 +41,14 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    // Get specific approval details
+    // Get specific approval
     if (req.method === 'GET' && path.startsWith('/')) {
       const approvalId = path.substring(1).split('/')[0];
       
-      if (!approvalId) {
-        return res.status(400).json({
-          success: false,
-          error: 'Approval ID required'
-        });
-      }
-      
       const result = await pool.query(
-        `SELECT 
-          a.*,
-          jsonb_agg(
-            jsonb_build_object(
-              'event_type', e.event_type,
-              'stage', e.stage,
-              'timestamp', e.event_timestamp
-            ) ORDER BY e.event_timestamp
-          ) as audit_trail
-        FROM public.approval_requests a
-        LEFT JOIN public.execution_ledger_events e 
-          ON e.execution_id = a.execution_id
-        WHERE a.approval_id = $1
-        GROUP BY a.approval_id`,
-        [approvalId]
+        `SELECT * FROM public.approval_requests 
+         WHERE approval_id = $1 AND tenant_id = $2`,
+        [approvalId, tenantId]
       );
       
       if (result.rows.length === 0) {
@@ -98,144 +65,74 @@ module.exports = async function handler(req, res) {
     }
     
     // Approve action
-    if (req.method === 'POST' && path.endsWith('/approve')) {
+    if (req.method === 'POST' && path.includes('/approve')) {
       const approvalId = path.split('/')[1];
-      const { reviewer_id = 'system', notes } = req.body;
+      const { reviewer, notes } = req.body;
       
-      // Get approval details
-      const approval = await pool.query(
-        'SELECT * FROM public.approval_requests WHERE approval_id = $1',
-        [approvalId]
-      );
-      
-      if (approval.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: 'Approval not found'
-        });
-      }
-      
-      const request = approval.rows[0];
-      
-      // Check if already processed
-      if (request.status !== 'pending') {
+      if (!reviewer) {
         return res.status(400).json({
           success: false,
-          error: `Approval already ${request.status}`
+          error: 'reviewer required'
         });
       }
       
-      // Check if expired
-      if (new Date(request.expires_at) < new Date()) {
-        return res.status(400).json({
-          success: false,
-          error: 'Approval request expired'
-        });
-      }
-      
-      // Update approval status
-      await pool.query(
+      const result = await pool.query(
         `UPDATE public.approval_requests 
          SET status = 'approved', 
              reviewed_by = $1, 
              reviewed_at = NOW(),
              reviewer_notes = $2
-         WHERE approval_id = $3`,
-        [reviewer_id, notes, approvalId]
+         WHERE approval_id = $3 AND tenant_id = $4 AND status = 'pending'
+         RETURNING *`,
+        [reviewer, notes || '', approvalId, tenantId]
       );
       
-      // Issue warrant now that it's approved
-      const warrantId = `warrant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      await pool.query(
-        `INSERT INTO public.execution_ledger_events 
-         (event_id, tenant_id, execution_id, event_type, stage, sequence_num, event_timestamp)
-         VALUES ($1, 'default', $2, 'warrant_issued', 'warrant', 2, NOW())`,
-        [warrantId, request.execution_id]
-      );
-      
-      // Log execution
-      await pool.query(
-        `INSERT INTO public.execution_ledger_events 
-         (event_id, tenant_id, execution_id, event_type, stage, sequence_num, event_timestamp)
-         VALUES ($1, 'default', $2, 'execution_approved', 'execution', 3, NOW())`,
-        [request.execution_id + '_approved', request.execution_id]
-      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Approval not found or already processed'
+        });
+      }
       
       return res.json({
         success: true,
-        data: {
-          approval_id: approvalId,
-          execution_id: request.execution_id,
-          warrant_id: warrantId,
-          status: 'approved',
-          reviewed_by: reviewer_id
-        }
+        data: result.rows[0]
       });
     }
     
     // Reject action
-    if (req.method === 'POST' && path.endsWith('/reject')) {
+    if (req.method === 'POST' && path.includes('/reject')) {
       const approvalId = path.split('/')[1];
-      const { reviewer_id = 'system', reason } = req.body;
+      const { reviewer, reason } = req.body;
       
-      if (!reason) {
+      if (!reviewer || !reason) {
         return res.status(400).json({
           success: false,
-          error: 'Rejection reason required'
+          error: 'reviewer and reason required'
         });
       }
       
-      // Get approval details
-      const approval = await pool.query(
-        'SELECT * FROM public.approval_requests WHERE approval_id = $1',
-        [approvalId]
-      );
-      
-      if (approval.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: 'Approval not found'
-        });
-      }
-      
-      const request = approval.rows[0];
-      
-      // Check if already processed
-      if (request.status !== 'pending') {
-        return res.status(400).json({
-          success: false,
-          error: `Approval already ${request.status}`
-        });
-      }
-      
-      // Update approval status
-      await pool.query(
+      const result = await pool.query(
         `UPDATE public.approval_requests 
          SET status = 'rejected', 
              reviewed_by = $1, 
              reviewed_at = NOW(),
              reviewer_notes = $2
-         WHERE approval_id = $3`,
-        [reviewer_id, reason, approvalId]
+         WHERE approval_id = $3 AND tenant_id = $4 AND status = 'pending'
+         RETURNING *`,
+        [reviewer, reason, approvalId, tenantId]
       );
       
-      // Log rejection
-      await pool.query(
-        `INSERT INTO public.execution_ledger_events 
-         (event_id, tenant_id, execution_id, event_type, stage, sequence_num, event_timestamp)
-         VALUES ($1, 'default', $2, 'execution_rejected', 'execution', 3, NOW())`,
-        [request.execution_id + '_rejected', request.execution_id]
-      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Approval not found or already processed'
+        });
+      }
       
       return res.json({
         success: true,
-        data: {
-          approval_id: approvalId,
-          execution_id: request.execution_id,
-          status: 'rejected',
-          reviewed_by: reviewer_id,
-          reason
-        }
+        data: result.rows[0]
       });
     }
     

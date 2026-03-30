@@ -486,14 +486,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ success: true, data: policies, rules, count: policies.length });
       }
 
-      // Approvals list (tenant-scoped)
-      if (path.match(/\/api\/v1\/(warrants|approvals)/) && req.method === 'GET') {
-        const approvals = await query(
-          'SELECT * FROM public.approval_requests WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
-          [tenantId]
-        );
-        return res.status(200).json({ success: true, data: approvals });
-      }
+      // Approvals and warrants now handled by dedicated endpoints (approvals.js, warrants.js)
 
       // Proposals list (tenant-scoped)  
       if (path === '/api/v1/proposals' && req.method === 'GET') {

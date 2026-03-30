@@ -103,17 +103,24 @@ class ViennaClient:
     # ─── Approvals ───────────────────────────────────────────────
 
     def approve_proposal(
-        self, proposal_id: str, reviewer: Optional[str] = None
+        self,
+        proposal_id: str,
+        reviewer: Optional[str] = None,
+        reason: Optional[str] = None,
     ) -> Warrant:
         """Approve a pending proposal. Returns the issued warrant."""
         data = self._post(
-            f"/api/v1/proposals/{proposal_id}/approve", {"reviewer": reviewer}
+            f"/api/v1/proposals/{proposal_id}/approve",
+            {"approved_by": reviewer or self.agent_id, "reason": reason},
         )
         return Warrant(**data["warrant"])
 
     def deny_proposal(self, proposal_id: str, reason: str) -> None:
         """Deny a pending proposal."""
-        self._post(f"/api/v1/proposals/{proposal_id}/deny", {"reason": reason})
+        self._post(
+            f"/api/v1/proposals/{proposal_id}/deny",
+            {"denied_by": self.agent_id, "reason": reason},
+        )
 
     # ─── Query ───────────────────────────────────────────────────
 

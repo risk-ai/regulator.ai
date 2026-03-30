@@ -96,15 +96,21 @@ export class ViennaClient {
    * Approve a pending proposal (operator action).
    * Returns the issued warrant.
    */
-  async approveProposal(proposalId: string, reviewer?: string): Promise<{ warrant: Warrant }> {
-    return this.post(`/api/v1/proposals/${proposalId}/approve`, { reviewer });
+  async approveProposal(proposalId: string, options?: { reviewer?: string; reason?: string }): Promise<{ warrant: Warrant }> {
+    return this.post(`/api/v1/proposals/${proposalId}/approve`, {
+      approved_by: options?.reviewer ?? this.agentId,
+      reason: options?.reason,
+    });
   }
 
   /**
    * Deny a pending proposal (operator action).
    */
   async denyProposal(proposalId: string, reason: string): Promise<void> {
-    await this.post(`/api/v1/proposals/${proposalId}/deny`, { reason });
+    await this.post(`/api/v1/proposals/${proposalId}/deny`, {
+      denied_by: this.agentId,
+      reason,
+    });
   }
 
   // ─── Query ────────────────────────────────────────────────────────

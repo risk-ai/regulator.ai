@@ -761,6 +761,9 @@ module.exports = async function handler(req, res) {
     // Approve pending proposal
     if (path.match(/^\/api\/v1\/proposals\/[^/]+\/approve$/) && req.method === 'POST') {
       const proposalId = path.split('/')[4];
+      const body = await parseBody(req);
+      const approver = body.approved_by || body.reviewer || 'operator';
+      const reason = body.reason || body.decision_reason || null;
       const proposals = await query('SELECT * FROM regulator.proposals WHERE id = $1', [proposalId]);
       if (proposals.length === 0) return res.status(404).json({ success: false, error: 'Proposal not found' });
       
@@ -770,10 +773,10 @@ module.exports = async function handler(req, res) {
       const expiresAt = new Date(Date.now() + 300000).toISOString();
 
       await query('INSERT INTO regulator.warrants (id, proposal_id, signature, expires_at, revoked, issued_by, created_at, tenant_id) VALUES ($1, $2, $3, $4, false, $5, NOW(), $6)',
-        [warrantId, proposalId, signature, expiresAt, 'operator', p.tenant_id]);
+        [warrantId, proposalId, signature, expiresAt, approver, p.tenant_id]);
       await query('UPDATE regulator.proposals SET warrant_id = $1, state = $2 WHERE id = $3', [warrantId, 'warranted', proposalId]);
       await query('INSERT INTO regulator.audit_log (id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)',
-        [crypto.randomUUID(), proposalId, warrantId, 'warrant_issued', 'operator', p.risk_tier, JSON.stringify({ approved_by: 'operator' }), p.tenant_id]);
+        [crypto.randomUUID(), proposalId, warrantId, 'warrant_issued', approver, p.risk_tier, JSON.stringify({ approved_by: approver, reason }), p.tenant_id]);
 
       return res.status(200).json({ success: true, data: { warrant: { id: warrantId, signature, expires_at: expiresAt } } });
     }

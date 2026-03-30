@@ -1,93 +1,129 @@
 /**
- * Vercel Serverless Function: API Proxy to NUC Backend
+ * Vercel Serverless Function: Direct Backend Integration
  * 
- * This is a temporary proxy until backend is fully migrated to Vercel.
- * Routes all requests to the NUC backend via Cloudflare Tunnel.
+ * Handles all /api/* requests directly instead of proxying.
+ * Connects to Neon PostgreSQL for data.
  */
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
+  maxDuration: 30,
 };
 
-const BACKEND_URL = 'https://api.regulator.ai';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req: Request) {
-  const url = new URL(req.url);
+const NEON_DATABASE_URL = process.env.POSTGRES_URL || 'postgresql://neondb_owner:npg_4wSRU8FXqtiO@ep-flat-wildflower-an6sdkxt.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require';
+
+// Simple health check
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const path = req.url?.replace(/^\/api\//, '') || '';
   
-  // Handle /health endpoint (public, no /api prefix)
-  if (url.pathname === '/health') {
-    const targetUrl = `${BACKEND_URL}/health`;
+  // Health check
+  if (path === 'v1/health' || path === 'health') {
+    return res.status(200).json({
+      success: true,
+      data: {
+        runtime: {
+          status: "healthy",
+          platform: "vercel-serverless",
+          uptime_seconds: Math.floor(Date.now() / 1000)
+        },
+        timestamp: new Date().toISOString()
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  // Policy templates
+  if (path.startsWith('v1/policy-templates')) {
+    const { Pool } = require('pg');
+    const pool = new Pool({ connectionString: NEON_DATABASE_URL });
     
     try {
-      const response = await fetch(targetUrl, {
-        method: req.method,
-        headers: {
-          'Content-Type': req.headers.get('content-type') || 'application/json',
-        },
-      });
+      const result = await pool.query(`
+        SELECT id, name, category, description, scope, actions, conditions, tier, tags, active, created_at, updated_at
+        FROM policy_templates
+        ORDER BY category, name
+      `);
       
-      return new Response(response.body, {
-        status: response.status,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+      await pool.end();
+      
+      return res.status(200).json({
+        success: true,
+        data: result.rows,
+        timestamp: new Date().toISOString()
       });
-    } catch (error) {
-      return new Response(JSON.stringify({
+    } catch (error: any) {
+      await pool.end();
+      return res.status(500).json({
         success: false,
-        error: 'Backend unavailable',
-        code: 'HEALTH_CHECK_FAILED',
-      }), {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' },
+        error: error.message,
+        code: 'DATABASE_ERROR'
       });
     }
   }
   
-  // Extract the path after /api/
-  const path = url.pathname.replace(/^\/api\//, '');
+  // Agent templates  
+  if (path.startsWith('v1/agent-templates')) {
+    const { Pool } = require('pg');
+    const pool = new Pool({ connectionString: NEON_DATABASE_URL });
+    
+    try {
+      const result = await pool.query(`
+        SELECT id, name, role, description, capabilities, default_policies, configuration, tags, active, created_at, updated_at
+        FROM agent_templates
+        ORDER BY role, name
+      `);
+      
+      await pool.end();
+      
+      return res.status(200).json({
+        success: true,
+        data: result.rows,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      await pool.end();
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+        code: 'DATABASE_ERROR'
+      });
+    }
+  }
   
-  // Construct target URL (backend expects /api/* paths)
-  const targetUrl = `${BACKEND_URL}/api/${path}${url.search}`;
-  
-  try {
-    // Forward the request
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers: {
-        'Content-Type': req.headers.get('content-type') || 'application/json',
-        'Cookie': req.headers.get('cookie') || '',
-        'Authorization': req.headers.get('authorization') || '',
-      },
-      body: req.method !== 'GET' && req.method !== 'HEAD' ? await req.text() : undefined,
-    });
+  // Auth endpoints
+  if (path.startsWith('v1/auth/login')) {
+    // Simple demo login - replace with real auth
+    const { email, password } = req.body as any;
     
-    // Forward response with CORS headers
-    const responseHeaders = new Headers(response.headers);
-    responseHeaders.set('Access-Control-Allow-Origin', '*');
-    responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
-    responseHeaders.set('Access-Control-Allow-Credentials', 'true');
+    if (email === 'demo@regulator.ai' && password === 'demo') {
+      return res.status(200).json({
+        success: true,
+        data: {
+          token: 'demo-token-' + Date.now(),
+          user: {
+            id: 'demo-user',
+            email: 'demo@regulator.ai',
+            name: 'Demo User'
+          }
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
     
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: responseHeaders,
-    });
-    
-  } catch (error) {
-    console.error('Proxy error:', error);
-    return new Response(JSON.stringify({
+    return res.status(401).json({
       success: false,
-      error: 'Backend unavailable',
-      code: 'PROXY_ERROR',
-      timestamp: new Date().toISOString(),
-    }), {
-      status: 502,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      error: 'Invalid credentials',
+      code: 'AUTH_FAILED'
     });
   }
+  
+  // Fallback for other endpoints
+  return res.status(501).json({
+    success: false,
+    error: `Endpoint /${path} not yet implemented`,
+    code: 'NOT_IMPLEMENTED',
+    timestamp: new Date().toISOString()
+  });
 }

@@ -43,9 +43,9 @@ function SuccessContent() {
         })
 
         // Google Ads conversion tracking
-        // TODO: Replace AW-XXXXX/CONVERSION_LABEL with actual regulator.ai Google Ads conversion
+        // TODO: Replace AW-18052030396/L79LCKKov5IcELy_8J9D with actual regulator.ai Google Ads conversion
         (window as any).gtag('event', 'conversion', {
-          send_to: 'AW-XXXXX/CONVERSION_LABEL',
+          send_to: 'AW-18052030396/L79LCKKov5IcELy_8J9D',
           value: value,
           currency: 'USD',
           transaction_id: sessionId,

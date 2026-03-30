@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "regions": ["iad1"],
+  "installCommand": "npm install",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/handler" },
+    { "source": "/health", "destination": "/api/handler" },
+    { "source": "/(.*)", "destination": "/public/index.html" }
+  ]
+}

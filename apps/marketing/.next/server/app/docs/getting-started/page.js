@@ -1,52 +1,15 @@
-"use strict";(()=>{var e={};e.id=3775,e.ids=[3775],e.modules={10846:e=>{e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},19121:e=>{e.exports=require("next/dist/server/app-render/action-async-storage.external.js")},3295:e=>{e.exports=require("next/dist/server/app-render/after-task-async-storage.external.js")},29294:e=>{e.exports=require("next/dist/server/app-render/work-async-storage.external.js")},63033:e=>{e.exports=require("next/dist/server/app-render/work-unit-async-storage.external.js")},33873:e=>{e.exports=require("path")},79551:e=>{e.exports=require("url")},69884:(e,t,a)=>{a.r(t),a.d(t,{GlobalError:()=>r.a,__next_app__:()=>p,pages:()=>c,routeModule:()=>x,tree:()=>d});var n=a(70260),s=a(28203),i=a(25155),r=a.n(i),l=a(67292),o={};for(let e in l)0>["default","tree","pages","GlobalError","__next_app__","routeModule"].indexOf(e)&&(o[e]=()=>l[e]);a.d(t,o);let d=["",{children:["docs",{children:["getting-started",{children:["__PAGE__",{},{page:[()=>Promise.resolve().then(a.bind(a,37189)),"/home/agentsnet/.openclaw/workspace/regulator.ai/apps/marketing/src/app/docs/getting-started/page.tsx"]}]},{}]},{metadata:{icon:[async e=>(await Promise.resolve().then(a.bind(a,70440))).default(e)],apple:[],openGraph:[async e=>(await Promise.resolve().then(a.bind(a,16437))).default(e)],twitter:[],manifest:void 0}}]},{layout:[()=>Promise.resolve().then(a.bind(a,71354)),"/home/agentsnet/.openclaw/workspace/regulator.ai/apps/marketing/src/app/layout.tsx"],"not-found":[()=>Promise.resolve().then(a.bind(a,50042)),"/home/agentsnet/.openclaw/workspace/regulator.ai/apps/marketing/src/app/not-found.tsx"],forbidden:[()=>Promise.resolve().then(a.t.bind(a,69116,23)),"next/dist/client/components/forbidden-error"],unauthorized:[()=>Promise.resolve().then(a.t.bind(a,41485,23)),"next/dist/client/components/unauthorized-error"],metadata:{icon:[async e=>(await Promise.resolve().then(a.bind(a,70440))).default(e)],apple:[],openGraph:[async e=>(await Promise.resolve().then(a.bind(a,16437))).default(e)],twitter:[],manifest:void 0}}],c=["/home/agentsnet/.openclaw/workspace/regulator.ai/apps/marketing/src/app/docs/getting-started/page.tsx"],p={require:a,loadChunk:()=>Promise.resolve()},x=new n.AppPageRouteModule({definition:{kind:s.RouteKind.APP_PAGE,page:"/docs/getting-started/page",pathname:"/docs/getting-started",bundlePath:"",filename:"",appPaths:[]},userland:{loaderTree:d}})},37189:(e,t,a)=>{a.r(t),a.d(t,{default:()=>h,metadata:()=>m});var n=a(62740),s=a(83238);let i=(0,s.A)("Package",[["path",{d:"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z",key:"1a0edw"}],["path",{d:"M12 22V12",key:"d0xqtd"}],["path",{d:"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7",key:"yx3hmr"}],["path",{d:"m7.5 4.27 9 5.15",key:"1c824w"}]]),r=(0,s.A)("Terminal",[["polyline",{points:"4 17 10 11 4 5",key:"akl6gq"}],["line",{x1:"12",x2:"20",y1:"19",y2:"19",key:"q2wloq"}]]),l=(0,s.A)("Play",[["polygon",{points:"6 3 20 12 6 21 6 3",key:"1oa8hb"}]]);var o=a(30613),d=a(95840),c=a(81660),p=a(59607),x=a.n(p);let m={title:"Getting Started with Vienna OS — 5-Minute Setup Guide",description:"Add AI agent governance to your project in 5 minutes. Install the SDK, submit your first intent, and see the full governance pipeline in action.",openGraph:{title:"Getting Started with Vienna OS — 5-Minute Setup",description:"Install. Submit an intent. See governance in action. 5 minutes."}},u=[{number:1,title:"Install the SDK",icon:i,content:[{type:"text",value:"Choose your language:"},{type:"tabs",tabs:[{label:"TypeScript/Node.js",code:"npm install @vienna-os/sdk"},{label:"Python",code:"pip install vienna-sdk"}]},{type:"text",value:"Get your API key from the Vienna OS console or use the sandbox for testing."}]},{number:2,title:"Initialize the Client",icon:r,content:[{type:"tabs",tabs:[{label:"TypeScript",code:`import { ViennaClient } from '@vienna-os/sdk';
-
-const vienna = new ViennaClient({
-  apiKey: process.env.VIENNA_API_KEY,
-  // Use sandbox for testing:
-  // baseUrl: 'https://regulator.ai/api/try'
-});`},{label:"Python",code:`from vienna_sdk import ViennaClient
-
-vienna = ViennaClient(
-    api_key=os.environ["VIENNA_API_KEY"],
-    # Use sandbox for testing:
-    # base_url="https://regulator.ai/api/try"
-)`}]}]},{number:3,title:"Submit Your First Intent",icon:l,content:[{type:"text",value:"An intent declares what your agent wants to do. Vienna OS evaluates it against policies and risk tiers before allowing execution."},{type:"tabs",tabs:[{label:"TypeScript",code:`// Submit an intent for policy evaluation
-const intent = await vienna.intents.submit({
-  type: 'deploy',
-  resource: 'api-service',
-  environment: 'staging',
-  version: '2.4.1',
-  agent: 'deploy-bot'
-});
-
-console.log(intent.status);     // 'approved' | 'pending' | 'denied'
-console.log(intent.riskTier);   // 'T0' | 'T1' | 'T2' | 'T3'
-console.log(intent.warrant?.id); // warrant ID if approved`},{label:"Python",code:`# Submit an intent for policy evaluation
-intent = vienna.intents.submit(
-    type="deploy",
-    resource="api-service",
-    environment="staging",
-    version="2.4.1",
-    agent="deploy-bot"
-)
-
-print(intent.status)      # 'approved' | 'pending' | 'denied'
-print(intent.risk_tier)   # 'T0' | 'T1' | 'T2' | 'T3'
-print(intent.warrant.id)  # warrant ID if approved`}]}]},{number:4,title:"Execute with the Warrant",icon:o.A,content:[{type:"text",value:"If the intent is approved, you receive a cryptographic warrant. Use it to execute the action through Vienna OS's controlled execution path."},{type:"tabs",tabs:[{label:"TypeScript",code:`// Execute using the warrant
-if (intent.status === 'approved') {
-  const result = await vienna.execute(intent.warrant.id, {
-    // Your actual execution logic
-    action: () => deployService('api-service', '2.4.1')
-  });
-
-  console.log(result.verified);   // true — post-execution verification passed
-  console.log(result.auditId);    // immutable audit trail entry ID
-}`},{label:"Python",code:`# Execute using the warrant
-if intent.status == "approved":
-    result = vienna.execute(
-        warrant_id=intent.warrant.id,
-        action=lambda: deploy_service("api-service", "2.4.1")
-    )
-
-    print(result.verified)    # True — post-execution verification passed
-    print(result.audit_id)    # immutable audit trail entry ID`}]}]}];function h(){return(0,n.jsxs)("main",{className:"min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white",children:[(0,n.jsxs)("div",{className:"max-w-4xl mx-auto px-6 pt-24 pb-12",children:[(0,n.jsxs)(x(),{href:"/docs",className:"inline-flex items-center text-sm text-slate-400 hover:text-white mb-8 transition",children:[(0,n.jsx)(d.A,{className:"w-4 h-4 mr-2"})," Documentation"]}),(0,n.jsx)("h1",{className:"text-3xl md:text-4xl font-bold mb-4",children:"Getting Started"}),(0,n.jsx)("p",{className:"text-xl text-slate-300 max-w-3xl mb-2",children:"Add governance to your AI agents in 5 minutes."}),(0,n.jsx)("p",{className:"text-sm text-slate-400",children:"No server required for testing — use the sandbox API at regulator.ai/try"})]}),(0,n.jsxs)("div",{className:"max-w-4xl mx-auto px-6 pb-24",children:[(0,n.jsx)("div",{className:"space-y-12",children:u.map(e=>(0,n.jsxs)("div",{className:"relative",children:[(0,n.jsxs)("div",{className:"flex items-center gap-4 mb-6",children:[(0,n.jsx)("div",{className:"flex items-center justify-center w-10 h-10 rounded-full bg-violet-600 text-white font-bold text-lg",children:e.number}),(0,n.jsx)("h2",{className:"text-2xl font-bold",children:e.title})]}),(0,n.jsx)("div",{className:"ml-14 space-y-4",children:e.content.map((e,t)=>"text"===e.type?(0,n.jsx)("p",{className:"text-slate-300",children:e.value},t):"tabs"===e.type&&e.tabs?(0,n.jsx)("div",{className:"space-y-2",children:e.tabs.map((e,t)=>(0,n.jsxs)("div",{children:[(0,n.jsx)("p",{className:"text-xs text-slate-500 mb-1 font-medium",children:e.label}),(0,n.jsx)("pre",{className:"bg-slate-900 border border-slate-800 rounded-lg p-4 overflow-x-auto",children:(0,n.jsx)("code",{className:"text-sm text-slate-200 font-mono",children:e.code})})]},t))},t):null)})]},e.number))}),(0,n.jsxs)("div",{className:"mt-16 bg-slate-900/50 border border-slate-700/50 rounded-xl p-8",children:[(0,n.jsx)("h2",{className:"text-xl font-bold mb-4",children:"What happens under the hood"}),(0,n.jsxs)("div",{className:"font-mono text-sm text-slate-300 space-y-2",children:[(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"1."})," ",(0,n.jsx)("span",{className:"text-violet-400",children:"Intent received"})," — Gateway validates structure and agent identity"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"2."})," ",(0,n.jsx)("span",{className:"text-cyan-400",children:"Policy evaluated"})," — Rules engine checks against configured policies"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"3."})," ",(0,n.jsx)("span",{className:"text-amber-400",children:"Risk assessed"})," — Classifier assigns T0-T3 tier based on action type and scope"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"4."})," ",(0,n.jsx)("span",{className:"text-emerald-400",children:"Approval obtained"})," — Auto (T0), policy (T1), human (T2), multi-party (T3)"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"5."})," ",(0,n.jsx)("span",{className:"text-violet-400",children:"Warrant issued"})," — HMAC-SHA256 signed, time-limited, scope-constrained"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"6."})," ",(0,n.jsx)("span",{className:"text-cyan-400",children:"Execution controlled"})," — Action runs within warrant constraints"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"7."})," ",(0,n.jsx)("span",{className:"text-emerald-400",children:"Verified"})," — Post-execution state compared to truth snapshot"]}),(0,n.jsxs)("p",{children:[(0,n.jsx)("span",{className:"text-slate-500",children:"8."})," ",(0,n.jsx)("span",{className:"text-slate-400",children:"Audit logged"})," — Immutable record with full warrant chain"]})]})]}),(0,n.jsxs)("div",{className:"mt-12",children:[(0,n.jsx)("h2",{className:"text-xl font-bold mb-6",children:"Next Steps"}),(0,n.jsxs)("div",{className:"grid md:grid-cols-3 gap-4",children:[(0,n.jsxs)(x(),{href:"/try",className:"bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group",children:[(0,n.jsx)(l,{className:"w-5 h-5 text-violet-400 mb-3"}),(0,n.jsx)("h3",{className:"font-bold group-hover:text-violet-400 transition mb-1",children:"Interactive Demo"}),(0,n.jsx)("p",{className:"text-sm text-slate-400",children:"See the pipeline in action without installing anything"})]}),(0,n.jsxs)(x(),{href:"/docs/api-reference",className:"bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group",children:[(0,n.jsx)(r,{className:"w-5 h-5 text-cyan-400 mb-3"}),(0,n.jsx)("h3",{className:"font-bold group-hover:text-violet-400 transition mb-1",children:"API Reference"}),(0,n.jsx)("p",{className:"text-sm text-slate-400",children:"Full documentation for all SDK modules"})]}),(0,n.jsxs)(x(),{href:"/docs/integration-guide",className:"bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group",children:[(0,n.jsx)(c.A,{className:"w-5 h-5 text-emerald-400 mb-3"}),(0,n.jsx)("h3",{className:"font-bold group-hover:text-violet-400 transition mb-1",children:"Integration Guide"}),(0,n.jsx)("p",{className:"text-sm text-slate-400",children:"LangChain, CrewAI, AutoGen, and custom agents"})]})]})]})]})]})}}};var t=require("../../../webpack-runtime.js");t.C(e);var a=e=>t(t.s=e),n=t.X(0,[638,4648,8531,265],()=>a(69884));module.exports=n})();
+var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/docs/getting-started/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__042e-o5._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0-ax9__.js")
+R.c("server/chunks/ssr/[root-of-the-server]__10831xr._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0fk_g0j._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0ok463u._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_06u0kr8._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0en~s42._.js")
+R.c("server/chunks/ssr/apps_marketing_0l3vugk._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_0ee1czk._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0cjv-23.js")
+R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0lgvd_..js")
+R.c("server/chunks/ssr/02dz_marketing__next-internal_server_app_docs_getting-started_page_actions_0_np7u7.js")
+R.m(98492)
+module.exports=R.m(98492).exports

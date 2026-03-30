@@ -1,1 +1,6 @@
-{"version":1,"functions":{"/opengraph-image":{}}}
+{
+  "version": 1,
+  "functions": {
+    "/opengraph-image": {}
+  }
+}

@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.regulator.ai/api/:path*"
+      "destination": "/api/:path*"
     },
     {
       "source": "/health",
-      "destination": "https://api.regulator.ai/health"
+      "destination": "/api/health"
     }
   ],
   "headers": [

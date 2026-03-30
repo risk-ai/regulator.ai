@@ -11,12 +11,32 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/approvals.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/warrants.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/executions.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/events.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "public/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     { "src": "/api/v1/execute", "dest": "/api/vienna-execute.js" },
+    { "src": "/api/v1/approvals(.*)", "dest": "/api/approvals.js" },
+    { "src": "/api/v1/warrants(.*)", "dest": "/api/warrants.js" },
+    { "src": "/api/v1/executions(.*)", "dest": "/api/executions.js" },
+    { "src": "/api/v1/events", "dest": "/api/events.js" },
     { "src": "/api/(.*)", "dest": "/api/server.js" },
     { "src": "/health", "dest": "/api/server.js" },
     { "src": "/assets/(.*)", "dest": "/public/assets/$1" },

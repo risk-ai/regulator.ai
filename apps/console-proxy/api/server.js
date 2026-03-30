@@ -1281,8 +1281,8 @@ module.exports = async function handler(req, res) {
 
       const [proposals, executions, approvals, agents] = await Promise.all([
         query('SELECT COUNT(*) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
-        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['execution.completed', since]),
-        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['warrant.issued', since]),
+        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['execution_completed', since]),
+        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['warrant_issued', since]),
         query('SELECT COUNT(DISTINCT agent_id) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
       ]);
 
@@ -1307,7 +1307,7 @@ module.exports = async function handler(req, res) {
           date_trunc('hour', created_at) as hour,
           COUNT(*) as count
         FROM regulator.audit_log
-        WHERE event = 'execution.completed' AND created_at >= $1
+        WHERE event = 'execution_completed' AND created_at >= $1
         GROUP BY hour
         ORDER BY hour ASC
       `, [since]);
@@ -1330,7 +1330,7 @@ module.exports = async function handler(req, res) {
           date_trunc('hour', created_at) as hour,
           COUNT(*) as count
         FROM regulator.audit_log
-        WHERE event = 'warrant.issued' AND created_at >= $1
+        WHERE event = 'warrant_issued' AND created_at >= $1
         GROUP BY hour
         ORDER BY hour ASC
       `, [since]);

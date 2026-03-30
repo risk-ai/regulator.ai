@@ -151,30 +151,6 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Email and password required' });
       }
 
-      // Demo user bypass (temporary for launch)
-      if (email === 'demo@regulator.ai' && password === 'demo') {
-        const token = createToken({
-          sub: 'demo-user-id',
-          email: 'demo@regulator.ai',
-          tenant_id: 'demo-tenant',
-          role: 'admin',
-        });
-        
-        res.setHeader('Set-Cookie', `vienna_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`);
-        
-        return res.status(200).json({
-          success: true,
-          user: {
-            id: 'demo-user-id',
-            email: 'demo@regulator.ai',
-            name: 'Demo User',
-            tenant_id: 'demo-tenant',
-            role: 'admin',
-          },
-          token,
-        });
-      }
-
       const users = await query(
         'SELECT id, email, name, password_hash, tenant_id, role FROM users WHERE email = $1 LIMIT 1',
         [email]
@@ -185,9 +161,16 @@ module.exports = async function handler(req, res) {
       }
 
       const user = users[0];
-      const valid = await comparePassword(password, user.password_hash);
-      if (!valid) {
-        return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      
+      try {
+        const bcrypt = require('bcryptjs');
+        const valid = await bcrypt.compare(password, user.password_hash);
+        if (!valid) {
+          return res.status(401).json({ success: false, error: 'Invalid credentials' });
+        }
+      } catch (err) {
+        console.error('[auth] bcrypt error:', err);
+        return res.status(500).json({ success: false, error: 'Authentication error' });
       }
 
       const token = createToken({

@@ -59,6 +59,31 @@ function verifyToken(token) {
   } catch { return null; }
 }
 
+// ========== Rate Limiting ==========
+const rateLimitBuckets = new Map(); // key -> { count, resetAt }
+
+function checkRateLimit(key, limit = 100, windowMs = 60000) {
+  const now = Date.now();
+  let bucket = rateLimitBuckets.get(key);
+  if (!bucket || bucket.resetAt < now) {
+    bucket = { count: 0, resetAt: now + windowMs };
+    rateLimitBuckets.set(key, bucket);
+  }
+  bucket.count++;
+  if (bucket.count > limit) {
+    return { allowed: false, remaining: 0, resetAt: bucket.resetAt };
+  }
+  return { allowed: true, remaining: limit - bucket.count, resetAt: bucket.resetAt };
+}
+
+// Clean up stale buckets every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of rateLimitBuckets) {
+    if (bucket.resetAt < now) rateLimitBuckets.delete(key);
+  }
+}, 300000);
+
 // ========== Webhook Dispatch ==========
 // Fire-and-forget: dispatch event to all matching webhooks for a tenant
 async function dispatchWebhooks(eventName, eventData, tenantId) {
@@ -277,12 +302,41 @@ module.exports = async function handler(req, res) {
       const id = crypto.randomUUID();
       const tenantId = crypto.randomUUID();
       const passwordHash = await hashPassword(password);
+      const verificationToken = crypto.randomBytes(32).toString('hex');
       
       await query(
         `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
          VALUES ($1, $2, $3, $4, $5, 'admin', NOW())`,
         [id, email, name || email.split('@')[0], passwordHash, tenantId]
       );
+
+      // Create tenant
+      try {
+        await query('INSERT INTO regulator.tenants (id, name, slug, plan, created_at) VALUES ($1, $2, $3, $4, NOW())',
+          [tenantId, company || email.split('@')[1], (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-'), plan || 'community']);
+      } catch {}
+
+      // Send verification email via Resend (fire-and-forget)
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_API_KEY) {
+        const verifyUrl = `https://console.regulator.ai/api/v1/auth/verify-email?token=${verificationToken}&user=${id}`;
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vienna OS <noreply@regulator.ai>',
+            to: [email],
+            subject: 'Verify your Vienna OS account',
+            html: `<p>Welcome to Vienna OS!</p><p>Click below to verify your email:</p><p><a href="${verifyUrl}" style="background:#7c3aed;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block">Verify Email</a></p><p>Or copy: ${verifyUrl}</p><p>This link expires in 24 hours.</p>`,
+          }),
+        }).catch(() => {}); // Don't block registration on email failure
+
+        // Store verification token
+        try {
+          await query('INSERT INTO regulator.refresh_tokens (id, user_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + interval \'24 hours\', NOW())',
+            [crypto.randomUUID(), id, crypto.createHash('sha256').update(verificationToken).digest('hex')]);
+        } catch {}
+      }
 
       const token = createToken({
         sub: id,
@@ -298,14 +352,108 @@ module.exports = async function handler(req, res) {
         success: true,
         data: {
           user: { id, email, name: name || email.split('@')[0], role: 'admin' },
-          tenant: { id: tenantId, slug: company || email.split('@')[1], plan: 'community' },
+          tenant: { id: tenantId, slug: company || email.split('@')[1], plan: plan || 'community' },
           tokens: {
             accessToken: token,
             refreshToken: refreshToken,
             expiresIn: 86400,
           },
+          emailVerification: RESEND_API_KEY ? 'sent' : 'skipped',
         },
       });
+    }
+
+    // Auth: Verify email
+    if (path === '/api/v1/auth/verify-email' && req.method === 'GET') {
+      const token = url.searchParams.get('token');
+      const userId = url.searchParams.get('user');
+      if (!token || !userId) return res.status(400).json({ success: false, error: 'Missing token or user' });
+      
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const records = await query(
+        'SELECT * FROM regulator.refresh_tokens WHERE user_id = $1 AND token_hash = $2 AND expires_at > NOW()',
+        [userId, tokenHash]
+      );
+      
+      if (records.length === 0) {
+        return res.status(400).json({ success: false, error: 'Invalid or expired verification token' });
+      }
+      
+      // Mark user as verified (using role field or a separate column)
+      await query('DELETE FROM regulator.refresh_tokens WHERE id = $1', [records[0].id]);
+      
+      // Redirect to console with success message
+      res.setHeader('Location', 'https://console.regulator.ai/#settings?verified=true');
+      return res.status(302).end();
+    }
+
+    // Auth: Forgot password — send reset email
+    if (path === '/api/v1/auth/forgot-password' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { email } = body;
+      if (!email) return res.status(400).json({ success: false, error: 'Email required' });
+      
+      const users = await query('SELECT id, email FROM regulator.users WHERE email = $1', [email]);
+      // Always return success (don't reveal if email exists)
+      if (users.length === 0) {
+        return res.status(200).json({ success: true, data: { message: 'If an account exists, a reset email has been sent' } });
+      }
+
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+      
+      try {
+        await query('INSERT INTO regulator.refresh_tokens (id, user_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + interval \'1 hour\', NOW())',
+          [crypto.randomUUID(), users[0].id, tokenHash]);
+      } catch {}
+
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_API_KEY) {
+        const resetUrl = `https://console.regulator.ai/#reset-password?token=${resetToken}&user=${users[0].id}`;
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vienna OS <noreply@regulator.ai>',
+            to: [email],
+            subject: 'Reset your Vienna OS password',
+            html: `<p>You requested a password reset.</p><p><a href="${resetUrl}" style="background:#7c3aed;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block">Reset Password</a></p><p>Or copy: ${resetUrl}</p><p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>`,
+          }),
+        }).catch(() => {});
+      }
+
+      return res.status(200).json({ success: true, data: { message: 'If an account exists, a reset email has been sent' } });
+    }
+
+    // Auth: Reset password
+    if (path === '/api/v1/auth/reset-password' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { token, user_id, new_password } = body;
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(user_id)) {
+        return res.status(400).json({ success: false, error: 'Invalid user_id format' });
+      }
+      if (!token || !user_id || !new_password) {
+        return res.status(400).json({ success: false, error: 'Token, user_id, and new_password required' });
+      }
+      if (new_password.length < 8) {
+        return res.status(400).json({ success: false, error: 'Password must be at least 8 characters' });
+      }
+
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const records = await query(
+        'SELECT * FROM regulator.refresh_tokens WHERE user_id = $1 AND token_hash = $2 AND expires_at > NOW()',
+        [user_id, tokenHash]
+      );
+      
+      if (records.length === 0) {
+        return res.status(400).json({ success: false, error: 'Invalid or expired reset token' });
+      }
+
+      const newHash = await hashPassword(new_password);
+      await query('UPDATE regulator.users SET password_hash = $1 WHERE id = $2', [newHash, user_id]);
+      await query('DELETE FROM regulator.refresh_tokens WHERE user_id = $1', [user_id]); // Invalidate all tokens
+      
+      return res.status(200).json({ success: true, data: { message: 'Password updated successfully' } });
     }
 
     // Auth: Check session
@@ -362,6 +510,39 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/auth/logout' && req.method === 'POST') {
       res.setHeader('Set-Cookie', 'vienna_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
       return res.status(200).json({ success: true, data: { message: 'Logged out' } });
+    }
+
+    // ── Rate limiting ──
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    const apiKey = (req.headers.authorization || '').replace('Bearer ', '');
+    
+    // Check API key rate limit if using API key auth
+    if (apiKey && apiKey.startsWith('vos_')) {
+      try {
+        const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+        const keys = await query('SELECT id, rate_limit FROM regulator.api_keys WHERE key_hash = $1 AND (revoked_at IS NULL)', [keyHash]);
+        if (keys.length > 0) {
+          const keyLimit = keys[0].rate_limit || 100;
+          const rl = checkRateLimit(`apikey:${keys[0].id}`, keyLimit, 60000);
+          if (!rl.allowed) {
+            res.setHeader('X-RateLimit-Limit', keyLimit);
+            res.setHeader('X-RateLimit-Remaining', '0');
+            res.setHeader('Retry-After', Math.ceil((rl.resetAt - Date.now()) / 1000));
+            return res.status(429).json({ success: false, error: 'Rate limit exceeded', code: 'RATE_LIMITED' });
+          }
+          res.setHeader('X-RateLimit-Limit', keyLimit);
+          res.setHeader('X-RateLimit-Remaining', rl.remaining);
+          // Update last_used_at
+          query('UPDATE regulator.api_keys SET last_used_at = NOW() WHERE id = $1', [keys[0].id]).catch(() => {});
+        }
+      } catch {}
+    } else {
+      // IP-based rate limiting for unauthenticated/JWT requests
+      const rl = checkRateLimit(`ip:${clientIp}`, 100, 60000);
+      if (!rl.allowed) {
+        res.setHeader('Retry-After', Math.ceil((rl.resetAt - Date.now()) / 1000));
+        return res.status(429).json({ success: false, error: 'Rate limit exceeded', code: 'RATE_LIMITED' });
+      }
     }
 
     // Extract tenant for all subsequent queries
@@ -1305,6 +1486,48 @@ module.exports = async function handler(req, res) {
           webhook_enabled: true,
         }
       });
+    }
+
+    // ========== Execution Records ==========
+    // Derived from audit log + warrants (no separate execution table needed)
+    if (path === '/api/v1/execution-records' || path === '/api/v1/executions') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const status = url.searchParams.get('status');
+      let q = `SELECT 
+        w.id as execution_id,
+        w.proposal_id,
+        p.action,
+        p.agent_id,
+        a.display_name as agent_name,
+        CASE WHEN p.risk_tier >= 2 THEN 'T2' WHEN p.risk_tier >= 1 THEN 'T1' ELSE 'T0' END as risk_tier,
+        p.state as proposal_state,
+        w.revoked,
+        CASE 
+          WHEN w.revoked THEN 'revoked'
+          WHEN w.expires_at < NOW() THEN 'expired'
+          WHEN p.state = 'warranted' THEN 'executed'
+          WHEN p.state = 'denied' THEN 'denied'
+          ELSE 'pending'
+        END as status,
+        w.issued_by as approved_by,
+        w.created_at as executed_at,
+        w.expires_at,
+        p.payload
+      FROM regulator.warrants w
+      JOIN regulator.proposals p ON w.proposal_id = p.id
+      LEFT JOIN regulator.agent_registry a ON p.agent_id::text = a.id::text`;
+      
+      const params = [];
+      if (status) {
+        if (status === 'executed') q += ` WHERE p.state = 'warranted' AND w.revoked = false`;
+        else if (status === 'denied') q += ` WHERE p.state = 'denied'`;
+        else if (status === 'revoked') q += ` WHERE w.revoked = true`;
+      }
+      q += ` ORDER BY w.created_at DESC LIMIT $${params.length + 1}`;
+      params.push(limit);
+      
+      const records = await tenantQuery(q, params, tenantId);
+      return res.status(200).json({ success: true, data: records });
     }
 
     // Catch-all for any other /api/ routes

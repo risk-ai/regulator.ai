@@ -94,16 +94,8 @@ export function SettingsPage() {
           <SettingsRow label="Host" value="Fly.io · 2 vCPU / 2 GB" />
         </SettingsCard>
 
-        {/* Governance Config */}
-        <SettingsCard title="Governance Configuration">
-          <SettingsRow label="Risk Tiers" value="T0, T1, T2" />
-          <SettingsRow label="T0 Policy" value="Auto-approve" valueColor="#4ade80" />
-          <SettingsRow label="T1 Policy" value="Single operator approval" valueColor="#fbbf24" />
-          <SettingsRow label="T2 Policy" value="Multi-party approval" valueColor="#f87171" />
-          <SettingsRow label="Warrant TTL (T1)" value="900s" mono />
-          <SettingsRow label="Warrant TTL (T2)" value="300s" mono />
-          <SettingsRow label="Audit Retention" value="7 years" />
-        </SettingsCard>
+        {/* Governance Config — Editable */}
+        <GovernanceConfigCard />
 
         {/* API Configuration */}
         <SettingsCard title="API & Integrations">
@@ -113,6 +105,9 @@ export function SettingsPage() {
           <SettingsRow label="CORS Origins" value="regulator.ai, localhost" />
           <SettingsRow label="SSE Streaming" value="Enabled" valueColor="#4ade80" />
         </SettingsCard>
+
+        {/* Webhook Notifications */}
+        <WebhookConfigCard />
 
         {/* Links */}
         <SettingsCard title="Resources">
@@ -135,6 +130,264 @@ export function SettingsPage() {
         </SettingsCard>
       </div>
     </PageLayout>
+  );
+}
+
+// ============================================================================
+// Governance Configuration Card (Editable)
+// ============================================================================
+
+const GOV_STORAGE_KEY = 'vienna_governance_config';
+
+interface GovernanceConfig {
+  riskThresholds: { low: number; medium: number; high: number; critical: number };
+  warrantTtlT0: number;
+  warrantTtlT1: number;
+  warrantTtlT2: number;
+  autoApproveLowRisk: boolean;
+  auditRetentionYears: number;
+}
+
+const DEFAULT_GOV_CONFIG: GovernanceConfig = {
+  riskThresholds: { low: 25, medium: 50, high: 75, critical: 90 },
+  warrantTtlT0: 3600,
+  warrantTtlT1: 900,
+  warrantTtlT2: 300,
+  autoApproveLowRisk: true,
+  auditRetentionYears: 7,
+};
+
+function GovernanceConfigCard() {
+  const [config, setConfig] = useState<GovernanceConfig>(() => {
+    try {
+      const stored = localStorage.getItem(GOV_STORAGE_KEY);
+      return stored ? { ...DEFAULT_GOV_CONFIG, ...JSON.parse(stored) } : DEFAULT_GOV_CONFIG;
+    } catch { return DEFAULT_GOV_CONFIG; }
+  });
+  const [saved, setSaved] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  const handleSave = () => {
+    localStorage.setItem(GOV_STORAGE_KEY, JSON.stringify(config));
+    setSaved(true);
+    setEditing(false);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleReset = () => {
+    setConfig(DEFAULT_GOV_CONFIG);
+    localStorage.removeItem(GOV_STORAGE_KEY);
+    setSaved(false);
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '80px', padding: '4px 8px', borderRadius: '4px',
+    border: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)',
+    color: 'var(--text-primary)', fontSize: '12px', fontFamily: 'var(--font-mono)',
+    textAlign: 'right',
+  };
+
+  if (!editing) {
+    return (
+      <SettingsCard title="Governance Configuration">
+        <SettingsRow label="Risk Tiers" value="T0, T1, T2" />
+        <SettingsRow label="T0 Threshold" value={`≤ ${config.riskThresholds.low}`} mono />
+        <SettingsRow label="T1 Threshold" value={`≤ ${config.riskThresholds.medium}`} mono />
+        <SettingsRow label="T2 Threshold" value={`≤ ${config.riskThresholds.high}`} mono />
+        <SettingsRow label="T0 Policy" value={config.autoApproveLowRisk ? 'Auto-approve' : 'Manual'} valueColor={config.autoApproveLowRisk ? '#4ade80' : '#fbbf24'} />
+        <SettingsRow label="T1 Policy" value="Single operator approval" valueColor="#fbbf24" />
+        <SettingsRow label="T2 Policy" value="Multi-party approval" valueColor="#f87171" />
+        <SettingsRow label="Warrant TTL (T0)" value={`${config.warrantTtlT0}s`} mono />
+        <SettingsRow label="Warrant TTL (T1)" value={`${config.warrantTtlT1}s`} mono />
+        <SettingsRow label="Warrant TTL (T2)" value={`${config.warrantTtlT2}s`} mono />
+        <SettingsRow label="Audit Retention" value={`${config.auditRetentionYears} years`} />
+        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
+          <button onClick={() => setEditing(true)} style={{
+            padding: '6px 16px', borderRadius: '6px',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
+            background: 'rgba(124, 58, 237, 0.08)', color: '#a78bfa',
+            fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+          }}>Edit Configuration</button>
+        </div>
+      </SettingsCard>
+    );
+  }
+
+  return (
+    <SettingsCard title="Governance Configuration">
+      <div style={{ marginBottom: '12px' }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Risk Tier Thresholds (score 0-100)</div>
+        {(['low', 'medium', 'high', 'critical'] as const).map(tier => (
+          <div key={tier} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>{tier}</span>
+            <input type="number" min={0} max={100} value={config.riskThresholds[tier]} style={inputStyle}
+              onChange={e => setConfig(prev => ({ ...prev, riskThresholds: { ...prev.riskThresholds, [tier]: Number(e.target.value) } }))} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginBottom: '12px', paddingTop: '8px', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Warrant TTL (seconds)</div>
+        {[{ label: 'T0 (Minimal)', key: 'warrantTtlT0' as const }, { label: 'T1 (Moderate)', key: 'warrantTtlT1' as const }, { label: 'T2 (High)', key: 'warrantTtlT2' as const }].map(({ label, key }) => (
+          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{label}</span>
+            <input type="number" min={60} max={86400} value={config[key]} style={inputStyle}
+              onChange={e => setConfig(prev => ({ ...prev, [key]: Number(e.target.value) }))} />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: '1px solid var(--border-subtle)' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Auto-approve low-risk (T0)</span>
+        <button onClick={() => setConfig(prev => ({ ...prev, autoApproveLowRisk: !prev.autoApproveLowRisk }))}
+          style={{
+            padding: '4px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+            border: `1px solid ${config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+            background: config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
+            color: config.autoApproveLowRisk ? '#4ade80' : '#f87171',
+          }}>
+          {config.autoApproveLowRisk ? 'ON' : 'OFF'}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Audit Retention (years)</span>
+        <input type="number" min={1} max={99} value={config.auditRetentionYears} style={inputStyle}
+          onChange={e => setConfig(prev => ({ ...prev, auditRetentionYears: Number(e.target.value) }))} />
+      </div>
+
+      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', gap: '8px' }}>
+        <button onClick={handleSave} style={{
+          flex: 1, padding: '8px 16px', borderRadius: '6px',
+          border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
+          color: '#4ade80', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+        }}>Save Settings</button>
+        <button onClick={handleReset} style={{
+          padding: '8px 16px', borderRadius: '6px',
+          border: '1px solid var(--border-subtle)', background: 'transparent',
+          color: 'var(--text-tertiary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+        }}>Reset</button>
+        <button onClick={() => setEditing(false)} style={{
+          padding: '8px 16px', borderRadius: '6px',
+          border: '1px solid var(--border-subtle)', background: 'transparent',
+          color: 'var(--text-tertiary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+        }}>Cancel</button>
+      </div>
+
+      {saved && (
+        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#4ade80', textAlign: 'center' }}>
+          ✓ Settings saved
+        </div>
+      )}
+    </SettingsCard>
+  );
+}
+
+// ============================================================================
+// Webhook Configuration Card
+// ============================================================================
+
+const WEBHOOK_STORAGE_KEY = 'vienna_webhook_config';
+
+const WEBHOOK_EVENTS = [
+  'warrant.requested', 'warrant.approved', 'warrant.denied', 'warrant.expired',
+  'agent.suspended', 'agent.reactivated', 'compliance.alert', 'policy.violated',
+] as const;
+
+interface WebhookConfig {
+  url: string;
+  secret: string;
+  events: string[];
+  enabled: boolean;
+}
+
+const DEFAULT_WEBHOOK: WebhookConfig = { url: '', secret: '', events: [], enabled: false };
+
+function WebhookConfigCard() {
+  const [config, setConfig] = useState<WebhookConfig>(() => {
+    try {
+      const stored = localStorage.getItem(WEBHOOK_STORAGE_KEY);
+      return stored ? { ...DEFAULT_WEBHOOK, ...JSON.parse(stored) } : DEFAULT_WEBHOOK;
+    } catch { return DEFAULT_WEBHOOK; }
+  });
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    localStorage.setItem(WEBHOOK_STORAGE_KEY, JSON.stringify(config));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const toggleEvent = (event: string) => {
+    setConfig(prev => ({
+      ...prev,
+      events: prev.events.includes(event) ? prev.events.filter(e => e !== event) : [...prev.events, event],
+    }));
+  };
+
+  const fullInputStyle: React.CSSProperties = {
+    width: '100%', padding: '6px 10px', borderRadius: '6px',
+    border: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)',
+    color: 'var(--text-primary)', fontSize: '12px', fontFamily: 'var(--font-mono)',
+    boxSizing: 'border-box',
+  };
+
+  return (
+    <SettingsCard title="Webhook Notifications">
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '4px' }}>Endpoint URL</label>
+        <input type="url" placeholder="https://your-app.com/webhooks/vienna" value={config.url} style={fullInputStyle}
+          onChange={e => setConfig(prev => ({ ...prev, url: e.target.value }))} />
+      </div>
+
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '4px' }}>Signing Secret</label>
+        <input type="password" placeholder="whsec_..." value={config.secret} style={fullInputStyle}
+          onChange={e => setConfig(prev => ({ ...prev, secret: e.target.value }))} />
+      </div>
+
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '6px' }}>Subscribed Events</label>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {WEBHOOK_EVENTS.map(event => {
+            const active = config.events.includes(event);
+            return (
+              <button key={event} onClick={() => toggleEvent(event)} style={{
+                padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 500, cursor: 'pointer',
+                fontFamily: 'var(--font-mono)',
+                border: `1px solid ${active ? 'rgba(124, 58, 237, 0.3)' : 'var(--border-subtle)'}`,
+                background: active ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
+                color: active ? '#a78bfa' : 'var(--text-tertiary)',
+              }}>{event}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: '1px solid var(--border-subtle)' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Enabled</span>
+        <button onClick={() => setConfig(prev => ({ ...prev, enabled: !prev.enabled }))} style={{
+          padding: '4px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+          border: `1px solid ${config.enabled ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
+          background: config.enabled ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
+          color: config.enabled ? '#4ade80' : '#f87171',
+        }}>{config.enabled ? 'ON' : 'OFF'}</button>
+      </div>
+
+      <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border-subtle)' }}>
+        <button onClick={handleSave} style={{
+          width: '100%', padding: '8px 16px', borderRadius: '6px',
+          border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
+          color: '#4ade80', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+        }}>Save Webhook Config</button>
+      </div>
+
+      {saved && (
+        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#4ade80', textAlign: 'center' }}>
+          ✓ Webhook config saved
+        </div>
+      )}
+    </SettingsCard>
   );
 }
 

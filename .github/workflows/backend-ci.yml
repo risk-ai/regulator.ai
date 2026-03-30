@@ -1,0 +1,92 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/console/server/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/console/server/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vienna
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: vienna_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: apps/console/server/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+        working-directory: apps/console/server
+      
+      - name: Run linter
+        run: npm run lint --if-present
+        working-directory: apps/console/server
+      
+      - name: Build TypeScript
+        run: npm run build
+        working-directory: apps/console/server
+        env:
+          POSTGRES_URL: postgresql://vienna:test@localhost:5432/vienna_test
+      
+      - name: Run tests
+        run: npm test --if-present
+        working-directory: apps/console/server
+        env:
+          POSTGRES_URL: postgresql://vienna:test@localhost:5432/vienna_test
+          JWT_SECRET: test-secret-key-for-ci
+          NODE_ENV: test
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker image
+        run: |
+          cd apps/console/server
+          docker build -t vienna-backend:${{ github.sha }} .
+          docker tag vienna-backend:${{ github.sha }} vienna-backend:latest
+      
+      - name: Test Docker image
+        run: |
+          docker run -d --name test-backend \
+            -e POSTGRES_URL=postgresql://test:test@localhost:5432/test \
+            -e JWT_SECRET=test \
+            vienna-backend:${{ github.sha }}
+          
+          sleep 10
+          
+          docker logs test-backend
+          docker stop test-backend
+          docker rm test-backend

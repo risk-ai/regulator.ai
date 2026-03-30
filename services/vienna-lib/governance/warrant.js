@@ -85,7 +85,13 @@ class Warrant {
     }
 
     // Cap TTL based on risk tier
-    const maxTtl = requirements.max_ttl_minutes || 60;
+    const tierMaxTtl = {
+      'T0': 60,   // 1 hour
+      'T1': 30,   // 30 minutes
+      'T2': 15,   // 15 minutes
+      'T3': 5     // 5 minutes
+    };
+    const maxTtl = requirements.max_ttl_minutes || tierMaxTtl[riskTier] || 60;
     const ttl = Math.min(expiresInMinutes || maxTtl, maxTtl);
     
     // Load and validate truth snapshot

@@ -157,11 +157,14 @@ module.exports = async function handler(req, res) {
       );
       
       if (users.length === 0) {
+        console.log('[auth] User not found:', email);
         return res.status(401).json({ success: false, error: 'Invalid credentials' });
       }
 
       const user = users[0];
+      console.log('[auth] Found user:', user.email, 'hash preview:', user.password_hash.substring(0, 20));
       const valid = await comparePassword(password, user.password_hash);
+      console.log('[auth] Password valid:', valid);
       if (!valid) {
         return res.status(401).json({ success: false, error: 'Invalid credentials' });
       }

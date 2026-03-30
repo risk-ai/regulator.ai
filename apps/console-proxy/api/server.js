@@ -366,41 +366,49 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Execution: Submit action for approval/execution
-    if (path === '/api/v1/execute' && req.method === 'POST') {
-      const body = await parseBody(req);
-      const { action, agent_id, context, tier } = body;
+    // Execution: Proxy to full Vienna Core backend
+    if (path.startsWith('/api/v1/execute') || 
+        path.startsWith('/api/v1/execution/') ||
+        path.startsWith('/api/v1/runtime/')) {
       
-      if (!action || !agent_id) {
-        return res.status(400).json({ success: false, error: 'action and agent_id required' });
-      }
+      // Proxy to Tailscale Funnel backend with full Vienna Core
+      const VIENNA_BACKEND = 'https://maxlawai.tailb0c69e.ts.net';
+      const targetUrl = `${VIENNA_BACKEND}${path}`;
       
       try {
-        // For now, just log the execution attempt
-        // Full Vienna Core integration would create queue items, claims, and run validators
-        const executionId = crypto.randomUUID();
-        const executionKey = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const headers = {
+          'Content-Type': 'application/json',
+        };
         
-        // Log to execution ledger
-        await query(
-          `INSERT INTO public.execution_ledger_events (event_id, tenant_id, execution_id, event_type, stage, sequence_num, event_timestamp)
-           VALUES ($1, $2, $3, 'execution_requested', 'intent', 1, NOW())`,
-          [crypto.randomUUID(), 'default', executionKey]
-        );
+        // Forward authorization if present
+        if (req.headers.authorization) {
+          headers['Authorization'] = req.headers.authorization;
+        }
+        if (req.headers.cookie) {
+          headers['Cookie'] = req.headers.cookie;
+        }
         
-        return res.json({
-          success: true,
-          data: {
-            execution_id: executionId,
-            execution_key: executionKey,
-            status: tier === 'T0' ? 'auto_approved' : 'requires_approval',
-            tier: tier || 'T0',
-            message: tier === 'T0' ? 'Action logged - auto-approved' : 'Action logged - approval required'
-          }
-        });
+        const fetchOptions = {
+          method: req.method,
+          headers,
+        };
+        
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+          fetchOptions.body = await parseBody(req);
+          fetchOptions.body = JSON.stringify(fetchOptions.body);
+        }
+        
+        const response = await fetch(targetUrl, fetchOptions);
+        const data = await response.json();
+        
+        return res.status(response.status).json(data);
       } catch (error) {
-        console.error('[execute]', error);
-        return res.status(500).json({ success: false, error: error.message });
+        console.error('[vienna-proxy]', error);
+        return res.status(502).json({
+          success: false,
+          error: 'Vienna Core backend unavailable',
+          code: 'BACKEND_ERROR'
+        });
       }
     }
 

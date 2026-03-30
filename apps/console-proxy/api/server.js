@@ -6,15 +6,15 @@ let pool = null;
 function getPool() {
   if (!pool) {
     pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL,
       max: 5,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
       ssl: { rejectUnauthorized: false },
     });
-    // Set search path to regulator schema
+    // Use public schema (Neon default)
     pool.on('connect', (client) => {
-      client.query("SET search_path TO regulator, public");
+      client.query("SET search_path TO public");
     });
   }
   return pool;

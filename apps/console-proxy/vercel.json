@@ -16,7 +16,7 @@
     }
   ],
   "routes": [
-    { "src": "/api/v1/execute", "dest": "/api/vienna-execute" },
+    { "src": "/api/v1/execute", "dest": "/api/vienna-execute.js" },
     { "src": "/api/(.*)", "dest": "/api/server.js" },
     { "src": "/health", "dest": "/api/server.js" },
     { "src": "/assets/(.*)", "dest": "/public/assets/$1" },

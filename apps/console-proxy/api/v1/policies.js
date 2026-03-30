@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Policy Management API
  * CRUD operations for governance policies
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 
 const pool = new Pool({

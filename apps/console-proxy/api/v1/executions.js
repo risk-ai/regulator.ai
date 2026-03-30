@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Execution History & Monitoring API
  * Query execution history with filtering and audit trails
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 
 const pool = new Pool({

@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Agent Registration & Management API
  * Register, configure, and monitor AI agents
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 
 const pool = new Pool({

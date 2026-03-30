@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * API Key Management
  * Generate, revoke, and manage API keys for programmatic access
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 

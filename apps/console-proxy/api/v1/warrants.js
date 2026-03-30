@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Warrant Management & Verification API
  * Handle warrant issuance, verification, and queries
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 

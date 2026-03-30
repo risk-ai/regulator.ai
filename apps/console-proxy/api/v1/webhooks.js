@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Webhooks System
  * Register webhooks and deliver events
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 

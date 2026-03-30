@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Audit Export API
  * Export audit trails in various formats (JSON, CSV)
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 
 const pool = new Pool({

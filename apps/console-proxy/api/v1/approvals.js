@@ -1,9 +1,9 @@
 /**
-const { requireAuth } = require('./_auth');
  * Approval Management API
  * Handle approval requests for T1/T2/T3 actions
  */
 
+const { requireAuth } = require('./_auth');
 const { Pool } = require('pg');
 
 const pool = new Pool({

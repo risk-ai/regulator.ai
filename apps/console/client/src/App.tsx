@@ -21,6 +21,9 @@ import { ActionTypesPage } from './pages/ActionTypesPage.js';
 import { FleetDashboardPage } from './pages/FleetDashboardPage.js';
 import { IntegrationsPage } from './pages/IntegrationsPage.js';
 import { CompliancePage } from './pages/CompliancePage.js';
+import PolicyTemplatesPage from './pages/PolicyTemplatesPage.js';
+import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
+import ActivityFeedPage from './pages/ActivityFeedPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { WelcomeWizard } from './components/onboarding/WelcomeWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -73,12 +76,12 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'settings'];
+      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'settings'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
       } else {
-        // Default to Now (operator landing page)
+        // Default to Now (user?.email || "User" landing page)
         setCurrentSection('now');
         window.history.replaceState(null, '', '#now');
       }
@@ -170,6 +173,15 @@ export function App() {
       
       case 'policies':
         return <PolicyBuilderPage />;
+      
+      case 'policy-templates':
+        return <PolicyTemplatesPage />;
+      
+      case 'agent-templates':
+        return <AgentTemplatesPage />;
+      
+      case 'activity':
+        return <ActivityFeedPage />;
       
       case 'intent':
         return <IntentPage />;

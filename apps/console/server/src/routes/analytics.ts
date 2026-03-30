@@ -1,0 +1,298 @@
+/**
+ * Agent Performance Analytics
+ * Phase 31, Feature 4
+ */
+
+import { Router, Request, Response } from 'express';
+import { AuthenticatedRequest } from '../middleware/jwtAuth.js';
+import { getTenantId } from '../middleware/tenantContext.js';
+import { query } from '../db/postgres.js';
+
+export function createAnalyticsRouter(): Router {
+  const router = Router();
+
+  /**
+   * Get agent performance metrics
+   * GET /api/v1/analytics/agents
+   */
+  router.get('/agents', async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = getTenantId(authReq);
+      
+      const { period = '7d', agent_id } = req.query;
+
+      // Calculate time range
+      let since = new Date();
+      switch (period) {
+        case '24h':
+          since.setHours(since.getHours() - 24);
+          break;
+        case '7d':
+          since.setDate(since.getDate() - 7);
+          break;
+        case '30d':
+          since.setDate(since.getDate() - 30);
+          break;
+      }
+
+      // Query agent performance
+      let sql = `
+        SELECT 
+          a.id,
+          a.agent_id,
+          a.display_name,
+          a.status,
+          a.trust_score,
+          COUNT(DISTINCT s.execution_id) as total_executions,
+          COUNT(DISTINCT CASE WHEN s.status = 'completed' THEN s.execution_id END) as completed_executions,
+          COUNT(DISTINCT CASE WHEN s.status = 'failed' THEN s.execution_id END) as failed_executions,
+          COUNT(DISTINCT CASE WHEN s.status = 'pending_approval' THEN s.execution_id END) as pending_approvals,
+          AVG(EXTRACT(EPOCH FROM (s.completed_at - s.started_at))) as avg_duration_seconds
+        FROM agents a
+        LEFT JOIN execution_ledger_summary s ON a.id = s.agent_id AND s.started_at >= $1
+        WHERE a.tenant_id = $2
+      `;
+
+      const params: any[] = [since.toISOString(), tenantId];
+      
+      if (agent_id) {
+        sql += ` AND a.agent_id = $3`;
+        params.push(agent_id);
+      }
+
+      sql += ` GROUP BY a.id, a.agent_id, a.display_name, a.status, a.trust_score`;
+      sql += ` ORDER BY total_executions DESC`;
+
+      const agents = await query<any>(sql, params);
+
+      // Calculate success rate
+      const enrichedAgents = agents.map((agent: any) => ({
+        ...agent,
+        success_rate: agent.total_executions > 0
+          ? Math.round((agent.completed_executions / agent.total_executions) * 100)
+          : 0,
+        avg_duration_seconds: agent.avg_duration_seconds ? Math.round(agent.avg_duration_seconds) : 0
+      }));
+
+      res.json({
+        success: true,
+        data: enrichedAgents,
+        period
+      });
+    } catch (error) {
+      console.error('[Analytics] Agents error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get agent analytics',
+        code: 'ANALYTICS_AGENTS_ERROR'
+      });
+    }
+  });
+
+  /**
+   * Get organization-wide metrics
+   * GET /api/v1/analytics/organization
+   */
+  router.get('/organization', async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = getTenantId(authReq);
+      
+      const { period = '7d' } = req.query;
+
+      // Calculate time range
+      let since = new Date();
+      switch (period) {
+        case '24h':
+          since.setHours(since.getHours() - 24);
+          break;
+        case '7d':
+          since.setDate(since.getDate() - 7);
+          break;
+        case '30d':
+          since.setDate(since.getDate() - 30);
+          break;
+      }
+
+      // Get execution statistics
+      const stats = await query<any>(
+        `SELECT 
+          COUNT(DISTINCT execution_id) as total_executions,
+          COUNT(DISTINCT CASE WHEN status = 'completed' THEN execution_id END) as completed,
+          COUNT(DISTINCT CASE WHEN status = 'failed' THEN execution_id END) as failed,
+          COUNT(DISTINCT CASE WHEN status = 'pending_approval' THEN execution_id END) as pending_approval,
+          COUNT(DISTINCT agent_id) as active_agents,
+          AVG(EXTRACT(EPOCH FROM (completed_at - started_at))) as avg_duration_seconds
+        FROM execution_ledger_summary
+        WHERE tenant_id = $1 AND started_at >= $2`,
+        [tenantId, since.toISOString()]
+      );
+
+      const summary = stats[0] || {
+        total_executions: 0,
+        completed: 0,
+        failed: 0,
+        pending_approval: 0,
+        active_agents: 0,
+        avg_duration_seconds: 0
+      };
+
+      // Get top agents
+      const topAgents = await query<any>(
+        `SELECT 
+          a.agent_id,
+          a.display_name,
+          COUNT(DISTINCT s.execution_id) as execution_count
+        FROM agents a
+        JOIN execution_ledger_summary s ON a.id = s.agent_id
+        WHERE a.tenant_id = $1 AND s.started_at >= $2
+        GROUP BY a.agent_id, a.display_name
+        ORDER BY execution_count DESC
+        LIMIT 10`,
+        [tenantId, since.toISOString()]
+      );
+
+      // Get policy violations (approximation)
+      const policyViolations = await query<any>(
+        `SELECT COUNT(*) as count
+        FROM approval_requests
+        WHERE tenant_id = $1 AND requested_at >= $2`,
+        [tenantId, since.toISOString()]
+      );
+
+      res.json({
+        success: true,
+        data: {
+          period,
+          summary: {
+            total_executions: parseInt(summary.total_executions),
+            completed: parseInt(summary.completed),
+            failed: parseInt(summary.failed),
+            pending_approval: parseInt(summary.pending_approval),
+            active_agents: parseInt(summary.active_agents),
+            avg_duration_seconds: summary.avg_duration_seconds ? Math.round(summary.avg_duration_seconds) : 0,
+            success_rate: summary.total_executions > 0
+              ? Math.round((summary.completed / summary.total_executions) * 100)
+              : 0
+          },
+          top_agents: topAgents,
+          policy_violations: parseInt(policyViolations[0]?.count || 0)
+        }
+      });
+    } catch (error) {
+      console.error('[Analytics] Organization error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get organization analytics',
+        code: 'ANALYTICS_ORG_ERROR'
+      });
+    }
+  });
+
+  /**
+   * Get cost analytics
+   * GET /api/v1/analytics/costs
+   */
+  router.get('/costs', async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = getTenantId(authReq);
+      
+      const { period = '7d' } = req.query;
+
+      // Calculate time range
+      let since = new Date();
+      switch (period) {
+        case '24h':
+          since.setHours(since.getHours() - 24);
+          break;
+        case '7d':
+          since.setDate(since.getDate() - 7);
+          break;
+        case '30d':
+          since.setDate(since.getDate() - 30);
+          break;
+      }
+
+      // Get cost metrics (placeholder - needs actual cost tracking)
+      const costData = {
+        period,
+        total_estimated_cost: 0, // TODO: Implement cost tracking
+        cost_by_agent: [],
+        cost_trend: []
+      };
+
+      res.json({
+        success: true,
+        data: costData,
+        message: 'Cost tracking coming soon'
+      });
+    } catch (error) {
+      console.error('[Analytics] Costs error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get cost analytics',
+        code: 'ANALYTICS_COSTS_ERROR'
+      });
+    }
+  });
+
+  /**
+   * Get policy analytics
+   * GET /api/v1/analytics/policies
+   */
+  router.get('/policies', async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = getTenantId(authReq);
+      
+      const { period = '7d' } = req.query;
+
+      // Calculate time range
+      let since = new Date();
+      switch (period) {
+        case '24h':
+          since.setHours(since.getHours() - 24);
+          break;
+        case '7d':
+          since.setDate(since.getDate() - 7);
+          break;
+        case '30d':
+          since.setDate(since.getDate() - 30);
+          break;
+      }
+
+      // Get policy trigger statistics
+      const policyStats = await query<any>(
+        `SELECT 
+          p.id,
+          p.name,
+          COUNT(DISTINCT ar.id) as trigger_count
+        FROM policies p
+        LEFT JOIN approval_requests ar ON ar.tenant_id = p.tenant_id AND ar.requested_at >= $1
+        WHERE p.tenant_id = $2 AND p.enabled = true
+        GROUP BY p.id, p.name
+        ORDER BY trigger_count DESC`,
+        [since.toISOString(), tenantId]
+      );
+
+      res.json({
+        success: true,
+        data: {
+          period,
+          policies: policyStats
+        }
+      });
+    } catch (error) {
+      console.error('[Analytics] Policies error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get policy analytics',
+        code: 'ANALYTICS_POLICIES_ERROR'
+      });
+    }
+  });
+
+  return router;
+}

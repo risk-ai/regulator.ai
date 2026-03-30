@@ -157,6 +157,13 @@ export class ProviderHealthChecker {
    * Check Local Ollama provider
    */
   private async checkLocalProvider(timestamp: string): Promise<void> {
+    // Skip if Ollama not configured
+    if (!process.env.OLLAMA_BASE_URL && !process.env.OLLAMA_ENABLED) {
+      // Silent skip - Ollama is optional
+      await this.updateStateGraph('local', 'inactive', 'disabled', timestamp, 'Ollama not configured');
+      return;
+    }
+    
     try {
       const ollamaUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
       const ollamaModel = process.env.OLLAMA_MODEL || 'qwen2.5:0.5b';
@@ -171,6 +178,7 @@ export class ProviderHealthChecker {
           prompt: 'health check',
           stream: false,
         }),
+        signal: AbortSignal.timeout(5000), // 5 second timeout
       });
       
       const latency = Date.now() - startTime;
@@ -180,43 +188,23 @@ export class ProviderHealthChecker {
         console.log(`[ProviderHealthChecker] Local: ✓ healthy (${latency}ms)`);
       } else {
         const error = await response.text();
-        console.error('[ProviderHealthChecker] Local: unhealthy -', error);
+        // Only log once, not repeatedly
         await this.updateStateGraph('local', 'degraded', 'unhealthy', timestamp, error, latency);
       }
       
     } catch (error: any) {
-      console.error('[ProviderHealthChecker] Local check error:', error.message);
-      // Local provider should restart Ollama if down
-      await this.updateStateGraph('local', 'failed', 'unhealthy', timestamp, 'Ollama unreachable');
-      
-      // Attempt to restart Ollama
-      console.log('[ProviderHealthChecker] Attempting to restart Ollama...');
-      await this.restartOllama();
+      // Silently mark as unavailable (don't spam logs)
+      await this.updateStateGraph('local', 'failed', 'unavailable', timestamp, 'Ollama offline');
+      // Don't attempt restart - it's optional
     }
   }
   
   /**
-   * Restart Ollama service
+   * Restart Ollama service (REMOVED - Ollama is optional)
    */
   private async restartOllama(): Promise<void> {
-    try {
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const execAsync = promisify(exec);
-      
-      // Try systemctl restart
-      try {
-        await execAsync('systemctl --user restart ollama');
-        console.log('[ProviderHealthChecker] ✓ Restarted Ollama via systemctl');
-      } catch {
-        // Try direct ollama serve
-        console.log('[ProviderHealthChecker] Systemctl failed, starting Ollama directly...');
-        exec('nohup ollama serve > /tmp/ollama.log 2>&1 &');
-      }
-      
-    } catch (error) {
-      console.error('[ProviderHealthChecker] Failed to restart Ollama:', error);
-    }
+    // No-op: Ollama restart removed
+    // If needed, user can manually start: systemctl --user start ollama
   }
   
   /**

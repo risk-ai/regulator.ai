@@ -27,9 +27,11 @@ import { ProviderHealthService } from './services/providerHealthService.js';
 import { SystemNowService } from './services/systemNowService.js';
 import { eventStream } from './sse/eventStream.js';
 import { createAuthMiddleware } from './middleware/requireAuth.js';
+import { createHybridAuthMiddleware } from './middleware/hybridAuth.js';
 import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.js';
 import { createCacheMiddleware } from './middleware/cache.js';
+import { requestLoggingMiddleware, errorLoggingMiddleware } from './middleware/logging.js';
 
 // Routes
 import { createAuthRouter } from './routes/auth.js';
@@ -57,6 +59,10 @@ import { createCommandsRouter } from './routes/commands.js';
 import { createSystemRouter } from './routes/system.js';
 import { createSystemHealthRouter } from './routes/system-health.js';
 import { createRecoveryRouter } from './routes/recovery.js';
+
+// Tenant-scoped routes (multi-tenant data isolation)
+import agentsTenantRouter from './routes/agents-tenant.js';
+import policiesTenantRouter from './routes/policies-tenant.js';
 import { createWorkflowRouter } from './routes/workflows.js';
 import { createModelsRouter } from './routes/models.js';
 import { createManagedObjectivesRouter } from './routes/managed-objectives.js';
@@ -73,11 +79,17 @@ import { createValidationRouter } from './routes/validation.js';
 import { createComplianceRouter } from './routes/compliance.js';
 import { createIntegrationsRouter } from './routes/integrations.js';
 import { createPoliciesRouter } from './routes/policies.js';
+import { createPolicyTemplatesRouter } from './routes/policy-templates.js';
 import { createActionTypesRouter } from './routes/action-types.js';
 import { createFleetRouter } from './routes/fleet.js';
 import { createSimulationRouter } from './routes/simulation.js';
 import { createActionsRouter } from './routes/actions.js';
 import { createDemoRouter } from './routes/demo.js';
+import { createHealthRouter } from './routes/health.js';
+import { createActivityFeedRouter } from './routes/activity-feed.js';
+import { createSlackRouter } from './routes/slack.js';
+import { createAnalyticsRouter } from './routes/analytics.js';
+import { createAgentTemplatesRouter } from './routes/agent-templates.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -95,8 +107,9 @@ export function createApp(
 ): Express {
   const app = express();
   
-  // Create auth middleware
-  const requireAuth = createAuthMiddleware(authService);
+  // Create auth middleware (hybrid: JWT + cookies)
+  const requireAuth = createHybridAuthMiddleware(authService);
+  const requireAuthLegacy = createAuthMiddleware(authService);
 
   // ============================================================================
   // Middleware
@@ -149,6 +162,9 @@ export function createApp(
   // Metrics (before other middleware to track everything)
   app.use(metricsMiddleware());
   
+  // Structured logging (after metrics, before body parsing)
+  app.use(requestLoggingMiddleware);
+  
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
@@ -159,6 +175,11 @@ export function createApp(
   // Request logging
   app.use((req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
+    
+    // Debug: Log all /actions requests
+    if (req.path.startsWith('/api/v1/actions')) {
+      console.log('[REQUEST] Path:', req.path, '| Method:', req.method, '| Has auth:', !!req.headers.authorization);
+    }
     
     res.on('finish', () => {
       const duration = Date.now() - start;
@@ -252,6 +273,9 @@ export function createApp(
     }
   });
 
+  // Additional health endpoints (Kubernetes-compatible)
+  app.use('/health', createHealthRouter());
+
   // ============================================================================
   // API Routes
   // ============================================================================
@@ -336,12 +360,17 @@ export function createApp(
   
   // Phase 14: Forensic Incidents
   app.use(`${apiPrefix}/incidents`, requireAuth, incidentsRouter);
+
+  // Phase 31: Activity Feed (real-time organization-wide activity)
+  app.use(`${apiPrefix}/activity`, requireAuth, createActivityFeedRouter(viennaRuntime));
   
   // Custom Action Types Registry
   app.use(`${apiPrefix}/action-types`, requireAuth, createActionTypesRouter());
   
   // Custom Actions API (dynamic action registration)
-  app.use(`${apiPrefix}/actions`, requireAuth, createActionsRouter(viennaRuntime));
+  // Actions router handles its own JWT auth via jwtAuthMiddleware
+  console.log('[App.ts] Mounting /actions router WITHOUT requireAuth - VERSION 2026-03-29-19:47');
+  app.use(`${apiPrefix}/actions`, createActionsRouter());
   
   // Real-time events (SSE streaming)
   app.use(`${apiPrefix}/events`, requireAuth, createEventsRouter());
@@ -349,11 +378,32 @@ export function createApp(
   // Phase 15: Agent Fleet Dashboard
   app.use(`${apiPrefix}/fleet`, requireAuth, createFleetRouter(viennaRuntime));
   
-  // Phase 15: Policy Builder (governance rules engine)
-  app.use(`${apiPrefix}/policies`, requireAuth, createPoliciesRouter(viennaRuntime));
+  // ========================================
+  // TENANT-SCOPED ROUTES (SECURITY CRITICAL)
+  // ========================================
+  // These routes use tenant filtering for multi-tenant data isolation
+  // Routes imported at top of file
+  
+  app.use(`${apiPrefix}/agents`, agentsTenantRouter);
+  app.use(`${apiPrefix}/policies`, policiesTenantRouter);
+  app.use(`${apiPrefix}/policy-templates`, createPolicyTemplatesRouter());
+  app.use(`${apiPrefix}/agent-templates`, createAgentTemplatesRouter());
+  
+  // ========================================
+  // LEGACY ROUTES (DEPRECATED - TO BE REMOVED)
+  // ========================================
+  // These routes do NOT enforce tenant isolation
+  // Keeping for backward compatibility during migration
+  // TODO: Remove after all clients updated to use tenant-safe routes
   
   // Phase 15: Integration Adapters
   app.use(`${apiPrefix}/integrations`, requireAuth, createIntegrationsRouter());
+  
+  // Phase 31: Slack Integration
+  app.use(`${apiPrefix}/slack`, requireAuth, createSlackRouter());
+  
+  // Phase 31: Analytics Dashboard
+  app.use(`${apiPrefix}/analytics`, requireAuth, createAnalyticsRouter());
   
   // Validation logging (browser testing)
   app.use(`${apiPrefix}/validation`, createValidationRouter());
@@ -370,7 +420,6 @@ export function createApp(
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));
   app.use(`${apiPrefix}/deadletters`, requireAuth, createDeadLettersRouter(objectivesService));
-  app.use(`${apiPrefix}/agents`, requireAuth, createAgentsRouter(viennaRuntime));
   app.use(`${apiPrefix}/replay`, requireAuth, createReplayRouter(viennaRuntime));
   app.use(`${apiPrefix}/audit`, requireAuth, createAuditRouter(viennaRuntime));
   app.use(`${apiPrefix}/directives`, requireAuth, createDirectivesRouter(viennaRuntime));

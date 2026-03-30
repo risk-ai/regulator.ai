@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -24,10 +24,13 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'now', label: 'Now', description: 'System posture & action center', icon: '⚡' },
+  { id: 'activity', label: 'Activity', description: 'Real-time agent activity feed', icon: '📊' },
   { id: 'runtime', label: 'Runtime', description: 'Execution pipeline & reconciliation', icon: '⚙️' },
   { id: 'fleet', label: 'Fleet', description: 'Agent fleet governance dashboard', icon: '🤖' },
   { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
   { id: 'policies', label: 'Policies', description: 'Governance rules & policy builder', icon: '🛡️' },
+  { id: 'policy-templates', label: 'Templates', description: 'Pre-built policy templates', icon: '📋' },
+  { id: 'agent-templates', label: 'Agents', description: 'Agent integration templates', icon: '🤖' },
   { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
   { id: 'action-types', label: 'Actions', description: 'Action type registry', icon: '⚡' },
   { id: 'integrations', label: 'Integrations', description: 'External service adapters', icon: '🔌' },

@@ -1,5 +1,11 @@
 {
   "version": 2,
   "regions": ["iad1"],
-  "public": true
+  "public": true,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/[...path]"
+    }
+  ]
 }

@@ -291,9 +291,36 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Policy templates (public, static)
+    // Policy templates (public, from Neon)
     if (path === '/api/v1/policy-templates') {
-      return res.status(200).json({ success: true, data: [] });
+      try {
+        const templates = await query(`
+          SELECT id, name, category, description, icon, enabled, priority, rules, tags, use_count, created_at, updated_at
+          FROM policy_templates
+          WHERE enabled = true
+          ORDER BY category, name
+        `);
+        return res.status(200).json({ success: true, data: templates });
+      } catch (error) {
+        console.error('[policy-templates]', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    }
+
+    // Agent templates (public, from Neon)
+    if (path === '/api/v1/agent-templates') {
+      try {
+        const templates = await query(`
+          SELECT id, name, description, framework, icon, enabled, config, policies, integration_code, quick_start_guide, tags, use_count, created_at, updated_at
+          FROM agent_templates
+          WHERE enabled = true
+          ORDER BY framework, name
+        `);
+        return res.status(200).json({ success: true, data: templates });
+      } catch (error) {
+        console.error('[agent-templates]', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
     }
 
     // Reconciliation safe-mode (public, static)

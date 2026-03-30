@@ -378,23 +378,25 @@ module.exports = async function handler(req, res) {
       try {
         // Create execution claim
         const claimId = crypto.randomUUID();
+        const executionKey = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         await query(
-          `INSERT INTO public.execution_claims (id, agent_id, action, context, tier, status, created_at)
-           VALUES ($1, $2, $3, $4, $5, 'pending', NOW())`,
-          [claimId, agent_id, action, JSON.stringify(context || {}), tier || 'T0']
+          `INSERT INTO public.execution_claims (claim_id, queue_item_id, execution_key, attempt_number, worker_id, status, claimed_at, metadata_json)
+           VALUES ($1, $2, $3, 1, 'vercel-serverless', 'pending', NOW(), $4)`,
+          [claimId, claimId, executionKey, JSON.stringify({ action, agent_id, context, tier })]
         );
         
         // Log to ledger
         await query(
-          `INSERT INTO public.execution_ledger_events (id, claim_id, event_type, details, created_at)
-           VALUES ($1, $2, 'submitted', $3, NOW())`,
-          [crypto.randomUUID(), claimId, JSON.stringify({ action, agent_id })]
+          `INSERT INTO public.execution_ledger_events (event_id, tenant_id, execution_id, event_type, stage, event_timestamp)
+           VALUES ($1, $2, $3, 'claim_created', 'submission', NOW())`,
+          [crypto.randomUUID(), 'default', executionKey]
         );
         
         return res.json({
           success: true,
           data: {
             claim_id: claimId,
+            execution_key: executionKey,
             status: 'pending',
             requires_approval: tier !== 'T0',
             message: tier === 'T0' ? 'Auto-approved' : 'Approval required'
@@ -464,20 +466,20 @@ module.exports = async function handler(req, res) {
       // Objectives: Create (tenant-scoped)
       if (path === '/api/v1/objectives' && req.method === 'POST') {
         const body = await parseBody(req);
-        const { name, description, agent_id, policies } = body;
+        const { name, type, description } = body;
         
-        if (!name || !agent_id) {
-          return res.status(400).json({ success: false, error: 'name and agent_id required' });
+        if (!name) {
+          return res.status(400).json({ success: false, error: 'name required' });
         }
         
-        const id = crypto.randomUUID();
+        const objectiveId = crypto.randomUUID();
         await query(
-          `INSERT INTO public.objectives (id, tenant_id, name, description, agent_id, policies, status, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, 'active', NOW())`,
-          [id, tenantId, name, description || '', agent_id, JSON.stringify(policies || [])]
+          `INSERT INTO public.objectives (objective_id, tenant_id, objective_name, objective_type, status, metadata)
+           VALUES ($1, $2, $3, $4, 'active', $5)`,
+          [objectiveId, tenantId, name, type || 'general', JSON.stringify({ description: description || '' })]
         );
         
-        return res.json({ success: true, data: { id, name, status: 'active' } });
+        return res.json({ success: true, data: { objective_id: objectiveId, name, status: 'active' } });
       }
 
       // Dashboard bootstrap (tenant-scoped counts)

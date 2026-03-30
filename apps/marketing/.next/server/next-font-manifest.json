@@ -1,0 +1,139 @@
+{
+  "app": {
+    "[project]/regulator.ai/apps/marketing/src/app/_not-found/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/about/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/admin/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/blog/[slug]/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/blog/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/case-studies/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/changelog/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/compare/arthur-ai/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/compare/guardrails-ai/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/compare/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/contact/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/demo/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/demo/warrant/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/docs/api-reference/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/docs/getting-started/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/docs/integration-guide/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/docs/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/faq/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/glossary/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/integrations/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/manifesto/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/pricing/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/privacy/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/register/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/roi/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/security/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/signup/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/signup/success/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/status/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/terms/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/try/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ],
+    "[project]/regulator.ai/apps/marketing/src/app/use-cases/page": [
+      "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2",
+      "static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pages": {},
+  "pagesUsingSizeAdjust": false
+}

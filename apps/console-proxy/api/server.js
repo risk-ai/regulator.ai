@@ -384,7 +384,7 @@ module.exports = async function handler(req, res) {
         // Log to execution ledger
         await query(
           `INSERT INTO public.execution_ledger_events (event_id, tenant_id, execution_id, event_type, stage, sequence_num, event_timestamp)
-           VALUES ($1, $2, $3, 'execution_requested', 'submission', 1, NOW())`,
+           VALUES ($1, $2, $3, 'execution_requested', 'intent', 1, NOW())`,
           [crypto.randomUUID(), 'default', executionKey]
         );
         

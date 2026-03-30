@@ -1488,6 +1488,51 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // ========== Stats & Metrics ==========
+    if (path === '/api/v1/stats') {
+      const period = url.searchParams.get('period') || '7d';
+      const intervalMap = { '24h': '24 hours', '7d': '7 days', '30d': '30 days', 'all': '10 years' };
+      const interval = intervalMap[period] || '7 days';
+      const [execs, approvals, agents, policies, riskDist] = await Promise.all([
+        tenantQuery(`SELECT count(*) as total, count(*) FILTER (WHERE state IN ('approved','warranted')) as completed, count(*) FILTER (WHERE state = 'denied') as rejected, count(*) FILTER (WHERE state = 'pending') as pending FROM regulator.proposals WHERE created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery(`SELECT count(*) as total, count(*) FILTER (WHERE state IN ('approved','warranted')) as approved, count(*) FILTER (WHERE state = 'denied') as rejected, count(*) FILTER (WHERE state = 'pending') as pending FROM regulator.proposals WHERE risk_tier >= 1 AND created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry', [], tenantId),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE enabled = true) as enabled FROM regulator.policies', [], tenantId),
+        tenantQuery(`SELECT risk_tier, count(*) as count FROM regulator.proposals WHERE created_at > NOW() - interval '${interval}' GROUP BY risk_tier ORDER BY risk_tier`, [], tenantId),
+      ]);
+      return res.status(200).json({ success: true, data: {
+        period,
+        executions: { total_executions: parseInt(execs[0]?.total||0), completed: parseInt(execs[0]?.completed||0), rejected: parseInt(execs[0]?.rejected||0), pending_approval: parseInt(execs[0]?.pending||0) },
+        approvals: { total_approvals: parseInt(approvals[0]?.total||0), pending: parseInt(approvals[0]?.pending||0), approved: parseInt(approvals[0]?.approved||0), rejected: parseInt(approvals[0]?.rejected||0) },
+        agents: { total: parseInt(agents[0]?.total||0), active: parseInt(agents[0]?.active||0) },
+        policies: { total: parseInt(policies[0]?.total||0), enabled: parseInt(policies[0]?.enabled||0) },
+        risk_distribution: riskDist.map(r => ({ tier: `T${r.risk_tier}`, count: parseInt(r.count) })),
+      }});
+    }
+
+    if (path === '/api/v1/stats/executions/trends') {
+      const days = parseInt(url.searchParams.get('days') || '7');
+      const trends = await tenantQuery(
+        `SELECT DATE(created_at) as date, count(*) as executions, count(*) FILTER (WHERE state IN ('approved','warranted')) as completed, count(*) FILTER (WHERE state = 'denied') as rejected FROM regulator.proposals WHERE created_at > NOW() - interval '${days} days' GROUP BY DATE(created_at) ORDER BY date`,
+        [], tenantId);
+      return res.status(200).json({ success: true, data: trends });
+    }
+
+    if (path === '/api/v1/stats/approvals/trends') {
+      const days = parseInt(url.searchParams.get('days') || '7');
+      const trends = await tenantQuery(
+        `SELECT DATE(created_at) as date, count(*) as total, count(*) FILTER (WHERE state IN ('approved','warranted')) as approved, count(*) FILTER (WHERE state = 'denied') as denied FROM regulator.proposals WHERE risk_tier >= 1 AND created_at > NOW() - interval '${days} days' GROUP BY DATE(created_at) ORDER BY date`,
+        [], tenantId);
+      return res.status(200).json({ success: true, data: trends });
+    }
+
+    if (path === '/api/v1/stats/risk-distribution') {
+      const dist = await tenantQuery(
+        `SELECT risk_tier, count(*) as count, count(*) FILTER (WHERE state IN ('approved','warranted')) as approved, count(*) FILTER (WHERE state = 'denied') as denied FROM regulator.proposals GROUP BY risk_tier ORDER BY risk_tier`,
+        [], tenantId);
+      return res.status(200).json({ success: true, data: dist.map(r => ({ tier: `T${r.risk_tier}`, total: parseInt(r.count), approved: parseInt(r.approved), denied: parseInt(r.denied) })) });
+    }
+
     // ========== Execution Records ==========
     // Derived from audit log + warrants (no separate execution table needed)
     if (path === '/api/v1/execution-records' || path === '/api/v1/executions') {

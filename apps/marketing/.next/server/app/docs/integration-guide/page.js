@@ -1,20 +1,4 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/docs/integration-guide/page.js")
-<<<<<<< Updated upstream
-R.c("server/chunks/ssr/[root-of-the-server]__0qynyns._.js")
-R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0~h7kz7.js")
-R.c("server/chunks/ssr/[root-of-the-server]__10831xr._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0fk_g0j._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0ok463u._.js")
-R.c("server/chunks/ssr/node_modules_next_dist_06u0kr8._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0en~s42._.js")
-R.c("server/chunks/ssr/apps_marketing_0l3vugk._.js")
-R.c("server/chunks/ssr/node_modules_next_dist_client_components_0ee1czk._.js")
-R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0cjv-23.js")
-R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0lgvd_..js")
-R.c("server/chunks/ssr/02dz_marketing__next-internal_server_app_docs_integration-guide_page_actions_026doie.js")
-R.m(43579)
-module.exports=R.m(43579).exports
-=======
 R.c("server/chunks/ssr/[root-of-the-server]__0u9fkre._.js")
 R.c("server/chunks/ssr/10ok_next_dist_esm_build_templates_app-page_0074okf.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0h3jlty._.js")
@@ -29,4 +13,3 @@ R.c("server/chunks/ssr/10ok_next_dist_client_components_builtin_global-error_05u
 R.c("server/chunks/ssr/05we_marketing__next-internal_server_app_docs_integration-guide_page_actions_0h71~l4.js")
 R.m(26398)
 module.exports=R.m(26398).exports
->>>>>>> Stashed changes

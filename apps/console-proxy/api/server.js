@@ -366,6 +366,77 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Execution: Submit action for approval/execution
+    if (path === '/api/v1/execute' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { action, agent_id, context, tier } = body;
+      
+      if (!action || !agent_id) {
+        return res.status(400).json({ success: false, error: 'action and agent_id required' });
+      }
+      
+      try {
+        // Create execution claim
+        const claimId = crypto.randomUUID();
+        await query(
+          `INSERT INTO public.execution_claims (id, agent_id, action, context, tier, status, created_at)
+           VALUES ($1, $2, $3, $4, $5, 'pending', NOW())`,
+          [claimId, agent_id, action, JSON.stringify(context || {}), tier || 'T0']
+        );
+        
+        // Log to ledger
+        await query(
+          `INSERT INTO public.execution_ledger_events (id, claim_id, event_type, details, created_at)
+           VALUES ($1, $2, 'submitted', $3, NOW())`,
+          [crypto.randomUUID(), claimId, JSON.stringify({ action, agent_id })]
+        );
+        
+        return res.json({
+          success: true,
+          data: {
+            claim_id: claimId,
+            status: 'pending',
+            requires_approval: tier !== 'T0',
+            message: tier === 'T0' ? 'Auto-approved' : 'Approval required'
+          }
+        });
+      } catch (error) {
+        console.error('[execute]', error);
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    }
+
+    // Execution: Get status
+    if (path.startsWith('/api/v1/execution/status/')) {
+      const claimId = path.split('/').pop();
+      try {
+        const claims = await query(
+          'SELECT * FROM public.execution_claims WHERE id = $1',
+          [claimId]
+        );
+        if (claims.length === 0) {
+          return res.status(404).json({ success: false, error: 'Claim not found' });
+        }
+        return res.json({ success: true, data: claims[0] });
+      } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+      }
+    }
+
+    // Execution: Active envelopes
+    if (path === '/api/v1/execution/active') {
+      try {
+        const active = await query(
+          `SELECT * FROM public.execution_claims 
+           WHERE status = 'pending' OR status = 'executing'
+           ORDER BY created_at DESC LIMIT 50`
+        );
+        return res.json({ success: true, data: active });
+      } catch (error) {
+        return res.json({ success: true, data: [] });
+      }
+    }
+
     // Reconciliation safe-mode (public, static)
     if (path === '/api/v1/reconciliation/safe-mode') {
       return res.status(200).json({ success: true, data: { active: false } });
@@ -380,6 +451,34 @@ module.exports = async function handler(req, res) {
       if (!user) return; // 401 already sent
 
       const tenantId = user.tenant_id;
+
+      // Objectives: List (tenant-scoped)
+      if (path === '/api/v1/objectives' && req.method === 'GET') {
+        const objectives = await query(
+          'SELECT * FROM public.objectives WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          [tenantId]
+        );
+        return res.json({ success: true, data: objectives });
+      }
+
+      // Objectives: Create (tenant-scoped)
+      if (path === '/api/v1/objectives' && req.method === 'POST') {
+        const body = await parseBody(req);
+        const { name, description, agent_id, policies } = body;
+        
+        if (!name || !agent_id) {
+          return res.status(400).json({ success: false, error: 'name and agent_id required' });
+        }
+        
+        const id = crypto.randomUUID();
+        await query(
+          `INSERT INTO public.objectives (id, tenant_id, name, description, agent_id, policies, status, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, 'active', NOW())`,
+          [id, tenantId, name, description || '', agent_id, JSON.stringify(policies || [])]
+        );
+        
+        return res.json({ success: true, data: { id, name, status: 'active' } });
+      }
 
       // Dashboard bootstrap (tenant-scoped counts)
       if (path === '/api/v1/dashboard/bootstrap') {

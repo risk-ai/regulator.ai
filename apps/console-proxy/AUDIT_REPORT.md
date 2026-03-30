@@ -84,8 +84,8 @@ GET /api/v1/stats/risk-distribution
 
 **Database Queries**:
 - `COUNT(*) FROM proposals WHERE created_at >= $since`
-- `COUNT(*) FROM audit_log WHERE event = 'execution.completed' AND created_at >= $since`
-- `COUNT(*) FROM audit_log WHERE event = 'warrant.issued' AND created_at >= $since`
+- `COUNT(*) FROM audit_log WHERE event = 'execution_completed' AND created_at >= $since`
+- `COUNT(*) FROM audit_log WHERE event = 'warrant_issued' AND created_at >= $since`
 - `COUNT(DISTINCT agent_id) FROM proposals WHERE created_at >= $since`
 
 **Status**: ✅ **Implemented**
@@ -114,7 +114,7 @@ SELECT
   date_trunc('hour', created_at) as hour,
   COUNT(*) as count
 FROM regulator.audit_log
-WHERE event = 'execution.completed' AND created_at >= $since
+WHERE event = 'execution_completed' AND created_at >= $since
 GROUP BY hour
 ORDER BY hour ASC
 ```
@@ -145,7 +145,7 @@ SELECT
   date_trunc('hour', created_at) as hour,
   COUNT(*) as count
 FROM regulator.audit_log
-WHERE event = 'warrant.issued' AND created_at >= $since
+WHERE event = 'warrant_issued' AND created_at >= $since
 GROUP BY hour
 ORDER BY hour ASC
 ```

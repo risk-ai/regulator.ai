@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Use Cases — Vienna OS",
-  description: "How enterprises use Vienna OS to govern AI agents across financial services, healthcare, DevOps, supply chain, and more.",
+  description: "How enterprises use Vienna OS as the execution kernel for autonomous AI - warrants-based governance across financial services, healthcare, DevOps, supply chain, and more.",
   openGraph: {
     title: "Use Cases — Vienna OS",
-    description: "How enterprises use Vienna OS to govern AI agents across financial services, healthcare, DevOps, supply chain, and more.",
+    description: "How enterprises use Vienna OS as the execution kernel for autonomous AI - warrants-based governance with cryptographic execution authority across industries.",
   },
 };
 

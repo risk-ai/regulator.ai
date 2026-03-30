@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Changelog",
-  description: "Vienna OS release history and product updates.",
+  description: "Vienna OS release history and product updates - tracking the evolution of the execution kernel for autonomous AI and warrants-based governance.",
 };
 
 const releases = [

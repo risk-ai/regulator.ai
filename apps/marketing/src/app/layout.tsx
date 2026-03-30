@@ -7,16 +7,16 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 
 export const metadata: Metadata = {
   title: {
-    default: "Vienna OS — The Execution Control Layer for AI Systems",
+    default: "Vienna OS — Execution Kernel for Autonomous AI",
     template: "%s | Vienna OS",
   },
   description:
-    "Control what AI agents can do — not just what they say. Cryptographic execution warrants, risk tiering, policy enforcement, and immutable audit trails for autonomous AI systems.",
+    "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority, policy enforcement, and immutable audit trails for AI systems.",
   metadataBase: new URL("https://regulator.ai"),
   openGraph: {
-    title: "Vienna OS — The Execution Control Layer for AI Systems",
+    title: "Vienna OS — Execution Kernel for Autonomous AI",
     description:
-      "Control what AI agents can do. Cryptographic warrants, risk tiering, policy enforcement, and immutable audit trails.",
+      "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority.",
     url: "https://regulator.ai",
     siteName: "Vienna OS",
     type: "website",
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vienna OS — The Execution Control Layer for AI Systems",
+    title: "Vienna OS — Execution Kernel for Autonomous AI",
     description:
-      "Control what AI agents can do. Cryptographic warrants, risk tiering, and immutable audit trails.",
+      "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority.",
     images: ["/og-image.png"],
   },
   robots: {

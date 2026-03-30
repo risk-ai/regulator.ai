@@ -1,36 +1,96 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "vienna-sdk"
+name = "vienna-os"
 version = "0.1.0"
-description = "Official Python SDK for Vienna OS — AI Agent Governance Platform"
+description = "Official Python SDK for Vienna OS - AI Agent Governance Platform"
 readme = "README.md"
-license = {text = "BUSL-1.1"}
-requires-python = ">=3.9"
+license = "MIT"
 authors = [
-    {name = "ai.ventures", email = "admin@ai.ventures"},
+    { name = "Vienna OS", email = "sdk@vienna-os.dev" }
 ]
-keywords = ["vienna", "ai", "governance", "agents", "sdk", "compliance", "warrants"]
+maintainers = [
+    { name = "Vienna OS", email = "sdk@vienna-os.dev" }
+]
+keywords = ["ai", "governance", "agents", "compliance", "policy"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: Other/Proprietary License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
     "Topic :: Security",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.0.0; python_version<'3.10'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-httpx>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.0.280",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
+]
+docs = [
+    "mkdocs>=1.4.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings[python]>=0.20.0",
 ]
 
 [project.urls]
-Homepage = "https://regulator.ai"
-Documentation = "https://regulator.ai/docs"
-Repository = "https://github.com/risk-ai/regulator.ai"
-Issues = "https://github.com/risk-ai/regulator.ai/issues"
+Homepage = "https://vienna-os.dev"
+Documentation = "https://docs.vienna-os.dev"
+Repository = "https://github.com/vienna-os/python-sdk"
+"Bug Tracker" = "https://github.com/vienna-os/python-sdk/issues"
 
-[tool.setuptools.packages.find]
-include = ["vienna_sdk*"]
+[tool.hatch.build.targets.wheel]
+packages = ["vienna_os", "vienna_sdk"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

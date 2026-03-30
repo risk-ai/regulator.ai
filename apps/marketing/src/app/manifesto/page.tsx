@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "The Vienna Manifesto — Principles for Governed AI Execution",
-  description: "Our beliefs about AI agent governance. 7 principles that guide Vienna OS and the future of responsible autonomous systems.",
+  description: "Our beliefs about execution kernel governance for autonomous AI. 7 principles about warrants-based governance and cryptographic execution authority for responsible AI systems.",
   openGraph: {
     title: "The Vienna Manifesto — Principles for Governed AI Execution",
-    description: "7 principles for the future of AI agent governance. No agent should execute what no human authorized.",
+    description: "7 principles for the execution kernel of autonomous AI. No agent should execute what no human authorized through warrants-based governance.",
   },
 };
 

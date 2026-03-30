@@ -1,4 +1,10 @@
 import { Shield, ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Privacy Policy for Vienna OS - the execution kernel for autonomous AI. Learn how we protect your data in our warrants-based governance system.",
+};
 
 export default function PrivacyPage() {
   return (

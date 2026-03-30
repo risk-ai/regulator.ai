@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Vienna OS vs Guardrails AI — Detailed Comparison",
-  description: "Compare Vienna OS and Guardrails AI for AI agent governance. See how execution control differs from prompt validation — features, architecture, and use cases side by side.",
+  description: "Compare Vienna OS and Guardrails AI for AI governance. See how execution kernel with warrants-based governance differs from prompt validation — features and use cases side by side.",
   openGraph: {
     title: "Vienna OS vs Guardrails AI — Detailed Comparison",
-    description: "Execution control vs prompt validation. A detailed comparison for teams evaluating AI governance platforms.",
+    description: "Execution kernel vs prompt validation. Comparing Vienna OS warrants-based governance with cryptographic execution authority vs Guardrails AI.",
   },
 };
 

@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Security",
   description:
-    "Vienna OS security architecture: encryption, tenant isolation, cryptographic warrants, audit trails, and compliance posture.",
+    "Vienna OS security architecture - execution kernel security model with cryptographic warrants, warrants-based governance, tenant isolation, and cryptographic execution authority.",
 };
 
 const securityFeatures = [

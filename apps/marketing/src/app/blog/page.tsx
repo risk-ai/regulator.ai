@@ -9,6 +9,39 @@ import { analytics } from "@/lib/analytics";
 
 const posts = [
   {
+    slug: "execution-gap-warrants-not-guardrails",
+    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
+    excerpt:
+      "Current AI safety focuses on model outputs, not agent actions. Learn why warrant-based authorization is the missing piece in the DIR framework: deliberate scope, intentional authorization, responsible audit.",
+    date: "March 30, 2026",
+    readTime: "9 min",
+    category: "Governance",
+    categoryColor: "text-purple-400 bg-purple-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "rbac-to-warrants-access-control-evolution",
+    title: "From RBAC to Warrants: Rethinking Access Control for Autonomous Agents",
+    excerpt:
+      "Traditional access control fails for autonomous agents. See concrete examples where RBAC/ABAC breaks down and how warrant-based governance provides the evolution enterprises need.",
+    date: "March 30, 2026",
+    readTime: "8 min",
+    category: "Architecture",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "immutable-audit-trail-financial-compliance",
+    title: "Building an Immutable Audit Trail for AI: Lessons from Financial Compliance",
+    excerpt:
+      "SOX and Basel III requirements meet AI governance. Learn how Vienna OS's cryptographic logging satisfies financial compliance and provides a practical roadmap for audit trails.",
+    date: "March 30, 2026",
+    readTime: "10 min",
+    category: "Compliance",
+    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Max Anderson",
+  },
+  {
     slug: "zero-trust-ai-agent-pipeline",
     title: "Building a Zero-Trust AI Agent Pipeline",
     excerpt:
@@ -139,6 +172,39 @@ const posts = [
     category: "Framework",
     categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Team",
+  },
+  {
+    slug: "execution-gap-warrants-not-guardrails",
+    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
+    excerpt:
+      "Current AI safety focuses on model outputs, not agent actions. The DIR framework — Deliberate scope, Intentional authorization, Responsible audit — closes the execution gap that guardrails leave wide open.",
+    date: "March 30, 2026",
+    readTime: "11 min",
+    category: "Thought Leadership",
+    categoryColor: "text-violet-400 bg-violet-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "rbac-to-warrants-access-control-evolution",
+    title: "From RBAC to Warrants: Rethinking Access Control for Autonomous Agents",
+    excerpt:
+      "RBAC and ABAC were built for humans clicking buttons, not agents planning multi-step operations. Here's why warrant-based governance is the natural evolution — with concrete failure modes and fixes.",
+    date: "March 30, 2026",
+    readTime: "10 min",
+    category: "Architecture",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Max Anderson",
+  },
+  {
+    slug: "immutable-audit-trail-financial-compliance",
+    title: "Building an Immutable Audit Trail for AI: Lessons from Financial Compliance",
+    excerpt:
+      "SOX, Basel III, and MiFID II demand provable records. AI governance needs the same rigor. Learn how Vienna OS's cryptographic logging meets financial-grade compliance requirements.",
+    date: "March 30, 2026",
+    readTime: "12 min",
+    category: "Compliance",
+    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Max Anderson",
   },
 ];
 

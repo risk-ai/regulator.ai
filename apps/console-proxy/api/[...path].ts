@@ -17,8 +17,8 @@ export default async function handler(req: Request) {
   // Extract the path after /api/
   const path = url.pathname.replace(/^\/api\//, '');
   
-  // Construct target URL
-  const targetUrl = `${BACKEND_URL}/${path}${url.search}`;
+  // Construct target URL (backend expects /api/* paths)
+  const targetUrl = `${BACKEND_URL}/api/${path}${url.search}`;
   
   try {
     // Forward the request

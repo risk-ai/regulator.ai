@@ -30,7 +30,7 @@ function generateWarrantSignature(warrant, secret = process.env.WARRANT_SECRET |
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/warrants/, '');
-  const query = Object.fromEntries(url.searchParams);
+  const params = Object.fromEntries(url.searchParams);
   
   try {
     // Verify warrant signature
@@ -149,8 +149,8 @@ module.exports = async function handler(req, res) {
     
     // List warrants with filters
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
-      const execution_id = query.execution_id;
-      const limit = query.limit || 50;
+      const execution_id = params.execution_id;
+      const limit = params.limit || 50;
       
       let query = `
         SELECT 

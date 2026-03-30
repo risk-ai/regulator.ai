@@ -14,13 +14,13 @@ module.exports = async function handler(req, res) {
   // Vercel passes the path without the route prefix
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/approvals/, '');
-  const query = Object.fromEntries(url.searchParams);
+  const params = Object.fromEntries(url.searchParams);
   
   try {
     // List all pending approvals
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
-      const status = query.status || 'pending';
-      const tier = query.tier;
+      const status = params.status || 'pending';
+      const tier = params.tier;
       
       let query = `
         SELECT 

@@ -13,7 +13,7 @@ const pool = new Pool({
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/executions/, '');
-  const query = Object.fromEntries(url.searchParams);
+  const params = Object.fromEntries(url.searchParams);
   
   try {
     // Get specific execution details with full audit trail
@@ -87,12 +87,12 @@ module.exports = async function handler(req, res) {
     
     // List executions with filters
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
-      const tier = query.tier;
-      const status = query.status;
-      const limit = query.limit || 50;
-      const offset = query.offset || 0;
-      const from_date = query.from_date;
-      const to_date = query.to_date;
+      const tier = params.tier;
+      const status = params.status;
+      const limit = params.limit || 50;
+      const offset = params.offset || 0;
+      const from_date = params.from_date;
+      const to_date = params.to_date;
       
       let query = `
         WITH execution_summary AS (

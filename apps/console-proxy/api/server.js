@@ -1273,6 +1273,97 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // ========== Analytics Stats ==========
+    if (path === '/api/v1/stats' && req.method === 'GET') {
+      const period = url.searchParams.get('period') || '24h';
+      const hours = period === '7d' ? 168 : period === '30d' ? 720 : 24;
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+
+      const [proposals, executions, approvals, agents] = await Promise.all([
+        query('SELECT COUNT(*) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
+        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['execution.completed', since]),
+        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['warrant.issued', since]),
+        query('SELECT COUNT(DISTINCT agent_id) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
+      ]);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          period,
+          proposals: parseInt(proposals[0]?.cnt || 0),
+          executions: parseInt(executions[0]?.cnt || 0),
+          approvals: parseInt(approvals[0]?.cnt || 0),
+          active_agents: parseInt(agents[0]?.cnt || 0),
+        }
+      });
+    }
+
+    if (path === '/api/v1/stats/executions/trends' && req.method === 'GET') {
+      const hours = 24;
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+      
+      const trends = await query(`
+        SELECT 
+          date_trunc('hour', created_at) as hour,
+          COUNT(*) as count
+        FROM regulator.audit_log
+        WHERE event = 'execution.completed' AND created_at >= $1
+        GROUP BY hour
+        ORDER BY hour ASC
+      `, [since]);
+
+      return res.status(200).json({
+        success: true,
+        data: trends.map(t => ({
+          timestamp: t.hour,
+          count: parseInt(t.count),
+        })),
+      });
+    }
+
+    if (path === '/api/v1/stats/approvals/trends' && req.method === 'GET') {
+      const hours = 24;
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+      
+      const trends = await query(`
+        SELECT 
+          date_trunc('hour', created_at) as hour,
+          COUNT(*) as count
+        FROM regulator.audit_log
+        WHERE event = 'warrant.issued' AND created_at >= $1
+        GROUP BY hour
+        ORDER BY hour ASC
+      `, [since]);
+
+      return res.status(200).json({
+        success: true,
+        data: trends.map(t => ({
+          timestamp: t.hour,
+          count: parseInt(t.count),
+        })),
+      });
+    }
+
+    if (path === '/api/v1/stats/risk-distribution' && req.method === 'GET') {
+      const distribution = await query(`
+        SELECT 
+          risk_tier,
+          COUNT(*) as count
+        FROM regulator.proposals
+        WHERE created_at >= NOW() - INTERVAL '24 hours'
+        GROUP BY risk_tier
+        ORDER BY risk_tier ASC
+      `);
+
+      return res.status(200).json({
+        success: true,
+        data: distribution.map(d => ({
+          tier: `T${d.risk_tier}`,
+          count: parseInt(d.count),
+        })),
+      });
+    }
+
     // Catch-all for any other /api/ routes
     if (path.startsWith('/api/')) {
       return res.status(200).json({ 

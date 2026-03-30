@@ -87,11 +87,15 @@ module.exports = async function handler(req, res) {
     } else {
       // Create approval request
       const approvalId = `approval_${Date.now()}`;
+      const planId = `plan_${Date.now()}`;
+      const stepId = `step_${Date.now()}`;
+      const intentId = `intent_${Date.now()}`;
+      
       await pool.query(
         `INSERT INTO public.approval_requests 
-         (id, tenant_id, execution_id, action, agent_id, status, tier, created_at)
-         VALUES ($1, $2, $3, $4, $5, 'pending', $6, NOW())`,
-        [approvalId, 'default', executionId, action, agent_id, evaluation.tier]
+         (approval_id, execution_id, plan_id, step_id, intent_id, required_tier, required_by, status, requested_at, requested_by, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, 'system', 'pending', NOW(), 'system', NOW() + INTERVAL '24 hours')`,
+        [approvalId, executionId, planId, stepId, intentId, evaluation.tier]
       );
     }
     

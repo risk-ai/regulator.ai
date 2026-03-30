@@ -366,51 +366,9 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Execution: Proxy to full Vienna Core backend
-    if (path.startsWith('/api/v1/execute') || 
-        path.startsWith('/api/v1/execution/') ||
-        path.startsWith('/api/v1/runtime/')) {
-      
-      // Proxy to Tailscale Funnel backend with full Vienna Core
-      const VIENNA_BACKEND = 'https://maxlawai.tailb0c69e.ts.net';
-      const targetUrl = `${VIENNA_BACKEND}${path}`;
-      
-      try {
-        const headers = {
-          'Content-Type': 'application/json',
-        };
-        
-        // Forward authorization if present
-        if (req.headers.authorization) {
-          headers['Authorization'] = req.headers.authorization;
-        }
-        if (req.headers.cookie) {
-          headers['Cookie'] = req.headers.cookie;
-        }
-        
-        const fetchOptions = {
-          method: req.method,
-          headers,
-        };
-        
-        if (req.method !== 'GET' && req.method !== 'HEAD') {
-          fetchOptions.body = await parseBody(req);
-          fetchOptions.body = JSON.stringify(fetchOptions.body);
-        }
-        
-        const response = await fetch(targetUrl, fetchOptions);
-        const data = await response.json();
-        
-        return res.status(response.status).json(data);
-      } catch (error) {
-        console.error('[vienna-proxy]', error);
-        return res.status(502).json({
-          success: false,
-          error: 'Vienna Core backend unavailable',
-          code: 'BACKEND_ERROR'
-        });
-      }
-    }
+    // Execution: Full Vienna Core pipeline
+    // This is handled by vienna-execute.ts serverless function
+    // Routing handled by vercel.json
 
     // Execution: Get status
     if (path.startsWith('/api/v1/execution/status/')) {

@@ -9,10 +9,41 @@ export const config = {
   runtime: 'edge',
 };
 
-const BACKEND_URL = 'https://virginia-centres-willing-longest.trycloudflare.com';
+const BACKEND_URL = 'https://api.regulator.ai';
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);
+  
+  // Handle /health endpoint (public, no /api prefix)
+  if (url.pathname === '/health') {
+    const targetUrl = `${BACKEND_URL}/health`;
+    
+    try {
+      const response = await fetch(targetUrl, {
+        method: req.method,
+        headers: {
+          'Content-Type': req.headers.get('content-type') || 'application/json',
+        },
+      });
+      
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Backend unavailable',
+        code: 'HEALTH_CHECK_FAILED',
+      }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
   
   // Extract the path after /api/
   const path = url.pathname.replace(/^\/api\//, '');

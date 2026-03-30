@@ -1,4 +1,21 @@
 {
   "version": 2,
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "rewrites": [
+    { "source": "/api/v1/health", "destination": "/api/v1/health" },
+    { "source": "/api/v1/agents(.*)", "destination": "/api/v1/agents" },
+    { "source": "/api/v1/policies(.*)", "destination": "/api/v1/policies" },
+    { "source": "/api/v1/warrants(.*)", "destination": "/api/v1/warrants" },
+    { "source": "/api/v1/api-keys(.*)", "destination": "/api/v1/api-keys" },
+    { "source": "/api/v1/webhooks(.*)", "destination": "/api/v1/webhooks" },
+    { "source": "/api/v1/approvals(.*)", "destination": "/api/v1/approvals" },
+    { "source": "/api/v1/executions(.*)", "destination": "/api/v1/executions" },
+    { "source": "/api/v1/events(.*)", "destination": "/api/v1/events" },
+    { "source": "/api/v1/audit(.*)", "destination": "/api/v1/audit" },
+    { "source": "/api/v1/auth(.*)", "destination": "/api/v1/auth" },
+    { "source": "/api/v1/rbac(.*)", "destination": "/api/v1/rbac" },
+    { "source": "/api/v1/refresh(.*)", "destination": "/api/v1/refresh" },
+    { "source": "/api/(.*)", "destination": "/api/server" },
+    { "source": "/((?!api).*)", "destination": "/index.html" }
+  ]
 }

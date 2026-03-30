@@ -1,3 +1,4 @@
+const { requireAuth } = require("./_auth");
 /**
  * JWT Refresh Token API
  * Refresh access tokens without re-authentication
@@ -42,6 +43,7 @@ function generateTokens(user) {
 }
 
 module.exports = async function handler(req, res) {
+  const user = requireAuth(req, res); if (!user) return;
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,

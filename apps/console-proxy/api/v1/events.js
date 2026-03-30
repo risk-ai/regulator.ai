@@ -1,3 +1,4 @@
+const { requireAuth } = require("./_auth");
 /**
  * Real-time Event Stream (SSE)
  * Push live updates for executions, approvals, and warrants
@@ -70,6 +71,7 @@ async function pollForEvents() {
 }
 
 module.exports = async function handler(req, res) {
+  const user = requireAuth(req, res); if (!user) return;
   if (req.method !== 'GET') {
     return res.status(405).json({
       success: false,

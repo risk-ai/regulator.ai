@@ -164,13 +164,16 @@ module.exports = async function handler(req, res) {
       
       try {
         const bcrypt = require('bcryptjs');
+        console.log('[auth] bcryptjs loaded, comparing password');
+        console.log('[auth] hash starts with:', user.password_hash.substring(0, 20));
         const valid = await bcrypt.compare(password, user.password_hash);
+        console.log('[auth] comparison result:', valid);
         if (!valid) {
-          return res.status(401).json({ success: false, error: 'Invalid credentials' });
+          return res.status(401).json({ success: false, error: 'Invalid credentials', debug: 'password_mismatch' });
         }
       } catch (err) {
-        console.error('[auth] bcrypt error:', err);
-        return res.status(500).json({ success: false, error: 'Authentication error' });
+        console.error('[auth] bcrypt error:', err.message);
+        return res.status(500).json({ success: false, error: 'Authentication error', debug: err.message });
       }
 
       const token = createToken({

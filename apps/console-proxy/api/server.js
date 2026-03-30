@@ -1096,7 +1096,7 @@ module.exports = async function handler(req, res) {
 
     // ========== API Keys ==========
     if (path === '/api/v1/api-keys' && req.method === 'GET') {
-      const keys = await query('SELECT id, name, prefix, scopes, last_used_at, created_at, expires_at FROM regulator.api_keys ORDER BY created_at DESC');
+      const keys = await query('SELECT id, name, key_prefix as prefix, scopes, agent_id, rate_limit, last_used_at, created_at, expires_at, revoked_at FROM regulator.api_keys ORDER BY created_at DESC');
       return res.status(200).json({ success: true, data: keys });
     }
 
@@ -1126,7 +1126,7 @@ module.exports = async function handler(req, res) {
 
     // ========== Policy Evaluations ==========
     if (path === '/api/v1/policy-evaluations') {
-      const evals = await query('SELECT * FROM regulator.policy_evaluations ORDER BY created_at DESC LIMIT 50');
+      const evals = await query('SELECT * FROM regulator.policy_evaluations ORDER BY evaluated_at DESC LIMIT 50');
       return res.status(200).json({ success: true, data: evals });
     }
 

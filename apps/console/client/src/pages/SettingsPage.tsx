@@ -8,6 +8,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { useAuthStore } from '../store/authStore.js';
 import { apiClient } from '../api/client.js';
+import { TeamManagement } from '../components/workspace/TeamManagement.js';
+import { WebhookManager } from '../components/workspace/WebhookManager.js';
 
 // ============================================================================
 // Simulation Types & API
@@ -88,10 +90,10 @@ export function SettingsPage() {
         {/* System Info */}
         <SettingsCard title="System">
           <SettingsRow label="Vienna OS" value="v0.9.0" mono />
-          <SettingsRow label="Runtime" value="Node 22 · Express" />
-          <SettingsRow label="State Graph" value="SQLite · 15 tables" />
-          <SettingsRow label="Region" value="US East (iad)" />
-          <SettingsRow label="Host" value="Fly.io · 2 vCPU / 2 GB" />
+          <SettingsRow label="Runtime" value="Node 22 · Vercel Serverless" />
+          <SettingsRow label="Database" value="Neon Postgres · regulator schema" />
+          <SettingsRow label="Region" value="US East (us-east-1)" />
+          <SettingsRow label="Streaming" value="SSE · /api/v1/stream/events" mono />
         </SettingsCard>
 
         {/* Governance Config — Editable */}
@@ -106,8 +108,15 @@ export function SettingsPage() {
           <SettingsRow label="SSE Streaming" value="Enabled" valueColor="#4ade80" />
         </SettingsCard>
 
-        {/* Webhook Notifications */}
-        <WebhookConfigCard />
+        {/* Webhook Notifications — API-backed */}
+        <SettingsCard title="Webhook Notifications">
+          <WebhookManager />
+        </SettingsCard>
+
+        {/* Team & RBAC */}
+        <SettingsCard title="Team & Access Control">
+          <TeamManagement />
+        </SettingsCard>
 
         {/* Links */}
         <SettingsCard title="Resources">
@@ -284,112 +293,7 @@ function GovernanceConfigCard() {
 }
 
 // ============================================================================
-// Webhook Configuration Card
-// ============================================================================
-
-const WEBHOOK_STORAGE_KEY = 'vienna_webhook_config';
-
-const WEBHOOK_EVENTS = [
-  'warrant.requested', 'warrant.approved', 'warrant.denied', 'warrant.expired',
-  'agent.suspended', 'agent.reactivated', 'compliance.alert', 'policy.violated',
-] as const;
-
-interface WebhookConfig {
-  url: string;
-  secret: string;
-  events: string[];
-  enabled: boolean;
-}
-
-const DEFAULT_WEBHOOK: WebhookConfig = { url: '', secret: '', events: [], enabled: false };
-
-function WebhookConfigCard() {
-  const [config, setConfig] = useState<WebhookConfig>(() => {
-    try {
-      const stored = localStorage.getItem(WEBHOOK_STORAGE_KEY);
-      return stored ? { ...DEFAULT_WEBHOOK, ...JSON.parse(stored) } : DEFAULT_WEBHOOK;
-    } catch { return DEFAULT_WEBHOOK; }
-  });
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    localStorage.setItem(WEBHOOK_STORAGE_KEY, JSON.stringify(config));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const toggleEvent = (event: string) => {
-    setConfig(prev => ({
-      ...prev,
-      events: prev.events.includes(event) ? prev.events.filter(e => e !== event) : [...prev.events, event],
-    }));
-  };
-
-  const fullInputStyle: React.CSSProperties = {
-    width: '100%', padding: '6px 10px', borderRadius: '6px',
-    border: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)',
-    color: 'var(--text-primary)', fontSize: '12px', fontFamily: 'var(--font-mono)',
-    boxSizing: 'border-box',
-  };
-
-  return (
-    <SettingsCard title="Webhook Notifications">
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '4px' }}>Endpoint URL</label>
-        <input type="url" placeholder="https://your-app.com/webhooks/vienna" value={config.url} style={fullInputStyle}
-          onChange={e => setConfig(prev => ({ ...prev, url: e.target.value }))} />
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '4px' }}>Signing Secret</label>
-        <input type="password" placeholder="whsec_..." value={config.secret} style={fullInputStyle}
-          onChange={e => setConfig(prev => ({ ...prev, secret: e.target.value }))} />
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'block', marginBottom: '6px' }}>Subscribed Events</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {WEBHOOK_EVENTS.map(event => {
-            const active = config.events.includes(event);
-            return (
-              <button key={event} onClick={() => toggleEvent(event)} style={{
-                padding: '3px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 500, cursor: 'pointer',
-                fontFamily: 'var(--font-mono)',
-                border: `1px solid ${active ? 'rgba(124, 58, 237, 0.3)' : 'var(--border-subtle)'}`,
-                background: active ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
-                color: active ? '#a78bfa' : 'var(--text-tertiary)',
-              }}>{event}</button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderTop: '1px solid var(--border-subtle)' }}>
-        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Enabled</span>
-        <button onClick={() => setConfig(prev => ({ ...prev, enabled: !prev.enabled }))} style={{
-          padding: '4px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
-          border: `1px solid ${config.enabled ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
-          background: config.enabled ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
-          color: config.enabled ? '#4ade80' : '#f87171',
-        }}>{config.enabled ? 'ON' : 'OFF'}</button>
-      </div>
-
-      <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border-subtle)' }}>
-        <button onClick={handleSave} style={{
-          width: '100%', padding: '8px 16px', borderRadius: '6px',
-          border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
-          color: '#4ade80', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-        }}>Save Webhook Config</button>
-      </div>
-
-      {saved && (
-        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#4ade80', textAlign: 'center' }}>
-          ✓ Webhook config saved
-        </div>
-      )}
-    </SettingsCard>
-  );
-}
+// (WebhookConfigCard removed — replaced by API-backed WebhookManager component)
 
 // ============================================================================
 // Simulation Card

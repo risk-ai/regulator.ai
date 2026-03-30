@@ -1279,20 +1279,20 @@ module.exports = async function handler(req, res) {
       const hours = period === '7d' ? 168 : period === '30d' ? 720 : 24;
       const since = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-      const [proposals, executions, approvals, agents] = await Promise.all([
-        query('SELECT COUNT(*) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
-        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['execution_completed', since]),
-        query('SELECT COUNT(*) as cnt FROM regulator.audit_log WHERE event = $1 AND created_at >= $2', ['warrant_issued', since]),
-        query('SELECT COUNT(DISTINCT agent_id) as cnt FROM regulator.proposals WHERE created_at >= $1', [since]),
+      const [executions, approvals, policies, agents] = await Promise.all([
+        query('SELECT COUNT(DISTINCT execution_id) as cnt FROM public.execution_ledger_events WHERE tenant_id = $1 AND event_timestamp >= $2', [tenantId, since]),
+        query('SELECT COUNT(*) as cnt FROM public.approval_requests WHERE tenant_id = $1 AND requested_at >= $2', [tenantId, since]),
+        query('SELECT COUNT(*) as cnt FROM public.policies WHERE tenant_id = $1 AND created_at >= $2', [tenantId, since]),
+        query('SELECT COUNT(*) as cnt FROM public.agents WHERE tenant_id = $1 AND status = $2', [tenantId, 'active']),
       ]);
 
       return res.status(200).json({
         success: true,
         data: {
           period,
-          proposals: parseInt(proposals[0]?.cnt || 0),
           executions: parseInt(executions[0]?.cnt || 0),
           approvals: parseInt(approvals[0]?.cnt || 0),
+          policies: parseInt(policies[0]?.cnt || 0),
           active_agents: parseInt(agents[0]?.cnt || 0),
         }
       });
@@ -1304,13 +1304,13 @@ module.exports = async function handler(req, res) {
       
       const trends = await query(`
         SELECT 
-          date_trunc('hour', created_at) as hour,
-          COUNT(*) as count
-        FROM regulator.audit_log
-        WHERE event = 'execution_completed' AND created_at >= $1
+          date_trunc('hour', event_timestamp) as hour,
+          COUNT(DISTINCT execution_id) as count
+        FROM public.execution_ledger_events
+        WHERE tenant_id = $1 AND event_timestamp >= $2
         GROUP BY hour
         ORDER BY hour ASC
-      `, [since]);
+      `, [tenantId, since]);
 
       return res.status(200).json({
         success: true,
@@ -1327,13 +1327,13 @@ module.exports = async function handler(req, res) {
       
       const trends = await query(`
         SELECT 
-          date_trunc('hour', created_at) as hour,
+          date_trunc('hour', requested_at) as hour,
           COUNT(*) as count
-        FROM regulator.audit_log
-        WHERE event = 'warrant_issued' AND created_at >= $1
+        FROM public.approval_requests
+        WHERE tenant_id = $1 AND requested_at >= $2
         GROUP BY hour
         ORDER BY hour ASC
-      `, [since]);
+      `, [tenantId, since]);
 
       return res.status(200).json({
         success: true,
@@ -1347,18 +1347,20 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/stats/risk-distribution' && req.method === 'GET') {
       const distribution = await query(`
         SELECT 
-          risk_tier,
-          COUNT(*) as count
-        FROM regulator.proposals
-        WHERE created_at >= NOW() - INTERVAL '24 hours'
-        GROUP BY risk_tier
-        ORDER BY risk_tier ASC
-      `);
+          payload->>'tier' as tier,
+          COUNT(DISTINCT execution_id) as count
+        FROM public.execution_ledger_events
+        WHERE tenant_id = $1 
+          AND event_type = 'execution_requested'
+          AND event_timestamp >= NOW() - INTERVAL '24 hours'
+        GROUP BY payload->>'tier'
+        ORDER BY tier ASC
+      `, [tenantId]);
 
       return res.status(200).json({
         success: true,
         data: distribution.map(d => ({
-          tier: `T${d.risk_tier}`,
+          tier: d.tier || 'T0',
           count: parseInt(d.count),
         })),
       });

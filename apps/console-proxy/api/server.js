@@ -106,6 +106,45 @@ function parseBody(req) {
   });
 }
 
+// Routes that don't require authentication
+const PUBLIC_ROUTES = [
+  '/health',
+  '/api/v1/health',
+  '/api/v1/auth/login',
+  '/api/v1/auth/register',
+  '/api/v1/auth/refresh',
+  '/api/v1/auth/logout',
+];
+
+// Authenticate request via JWT (Bearer token or session cookie)
+// Returns user payload or null
+function authenticate(req) {
+  // Check Authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    const payload = verifyToken(token);
+    if (payload) return payload;
+  }
+  
+  // Check session cookie
+  const cookies = parseCookies(req.headers.cookie);
+  if (cookies.vienna_session) {
+    const payload = verifyToken(cookies.vienna_session);
+    if (payload) return payload;
+  }
+  
+  // Check X-API-Key header (for SDK/programmatic access)
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey && apiKey.startsWith('vos_')) {
+    // Return a minimal auth context for API key access
+    // Full key validation against DB happens below for write operations
+    return { type: 'api_key', key_prefix: apiKey.slice(0, 12) };
+  }
+  
+  return null;
+}
+
 module.exports = async function handler(req, res) {
   cors(res);
   
@@ -115,6 +154,21 @@ module.exports = async function handler(req, res) {
 
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname;
+
+  // Enforce authentication on all non-public routes
+  const isPublicRoute = PUBLIC_ROUTES.some(r => path === r);
+  if (!isPublicRoute && path.startsWith('/api/')) {
+    const auth = authenticate(req);
+    if (!auth) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required. Provide a Bearer token, session cookie, or X-API-Key header.',
+        code: 'UNAUTHORIZED',
+      });
+    }
+    // Attach auth context to request for downstream use
+    req.auth = auth;
+  }
 
   try {
     // Health check

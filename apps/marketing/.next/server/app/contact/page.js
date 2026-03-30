@@ -1,4 +1,5 @@
 var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/contact/page.js")
+<<<<<<< Updated upstream
 R.c("server/chunks/ssr/[root-of-the-server]__0-b9uks._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0x6dl63.js")
 R.c("server/chunks/ssr/[root-of-the-server]__10831xr._.js")
@@ -13,3 +14,19 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-e
 R.c("server/chunks/ssr/apps_marketing__next-internal_server_app_contact_page_actions_0u9zwo6.js")
 R.m(32537)
 module.exports=R.m(32537).exports
+=======
+R.c("server/chunks/ssr/[root-of-the-server]__076-lxe._.js")
+R.c("server/chunks/ssr/10ok_next_dist_esm_build_templates_app-page_0tzf~q8.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0h3jlty._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0hy8~7w._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0a7nrpg._.js")
+R.c("server/chunks/ssr/10ok_next_dist_0qhgu6s._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0881kue._.js")
+R.c("server/chunks/ssr/regulator_ai_apps_marketing_0pw8y3d._.js")
+R.c("server/chunks/ssr/10ok_next_dist_client_components_0juj5a9._.js")
+R.c("server/chunks/ssr/10ok_next_dist_client_components_builtin_unauthorized_0ir~zbz.js")
+R.c("server/chunks/ssr/10ok_next_dist_client_components_builtin_global-error_05u41rt.js")
+R.c("server/chunks/ssr/04ma_ai_apps_marketing__next-internal_server_app_contact_page_actions_0kjmio9.js")
+R.m(43237)
+module.exports=R.m(43237).exports
+>>>>>>> Stashed changes

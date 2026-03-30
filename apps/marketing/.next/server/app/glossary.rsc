@@ -1,5 +1,9 @@
 1:"$Sreact.fragment"
+<<<<<<< Updated upstream
 a:I[68027,[],"default",1]
+=======
+a:I[43106,[],"default",1]
+>>>>>>> Stashed changes
 :HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -85,12 +89,21 @@ a:I[68027,[],"default",1]
       }
     ]
   }
+<<<<<<< Updated upstream
 }0:{"P":null,"c":["","glossary"],"q":"","i":false,"f":[[["",{"children":["glossary",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"D648T1kNSkZ2JZRjaxAoJ"}
 c:I[39756,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 d:I[37457,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 e:I[22016,["/_next/static/chunks/0d-.pyv6nehw5.js"],""]
 26:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"ViewportBoundary"]
 28:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"MetadataBoundary"]
+=======
+}0:{"P":null,"c":["","glossary"],"q":"","i":false,"f":[[["",{"children":["glossary",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+c:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+d:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+e:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
+26:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"ViewportBoundary"]
+28:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"MetadataBoundary"]
+>>>>>>> Stashed changes
 29:"$Sreact.suspense"
 3:["$","script",null,{"async":true,"src":"https://www.googletagmanager.com/gtag/js?id=G-7LZLG0D79N"}]
 4:["$","script",null,{"dangerouslySetInnerHTML":{"__html":"\n              window.dataLayer = window.dataLayer || [];\n              function gtag(){dataLayer.push(arguments);}\n              gtag('js', new Date());\n              gtag('config', 'G-7LZLG0D79N');\n              gtag('config', 'AW-18052030396');\n            "}}]
@@ -101,7 +114,11 @@ e:I[22016,["/_next/static/chunks/0d-.pyv6nehw5.js"],""]
 8:"$W25"
 9:["$","$1","h",{"children":[null,["$","$L26",null,{"children":"$L27"}],["$","div",null,{"hidden":true,"children":["$","$L28",null,{"children":["$","$29",null,{"name":"Next.Metadata","children":"$L2a"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
 b:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+<<<<<<< Updated upstream
 2b:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"OutletBoundary"]
+=======
+2b:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
+>>>>>>> Stashed changes
 f:["$","span","2",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"T2"}]
 10:["$","span","3",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"T3"}]
 11:["$","span","4",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Risk Assessment"}]
@@ -122,9 +139,16 @@ f:["$","span","2",{"className":"text-xs bg-slate-800 border border-slate-700/50 
 20:["$","div","15",{"id":"truth-snapshot","className":"bg-slate-900/50 border border-slate-800/50 rounded-xl p-6 scroll-mt-24","children":[["$","h2",null,{"className":"text-xl font-bold text-white mb-3","children":"Truth Snapshot"}],["$","p",null,{"className":"text-slate-300 leading-relaxed mb-4","children":"A cryptographic hash of the system state at the moment a warrant is issued. During post-execution verification, the truth snapshot is compared to the current state to detect unauthorized modifications."}],["$","div",null,{"className":"flex flex-wrap gap-2","children":[["$","span","0",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Verification"}],["$","span","1",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Tamper Detection"}],["$","span","2",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"State Hash"}]]}],null]}]
 21:["$","div","16",{"id":"bsl-1-1-business-source-license-","className":"bg-slate-900/50 border border-slate-800/50 rounded-xl p-6 scroll-mt-24","children":[["$","h2",null,{"className":"text-xl font-bold text-white mb-3","children":"BSL 1.1 (Business Source License)"}],["$","p",null,{"className":"text-slate-300 leading-relaxed mb-4","children":"A source-available license that allows free use for evaluation, development, and non-production purposes. Production use requires a commercial license. After a specified date (2030 for Vienna OS), the license automatically converts to Apache 2.0."}],["$","div",null,{"className":"flex flex-wrap gap-2","children":[["$","span","0",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Open Source"}],["$","span","1",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Licensing"}],["$","span","2",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Apache 2.0"}]]}],null]}]
 22:["$","div","17",{"id":"eu-ai-act","className":"bg-slate-900/50 border border-slate-800/50 rounded-xl p-6 scroll-mt-24","children":[["$","h2",null,{"className":"text-xl font-bold text-white mb-3","children":"EU AI Act"}],["$","p",null,{"className":"text-slate-300 leading-relaxed mb-4","children":"European Union regulation establishing a legal framework for artificial intelligence. The EU AI Act classifies AI systems by risk level and imposes requirements for transparency, human oversight, and accountability. Vienna OS helps organizations comply with high-risk AI system requirements."}],["$","div",null,{"className":"flex flex-wrap gap-2","children":[["$","span","0",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Compliance"}],["$","span","1",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"Regulation"}],["$","span","2",{"className":"text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400","children":"AI Governance"}]]}],["$","$Le",null,{"href":"/blog/eu-ai-act-agent-compliance","className":"inline-flex items-center text-sm text-violet-400 hover:underline mt-3","children":"Learn more →"}]]}]
+<<<<<<< Updated upstream
 23:["$","script","script-0",{"src":"/_next/static/chunks/0d-.pyv6nehw5.js","async":true,"nonce":"$undefined"}]
 24:["$","$L2b",null,{"children":["$","$29",null,{"name":"Next.MetadataOutlet","children":"$@2c"}]}]
 27:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
 2d:I[27201,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"IconMark"]
+=======
+23:["$","script","script-0",{"src":"/_next/static/chunks/0nykbuq8ioeta.js","async":true,"nonce":"$undefined"}]
+24:["$","$L2b",null,{"children":["$","$29",null,{"name":"Next.MetadataOutlet","children":"$@2c"}]}]
+27:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+2d:I[18624,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"IconMark"]
+>>>>>>> Stashed changes
 2a:[["$","title","0",{"children":"AI Governance Glossary — Vienna OS | Vienna OS"}],["$","meta","1",{"name":"description","content":"Key terms for the execution kernel of autonomous AI: execution warrants, warrants-based governance, cryptographic execution authority, risk tiering, policy engines, and audit trails."}],["$","meta","2",{"name":"author","content":"ai.ventures"}],["$","meta","3",{"name":"keywords","content":"AI governance,AI agent governance,agent control plane,execution warrants,AI compliance,agent approval workflow,policy enforcement,audit trail,Vienna OS,enterprise AI,AI risk management"}],["$","meta","4",{"name":"creator","content":"ai.ventures"}],["$","meta","5",{"name":"robots","content":"index, follow"}],["$","meta","6",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","7",{"property":"og:title","content":"AI Governance Glossary — Vienna OS"}],["$","meta","8",{"property":"og:description","content":"Learn the vocabulary of execution kernel governance for autonomous AI. From cryptographic execution authority to warrants-based governance."}],["$","meta","9",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","10",{"name":"twitter:title","content":"Vienna OS — Execution Kernel for Autonomous AI"}],["$","meta","11",{"name":"twitter:description","content":"The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority."}],["$","meta","12",{"name":"twitter:image","content":"https://regulator.ai/og-image.png"}],["$","link","13",{"rel":"icon","href":"/favicon.ico?favicon.0x3dzn~oxb6tn.ico","sizes":"256x256","type":"image/x-icon"}],["$","link","14",{"rel":"icon","href":"/logo-icon.png"}],["$","link","15",{"rel":"apple-touch-icon","href":"/logo-icon.png"}],["$","$L2d","16",{}]]
 2c:null

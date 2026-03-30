@@ -1,5 +1,9 @@
 1:"$Sreact.fragment"
+<<<<<<< Updated upstream
 b:I[68027,[],"default",1]
+=======
+b:I[43106,[],"default",1]
+>>>>>>> Stashed changes
 :HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -85,12 +89,21 @@ b:I[68027,[],"default",1]
       }
     ]
   }
+<<<<<<< Updated upstream
 }0:{"P":null,"c":["","compare","arthur-ai"],"q":"","i":false,"f":[[["",{"children":["compare",{"children":["arthur-ai",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"D648T1kNSkZ2JZRjaxAoJ"}
 d:I[39756,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 e:I[37457,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 f:I[22016,["/_next/static/chunks/0d-.pyv6nehw5.js"],""]
 1d:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"ViewportBoundary"]
 1f:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"MetadataBoundary"]
+=======
+}0:{"P":null,"c":["","compare","arthur-ai"],"q":"","i":false,"f":[[["",{"children":["compare",{"children":["arthur-ai",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+d:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+e:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+f:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
+1d:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"ViewportBoundary"]
+1f:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"MetadataBoundary"]
+>>>>>>> Stashed changes
 20:"$Sreact.suspense"
 3:["$","script",null,{"async":true,"src":"https://www.googletagmanager.com/gtag/js?id=G-7LZLG0D79N"}]
 4:["$","script",null,{"dangerouslySetInnerHTML":{"__html":"\n              window.dataLayer = window.dataLayer || [];\n              function gtag(){dataLayer.push(arguments);}\n              gtag('js', new Date());\n              gtag('config', 'G-7LZLG0D79N');\n              gtag('config', 'AW-18052030396');\n            "}}]
@@ -102,7 +115,11 @@ f:I[22016,["/_next/static/chunks/0d-.pyv6nehw5.js"],""]
 9:"$W1c"
 a:["$","$1","h",{"children":[null,["$","$L1d",null,{"children":"$L1e"}],["$","div",null,{"hidden":true,"children":["$","$L1f",null,{"children":["$","$20",null,{"name":"Next.Metadata","children":"$L21"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
 c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+<<<<<<< Updated upstream
 22:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"OutletBoundary"]
+=======
+22:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
+>>>>>>> Stashed changes
 10:["$","div","2",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Approach"}],["$","div",null,{"className":"text-slate-200","children":"Pre-execution control (prevent)"}],["$","div",null,{"className":"text-slate-200","children":"Post-execution monitoring (detect)"}]]}]
 11:["$","div","3",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Agent Support"}],["$","div",null,{"className":"text-slate-200","children":"LangChain, CrewAI, AutoGen, custom"}],["$","div",null,{"className":"text-slate-200","children":"Model-level (not agent-specific)"}]]}]
 12:["$","div","4",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Authorization"}],["$","div",null,{"className":"text-slate-200","children":"Cryptographic warrants required"}],["$","div",null,{"className":"text-slate-200","children":"No execution authorization"}]]}]
@@ -113,9 +130,16 @@ c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q
 17:["$","div","9",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Deployment"}],["$","div",null,{"className":"text-slate-200","children":"Self-hosted or cloud"}],["$","div",null,{"className":"text-slate-200","children":"Cloud platform"}]]}]
 18:["$","div","10",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Pricing"}],["$","div",null,{"className":"text-slate-200","children":"Free tier + $49-99/mo"}],["$","div",null,{"className":"text-slate-200","children":"Enterprise pricing (custom)"}]]}]
 19:["$","div",null,{"className":"max-w-5xl mx-auto px-6 pb-12","children":["$","div",null,{"className":"bg-slate-900/50 border border-slate-700/50 rounded-xl p-8 text-center","children":[["$","svg",null,{"ref":"$undefined","xmlns":"http://www.w3.org/2000/svg","width":24,"height":24,"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":2,"strokeLinecap":"round","strokeLinejoin":"round","className":"lucide lucide-activity w-8 h-8 text-cyan-400 mx-auto mb-4","children":[["$","path","169zse",{"d":"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"}],"$undefined"]}],["$","h2",null,{"className":"text-2xl font-bold mb-3","children":"Better together"}],["$","p",null,{"className":"text-slate-300 max-w-2xl mx-auto mb-6","children":"Use Arthur AI to monitor model quality and detect drift. Use Vienna OS to control what agents do with those model outputs. Monitoring + control = complete AI governance."}],["$","div",null,{"className":"flex gap-4 justify-center flex-wrap","children":[["$","$Lf",null,{"href":"/try","className":"px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition","children":"Try Vienna OS Demo"}],["$","$Lf",null,{"href":"/use-cases","className":"px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition","children":"See Use Cases"}]]}]]}]}]
+<<<<<<< Updated upstream
 1a:["$","script","script-0",{"src":"/_next/static/chunks/0d-.pyv6nehw5.js","async":true,"nonce":"$undefined"}]
 1b:["$","$L22",null,{"children":["$","$20",null,{"name":"Next.MetadataOutlet","children":"$@23"}]}]
 1e:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
 24:I[27201,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"IconMark"]
+=======
+1a:["$","script","script-0",{"src":"/_next/static/chunks/0nykbuq8ioeta.js","async":true,"nonce":"$undefined"}]
+1b:["$","$L22",null,{"children":["$","$20",null,{"name":"Next.MetadataOutlet","children":"$@23"}]}]
+1e:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+24:I[18624,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"IconMark"]
+>>>>>>> Stashed changes
 21:[["$","title","0",{"children":"Vienna OS vs Arthur AI — Comparison | Execution Kernel vs Model Monitoring | Vienna OS"}],["$","meta","1",{"name":"description","content":"Compare Vienna OS and Arthur AI. Arthur monitors model performance; Vienna OS is the execution kernel for autonomous AI with warrants-based governance."}],["$","meta","2",{"name":"author","content":"ai.ventures"}],["$","meta","3",{"name":"keywords","content":"AI governance,AI agent governance,agent control plane,execution warrants,AI compliance,agent approval workflow,policy enforcement,audit trail,Vienna OS,enterprise AI,AI risk management"}],["$","meta","4",{"name":"creator","content":"ai.ventures"}],["$","meta","5",{"name":"robots","content":"index, follow"}],["$","meta","6",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","7",{"property":"og:title","content":"Vienna OS vs Arthur AI — Execution Kernel vs Model Monitoring"}],["$","meta","8",{"property":"og:description","content":"When you need more than monitoring — detailed comparison of Arthur AI vs Vienna OS execution kernel with cryptographic execution authority."}],["$","meta","9",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","10",{"name":"twitter:title","content":"Vienna OS — Execution Kernel for Autonomous AI"}],["$","meta","11",{"name":"twitter:description","content":"The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority."}],["$","meta","12",{"name":"twitter:image","content":"https://regulator.ai/og-image.png"}],["$","link","13",{"rel":"icon","href":"/favicon.ico?favicon.0x3dzn~oxb6tn.ico","sizes":"256x256","type":"image/x-icon"}],["$","link","14",{"rel":"icon","href":"/logo-icon.png"}],["$","link","15",{"rel":"apple-touch-icon","href":"/logo-icon.png"}],["$","$L24","16",{}]]
 23:null

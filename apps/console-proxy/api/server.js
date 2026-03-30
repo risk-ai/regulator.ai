@@ -59,6 +59,71 @@ function verifyToken(token) {
   } catch { return null; }
 }
 
+// ========== Webhook Dispatch ==========
+// Fire-and-forget: dispatch event to all matching webhooks for a tenant
+async function dispatchWebhooks(eventName, eventData, tenantId) {
+  try {
+    const webhooks = await query(
+      'SELECT id, url, events, secret FROM regulator.webhooks WHERE enabled = true AND tenant_id = $1',
+      [tenantId]
+    );
+    for (const wh of webhooks) {
+      const events = typeof wh.events === 'string' ? JSON.parse(wh.events) : (wh.events || ['*']);
+      if (!events.includes('*') && !events.includes(eventName)) continue;
+      
+      const payload = JSON.stringify({ event: eventName, data: eventData, timestamp: new Date().toISOString() });
+      const signature = crypto.createHmac('sha256', wh.secret || '').update(payload).digest('hex');
+      
+      // Fire and forget — don't block the response
+      fetch(wh.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Vienna-Signature': signature,
+          'X-Vienna-Event': eventName,
+        },
+        body: payload,
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => {}); // Silently fail — webhook delivery is best-effort
+    }
+  } catch {} // Never let webhook errors affect the main flow
+}
+
+// Extract tenant_id from request (JWT cookie or Bearer token)
+// Returns tenant_id string or null if unauthenticated
+function extractTenantId(req) {
+  try {
+    const cookies = parseCookies(req.headers?.cookie);
+    const token = cookies?.vienna_session || (req.headers?.authorization || '').replace('Bearer ', '');
+    if (!token) return null;
+    const payload = verifyToken(token);
+    return payload?.tenant_id || null;
+  } catch { return null; }
+}
+
+// Tenant-filtered query helper — appends WHERE/AND tenant_id = $N
+// Use for all SELECT queries on tenant-scoped tables
+async function tenantQuery(sql, params, tenantId) {
+  if (!tenantId) return query(sql, params);
+  const paramIdx = (params?.length || 0) + 1;
+  const newParams = [...(params || []), tenantId];
+  // Add tenant filter
+  if (sql.toUpperCase().includes('WHERE')) {
+    sql = sql.replace(/ORDER BY/i, `AND tenant_id = $${paramIdx} ORDER BY`);
+    if (!sql.includes(`$${paramIdx}`)) {
+      // No ORDER BY clause — append to end of WHERE
+      sql += ` AND tenant_id = $${paramIdx}`;
+    }
+  } else if (sql.toUpperCase().includes('ORDER BY')) {
+    sql = sql.replace(/ORDER BY/i, `WHERE tenant_id = $${paramIdx} ORDER BY`);
+  } else if (sql.toUpperCase().includes('LIMIT')) {
+    sql = sql.replace(/LIMIT/i, `WHERE tenant_id = $${paramIdx} LIMIT`);
+  } else {
+    sql += ` WHERE tenant_id = $${paramIdx}`;
+  }
+  return query(sql, newParams);
+}
+
 // Simple bcrypt comparison using crypto (won't work with bcryptjs hashes, but let's try)
 async function comparePassword(plain, hash) {
   try {
@@ -106,45 +171,6 @@ function parseBody(req) {
   });
 }
 
-// Routes that don't require authentication
-const PUBLIC_ROUTES = [
-  '/health',
-  '/api/v1/health',
-  '/api/v1/auth/login',
-  '/api/v1/auth/register',
-  '/api/v1/auth/refresh',
-  '/api/v1/auth/logout',
-];
-
-// Authenticate request via JWT (Bearer token or session cookie)
-// Returns user payload or null
-function authenticate(req) {
-  // Check Authorization header
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-    const payload = verifyToken(token);
-    if (payload) return payload;
-  }
-  
-  // Check session cookie
-  const cookies = parseCookies(req.headers.cookie);
-  if (cookies.vienna_session) {
-    const payload = verifyToken(cookies.vienna_session);
-    if (payload) return payload;
-  }
-  
-  // Check X-API-Key header (for SDK/programmatic access)
-  const apiKey = req.headers['x-api-key'];
-  if (apiKey && apiKey.startsWith('vos_')) {
-    // Return a minimal auth context for API key access
-    // Full key validation against DB happens below for write operations
-    return { type: 'api_key', key_prefix: apiKey.slice(0, 12) };
-  }
-  
-  return null;
-}
-
 module.exports = async function handler(req, res) {
   cors(res);
   
@@ -154,21 +180,6 @@ module.exports = async function handler(req, res) {
 
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname;
-
-  // Enforce authentication on all non-public routes
-  const isPublicRoute = PUBLIC_ROUTES.some(r => path === r);
-  if (!isPublicRoute && path.startsWith('/api/')) {
-    const auth = authenticate(req);
-    if (!auth) {
-      return res.status(401).json({
-        success: false,
-        error: 'Authentication required. Provide a Bearer token, session cookie, or X-API-Key header.',
-        code: 'UNAUTHORIZED',
-      });
-    }
-    // Attach auth context to request for downstream use
-    req.auth = auth;
-  }
 
   try {
     // Health check
@@ -353,13 +364,16 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { message: 'Logged out' } });
     }
 
+    // Extract tenant for all subsequent queries
+    const tenantId = extractTenantId(req);
+
     // Dashboard bootstrap (DB-driven)
     if (path === '/api/v1/dashboard/bootstrap' || path === '/api/v1/dashboard') {
       const [agents, policies, warrants, audit] = await Promise.all([
-        query('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry'),
-        query('SELECT count(*) as total FROM regulator.policies WHERE enabled = true'),
-        query('SELECT count(*) as total, count(*) FILTER (WHERE revoked = false) as active FROM regulator.warrants'),
-        query('SELECT count(*) as total FROM regulator.audit_log'),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry', [], tenantId),
+        tenantQuery('SELECT count(*) as total FROM regulator.policies WHERE enabled = true', [], tenantId),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE revoked = false) as active FROM regulator.warrants', [], tenantId),
+        tenantQuery('SELECT count(*) as total FROM regulator.audit_log', [], tenantId),
       ]);
       return res.status(200).json({
         success: true,
@@ -450,13 +464,13 @@ module.exports = async function handler(req, res) {
 
     // Agents
     if (path === '/api/v1/agents' && req.method === 'GET') {
-      const agents = await query('SELECT * FROM regulator.agent_registry ORDER BY registered_at DESC LIMIT 50');
+      const agents = await tenantQuery('SELECT * FROM regulator.agent_registry ORDER BY registered_at DESC LIMIT 50', [], tenantId);
       return res.status(200).json({ success: true, data: agents });
     }
 
     // Policies
     if (path === '/api/v1/policies' && req.method === 'GET') {
-      const policies = await query('SELECT * FROM regulator.policies ORDER BY created_at DESC LIMIT 50');
+      const policies = await tenantQuery('SELECT * FROM regulator.policies ORDER BY created_at DESC LIMIT 50', [], tenantId);
       return res.status(200).json({ success: true, data: policies });
     }
 
@@ -551,14 +565,14 @@ module.exports = async function handler(req, res) {
 
     // Proposals
     if (path === '/api/v1/proposals' && req.method === 'GET') {
-      const proposals = await query('SELECT * FROM regulator.proposals ORDER BY created_at DESC LIMIT 50');
+      const proposals = await tenantQuery('SELECT * FROM regulator.proposals ORDER BY created_at DESC LIMIT 50', [], tenantId);
       return res.status(200).json({ success: true, data: proposals });
     }
 
     // Audit log
     if (path === '/api/v1/audit/recent' || path === '/api/v1/audit') {
       const limit = parseInt(url.searchParams.get('limit') || '50');
-      const events = await query('SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit]);
+      const events = await tenantQuery('SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
       return res.status(200).json({
         success: true,
         data: {
@@ -775,7 +789,10 @@ module.exports = async function handler(req, res) {
          tenantId]
       );
 
-      // 7. Return pipeline result
+      // 7. Dispatch webhooks for pipeline events
+      dispatchWebhooks(eventType, { proposal_id: proposalId, warrant_id: warrant?.id, action, risk_tier: riskTier, agent_id }, tenantId);
+
+      // 8. Return pipeline result
       return res.status(200).json({
         success: true,
         data: {
@@ -831,6 +848,8 @@ module.exports = async function handler(req, res) {
       await query('UPDATE regulator.proposals SET warrant_id = $1, state = $2 WHERE id = $3', [warrantId, 'warranted', proposalId]);
       await query('INSERT INTO regulator.audit_log (id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)',
         [crypto.randomUUID(), proposalId, warrantId, 'warrant_issued', approver, p.risk_tier, JSON.stringify({ approved_by: approver, reason }), p.tenant_id]);
+      // Dispatch webhook
+      dispatchWebhooks('warrant_issued', { proposal_id: proposalId, warrant_id: warrantId, approver, risk_tier: p.risk_tier }, p.tenant_id);
 
       return res.status(200).json({ success: true, data: { warrant: { id: warrantId, signature, expires_at: expiresAt } } });
     }
@@ -842,6 +861,7 @@ module.exports = async function handler(req, res) {
       await query('UPDATE regulator.proposals SET state = $1, error = $2 WHERE id = $3', ['denied', body.reason || 'Denied by operator', proposalId]);
       await query('INSERT INTO regulator.audit_log (id, proposal_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)',
         [crypto.randomUUID(), proposalId, 'proposal_denied', 'operator', tierToInt('T2'), JSON.stringify({ reason: body.reason || 'Denied by operator' }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+      dispatchWebhooks('proposal_denied', { proposal_id: approvalId, reason: body.reason }, proposals[0]?.tenant_id);
       return res.status(200).json({ success: true });
     }
 
@@ -1026,19 +1046,33 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { status: 'idle' } });
     }
     if (path === '/api/v1/runtime/stats') {
+      const window = url.searchParams.get('window') || '5m';
+      const intervalMap = { '5m': '5 minutes', '1h': '1 hour', '24h': '24 hours', '7d': '7 days' };
+      const interval = intervalMap[window] || '5 minutes';
+      const [total, approved, denied, pending, recentAudit] = await Promise.all([
+        tenantQuery(`SELECT count(*) as c FROM regulator.proposals WHERE created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery(`SELECT count(*) as c FROM regulator.proposals WHERE state IN ('approved','warranted') AND created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery(`SELECT count(*) as c FROM regulator.proposals WHERE state = 'denied' AND created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery(`SELECT count(*) as c FROM regulator.proposals WHERE state = 'pending' AND created_at > NOW() - interval '${interval}'`, [], tenantId),
+        tenantQuery(`SELECT count(*) as c FROM regulator.audit_log WHERE created_at > NOW() - interval '${interval}'`, [], tenantId),
+      ]);
+      const t = parseInt(total[0]?.c || 0);
+      const a = parseInt(approved[0]?.c || 0);
+      const d = parseInt(denied[0]?.c || 0);
+      const p = parseInt(pending[0]?.c || 0);
       return res.status(200).json({
         success: true,
         data: {
-          window: url.searchParams.get('window') || '5m',
+          window,
           health: 'healthy',
-          envelopes: { total: 0, active: 0, failed: 0, succeeded: 0, cancelled: 0 },
-          throughputPerMinute: 0,
+          envelopes: { total: t, active: p, failed: d, succeeded: a, cancelled: 0 },
+          throughputPerMinute: t > 0 ? Math.round(t / (window === '5m' ? 5 : window === '1h' ? 60 : window === '24h' ? 1440 : 10080) * 100) / 100 : 0,
           avgLatencyMs: 0,
           p99LatencyMs: 0,
-          errorRate: 0,
-          queueDepth: 0,
-          activeObjectives: 0,
-          providers: {},
+          errorRate: t > 0 ? Math.round(d / t * 100) / 100 : 0,
+          queueDepth: p,
+          activeObjectives: p,
+          auditEvents: parseInt(recentAudit[0]?.c || 0),
         }
       });
     }
@@ -1142,7 +1176,7 @@ module.exports = async function handler(req, res) {
 
     // ========== Integrations ==========
     if (path === '/api/v1/integrations') {
-      const integrations = await query('SELECT * FROM regulator.integrations ORDER BY created_at DESC');
+      const integrations = await tenantQuery('SELECT * FROM regulator.integrations ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: integrations });
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/events$/)) {
@@ -1153,7 +1187,7 @@ module.exports = async function handler(req, res) {
 
     // ========== API Keys ==========
     if (path === '/api/v1/api-keys' && req.method === 'GET') {
-      const keys = await query('SELECT id, name, key_prefix as prefix, scopes, agent_id, rate_limit, last_used_at, created_at, expires_at, revoked_at FROM regulator.api_keys ORDER BY created_at DESC');
+      const keys = await tenantQuery('SELECT id, name, key_prefix as prefix, scopes, agent_id, rate_limit, last_used_at, created_at, expires_at, revoked_at FROM regulator.api_keys ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: keys });
     }
 
@@ -1165,7 +1199,7 @@ module.exports = async function handler(req, res) {
 
     // ========== Users ==========
     if (path === '/api/v1/users' && req.method === 'GET') {
-      const users = await query('SELECT id, email, name, role, tenant_id, created_at, last_login_at FROM regulator.users ORDER BY created_at DESC');
+      const users = await tenantQuery('SELECT id, email, name, role, tenant_id, created_at, last_login_at FROM regulator.users ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: users });
     }
 
@@ -1177,13 +1211,13 @@ module.exports = async function handler(req, res) {
 
     // ========== Policy Rules ==========
     if (path === '/api/v1/policy-rules') {
-      const rules = await query('SELECT * FROM regulator.policy_rules ORDER BY created_at DESC');
+      const rules = await tenantQuery('SELECT * FROM regulator.policy_rules ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: rules });
     }
 
     // ========== Policy Evaluations ==========
     if (path === '/api/v1/policy-evaluations') {
-      const evals = await query('SELECT * FROM regulator.policy_evaluations ORDER BY evaluated_at DESC LIMIT 50');
+      const evals = await tenantQuery('SELECT * FROM regulator.policy_evaluations ORDER BY evaluated_at DESC LIMIT 50', [], tenantId);
       return res.status(200).json({ success: true, data: evals });
     }
 

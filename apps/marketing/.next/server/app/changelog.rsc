@@ -1,5 +1,9 @@
 1:"$Sreact.fragment"
+<<<<<<< Updated upstream
 a:I[68027,[],"default",1]
+=======
+a:I[43106,[],"default",1]
+>>>>>>> Stashed changes
 :HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
@@ -85,11 +89,19 @@ a:I[68027,[],"default",1]
       }
     ]
   }
+<<<<<<< Updated upstream
 }0:{"P":null,"c":["","changelog"],"q":"","i":false,"f":[[["",{"children":["changelog",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"D648T1kNSkZ2JZRjaxAoJ"}
 c:I[39756,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 d:I[37457,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"default"]
 1b:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"ViewportBoundary"]
 1d:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"MetadataBoundary"]
+=======
+}0:{"P":null,"c":["","changelog"],"q":"","i":false,"f":[[["",{"children":["changelog",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+c:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+d:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
+1b:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"ViewportBoundary"]
+1d:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"MetadataBoundary"]
+>>>>>>> Stashed changes
 1e:"$Sreact.suspense"
 3:["$","script",null,{"async":true,"src":"https://www.googletagmanager.com/gtag/js?id=G-7LZLG0D79N"}]
 4:["$","script",null,{"dangerouslySetInnerHTML":{"__html":"\n              window.dataLayer = window.dataLayer || [];\n              function gtag(){dataLayer.push(arguments);}\n              gtag('js', new Date());\n              gtag('config', 'G-7LZLG0D79N');\n              gtag('config', 'AW-18052030396');\n            "}}]
@@ -100,7 +112,11 @@ d:I[37457,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbr
 8:"$W1a"
 9:["$","$1","h",{"children":[null,["$","$L1b",null,{"children":"$L1c"}],["$","div",null,{"hidden":true,"children":["$","$L1d",null,{"children":["$","$1e",null,{"name":"Next.Metadata","children":"$L1f"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
 b:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+<<<<<<< Updated upstream
 20:I[97367,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"OutletBoundary"]
+=======
+20:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
+>>>>>>> Stashed changes
 e:["$","div","5",{"className":"flex items-start gap-3 py-1","children":[["$","span",null,{"className":"text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 shrink-0 mt-0.5","children":"NEW"}],["$","span",null,{"className":"text-sm text-slate-300","children":"GitHub launch-ready (issue templates, security policy, PR template)"}]]}]
 f:["$","div","6",{"className":"flex items-start gap-3 py-1","children":[["$","span",null,{"className":"text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 shrink-0 mt-0.5","children":"NEW"}],["$","span",null,{"className":"text-sm text-slate-300","children":"3 technical blog posts published"}]]}]
 10:["$","div","7",{"className":"flex items-start gap-3 py-1","children":[["$","span",null,{"className":"text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 shrink-0 mt-0.5","children":"DOCS"}],["$","span",null,{"className":"text-sm text-slate-300","children":"Comprehensive FAQ with 10 common questions"}]]}]
@@ -114,6 +130,10 @@ f:["$","div","6",{"className":"flex items-start gap-3 py-1","children":[["$","sp
 18:["$","footer",null,{"className":"border-t border-navy-700 py-8 mt-12","children":["$","div",null,{"className":"max-w-3xl mx-auto px-6 text-center","children":["$","span",null,{"className":"text-xs text-slate-600","children":"© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved."}]}]}]
 19:["$","$L20",null,{"children":["$","$1e",null,{"name":"Next.MetadataOutlet","children":"$@21"}]}]
 1c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+<<<<<<< Updated upstream
 22:I[27201,["/_next/static/chunks/01xlw8hd842-c.js","/_next/static/chunks/0bhdkbrdtu09r.js"],"IconMark"]
+=======
+22:I[18624,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"IconMark"]
+>>>>>>> Stashed changes
 1f:[["$","title","0",{"children":"Changelog | Vienna OS"}],["$","meta","1",{"name":"description","content":"Vienna OS release history and product updates - tracking the evolution of the execution kernel for autonomous AI and warrants-based governance."}],["$","meta","2",{"name":"author","content":"ai.ventures"}],["$","meta","3",{"name":"keywords","content":"AI governance,AI agent governance,agent control plane,execution warrants,AI compliance,agent approval workflow,policy enforcement,audit trail,Vienna OS,enterprise AI,AI risk management"}],["$","meta","4",{"name":"creator","content":"ai.ventures"}],["$","meta","5",{"name":"robots","content":"index, follow"}],["$","meta","6",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","7",{"property":"og:title","content":"Vienna OS — Execution Kernel for Autonomous AI"}],["$","meta","8",{"property":"og:description","content":"The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority."}],["$","meta","9",{"property":"og:url","content":"https://regulator.ai"}],["$","meta","10",{"property":"og:site_name","content":"Vienna OS"}],["$","meta","11",{"property":"og:locale","content":"en_US"}],["$","meta","12",{"property":"og:image","content":"https://regulator.ai/og-image.png"}],["$","meta","13",{"property":"og:image:width","content":"1200"}],["$","meta","14",{"property":"og:image:height","content":"630"}],["$","meta","15",{"property":"og:image:alt","content":"Vienna OS — The Execution Control Layer for AI Systems"}],["$","meta","16",{"property":"og:type","content":"website"}],["$","meta","17",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","18",{"name":"twitter:title","content":"Vienna OS — Execution Kernel for Autonomous AI"}],["$","meta","19",{"name":"twitter:description","content":"The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority."}],["$","meta","20",{"name":"twitter:image","content":"https://regulator.ai/og-image.png"}],["$","link","21",{"rel":"icon","href":"/favicon.ico?favicon.0x3dzn~oxb6tn.ico","sizes":"256x256","type":"image/x-icon"}],["$","link","22",{"rel":"icon","href":"/logo-icon.png"}],["$","link","23",{"rel":"apple-touch-icon","href":"/logo-icon.png"}],["$","$L22","24",{}]]
 21:null

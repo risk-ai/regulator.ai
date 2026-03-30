@@ -105,7 +105,11 @@
         "transform": "lodash/{{member}}"
       }
     },
+<<<<<<< Updated upstream
     "outputFileTracingRoot": "/home/maxlawai/regulator.ai",
+=======
+    "outputFileTracingRoot": "/home/agentsnet/.openclaw/workspace",
+>>>>>>> Stashed changes
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -306,7 +310,11 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.mjs",
     "turbopack": {
+<<<<<<< Updated upstream
       "root": "/home/maxlawai/regulator.ai"
+=======
+      "root": "/home/agentsnet/.openclaw/workspace"
+>>>>>>> Stashed changes
     },
     "distDirRoot": ".next",
     "_originalRedirects": [
@@ -342,8 +350,13 @@
       }
     ]
   },
+<<<<<<< Updated upstream
   "appDir": "/home/maxlawai/regulator.ai/apps/marketing",
   "relativeAppDir": "apps/marketing",
+=======
+  "appDir": "/home/agentsnet/.openclaw/workspace/regulator.ai/apps/marketing",
+  "relativeAppDir": "regulator.ai/apps/marketing",
+>>>>>>> Stashed changes
   "files": [
     ".next/routes-manifest.json",
     ".next/server/pages-manifest.json",

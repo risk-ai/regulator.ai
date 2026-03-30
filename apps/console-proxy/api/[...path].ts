@@ -68,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (path.startsWith('v1/policy-templates')) {
       const db = getPool();
       const result = await db.query(`
-        SELECT id, name, category, description, scope, actions, conditions, tier, tags, enabled, created_at, updated_at
+        SELECT id, name, category, description, icon, enabled, priority, rules, tags, use_count, created_at, updated_at
         FROM policy_templates
         WHERE enabled = true
         ORDER BY category, name
@@ -85,10 +85,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (path.startsWith('v1/agent-templates')) {
       const db = getPool();
       const result = await db.query(`
-        SELECT id, name, role, description, capabilities, default_policies, configuration, tags, enabled, created_at, updated_at
+        SELECT id, name, description, framework, icon, enabled, config, policies, integration_code, quick_start_guide, tags, use_count, created_at, updated_at
         FROM agent_templates
         WHERE enabled = true
-        ORDER BY role, name
+        ORDER BY framework, name
       `);
       
       return res.json({

@@ -370,17 +370,17 @@ module.exports = async function handler(req, res) {
 
       // Dashboard bootstrap (tenant-scoped counts)
       if (path === '/api/v1/dashboard/bootstrap') {
-        const [agents, warrants, policies] = await Promise.all([
-          query('SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry WHERE tenant_id = $1', [tenantId]),
-          query('SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE revoked = false AND expires_at > NOW()) as active FROM regulator.warrants WHERE tenant_id = $1', [tenantId]),
-          query('SELECT COUNT(*) as total FROM regulator.policies WHERE tenant_id = $1', [tenantId]),
+        const [agents, approvals, policies] = await Promise.all([
+          query('SELECT COUNT(*) as total FROM agents WHERE tenant_id = $1', [tenantId]),
+          query('SELECT COUNT(*) as total FROM approval_requests WHERE tenant_id = $1', [tenantId]),
+          query('SELECT COUNT(*) as total FROM policies WHERE tenant_id = $1', [tenantId]),
         ]);
         return res.status(200).json({
           success: true,
           data: {
             system: { status: 'healthy', mode: 'vercel-serverless', version: '8.1.0' },
-            agents: { total: parseInt(agents[0]?.total || 0), active: parseInt(agents[0]?.active || 0) },
-            warrants: { total: parseInt(warrants[0]?.total || 0), active: parseInt(warrants[0]?.active || 0) },
+            agents: { total: parseInt(agents[0]?.total || 0), active: 0 },
+            approvals: { total: parseInt(approvals[0]?.total || 0), pending: 0 },
             policies: { total: parseInt(policies[0]?.total || 0) },
             executions: { total: 0, recent: [] },
           }

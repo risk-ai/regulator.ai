@@ -1,0 +1,41 @@
+{
+  "name": "vienna-os",
+  "version": "0.1.0",
+  "description": "Vienna OS SDK — The execution kernel for AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "vitest run",
+    "lint": "eslint src/"
+  },
+  "keywords": [
+    "ai-governance",
+    "ai-agents",
+    "execution-kernel",
+    "warrants",
+    "policy-engine",
+    "vienna-os"
+  ],
+  "author": "ai.ventures <admin@ai.ventures>",
+  "license": "BSL-1.1",
+  "homepage": "https://regulator.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/risk-ai/vienna-os"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  }
+}

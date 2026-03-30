@@ -1,21 +1,24 @@
 """
-Vienna OS Python SDK
-AI Agent Governance Platform
+Vienna OS SDK — The execution kernel for AI agents.
+
+Agents propose. Vienna OS decides.
+Every action warranted. Every execution verified.
 """
 
 from .client import ViennaClient
-from .exceptions import ViennaError, AuthenticationError, ValidationError
-from .models import ExecutionResult, Approval, Warrant, Policy, Agent
+from .errors import ViennaError, AuthError, PolicyDeniedError, WarrantExpiredError
+from .types import Intent, IntentResult, Proposal, Warrant, Agent
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 __all__ = [
     "ViennaClient",
     "ViennaError",
-    "AuthenticationError", 
-    "ValidationError",
-    "ExecutionResult",
-    "Approval",
+    "AuthError",
+    "PolicyDeniedError",
+    "WarrantExpiredError",
+    "Intent",
+    "IntentResult",
+    "Proposal",
     "Warrant",
-    "Policy",
-    "Agent"
+    "Agent",
 ]

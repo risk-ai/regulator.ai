@@ -3,7 +3,7 @@
   "version": "8.1.0",
   "private": true,
   "dependencies": {
-    "pg": "^8.20.0",
-    "bcryptjs": "^3.0.2"
+    "bcryptjs": "^3.0.3",
+    "pg": "^8.20.0"
   }
 }

@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Vienna OS API
+  description: AI Agent Governance Platform
+  version: 1.0.0
+  contact:
+    email: support@regulator.ai
+servers:
+  - url: https://console.regulator.ai/api/v1
+    description: Production
+security:
+  - bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate user
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /execute:
+    post:
+      summary: Execute action with governance
+      tags: [Execution]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteResponse'
+  /approvals:
+    get:
+      summary: List approval requests
+      tags: [Approvals]
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - in: query
+          name: tier
+          schema:
+            type: string
+            enum: [T0, T1, T2, T3]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Approval'
+  /approvals/{id}/approve:
+    post:
+      summary: Approve action
+      tags: [Approvals]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewer_id:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Success
+  /warrants:
+    get:
+      summary: List warrants
+      tags: [Warrants]
+      responses:
+        '200':
+          description: Success
+  /warrants/verify:
+    post:
+      summary: Verify warrant signature
+      tags: [Warrants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warrant_id, signature]
+              properties:
+                warrant_id:
+                  type: string
+                signature:
+                  type: string
+      responses:
+        '200':
+          description: Success
+  /executions:
+    get:
+      summary: List executions
+      tags: [Executions]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Success
+  /health:
+    get:
+      summary: Health check
+      tags: [Monitoring]
+      security: []
+      responses:
+        '200':
+          description: Healthy
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            role:
+              type: string
+    ExecuteRequest:
+      type: object
+      required: [action, agent_id]
+      properties:
+        action:
+          type: string
+        agent_id:
+          type: string
+        context:
+          type: object
+          additionalProperties: true
+    ExecuteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            execution_id:
+              type: string
+            warrant_id:
+              type: string
+            status:
+              type: string
+              enum: [executed, pending_approval]
+            tier:
+              type: string
+            requires_approval:
+              type: boolean
+    Approval:
+      type: object
+      properties:
+        approval_id:
+          type: string
+        execution_id:
+          type: string
+        required_tier:
+          type: string
+        status:
+          type: string
+        action_summary:
+          type: string
+        requested_at:
+          type: string
+          format: date-time

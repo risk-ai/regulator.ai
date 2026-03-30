@@ -29,8 +29,13 @@ export default async function handler(req: Request) {
   }
 
   const url = new URL(req.url);
-  const apiPath = url.pathname;
-  const targetUrl = `${backendUrl.replace(/\/$/, '')}${apiPath}${url.search}`;
+  // Strip Vercel's catch-all query params (e.g., ?...path=xxx)
+  const cleanSearch = Array.from(url.searchParams.entries())
+    .filter(([key]) => !key.startsWith('...'))
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  const queryString = cleanSearch ? `?${cleanSearch}` : '';
+  const targetUrl = `${backendUrl.replace(/\/$/, '')}${url.pathname}${queryString}`;
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {

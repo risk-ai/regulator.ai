@@ -9,7 +9,7 @@ export const config = {
   runtime: 'edge',
 };
 
-const BACKEND_URL = 'https://italiano-disc-describe-nevada.trycloudflare.com';
+const BACKEND_URL = 'https://virginia-centres-willing-longest.trycloudflare.com';
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);

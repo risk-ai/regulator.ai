@@ -359,20 +359,6 @@ CREATE INDEX IF NOT EXISTS idx_execution_ledger_summary_started_at ON execution_
 CREATE INDEX IF NOT EXISTS idx_execution_ledger_summary_current_stage ON execution_ledger_summary(current_stage);
 
 -- Policies: governance policies for execution admissibility
-CREATE TABLE IF NOT EXISTS policies (
-  policy_id TEXT NOT NULL,
-  policy_version TEXT NOT NULL,
-  policy_json TEXT NOT NULL, -- Full policy object as JSON
-  enabled INTEGER NOT NULL DEFAULT 1 CHECK(enabled IN (0, 1)),
-  priority INTEGER NOT NULL DEFAULT 0,
-  description TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-  PRIMARY KEY (policy_id, policy_version)
-);
-
-CREATE INDEX IF NOT EXISTS idx_policies_enabled ON policies(enabled);
-CREATE INDEX IF NOT EXISTS idx_policies_priority ON policies(priority);
 
 -- Policy Decisions: policy evaluation results
 CREATE TABLE IF NOT EXISTS policy_decisions (

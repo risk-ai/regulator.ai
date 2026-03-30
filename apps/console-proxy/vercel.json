@@ -1,15 +1,21 @@
 {
   "version": 2,
   "regions": ["iad1"],
-  "public": true,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/[...path]"
+      "src": "api/server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/health",
-      "destination": "/api/[...path]"
+      "src": "public/**",
+      "use": "@vercel/static"
     }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/server.js" },
+    { "src": "/health", "dest": "/api/server.js" },
+    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/(.*\\.(js|css|ico|png|jpg|svg|woff|woff2|ttf|eot|map|json))", "dest": "/public/$1" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }

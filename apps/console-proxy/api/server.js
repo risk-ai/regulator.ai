@@ -376,30 +376,26 @@ module.exports = async function handler(req, res) {
       }
       
       try {
-        // Create execution claim
-        const claimId = crypto.randomUUID();
+        // For now, just log the execution attempt
+        // Full Vienna Core integration would create queue items, claims, and run validators
+        const executionId = crypto.randomUUID();
         const executionKey = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        await query(
-          `INSERT INTO public.execution_claims (claim_id, queue_item_id, execution_key, attempt_number, worker_id, status, claimed_at, metadata_json)
-           VALUES ($1, $2, $3, 1, 'vercel-serverless', 'pending', NOW(), $4)`,
-          [claimId, claimId, executionKey, JSON.stringify({ action, agent_id, context, tier })]
-        );
         
-        // Log to ledger
+        // Log to execution ledger
         await query(
           `INSERT INTO public.execution_ledger_events (event_id, tenant_id, execution_id, event_type, stage, event_timestamp)
-           VALUES ($1, $2, $3, 'claim_created', 'submission', NOW())`,
+           VALUES ($1, $2, $3, 'execution_requested', 'submission', NOW())`,
           [crypto.randomUUID(), 'default', executionKey]
         );
         
         return res.json({
           success: true,
           data: {
-            claim_id: claimId,
+            execution_id: executionId,
             execution_key: executionKey,
-            status: 'pending',
-            requires_approval: tier !== 'T0',
-            message: tier === 'T0' ? 'Auto-approved' : 'Approval required'
+            status: tier === 'T0' ? 'auto_approved' : 'requires_approval',
+            tier: tier || 'T0',
+            message: tier === 'T0' ? 'Action logged - auto-approved' : 'Action logged - approval required'
           }
         });
       } catch (error) {
@@ -476,7 +472,7 @@ module.exports = async function handler(req, res) {
         await query(
           `INSERT INTO public.objectives (objective_id, tenant_id, objective_name, objective_type, status, metadata)
            VALUES ($1, $2, $3, $4, 'active', $5)`,
-          [objectiveId, tenantId, name, type || 'general', JSON.stringify({ description: description || '' })]
+          [objectiveId, tenantId, name, type || 'task', JSON.stringify({ description: description || '' })]
         );
         
         return res.json({ success: true, data: { objective_id: objectiveId, name, status: 'active' } });

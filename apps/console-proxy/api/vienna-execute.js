@@ -14,7 +14,7 @@ const pool = new Pool({
 async function evaluatePolicies(agentId, action, context) {
   // Get active policies for tenant
   const policies = await pool.query(
-    `SELECT * FROM public.policies WHERE enabled = true ORDER BY priority DESC`
+    `SELECT * FROM public.policies WHERE enabled = 1 ORDER BY priority DESC`
   );
   
   // Simple tier-based approval (T0 = auto, T1/T2 = manual)

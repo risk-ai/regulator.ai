@@ -155,7 +155,7 @@ module.exports = async function handler(req, res) {
       }
 
       const users = await query(
-        'SELECT id, email, name, password_hash, tenant_id, role FROM users WHERE email = $1 LIMIT 1',
+        'SELECT id, email, name, password_hash, tenant_id, role FROM public.users WHERE email = $1 LIMIT 1',
         [email]
       );
       
@@ -190,7 +190,7 @@ module.exports = async function handler(req, res) {
       res.setHeader('Set-Cookie', `vienna_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`);
       
       // Update last_login_at
-      query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]).catch(() => {});
+      query('UPDATE public.users SET last_login_at = NOW() WHERE id = $1', [user.id]).catch(() => {});
 
       return res.status(200).json({
         success: true,
@@ -215,7 +215,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Check existing
-      const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
+      const existing = await query('SELECT id FROM public.users WHERE email = $1', [email]);
       if (existing.length > 0) {
         return res.status(409).json({ success: false, error: 'Email already registered' });
       }
@@ -225,7 +225,7 @@ module.exports = async function handler(req, res) {
       const passwordHash = await hashPassword(password);
 
       await query(
-        `INSERT INTO users (id, email, name, password_hash, tenant_id, role, created_at)
+        `INSERT INTO public.users (id, email, name, password_hash, tenant_id, role, created_at)
          VALUES ($1, $2, $3, $4, $5, 'admin', NOW())`,
         [id, email, name || email.split('@')[0], passwordHash, tenantId]
       );
@@ -296,7 +296,7 @@ module.exports = async function handler(req, res) {
       try {
         const templates = await query(`
           SELECT id, name, category, description, icon, enabled, priority, rules, tags, use_count, created_at, updated_at
-          FROM policy_templates
+          FROM public.policy_templates
           WHERE enabled = true
           ORDER BY category, name
         `);
@@ -312,7 +312,7 @@ module.exports = async function handler(req, res) {
       try {
         const templates = await query(`
           SELECT id, name, description, framework, icon, enabled, config, policies, integration_code, quick_start_guide, tags, use_count, created_at, updated_at
-          FROM agent_templates
+          FROM public.agent_templates
           WHERE enabled = true
           ORDER BY framework, name
         `);
@@ -328,7 +328,7 @@ module.exports = async function handler(req, res) {
       try {
         const activity = await query(`
           SELECT id, event_type, description, metadata, created_at
-          FROM agent_activity
+          FROM public.agent_activity
           ORDER BY created_at DESC
           LIMIT 50
         `);
@@ -345,7 +345,7 @@ module.exports = async function handler(req, res) {
         const agentCount = await query('SELECT COUNT(*)::int as count FROM agents');
         const policyCount = await query('SELECT COUNT(*)::int as count FROM policies');
         const approvalCount = await query('SELECT COUNT(*)::int as count FROM approval_requests');
-        const activityCount = await query('SELECT COUNT(*)::int as count FROM agent_activity');
+        const activityCount = await query('SELECT COUNT(*)::int as count FROM public.agent_activity');
         
         return res.status(200).json({
           success: true,
@@ -384,9 +384,9 @@ module.exports = async function handler(req, res) {
       // Dashboard bootstrap (tenant-scoped counts)
       if (path === '/api/v1/dashboard/bootstrap') {
         const [agents, approvals, policies] = await Promise.all([
-          query('SELECT COUNT(*) as total FROM agents WHERE tenant_id = $1', [tenantId]),
-          query('SELECT COUNT(*) as total FROM approval_requests WHERE tenant_id = $1', [tenantId]),
-          query('SELECT COUNT(*) as total FROM policies WHERE tenant_id = $1', [tenantId]),
+          query('SELECT COUNT(*) as total FROM public.agents WHERE tenant_id = $1', [tenantId]),
+          query('SELECT COUNT(*) as total FROM public.approval_requests WHERE tenant_id = $1', [tenantId]),
+          query('SELECT COUNT(*) as total FROM public.policies WHERE tenant_id = $1', [tenantId]),
         ]);
         return res.status(200).json({
           success: true,
@@ -403,7 +403,7 @@ module.exports = async function handler(req, res) {
       // Agents list (tenant-scoped)
       if (path === '/api/v1/agents' && req.method === 'GET') {
         const agents = await query(
-          'SELECT * FROM agents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM public.agents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: agents });
@@ -412,12 +412,12 @@ module.exports = async function handler(req, res) {
       // Policies list (tenant-scoped)
       if (path === '/api/v1/policies' && req.method === 'GET') {
         const policies = await query(
-          'SELECT * FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM public.policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         // Get policy rules for this tenant
         const rules = await query(
-          'SELECT id, name, description, conditions, action_on_match, approval_tier, required_approvers, priority, enabled FROM policy_rules WHERE tenant_id = $1 ORDER BY priority DESC, id',
+          'SELECT id, name, description, conditions, action_on_match, approval_tier, required_approvers, priority, enabled FROM public.policy_rules WHERE tenant_id = $1 ORDER BY priority DESC, id',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: policies, rules, count: policies.length });
@@ -426,7 +426,7 @@ module.exports = async function handler(req, res) {
       // Approvals list (tenant-scoped)
       if (path.match(/\/api\/v1\/(warrants|approvals)/) && req.method === 'GET') {
         const approvals = await query(
-          'SELECT * FROM approval_requests WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM public.approval_requests WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: approvals });
@@ -435,7 +435,7 @@ module.exports = async function handler(req, res) {
       // Proposals list (tenant-scoped)  
       if (path === '/api/v1/proposals' && req.method === 'GET') {
         const proposals = await query(
-          'SELECT * FROM policy_recommendations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM public.policy_recommendations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: proposals });
@@ -444,7 +444,7 @@ module.exports = async function handler(req, res) {
       // Audit log (tenant-scoped)
       if (path === '/api/v1/audit/recent') {
         const events = await query(
-          'SELECT * FROM execution_ledger_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM public.execution_ledger_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: events });
@@ -453,7 +453,7 @@ module.exports = async function handler(req, res) {
       // API keys (tenant-scoped)
       if (path === '/api/v1/auth/api-keys' && req.method === 'GET') {
         const keys = await query(
-          'SELECT id, key_prefix, scopes, expires_at, created_at, last_used_at FROM api_keys WHERE tenant_id = $1 ORDER BY created_at DESC',
+          'SELECT id, key_prefix, scopes, expires_at, created_at, last_used_at FROM public.api_keys WHERE tenant_id = $1 ORDER BY created_at DESC',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: keys });

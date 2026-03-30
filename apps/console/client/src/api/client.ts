@@ -58,12 +58,16 @@ export class ApiClient {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     try {
+      // Get auth token from localStorage
+      const token = localStorage.getItem('vienna_access_token');
+      
       const response = await fetch(url, {
         ...options,
         signal: controller.signal,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           ...options?.headers,
         },
       });

@@ -20,7 +20,7 @@ export function ServicePanel() {
     setRestartResult(null); // Clear previous result
     
     try {
-      const result = await systemApi.restartService(serviceName, useAuthStore((state) => state.operator) || 'system');
+      const result = await systemApi.restartService(serviceName, useAuthStore((state) => state.user?.email) || 'system');
       setRestartResult({
         service: serviceName,
         message: result.message,

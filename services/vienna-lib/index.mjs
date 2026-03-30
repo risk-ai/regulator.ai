@@ -7,12 +7,14 @@
 import cjsModule from './index.js';
 
 export const IntentGateway = cjsModule.IntentGateway;
+export const AgentIntentBridge = cjsModule.AgentIntentBridge;
 export const PlanExecutionEngine = cjsModule.PlanExecutionEngine;
 export const PlanGenerator = cjsModule.PlanGenerator;
 export const ExecutionGraphBuilder = cjsModule.ExecutionGraphBuilder;
 export const Warrant = cjsModule.Warrant;
 export const PolicyEngine = cjsModule.PolicyEngine;
 export const QuotaEnforcer = cjsModule.QuotaEnforcer;
+export const StateGraph = cjsModule.StateGraph;
 export const getStateGraph = cjsModule.getStateGraph;
 export const WorkspaceManager = cjsModule.WorkspaceManager;
 export const Executor = cjsModule.Executor;

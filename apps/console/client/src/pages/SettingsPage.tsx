@@ -47,7 +47,7 @@ async function resetSimulation(): Promise<void> {
 // ============================================================================
 
 export function SettingsPage() {
-  const { operator, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   return (
     <PageLayout
@@ -58,7 +58,7 @@ export function SettingsPage() {
 
         {/* Session */}
         <SettingsCard title="Session">
-          <SettingsRow label="Operator" value={operator || 'vienna'} />
+          <SettingsRow label="Operator" value={user?.email || "User" || 'vienna'} />
           <SettingsRow label="Status" value="Active" valueColor="#4ade80" />
           <SettingsRow label="Environment" value="Production" />
           <SettingsRow label="Tenant" value="system" />

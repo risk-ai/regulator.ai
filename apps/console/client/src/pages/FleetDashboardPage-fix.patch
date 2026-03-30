@@ -1,0 +1,18 @@
+--- a/apps/console/client/src/pages/FleetDashboardPage.tsx
++++ b/apps/console/client/src/pages/FleetDashboardPage.tsx
+@@ -10,6 +10,7 @@ import {
+   type FleetAgent,
+ } from '../api/fleet.js';
++import { safeArray } from '../utils/safe-array.js';
+ 
+ // ============================================================================
+ // Constants
+@@ -649,7 +650,7 @@ export function FleetDashboardPage() {
+   const { agents, summary } = overview;
+ 
+   // Generate sparkline data from trend
+-  const trendCounts = summary.trendData.map(t => t.count);
++  const trendCounts = safeArray(summary?.trendData).map(t => t?.count || 0);
+ 
+   return (
+     <div style={{ maxWidth: 1400, margin: '0 auto' }}>

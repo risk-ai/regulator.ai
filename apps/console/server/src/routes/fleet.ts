@@ -6,6 +6,7 @@
 
 import { Router, Request, Response } from 'express';
 import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
+import { AuthenticatedRequest } from '../middleware/jwtAuth.js';
 
 export function createFleetRouter(viennaRuntime: ViennaRuntimeService): Router {
   const router = Router();
@@ -16,8 +17,8 @@ export function createFleetRouter(viennaRuntime: ViennaRuntimeService): Router {
    */
   router.get('/', async (req: Request, res: Response) => {
     try {
-      // TODO: Get tenant_id from authenticated session
-      const tenant_id = 'default';
+      const authReq = req as AuthenticatedRequest;
+      const tenant_id = authReq.user?.tenantId || 'default';
       
       const stateGraph = viennaRuntime.getStateGraph();
       const stats = stateGraph.getAgentStats(tenant_id);
@@ -42,7 +43,8 @@ export function createFleetRouter(viennaRuntime: ViennaRuntimeService): Router {
    */
   router.get('/agents', async (req: Request, res: Response) => {
     try {
-      const tenant_id = 'default';
+      const authReq = req as AuthenticatedRequest;
+      const tenant_id = authReq.user?.tenantId || 'default';
       const { status, limit } = req.query;
       
       const stateGraph = viennaRuntime.getStateGraph();

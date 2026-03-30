@@ -163,7 +163,7 @@ export function ChatPanel() {
               content: m.content?.text || '',
             })),
           },
-          operator: useAuthStore((state) => state.operator) || 'system',
+          operator: useAuthStore((state) => state.user?.email) || 'system',
         });
         
         // Phase 6.6/6.8 returns { message, timestamp, proposal? }

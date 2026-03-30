@@ -13,7 +13,7 @@ import { ThemeToggle } from '../ui/ThemeToggle.js';
 export function TopStatusBar() {
   const systemStatus = useDashboardStore((state) => state.systemStatus);
   const sseConnected = useDashboardStore((state) => state.sseConnected);
-  const { operator, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   
   const handleLogout = async () => {
     if (confirm('Logout from Vienna Console?')) {
@@ -137,10 +137,10 @@ export function TopStatusBar() {
             fontWeight: 600,
             color: '#a78bfa',
           }}>
-            {(operator || 'V').charAt(0).toUpperCase()}
+            {(user?.name || user?.email || "User" || 'V').charAt(0).toUpperCase()}
           </div>
           <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>
-            {operator || 'Operator'}
+            {user?.name || user?.email || "User" || 'Operator'}
           </span>
         </div>
         

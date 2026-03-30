@@ -8,25 +8,53 @@ import { apiClient } from './client.js';
 
 export interface SessionInfo {
   authenticated: boolean;
-  operator?: string;
-  tenantId?: string;
-  sessionId?: string;
-  expiresAt?: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
+  tenant?: {
+    id: string;
+    name?: string;
+    slug?: string;
+  };
 }
 
 export interface LoginResponse {
-  operator: string;
-  tenantId?: string;
-  sessionId: string;
-  expiresAt: string;
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
+  tenant: {
+    id: string;
+  };
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
 }
 
 export interface RegisterResponse {
-  operator: string;
-  tenantId: string;
-  plan: string;
-  sessionId: string;
-  expiresAt: string;
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
+  tenant: {
+    id: string;
+    slug: string;
+    plan: string;
+  };
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
 }
 
 export interface LogoutResponse {
@@ -34,12 +62,12 @@ export interface LogoutResponse {
 }
 
 /**
- * Login with username + password
+ * Login with email + password
  */
-export async function login(password: string, username?: string): Promise<LoginResponse> {
-  return apiClient.post<LoginResponse, { username?: string; password: string }>(
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  return apiClient.post<LoginResponse, { email: string; password: string }>(
     '/auth/login',
-    { username, password }
+    { email, password }
   );
 }
 
@@ -47,9 +75,9 @@ export async function login(password: string, username?: string): Promise<LoginR
  * Register new operator account
  */
 export async function register(params: {
-  username: string;
+  email: string;
   password: string;
-  email?: string;
+  name?: string;
   company?: string;
   plan?: string;
 }): Promise<RegisterResponse> {
@@ -59,14 +87,23 @@ export async function register(params: {
 /**
  * Logout and invalidate session
  */
-export async function logout(): Promise<LogoutResponse> {
-  return apiClient.post<LogoutResponse, Record<string, never>>('/auth/logout', {});
+export async function logout(refreshToken?: string): Promise<LogoutResponse> {
+  return apiClient.post<LogoutResponse, { refreshToken?: string }>('/auth/logout', { refreshToken });
 }
 
 /**
- * Check current session status
- * Uses a short timeout (5s) so the UI doesn't hang on backend issues
+ * Get current user info (requires JWT)
  */
-export async function checkSession(): Promise<SessionInfo> {
-  return apiClient.get<SessionInfo>('/auth/session', { timeout: 5000 });
+export async function getCurrentUser(): Promise<SessionInfo> {
+  return apiClient.get<SessionInfo>('/auth/me', { timeout: 5000 });
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+export async function refreshToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
+  return apiClient.post<{ accessToken: string; expiresIn: number }, { refreshToken: string }>(
+    '/auth/refresh',
+    { refreshToken }
+  );
 }

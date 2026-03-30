@@ -16,7 +16,7 @@ interface ApprovalCardProps {
 }
 
 export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCardProps) {
-  const operator = useAuthStore((state) => state.operator);
+  const user = useAuthStore((state) => state.user);
   const [acting, setActing] = useState(false);
   const [showDenyReason, setShowDenyReason] = useState(false);
   const [denyReason, setDenyReason] = useState('');
@@ -34,7 +34,7 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
   }, [approval]);
 
   const handleApprove = async () => {
-    if (!operator) {
+    if (!user) {
       setError('Not authenticated');
       return;
     }
@@ -43,7 +43,7 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
       setActing(true);
       setError(null);
       
-      await approveApproval(approval.approval_id, operator);
+      await approveApproval(approval.approval_id, user?.email || "unknown");
       onAction();
     } catch (err) {
       console.error('Approve failed:', err);
@@ -59,7 +59,7 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
       return;
     }
     
-    if (!operator) {
+    if (!user) {
       setError('Not authenticated');
       return;
     }
@@ -68,7 +68,7 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
       setActing(true);
       setError(null);
       
-      await denyApproval(approval.approval_id, operator, denyReason);
+      await denyApproval(approval.approval_id, user?.email || "unknown", denyReason);
       onAction();
     } catch (err) {
       console.error('Deny failed:', err);

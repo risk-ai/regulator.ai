@@ -2,34 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://vienna-os.fly.dev/api/:path*"
-    },
-    {
-      "source": "/health",
-      "destination": "https://vienna-os.fly.dev/health"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Credentials",
-          "value": "true"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://console.regulator.ai"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,POST,PUT,DELETE,OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization, Cookie"
-        }
-      ]
+      "destination": "https://insulation-beverages-observe-highly.trycloudflare.com/api/:path*"
     }
   ]
 }

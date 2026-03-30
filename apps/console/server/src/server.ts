@@ -8,7 +8,13 @@
 
 // Load environment variables from .env file
 import dotenv from 'dotenv';
-dotenv.config();
+const result = dotenv.config();
+if (result.error) {
+  console.error('[ENV] Failed to load .env:', result.error);
+} else {
+  console.log('[ENV] Loaded .env file successfully');
+  console.log('[ENV] JWT_SECRET length:', process.env.JWT_SECRET?.length || 'NOT SET');
+}
 
 import cluster from 'cluster';
 import path from 'path';
@@ -129,6 +135,7 @@ async function start() {
     console.log(`Auth service initialized (operator: ${operatorName})`);
     
     // Initialize Vienna Core runtime
+    console.log('[Server] Initializing Vienna Core...');
     const viennaCore = await initializeViennaCore();
     
     // Initialize Provider Manager
@@ -172,7 +179,7 @@ async function start() {
     const bootstrapService = new DashboardBootstrapService(viennaRuntime, chatService, objectivesService);
     
     // Use Vienna Core's already-initialized StateGraph and components (Phase 13)
-    const ViennaLib = require('@vienna/lib');
+    const ViennaLib = await import('@vienna/lib');
     const { AgentIntentBridge } = ViennaLib;
     
     const stateGraph = viennaCore.stateGraph;
@@ -423,7 +430,8 @@ async function start() {
 }
 
 // Cluster mode for horizontal scaling (use all CPU cores)
-const ENABLE_CLUSTER = process.env.NODE_ENV === 'production' || process.env.ENABLE_CLUSTER === 'true';
+// TEMP: Disable cluster mode to avoid tsx watch cache issues
+const ENABLE_CLUSTER = false; // process.env.NODE_ENV === 'production' || process.env.ENABLE_CLUSTER === 'true';
 const numCPUs = os.cpus().length;
 
 if (ENABLE_CLUSTER && cluster.isPrimary) {

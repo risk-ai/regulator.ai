@@ -10,21 +10,25 @@ import { useAuthStore } from '../../store/authStore.js';
 
 export function LoginScreen() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const { login, register, loading, error, clearError } = useAuthStore();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!password.trim()) return;
+    if (!email.trim() || !password.trim()) return;
 
     if (mode === 'register') {
-      if (!username.trim() || username.length < 3) return;
-      await register({ username: username.trim(), password, email: email.trim() || undefined, company: company.trim() || undefined });
+      await register({ 
+        email: email.trim(), 
+        password, 
+        name: name.trim() || undefined, 
+        company: company.trim() || undefined 
+      });
     } else {
-      await login(password, username.trim() || undefined);
+      await login(email.trim(), password);
     }
   };
 
@@ -66,18 +70,19 @@ export function LoginScreen() {
           borderRadius: '12px',
           padding: '24px',
         }}>
-          {/* Username */}
+          {/* Email */}
           <div style={{ marginBottom: '14px' }}>
-            <label htmlFor="username" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
-              Username {mode === 'register' && <span style={{ color: '#7c3aed' }}>*</span>}
+            <label htmlFor="email" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+              Email <span style={{ color: '#7c3aed' }}>*</span>
             </label>
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => { setUsername(e.target.value); clearError(); }}
-              placeholder={mode === 'login' ? 'vienna' : 'your-username'}
-              autoComplete="username"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); clearError(); }}
+              placeholder="you@company.com"
+              autoComplete="email"
+              required
               style={{
                 width: '100%',
                 background: '#0D0F14',
@@ -92,19 +97,19 @@ export function LoginScreen() {
             />
           </div>
 
-          {/* Email (register only) */}
+          {/* Name (register only) */}
           {mode === 'register' && (
             <div style={{ marginBottom: '14px' }}>
-              <label htmlFor="email" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
-                Email
+              <label htmlFor="name" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
+                Full Name
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                autoComplete="email"
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                autoComplete="name"
                 style={{
                   width: '100%',
                   background: '#0D0F14',
@@ -148,7 +153,7 @@ export function LoginScreen() {
           )}
 
           {/* Password */}
-          <div style={{ marginBottom: '18px' }}>
+          <div style={{ marginBottom: '20px' }}>
             <label htmlFor="password" style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 500 }}>
               Password <span style={{ color: '#7c3aed' }}>*</span>
             </label>
@@ -157,8 +162,8 @@ export function LoginScreen() {
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); clearError(); }}
-              placeholder={mode === 'register' ? 'min 8 characters' : '••••••••'}
-              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              placeholder="••••••••"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               required
               style={{
                 width: '100%',
@@ -172,18 +177,23 @@ export function LoginScreen() {
                 boxSizing: 'border-box',
               }}
             />
+            {mode === 'register' && (
+              <p style={{ fontSize: '11px', color: '#64748b', margin: '6px 0 0 0' }}>
+                Minimum 8 characters, include letters and numbers
+              </p>
+            )}
           </div>
 
           {/* Error */}
           {error && (
             <div style={{
-              background: 'rgba(248, 113, 113, 0.08)',
-              border: '1px solid rgba(248, 113, 113, 0.2)',
+              background: '#7F1D1D',
+              border: '1px solid #991B1B',
               borderRadius: '8px',
               padding: '10px 14px',
-              marginBottom: '14px',
+              marginBottom: '16px',
               fontSize: '13px',
-              color: '#f87171',
+              color: '#FCA5A5',
             }}>
               {error}
             </div>
@@ -192,60 +202,79 @@ export function LoginScreen() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !email.trim() || !password.trim()}
             style={{
               width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: loading ? '#334155' : '#7c3aed',
+              background: loading ? '#4c1d95' : '#7c3aed',
               color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: loading ? 'default' : 'pointer',
-              fontFamily: 'inherit',
-              transition: 'background 150ms',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'background 0.2s',
+              opacity: (!email.trim() || !password.trim()) ? 0.5 : 1,
             }}
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
+
+          {/* Switch mode */}
+          <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '13px', color: '#64748b' }}>
+            {mode === 'login' ? (
+              <>
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  onClick={switchMode}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#7c3aed',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0,
+                    font: 'inherit',
+                  }}
+                >
+                  Sign up
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={switchMode}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#7c3aed',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0,
+                    font: 'inherit',
+                  }}
+                >
+                  Sign in
+                </button>
+              </>
+            )}
+          </div>
         </form>
 
-        {/* Toggle mode */}
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          <button
-            onClick={switchMode}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#7c3aed',
-              fontSize: '13px',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            {mode === 'login' ? "Don't have an account? Create one" : 'Already have an account? Sign in'}
-          </button>
-        </div>
-
-        {/* Demo credentials hint */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: '20px',
-          padding: '12px',
-          background: 'rgba(124, 58, 237, 0.05)',
-          border: '1px solid rgba(124, 58, 237, 0.1)',
-          borderRadius: '8px',
-        }}>
-          <p style={{ fontSize: '11px', color: '#64748b', margin: 0 }}>
-            <strong style={{ color: '#94a3b8' }}>Sandbox:</strong> vienna / vienna2024
-          </p>
-        </div>
-
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <p style={{ fontSize: '11px', color: '#334155', margin: 0 }}>
-            Built at Cornell Law × ai.ventures
+        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '11px', color: '#475569' }}>
+          <p style={{ margin: '0 0 4px 0' }}>Powered by Vienna OS</p>
+          <p style={{ margin: 0 }}>
+            <a href="https://regulator.ai" target="_blank" rel="noopener noreferrer" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              Learn more
+            </a>
+            {' • '}
+            <a href="https://docs.regulator.ai" target="_blank" rel="noopener noreferrer" style={{ color: '#7c3aed', textDecoration: 'none' }}>
+              Documentation
+            </a>
           </p>
         </div>
       </div>

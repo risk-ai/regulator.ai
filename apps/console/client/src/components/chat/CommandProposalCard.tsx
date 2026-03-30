@@ -19,7 +19,7 @@ export function CommandProposalCard({
   onExecuted,
   onRejected,
 }: CommandProposalCardProps) {
-  const operator = useAuthStore((state) => state.operator) || 'system';
+  const user = useAuthStore((state) => state.user) || 'system';
   const [executing, setExecuting] = useState(false);
   const [executed, setExecuted] = useState(false);
   const [rejected, setRejected] = useState(false);
@@ -42,7 +42,7 @@ export function CommandProposalCard({
       // Call approval endpoint (Phase 7.5e)
       const approvalResult = await chatApi.approveAction(
         action,
-        operator
+        (typeof user === "object" ? (user?.name || user?.email) : user) || "User"
       );
 
       setResult(approvalResult.result);

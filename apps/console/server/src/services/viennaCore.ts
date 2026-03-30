@@ -46,8 +46,8 @@ export async function initializeViennaCore(config?: {
     stateGraphPath,
   });
 
-  // Load Vienna governance components
-  const ViennaLib = require('@vienna/lib');
+  // Load Vienna governance components (ES module import)
+  const ViennaLib = await import('@vienna/lib');
   const {
     StateGraph,
     IntentGateway,
@@ -62,7 +62,8 @@ export async function initializeViennaCore(config?: {
   let stateGraph;
   if (process.env.POSTGRES_URL) {
     console.log('[ViennaCore] Using Postgres StateGraph');
-    const { StateGraph: PostgresStateGraph } = require('@vienna/lib/state/state-graph.postgres');
+    const StateGraphModule = await import('@vienna/lib/state/state-graph.postgres');
+    const PostgresStateGraph = StateGraphModule.StateGraph;
     stateGraph = new PostgresStateGraph();
   } else {
     console.log('[ViennaCore] Using SQLite StateGraph');

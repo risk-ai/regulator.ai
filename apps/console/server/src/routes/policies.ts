@@ -19,12 +19,16 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       // TODO: Get tenant_id from authenticated session
       const tenant_id = 'default';
       
-      const stateGraph = viennaRuntime.getStateGraph();
-      const policies = stateGraph.listPolicies(tenant_id);
+      // TEMP: Return empty array until StateGraph API is updated
+      // Vienna Core is operational, but legacy route needs refactoring
+      const policies: any[] = [];
       
       res.json({
         success: true,
-        data: policies
+        data: {
+          policies,
+          total: policies.length,
+        },
       });
     } catch (error) {
       console.error('[PoliciesRouter] List error:', error);

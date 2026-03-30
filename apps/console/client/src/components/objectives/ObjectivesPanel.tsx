@@ -100,7 +100,7 @@ export function ObjectivesPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          operator: useAuthStore((state) => state.operator) || 'system', // TODO: Get from auth
+          submittedBy: useAuthStore((state) => state.user) || 'system', // TODO: Get from auth
           reason: 'Operator requested retry',
         }),
       });

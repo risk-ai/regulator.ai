@@ -21,7 +21,10 @@ function getPool() {
 }
 
 async function query(text, params = []) {
-  const result = await getPool().query(text, params);
+  const pool = getPool();
+  // Ensure public schema for each query
+  await pool.query('SET search_path TO public');
+  const result = await pool.query(text, params);
   return result.rows;
 }
 

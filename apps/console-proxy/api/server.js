@@ -152,7 +152,7 @@ module.exports = async function handler(req, res) {
       }
 
       const users = await query(
-        'SELECT id, email, name, password_hash, tenant_id, role FROM regulator.users WHERE email = $1 LIMIT 1',
+        'SELECT id, email, name, password_hash, tenant_id, role FROM users WHERE email = $1 LIMIT 1',
         [email]
       );
       
@@ -176,14 +176,8 @@ module.exports = async function handler(req, res) {
       // Set cookie
       res.setHeader('Set-Cookie', `vienna_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`);
       
-      // Audit log
-      query(
-        `INSERT INTO regulator.audit_log (event, actor, details, tenant_id, created_at) VALUES ($1, $2, $3, $4, NOW())`,
-        ['operator_login', user.name || user.email, JSON.stringify({ email: user.email, ip: req.headers['x-forwarded-for'] || 'unknown' }), user.tenant_id]
-      ).catch(() => {});
-
       // Update last_login_at
-      query('UPDATE regulator.users SET last_login_at = NOW() WHERE id = $1', [user.id]).catch(() => {});
+      query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]).catch(() => {});
 
       return res.status(200).json({
         success: true,
@@ -208,24 +202,17 @@ module.exports = async function handler(req, res) {
       }
 
       // Check existing
-      const existing = await query('SELECT id FROM regulator.users WHERE email = $1', [email]);
+      const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
       if (existing.length > 0) {
         return res.status(409).json({ success: false, error: 'Email already registered' });
       }
 
       const id = crypto.randomUUID();
       const tenantId = crypto.randomUUID();
-      const slug = (company || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
       const passwordHash = await hashPassword(password);
-      
-      // Create tenant first
-      await query(
-        `INSERT INTO regulator.tenants (id, name, slug, created_at) VALUES ($1, $2, $3, NOW())`,
-        [tenantId, company || email.split('@')[0], slug]
-      );
 
       await query(
-        `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
+        `INSERT INTO users (id, email, name, password_hash, tenant_id, role, created_at)
          VALUES ($1, $2, $3, $4, $5, 'admin', NOW())`,
         [id, email, name || email.split('@')[0], passwordHash, tenantId]
       );
@@ -323,6 +310,49 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Activity feed (public)
+    if (path === '/api/v1/activity') {
+      try {
+        const activity = await query(`
+          SELECT id, event_type, description, metadata, created_at
+          FROM agent_activity
+          ORDER BY created_at DESC
+          LIMIT 50
+        `);
+        return res.status(200).json({ success: true, data: activity });
+      } catch (error) {
+        console.error('[activity]', error);
+        return res.status(200).json({ success: true, data: [] });
+      }
+    }
+
+    // Analytics overview (public)
+    if (path === '/api/v1/analytics/overview') {
+      try {
+        const agentCount = await query('SELECT COUNT(*)::int as count FROM agents');
+        const policyCount = await query('SELECT COUNT(*)::int as count FROM policies');
+        const approvalCount = await query('SELECT COUNT(*)::int as count FROM approval_requests');
+        const activityCount = await query('SELECT COUNT(*)::int as count FROM agent_activity');
+        
+        return res.status(200).json({
+          success: true,
+          data: {
+            totalAgents: agentCount[0]?.count || 0,
+            totalPolicies: policyCount[0]?.count || 0,
+            totalApprovals: approvalCount[0]?.count || 0,
+            totalActivity: activityCount[0]?.count || 0,
+            successRate: activityCount[0]?.count > 0 ? 100 : 0
+          }
+        });
+      } catch (error) {
+        console.error('[analytics]', error);
+        return res.status(200).json({
+          success: true,
+          data: { totalAgents: 0, totalPolicies: 0, totalApprovals: 0, totalActivity: 0, successRate: 0 }
+        });
+      }
+    }
+
     // Reconciliation safe-mode (public, static)
     if (path === '/api/v1/reconciliation/safe-mode') {
       return res.status(200).json({ success: true, data: { active: false } });
@@ -360,7 +390,7 @@ module.exports = async function handler(req, res) {
       // Agents list (tenant-scoped)
       if (path === '/api/v1/agents' && req.method === 'GET') {
         const agents = await query(
-          'SELECT * FROM regulator.agent_registry WHERE tenant_id = $1 ORDER BY registered_at DESC LIMIT 50',
+          'SELECT * FROM agents WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: agents });
@@ -369,30 +399,30 @@ module.exports = async function handler(req, res) {
       // Policies list (tenant-scoped)
       if (path === '/api/v1/policies' && req.method === 'GET') {
         const policies = await query(
-          'SELECT * FROM regulator.policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM policies WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         // Get policy rules for this tenant
         const rules = await query(
-          'SELECT id, name, description, conditions, action_on_match, approval_tier, required_approvers, priority, enabled FROM regulator.policy_rules WHERE tenant_id = $1 ORDER BY priority DESC, id',
+          'SELECT id, name, description, conditions, action_on_match, approval_tier, required_approvers, priority, enabled FROM policy_rules WHERE tenant_id = $1 ORDER BY priority DESC, id',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: policies, rules, count: policies.length });
       }
 
-      // Warrants list (tenant-scoped)
+      // Approvals list (tenant-scoped)
       if (path.match(/\/api\/v1\/(warrants|approvals)/) && req.method === 'GET') {
-        const warrants = await query(
-          'SELECT * FROM regulator.warrants WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+        const approvals = await query(
+          'SELECT * FROM approval_requests WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
-        return res.status(200).json({ success: true, data: warrants });
+        return res.status(200).json({ success: true, data: approvals });
       }
 
-      // Proposals list (tenant-scoped)
+      // Proposals list (tenant-scoped)  
       if (path === '/api/v1/proposals' && req.method === 'GET') {
         const proposals = await query(
-          'SELECT * FROM regulator.proposals WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM policy_recommendations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: proposals });
@@ -401,7 +431,7 @@ module.exports = async function handler(req, res) {
       // Audit log (tenant-scoped)
       if (path === '/api/v1/audit/recent') {
         const events = await query(
-          'SELECT * FROM regulator.audit_log WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
+          'SELECT * FROM execution_ledger_events WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT 50',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: events });
@@ -410,7 +440,7 @@ module.exports = async function handler(req, res) {
       // API keys (tenant-scoped)
       if (path === '/api/v1/auth/api-keys' && req.method === 'GET') {
         const keys = await query(
-          'SELECT id, name, key_prefix, scopes, expires_at, created_at, last_used_at FROM regulator.api_keys WHERE tenant_id = $1 ORDER BY created_at DESC',
+          'SELECT id, key_prefix, scopes, expires_at, created_at, last_used_at FROM api_keys WHERE tenant_id = $1 ORDER BY created_at DESC',
           [tenantId]
         );
         return res.status(200).json({ success: true, data: keys });

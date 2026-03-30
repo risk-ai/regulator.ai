@@ -1,4 +1,5 @@
 /**
+const { requireAuth } = require('./_auth');
  * Agent Registration & Management API
  * Register, configure, and monitor AI agents
  */
@@ -14,6 +15,11 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/agents/, '');
   const params = Object.fromEntries(url.searchParams);
+
+  // Auth required
+  const user = requireAuth(req, res);
+  if (!user) return; // 401 already sent
+  const tenantId = user.tenant_id;
   
   try {
     // List all agents

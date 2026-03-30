@@ -1,4 +1,5 @@
 /**
+const { requireAuth } = require('./_auth');
  * Policy Management API
  * CRUD operations for governance policies
  */
@@ -14,6 +15,11 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/policies/, '');
   const params = Object.fromEntries(url.searchParams);
+
+  // Auth required
+  const user = requireAuth(req, res);
+  if (!user) return; // 401 already sent
+  const tenantId = user.tenant_id;
   
   try {
     // List all policies

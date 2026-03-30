@@ -1,4 +1,5 @@
 /**
+const { requireAuth } = require('./_auth');
  * Warrant Management & Verification API
  * Handle warrant issuance, verification, and queries
  */
@@ -31,6 +32,11 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/warrants/, '');
   const params = Object.fromEntries(url.searchParams);
+
+  // Auth required
+  const user = requireAuth(req, res);
+  if (!user) return; // 401 already sent
+  const tenantId = user.tenant_id;
   
   try {
     // Verify warrant signature

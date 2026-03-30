@@ -1,4 +1,5 @@
 /**
+const { requireAuth } = require('./_auth');
  * API Key Management
  * Generate, revoke, and manage API keys for programmatic access
  */

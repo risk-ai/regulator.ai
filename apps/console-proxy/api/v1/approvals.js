@@ -1,4 +1,5 @@
 /**
+const { requireAuth } = require('./_auth');
  * Approval Management API
  * Handle approval requests for T1/T2/T3 actions
  */
@@ -15,6 +16,11 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/approvals/, '');
   const params = Object.fromEntries(url.searchParams);
+
+  // Auth required
+  const user = requireAuth(req, res);
+  if (!user) return; // 401 already sent
+  const tenantId = user.tenant_id;
   
   try {
     // List all pending approvals

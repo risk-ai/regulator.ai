@@ -230,3 +230,192 @@ components:
         requested_at:
           type: string
           format: date-time
+  /auth/register:
+    post:
+      summary: Register new user and tenant
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                name: { type: string }
+                company: { type: string }
+      responses:
+        '201': { description: User created with tenant }
+  /auth/forgot-password:
+    post:
+      summary: Request password reset email
+      tags: [Authentication]
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { description: Reset email sent (always succeeds for security) }
+  /auth/reset-password:
+    post:
+      summary: Reset password with token
+      tags: [Authentication]
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required: [token, user_id, new_password]
+              properties:
+                token: { type: string }
+                user_id: { type: string, format: uuid }
+                new_password: { type: string, minLength: 8 }
+      responses:
+        '200': { description: Password updated }
+  /agents:
+    get:
+      summary: List registered agents
+      tags: [Agents]
+      responses:
+        '200': { description: Agent list (tenant-filtered) }
+  /proposals:
+    get:
+      summary: List proposals
+      tags: [Pipeline]
+      responses:
+        '200': { description: Proposal list (tenant-filtered) }
+  /policies:
+    get:
+      summary: List policies
+      tags: [Policies]
+      responses:
+        '200': { description: Policy list (tenant-filtered) }
+  /agent/intent:
+    post:
+      summary: Submit intent through governance pipeline
+      tags: [Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required: [action, agent_id]
+              properties:
+                action: { type: string }
+                agent_id: { type: string, format: uuid }
+                risk_tier: { type: integer, enum: [0,1,2,3] }
+                params: { type: object }
+                simulation: { type: boolean }
+      responses:
+        '200': { description: Pipeline result with proposal, evaluation, and optional warrant }
+  /audit/recent:
+    get:
+      summary: Recent audit trail entries
+      tags: [Audit]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+      responses:
+        '200': { description: Audit entries (tenant-filtered) }
+  /webhooks:
+    get:
+      summary: List webhooks
+      tags: [Webhooks]
+      responses:
+        '200': { description: Webhook list }
+    post:
+      summary: Create webhook
+      tags: [Webhooks]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required: [url]
+              properties:
+                url: { type: string, format: uri }
+                events: { type: array, items: { type: string } }
+      responses:
+        '201': { description: Webhook created }
+  /stats:
+    get:
+      summary: Dashboard stats and metrics
+      tags: [Analytics]
+      parameters:
+        - name: period
+          in: query
+          schema: { type: string, enum: ['24h','7d','30d','all'], default: '7d' }
+      responses:
+        '200': { description: Execution, approval, agent, policy metrics with risk distribution }
+  /stats/executions/trends:
+    get:
+      summary: Execution time-series data
+      tags: [Analytics]
+      parameters:
+        - name: days
+          in: query
+          schema: { type: integer, default: 7 }
+      responses:
+        '200': { description: Daily execution counts }
+  /stats/risk-distribution:
+    get:
+      summary: Risk tier distribution
+      tags: [Analytics]
+      responses:
+        '200': { description: Breakdown by T0-T3 }
+  /execution-records:
+    get:
+      summary: Execution history (derived from warrants + proposals)
+      tags: [Pipeline]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [executed, denied, revoked, expired] }
+      responses:
+        '200': { description: Execution records with agent, action, status }
+  /runtime/stats:
+    get:
+      summary: Runtime pipeline metrics
+      tags: [Monitoring]
+      parameters:
+        - name: window
+          in: query
+          schema: { type: string, enum: ['5m','1h','24h','7d'], default: '5m' }
+      responses:
+        '200': { description: Pipeline throughput, error rates, queue depth }
+  /stream/events:
+    get:
+      summary: Server-Sent Events stream
+      tags: [Monitoring]
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream: {}
+  /compliance/generate:
+    post:
+      summary: Generate compliance report
+      tags: [Compliance]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                period: { type: string, enum: ['24h','7d','30d','90d'], default: '30d' }
+      responses:
+        '200': { description: Generated compliance report with summary and risk breakdown }
+  /settings:
+    get:
+      summary: System configuration
+      tags: [System]
+      responses:
+        '200': { description: Runtime settings }

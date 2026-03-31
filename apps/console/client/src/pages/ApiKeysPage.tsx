@@ -142,9 +142,12 @@ export function ApiKeysPage() {
     return { text: 'Active', color: '#4ade80' };
   };
 
+  const [copied, setCopied] = useState(false);
+  
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('API key copied to clipboard');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -219,15 +222,16 @@ export function ApiKeysPage() {
                   padding: '4px 8px',
                   borderRadius: '4px',
                   border: '1px solid rgba(74, 222, 128, 0.3)',
-                  background: 'rgba(74, 222, 128, 0.08)',
+                  background: copied ? 'rgba(74, 222, 128, 0.15)' : 'rgba(74, 222, 128, 0.08)',
                   color: '#4ade80',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
+                  transition: 'background 0.2s',
                 }}
               >
-                Copy
+                {copied ? '✓ Copied!' : 'Copy'}
               </button>
             </div>
             <button

@@ -124,7 +124,7 @@ export function createApp(
         scriptSrc: ["'self'", "'unsafe-inline'"], // Vite dev needs unsafe-inline
         styleSrc: ["'self'", "'unsafe-inline'"], // Tailwind needs unsafe-inline
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://vienna-os.fly.dev", "https://console.regulator.ai"],
+        connectSrc: ["'self'", "https://console.regulator.ai"],
         fontSrc: ["'self'", "data:"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],

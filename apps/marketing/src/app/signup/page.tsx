@@ -243,23 +243,6 @@ export default function SignupPage() {
 
             <form onSubmit={handleSubmit} className="max-w-lg space-y-5">
               <div>
-                <label htmlFor="signup-name" className="block text-sm text-slate-400 mb-1.5">
-                  Full Name *
-                </label>
-                <input
-                  required
-                  type="text"
-                  value={form.name}
-                  onFocus={handleFormStart}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
-                  placeholder="Jane Smith"
-                />
-              </div>
-
-              <div>
                 <label htmlFor="signup-email" className="block text-sm text-slate-400 mb-1.5">
                   Work Email *
                 </label>
@@ -267,6 +250,7 @@ export default function SignupPage() {
                   required
                   type="email"
                   value={form.email}
+                  onFocus={handleFormStart}
                   onChange={(e) =>
                     setForm({ ...form, email: e.target.value })
                   }
@@ -276,8 +260,23 @@ export default function SignupPage() {
               </div>
 
               <div>
+                <label htmlFor="signup-name" className="block text-sm text-slate-400 mb-1.5">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm({ ...form, name: e.target.value })
+                  }
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  placeholder="Jane Smith"
+                />
+              </div>
+
+              <div>
                 <label htmlFor="signup-company" className="block text-sm text-slate-400 mb-1.5">
-                  Company
+                  Company (optional)
                 </label>
                 <input
                   type="text"
@@ -290,41 +289,6 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="signup-agents" className="block text-sm text-slate-400 mb-1.5">
-                  How many AI agents are you running?
-                </label>
-                <select
-                  value={form.agentCount}
-                  onChange={(e) =>
-                    setForm({ ...form, agentCount: e.target.value })
-                  }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
-                >
-                  <option value="">Select...</option>
-                  <option value="1-5">1–5</option>
-                  <option value="6-25">6–25</option>
-                  <option value="26-100">26–100</option>
-                  <option value="100+">100+</option>
-                  <option value="exploring">Just exploring</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="signup-usecase" className="block text-sm text-slate-400 mb-1.5">
-                  Primary use case (optional)
-                </label>
-                <textarea
-                  value={form.useCase}
-                  onChange={(e) =>
-                    setForm({ ...form, useCase: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition resize-none"
-                  placeholder="e.g., Govern our DevOps agent fleet, enforce approval policies for financial transactions..."
-                />
-              </div>
-
               <button
                 type="submit"
                 disabled={submitting}
@@ -333,6 +297,10 @@ export default function SignupPage() {
                 {submitting ? "Setting up..." : "Create Account"}
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              <p className="text-xs text-slate-500">
+                We&apos;ll never share your email. Unsubscribe anytime.
+              </p>
             </form>
           </>
         )}
@@ -350,64 +318,69 @@ export default function SignupPage() {
             {selectedPlan === "community" ? (
               <>
                 <p className="text-slate-400 mb-6">
-                  Your sandbox console is ready. Log in with the credentials
-                  below and start governing your agents.
+                  Your account is ready. Log in to the console to create your first API key and start governing your agents.
                 </p>
 
+                {/* Step 1: Console access */}
                 <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
-                  <h3 className="text-white font-semibold mb-3">
-                    Console Access
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">1</span>
+                    Log in to the Console
                   </h3>
-                  <div className="space-y-2 font-mono text-sm">
-                    <div className="flex items-center gap-3">
-                      <span className="text-slate-500 w-24">URL:</span>
-                      <a
-                        href="https://console.regulator.ai"
-                        className="text-purple-400 hover:text-purple-300 transition"
-                      >
-                        console.regulator.ai
-                      </a>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-slate-500 w-24">Username:</span>
-                      <span className="text-white">vienna</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-slate-500 w-24">Password:</span>
-                      <span className="text-white">vienna2024</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-3">
-                    This is the shared sandbox. Your dedicated environment with individual credentials will be available soon.
+                  <p className="text-sm text-slate-400 mb-3">
+                    Use the email and password you just created to sign in.
                   </p>
+                  <a
+                    href="https://console.regulator.ai"
+                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-lg transition font-medium text-sm"
+                  >
+                    Open Console <ArrowRight className="w-4 h-4" />
+                  </a>
+                </div>
+
+                {/* Step 2: Create API key */}
+                <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">2</span>
+                    Create an API Key
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Go to <span className="text-purple-400 font-medium">API Keys</span> in the console sidebar and create your first key. You&apos;ll get a <code className="text-xs bg-navy-900 px-1.5 py-0.5 rounded text-emerald-400">vos_</code> prefixed token.
+                  </p>
+                </div>
+
+                {/* Step 3: Make your first call */}
+                <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">3</span>
+                    Make Your First API Call
+                  </h3>
+                  <pre className="font-mono text-xs text-slate-400 mt-2 overflow-x-auto bg-navy-900 rounded-lg p-4 border border-navy-700">
+{`curl -X POST https://console.regulator.ai/api/v1/intents \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "agent_id": "my-agent",
+    "action": "deploy",
+    "params": {"environment": "staging"},
+    "objective": "Deploy v2.4.1 to staging"
+  }'`}
+                  </pre>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <a
-                    href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
-                  >
-                    Open Console
-                    <ArrowRight className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="/docs"
+                    href="/docs/getting-started"
                     className="text-sm text-slate-400 hover:text-white transition"
                   >
-                    Read the docs →
+                    Full getting started guide →
                   </a>
-                </div>
-
-                <div className="mt-8 bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                  <p className="text-sm text-blue-400">
-                    <strong>Quick test:</strong> Try submitting an agent intent
-                    via the API:
-                  </p>
-                  <pre className="font-mono text-xs text-slate-400 mt-2 overflow-x-auto">
-{`curl -X POST https://console.regulator.ai/api/v1/agent/intent \\
-  -H "Content-Type: application/json" \\
-  -d '{"action":"check_health","source":"openclaw","tenant_id":"test"}'`}
-                  </pre>
+                  <a
+                    href="/try"
+                    className="text-sm text-slate-400 hover:text-white transition"
+                  >
+                    Try the live playground →
+                  </a>
                 </div>
               </>
             ) : selectedPlan === "enterprise" ? (

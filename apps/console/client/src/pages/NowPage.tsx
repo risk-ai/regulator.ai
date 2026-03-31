@@ -83,6 +83,14 @@ export function NowPage() {
 
   const nav = (s: string) => { window.location.hash = s; };
 
+  // Check if this is an empty/new workspace
+  const isEmptyWorkspace = snapshot && 
+    snapshot.agents.total === 0 && 
+    snapshot.proposals.total === 0 && 
+    snapshot.warrants.total === 0 && 
+    snapshot.policies.total === 0 && 
+    snapshot.policyRules.total === 0;
+
   return (
     <PageLayout title="System Posture" description="Live operational status">
       {/* Status bar */}

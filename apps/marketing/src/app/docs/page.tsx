@@ -1409,10 +1409,10 @@ Intent → Policy Engine → T2 → Approval Queue
               <div className="text-white font-semibold text-sm mb-2">Fly.io (Managed)</div>
               <div className="text-xs text-slate-500 space-y-1">
                 <div>• Single machine, auto-restart</div>
-                <div>• Postgres via Fly Postgres</div>
+                <div>• Managed Postgres (Neon, Supabase, etc.)</div>
                 <div>• TLS termination included</div>
                 <div>• Ideal for: teams, production</div>
-                <div>• Deploy: <InlineCode>fly deploy</InlineCode></div>
+                <div>• Deploy: <InlineCode>docker compose up -d</InlineCode></div>
               </div>
             </div>
             <div className="bg-[#141820] border border-[#1C222E] rounded-xl p-4">
@@ -3146,22 +3146,22 @@ for f in src/db/migrations/*.sql; do
   psql vienna < "$f"
 done`}</CodeBlock>
 
-          <H3 id="sh-flyio">Fly.io</H3>
-          <CodeBlock language="bash" title="Fly.io deployment">{`# Install flyctl
-curl -L https://fly.io/install.sh | sh
+          <H3 id="sh-docker-compose">Docker Compose (Recommended)</H3>
+          <CodeBlock language="bash" title="Docker Compose deployment">{`# Clone the repository
+git clone https://github.com/risk-ai/vienna-os.git
+cd vienna-os
 
-# Launch (first time)
-fly launch --name vienna-os --region iad
+# Configure environment
+cp .env.example .env
+# Edit .env with your database URL and secrets:
+#   POSTGRES_URL=your-connection-string
+#   JWT_SECRET=$(openssl rand -hex 32)
 
-# Set secrets
-fly secrets set VIENNA_SECRET_KEY=your-secret-key
-fly secrets set POSTGRES_URL=your-connection-string
+# Start services
+docker compose up -d
 
-# Deploy
-fly deploy
-
-# Scale
-fly scale count 2  # Run 2 instances for HA`}</CodeBlock>
+# Check health
+curl http://localhost:3000/health`}</CodeBlock>
 
           <H3 id="sh-kubernetes">Kubernetes</H3>
           <CodeBlock language="yaml" title="kubernetes/deployment.yaml">{`apiVersion: apps/v1

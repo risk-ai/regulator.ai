@@ -1,7 +1,32 @@
 import { NextResponse } from "next/server";
 import { createHash, timingSafeEqual } from "crypto";
+import { Pool } from "pg";
 
 export const runtime = 'nodejs';
+
+// Lazy-init Neon connection pool
+let pool: Pool | null = null;
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.POSTGRES_URL,
+      max: 3,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
+      ssl: { rejectUnauthorized: false },
+    });
+    pool.on('connect', (client) => {
+      client.query("SET search_path TO regulator, public");
+    });
+  }
+  return pool;
+}
+
+async function dbQuery(text: string, params: unknown[] = []) {
+  const p = getPool();
+  const result = await p.query(text, params);
+  return result.rows;
+}
 
 interface StripeEvent {
   id: string;
@@ -126,8 +151,33 @@ async function handleCheckoutSessionCompleted(session: CheckoutSession) {
     }
   );
 
-  // TODO: Insert new subscription into Neon Postgres (regulator schema)
-  // Table: subscriptions (id, stripe_customer_id, stripe_subscription_id, email, plan, status, created_at)
+  // Insert subscription into Neon Postgres
+  try {
+    await dbQuery(
+      `INSERT INTO regulator.subscriptions 
+       (stripe_customer_id, stripe_subscription_id, email, plan, status, amount, currency, metadata)
+       VALUES ($1, $2, $3, $4, 'active', $5, $6, $7)
+       ON CONFLICT (stripe_subscription_id) DO UPDATE SET
+         status = 'active', email = EXCLUDED.email, plan = EXCLUDED.plan, updated_at = NOW()`,
+      [
+        session.customer,
+        session.subscription,
+        session.customer_email,
+        session.metadata.plan || 'team',
+        session.amount_total,
+        session.currency || 'usd',
+        JSON.stringify(session.metadata),
+      ]
+    );
+    await dbQuery(
+      `INSERT INTO regulator.payment_events (stripe_event_id, event_type, stripe_customer_id, stripe_subscription_id, amount, currency, status, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (stripe_event_id) DO NOTHING`,
+      [session.id, 'checkout.session.completed', session.customer, session.subscription, session.amount_total, session.currency, 'completed', '{}']
+    );
+  } catch (dbErr) {
+    console.error('[STRIPE_WEBHOOK] DB error (checkout):', dbErr);
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: Subscription) {
@@ -145,8 +195,31 @@ async function handleSubscriptionUpdated(subscription: Subscription) {
     }
   );
 
-  // TODO: Update subscription in Neon Postgres (regulator schema)
-  // Update: status, plan, current_period_end based on subscription_id
+  // Update subscription in Neon Postgres
+  try {
+    await dbQuery(
+      `UPDATE regulator.subscriptions SET
+         status = $1, plan = $2,
+         current_period_start = $3, current_period_end = $4,
+         updated_at = NOW()
+       WHERE stripe_subscription_id = $5`,
+      [
+        subscription.status,
+        planName,
+        new Date(subscription.current_period_start * 1000),
+        new Date(subscription.current_period_end * 1000),
+        subscription.id,
+      ]
+    );
+    await dbQuery(
+      `INSERT INTO regulator.payment_events (stripe_event_id, event_type, stripe_customer_id, stripe_subscription_id, status, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (stripe_event_id) DO NOTHING`,
+      [subscription.id + '_updated_' + Date.now(), 'customer.subscription.updated', subscription.customer, subscription.id, subscription.status, JSON.stringify({ plan: planName })]
+    );
+  } catch (dbErr) {
+    console.error('[STRIPE_WEBHOOK] DB error (subscription.updated):', dbErr);
+  }
 }
 
 async function handleSubscriptionDeleted(subscription: Subscription) {
@@ -160,8 +233,22 @@ async function handleSubscriptionDeleted(subscription: Subscription) {
     }
   );
 
-  // TODO: Update subscription status to 'cancelled' in Neon Postgres (regulator schema)
-  // Update: status = 'cancelled', cancelled_at = NOW() based on subscription_id
+  // Update subscription to cancelled in Neon Postgres
+  try {
+    await dbQuery(
+      `UPDATE regulator.subscriptions SET status = 'cancelled', updated_at = NOW()
+       WHERE stripe_subscription_id = $1`,
+      [subscription.id]
+    );
+    await dbQuery(
+      `INSERT INTO regulator.payment_events (stripe_event_id, event_type, stripe_customer_id, stripe_subscription_id, status, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (stripe_event_id) DO NOTHING`,
+      [subscription.id + '_deleted_' + Date.now(), 'customer.subscription.deleted', subscription.customer, subscription.id, 'cancelled', '{}']
+    );
+  } catch (dbErr) {
+    console.error('[STRIPE_WEBHOOK] DB error (subscription.deleted):', dbErr);
+  }
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Invoice) {
@@ -178,8 +265,17 @@ async function handleInvoicePaymentSucceeded(invoice: Invoice) {
     }
   );
 
-  // TODO: Insert payment record into Neon Postgres (regulator schema)
-  // Table: payments (id, stripe_invoice_id, subscription_id, amount, currency, status, paid_at)
+  // Insert payment record into Neon Postgres
+  try {
+    await dbQuery(
+      `INSERT INTO regulator.payment_events (stripe_event_id, event_type, stripe_customer_id, stripe_subscription_id, amount, currency, status, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (stripe_event_id) DO NOTHING`,
+      [invoice.id, 'invoice.payment_succeeded', invoice.customer, invoice.subscription, invoice.amount_paid, invoice.currency, 'paid', JSON.stringify({ invoice_url: invoice.hosted_invoice_url })]
+    );
+  } catch (dbErr) {
+    console.error('[STRIPE_WEBHOOK] DB error (invoice.succeeded):', dbErr);
+  }
 }
 
 async function handleInvoicePaymentFailed(invoice: Invoice) {
@@ -197,8 +293,17 @@ async function handleInvoicePaymentFailed(invoice: Invoice) {
     }
   );
 
-  // TODO: Insert failed payment record into Neon Postgres (regulator schema)
-  // Table: payment_failures (id, stripe_invoice_id, subscription_id, amount_due, currency, attempt_count, failed_at)
+  // Insert failed payment record into Neon Postgres
+  try {
+    await dbQuery(
+      `INSERT INTO regulator.payment_events (stripe_event_id, event_type, stripe_customer_id, stripe_subscription_id, amount, currency, status, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (stripe_event_id) DO NOTHING`,
+      [invoice.id, 'invoice.payment_failed', invoice.customer, invoice.subscription, invoice.amount_due, invoice.currency, 'failed', JSON.stringify({ attempt_count: invoice.attempt_count, invoice_url: invoice.hosted_invoice_url })]
+    );
+  } catch (dbErr) {
+    console.error('[STRIPE_WEBHOOK] DB error (invoice.failed):', dbErr);
+  }
 }
 
 export async function POST(request: Request) {

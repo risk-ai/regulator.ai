@@ -1668,6 +1668,95 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: records });
     }
 
+    // ========== Stripe Webhooks ==========
+    if (path === '/api/v1/stripe/webhook' && req.method === 'POST') {
+      const rawBody = await new Promise((resolve) => {
+        let data = '';
+        req.on('data', c => data += c);
+        req.on('end', () => resolve(data));
+      });
+
+      // Verify Stripe signature if webhook secret is configured
+      const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+      if (STRIPE_WEBHOOK_SECRET) {
+        const sig = req.headers['stripe-signature'];
+        if (sig) {
+          const parts = sig.split(',').reduce((acc, part) => {
+            const [k, v] = part.split('=');
+            acc[k] = v;
+            return acc;
+          }, {});
+          const payload = parts.t + '.' + rawBody;
+          const expected = crypto.createHmac('sha256', STRIPE_WEBHOOK_SECRET).update(payload).digest('hex');
+          if (expected !== parts.v1) {
+            return res.status(400).json({ success: false, error: 'Invalid signature' });
+          }
+        }
+      }
+
+      let event;
+      try { event = JSON.parse(rawBody); } catch { return res.status(400).json({ success: false, error: 'Invalid JSON' }); }
+
+      const type = event.type;
+      const data = event.data?.object;
+
+      // Handle subscription events
+      if (type === 'checkout.session.completed') {
+        const email = data.customer_email || data.customer_details?.email;
+        const plan = data.metadata?.plan || 'team';
+        if (email) {
+          try {
+            await query('UPDATE regulator.users SET role = $1 WHERE email = $2', [plan === 'business' ? 'admin' : 'operator', email]);
+            await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
+              [crypto.randomUUID(), 'subscription_created', email, JSON.stringify({ plan, session_id: data.id, amount: data.amount_total }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+          } catch {}
+        }
+      }
+
+      if (type === 'customer.subscription.updated') {
+        const status = data.status; // active, past_due, canceled, unpaid
+        const customerId = data.customer;
+        try {
+          await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
+            [crypto.randomUUID(), 'subscription_updated', customerId, JSON.stringify({ status, plan_id: data.items?.data?.[0]?.price?.id }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+        } catch {}
+      }
+
+      if (type === 'customer.subscription.deleted') {
+        const customerId = data.customer;
+        try {
+          await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
+            [crypto.randomUUID(), 'subscription_canceled', customerId, JSON.stringify({ canceled_at: data.canceled_at }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+        } catch {}
+      }
+
+      if (type === 'invoice.payment_failed') {
+        const email = data.customer_email;
+        if (email) {
+          // Notify via Resend
+          const RESEND_API_KEY = process.env.RESEND_API_KEY;
+          if (RESEND_API_KEY) {
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                from: 'Vienna OS <billing@regulator.ai>',
+                to: [email],
+                subject: 'Payment failed — Vienna OS',
+                html: `<p>Your payment for Vienna OS failed. Please update your payment method at <a href="https://console.regulator.ai/#settings">console.regulator.ai</a>.</p>`,
+              }),
+            }).catch(() => {});
+          }
+          try {
+            await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
+              [crypto.randomUUID(), 'payment_failed', email, JSON.stringify({ invoice_id: data.id, amount_due: data.amount_due }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+          } catch {}
+        }
+      }
+
+      return res.status(200).json({ received: true });
+    }
+
     // Catch-all for any other /api/ routes
     if (path.startsWith('/api/')) {
       return res.status(200).json({ 

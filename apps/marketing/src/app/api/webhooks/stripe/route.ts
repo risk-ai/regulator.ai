@@ -24,8 +24,13 @@ function getPool(): Pool {
 
 async function dbQuery(text: string, params: unknown[] = []) {
   const p = getPool();
-  const result = await p.query(text, params);
-  return result.rows;
+  try {
+    const result = await p.query(text, params);
+    return result.rows;
+  } catch (err) {
+    console.error('[STRIPE_WEBHOOK] dbQuery error:', (err as Error).message, 'SQL:', text.slice(0, 100));
+    throw err;
+  }
 }
 
 interface StripeEvent {
@@ -153,6 +158,7 @@ async function handleCheckoutSessionCompleted(session: CheckoutSession) {
 
   // Insert subscription into Neon Postgres
   try {
+    console.log('[STRIPE_WEBHOOK] Attempting DB write for checkout:', session.customer_email, 'DB URL:', (process.env.POSTGRES_URL || process.env.DATABASE_URL || 'NONE').slice(0, 40));
     await dbQuery(
       `INSERT INTO regulator.subscriptions 
        (stripe_customer_id, stripe_subscription_id, email, plan, status, amount, currency, metadata)

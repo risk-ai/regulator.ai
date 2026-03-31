@@ -30,6 +30,9 @@ const SLUG_TO_FILE: Record<string, string> = {
   "execution-gap-warrants-not-guardrails": "execution-gap-warrants-not-guardrails.md",
   "rbac-to-warrants-access-control-evolution": "rbac-to-warrants-access-control-evolution.md",
   "immutable-audit-trail-financial-compliance": "immutable-audit-trail-financial-compliance.md",
+  "cryptographic-warrants-explained": "cryptographic-warrants-explained.md",
+  "eu-ai-act-agent-compliance": "eu-ai-act-agent-compliance.md",
+  "risk-tiering-framework": "risk-tiering-framework.md",
 };
 
 /** Post metadata (mirrors the blog index) */
@@ -183,6 +186,36 @@ const POST_META: Record<string, Omit<BlogPost, "content">> = {
     categoryColor: "text-emerald-400 bg-emerald-500/10",
     author: "Max Anderson",
     excerpt: "SOX, Basel III, and MiFID II demand provable records. AI governance needs the same rigor. Here's how cryptographic audit trails meet financial-grade compliance.",
+  },
+  "cryptographic-warrants-explained": {
+    slug: "cryptographic-warrants-explained",
+    title: "Cryptographic Execution Warrants: The Missing Primitive for AI Agent Security",
+    date: "March 25, 2026",
+    readTime: "10 min",
+    category: "Architecture",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Team",
+    excerpt: "Every approved action in Vienna OS receives a signed warrant — a time-limited, scope-constrained, tamper-evident authorization.",
+  },
+  "eu-ai-act-agent-compliance": {
+    slug: "eu-ai-act-agent-compliance",
+    title: "EU AI Act 2026: What It Means for Autonomous Agent Deployments",
+    date: "March 25, 2026",
+    readTime: "6 min",
+    category: "Compliance",
+    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Team",
+    excerpt: "The EU AI Act requires transparency, human oversight, and audit trails for high-risk AI systems. Here's how governed execution satisfies these requirements.",
+  },
+  "risk-tiering-framework": {
+    slug: "risk-tiering-framework",
+    title: "Designing a Risk Tiering Framework for AI Agent Actions",
+    date: "March 25, 2026",
+    readTime: "7 min",
+    category: "Framework",
+    categoryColor: "text-amber-400 bg-amber-500/10",
+    author: "Team",
+    excerpt: "Not all agent actions are equal. A file read shouldn't require the same approval as a wire transfer. Here's how to classify agent actions by risk level.",
   },
 };
 

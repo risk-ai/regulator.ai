@@ -12,8 +12,8 @@ const COOKIE_NAME = 'vienna_session';
 export function createAuthMiddleware(authService: AuthService) {
   return async function requireAuth(req: Request, res: Response, next: NextFunction) {
     try {
-      // DEV MODE: Bypass auth for localhost testing
-      if (process.env.NODE_ENV === 'development' || process.env.DISABLE_AUTH === 'true') {
+      // DEV MODE: Only bypass auth when explicitly enabled AND not in production
+      if (process.env.NODE_ENV === 'development' && process.env.DISABLE_AUTH === 'true') {
         (req as any).session = {
           sessionId: 'dev-session',
           operator: 'dev-operator',

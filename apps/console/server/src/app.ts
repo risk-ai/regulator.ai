@@ -322,15 +322,15 @@ export function createApp(
   // Bootstrap (primary initial load)
   app.use(`${apiPrefix}/dashboard/bootstrap`, requireAuth, createBootstrapRouter(bootstrapService));
 
-  // System routes (read-only, no auth for status monitoring)
-  app.use(`${apiPrefix}/system/status`, createCacheMiddleware(30), createStatusRouter(viennaRuntime));
-  app.use(`${apiPrefix}/system/diagnostics`, createStatusRouter(viennaRuntime));
-  app.use(`${apiPrefix}/system/providers`, createCacheMiddleware(15), createProvidersRouter(viennaRuntime, providerHealthService));
+  // System routes (require auth — status/diagnostics can expose internal details)
+  app.use(`${apiPrefix}/system/status`, requireAuth, createCacheMiddleware(30), createStatusRouter(viennaRuntime));
+  app.use(`${apiPrefix}/system/diagnostics`, requireAuth, createStatusRouter(viennaRuntime));
+  app.use(`${apiPrefix}/system/providers`, requireAuth, createCacheMiddleware(15), createProvidersRouter(viennaRuntime, providerHealthService));
   app.use(`${apiPrefix}/system`, createCacheMiddleware(10), createSystemRouter(systemNowService)); // Phase 5E: Unified "now" view
   app.use(createSystemHealthRouter()); // Enhanced health dashboard
   
-  // Assistant status (Phase 1: State Truth Model)
-  app.use(`${apiPrefix}/status/assistant`, createAssistantRouter(viennaRuntime, providerHealthService));
+  // Assistant status (Phase 1: State Truth Model) — require auth
+  app.use(`${apiPrefix}/status/assistant`, requireAuth, createAssistantRouter(viennaRuntime, providerHealthService));
   
   // System routes (mutating, require auth)
   app.use(`${apiPrefix}/system/services`, requireAuth, createServicesRouter(viennaRuntime));
@@ -391,9 +391,8 @@ export function createApp(
   app.use(`${apiPrefix}/action-types`, requireAuth, createActionTypesRouter());
   
   // Custom Actions API (dynamic action registration)
-  // Actions router handles its own JWT auth via jwtAuthMiddleware
-  console.log('[App.ts] Mounting /actions router WITHOUT requireAuth - VERSION 2026-03-29-19:47');
-  app.use(`${apiPrefix}/actions`, createActionsRouter());
+  // Actions router also uses jwtAuthMiddleware internally for execute endpoint
+  app.use(`${apiPrefix}/actions`, requireAuth, createActionsRouter());
   
   // Real-time events (SSE streaming)
   app.use(`${apiPrefix}/events`, requireAuth, createEventsRouter());
@@ -407,10 +406,10 @@ export function createApp(
   // These routes use tenant filtering for multi-tenant data isolation
   // Routes imported at top of file
   
-  app.use(`${apiPrefix}/agents`, agentsTenantRouter);
-  app.use(`${apiPrefix}/policies`, policiesTenantRouter);
-  app.use(`${apiPrefix}/policy-templates`, createPolicyTemplatesRouter());
-  app.use(`${apiPrefix}/agent-templates`, createAgentTemplatesRouter());
+  app.use(`${apiPrefix}/agents`, requireAuth, agentsTenantRouter);
+  app.use(`${apiPrefix}/policies`, requireAuth, policiesTenantRouter);
+  app.use(`${apiPrefix}/policy-templates`, requireAuth, createPolicyTemplatesRouter());
+  app.use(`${apiPrefix}/agent-templates`, requireAuth, createAgentTemplatesRouter());
   
   // ========================================
   // LEGACY ROUTES (DEPRECATED - TO BE REMOVED)
@@ -428,8 +427,8 @@ export function createApp(
   // Phase 31: Analytics Dashboard
   app.use(`${apiPrefix}/analytics`, requireAuth, createAnalyticsRouter());
   
-  // Validation logging (browser testing)
-  app.use(`${apiPrefix}/validation`, createValidationRouter());
+  // Validation logging (browser testing) — require auth
+  app.use(`${apiPrefix}/validation`, requireAuth, createValidationRouter());
   
   // Phase 15.5: Compliance Reports
   app.use(`${apiPrefix}/compliance`, requireAuth, createComplianceRouter());

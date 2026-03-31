@@ -13,9 +13,11 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { query, queryOne } from '../db/postgres.js';
 
-// JWT Configuration
-// TEMP FIX: Hardcoded until systemd env passing works
-const JWT_SECRET = '6586b367b38f099dde55d31409e558c0d44935feb81dd824f64f9e1a89ebf20d';
+// JWT Configuration — secret MUST come from environment
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('[JWT] FATAL: JWT_SECRET environment variable is not set. Auth will reject all tokens.');
+}
 const ACCESS_TOKEN_TTL = 15 * 60; // 15 minutes
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60; // 7 days
 
@@ -42,24 +44,25 @@ export interface AuthenticatedRequest extends Request {
 export function jwtAuthMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   
-  console.log('[JWT] Auth header:', authHeader?.substring(0, 30) + '...');
-  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // No JWT token - fall through to other auth methods
-    console.log('[JWT] No Bearer token, passing through');
     return next();
   }
 
   const token = authHeader.slice(7); // Remove "Bearer "
-  console.log('[JWT] Token length:', token.length);
 
   try {
-    console.log('[JWT] Verifying with secret length:', JWT_SECRET.length);
+    if (!JWT_SECRET) {
+      console.error('[JWT] Cannot verify token — JWT_SECRET is not configured');
+      return res.status(500).json({
+        success: false,
+        error: 'Server misconfiguration',
+        code: 'AUTH_ERROR',
+        timestamp: new Date().toISOString(),
+      });
+    }
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    console.log('[JWT] Token verified! User:', decoded.email);
     
     if (decoded.type !== 'access') {
-      console.log('[JWT] Wrong token type:', decoded.type);
       return res.status(401).json({
         success: false,
         error: 'Invalid token type',
@@ -76,10 +79,8 @@ export function jwtAuthMiddleware(req: AuthenticatedRequest, res: Response, next
       role: decoded.role,
     };
 
-    console.log('[JWT] User attached to request:', req.user.email);
     next();
   } catch (error) {
-    console.log('[JWT] Verification failed:', error.message);
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({
         success: false,
@@ -111,6 +112,7 @@ export function jwtAuthMiddleware(req: AuthenticatedRequest, res: Response, next
  * Generate JWT Access Token (15 min TTL)
  */
 export function generateAccessToken(payload: Omit<JwtPayload, 'type'>): string {
+  if (!JWT_SECRET) throw new Error('JWT_SECRET not configured');
   return jwt.sign(
     { ...payload, type: 'access' },
     JWT_SECRET,
@@ -122,6 +124,7 @@ export function generateAccessToken(payload: Omit<JwtPayload, 'type'>): string {
  * Generate JWT Refresh Token (7 day TTL)
  */
 export function generateRefreshToken(payload: Omit<JwtPayload, 'type'>): string {
+  if (!JWT_SECRET) throw new Error('JWT_SECRET not configured');
   return jwt.sign(
     { ...payload, type: 'refresh' },
     JWT_SECRET,
@@ -151,6 +154,7 @@ export async function storeRefreshToken(userId: string, token: string): Promise<
  */
 export async function validateRefreshToken(token: string): Promise<JwtPayload | null> {
   try {
+    if (!JWT_SECRET) return null;
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     
     if (decoded.type !== 'refresh') {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { EmailService, extractFirstName, determineIndustry } from '../../../lib/email-service-simple';
+import { EmailService, extractFirstName, determineIndustry } from '@/lib/email-service-simple';
 
 export async function POST(request: Request) {
   try {

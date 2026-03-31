@@ -12,6 +12,15 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
+// Set search_path to prioritize 'regulator' schema, fallback to 'public'
+pool.on('connect', (client) => {
+  client.query('SET search_path TO regulator, public', (err) => {
+    if (err) {
+      console.error('[DB] Failed to set search_path:', err);
+    }
+  });
+});
+
 /**
  * Execute a parameterized query
  * @param {string} text - SQL query with $1, $2 placeholders

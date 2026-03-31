@@ -10,6 +10,12 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  ssl: { rejectUnauthorized: false },
+});
+
+// Set search path to regulator schema on every new connection
+pool.on('connect', (client) => {
+  client.query('SET search_path TO regulator, public');
 });
 
 // Set search_path to prioritize 'regulator' schema, fallback to 'public'

@@ -1731,34 +1731,79 @@ module.exports = async function handler(req, res) {
       if (type === 'checkout.session.completed') {
         const email = data.customer_email || data.customer_details?.email;
         const plan = data.metadata?.plan || 'team';
+        const customerId = data.customer;
+        const subscriptionId = data.subscription;
+        const tenantIdFromMeta = data.metadata?.tenant_id;
+
         if (email) {
           try {
+            // Update user role based on plan
             await query('UPDATE regulator.users SET role = $1 WHERE email = $2', [plan === 'business' ? 'admin' : 'operator', email]);
+
+            // Resolve tenant: from metadata, or from user record
+            let billingTenantId = tenantIdFromMeta;
+            if (!billingTenantId) {
+              const userRow = await query('SELECT tenant_id FROM regulator.users WHERE email = $1 LIMIT 1', [email]);
+              billingTenantId = userRow[0]?.tenant_id;
+            }
+
+            if (billingTenantId) {
+              // Update tenant with Stripe IDs
+              const planName = plan === 'business' ? 'Business' : plan === 'team' ? 'Team' : plan;
+              await query(
+                `UPDATE regulator.tenants SET stripe_customer_id = $1, stripe_subscription_id = $2, plan = $3, plan_name = $4 WHERE id = $5`,
+                [customerId, subscriptionId, plan, planName, billingTenantId]
+              );
+            }
+
             await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
-              [crypto.randomUUID(), 'subscription_created', email, JSON.stringify({ plan, session_id: data.id, amount: data.amount_total }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
-          } catch {}
+              [crypto.randomUUID(), 'subscription_created', email, JSON.stringify({ plan, session_id: data.id, amount: data.amount_total, customer_id: customerId, subscription_id: subscriptionId }), billingTenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+          } catch (err) { console.error('[Webhook] checkout.session.completed error:', err.message); }
         }
       }
 
       if (type === 'customer.subscription.updated') {
         const status = data.status; // active, past_due, canceled, unpaid
         const customerId = data.customer;
+        const subscriptionId = data.id;
+        const priceId = data.items?.data?.[0]?.price?.id;
         try {
+          // Update subscription items in tenant
+          const items = data.items?.data?.map(i => ({ price_id: i.price?.id, quantity: i.quantity })) || [];
+          await query(
+            `UPDATE regulator.tenants SET stripe_subscription_items = $1 WHERE stripe_customer_id = $2`,
+            [JSON.stringify(items), customerId]
+          );
+
+          // Resolve tenant from Stripe customer
+          const tenantRow = await query('SELECT id FROM regulator.tenants WHERE stripe_customer_id = $1 LIMIT 1', [customerId]);
+          const resolvedTenantId = tenantRow[0]?.id || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
+
           await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
-            [crypto.randomUUID(), 'subscription_updated', customerId, JSON.stringify({ status, plan_id: data.items?.data?.[0]?.price?.id }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
-        } catch {}
+            [crypto.randomUUID(), 'subscription_updated', customerId, JSON.stringify({ status, subscription_id: subscriptionId, price_id: priceId }), resolvedTenantId]);
+        } catch (err) { console.error('[Webhook] subscription.updated error:', err.message); }
       }
 
       if (type === 'customer.subscription.deleted') {
         const customerId = data.customer;
         try {
+          // Downgrade tenant to community
+          await query(
+            `UPDATE regulator.tenants SET plan = 'community', plan_name = 'Community', stripe_subscription_id = NULL, stripe_subscription_items = NULL WHERE stripe_customer_id = $1`,
+            [customerId]
+          );
+
+          const tenantRow = await query('SELECT id FROM regulator.tenants WHERE stripe_customer_id = $1 LIMIT 1', [customerId]);
+          const resolvedTenantId = tenantRow[0]?.id || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
+
           await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
-            [crypto.randomUUID(), 'subscription_canceled', customerId, JSON.stringify({ canceled_at: data.canceled_at }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
-        } catch {}
+            [crypto.randomUUID(), 'subscription_canceled', customerId, JSON.stringify({ canceled_at: data.canceled_at }), resolvedTenantId]);
+        } catch (err) { console.error('[Webhook] subscription.deleted error:', err.message); }
       }
 
       if (type === 'invoice.payment_failed') {
         const email = data.customer_email;
+        const customerId = data.customer;
         if (email) {
           // Notify via Resend
           const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -1775,9 +1820,12 @@ module.exports = async function handler(req, res) {
             }).catch(() => {});
           }
           try {
+            const tenantRow = await query('SELECT id FROM regulator.tenants WHERE stripe_customer_id = $1 LIMIT 1', [customerId]);
+            const resolvedTenantId = tenantRow[0]?.id || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
+
             await query('INSERT INTO regulator.audit_log (id, event, actor, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
-              [crypto.randomUUID(), 'payment_failed', email, JSON.stringify({ invoice_id: data.id, amount_due: data.amount_due }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
-          } catch {}
+              [crypto.randomUUID(), 'payment_failed', email, JSON.stringify({ invoice_id: data.id, amount_due: data.amount_due }), resolvedTenantId]);
+          } catch (err) { console.error('[Webhook] payment_failed error:', err.message); }
         }
       }
 

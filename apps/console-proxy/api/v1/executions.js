@@ -4,6 +4,8 @@
  */
 
 const { requireAuth, pool } = require('./_auth');
+const { notifyExecutionFailed } = require('../../lib/notifications');
+const { trackUsage } = require('../../lib/usage');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -43,6 +45,9 @@ module.exports = async function handler(req, res) {
       values.push(limit, offset);
       
       const result = await pool.query(query, values);
+      
+      // Track policy evaluation usage
+      trackUsage(tenantId, 'policy_evaluations');
       
       return res.json({
         success: true,

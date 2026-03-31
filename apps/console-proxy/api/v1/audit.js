@@ -4,6 +4,7 @@
  */
 
 const { requireAuth, pool } = require('./_auth');
+const { trackUsage } = require('../../lib/usage');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -28,6 +29,9 @@ module.exports = async function handler(req, res) {
         [tenantId, limit]
       );
       
+      // Track audit query usage
+      trackUsage(tenantId, 'audit_queries');
+      
       if (format === 'csv') {
         const csv = convertToCSV(result.rows);
         res.setHeader('Content-Type', 'text/csv');
@@ -50,6 +54,9 @@ module.exports = async function handler(req, res) {
          LIMIT $2`,
         [tenantId, limit]
       );
+      
+      // Track audit query usage
+      trackUsage(tenantId, 'audit_queries');
       
       if (format === 'csv') {
         const csv = convertToCSV(result.rows);
@@ -77,6 +84,9 @@ module.exports = async function handler(req, res) {
         LIMIT $2`,
         [tenantId, limit]
       );
+      
+      // Track audit query usage
+      trackUsage(tenantId, 'audit_queries');
       
       if (format === 'csv') {
         const csv = convertToCSV(result.rows);

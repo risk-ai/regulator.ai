@@ -4,6 +4,8 @@
  */
 
 const { requireAuth, pool } = require('./_auth');
+const { notifyWarrantIssued, notifyWarrantExpired } = require('../../lib/notifications');
+const { trackUsage } = require('../../lib/usage');
 const crypto = require('crypto');
 
 module.exports = async function handler(req, res) {
@@ -99,6 +101,9 @@ module.exports = async function handler(req, res) {
         });
       }
       
+      // Track warrant verification usage
+      trackUsage(tenantId, 'warrants_issued');
+
       return res.json({
         success: true,
         data: {

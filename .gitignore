@@ -102,3 +102,5 @@ GA4_IMPLEMENTATION_CHECKLIST.md
 POST_LAUNCH_ROADMAP.md
 VIENNA_RUNTIME_STATE.md
 VIENNA_DAILY_STATE_LOG.md
+apps/console/server/dist/
+apps/console/server/build/

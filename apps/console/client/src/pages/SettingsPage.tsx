@@ -84,6 +84,9 @@ export function SettingsPage() {
           </div>
         </SettingsCard>
 
+        {/* Billing & Subscription */}
+        <BillingCard />
+
         {/* Simulation Engine */}
         <SimulationCard />
 
@@ -597,5 +600,85 @@ function SettingsLink({ label, href }: { label: string; href: string }) {
     >
       {label}
     </a>
+  );
+}
+
+// ============================================================================
+// Billing Card
+// ============================================================================
+
+function BillingCard() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleManageBilling = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await apiClient.post<{ url: string; expires_at: string }>('/api/v1/billing/portal', {});
+      
+      // Open Stripe customer portal in new tab
+      window.open(response.url, '_blank');
+    } catch (err: any) {
+      console.error('[Billing] Error:', err);
+      setError(err?.message || 'Failed to open billing portal');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <SettingsCard title="Billing & Subscription">
+      <SettingsRow label="Plan" value="Professional" valueColor="#7c3aed" />
+      <SettingsRow label="Price" value="$99/month" />
+      <SettingsRow label="Status" value="Active" valueColor="#4ade80" />
+      <SettingsRow label="Next billing" value="Apr 30, 2026" />
+      
+      {error && (
+        <div style={{
+          marginTop: '12px',
+          padding: '8px 12px',
+          background: 'rgba(248, 113, 113, 0.08)',
+          border: '1px solid rgba(248, 113, 113, 0.2)',
+          borderRadius: '6px',
+          fontSize: '11px',
+          color: '#f87171',
+        }}>
+          {error}
+        </div>
+      )}
+      
+      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
+        <button
+          onClick={handleManageBilling}
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: '1px solid #7c3aed',
+            background: 'rgba(124, 58, 237, 0.08)',
+            color: '#7c3aed',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? 'Opening...' : 'Manage Billing'}
+        </button>
+        <p style={{
+          marginTop: '8px',
+          fontSize: '10px',
+          color: 'var(--text-tertiary)',
+          textAlign: 'center',
+          margin: '8px 0 0 0',
+        }}>
+          Update payment method, view invoices, or cancel subscription
+        </p>
+      </div>
+    </SettingsCard>
   );
 }

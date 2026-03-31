@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     // Send welcome email to the user using the new email drip sequence
     if (resendKey && email) {
       try {
-        const { EmailService, extractFirstName, determineIndustry } = await import('../../lib/email-service-simple');
+        const { EmailService, extractFirstName, determineIndustry } = await import('@/lib/email-service-simple');
         const emailService = new EmailService(resendKey);
         
         const firstName = extractFirstName(name);

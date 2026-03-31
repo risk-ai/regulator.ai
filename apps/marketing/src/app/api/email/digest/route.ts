@@ -123,12 +123,11 @@ export async function POST(request: Request) {
 </body>
 </html>`;
 
-        await emailService.send({
-          to: row.email,
-          from: 'Vienna OS <noreply@regulator.ai>',
-          subject,
-          html,
-        });
+        await emailService.sendEmail(
+          row.email,
+          { subject, html },
+          'Vienna OS <noreply@regulator.ai>'
+        );
         sent++;
       } catch (err: any) {
         errors.push(`${row.email}: ${err.message}`);

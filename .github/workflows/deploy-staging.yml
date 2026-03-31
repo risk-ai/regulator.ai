@@ -1,9 +1,7 @@
 name: Deploy to Staging
 
 on:
-  push:
-    branches: [develop, staging]
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Manual trigger only (auto-deploy disabled until secrets configured)
 
 jobs:
   deploy-backend:

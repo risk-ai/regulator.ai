@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { EmailService, extractFirstName, determineIndustry } from '../../../../lib/email-service-simple';
+import { EmailService, extractFirstName, determineIndustry } from '@/lib/email-service-simple';
 
 /**
  * API route for sending Day 3 email: Use Case Deep Dive

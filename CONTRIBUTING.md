@@ -80,89 +80,119 @@ git checkout -b feature/my-awesome-feature
 # Root dependencies
 npm install
 
-# Vienna lib
-cd services/vienna-lib
+# Backend (Vienna console server)
+cd apps/console-proxy
 npm install
 
-# Console server
-cd ../../apps/console/server
+# Frontend (Console UI)
+cd apps/console
 npm install
 
-# Console client
-cd ../client
+# SDKs (optional, for SDK development)
+cd sdk/node
 npm install
 ```
 
 ### Initialize Database
 
+Vienna OS uses PostgreSQL. Set up your database connection:
+
 ```bash
-cd services/vienna-lib
-npm run db:init
+# Copy environment template
+cp .env.example .env.console
+
+# Edit .env.console with your PostgreSQL connection string:
+# DATABASE_URL=postgresql://user:password@localhost:5432/vienna_db
 ```
 
-This creates `vienna-state.db` with the full schema.
+Run migrations:
+
+```bash
+cd apps/console-proxy
+npm run migrate
+```
 
 ### Environment Configuration
 
-Copy `.env.example` to `.env` in each service directory:
+Copy `.env.example` to `.env.console`:
 
 ```bash
-# services/vienna-lib/.env
-DATABASE_PATH=./vienna-state.db
+cp .env.example .env.console
+```
 
-# apps/console/server/.env
-DATABASE_PATH=../../services/vienna-lib/vienna-state.db
-PORT=3120
-DEMO_USERNAME=vienna
-DEMO_PASSWORD=vienna2024
+Required environment variables:
 
-# Optional: Notification adapters
-SLACK_WEBHOOK_URL=...
-RESEND_API_KEY=...
+```bash
+# Database (PostgreSQL)
+DATABASE_URL=postgresql://user:password@localhost:5432/vienna_db
+
+# Backend
+PORT=3100
+NODE_ENV=development
+
+# Authentication
+JWT_SECRET=your-secret-key-here
+
+# Stripe (optional for billing features)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Resend (optional for email notifications)
+RESEND_API_KEY=re_...
 ```
 
 ### Start Development Servers
 
-**Terminal 1 (Console Server):**
+**Terminal 1 (Backend):**
 ```bash
-cd apps/console/server
+cd apps/console-proxy
 npm run dev
 ```
 
-**Terminal 2 (Console Client):**
+**Terminal 2 (Frontend):**
 ```bash
-cd apps/console/client
+cd apps/console
 npm run dev
 ```
 
-Console available at: **http://localhost:5173**
+Console available at: **http://localhost:5173**  
+API available at: **http://localhost:3100**
 
 ---
 
 ## Project Structure
 
 ```
-regulator.ai/
-├── services/
-│   └── vienna-lib/           # Core governance library
-│       ├── core/              # Intent Gateway, Policy Engine
-│       ├── state/             # State Graph (SQLite)
-│       ├── adapters/          # Slack, Email, GitHub
-│       ├── governance/        # Warrant, Quota, Cost
-│       ├── attestation/       # Verification, Audit
-│       └── test/              # Test suite (111 tests)
-│
+vienna-os/
 ├── apps/
-│   ├── console/
-│   │   ├── server/            # Express API server
-│   │   └── client/            # React frontend
-│   └── marketing/             # Next.js marketing site
+│   ├── console-proxy/         # Backend API (Express + PostgreSQL)
+│   │   ├── api/               # API routes (v1)
+│   │   ├── db/                # Database queries + migrations
+│   │   ├── services/          # Business logic (Vienna Core)
+│   │   └── middleware/        # Auth, rate limiting, CORS
+│   │
+│   ├── console/               # Frontend UI (React + Vite)
+│   │   ├── src/pages/         # Dashboard, Fleet, Policies, etc.
+│   │   ├── src/components/    # Reusable UI components
+│   │   └── src/lib/           # API client, utilities
+│   │
+│   └── marketing/             # Marketing site (Next.js + Vercel)
+│       ├── pages/             # Landing, pricing, docs
+│       └── components/        # Marketing components
 │
-├── packages/
-│   └── sdk/                   # TypeScript SDK (coming soon)
+├── sdk/
+│   ├── node/                  # Node.js SDK (TypeScript)
+│   ├── python/                # Python SDK
+│   └── typescript/            # TypeScript SDK (separate)
+│
+├── services/
+│   ├── vienna-runtime/        # Execution runtime (Node.js)
+│   └── vienna-lib/            # Legacy core library
 │
 ├── docs/                      # Documentation
+├── examples/                  # Integration examples
 ├── scripts/                   # Build and deployment scripts
+├── .github/                   # Issue templates, workflows
 ├── LICENSE                    # BSL 1.1
 ├── README.md                  # Project overview
 └── CONTRIBUTING.md            # This file

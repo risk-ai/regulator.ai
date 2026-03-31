@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

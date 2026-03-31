@@ -7,6 +7,7 @@
   ],
   "routes": [
     { "src": "/api/v1/health", "dest": "api/v1/health.js" },
+    { "src": "/api/v1/docs(.*)", "dest": "api/v1/docs.js" },
     { "src": "/api/v1/agents(.*)", "dest": "api/v1/agents.js" },
     { "src": "/api/v1/policies(.*)", "dest": "api/v1/policies.js" },
     { "src": "/api/v1/warrants(.*)", "dest": "api/v1/warrants.js" },

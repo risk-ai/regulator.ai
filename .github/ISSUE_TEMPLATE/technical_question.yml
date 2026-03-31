@@ -1,0 +1,75 @@
+name: Technical Question
+description: Ask a technical question about Vienna OS architecture, APIs, or integration
+title: "[QUESTION] "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Technical Question Template
+        
+        Ask questions about Vienna OS architecture, implementation, or integration.
+        
+        **Before asking:**
+        - Check the [documentation](https://regulator.ai/docs)
+        - Search [existing issues](https://github.com/risk-ai/vienna-os/issues)
+        - Review [examples](https://github.com/risk-ai/vienna-os/tree/main/examples)
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Question Area
+      description: What area does your question relate to?
+      options:
+        - API Integration
+        - SDK Usage (Node.js/Python)
+        - Policy Configuration
+        - Deployment & Infrastructure
+        - Architecture & Design
+        - Security & Compliance
+        - Performance & Scaling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: |
+        Example: How do I configure a policy to require approval for all production deployments?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to accomplish? Include relevant code snippets if applicable.
+      placeholder: |
+        I'm building an agent that deploys services to production. I want all production deployments to require human approval, but staging deployments to be auto-approved.
+        
+        ```javascript
+        const result = await vienna.submitIntent({
+          action: 'deploy',
+          payload: { service: 'api-gateway', environment: 'production' }
+        });
+        ```
+
+  - type: input
+    id: version
+    attributes:
+      label: Vienna OS Version
+      description: Which version are you using?
+      placeholder: "0.10.0"
+
+  - type: textarea
+    id: research
+    attributes:
+      label: What I've Tried
+      description: Have you already researched this? What have you tried so far?
+      placeholder: |
+        - Checked the policy docs at /docs/policies
+        - Tried setting risk_tier to "high" in policy conditions
+        - Looked at example policies in the console

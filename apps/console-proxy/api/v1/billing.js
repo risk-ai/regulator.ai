@@ -3,7 +3,6 @@
  * Handles Stripe customer portal session creation
  */
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { extractTenantId } = require('../../lib/auth');
 
 module.exports = async (req, res) => {
@@ -13,6 +12,16 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Lazy-load Stripe (only when billing endpoint is hit)
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ 
+        error: 'Billing not configured',
+        message: 'Stripe integration not available.'
+      });
+    }
+    
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    
     const tenant_id = extractTenantId(req);
     if (!tenant_id) {
       return res.status(401).json({ error: 'Unauthorized' });

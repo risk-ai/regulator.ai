@@ -30,6 +30,7 @@ interface AuthState {
   // Actions
   login: (email: string, password: string) => Promise<boolean>;
   register: (params: { email: string; password: string; name?: string; company?: string }) => Promise<boolean>;
+  loginWithOAuth: (token: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
   refreshAccessToken: () => Promise<boolean>;

@@ -24,6 +24,7 @@ import { CompliancePage } from './pages/CompliancePage.js';
 import PolicyTemplatesPage from './pages/PolicyTemplatesPage.js';
 import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
 import ActivityFeedPage from './pages/ActivityFeedPage.js';
+import { ApiKeysPage } from './pages/ApiKeysPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { WelcomeWizard } from './components/onboarding/WelcomeWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -76,7 +77,7 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'settings'];
+      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'api-keys', 'settings'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
@@ -200,6 +201,9 @@ export function App() {
       
       case 'services':
         return <ServicesPage />;
+      
+      case 'api-keys':
+        return <ApiKeysPage />;
       
       case 'settings':
         return <SettingsPage />;

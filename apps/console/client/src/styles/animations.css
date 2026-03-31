@@ -79,6 +79,11 @@
   100% { background-position: calc(200px + 100%) 0; }
 }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ========================================
    UTILITY CLASSES
    ======================================== */

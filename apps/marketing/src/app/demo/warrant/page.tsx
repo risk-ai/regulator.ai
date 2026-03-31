@@ -211,13 +211,13 @@ export default function WarrantDemo() {
     setComputedSig("");
 
     // Simulate computation time
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 600)); // Reduced from 1200ms to 600ms
 
     const payload = JSON.stringify(ORIGINAL_WARRANT, null, 2);
     const sig = await computeHmac(payload, SIGNING_KEY);
     setComputedSig(sig);
 
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 300)); // Reduced from 600ms to 300ms
     setVerified(sig === originalSig);
     setVerifying(false);
   }, [originalSig]);
@@ -230,7 +230,7 @@ export default function WarrantDemo() {
     const sig = await computeHmac(editedJson, SIGNING_KEY);
     setTamperSig(sig);
 
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 400)); // Reduced from 800ms to 400ms
 
     if (sig === originalSig) {
       setTamperResult("valid");
@@ -251,7 +251,7 @@ export default function WarrantDemo() {
         }
         return c - 1;
       });
-    }, 50); // 50ms for demo speed (300 "seconds" in ~15 real seconds)
+    }, 25); // 25ms for demo speed (300 "seconds" in ~7.5 real seconds)
     return () => clearInterval(iv);
   }, [expiryRunning, expired]);
 
@@ -260,6 +260,56 @@ export default function WarrantDemo() {
     null,
     2
   );
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case 'KeyV':
+          if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            e.preventDefault();
+            if (!verifying && !verified) {
+              handleVerify();
+            }
+          }
+          break;
+        case 'KeyC':
+          if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            e.preventDefault();
+            if (!scopeChecking) {
+              setScopeChecking(true);
+            }
+          }
+          break;
+        case 'KeyT':
+          if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            e.preventDefault();
+            if (tamperSig) {
+              setTamperResult(null);
+              setTamperSig("");
+            } else {
+              handleTamperVerify();
+            }
+          }
+          break;
+        case 'KeyE':
+          if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            e.preventDefault();
+            if (!expiryRunning && !expired) {
+              setExpiryRunning(true);
+            } else if (expiryRunning || expired) {
+              setExpiryRunning(false);
+              setExpired(false);
+              setExpiryCountdown(300);
+            }
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [verifying, verified, scopeChecking, tamperSig, expiryRunning, expired, handleVerify, handleTamperVerify]);
 
   return (
     <div className="min-h-screen bg-navy-950 text-white">
@@ -291,6 +341,9 @@ export default function WarrantDemo() {
             Every AI action in Vienna OS requires a cryptographic warrant — scoped, time-limited,
             and tamper-evident. See how it works.
           </p>
+          <div className="mt-4 text-xs text-slate-500 font-mono">
+            Shortcuts: <span className="text-slate-400">Ctrl+V</span>=verify • <span className="text-slate-400">Ctrl+C</span>=compliance • <span className="text-slate-400">Ctrl+T</span>=tamper • <span className="text-slate-400">Ctrl+E</span>=expiry
+          </div>
         </div>
 
         {/* ============================================
@@ -423,7 +476,7 @@ export default function WarrantDemo() {
                 actual="$75,000 ≤ $75,000"
                 pass={true}
                 animate={scopeChecking}
-                delay={600}
+                delay={300}
               />
               <VerificationRow
                 label="Recipient allowed?"
@@ -431,7 +484,7 @@ export default function WarrantDemo() {
                 actual="vendor-456 ∈ [vendor-456]"
                 pass={true}
                 animate={scopeChecking}
-                delay={1200}
+                delay={600}
               />
               <VerificationRow
                 label="Within TTL?"
@@ -439,14 +492,14 @@ export default function WarrantDemo() {
                 actual="Executed 45s after issuance"
                 pass={true}
                 animate={scopeChecking}
-                delay={1800}
+                delay={900}
               />
             </div>
 
             {scopeChecking && (
               <div
                 className="mt-4 text-center py-3 rounded-xl bg-emerald-500/5 border border-emerald-500/30 animate-fade-in"
-                style={{ animationDelay: "2.4s", animationFillMode: "both" }}
+                style={{ animationDelay: "1.2s", animationFillMode: "both" }}
               >
                 <div className="text-lg font-bold text-emerald-400">✓ Scope Compliant</div>
                 <div className="text-[10px] text-slate-500 mt-0.5">

@@ -25,37 +25,37 @@ const SCENES = [
   {
     id: 'problem',
     title: 'The Problem',
-    duration: 25000, // 25 seconds
+    duration: 12000, // 12 seconds (was 25s)
   },
   {
     id: 'vienna-os',
     title: 'Vienna OS',
-    duration: 30000, // 30 seconds
+    duration: 15000, // 15 seconds (was 30s)
   },
   {
     id: 'wire-transfer',
     title: 'Wire Transfer Demo',
-    duration: 30000, // 30 seconds
+    duration: 15000, // 15 seconds (was 30s)
   },
   {
     id: 'denied',
     title: 'Scope Creep Denial',
-    duration: 25000, // 25 seconds
+    duration: 12000, // 12 seconds (was 25s)
   },
   {
     id: 'integration',
     title: '5 Lines of Code',
-    duration: 25000, // 25 seconds
+    duration: 12000, // 12 seconds (was 25s)
   },
   {
     id: 'differentiators',
     title: 'What Makes This Different',
-    duration: 30000, // 30 seconds
+    duration: 15000, // 15 seconds (was 30s)
   },
   {
     id: 'cta',
     title: 'Get Started',
-    duration: 15000, // 15 seconds
+    duration: 8000, // 8 seconds (was 15s)
   },
 ] as const;
 
@@ -143,16 +143,16 @@ function TerminalAnimation({ isActive }: { isActive: boolean }) {
             setIsTyping(false);
             setTypingText('');
             setCurrentCommand((prev) => (prev + 1) % DANGEROUS_COMMANDS.length);
-          }, 1500);
+          }, 800); // Reduced from 1500ms to 800ms
         }
-      }, 80);
+      }, 50); // Reduced from 80ms to 50ms for faster typing
 
       return () => clearInterval(typeInterval);
     };
 
     if (isActive) {
       cycleCommands();
-      const commandCycle = setInterval(cycleCommands, 3000);
+      const commandCycle = setInterval(cycleCommands, 2000); // Reduced from 3000ms to 2000ms
       return () => clearInterval(commandCycle);
     }
   }, [isActive, currentCommand]);
@@ -206,7 +206,7 @@ function PipelineAnimation({ isActive, scenario }: { isActive: boolean; scenario
       if (step >= PIPELINE_STEPS.length) {
         clearInterval(interval);
       }
-    }, 500);
+    }, 300); // Reduced from 500ms to 300ms
 
     return () => clearInterval(interval);
   }, [isActive, scenario]);
@@ -250,7 +250,7 @@ function WarrantDisplay({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (isActive) {
-      const timer = setTimeout(() => setShowWarrant(true), 2000);
+      const timer = setTimeout(() => setShowWarrant(true), 1000); // Reduced from 2000ms to 1000ms
       return () => clearTimeout(timer);
     } else {
       setShowWarrant(false);
@@ -304,7 +304,7 @@ function TypewriterCode({ isActive }: { isActive: boolean }) {
       } else {
         clearInterval(interval);
       }
-    }, 30);
+    }, 20); // Reduced from 30ms to 20ms for faster typing
 
     return () => clearInterval(interval);
   }, [isActive]);
@@ -420,7 +420,7 @@ function Scene4Denied({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (isActive) {
-      const timer = setTimeout(() => setShowAlert(true), 1500);
+      const timer = setTimeout(() => setShowAlert(true), 800); // Reduced from 1500ms to 800ms
       return () => clearTimeout(timer);
     } else {
       setShowAlert(false);
@@ -468,7 +468,7 @@ function Scene5Integration({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (isActive) {
-      const timer = setTimeout(() => setShowFrameworks(true), 8000);
+      const timer = setTimeout(() => setShowFrameworks(true), 4000); // Reduced from 8000ms to 4000ms
       return () => clearTimeout(timer);
     } else {
       setShowFrameworks(false);
@@ -522,7 +522,7 @@ function Scene6Differentiators({ isActive }: { isActive: boolean }) {
       if (index >= COMPETITORS.length + DIFFERENTIATORS.length) {
         clearInterval(interval);
       }
-    }, 1000);
+    }, 600); // Reduced from 1000ms to 600ms
 
     return () => clearInterval(interval);
   }, [isActive]);
@@ -652,40 +652,112 @@ export default function CinematicDemo() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentScene, setCurrentScene] = useState<SceneId>('problem');
   const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneTimeout, setSceneTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const advanceToNextScene = useCallback(() => {
+    if (sceneTimeout) clearTimeout(sceneTimeout);
+    
+    if (sceneIndex < SCENES.length - 1) {
+      const nextIndex = sceneIndex + 1;
+      setSceneIndex(nextIndex);
+      setCurrentScene(SCENES[nextIndex].id);
+      
+      if (isPlaying) {
+        const timeout = setTimeout(advanceToNextScene, SCENES[nextIndex].duration);
+        setSceneTimeout(timeout);
+      }
+    } else {
+      setIsPlaying(false);
+    }
+  }, [sceneIndex, isPlaying, sceneTimeout]);
+
+  const goToPreviousScene = useCallback(() => {
+    if (sceneTimeout) clearTimeout(sceneTimeout);
+    
+    if (sceneIndex > 0) {
+      const prevIndex = sceneIndex - 1;
+      setSceneIndex(prevIndex);
+      setCurrentScene(SCENES[prevIndex].id);
+    }
+  }, [sceneIndex, sceneTimeout]);
 
   const playDemo = useCallback(() => {
+    if (sceneTimeout) clearTimeout(sceneTimeout);
     setIsPlaying(true);
-    setCurrentScene('problem');
-    setSceneIndex(0);
-
-    let index = 0;
-    const advanceScene = () => {
-      if (index < SCENES.length - 1) {
-        index++;
-        setSceneIndex(index);
-        setCurrentScene(SCENES[index].id);
-        setTimeout(advanceScene, SCENES[index].duration);
-      } else {
-        setIsPlaying(false);
-      }
-    };
+    
+    // If already at the end, restart from beginning
+    if (sceneIndex >= SCENES.length - 1) {
+      setCurrentScene('problem');
+      setSceneIndex(0);
+    }
 
     analytics.tryDemoStart();
-    setTimeout(advanceScene, SCENES[0].duration);
-  }, []);
+    const timeout = setTimeout(advanceToNextScene, SCENES[sceneIndex].duration);
+    setSceneTimeout(timeout);
+  }, [sceneIndex, advanceToNextScene, sceneTimeout]);
 
-  const pauseDemo = () => {
+  const pauseDemo = useCallback(() => {
+    if (sceneTimeout) clearTimeout(sceneTimeout);
     setIsPlaying(false);
-  };
+  }, [sceneTimeout]);
 
-  const goToScene = (sceneId: SceneId) => {
+  const goToScene = useCallback((sceneId: SceneId) => {
+    if (sceneTimeout) clearTimeout(sceneTimeout);
     const index = SCENES.findIndex(s => s.id === sceneId);
     setCurrentScene(sceneId);
     setSceneIndex(index);
-    if (isPlaying) {
-      setIsPlaying(false);
-    }
-  };
+    setIsPlaying(false);
+  }, [sceneTimeout]);
+
+  const skipToDemo = useCallback(() => {
+    goToScene('wire-transfer'); // Skip intro and go straight to the main demo
+  }, [goToScene]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault();
+          if (isPlaying) {
+            pauseDemo();
+          } else {
+            playDemo();
+          }
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          advanceToNextScene();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          goToPreviousScene();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          pauseDemo();
+          break;
+        case 'KeyR':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            goToScene('problem');
+          }
+          break;
+        case 'KeyD':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            skipToDemo();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (sceneTimeout) clearTimeout(sceneTimeout);
+    };
+  }, [isPlaying, playDemo, pauseDemo, advanceToNextScene, goToPreviousScene, goToScene, skipToDemo, sceneTimeout]);
 
   useEffect(() => {
     if (isPlaying && sceneIndex === SCENES.length - 1) {
@@ -711,37 +783,76 @@ export default function CinematicDemo() {
 
       {/* Controls */}
       <div className="border-b border-navy-700/50 bg-navy-900/60 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={isPlaying ? pauseDemo : playDemo}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-              {isPlaying ? 'Pause' : 'Play Demo'}
-            </button>
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <Clock className="w-3 h-3" />
-              ~3 minutes
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={isPlaying ? pauseDemo : playDemo}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying ? 'Pause' : 'Play Demo'}
+              </button>
+              
+              <button
+                onClick={skipToDemo}
+                className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-lg transition font-medium text-xs"
+              >
+                <Zap className="w-3 h-3" />
+                Skip to Demo
+              </button>
+
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <button
+                  onClick={goToPreviousScene}
+                  className="p-1 hover:text-white transition"
+                  disabled={sceneIndex === 0}
+                  title="Previous scene (←)"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={advanceToNextScene}
+                  className="p-1 hover:text-white transition"
+                  disabled={sceneIndex >= SCENES.length - 1}
+                  title="Next scene (→)"
+                >
+                  →
+                </button>
+                
+                <div className="flex items-center gap-1 ml-2">
+                  <Clock className="w-3 h-3" />
+                  ~90 seconds
+                </div>
+              </div>
+            </div>
+
+            {/* Scene dots with labels on hover */}
+            <div className="flex items-center gap-2">
+              {SCENES.map((scene, index) => (
+                <button
+                  key={scene.id}
+                  onClick={() => goToScene(scene.id)}
+                  className={`group relative w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 ${
+                    index === sceneIndex
+                      ? 'bg-purple-400'
+                      : index < sceneIndex
+                      ? 'bg-navy-600'
+                      : 'bg-navy-800 hover:bg-navy-700'
+                  }`}
+                  title={scene.title}
+                >
+                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                    {scene.title}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Scene dots */}
-          <div className="flex items-center gap-2">
-            {SCENES.map((scene, index) => (
-              <button
-                key={scene.id}
-                onClick={() => goToScene(scene.id)}
-                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                  index === sceneIndex
-                    ? 'bg-purple-400'
-                    : index < sceneIndex
-                    ? 'bg-navy-600'
-                    : 'bg-navy-800'
-                }`}
-                title={scene.title}
-              />
-            ))}
+          {/* Keyboard shortcuts hint */}
+          <div className="text-xs text-slate-500 text-center">
+            <span className="font-mono">Space</span> = play/pause • <span className="font-mono">←→</span> = navigate • <span className="font-mono">Esc</span> = pause • <span className="font-mono">Ctrl+D</span> = skip to demo
           </div>
         </div>
       </div>

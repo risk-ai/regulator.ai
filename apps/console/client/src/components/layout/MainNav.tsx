@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -38,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'history', label: 'History', description: 'Execution ledger & audit', icon: '📋' },
   { id: 'workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
   { id: 'services', label: 'Services', description: 'Infrastructure health', icon: '🔧' },
+  { id: 'api-keys', label: 'API Keys', description: 'Programmatic access keys', icon: '🔑' },
   { id: 'settings', label: 'Settings', description: 'Configuration', icon: '⚙️' },
 ];
 

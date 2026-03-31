@@ -10,15 +10,15 @@
         "required-server-files.js",
         "server/server-reference-manifest.js",
         "server/app/opengraph-image/route_client-reference-manifest.js",
-        "server/edge/chunks/0s42_apps_marketing__next-internal_server_app_opengraph-image_route_actions_0us9fz_.js",
-        "server/edge/chunks/10ok_next_dist_esm_0gryvgi._.js",
-        "server/edge/chunks/[root-of-the-server]__10tvkbq._.js",
-        "server/edge/chunks/10ok_next_dist_compiled_@vercel_og_0_37v9d._.js",
-        "server/edge/chunks/007m_next_dist_esm_build_templates_edge-wrapper_0ww1tnd.js"
+        "server/edge/chunks/apps_marketing__next-internal_server_app_opengraph-image_route_actions_0yhoqz6.js",
+        "server/edge/chunks/node_modules_next_dist_esm_0ejf_ry._.js",
+        "server/edge/chunks/[root-of-the-server]__0_tgqcb._.js",
+        "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_11csqje._.js",
+        "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_13gd-rc.js"
       ],
       "name": "app/opengraph-image/route",
       "page": "/opengraph-image/route",
-      "entrypoint": "server/edge/chunks/007m_next_dist_esm_build_templates_edge-wrapper_0ww1tnd.js",
+      "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_13gd-rc.js",
       "matchers": [
         {
           "regexp": "^/opengraph-image(?:/)?$",
@@ -28,11 +28,11 @@
       "wasm": [
         {
           "name": "wasm_10a187050363648b49a36c79d5266d2c",
-          "filePath": "server/edge/chunks/10ok_next_dist_compiled_@vercel_og_yoga_0656eb_.wasm"
+          "filePath": "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_yoga_0656eb_.wasm"
         },
         {
           "name": "wasm_151b7f7b511bd6dda63695d2c75c87a3",
-          "filePath": "server/edge/chunks/10ok_next_dist_compiled_@vercel_og_resvg_0656eb_.wasm"
+          "filePath": "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_resvg_0656eb_.wasm"
         }
       ],
       "assets": [
@@ -42,7 +42,7 @@
         }
       ],
       "env": {
-        "__NEXT_BUILD_ID": "FI4abZ_oIigBoqs3AGxF7",
+        "__NEXT_BUILD_ID": "6O1qCsPQxPoNb8JJM2sD7",
         "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "GyxCf5vAeHFs0y3Tlyw2fiLkcBDoNLc6MwQ9lfXROo4=",
         "__NEXT_PREVIEW_MODE_ID": "8780b4d4794ae4011ae5fd43dd28a58a",
         "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "133c19cd1f7810bf5523cf8040f449708f9a82877c8e2304311b7cfb5bf3b5ee",

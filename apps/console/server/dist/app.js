@@ -1,0 +1,236 @@
+/**
+ * Vienna Console Server
+ *
+ * Express application setup.
+ * Mounts all routes and middleware.
+ */
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { eventStream } from './sse/eventStream.js';
+import { createAuthMiddleware } from './middleware/requireAuth.js';
+// Routes
+import { createAuthRouter } from './routes/auth.js';
+import { createStatusRouter } from './routes/status.js';
+import { createDiagnosticsRouter } from './routes/diagnostics.js';
+import { createApprovalsRouter } from './routes/approvals.js';
+import { createBootstrapRouter } from './routes/bootstrap.js';
+import { createDashboardRouter } from './routes/dashboard.js';
+import { createObjectivesRouter } from './routes/objectives.js';
+import { createExecutionRouter } from './routes/execution.js';
+import { createDecisionsRouter } from './routes/decisions.js';
+import { createDeadLettersRouter } from './routes/deadletters.js';
+import { createAgentsRouter } from './routes/agents.js';
+import { createReplayRouter } from './routes/replay.js';
+import { createAuditRouter } from './routes/audit.js';
+import { createDirectivesRouter } from './routes/directives.js';
+import { createStreamRouter } from './routes/stream.js';
+import { createServicesRouter } from './routes/services.js';
+import { createProvidersRouter } from './routes/providers.js';
+import { createChatRouter } from './routes/chat.js';
+import { createFilesRouter } from './routes/files.js';
+import { createRuntimeRouter } from './routes/runtime.js';
+import { createCommandsRouter } from './routes/commands.js';
+import { createSystemRouter } from './routes/system.js';
+import { createRecoveryRouter } from './routes/recovery.js';
+import { createWorkflowRouter } from './routes/workflows.js';
+import { createModelsRouter } from './routes/models.js';
+import { createManagedObjectivesRouter } from './routes/managed-objectives.js';
+import { createExecutionsRouter } from './routes/executions.js';
+import { createReconciliationRouter } from './routes/reconciliation.js';
+import { createAssistantRouter } from './routes/assistant.js';
+import { createIntentRouter } from './routes/intent.js';
+import intentsRouter from './routes/intents.js';
+import investigationsRouter from './routes/investigations.js';
+import artifactsRouter from './routes/artifacts.js';
+import incidentsRouter from './routes/incidents.js';
+export function createApp(viennaRuntime, chatService, bootstrapService, objectivesService, authService, timelineService, runtimeStatsService, providerHealthService, systemNowService) {
+    const app = express();
+    // Create auth middleware
+    const requireAuth = createAuthMiddleware(authService);
+    // ============================================================================
+    // Middleware
+    // ============================================================================
+    // CORS - environment-driven origins
+    const corsOrigins = process.env.CORS_ORIGIN
+        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+        : [
+            // Development defaults (when CORS_ORIGIN not set)
+            'http://localhost:5173',
+            'http://localhost:5174',
+        ];
+    app.use(cors({
+        origin: corsOrigins,
+        credentials: true,
+    }));
+    // Body parsing
+    app.use(express.json({ limit: '10mb' }));
+    app.use(express.urlencoded({ extended: true }));
+    // Cookie parsing (for session management)
+    app.use(cookieParser());
+    // Request logging
+    app.use((req, res, next) => {
+        const start = Date.now();
+        res.on('finish', () => {
+            const duration = Date.now() - start;
+            console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+        });
+        next();
+    });
+    // ============================================================================
+    // Health Check (Separated Runtime + Provider Health)
+    // ============================================================================
+    app.get('/health', async (req, res) => {
+        try {
+            // Runtime health (core services, not LLM-dependent)
+            const runtimeHealth = {
+                status: 'healthy', // Can be: healthy | degraded | critical
+                uptime_seconds: Math.floor(process.uptime()),
+                sse_clients: eventStream.getClientCount(),
+                services: {},
+            };
+            // Check State Graph availability
+            try {
+                const { getStateGraph } = await import('../../../lib/state/state-graph.js');
+                const stateGraph = getStateGraph();
+                await stateGraph.initialize();
+                runtimeHealth.services.state_graph = { status: 'operational', health: 'healthy' };
+            }
+            catch (error) {
+                runtimeHealth.status = 'degraded';
+                runtimeHealth.services.state_graph = { status: 'failed', health: 'unhealthy' };
+            }
+            // Provider health (LLM availability)
+            let providerHealth = {
+                chat_available: false,
+                providers: {},
+            };
+            if (providerHealthService) {
+                const providersSnapshot = await providerHealthService.getProvidersHealth();
+                const anthropic = providersSnapshot.providers.anthropic || { status: 'unknown' };
+                const local = providersSnapshot.providers.local || { status: 'unknown' };
+                providerHealth.providers.anthropic = {
+                    status: anthropic.status,
+                    health: anthropic.status,
+                    last_success: anthropic.lastSuccessAt || null,
+                };
+                providerHealth.providers.local = {
+                    status: local.status,
+                    health: local.status,
+                    last_success: local.lastSuccessAt || null,
+                };
+                // Chat available if ANY provider healthy OR unknown (untested but usable)
+                // Only unavailable if all providers are truly unavailable (not just unknown)
+                providerHealth.chat_available =
+                    anthropic.status === 'healthy' || local.status === 'healthy' ||
+                        anthropic.status === 'unknown' || local.status === 'unknown';
+            }
+            res.json({
+                success: true,
+                data: {
+                    runtime: runtimeHealth,
+                    providers: providerHealth,
+                    timestamp: new Date().toISOString(),
+                },
+                timestamp: new Date().toISOString(),
+            });
+        }
+        catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error instanceof Error ? error.message : 'Health check failed',
+                code: 'HEALTH_CHECK_ERROR',
+                timestamp: new Date().toISOString(),
+            });
+        }
+    });
+    // ============================================================================
+    // API Routes
+    // ============================================================================
+    const apiPrefix = '/api/v1';
+    // ============================================================================
+    // Public Routes (no auth required)
+    // ============================================================================
+    // Auth routes (must be public for login)
+    app.use(`${apiPrefix}/auth`, createAuthRouter(authService));
+    // ============================================================================
+    // Protected Routes (auth required)
+    // ============================================================================
+    // Bootstrap (primary initial load)
+    app.use(`${apiPrefix}/dashboard/bootstrap`, requireAuth, createBootstrapRouter(bootstrapService));
+    // System routes (read-only, no auth for status monitoring)
+    app.use(`${apiPrefix}/system/status`, createStatusRouter(viennaRuntime));
+    app.use(`${apiPrefix}/system/diagnostics`, createDiagnosticsRouter(viennaRuntime));
+    app.use(`${apiPrefix}/system/providers`, createProvidersRouter(viennaRuntime, providerHealthService));
+    app.use(`${apiPrefix}/system`, createSystemRouter(systemNowService)); // Phase 5E: Unified "now" view
+    // Assistant status (Phase 1: State Truth Model)
+    app.use(`${apiPrefix}/status/assistant`, createAssistantRouter(viennaRuntime, providerHealthService));
+    // System routes (mutating, require auth)
+    app.use(`${apiPrefix}/system/services`, requireAuth, createServicesRouter(viennaRuntime));
+    // Chat (require auth) - Phase 6.6: Route through Vienna for LLM provider selection
+    app.use(`${apiPrefix}/chat`, requireAuth, createChatRouter(viennaRuntime, providerHealthService));
+    app.use(`${apiPrefix}/approvals`, requireAuth, createApprovalsRouter(viennaRuntime));
+    // Files workspace (require auth)
+    app.use(`${apiPrefix}/files`, requireAuth, createFilesRouter(viennaRuntime));
+    // Commands (require auth)
+    app.use(`${apiPrefix}/commands`, requireAuth, createCommandsRouter(viennaRuntime));
+    // Runtime visibility (require auth)
+    app.use(`${apiPrefix}/runtime`, requireAuth, createRuntimeRouter(viennaRuntime, runtimeStatsService));
+    // Recovery copilot (require auth) - Phase 6.5
+    app.use(`${apiPrefix}/recovery`, requireAuth, createRecoveryRouter(viennaRuntime));
+    // Workflow engine (require auth) - Phase 6.11
+    app.use(`${apiPrefix}/workflows`, requireAuth, createWorkflowRouter(viennaRuntime));
+    // Model control (require auth) - Phase 6.12
+    app.use(`${apiPrefix}/models`, requireAuth, createModelsRouter(viennaRuntime));
+    // Core routes (protected)
+    app.use(`${apiPrefix}/dashboard`, requireAuth, createDashboardRouter(viennaRuntime));
+    app.use(`${apiPrefix}/objectives`, requireAuth, createObjectivesRouter(objectivesService, timelineService));
+    // Phase 10: Autonomous operations visibility
+    app.use(`${apiPrefix}/managed-objectives`, requireAuth, createManagedObjectivesRouter(viennaRuntime));
+    app.use(`${apiPrefix}/executions`, requireAuth, createExecutionsRouter(viennaRuntime));
+    app.use(`${apiPrefix}/reconciliation`, requireAuth, createReconciliationRouter());
+    // Phase 11: Intent Gateway (canonical action ingress)
+    app.use(`${apiPrefix}/intent`, requireAuth, createIntentRouter());
+    // Phase 11.5: Intent Tracing (execution graph visibility)
+    app.use(`${apiPrefix}/intents`, requireAuth, intentsRouter);
+    // Phase 13: Investigation Workspace
+    app.use(`${apiPrefix}/investigations`, requireAuth, investigationsRouter);
+    app.use(`${apiPrefix}/artifacts`, requireAuth, artifactsRouter);
+    // Phase 14: Forensic Incidents
+    app.use(`${apiPrefix}/incidents`, requireAuth, incidentsRouter);
+    app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
+    app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));
+    app.use(`${apiPrefix}/deadletters`, requireAuth, createDeadLettersRouter(objectivesService));
+    app.use(`${apiPrefix}/agents`, requireAuth, createAgentsRouter(viennaRuntime));
+    app.use(`${apiPrefix}/replay`, requireAuth, createReplayRouter(viennaRuntime));
+    app.use(`${apiPrefix}/audit`, requireAuth, createAuditRouter(viennaRuntime));
+    app.use(`${apiPrefix}/directives`, requireAuth, createDirectivesRouter(viennaRuntime));
+    app.use(`${apiPrefix}/stream`, requireAuth, createStreamRouter(eventStream));
+    // ============================================================================
+    // Error Handling
+    // ============================================================================
+    // 404 handler
+    app.use((req, res) => {
+        const error = {
+            success: false,
+            error: 'Not found',
+            code: 'NOT_FOUND',
+            timestamp: new Date().toISOString(),
+        };
+        res.status(404).json(error);
+    });
+    // Global error handler
+    app.use((err, req, res, next) => {
+        console.error('Unhandled error:', err);
+        const error = {
+            success: false,
+            error: err.message || 'Internal server error',
+            code: 'INTERNAL_ERROR',
+            details: process.env.NODE_ENV === 'development' ? { stack: err.stack } : undefined,
+            timestamp: new Date().toISOString(),
+        };
+        res.status(500).json(error);
+    });
+    return app;
+}
+//# sourceMappingURL=app.js.map

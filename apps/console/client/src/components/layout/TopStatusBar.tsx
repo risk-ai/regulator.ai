@@ -9,6 +9,7 @@ import React from 'react';
 import { useDashboardStore } from '../../store/dashboardStore.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { ThemeToggle } from '../ui/ThemeToggle.js';
+import { NotificationCenter } from '../notifications/NotificationCenter.js';
 
 export function TopStatusBar() {
   const systemStatus = useDashboardStore((state) => state.systemStatus);
@@ -114,6 +115,9 @@ export function TopStatusBar() {
             {sseConnected ? 'Live' : 'Reconnecting…'}
           </span>
         </div>
+        
+        {/* Notifications */}
+        <NotificationCenter />
         
         {/* Theme Toggle */}
         <ThemeToggle />

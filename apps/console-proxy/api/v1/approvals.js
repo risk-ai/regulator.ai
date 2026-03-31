@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
       const tier = queryParams.tier;
       
       let query = `
-        SELECT * FROM public.approval_requests
+        SELECT * FROM approval_requests
         WHERE tenant_id = $1 AND status = $2
       `;
       const values = [tenantId, status];
@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
       const approvalId = path.substring(1).split('/')[0];
       
       const result = await pool.query(
-        `SELECT * FROM public.approval_requests 
+        `SELECT * FROM approval_requests 
          WHERE approval_id = $1 AND tenant_id = $2`,
         [approvalId, tenantId]
       );
@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
       }
       
       const result = await pool.query(
-        `UPDATE public.approval_requests 
+        `UPDATE approval_requests 
          SET status = 'approved', 
              reviewed_by = $1, 
              reviewed_at = NOW(),
@@ -125,7 +125,7 @@ module.exports = async function handler(req, res) {
       }
       
       const result = await pool.query(
-        `UPDATE public.approval_requests 
+        `UPDATE approval_requests 
          SET status = 'rejected', 
              reviewed_by = $1, 
              reviewed_at = NOW(),

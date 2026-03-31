@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     if (path === '' || path === '/' && req.method === 'GET') {
       const keys = await pool.query(
         `SELECT id, name, key_hash as key_prefix, created_at, last_used_at, expires_at, revoked
-         FROM public.api_keys
+         FROM api_keys
          WHERE tenant_id = $1
          ORDER BY created_at DESC`,
         ['default'] // Replace with actual tenant from auth
@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
       const expiresAt = new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000);
       
       await pool.query(
-        `INSERT INTO public.api_keys (id, tenant_id, name, key_hash, created_at, expires_at, revoked)
+        `INSERT INTO api_keys (id, tenant_id, name, key_hash, created_at, expires_at, revoked)
          VALUES ($1, $2, $3, $4, NOW(), $5, false)`,
         [keyId, 'default', name, keyHash, expiresAt]
       );
@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
       const keyId = path.split('/')[1];
       
       await pool.query(
-        'UPDATE public.api_keys SET revoked = true WHERE id = $1 AND tenant_id = $2',
+        'UPDATE api_keys SET revoked = true WHERE id = $1 AND tenant_id = $2',
         [keyId, 'default']
       );
       
@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
       
       const result = await pool.query(
         `SELECT id, name, expires_at, revoked, last_used_at
-         FROM public.api_keys
+         FROM api_keys
          WHERE key_hash = $1`,
         [keyHash]
       );
@@ -141,7 +141,7 @@ module.exports = async function handler(req, res) {
       
       // Update last used
       await pool.query(
-        'UPDATE public.api_keys SET last_used_at = NOW() WHERE id = $1',
+        'UPDATE api_keys SET last_used_at = NOW() WHERE id = $1',
         [key.id]
       );
       

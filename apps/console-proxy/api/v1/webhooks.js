@@ -44,7 +44,7 @@ async function deliverWebhook(webhook, event) {
     
     // Log delivery
     await pool.query(
-      `INSERT INTO public.webhook_deliveries (webhook_id, event_type, payload, status_code, delivered_at)
+      `INSERT INTO webhook_deliveries (webhook_id, event_type, payload, status_code, delivered_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [webhook.id, event.type, JSON.stringify(payload), response.status]
     );
@@ -56,7 +56,7 @@ async function deliverWebhook(webhook, event) {
   } catch (error) {
     // Log failed delivery
     await pool.query(
-      `INSERT INTO public.webhook_deliveries (webhook_id, event_type, payload, status_code, error_message, delivered_at)
+      `INSERT INTO webhook_deliveries (webhook_id, event_type, payload, status_code, error_message, delivered_at)
        VALUES ($1, $2, $3, 0, $4, NOW())`,
       [webhook.id, event.type, JSON.stringify(payload), error.message]
     );
@@ -76,7 +76,7 @@ async function processEventQueue() {
   
   // Get active webhooks for this event type
   const webhooks = await pool.query(
-    'SELECT * FROM public.webhooks WHERE enabled = true AND events @> $1',
+    'SELECT * FROM webhooks WHERE enabled = true AND events @> $1',
     [[event.type]]
   );
   
@@ -107,7 +107,7 @@ module.exports = async function handler(req, res) {
     // List webhooks
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const webhooks = await pool.query(
-        'SELECT id, url, events, enabled, created_at FROM public.webhooks WHERE tenant_id = $1 ORDER BY created_at DESC',
+        'SELECT id, url, events, enabled, created_at FROM webhooks WHERE tenant_id = $1 ORDER BY created_at DESC',
         ['default'] // Replace with actual tenant from auth
       );
       
@@ -132,7 +132,7 @@ module.exports = async function handler(req, res) {
       const secret = crypto.randomBytes(32).toString('hex');
       
       await pool.query(
-        `INSERT INTO public.webhooks (id, tenant_id, url, events, secret, enabled, created_at)
+        `INSERT INTO webhooks (id, tenant_id, url, events, secret, enabled, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
         [webhookId, 'default', webhookUrl, JSON.stringify(events), secret, enabled]
       );
@@ -182,7 +182,7 @@ module.exports = async function handler(req, res) {
       
       values.push(webhookId);
       await pool.query(
-        `UPDATE public.webhooks SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length}`,
+        `UPDATE webhooks SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length}`,
         values
       );
       
@@ -197,7 +197,7 @@ module.exports = async function handler(req, res) {
       const webhookId = path.substring(1);
       
       await pool.query(
-        'DELETE FROM public.webhooks WHERE id = $1',
+        'DELETE FROM webhooks WHERE id = $1',
         [webhookId]
       );
       
@@ -212,7 +212,7 @@ module.exports = async function handler(req, res) {
       const webhookId = path.split('/')[1];
       
       const webhook = await pool.query(
-        'SELECT * FROM public.webhooks WHERE id = $1',
+        'SELECT * FROM webhooks WHERE id = $1',
         [webhookId]
       );
       
@@ -242,7 +242,7 @@ module.exports = async function handler(req, res) {
       
       const deliveries = await pool.query(
         `SELECT event_type, status_code, error_message, delivered_at 
-         FROM public.webhook_deliveries 
+         FROM webhook_deliveries 
          WHERE webhook_id = $1 
          ORDER BY delivered_at DESC 
          LIMIT $2`,

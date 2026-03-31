@@ -1,6 +1,7 @@
 /**
  * Agent Registration & Management API
  * TENANT-ISOLATED: All queries filter by tenant_id
+ * Uses regulator.agent_registry table (resolved via search_path)
  */
 
 const { requireAuth, pool } = require('./_auth');
@@ -19,12 +20,11 @@ module.exports = async function handler(req, res) {
     // List agents (with pagination)
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const status = params.status;
-      const tier = params.tier;
       const page = parseInt(params.page || '1', 10);
-      const limit = Math.min(parseInt(params.limit || '50', 10), 100); // Max 100
+      const limit = Math.min(parseInt(params.limit || '50', 10), 100);
       const offset = (page - 1) * limit;
       
-      let query = 'SELECT * FROM public.agents WHERE tenant_id = $1';
+      let query = 'SELECT * FROM agent_registry WHERE tenant_id = $1';
       const queryParams = [tenantId];
       
       if (status) {
@@ -32,14 +32,7 @@ module.exports = async function handler(req, res) {
         query += ` AND status = $${queryParams.length}`;
       }
       
-      if (tier) {
-        queryParams.push(tier);
-        query += ` AND default_tier = $${queryParams.length}`;
-      }
-      
-      query += ' ORDER BY created_at DESC';
-      
-      // Add pagination
+      query += ' ORDER BY registered_at DESC';
       queryParams.push(limit);
       query += ` LIMIT $${queryParams.length}`;
       queryParams.push(offset);
@@ -47,26 +40,38 @@ module.exports = async function handler(req, res) {
       
       const result = await pool.query(query, queryParams);
       
-      // Get total count for pagination metadata
-      let countQuery = 'SELECT COUNT(*) FROM public.agents WHERE tenant_id = $1';
+      let countQuery = 'SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1';
       const countParams = [tenantId];
-      
       if (status) {
         countParams.push(status);
         countQuery += ` AND status = $${countParams.length}`;
       }
       
-      if (tier) {
-        countParams.push(tier);
-        countQuery += ` AND default_tier = $${countParams.length}`;
-      }
-      
       const countResult = await pool.query(countQuery, countParams);
       const total = parseInt(countResult.rows[0].count, 10);
       
+      // Map agent_registry columns to expected API shape
+      const data = result.rows.map(r => ({
+        id: r.id,
+        agent_id: r.agent_id,
+        name: r.display_name,
+        type: r.agent_type,
+        description: r.description,
+        status: r.status,
+        trust_score: r.trust_score,
+        config: r.config,
+        tags: r.tags,
+        rate_limit_per_minute: r.rate_limit_per_minute,
+        rate_limit_per_hour: r.rate_limit_per_hour,
+        last_heartbeat: r.last_heartbeat,
+        created_at: r.registered_at,
+        updated_at: r.updated_at,
+        tenant_id: r.tenant_id,
+      }));
+      
       return res.json({
         success: true,
-        data: result.rows,
+        data,
         pagination: {
           page,
           limit,
@@ -83,20 +88,33 @@ module.exports = async function handler(req, res) {
       const agentId = path.substring(1);
       
       const result = await pool.query(
-        'SELECT * FROM public.agents WHERE id = $1 AND tenant_id = $2',
+        'SELECT * FROM agent_registry WHERE (id::text = $1 OR agent_id = $1) AND tenant_id = $2',
         [agentId, tenantId]
       );
       
       if (result.rows.length === 0) {
-        return res.status(404).json({
-          success: false,
-          error: 'Agent not found'
-        });
+        return res.status(404).json({ success: false, error: 'Agent not found' });
       }
       
+      const r = result.rows[0];
       return res.json({
         success: true,
-        data: result.rows[0]
+        data: {
+          id: r.id,
+          agent_id: r.agent_id,
+          name: r.display_name,
+          type: r.agent_type,
+          description: r.description,
+          status: r.status,
+          trust_score: r.trust_score,
+          config: r.config,
+          tags: r.tags,
+          rate_limit_per_minute: r.rate_limit_per_minute,
+          rate_limit_per_hour: r.rate_limit_per_hour,
+          last_heartbeat: r.last_heartbeat,
+          created_at: r.registered_at,
+          updated_at: r.updated_at,
+        }
       });
     }
     
@@ -104,35 +122,37 @@ module.exports = async function handler(req, res) {
     if (req.method === 'POST' && (!path || path === '' || path === '/')) {
       const {
         name,
-        type,
+        agent_id,
+        type = 'autonomous',
         description,
-        default_tier = 'T0',
-        capabilities = [],
-        config = {}
+        config = {},
+        tags = [],
+        rate_limit_per_minute = 60,
+        rate_limit_per_hour = 1000,
       } = req.body;
       
-      if (!name || !type) {
-        return res.status(400).json({
-          success: false,
-          error: 'name and type required'
-        });
+      if (!name) {
+        return res.status(400).json({ success: false, error: 'name is required' });
       }
       
-      const agentId = `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newAgentId = agent_id || `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      await pool.query(
-        `INSERT INTO public.agents (id, name, type, description, default_tier, capabilities, config, status, tenant_id, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, NOW())`,
-        [agentId, name, type, description || '', default_tier, JSON.stringify(capabilities), JSON.stringify(config), tenantId]
+      const result = await pool.query(
+        `INSERT INTO agent_registry (agent_id, display_name, agent_type, description, config, tags, 
+         rate_limit_per_minute, rate_limit_per_hour, status, tenant_id, registered_at, registered_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', $9, NOW(), $10)
+         RETURNING *`,
+        [newAgentId, name, type, description || '', JSON.stringify(config), tags, 
+         rate_limit_per_minute, rate_limit_per_hour, tenantId, user.sub || user.email || 'system']
       );
       
       return res.json({
         success: true,
         data: {
-          id: agentId,
+          id: result.rows[0].id,
+          agent_id: newAgentId,
           name,
           type,
-          default_tier,
           status: 'active'
         }
       });
@@ -144,17 +164,21 @@ module.exports = async function handler(req, res) {
       const updates = [];
       const values = [];
       
-      const fields = ['name', 'description', 'default_tier', 'status'];
-      for (const field of fields) {
-        if (req.body[field] !== undefined) {
-          values.push(req.body[field]);
-          updates.push(`${field} = $${values.length}`);
-        }
-      }
+      const fieldMap = {
+        name: 'display_name',
+        type: 'agent_type',
+        description: 'description',
+        status: 'status',
+        trust_score: 'trust_score',
+        rate_limit_per_minute: 'rate_limit_per_minute',
+        rate_limit_per_hour: 'rate_limit_per_hour',
+      };
       
-      if (req.body.capabilities) {
-        values.push(JSON.stringify(req.body.capabilities));
-        updates.push(`capabilities = $${values.length}`);
+      for (const [apiField, dbField] of Object.entries(fieldMap)) {
+        if (req.body[apiField] !== undefined) {
+          values.push(req.body[apiField]);
+          updates.push(`${dbField} = $${values.length}`);
+        }
       }
       
       if (req.body.config) {
@@ -162,19 +186,21 @@ module.exports = async function handler(req, res) {
         updates.push(`config = $${values.length}`);
       }
       
+      if (req.body.tags) {
+        values.push(req.body.tags);
+        updates.push(`tags = $${values.length}`);
+      }
+      
       if (updates.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'No fields to update'
-        });
+        return res.status(400).json({ success: false, error: 'No fields to update' });
       }
       
       values.push(agentId);
       values.push(tenantId);
       
       await pool.query(
-        `UPDATE public.agents SET ${updates.join(', ')}, updated_at = NOW() 
-         WHERE id = $${values.length - 1} AND tenant_id = $${values.length}`,
+        `UPDATE agent_registry SET ${updates.join(', ')}, updated_at = NOW() 
+         WHERE (id::text = $${values.length - 1} OR agent_id = $${values.length - 1}) AND tenant_id = $${values.length}`,
         values
       );
       
@@ -189,7 +215,7 @@ module.exports = async function handler(req, res) {
       const agentId = path.substring(1);
       
       await pool.query(
-        'DELETE FROM public.agents WHERE id = $1 AND tenant_id = $2',
+        'DELETE FROM agent_registry WHERE (id::text = $1 OR agent_id = $1) AND tenant_id = $2',
         [agentId, tenantId]
       );
       
@@ -199,10 +225,7 @@ module.exports = async function handler(req, res) {
       });
     }
     
-    return res.status(404).json({
-      success: false,
-      error: 'Not found'
-    });
+    return res.status(404).json({ success: false, error: 'Not found' });
     
   } catch (error) {
     console.error('[agents]', error);

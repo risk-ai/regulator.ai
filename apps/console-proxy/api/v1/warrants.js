@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
           e.event_timestamp as issued_at,
           e.payload->>'signature' as signature,
           CASE WHEN e.event_timestamp < NOW() - INTERVAL '1 hour' THEN true ELSE false END as expired
-        FROM public.execution_ledger_events e
+        FROM execution_ledger_events e
         WHERE e.tenant_id = $1 
           AND e.event_type = 'warrant_issued'
         ORDER BY e.event_timestamp DESC
@@ -56,7 +56,7 @@ module.exports = async function handler(req, res) {
       }
       
       const result = await pool.query(
-        `SELECT * FROM public.execution_ledger_events
+        `SELECT * FROM execution_ledger_events
          WHERE execution_id = $1 
            AND tenant_id = $2
            AND event_type = 'warrant_issued'`,

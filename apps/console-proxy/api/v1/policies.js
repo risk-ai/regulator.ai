@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
       const limit = Math.min(parseInt(params.limit || '50', 10), 100);
       const offset = (page - 1) * limit;
       
-      let query = 'SELECT * FROM public.policies WHERE tenant_id = $1';
+      let query = 'SELECT * FROM policies WHERE tenant_id = $1';
       const queryParams = [tenantId];
       
       if (enabled !== undefined) {
@@ -50,7 +50,7 @@ module.exports = async function handler(req, res) {
       const result = await pool.query(query, queryParams);
       
       // Get total count
-      let countQuery = 'SELECT COUNT(*) FROM public.policies WHERE tenant_id = $1';
+      let countQuery = 'SELECT COUNT(*) FROM policies WHERE tenant_id = $1';
       const countParams = [tenantId];
       
       if (enabled !== undefined) {
@@ -85,7 +85,7 @@ module.exports = async function handler(req, res) {
       const policyId = path.substring(1);
       
       const result = await pool.query(
-        'SELECT * FROM public.policies WHERE id = $1 AND tenant_id = $2',
+        'SELECT * FROM policies WHERE id = $1 AND tenant_id = $2',
         [policyId, tenantId]
       );
       
@@ -123,7 +123,7 @@ module.exports = async function handler(req, res) {
       const policyId = `policy_${Date.now()}`;
       
       await pool.query(
-        `INSERT INTO public.policies (id, name, description, tier, rules, enabled, priority, tenant_id, created_at)
+        `INSERT INTO policies (id, name, description, tier, rules, enabled, priority, tenant_id, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
         [policyId, name, description || '', tier, JSON.stringify(rules || {}), enabled ? 1 : 0, priority, tenantId]
       );
@@ -189,7 +189,7 @@ module.exports = async function handler(req, res) {
       values.push(policyId);
       values.push(tenantId);
       await pool.query(
-        `UPDATE public.policies SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length - 1} AND tenant_id = $${values.length}`,
+        `UPDATE policies SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length - 1} AND tenant_id = $${values.length}`,
         values
       );
       
@@ -204,7 +204,7 @@ module.exports = async function handler(req, res) {
       const policyId = path.substring(1);
       
       await pool.query(
-        'DELETE FROM public.policies WHERE id = $1 AND tenant_id = $2',
+        'DELETE FROM policies WHERE id = $1 AND tenant_id = $2',
         [policyId, tenantId]
       );
       

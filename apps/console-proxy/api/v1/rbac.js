@@ -81,7 +81,7 @@ module.exports = async function handler(req, res) {
       }
       
       await pool.query(
-        'UPDATE public.users SET role = $1 WHERE id = $2',
+        'UPDATE users SET role = $1 WHERE id = $2',
         [role, user_id]
       );
       

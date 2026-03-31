@@ -20,7 +20,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && (path === '/status' || path === '/status/')) {
       try {
         const result = await pool.query(
-          'SELECT completed, current_step, completed_at, created_at FROM public.onboarding_status WHERE tenant_id = $1',
+          'SELECT completed, current_step, completed_at, created_at FROM onboarding_status WHERE tenant_id = $1',
           [tenantId]
         );
         
@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
       try {
         // Use INSERT ... ON CONFLICT to handle both new and existing records
         const result = await pool.query(`
-          INSERT INTO public.onboarding_status (tenant_id, completed, current_step, completed_at, created_at, updated_at)
+          INSERT INTO onboarding_status (tenant_id, completed, current_step, completed_at, created_at, updated_at)
           VALUES ($1, true, 4, $2, $2, $2)
           ON CONFLICT (tenant_id) 
           DO UPDATE SET 
@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
       try {
         // Use INSERT ... ON CONFLICT to handle both new and existing records
         const result = await pool.query(`
-          INSERT INTO public.onboarding_status (tenant_id, completed, current_step, created_at, updated_at)
+          INSERT INTO onboarding_status (tenant_id, completed, current_step, created_at, updated_at)
           VALUES ($1, false, $2, $3, $3)
           ON CONFLICT (tenant_id) 
           DO UPDATE SET 
@@ -142,7 +142,7 @@ module.exports = async function handler(req, res) {
     // Reset onboarding (for testing)
     if (req.method === 'DELETE' && (path === '' || path === '/')) {
       try {
-        await pool.query('DELETE FROM public.onboarding_status WHERE tenant_id = $1', [tenantId]);
+        await pool.query('DELETE FROM onboarding_status WHERE tenant_id = $1', [tenantId]);
       } catch (dbError) {
         console.warn('[onboarding] Database error during reset:', dbError.message);
       }

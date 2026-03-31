@@ -37,7 +37,7 @@ async function validateApiKey(apiKey) {
     // Look up in database
     const result = await pool.query(
       `SELECT tenant_id, revoked, expires_at, last_used_at, id 
-       FROM public.api_keys 
+       FROM api_keys 
        WHERE key_hash = $1`,
       [keyHash]
     );
@@ -60,7 +60,7 @@ async function validateApiKey(apiKey) {
     
     // Update last_used_at (fire and forget, don't await)
     pool.query(
-      'UPDATE public.api_keys SET last_used_at = NOW() WHERE id = $1',
+      'UPDATE api_keys SET last_used_at = NOW() WHERE id = $1',
       [key.id]
     ).catch(err => console.error('[api_key] Failed to update last_used_at:', err));
     

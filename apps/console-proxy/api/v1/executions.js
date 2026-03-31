@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
           e.stage,
           e.event_timestamp as timestamp,
           e.payload
-        FROM public.execution_ledger_events e
+        FROM execution_ledger_events e
         WHERE e.tenant_id = $1
       `;
       const values = [tenantId];
@@ -61,7 +61,7 @@ module.exports = async function handler(req, res) {
       const executionId = path.substring(1);
       
       const result = await pool.query(
-        `SELECT * FROM public.execution_ledger_events 
+        `SELECT * FROM execution_ledger_events 
          WHERE execution_id = $1 AND tenant_id = $2
          ORDER BY event_timestamp ASC`,
         [executionId, tenantId]
@@ -91,7 +91,7 @@ module.exports = async function handler(req, res) {
           COUNT(CASE WHEN event_type = 'execution_completed' THEN 1 END) as completed,
           COUNT(CASE WHEN event_type = 'execution_rejected' THEN 1 END) as rejected,
           COUNT(CASE WHEN event_type = 'approval_required' THEN 1 END) as pending_approval
-        FROM public.execution_ledger_events
+        FROM execution_ledger_events
         WHERE tenant_id = $1`,
         [tenantId]
       );

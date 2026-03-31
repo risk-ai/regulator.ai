@@ -70,7 +70,7 @@ module.exports = async function handler(req, res) {
     
     // Check if refresh token is revoked
     const revoked = await pool.query(
-      'SELECT revoked FROM public.refresh_tokens WHERE token_hash = $1',
+      'SELECT revoked FROM refresh_tokens WHERE token_hash = $1',
       [crypto.createHash('sha256').update(refresh_token).digest('hex')]
     );
     
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
     
     // Get user
     const user = await pool.query(
-      'SELECT id, email, tenant_id, role, name FROM public.users WHERE id = $1',
+      'SELECT id, email, tenant_id, role, name FROM users WHERE id = $1',
       [decoded.sub]
     );
     
@@ -101,7 +101,7 @@ module.exports = async function handler(req, res) {
     
     // Store new refresh token hash
     await pool.query(
-      `INSERT INTO public.refresh_tokens (token_hash, user_id, created_at, expires_at, revoked)
+      `INSERT INTO refresh_tokens (token_hash, user_id, created_at, expires_at, revoked)
        VALUES ($1, $2, NOW(), NOW() + INTERVAL '7 days', false)
        ON CONFLICT (token_hash) DO NOTHING`,
       [crypto.createHash('sha256').update(tokens.refreshToken).digest('hex'), user.rows[0].id]

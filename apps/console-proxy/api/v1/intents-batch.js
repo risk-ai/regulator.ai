@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
         
         // Insert intent
         await pool.query(
-          `INSERT INTO public.intents (
+          `INSERT INTO intents (
             id, agent_id, action, payload, metadata, status, 
             risk_tier, tenant_id, created_at
           ) VALUES ($1, $2, $3, $4, $5, 'pending', $6, $7, NOW())`,

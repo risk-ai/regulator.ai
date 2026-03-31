@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
     // Audit executions
     if (path === '/executions') {
       const result = await pool.query(
-        `SELECT * FROM public.execution_ledger_events
+        `SELECT * FROM execution_ledger_events
          WHERE tenant_id = $1
          ORDER BY event_timestamp DESC
          LIMIT $2`,
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
     // Audit approvals
     if (path === '/approvals') {
       const result = await pool.query(
-        `SELECT * FROM public.approval_requests
+        `SELECT * FROM approval_requests
          WHERE tenant_id = $1
          ORDER BY requested_at DESC
          LIMIT $2`,
@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
           execution_id,
           event_timestamp as issued_at,
           payload
-        FROM public.execution_ledger_events
+        FROM execution_ledger_events
         WHERE tenant_id = $1 AND event_type = 'warrant_issued'
         ORDER BY event_timestamp DESC
         LIMIT $2`,

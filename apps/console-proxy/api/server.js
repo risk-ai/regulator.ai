@@ -1573,8 +1573,9 @@ module.exports = async function handler(req, res) {
 
       // Store report
       try {
-        await query('INSERT INTO regulator.compliance_reports (id, period, status, summary, generated_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5)',
-          [reportId, period, report.compliance_status, JSON.stringify(report.summary), tenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+        const periodStart = new Date(Date.now() - (intervalMap[period] === '24 hours' ? 86400000 : intervalMap[period] === '7 days' ? 604800000 : intervalMap[period] === '90 days' ? 7776000000 : 2592000000));
+        await query('INSERT INTO regulator.compliance_reports (id, report_type, title, period_start, period_end, report_data, status, generated_by, generated_at, tenant_id) VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, NOW(), $8)',
+          [reportId, 'automated', `Compliance Report (${period})`, periodStart.toISOString(), JSON.stringify(report), report.compliance_status, 'system', tenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
       } catch {}
 
       return res.status(200).json({ success: true, data: report });

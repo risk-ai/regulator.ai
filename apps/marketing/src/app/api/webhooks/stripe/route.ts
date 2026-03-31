@@ -9,7 +9,7 @@ let pool: Pool | null = null;
 function getPool(): Pool {
   if (!pool) {
     pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
       max: 3,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,

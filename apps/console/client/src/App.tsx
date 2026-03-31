@@ -26,12 +26,13 @@ import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
 import ActivityFeedPage from './pages/ActivityFeedPage.js';
 import { ApiKeysPage } from './pages/ApiKeysPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
-import { WelcomeWizard } from './components/onboarding/WelcomeWizard.js';
+import { OnboardingWizard } from './components/onboarding/OnboardingWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
 import { ThemeProvider } from './contexts/ThemeContext.js';
 import { useAuthStore } from './store/authStore.js';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
+import { apiClient } from './api/client.js';
 
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
@@ -79,9 +80,23 @@ export function App() {
   // Check if onboarding should be shown (first-time user)
   useEffect(() => {
     if (authenticated) {
-      const onboardingCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY);
-      if (!onboardingCompleted) {
-        setShowOnboarding(true);
+      // First check localStorage for quick response
+      const localOnboardingCompleted = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      
+      if (!localOnboardingCompleted) {
+        // Check server-side status
+        apiClient.get('/onboarding/status').then((status: any) => {
+          if (!status.completed) {
+            setShowOnboarding(true);
+          } else {
+            // Server says completed, update localStorage
+            localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+          }
+        }).catch((error) => {
+          console.warn('Failed to check onboarding status, showing wizard:', error);
+          // On error, show onboarding to be safe
+          setShowOnboarding(true);
+        });
       }
     }
   }, [authenticated]);
@@ -269,7 +284,7 @@ export function App() {
           
           {/* Enhanced Onboarding Wizard */}
           {showOnboarding && (
-            <WelcomeWizard
+            <OnboardingWizard
               onComplete={handleOnboardingComplete}
               onSkip={handleOnboardingSkip}
             />

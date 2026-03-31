@@ -11,6 +11,7 @@
     { "src": "/api/v1/billing(.*)", "dest": "api/v1/billing.js" },
     { "src": "/api/v1/auth/google(.*)", "dest": "api/v1/auth-oauth.js" },
     { "src": "/api/v1/auth/github(.*)", "dest": "api/v1/auth-oauth.js" },
+    { "src": "/api/v1/onboarding(.*)", "dest": "api/v1/onboarding.js" },
     { "src": "/api/v1/agents(.*)", "dest": "api/v1/agents.js" },
     { "src": "/api/v1/policies(.*)", "dest": "api/v1/policies.js" },
     { "src": "/api/v1/warrants(.*)", "dest": "api/v1/warrants.js" },

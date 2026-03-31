@@ -282,8 +282,25 @@ module.exports = async function handler(req, res) {
         role: user.role || 'admin',
       });
 
-      // Generate refresh token
-      const refreshToken = crypto.randomUUID();
+      // Generate signed JWT refresh token (must be verifiable by /auth/refresh)
+      const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const refreshPayload = {
+        sub: user.id,
+        type: 'refresh',
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 7 * 86400, // 7 days
+      };
+      const rHeader = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+      const rBody = Buffer.from(JSON.stringify(refreshPayload)).toString('base64url');
+      const rSig = crypto.createHmac('sha256', REFRESH_SECRET).update(rHeader + '.' + rBody).digest('base64url');
+      const refreshToken = rHeader + '.' + rBody + '.' + rSig;
+
+      // Store refresh token hash for revocation checks
+      const refreshHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      query(
+        `INSERT INTO regulator.refresh_tokens (id, user_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + interval '7 days', NOW()) ON CONFLICT (token_hash) DO NOTHING`,
+        [crypto.randomUUID(), user.id, refreshHash]
+      ).catch(() => {});
 
       // Set cookie
       res.setHeader('Set-Cookie', `vienna_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`);
@@ -373,7 +390,26 @@ module.exports = async function handler(req, res) {
         role: 'admin',
       });
 
-      const refreshToken = crypto.randomUUID();
+      // Generate signed JWT refresh token
+      const REG_REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const regRefreshPayload = {
+        sub: id,
+        type: 'refresh',
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 7 * 86400,
+      };
+      const regRH = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+      const regRB = Buffer.from(JSON.stringify(regRefreshPayload)).toString('base64url');
+      const regRS = crypto.createHmac('sha256', REG_REFRESH_SECRET).update(regRH + '.' + regRB).digest('base64url');
+      const refreshToken = regRH + '.' + regRB + '.' + regRS;
+
+      // Store refresh token hash
+      const regRefreshHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      query(
+        `INSERT INTO regulator.refresh_tokens (id, user_id, token_hash, expires_at, created_at) VALUES ($1, $2, $3, NOW() + interval '7 days', NOW()) ON CONFLICT (token_hash) DO NOTHING`,
+        [crypto.randomUUID(), id, regRefreshHash]
+      ).catch(() => {});
+
       res.setHeader('Set-Cookie', `vienna_session=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=86400`);
       
       return res.status(201).json({
@@ -1829,16 +1865,8 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ received: true });
     }
 
-    // Catch-all for any other /api/ routes
-    if (path.startsWith('/api/')) {
-      return res.status(200).json({ 
-        success: true, 
-        data: [],
-      });
-    }
-
-    // Not found
-    return res.status(404).json({ success: false, error: 'Not found' });
+    // Catch-all — return 404 for unhandled routes so clients get a clear signal
+    return res.status(404).json({ success: false, error: `Not found: ${req.method} ${path}` });
 
   } catch (err) {
     console.error('[API Error]', err);

@@ -1,7 +1,11 @@
-const { requireAuth } = require("./_auth");
 /**
  * JWT Refresh Token API
- * Refresh access tokens without re-authentication
+ * Refresh access tokens without re-authentication.
+ *
+ * NOTE: This endpoint does NOT require an access token (requireAuth).
+ * The refresh token itself is the credential. If we required a valid
+ * access token to refresh, expired tokens could never be refreshed
+ * (infinite retry loop).
  */
 
 const jwt = require('jsonwebtoken');
@@ -12,114 +16,127 @@ const JWT_SECRET = process.env.JWT_SECRET || 'vienna-jwt-secret-change-in-produc
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
 
 function generateTokens(user) {
-  // Short-lived access token (15 minutes)
   const accessToken = jwt.sign(
     {
       sub: user.id,
       email: user.email,
       tenant_id: user.tenant_id,
-      role: user.role
+      role: user.role,
     },
     JWT_SECRET,
     { expiresIn: '15m' }
   );
-  
-  // Long-lived refresh token (7 days)
+
   const refreshToken = jwt.sign(
-    {
-      sub: user.id,
-      type: 'refresh'
-    },
+    { sub: user.id, type: 'refresh' },
     REFRESH_SECRET,
     { expiresIn: '7d' }
   );
-  
+
   return { accessToken, refreshToken };
 }
 
 module.exports = async function handler(req, res) {
-  const user = requireAuth(req, res); if (!user) return;
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed'
-    });
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
-  
+
   try {
-    const { refresh_token } = req.body;
-    
-    if (!refresh_token) {
+    // Parse body (Vercel serverless may or may not have parsed it)
+    let body = req.body;
+    if (!body || typeof body === 'string') {
+      try {
+        body = typeof body === 'string' ? JSON.parse(body) : {};
+      } catch {
+        body = {};
+      }
+    }
+
+    // Accept both camelCase (client sends) and snake_case
+    const token = body.refreshToken || body.refresh_token;
+
+    if (!token) {
       return res.status(400).json({
         success: false,
-        error: 'refresh_token required'
+        error: 'refreshToken required',
+        code: 'INVALID_REQUEST',
       });
     }
-    
+
     // Verify refresh token
     let decoded;
     try {
-      decoded = jwt.verify(refresh_token, REFRESH_SECRET);
+      decoded = jwt.verify(token, REFRESH_SECRET);
     } catch (error) {
       return res.status(401).json({
         success: false,
         error: 'Invalid or expired refresh token',
-        code: 'UNAUTHORIZED'
+        code: 'UNAUTHORIZED',
       });
     }
-    
+
     // Check if refresh token is revoked
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const revoked = await pool.query(
       'SELECT revoked FROM refresh_tokens WHERE token_hash = $1',
-      [crypto.createHash('sha256').update(refresh_token).digest('hex')]
+      [tokenHash]
     );
-    
+
     if (revoked.rows.length > 0 && revoked.rows[0].revoked) {
       return res.status(401).json({
         success: false,
         error: 'Refresh token revoked',
-        code: 'UNAUTHORIZED'
+        code: 'UNAUTHORIZED',
       });
     }
-    
+
     // Get user
-    const user = await pool.query(
+    const userResult = await pool.query(
       'SELECT id, email, tenant_id, role, name FROM users WHERE id = $1',
       [decoded.sub]
     );
-    
-    if (user.rows.length === 0) {
+
+    if (userResult.rows.length === 0) {
       return res.status(401).json({
         success: false,
         error: 'User not found',
-        code: 'UNAUTHORIZED'
+        code: 'UNAUTHORIZED',
       });
     }
-    
+
+    const user = userResult.rows[0];
+
     // Generate new tokens
-    const tokens = generateTokens(user.rows[0]);
-    
+    const tokens = generateTokens(user);
+
     // Store new refresh token hash
+    const newHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
     await pool.query(
-      `INSERT INTO refresh_tokens (token_hash, user_id, created_at, expires_at, revoked)
-       VALUES ($1, $2, NOW(), NOW() + INTERVAL '7 days', false)
+      `INSERT INTO refresh_tokens (id, token_hash, user_id, created_at, expires_at, revoked)
+       VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '7 days', false)
        ON CONFLICT (token_hash) DO NOTHING`,
-      [crypto.createHash('sha256').update(tokens.refreshToken).digest('hex'), user.rows[0].id]
+      [crypto.randomUUID(), newHash, user.id]
     );
-    
+
+    // Return both camelCase (for client) and snake_case (for compat)
     return res.json({
       success: true,
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresIn: 900,
+      },
+      // Legacy snake_case fields
       access_token: tokens.accessToken,
       refresh_token: tokens.refreshToken,
-      expires_in: 900 // 15 minutes
+      expires_in: 900,
     });
-    
   } catch (error) {
     console.error('[refresh]', error);
     return res.status(500).json({
       success: false,
-      error: error.message,
-      code: 'REFRESH_ERROR'
+      error: 'Token refresh failed',
+      code: 'REFRESH_ERROR',
     });
   }
 };

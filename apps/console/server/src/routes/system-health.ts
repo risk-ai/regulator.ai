@@ -24,8 +24,9 @@ export function createSystemHealthRouter() {
       // Database check
       try {
         const { Pool } = require('pg');
-        const pool = new Pool({ connectionString: process.env.POSTGRES_URL });
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
         const start = Date.now();
+        await pool.query("SET search_path TO regulator, public");
         await pool.query('SELECT 1');
         await pool.end();
         health.checks.database = {

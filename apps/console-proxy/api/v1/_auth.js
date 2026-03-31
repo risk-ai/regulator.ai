@@ -4,15 +4,9 @@
  */
 
 const crypto = require('crypto');
-const { Pool } = require('pg');
+const { pool } = require('../../database/client');
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET || 'fallback-secret';
-
-// Shared pool for API key validation
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
 
 function parseCookies(cookieHeader) {
   const cookies = {};

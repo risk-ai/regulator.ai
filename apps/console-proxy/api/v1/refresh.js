@@ -4,14 +4,9 @@ const { requireAuth } = require("./_auth");
  * Refresh access tokens without re-authentication
  */
 
-const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../../database/client');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vienna-jwt-secret-change-in-production';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';

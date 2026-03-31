@@ -111,11 +111,11 @@ async function testEmailDrip() {
   try {
     console.log('🗄️  Testing Database Schema...');
     
-    if (!process.env.POSTGRES_URL) {
+    if (!process.env.DATABASE_URL) {
       console.log('⚠️  POSTGRES_URL not set - skipping database tests');
     } else {
       const { neon } = await import('@neondatabase/serverless');
-      const sql = neon(process.env.POSTGRES_URL);
+      const sql = neon(process.env.DATABASE_URL);
       
       // Test signups table
       const signupsCount = await sql`SELECT COUNT(*) as count FROM signups`;

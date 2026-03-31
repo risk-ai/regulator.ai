@@ -101,7 +101,7 @@ export async function POST(request: Request) {
  */
 export async function GET() {
   try {
-    const neonUrl = process.env.POSTGRES_URL;
+    const neonUrl = process.env.DATABASE_URL;
     if (!neonUrl) {
       return NextResponse.json(
         { error: "Database not configured" },

@@ -3,13 +3,8 @@
  * Full policy validation, warrant issuance, and execution
  */
 
-const { Pool } = require('pg');
 const { notifyApprovalRequired, notifyWarrantIssued, notifyExecutionFailed } = require('../lib/notifications');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 // Policy evaluation engine
 async function evaluatePolicies(agentId, action, context) {

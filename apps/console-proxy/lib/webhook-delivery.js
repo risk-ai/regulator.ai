@@ -4,12 +4,7 @@
  */
 
 const crypto = require('crypto');
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 /**
  * Deliver event to all registered webhooks

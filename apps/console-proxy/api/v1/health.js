@@ -3,13 +3,8 @@
  * Monitor system health, database connectivity, and performance
  */
 
-const { Pool } = require('pg');
 const cache = require('../../lib/cache');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../../database/client');
 
 async function checkDatabase() {
   const start = Date.now();

@@ -10,7 +10,7 @@
  *   # Run every day at 9:00 AM
  *   0 9 * * * node /path/to/email-drip-scheduler.js
  * 
- * Requires POSTGRES_URL and RESEND_API_KEY environment variables.
+ * Requires DATABASE_URL and RESEND_API_KEY environment variables.
  */
 
 require('dotenv').config();
@@ -19,10 +19,10 @@ const { neon } = require('@neondatabase/serverless');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 async function runDripScheduler() {
-  const neonUrl = process.env.POSTGRES_URL;
+  const neonUrl = process.env.DATABASE_URL;
   
   if (!neonUrl) {
-    console.error('[DripScheduler] POSTGRES_URL environment variable not set');
+    console.error('[DripScheduler] DATABASE_URL environment variable not set');
     process.exit(1);
   }
 

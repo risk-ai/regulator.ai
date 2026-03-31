@@ -2,7 +2,7 @@
  * Postgres Connection Adapter
  * 
  * Hybrid adapter: Uses native `pg` for local development, @vercel/postgres for Vercel.
- * Detects environment based on POSTGRES_URL format.
+ * Detects environment based on DATABASE_URL format.
  */
 
 import pkg from 'pg';
@@ -11,8 +11,8 @@ type PoolType = InstanceType<typeof Pool>;
 
 // Detect if running on Vercel (connection string includes vercel.app or uses pooling params)
 const isVercel = process.env.VERCEL === '1' || 
-                 (process.env.POSTGRES_URL?.includes('vercel.app') || 
-                  process.env.POSTGRES_URL?.includes('?pgbouncer=true'));
+                 (process.env.DATABASE_URL?.includes('vercel.app') || 
+                  process.env.DATABASE_URL?.includes('?pgbouncer=true'));
 
 let pool: any = null;
 
@@ -28,12 +28,15 @@ function getPool() {
     } else {
       // Use native pg for local development
       // Always use connection string if provided
-      if (process.env.POSTGRES_URL) {
+      if (process.env.DATABASE_URL) {
         pool = new Pool({
-          connectionString: process.env.POSTGRES_URL,
+          connectionString: process.env.DATABASE_URL,
           max: 50, // Increased from default 10 for better concurrency
           idleTimeoutMillis: 30000,
           connectionTimeoutMillis: 2000,
+        });
+        pool.on('connect', (client: any) => {
+          client.query("SET search_path TO regulator, public");
         });
       } else {
         // Fallback to default local connection

@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "RESEND_API_KEY not configured" }, { status: 500 });
     }
 
-    const pgUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    const pgUrl = process.env.DATABASE_URL || process.env.DATABASE_URL;
     if (!pgUrl) {
       return NextResponse.json({ error: "Database not configured" }, { status: 500 });
     }

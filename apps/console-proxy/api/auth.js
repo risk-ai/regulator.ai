@@ -3,14 +3,9 @@
  * Login, register, and token management
  */
 
-const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vienna-jwt-secret-change-in-production';
 

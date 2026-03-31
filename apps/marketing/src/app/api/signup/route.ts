@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     // Store signup in Neon database
-    const neonUrl = process.env.POSTGRES_URL;
+    const neonUrl = process.env.DATABASE_URL;
     let signupStored = false;
 
     if (neonUrl) {

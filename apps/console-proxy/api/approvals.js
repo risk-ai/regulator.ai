@@ -3,12 +3,7 @@
  * Handle approval requests for T1/T2/T3 actions
  */
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 module.exports = async function handler(req, res) {
   // Vercel passes the path without the route prefix

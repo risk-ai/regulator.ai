@@ -3,12 +3,7 @@
  * Query execution history with filtering and audit trails
  */
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);

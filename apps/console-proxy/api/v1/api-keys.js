@@ -4,13 +4,8 @@
  */
 
 const { requireAuth } = require('./_auth');
-const { Pool } = require('pg');
 const crypto = require('crypto');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../../database/client');
 
 function generateApiKey() {
   return 'vos_' + crypto.randomBytes(32).toString('hex');

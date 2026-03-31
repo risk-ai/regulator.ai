@@ -10,7 +10,7 @@ let pool = null;
 function getPool() {
   if (!pool) {
     pool = new Pool({
-      connectionString: process.env.POSTGRES_URL,
+      connectionString: process.env.DATABASE_URL,
       max: 5,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,

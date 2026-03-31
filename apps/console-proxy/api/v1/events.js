@@ -4,12 +4,7 @@ const { requireAuth } = require("./_auth");
  * Push live updates for executions, approvals, and warrants
  */
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../../database/client');
 
 // Store active connections
 const connections = new Set();

@@ -6,17 +6,17 @@
  * Should be run via cron job, e.g.:
  *   0 9 * * * node /path/to/send-scheduled-emails.js
  * 
- * Requires POSTGRES_URL and RESEND_API_KEY environment variables.
+ * Requires DATABASE_URL and RESEND_API_KEY environment variables.
  */
 
 require('dotenv').config();
 const { neon } = require('@neondatabase/serverless');
 
 async function sendScheduledEmails() {
-  const neonUrl = process.env.POSTGRES_URL;
+  const neonUrl = process.env.DATABASE_URL;
   
   if (!neonUrl) {
-    console.error('POSTGRES_URL environment variable not set');
+    console.error('DATABASE_URL environment variable not set');
     process.exit(1);
   }
 

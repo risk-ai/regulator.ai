@@ -4,12 +4,7 @@ const { requireAuth } = require("./_auth");
  * Manage roles, permissions, and access control
  */
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../../database/client');
 
 // Role definitions
 const ROLES = {

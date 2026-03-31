@@ -3,13 +3,8 @@
  * Handle warrant issuance, verification, and queries
  */
 
-const { Pool } = require('pg');
 const crypto = require('crypto');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { pool } = require('../database/client');
 
 // Generate HMAC signature for warrant
 function generateWarrantSignature(warrant, secret = process.env.WARRANT_SECRET || 'vienna-warrant-secret') {

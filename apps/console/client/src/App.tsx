@@ -66,13 +66,19 @@ export function App() {
     
     // Regular session check
     const timeoutId = setTimeout(() => {
-      // If still loading after 6 seconds, backend is likely down
+      // If still loading after 10 seconds, backend is likely down
       if (loading) {
         setBackendDown(true);
       }
-    }, 6000);
+    }, 10000);
     
-    checkSession().catch(() => setBackendDown(true));
+    checkSession().catch((err) => {
+      // Only set backendDown for network errors, not auth errors
+      if (err?.name === 'TypeError' || err?.code === 'NETWORK_ERROR' || err?.message?.includes('fetch')) {
+        setBackendDown(true);
+      }
+      // Auth errors (401/403) are handled by checkSession internally
+    });
     
     return () => clearTimeout(timeoutId);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -144,8 +150,8 @@ export function App() {
     );
   }
 
-  // Show error state if backend is unreachable
-  if (backendDown || (loading && !authenticated)) {
+  // Show error state if backend is unreachable (NOT for auth failures)
+  if (backendDown) {
     return (
       <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
         <div className="text-center max-w-md px-6">

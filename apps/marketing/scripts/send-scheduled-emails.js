@@ -23,11 +23,10 @@ async function sendScheduledEmails() {
   const sql = neon(neonUrl);
   
   try {
-    // Calculate dates for different email schedules
+    // Calculate dates for Vienna OS email drip sequence
     const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    const threeDaysAgo = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000));
     const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-    const fourteenDaysAgo = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
 
     console.log(`[EmailScheduler] Running at ${now.toISOString()}`);
 
@@ -42,52 +41,36 @@ async function sendScheduledEmails() {
       )
     `;
 
-    // Find signups eligible for getting-started email (1 day old)
-    const gettingStartedCandidates = await sql`
-      SELECT s.email, s.name, s.company
+    // Find signups eligible for use-case-deep-dive email (3 days old)
+    const useCaseCandidates = await sql`
+      SELECT s.email, s.name, s.company, s.plan, s.use_case
       FROM signups s
-      LEFT JOIN email_sent es ON s.email = es.email AND es.template = 'getting-started'
-      WHERE s.created_at::date = ${oneDayAgo.toISOString().split('T')[0]}::date
+      LEFT JOIN email_sent es ON s.email = es.email AND es.template = 'use-case-deep-dive'
+      WHERE s.created_at::date = ${threeDaysAgo.toISOString().split('T')[0]}::date
         AND es.email IS NULL
     `;
 
-    // Find signups eligible for week-one email (7 days old)
-    const weekOneCandidates = await sql`
-      SELECT s.email, s.name, s.company
+    // Find signups eligible for roi-urgency email (7 days old)
+    const roiUrgencyCandidates = await sql`
+      SELECT s.email, s.name, s.company, s.plan, s.use_case
       FROM signups s
-      LEFT JOIN email_sent es ON s.email = es.email AND es.template = 'week-one'
+      LEFT JOIN email_sent es ON s.email = es.email AND es.template = 'roi-urgency'
       WHERE s.created_at::date = ${sevenDaysAgo.toISOString().split('T')[0]}::date
         AND es.email IS NULL
     `;
 
-    // Find signups eligible for pilot-offer email (14 days old, community plan)
-    const pilotOfferCandidates = await sql`
-      SELECT s.email, s.name, s.company
-      FROM signups s
-      LEFT JOIN email_sent es ON s.email = es.email AND es.template = 'pilot-offer'
-      WHERE s.created_at::date = ${fourteenDaysAgo.toISOString().split('T')[0]}::date
-        AND s.plan = 'community'
-        AND es.email IS NULL
-    `;
-
     console.log(`[EmailScheduler] Found candidates:`);
-    console.log(`  - Getting Started: ${gettingStartedCandidates.length}`);
-    console.log(`  - Week One: ${weekOneCandidates.length}`);
-    console.log(`  - Pilot Offer: ${pilotOfferCandidates.length}`);
+    console.log(`  - Use Case Deep Dive (Day 3): ${useCaseCandidates.length}`);
+    console.log(`  - ROI & Urgency (Day 7): ${roiUrgencyCandidates.length}`);
 
-    // Send getting-started emails
-    for (const signup of gettingStartedCandidates) {
-      await sendFollowupEmail(signup, 'getting-started', sql);
+    // Send use-case-deep-dive emails (Day 3)
+    for (const signup of useCaseCandidates) {
+      await sendFollowupEmail(signup, 'use-case-deep-dive', sql);
     }
 
-    // Send week-one emails
-    for (const signup of weekOneCandidates) {
-      await sendFollowupEmail(signup, 'week-one', sql);
-    }
-
-    // Send pilot-offer emails
-    for (const signup of pilotOfferCandidates) {
-      await sendFollowupEmail(signup, 'pilot-offer', sql);
+    // Send roi-urgency emails (Day 7)
+    for (const signup of roiUrgencyCandidates) {
+      await sendFollowupEmail(signup, 'roi-urgency', sql);
     }
 
     console.log(`[EmailScheduler] Completed successfully`);
@@ -109,7 +92,9 @@ async function sendFollowupEmail(signup, template, sql) {
         email: signup.email,
         name: signup.name,
         template: template,
-        company: signup.company
+        company: signup.company,
+        plan: signup.plan,
+        useCase: signup.use_case
       })
     });
 

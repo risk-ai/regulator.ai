@@ -4,6 +4,7 @@
  */
 
 const { Pool } = require('pg');
+const { notifyApprovalRequired, notifyWarrantIssued, notifyExecutionFailed } = require('../lib/notifications');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -77,6 +78,17 @@ module.exports = async function handler(req, res) {
     if (evaluation.approved) {
       warrantId = await issueWarrant(executionId, evaluation);
       
+      // Create notification for warrant issued
+      try {
+        await notifyWarrantIssued('default', {
+          warrantId,
+          warrantType: evaluation.tier,
+          description: `Warrant issued for ${action} by ${agent_id}`
+        });
+      } catch (notificationError) {
+        console.error('[vienna-execute] Failed to create warrant issued notification:', notificationError);
+      }
+      
       // Log execution
       await pool.query(
         `INSERT INTO public.execution_ledger_events 
@@ -105,6 +117,17 @@ module.exports = async function handler(req, res) {
           JSON.stringify({ agent: agent_id, action })
         ]
       );
+
+      // Create notification for approval required
+      try {
+        await notifyApprovalRequired('default', {
+          approvalId,
+          requiredTier: evaluation.tier,
+          description: `${action} by ${agent_id} requires ${evaluation.tier} approval`
+        });
+      } catch (notificationError) {
+        console.error('[vienna-execute] Failed to create approval required notification:', notificationError);
+      }
     }
     
     return res.json({
@@ -122,6 +145,19 @@ module.exports = async function handler(req, res) {
     
   } catch (error) {
     console.error('[vienna-execute]', error);
+    
+    // Create notification for execution failure
+    try {
+      const executionId = req.body ? `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` : 'unknown';
+      await notifyExecutionFailed('default', {
+        executionId,
+        stage: 'execution',
+        error: error.message
+      });
+    } catch (notificationError) {
+      console.error('[vienna-execute] Failed to create execution failed notification:', notificationError);
+    }
+    
     return res.status(500).json({
       success: false,
       error: error.message,

@@ -4,6 +4,7 @@
  */
 
 const { requireAuth, pool } = require('./_auth');
+const { notifyApprovalGranted, notifyApprovalDenied } = require('../../lib/notifications');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -93,6 +94,17 @@ module.exports = async function handler(req, res) {
           error: 'Approval not found or already processed'
         });
       }
+
+      // Create notification for approval granted
+      try {
+        await notifyApprovalGranted(tenantId, {
+          approvalId,
+          reviewer,
+          userId: result.rows[0].requested_by // Notify the requester
+        });
+      } catch (notificationError) {
+        console.error('[approvals] Failed to create approval granted notification:', notificationError);
+      }
       
       return res.json({
         success: true,
@@ -128,6 +140,18 @@ module.exports = async function handler(req, res) {
           success: false,
           error: 'Approval not found or already processed'
         });
+      }
+
+      // Create notification for approval denied
+      try {
+        await notifyApprovalDenied(tenantId, {
+          approvalId,
+          reviewer,
+          reason,
+          userId: result.rows[0].requested_by // Notify the requester
+        });
+      } catch (notificationError) {
+        console.error('[approvals] Failed to create approval denied notification:', notificationError);
       }
       
       return res.json({

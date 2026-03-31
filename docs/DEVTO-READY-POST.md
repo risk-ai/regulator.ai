@@ -363,4 +363,4 @@ Don't let your organization become the next cautionary tale. The question isn't 
 
 🚀 **Get started:** Try our [interactive demo](https://regulator.ai/try)  
 ⭐ **Star us:** [github.com/risk-ai/regulator](https://github.com/risk-ai/regulator)  
-💬 **Connect:** Follow [@ViennaOS](https://twitter.com/ViennaOS) for updates
+💬 **Connect:** Follow [@Vienna_OS](https://twitter.com/Vienna_OS) for updates

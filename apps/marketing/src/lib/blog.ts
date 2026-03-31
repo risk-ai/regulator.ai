@@ -27,6 +27,9 @@ const SLUG_TO_FILE: Record<string, string> = {
   "soc2-audit-ai-agents": "soc2-audit-ai-agents.md",
   "ceo-guide-ai-agent-governance": "ceo-guide-ai-agent-governance.md",
   "zero-trust-ai-agent-pipeline": "zero-trust-ai-agent-pipeline.md",
+  "execution-gap-warrants-not-guardrails": "execution-gap-warrants-not-guardrails.md",
+  "rbac-to-warrants-access-control-evolution": "rbac-to-warrants-access-control-evolution.md",
+  "immutable-audit-trail-financial-compliance": "immutable-audit-trail-financial-compliance.md",
 };
 
 /** Post metadata (mirrors the blog index) */
@@ -150,6 +153,36 @@ const POST_META: Record<string, Omit<BlogPost, "content">> = {
     categoryColor: "text-blue-400 bg-blue-500/10",
     author: "Vienna OS Team",
     excerpt: "Zero trust isn't just for networks — it applies to AI agents too.",
+  },
+  "execution-gap-warrants-not-guardrails": {
+    slug: "execution-gap-warrants-not-guardrails",
+    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
+    date: "March 30, 2026",
+    readTime: "11 min",
+    category: "Thought Leadership",
+    categoryColor: "text-violet-400 bg-violet-500/10",
+    author: "Max Anderson",
+    excerpt: "The most dangerous AI isn't chatbots that say the wrong thing. It's agents that do the wrong thing. The DIR framework closes the execution gap.",
+  },
+  "rbac-to-warrants-access-control-evolution": {
+    slug: "rbac-to-warrants-access-control-evolution",
+    title: "From RBAC to Warrants: Rethinking Access Control for Autonomous Agents",
+    date: "March 30, 2026",
+    readTime: "10 min",
+    category: "Architecture",
+    categoryColor: "text-blue-400 bg-blue-500/10",
+    author: "Max Anderson",
+    excerpt: "RBAC was designed for humans clicking buttons. Warrants are designed for agents executing plans. Here's why the evolution is inevitable.",
+  },
+  "immutable-audit-trail-financial-compliance": {
+    slug: "immutable-audit-trail-financial-compliance",
+    title: "Building an Immutable Audit Trail for AI: Lessons from Financial Compliance",
+    date: "March 30, 2026",
+    readTime: "12 min",
+    category: "Compliance",
+    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    author: "Max Anderson",
+    excerpt: "SOX, Basel III, and MiFID II demand provable records. AI governance needs the same rigor. Here's how cryptographic audit trails meet financial-grade compliance.",
   },
 };
 

@@ -9,10 +9,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/blog/[slug]": ["./content/blog/**/*.md"],
   },
-  experimental: {
-    turbo: false,
-    outputFileTracingRoot: join(__dirname, "..", ".."),
-  },
+  outputFileTracingRoot: join(__dirname, "..", ".."),
   async redirects() {
     return [
       { source: '/console', destination: 'https://console.regulator.ai', permanent: false },

@@ -3,14 +3,8 @@
  * Register webhooks and deliver events
  */
 
-const { requireAuth } = require('./_auth');
-const { Pool } = require('pg');
+const { requireAuth, pool } = require('./_auth');
 const crypto = require('crypto');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
 
 // Webhook event queue (in-memory for now, should be Redis/SQS in production)
 const eventQueue = [];

@@ -1,15 +1,10 @@
 /**
  * Policy Management API
  * CRUD operations for governance policies
+ * TENANT-ISOLATED: All queries filter by tenant_id
  */
 
-const { requireAuth } = require('./_auth');
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-});
+const { requireAuth, withTenantFilter, pool } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -17,7 +12,7 @@ module.exports = async function handler(req, res) {
   const params = Object.fromEntries(url.searchParams);
 
   // Auth required
-  const user = requireAuth(req, res);
+  const user = await requireAuth(req, res);
   if (!user) return; // 401 already sent
   const tenantId = user.tenant_id;
   
@@ -27,8 +22,8 @@ module.exports = async function handler(req, res) {
       const enabled = params.enabled;
       const tier = params.tier;
       
-      let query = 'SELECT * FROM public.policies WHERE 1=1';
-      const queryParams = [];
+      let query = 'SELECT * FROM public.policies WHERE tenant_id = $1';
+      const queryParams = [tenantId];
       
       if (enabled !== undefined) {
         queryParams.push(enabled === 'true' ? 1 : 0);
@@ -55,8 +50,8 @@ module.exports = async function handler(req, res) {
       const policyId = path.substring(1);
       
       const result = await pool.query(
-        'SELECT * FROM public.policies WHERE id = $1',
-        [policyId]
+        'SELECT * FROM public.policies WHERE id = $1 AND tenant_id = $2',
+        [policyId, tenantId]
       );
       
       if (result.rows.length === 0) {
@@ -93,9 +88,9 @@ module.exports = async function handler(req, res) {
       const policyId = `policy_${Date.now()}`;
       
       await pool.query(
-        `INSERT INTO public.policies (id, name, description, tier, rules, enabled, priority, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-        [policyId, name, description || '', tier, JSON.stringify(rules || {}), enabled ? 1 : 0, priority]
+        `INSERT INTO public.policies (id, name, description, tier, rules, enabled, priority, tenant_id, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
+        [policyId, name, description || '', tier, JSON.stringify(rules || {}), enabled ? 1 : 0, priority, tenantId]
       );
       
       return res.json({
@@ -157,8 +152,9 @@ module.exports = async function handler(req, res) {
       }
       
       values.push(policyId);
+      values.push(tenantId);
       await pool.query(
-        `UPDATE public.policies SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length}`,
+        `UPDATE public.policies SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${values.length - 1} AND tenant_id = $${values.length}`,
         values
       );
       
@@ -173,8 +169,8 @@ module.exports = async function handler(req, res) {
       const policyId = path.substring(1);
       
       await pool.query(
-        'DELETE FROM public.policies WHERE id = $1',
-        [policyId]
+        'DELETE FROM public.policies WHERE id = $1 AND tenant_id = $2',
+        [policyId, tenantId]
       );
       
       return res.json({

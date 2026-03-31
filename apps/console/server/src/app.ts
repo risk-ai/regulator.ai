@@ -28,6 +28,7 @@ import { SystemNowService } from './services/systemNowService.js';
 import { eventStream } from './sse/eventStream.js';
 import { createAuthMiddleware } from './middleware/requireAuth.js';
 import { createHybridAuthMiddleware } from './middleware/hybridAuth.js';
+import { jwtAuthMiddleware } from './middleware/jwtAuth.js';
 import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.js';
 import { createCacheMiddleware } from './middleware/cache.js';
@@ -284,6 +285,28 @@ export function createApp(
 
   // Apply general API rate limiting to all /api/v1/* routes
   app.use(apiPrefix, apiLimiter);
+
+  // ============================================================================
+  // Global JWT Auth Enforcement
+  // ============================================================================
+  // Apply JWT auth to all /api/v1/* routes except public endpoints
+  const publicPaths = [
+    '/api/v1/auth/',
+    '/api/v1/health',
+    '/health',
+    '/metrics'
+  ];
+
+  app.use(apiPrefix, (req: Request, res: Response, next: NextFunction) => {
+    // Skip auth for public paths
+    const isPublic = publicPaths.some(path => req.path.startsWith(path.replace('/api/v1', '')));
+    if (isPublic) {
+      return next();
+    }
+    
+    // Require JWT auth for all other /api/v1/* routes
+    return jwtAuthMiddleware(req, res, next);
+  });
 
   // ============================================================================
   // Public Routes (no auth required)

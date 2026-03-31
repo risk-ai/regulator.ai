@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHash, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { Pool } from "pg";
 
 export const runtime = 'nodejs';
@@ -107,7 +107,7 @@ function verifyStripeSignature(rawBody: string, signature: string, secret: strin
 
     // Verify signature
     const payload = `${timestamp}.${rawBody}`;
-    const computedSignature = createHash('sha256')
+    const computedSignature = createHmac('sha256', secret)
       .update(payload, 'utf8')
       .digest('hex');
 

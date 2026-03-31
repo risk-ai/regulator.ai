@@ -45,3 +45,4 @@ export declare class ViennaClient {
     health(): Promise<any>;
     createEventStream(onEvent: (event: any) => void, onError?: (error: Error) => void): EventSource;
 }
+//# sourceMappingURL=client.d.ts.map

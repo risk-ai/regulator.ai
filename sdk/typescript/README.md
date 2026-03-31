@@ -1,6 +1,6 @@
 # Vienna OS TypeScript SDK
 
-Official TypeScript/JavaScript SDK for Vienna OS AI Agent Governance Platform.
+Strongly-typed TypeScript SDK for the Vienna OS AI Agent Governance Platform.
 
 ## Installation
 
@@ -13,189 +13,284 @@ npm install @vienna-os/sdk
 ```typescript
 import { ViennaClient } from '@vienna-os/sdk';
 
-// Initialize client
-const client = new ViennaClient({
-  email: 'user@example.com',
-  password: 'your-password'
+const vienna = new ViennaClient({
+  baseUrl: 'https://api.regulator.ai',
+  apiKey: 'vos_...',
+  timeout: 30000, // optional, defaults to 30s
 });
 
-// Execute an action with governance
-const result = await client.execute({
-  action: 'send_email',
-  agentId: 'marketing-agent',
-  context: { to: 'customer@example.com' },
-  tier: 'T0'
+// Submit an intent
+const result = await vienna.submitIntent({
+  agent_id: 'my-agent',
+  action: 'deploy',
+  payload: { service: 'api-gateway', version: 'v2.0.0' },
+  risk_tier: 'T2',
 });
 
-console.log(`Execution ID: ${result.execution_id}`);
-console.log(`Status: ${result.status}`);
-```
-
-## Features
-
-- ✅ Full TypeScript support with type definitions
-- ✅ Promise-based async API
-- ✅ Automatic error handling
-- ✅ Real-time event streaming (SSE)
-- ✅ All 46 API endpoints wrapped
-
-## Usage
-
-### Authentication
-
-```typescript
-// With email/password
-const client = new ViennaClient({
-  email: 'user@example.com',
-  password: 'password'
-});
-
-// With API key
-const client = new ViennaClient({
-  apiKey: 'vos_your_api_key_here'
-});
-```
-
-### Execute Actions
-
-```typescript
-// T0 - Auto-approved
-const result = await client.execute({
-  action: 'query_database',
-  agentId: 'analytics-agent',
-  tier: 'T0'
-});
-
-// T1 - Requires approval
-const result = await client.execute({
-  action: 'delete_records',
-  agentId: 'admin-agent',
-  tier: 'T1'
-});
-
-if (result.requires_approval) {
-  console.log(`Waiting for approval: ${result.execution_id}`);
-}
-```
-
-### Manage Approvals
-
-```typescript
-// Get pending approvals
-const approvals = await client.getApprovals({ status: 'pending', tier: 'T1' });
-
-for (const approval of approvals) {
-  console.log(`${approval.approval_id}: ${approval.action_summary}`);
-}
-
-// Approve an action
-await client.approve(
-  'approval_123',
-  'max@law.ai',
-  'Approved after security review'
-);
-
-// Reject an action
-await client.reject(
-  'approval_456',
-  'max@law.ai',
-  'Insufficient justification'
-);
-```
-
-### Real-time Events
-
-```typescript
-const eventSource = client.createEventStream(
-  (event) => {
-    console.log('New event:', event);
-    
-    if (event.type === 'execution_requested') {
-      console.log(`New execution: ${event.execution_id}`);
-    }
-  },
-  (error) => {
-    console.error('Event stream error:', error);
-  }
-);
-
-// Close stream when done
-eventSource.close();
-```
-
-### Error Handling
-
-```typescript
-import {
-  ViennaError,
-  AuthenticationError,
-  ValidationError,
-  NotFoundError
-} from '@vienna-os/sdk';
-
-try {
-  await client.execute({
-    action: 'risky_operation',
-    agentId: 'agent-123'
-  });
-} catch (error) {
-  if (error instanceof AuthenticationError) {
-    console.error('Authentication failed');
-  } else if (error instanceof ValidationError) {
-    console.error('Validation error:', error.message);
-  } else if (error instanceof ViennaError) {
-    console.error('API error:', error.message);
-  }
+if (result.pipeline === 'executed') {
+  console.log('Deployed with warrant:', result.warrant?.id);
+} else if (result.pipeline === 'pending_approval') {
+  console.log('Awaiting approval:', result.proposal?.id);
 }
 ```
 
 ## API Reference
 
-### Client Methods
-
-- `login(email, password)` - Authenticate and get token
-- `execute(options)` - Execute action with governance
-- `getExecutions(filters?)` - List execution history
-- `getExecution(id)` - Get execution details
-- `getApprovals(filters?)` - List approval requests
-- `approve(id, reviewer, notes?)` - Approve action
-- `reject(id, reviewer, reason)` - Reject action
-- `getWarrants(limit?)` - List warrants
-- `verifyWarrant(id, signature)` - Verify warrant
-- `getPolicies(filters?)` - List policies
-- `createPolicy(policy)` - Create policy
-- `updatePolicy(id, updates)` - Update policy
-- `deletePolicy(id)` - Delete policy
-- `getAgents(filters?)` - List agents
-- `registerAgent(agent)` - Register agent
-- `updateAgent(id, updates)` - Update agent
-- `deleteAgent(id)` - Delete agent
-- `health()` - Check API health
-- `createEventStream(onEvent, onError?)` - Subscribe to real-time events
-
-## Types
-
-All types are exported from the main package:
+### Client Initialization
 
 ```typescript
-import type {
-  ExecutionResult,
-  Approval,
-  Warrant,
-  Policy,
-  Agent,
-  ExecutionOptions,
-  ApprovalFilter,
-  PolicyFilter
-} from '@vienna-os/sdk';
+const vienna = new ViennaClient({
+  baseUrl: string;     // Vienna OS API URL
+  apiKey?: string;     // API key for authentication
+  timeout?: number;    // Request timeout in ms (default: 30000)
+});
 ```
 
-## Support
+### Intent Operations
 
-- **Documentation:** https://docs.regulator.ai
-- **GitHub:** https://github.com/risk-ai/regulator.ai
-- **Email:** support@regulator.ai
+#### Submit Intent
+
+```typescript
+await vienna.submitIntent({
+  agent_id: string;
+  action: string;
+  payload?: Record<string, any>;
+  metadata?: Record<string, any>;
+  risk_tier?: 'T0' | 'T1' | 'T2' | 'T3';
+  simulation?: boolean;
+});
+```
+
+#### Simulate Intent
+
+```typescript
+const result = await vienna.simulate({
+  agent_id: 'my-agent',
+  action: 'deploy',
+  payload: { ... },
+});
+```
+
+#### Batch Submit
+
+```typescript
+const results = await vienna.submitBatch([
+  { agent_id: 'agent-1', action: 'deploy', payload: {...} },
+  { agent_id: 'agent-2', action: 'scale', payload: {...} },
+]);
+
+console.log(`Succeeded: ${results.succeeded}, Failed: ${results.failed}`);
+```
+
+### Agent Management
+
+#### List Agents
+
+```typescript
+const response = await vienna.listAgents({
+  page: 1,
+  limit: 50,
+  status: 'active',
+  tier: 'T2',
+});
+
+response.data.forEach(agent => {
+  console.log(agent.name, agent.status);
+});
+
+console.log(`Page ${response.pagination.page} of ${response.pagination.totalPages}`);
+```
+
+#### Register Agent
+
+```typescript
+const agent = await vienna.registerAgent({
+  name: 'My Agent',
+  type: 'deployment-agent',
+  description: 'Handles production deployments',
+  default_tier: 'T2',
+  capabilities: ['deploy', 'rollback'],
+  config: { region: 'us-east-1' },
+});
+```
+
+#### Update Agent
+
+```typescript
+await vienna.updateAgent('agent-id', {
+  status: 'suspended',
+  config: { region: 'us-west-2' },
+});
+```
+
+#### Delete Agent
+
+```typescript
+await vienna.deleteAgent('agent-id');
+```
+
+### Policy Management
+
+#### List Policies
+
+```typescript
+const response = await vienna.listPolicies({
+  page: 1,
+  limit: 10,
+  enabled: true,
+  tier: 'T2',
+});
+```
+
+#### Create Policy
+
+```typescript
+const policy = await vienna.createPolicy({
+  name: 'Production Deployment Policy',
+  tier: 'T2',
+  rules: {
+    require_approval: true,
+    allowed_hours: { start: 9, end: 17 },
+  },
+  enabled: true,
+  priority: 100,
+});
+```
+
+#### Update Policy
+
+```typescript
+await vienna.updatePolicy('policy-id', {
+  enabled: false,
+  priority: 50,
+});
+```
+
+#### Delete Policy
+
+```typescript
+await vienna.deletePolicy('policy-id');
+```
+
+### Approval Operations
+
+#### Approve Proposal
+
+```typescript
+const result = await vienna.approveProposal('proposal-id', {
+  reviewer: 'operator-alice',
+  reason: 'Approved after review',
+});
+
+console.log('Warrant issued:', result.warrant.id);
+```
+
+#### Reject Proposal
+
+```typescript
+await vienna.rejectProposal('proposal-id', {
+  reviewer: 'operator-bob',
+  reason: 'Deployment window closed',
+});
+```
+
+### Warrant Verification
+
+```typescript
+const verification = await vienna.verifyWarrant('warrant-id', 'signature');
+
+if (verification.valid) {
+  console.log('Warrant is valid');
+  console.log('Expires:', verification.warrant?.expires_at);
+}
+```
+
+### System Health
+
+```typescript
+const health = await vienna.health();
+console.log('Status:', health.status);
+console.log('Version:', health.version);
+```
+
+## Type Definitions
+
+### Intent
+
+```typescript
+interface Intent {
+  agent_id: string;
+  action: string;
+  payload?: Record<string, any>;
+  metadata?: Record<string, any>;
+  risk_tier?: 'T0' | 'T1' | 'T2' | 'T3';
+  simulation?: boolean;
+}
+```
+
+### IntentResult
+
+```typescript
+interface IntentResult {
+  pipeline: 'executed' | 'pending_approval' | 'blocked' | 'simulated';
+  intent_id?: string;
+  warrant?: Warrant;
+  proposal?: Proposal;
+  risk_tier?: string;
+  reason?: string;
+  would_approve?: boolean;
+}
+```
+
+### Agent
+
+```typescript
+interface Agent {
+  id: string;
+  name: string;
+  type: string;
+  description?: string;
+  default_tier: string;
+  capabilities: string[];
+  config: Record<string, any>;
+  status: 'active' | 'suspended' | 'terminated';
+  created_at: string;
+  updated_at?: string;
+}
+```
+
+### Policy
+
+```typescript
+interface Policy {
+  id: string;
+  name: string;
+  description?: string;
+  tier: string;
+  rules: Record<string, any>;
+  enabled: boolean;
+  priority: number;
+  created_at: string;
+  updated_at?: string;
+}
+```
+
+## Error Handling
+
+```typescript
+try {
+  await vienna.submitIntent({ ... });
+} catch (error) {
+  if (error.message === 'Request timed out') {
+    // Handle timeout
+  } else if (error.message.includes('HTTP 401')) {
+    // Handle authentication error
+  } else {
+    // Handle other errors
+  }
+}
+```
 
 ## License
 
-MIT License - see LICENSE file for details
+MIT

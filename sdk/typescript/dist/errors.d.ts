@@ -16,3 +16,4 @@ export declare class NotFoundError extends ViennaError {
 export declare class RateLimitError extends ViennaError {
     constructor(message?: string);
 }
+//# sourceMappingURL=errors.d.ts.map

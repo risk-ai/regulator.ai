@@ -22,9 +22,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/risk-ai/regulator.ai"
+    "url": "git+https://github.com/risk-ai/regulator.ai.git"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
-  }
+  },
+  "directories": {
+    "example": "examples"
+  },
+  "bugs": {
+    "url": "https://github.com/risk-ai/regulator.ai/issues"
+  },
+  "homepage": "https://github.com/risk-ai/regulator.ai#readme"
 }

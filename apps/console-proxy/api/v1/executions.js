@@ -6,6 +6,7 @@
 const { requireAuth, pool } = require('./_auth');
 const { notifyExecutionFailed } = require('../../lib/notifications');
 const { trackUsage } = require('../../lib/usage');
+const { captureException } = require('../../lib/sentry');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -108,6 +109,7 @@ module.exports = async function handler(req, res) {
     
   } catch (error) {
     console.error('[executions]', error);
+    captureException(error, { endpoint: 'executions', tenantId });
     return res.status(500).json({
       success: false,
       error: error.message,

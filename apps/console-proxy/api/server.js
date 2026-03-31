@@ -1,5 +1,9 @@
+// Initialize Sentry first
+require('../lib/sentry').initSentry();
+
 const { Pool } = require('pg');
 const crypto = require('crypto');
+const { captureException } = require('../lib/sentry');
 
 // Lazy pool init
 let pool = null;
@@ -1770,6 +1774,16 @@ module.exports = async function handler(req, res) {
 
   } catch (err) {
     console.error('[API Error]', err);
+    
+    // Extract tenant info for better error context
+    const tenantId = extractTenantId(req);
+    captureException(err, { 
+      endpoint: 'server_handler', 
+      path: url?.pathname, 
+      method: req.method,
+      tenantId 
+    });
+    
     return res.status(500).json({
       success: false,
       error: err.message,

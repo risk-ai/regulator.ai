@@ -5,6 +5,7 @@
  */
 
 const { requireAuth, withTenantFilter, pool } = require('./_auth');
+const { captureException } = require('../../lib/sentry');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -220,6 +221,7 @@ module.exports = async function handler(req, res) {
     
   } catch (error) {
     console.error('[policies]', error);
+    captureException(error, { endpoint: 'policies', tenantId });
     return res.status(500).json({
       success: false,
       error: error.message,

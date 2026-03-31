@@ -3,7 +3,12 @@
  * Centralized error monitoring and alerting
  */
 
-const Sentry = require('@sentry/node');
+let Sentry;
+try {
+  Sentry = require('@sentry/node');
+} catch (error) {
+  console.warn('[Sentry] @sentry/node not installed, error tracking disabled');
+}
 
 let sentryInitialized = false;
 
@@ -12,6 +17,11 @@ let sentryInitialized = false;
  */
 function initSentry() {
   if (sentryInitialized) return;
+  
+  if (!Sentry) {
+    console.warn('[Sentry] Module not available, error tracking disabled');
+    return;
+  }
   
   const dsn = process.env.SENTRY_DSN;
   
@@ -58,7 +68,10 @@ function initSentry() {
  * Capture an exception
  */
 function captureException(error, context = {}) {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized || !Sentry) {
+    console.error('[Error]', error);
+    return;
+  }
   
   Sentry.captureException(error, {
     extra: context,
@@ -69,7 +82,7 @@ function captureException(error, context = {}) {
  * Capture a message
  */
 function captureMessage(message, level = 'info', context = {}) {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized || !Sentry) return;
   
   Sentry.captureMessage(message, {
     level,
@@ -81,7 +94,7 @@ function captureMessage(message, level = 'info', context = {}) {
  * Set user context for error tracking
  */
 function setUser(user) {
-  if (!sentryInitialized) return;
+  if (!sentryInitialized || !Sentry) return;
   
   Sentry.setUser(user ? {
     id: user.id,
@@ -94,7 +107,7 @@ function setUser(user) {
  * Express error handler middleware
  */
 function errorHandler() {
-  if (!sentryInitialized) {
+  if (!sentryInitialized || !Sentry) {
     // Return passthrough middleware if Sentry not initialized
     return (err, req, res, next) => {
       console.error('[Error]', err);
@@ -114,7 +127,7 @@ function errorHandler() {
  * Express request handler middleware
  */
 function requestHandler() {
-  if (!sentryInitialized) {
+  if (!sentryInitialized || !Sentry) {
     return (req, res, next) => next();
   }
   

@@ -64,23 +64,31 @@ export function App() {
       return; // Don't check session if handling OAuth
     }
     
-    // Regular session check
-    const timeoutId = setTimeout(() => {
-      // If still loading after 10 seconds, backend is likely down
-      if (loading) {
-        setBackendDown(true);
-      }
-    }, 10000);
+    // Regular session check — only flag backend as down if a real
+    // network request fails (not just "no stored tokens").
+    // First do a lightweight health check, then check session.
+    let cancelled = false;
     
-    checkSession().catch((err) => {
-      // Only set backendDown for network errors, not auth errors
-      if (err?.name === 'TypeError' || err?.code === 'NETWORK_ERROR' || err?.message?.includes('fetch')) {
-        setBackendDown(true);
+    (async () => {
+      try {
+        // Quick health probe to verify backend is reachable
+        const healthRes = await fetch('/api/v1/health', { signal: AbortSignal.timeout(8000) });
+        if (!healthRes.ok) throw new Error('Health check failed');
+      } catch {
+        if (!cancelled) setBackendDown(true);
+        return;
       }
-      // Auth errors (401/403) are handled by checkSession internally
-    });
+      
+      // Backend is up — check session (may resolve immediately if no tokens)
+      try {
+        await checkSession();
+      } catch {
+        // Session check failure is NOT a backend-down event
+        // (e.g. expired tokens, 401s). AuthStore handles these.
+      }
+    })();
     
-    return () => clearTimeout(timeoutId);
+    return () => { cancelled = true; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   
   // Check if onboarding should be shown (first-time user)

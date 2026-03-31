@@ -104,3 +104,5 @@ VIENNA_RUNTIME_STATE.md
 VIENNA_DAILY_STATE_LOG.md
 apps/console/server/dist/
 apps/console/server/build/
+.env.vercel
+*.swp

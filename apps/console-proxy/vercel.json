@@ -16,6 +16,7 @@
     { "source": "/api/v1/rbac(.*)", "destination": "/api/v1/rbac" },
     { "source": "/api/v1/refresh(.*)", "destination": "/api/v1/refresh" },
     { "source": "/api/(.*)", "destination": "/api/server" },
-    { "source": "/((?!api).*)", "destination": "/index.html" }
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/((?!api|assets).*)", "destination": "/index.html" }
   ]
 }

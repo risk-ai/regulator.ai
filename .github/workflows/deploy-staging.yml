@@ -1,0 +1,103 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop, staging]
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+      
+      - name: Deploy Backend to Vercel (Staging)
+        run: |
+          cd apps/console-proxy
+          vercel --token=${{ secrets.VERCEL_TOKEN }} \
+            --yes \
+            --env DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }} \
+            --env JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }} \
+            --env STRIPE_SECRET_KEY=${{ secrets.STAGING_STRIPE_SECRET_KEY }} \
+            --env CONSOLE_URL=https://staging.console.regulator.ai
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+      
+      - name: Comment PR with staging URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 **Staging deployment ready!**\n\n' +
+                    '- Backend: https://staging-api.regulator.ai\n' +
+                    '- Console: https://staging.console.regulator.ai\n' +
+                    '- Commit: `' + context.sha.substring(0, 7) + '`'
+            })
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+      
+      - name: Deploy Frontend to Vercel (Staging)
+        run: |
+          cd apps/console
+          vercel --token=${{ secrets.VERCEL_TOKEN }} \
+            --yes \
+            --env VITE_API_URL=https://staging-api.regulator.ai
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_CONSOLE }}
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    
+    steps:
+      - name: Wait for deployments
+        run: sleep 30
+      
+      - name: Test backend health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://staging-api.regulator.ai/api/v1/health)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Backend health check failed: HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ Backend health check passed"
+      
+      - name: Test frontend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://staging.console.regulator.ai)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Frontend health check failed: HTTP $STATUS"
+            exit 1
+          fi
+          echo "✅ Frontend health check passed"

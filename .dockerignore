@@ -1,0 +1,49 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.npm
+.yarn
+
+# Environment
+.env*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Testing
+tests/
+*.test.js
+*.test.ts
+coverage/
+
+# Build artifacts
+dist/
+build/
+.next/
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log

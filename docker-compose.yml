@@ -19,33 +19,37 @@ services:
       timeout: 5s
       retries: 5
 
-  console:
+  backend:
     build:
       context: .
-      dockerfile: apps/console/server/Dockerfile
+      dockerfile: Dockerfile
     environment:
       PORT: 3100
       NODE_ENV: development
-      POSTGRES_URL: postgres://vienna:vienna_dev@postgres:5432/vienna_dev
-      VIENNA_OPERATOR_PASSWORD: vienna-dev
-      VIENNA_SESSION_SECRET: dev-secret-not-for-production
-      JWT_SECRET: dev-jwt-secret
-      VIENNA_WARRANT_KEY: dev-warrant-key
+      DATABASE_URL: postgres://vienna:vienna_dev@postgres:5432/vienna_dev
+      JWT_SECRET: dev-jwt-secret-change-in-production
       CORS_ORIGIN: http://localhost:5173,http://localhost:3100
     ports:
       - "3100:3100"
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
-  marketing:
+  frontend:
     build:
-      context: .
-      dockerfile: apps/marketing/Dockerfile
-    ports:
-      - "3000:3000"
+      context: apps/console
+      dockerfile: Dockerfile
     environment:
-      NODE_ENV: production
+      VITE_API_URL: http://localhost:3100
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

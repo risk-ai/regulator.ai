@@ -17,4 +17,5 @@ export const analytics = {
   blogView: (slug: string) => trackEvent('blog_view', { slug }),
   docsView: (section: string) => trackEvent('docs_view', { section }),
   ctaClick: (location: string, cta: string) => trackEvent('cta_click', { location, cta }),
+  page: (name: string) => trackEvent('page_view', { page_title: name }),
 };

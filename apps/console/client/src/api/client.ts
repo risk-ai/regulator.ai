@@ -204,6 +204,16 @@ export class ApiClient {
   async delete<T>(path: string): Promise<T> {
     return this.fetch<T>(path, { method: 'DELETE' });
   }
+
+  /**
+   * PATCH request
+   */
+  async patch<T>(path: string, body: unknown): Promise<T> {
+    return this.fetch<T>(path, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  }
 }
 
 // Singleton instance

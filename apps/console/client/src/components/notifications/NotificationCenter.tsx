@@ -20,19 +20,21 @@ export interface Notification {
 }
 
 async function fetchNotifications(): Promise<Notification[]> {
-  // For now, return mock data
-  // TODO: Implement backend endpoint /api/v1/notifications
-  return [];
+  try {
+    const response = await apiClient.get<{ data: Notification[] }>('/notifications?limit=50&read=false');
+    return (response as any).data || [];
+  } catch (error) {
+    console.error('[NotificationCenter] Failed to fetch notifications:', error);
+    return [];
+  }
 }
 
 async function markAsRead(notificationId: string): Promise<void> {
-  // TODO: Implement backend endpoint
-  return Promise.resolve();
+  await apiClient.patch(`/notifications/${notificationId}/read`, {});
 }
 
 async function markAllAsRead(): Promise<void> {
-  // TODO: Implement backend endpoint
-  return Promise.resolve();
+  await apiClient.post('/notifications/mark-all-read', {});
 }
 
 export function NotificationCenter() {

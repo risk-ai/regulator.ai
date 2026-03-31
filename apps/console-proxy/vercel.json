@@ -18,6 +18,7 @@
     { "src": "/api/v1/webhooks(.*)", "dest": "api/v1/webhooks.js" },
     { "src": "/api/v1/approvals(.*)", "dest": "api/v1/approvals.js" },
     { "src": "/api/v1/notifications(.*)", "dest": "api/v1/notifications.js" },
+    { "src": "/api/v1/batch(.*)", "dest": "api/v1/batch.js" },
     { "src": "/api/v1/executions(.*)", "dest": "api/v1/executions.js" },
     { "src": "/api/v1/execution-records(.*)", "dest": "api/v1/execution-records.js" },
     { "src": "/api/v1/events(.*)", "dest": "api/v1/events.js" },

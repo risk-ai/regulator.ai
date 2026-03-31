@@ -36,7 +36,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
 export function App() {
-  const { authenticated, loading, error, checkSession } = useAuthStore();
+  const { authenticated, loading, error, checkSession, loginWithOAuth } = useAuthStore();
   const [currentSection, setCurrentSection] = useState<NavSection>('now');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -47,8 +47,23 @@ export function App() {
     onOpenCommandPalette: () => setShowCommandPalette(true)
   });
 
-  // Check session on mount with timeout detection
+  // Handle OAuth callback on mount
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      // OAuth callback with token
+      loginWithOAuth(token).then((success) => {
+        if (success) {
+          // Clear token from URL
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        }
+      });
+      return; // Don't check session if handling OAuth
+    }
+    
+    // Regular session check
     const timeoutId = setTimeout(() => {
       // If still loading after 6 seconds, backend is likely down
       if (loading) {

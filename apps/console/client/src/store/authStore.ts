@@ -154,6 +154,36 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
+    // OAuth login (receive JWT token from OAuth callback)
+    loginWithOAuth: async (token: string) => {
+      set({ loading: true, error: null });
+      try {
+        // Store token
+        localStorage.setItem('vienna_access_token', token);
+        
+        // Fetch user details with the token
+        const response = await getCurrentUser();
+        
+        set({
+          authenticated: true,
+          user: response.user || null,
+          tenant: response.tenant || null,
+          accessToken: token,
+          refreshToken: null, // OAuth tokens may not have refresh tokens initially
+          loading: false,
+          error: null,
+        });
+        return true;
+      } catch (error: any) {
+        console.error('[AuthStore] OAuth login failed:', error);
+        set({
+          loading: false,
+          error: error?.message || 'OAuth login failed',
+        });
+        return false;
+      }
+    },
+    
     // Logout action
     logout: async () => {
       set({ loading: true, error: null });

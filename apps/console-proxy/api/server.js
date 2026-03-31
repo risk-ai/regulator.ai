@@ -580,16 +580,13 @@ module.exports = async function handler(req, res) {
     const publicPaths = [
       '/health',
       '/api/v1/health',
-      '/api/v1/auth/login',
-      '/api/v1/auth/register',
-      '/api/v1/auth/verify-email',
-      '/api/v1/auth/request-reset',
-      '/api/v1/auth/reset-password',
+      '/api/v1/auth/',  // All auth routes (login, register, me, check, refresh, logout, etc.)
       '/api/v1/docs',
       '/docs',
+      '/api/v1/stripe/webhook',  // Stripe webhooks use their own signature verification
     ];
 
-    const isPublicPath = publicPaths.some(p => path === p || path.startsWith(p + '/'));
+    const isPublicPath = publicPaths.some(p => path === p || path.startsWith(p)) || path.startsWith('/api/v1/auth');
     
     if (!isPublicPath && !tenantId) {
       return res.status(401).json({ 

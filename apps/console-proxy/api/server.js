@@ -576,6 +576,29 @@ module.exports = async function handler(req, res) {
     // Extract tenant for all subsequent queries
     const tenantId = extractTenantId(req);
 
+    // Auth enforcement — require authentication for all data endpoints
+    const publicPaths = [
+      '/health',
+      '/api/v1/health',
+      '/api/v1/auth/login',
+      '/api/v1/auth/register',
+      '/api/v1/auth/verify-email',
+      '/api/v1/auth/request-reset',
+      '/api/v1/auth/reset-password',
+      '/api/v1/docs',
+      '/docs',
+    ];
+
+    const isPublicPath = publicPaths.some(p => path === p || path.startsWith(p + '/'));
+    
+    if (!isPublicPath && !tenantId) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Authentication required',
+        message: 'Please log in to access this resource'
+      });
+    }
+
     // Dashboard bootstrap (DB-driven)
     if (path === '/api/v1/dashboard/bootstrap' || path === '/api/v1/dashboard') {
       const [agents, policies, warrants, audit] = await Promise.all([

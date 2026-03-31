@@ -1,27 +1,11 @@
 import { Shield, ArrowLeft, Clock } from "lucide-react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getPost, getAllSlugs } from "@/lib/blog";
 
-const posts: Record<
-  string,
-  {
-    title: string;
-    date: string;
-    readTime: string;
-    category: string;
-    categoryColor: string;
-    content: string;
-  }
-> = {
-  "execution-gap-warrants-not-guardrails": {
-    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
-    date: "March 30, 2026",
-    readTime: "9 min",
-    category: "Governance",
-    categoryColor: "text-purple-400 bg-purple-500/10",
-    content: "Blog post content temporarily unavailable. Check back soon.",
-  },
-};
+export async function generateStaticParams() {
+  return getAllSlugs().map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -29,18 +13,135 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts[slug];
+  const post = getPost(slug);
   if (!post) return { title: "Post Not Found" };
 
   return {
     title: post.title + " | Vienna OS Blog",
-    description: post.content.slice(0, 160),
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+    },
   };
+}
+
+/** Simple markdown-to-JSX renderer for blog content */
+function MarkdownContent({ content }: { content: string }) {
+  // Split into blocks by double newlines
+  const blocks = content.split(/\n\n+/);
+
+  return (
+    <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-purple-400 prose-strong:text-white prose-code:text-purple-300 prose-code:bg-slate-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700">
+      {blocks.map((block, i) => {
+        const trimmed = block.trim();
+        if (!trimmed) return null;
+
+        // Code blocks
+        if (trimmed.startsWith("```")) {
+          const lines = trimmed.split("\n");
+          const lang = lines[0].replace("```", "").trim();
+          const code = lines.slice(1, -1).join("\n");
+          return (
+            <pre key={i} className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto my-6">
+              <code className={`text-sm text-slate-300 ${lang ? `language-${lang}` : ""}`}>
+                {code}
+              </code>
+            </pre>
+          );
+        }
+
+        // Headers
+        if (trimmed.startsWith("#### ")) {
+          return <h4 key={i} className="text-lg font-semibold text-white mt-8 mb-3">{trimmed.slice(5)}</h4>;
+        }
+        if (trimmed.startsWith("### ")) {
+          return <h3 key={i} className="text-xl font-semibold text-white mt-10 mb-4">{trimmed.slice(4)}</h3>;
+        }
+        if (trimmed.startsWith("## ")) {
+          return <h2 key={i} className="text-2xl font-bold text-white mt-12 mb-4">{trimmed.slice(3)}</h2>;
+        }
+
+        // Blockquotes
+        if (trimmed.startsWith("> ")) {
+          const text = trimmed.replace(/^>\s?/gm, "");
+          return (
+            <blockquote key={i} className="border-l-4 border-purple-500 pl-4 my-6 text-slate-400 italic">
+              {text}
+            </blockquote>
+          );
+        }
+
+        // Lists (bullet)
+        if (/^[-*✅❌⚠️]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
+          const items = trimmed.split("\n").filter((l) => l.trim());
+          return (
+            <ul key={i} className="space-y-2 my-4 text-slate-300">
+              {items.map((item, j) => (
+                <li key={j} className="flex gap-2">
+                  <span className="text-slate-300 leading-relaxed">
+                    {item.replace(/^[-*]\s+/, "• ").replace(/^\d+\.\s+/, "")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        // Tables (basic)
+        if (trimmed.includes(" | ")) {
+          const rows = trimmed.split("\n").filter((l) => l.trim() && !l.match(/^[-|:\s]+$/));
+          return (
+            <div key={i} className="overflow-x-auto my-6">
+              <table className="w-full text-sm text-slate-300 border border-slate-700">
+                <tbody>
+                  {rows.map((row, j) => (
+                    <tr key={j} className={j === 0 ? "bg-slate-800/50 font-semibold text-white" : "border-t border-slate-700"}>
+                      {row.split("|").filter(Boolean).map((cell, k) => (
+                        <td key={k} className="px-4 py-2">{cell.trim()}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+
+        // Horizontal rule
+        if (/^-{3,}$/.test(trimmed) || /^\*{3,}$/.test(trimmed)) {
+          return <hr key={i} className="border-slate-700 my-8" />;
+        }
+
+        // Regular paragraph — handle inline formatting
+        return (
+          <p key={i} className="text-slate-300 text-lg leading-relaxed my-4"
+            dangerouslySetInnerHTML={{
+              __html: trimmed
+                .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/`(.+?)`/g, '<code class="text-purple-300 bg-slate-800/50 px-1.5 py-0.5 rounded text-sm">$1</code>')
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-400 hover:text-purple-300 underline">$1</a>')
+                .replace(/\n/g, '<br />')
+            }}
+          />
+        );
+      })}
+    </div>
+  );
 }
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = posts[slug];
+  const post = getPost(slug);
 
   if (!post) {
     notFound();
@@ -51,16 +152,24 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-700/20 via-slate-900/50 to-transparent"></div>
 
       <div className="relative max-w-4xl mx-auto px-6 py-12">
-        <a
-          href="/blog"
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Blog
-        </a>
+        <nav className="flex items-center justify-between mb-8">
+          <a
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Blog
+          </a>
+          <a href="/" className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-violet-400" />
+            <span className="font-bold text-white text-sm">
+              Vienna<span className="text-purple-400">OS</span>
+            </span>
+          </a>
+        </nav>
 
-        <article className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl p-8">
-          <div className="flex items-center gap-4 mb-6 text-sm">
+        <article className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl p-8 md:p-12">
+          <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
             <span className={`px-3 py-1 rounded-full font-medium ${post.categoryColor}`}>
               {post.category}
             </span>
@@ -69,16 +178,39 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               <Clock className="w-4 h-4" />
               {post.readTime}
             </span>
+            <span className="text-slate-500">By {post.author}</span>
           </div>
 
-          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent leading-tight">
             {post.title}
           </h1>
 
-          <div className="prose prose-invert prose-slate max-w-none">
-            <p className="text-slate-300 text-lg leading-relaxed whitespace-pre-wrap">
-              {post.content}
-            </p>
+          <MarkdownContent content={post.content} />
+
+          {/* CTA */}
+          <div className="mt-12 pt-8 border-t border-slate-700">
+            <div className="bg-gradient-to-r from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-xl p-6 text-center">
+              <h3 className="text-xl font-bold text-white mb-2">
+                Ready to govern your AI agents?
+              </h3>
+              <p className="text-slate-400 mb-4">
+                Start with the open-source Community tier or try Team free for 14 days.
+              </p>
+              <div className="flex justify-center gap-4">
+                <a
+                  href="/pricing"
+                  className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-lg font-medium transition"
+                >
+                  View Pricing
+                </a>
+                <a
+                  href="https://github.com/risk-ai/vienna-os"
+                  className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-lg font-medium transition"
+                >
+                  GitHub
+                </a>
+              </div>
+            </div>
           </div>
         </article>
       </div>

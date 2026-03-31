@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
 a:I[43106,[],"default",1]
-:HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
+:HL["/_next/static/chunks/0w2x_7con06oi.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 2:Tc19,{
@@ -85,7 +85,7 @@ a:I[43106,[],"default",1]
       }
     ]
   }
-}0:{"P":null,"c":["","manifesto"],"q":"","i":false,"f":[[["",{"children":["manifesto",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+}0:{"P":null,"c":["","manifesto"],"q":"","i":false,"f":[[["",{"children":["manifesto",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{},null,false,null]},null,false,"$@8"]},null,false,null],"$L9",false]],"m":"$undefined","G":["$a",["$Lb"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"FI4abZ_oIigBoqs3AGxF7"}
 c:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 d:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 e:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
@@ -100,7 +100,7 @@ e:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
 16:[]
 8:"$W16"
 9:["$","$1","h",{"children":[null,["$","$L17",null,{"children":"$L18"}],["$","div",null,{"hidden":true,"children":["$","$L19",null,{"children":["$","$1a",null,{"name":"Next.Metadata","children":"$L1b"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
-b:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+b:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
 1c:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
 f:["$","div","3",{"className":"border-l-2 border-violet-500/30 pl-8","children":[["$","div",null,{"className":"text-sm text-violet-400 font-medium mb-2","children":["Principle ","IV"]}],["$","h2",null,{"className":"text-2xl font-bold mb-4","children":"Humans must remain in the loop — but not in the way"}],["$","p",null,{"className":"text-slate-300 leading-relaxed","children":"Human oversight is non-negotiable for high-risk actions. But requiring human approval for every read query is a system that will be circumvented. The art is knowing which actions need human judgment and which don't. Risk tiering solves this."}]]}]
 10:["$","div","4",{"className":"border-l-2 border-violet-500/30 pl-8","children":[["$","div",null,{"className":"text-sm text-violet-400 font-medium mb-2","children":["Principle ","V"]}],["$","h2",null,{"className":"text-2xl font-bold mb-4","children":"Audit trails must be immutable and complete"}],["$","p",null,{"className":"text-slate-300 leading-relaxed","children":"When something goes wrong — and it will — you need an unimpeachable record of what happened, who authorized it, and why. Mutable logs are fiction. Only cryptographically linked, append-only records can be trusted as evidence."}]]}]

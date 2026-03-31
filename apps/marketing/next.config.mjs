@@ -1,8 +1,17 @@
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  outputFileTracingIncludes: {
+    "/blog/[slug]": ["./content/blog/**/*.md"],
+  },
   experimental: {
-    turbo: false
+    turbo: false,
+    outputFileTracingRoot: join(__dirname, "..", ".."),
   },
   async redirects() {
     return [

@@ -527,6 +527,7 @@ export default function Home() {
                 ["#platform", "Platform"],
                 ["#industries", "Industries"],
                 ["#pricing", "Pricing"],
+                ["/enterprise", "Enterprise"],
                 ["/compare", "Compare"],
                 ["/demo", "Demo"],
                 ["/docs", "Docs"],
@@ -551,6 +552,7 @@ export default function Home() {
               <a href="#platform" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Platform</a>
               <a href="#industries" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Industries</a>
               <a href="#pricing" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+              <a href="/enterprise" className="block text-sm text-slate-300 hover:text-white transition">Enterprise</a>
               <a href="/demo" className="block text-sm text-slate-300 hover:text-white transition">Demo</a>
               <a href="/docs" className="block text-sm text-slate-300 hover:text-white transition">Docs</a>
               <a href="/blog" className="block text-sm text-slate-300 hover:text-white transition">Blog</a>
@@ -1451,7 +1453,7 @@ export default function Home() {
               </div>
               
               {[
-                { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Integrations", "/integrations"], ["Status", "/status"]] },
+                { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Enterprise", "/enterprise"], ["Pricing", "/pricing"], ["Status", "/status"]] },
                 { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
                 { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
                 { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Twitter", "https://twitter.com/ViennaOS"], ["LinkedIn", "https://linkedin.com/company/vienna-os"], ["Discord", "https://discord.gg/vienna-os"]] },

@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
 b:I[43106,[],"default",1]
-:HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
+:HL["/_next/static/chunks/0w2x_7con06oi.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 2:Tc19,{
@@ -85,7 +85,7 @@ b:I[43106,[],"default",1]
       }
     ]
   }
-}0:{"P":null,"c":["","docs","integration-guide"],"q":"","i":false,"f":[[["",{"children":["docs",{"children":["integration-guide",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+}0:{"P":null,"c":["","docs","integration-guide"],"q":"","i":false,"f":[[["",{"children":["docs",{"children":["integration-guide",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"FI4abZ_oIigBoqs3AGxF7"}
 d:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 e:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 19:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"ViewportBoundary"]
@@ -100,7 +100,7 @@ e:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj-
 18:[]
 9:"$W18"
 a:["$","$1","h",{"children":[null,["$","$L19",null,{"children":"$L1a"}],["$","div",null,{"hidden":true,"children":["$","$L1b",null,{"children":["$","$1c",null,{"name":"Next.Metadata","children":"$L1d"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
-c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
 21:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
 f:["$","p",null,{"className":"text-gray-400 text-sm mb-4","children":"Wrap tool calls with Vienna governance"}]
 10:["$","pre",null,{"className":"bg-[#0B0F19] rounded p-4 overflow-x-auto text-sm text-gray-300 font-mono","children":["$","code",null,{"children":"import { createLangChainAdapter } from '@vienna/sdk';\n\nconst vienna = createLangChainAdapter({\n  apiUrl: 'https://api.regulator.ai',\n  apiKey: process.env.VIENNA_API_KEY,\n  agentId: 'langchain-agent-01'\n});\n\n// Create a governed tool\nfunction governedTool(toolFn, action) {\n  return async (...args) => {\n    const result = await vienna.submitIntent({\n      action,\n      params: { args },\n      objective: `Execute ${action}`\n    });\n    \n    if (result.status !== 'approved') {\n      throw new Error(`Action ${action} requires approval`);\n    }\n    \n    const output = await toolFn(...args);\n    await vienna.reportExecution(result.warrant_id, { \n      success: true, output: JSON.stringify(output) \n    });\n    return output;\n  };\n}"}]}]

@@ -1,6 +1,6 @@
 1:"$Sreact.fragment"
 b:I[43106,[],"default",1]
-:HL["/_next/static/chunks/11gb5p.prn_7q.css","style"]
+:HL["/_next/static/chunks/0w2x_7con06oi.css","style"]
 :HL["/_next/static/media/70bc3e132a0a741e-s.p.1409xf.ylxg8g.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 2:Tc19,{
@@ -85,7 +85,7 @@ b:I[43106,[],"default",1]
       }
     ]
   }
-}0:{"P":null,"c":["","compare","arthur-ai"],"q":"","i":false,"f":[[["",{"children":["compare",{"children":["arthur-ai",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"KcrmhGhY9mOhiaJOxAjnJ"}
+}0:{"P":null,"c":["","compare","arthur-ai"],"q":"","i":false,"f":[[["",{"children":["compare",{"children":["arthur-ai",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",16],[["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":[["$","head",null,{"children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4"]}],"$L5"]}]]}],{"children":["$L6",{"children":["$L7",{"children":["$L8",{},null,false,null]},null,false,"$@9"]},null,false,"$@9"]},null,false,null],"$La",false]],"m":"$undefined","G":["$b",["$Lc"]],"S":true,"h":null,"s":"$undefined","l":"$undefined","p":"$undefined","d":"$undefined","b":"FI4abZ_oIigBoqs3AGxF7"}
 d:I[20754,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 e:I[40124,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"default"]
 f:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
@@ -101,7 +101,7 @@ f:I[88268,["/_next/static/chunks/0nykbuq8ioeta.js"],""]
 1c:[]
 9:"$W1c"
 a:["$","$1","h",{"children":[null,["$","$L1d",null,{"children":"$L1e"}],["$","div",null,{"hidden":true,"children":["$","$L1f",null,{"children":["$","$20",null,{"name":"Next.Metadata","children":"$L21"}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}]
-c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/11gb5p.prn_7q.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
+c:["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/0w2x_7con06oi.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]
 22:I[71775,["/_next/static/chunks/0o2ar92o32egb.js","/_next/static/chunks/0qvscj--v_c9m.js"],"OutletBoundary"]
 10:["$","div","2",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Approach"}],["$","div",null,{"className":"text-slate-200","children":"Pre-execution control (prevent)"}],["$","div",null,{"className":"text-slate-200","children":"Post-execution monitoring (detect)"}]]}]
 11:["$","div","3",{"className":"grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm","children":[["$","div",null,{"className":"font-medium text-slate-400","children":"Agent Support"}],["$","div",null,{"className":"text-slate-200","children":"LangChain, CrewAI, AutoGen, custom"}],["$","div",null,{"className":"text-slate-200","children":"Model-level (not agent-specific)"}]]}]

@@ -135,6 +135,12 @@
       "namedRegex": "^/api/try(?:/)?$"
     },
     {
+      "page": "/api/webhooks/stripe",
+      "regex": "^/api/webhooks/stripe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/webhooks/stripe(?:/)?$"
+    },
+    {
       "page": "/blog",
       "regex": "^/blog(?:/)?$",
       "routeKeys": {},
@@ -211,6 +217,12 @@
       "regex": "^/docs/integration\\-guide(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/docs/integration\\-guide(?:/)?$"
+    },
+    {
+      "page": "/enterprise",
+      "regex": "^/enterprise(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/enterprise(?:/)?$"
     },
     {
       "page": "/faq",

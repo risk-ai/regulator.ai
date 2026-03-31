@@ -333,7 +333,7 @@ export default function ComparePage() {
         {/* Detailed Comparisons */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Detailed Comparisons</h2>
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Guardrails AI</h3>
               <p className="text-sm text-slate-400">Execution control vs prompt validation — feature-by-feature breakdown</p>
@@ -341,6 +341,18 @@ export default function ComparePage() {
             <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Arthur AI</h3>
               <p className="text-sm text-slate-400">When you need more than monitoring — control vs observability</p>
+            </a>
+            <a href="/compare/credo-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Credo AI</h3>
+              <p className="text-sm text-slate-400">Execution control vs compliance documentation — prevent vs document</p>
+            </a>
+            <a href="/compare/calypso-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Calypso AI</h3>
+              <p className="text-sm text-slate-400">Runtime enforcement vs pre-deployment testing — enforce vs test</p>
+            </a>
+            <a href="/compare/holistic-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-violet-400 transition mb-2">Vienna OS vs Holistic AI</h3>
+              <p className="text-sm text-slate-400">Continuous control vs periodic auditing — enforce vs audit</p>
             </a>
           </div>
         </div>

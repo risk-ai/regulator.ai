@@ -15,10 +15,13 @@ module.exports = async function handler(req, res) {
   const tenantId = user.tenant_id;
   
   try {
-    // List agents
+    // List agents (with pagination)
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const status = params.status;
       const tier = params.tier;
+      const page = parseInt(params.page || '1', 10);
+      const limit = Math.min(parseInt(params.limit || '50', 10), 100); // Max 100
+      const offset = (page - 1) * limit;
       
       let query = 'SELECT * FROM public.agents WHERE tenant_id = $1';
       const queryParams = [tenantId];
@@ -35,11 +38,42 @@ module.exports = async function handler(req, res) {
       
       query += ' ORDER BY created_at DESC';
       
+      // Add pagination
+      queryParams.push(limit);
+      query += ` LIMIT $${queryParams.length}`;
+      queryParams.push(offset);
+      query += ` OFFSET $${queryParams.length}`;
+      
       const result = await pool.query(query, queryParams);
+      
+      // Get total count for pagination metadata
+      let countQuery = 'SELECT COUNT(*) FROM public.agents WHERE tenant_id = $1';
+      const countParams = [tenantId];
+      
+      if (status) {
+        countParams.push(status);
+        countQuery += ` AND status = $${countParams.length}`;
+      }
+      
+      if (tier) {
+        countParams.push(tier);
+        countQuery += ` AND default_tier = $${countParams.length}`;
+      }
+      
+      const countResult = await pool.query(countQuery, countParams);
+      const total = parseInt(countResult.rows[0].count, 10);
       
       return res.json({
         success: true,
-        data: result.rows
+        data: result.rows,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNext: offset + result.rows.length < total,
+          hasPrev: page > 1,
+        },
       });
     }
     

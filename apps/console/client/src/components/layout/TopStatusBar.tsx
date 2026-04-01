@@ -69,20 +69,22 @@ export function TopStatusBar() {
         {/* Divider */}
         <div style={{ width: '1px', height: '24px', background: 'var(--border-default)' }} />
         
-        {/* Status Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <StatusPill 
+        {/* Status Indicators */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <StatusIndicator 
             color={stateColors[systemState] || '#6b7280'} 
-            label={systemState === 'healthy' ? 'Healthy' : systemState.charAt(0).toUpperCase() + systemState.slice(1)} 
+            label={systemState === 'healthy' ? 'System' : `System: ${systemState.charAt(0).toUpperCase() + systemState.slice(1)}`} 
           />
-          <StatusPill 
+          <StatusIndicator 
             color={stateColors[executorState] || '#6b7280'} 
-            label={`Executor: ${executorState}`} 
+            label={`Executor`} 
+            value={executorState}
           />
           {queueDepth > 0 && (
-            <StatusPill 
+            <StatusIndicator 
               color="#60a5fa" 
-              label={`Queue: ${queueDepth}`} 
+              label="Queue" 
+              value={queueDepth.toString()}
             />
           )}
         </div>
@@ -95,17 +97,12 @@ export function TopStatusBar() {
           display: 'flex', 
           alignItems: 'center', 
           gap: '6px',
-          padding: '4px 10px',
-          borderRadius: '6px',
-          background: sseConnected ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
-          border: `1px solid ${sseConnected ? 'rgba(74, 222, 128, 0.15)' : 'rgba(248, 113, 113, 0.15)'}`,
         }}>
           <div style={{ 
             width: '6px', 
             height: '6px', 
             borderRadius: '50%', 
             background: sseConnected ? '#10b981' : '#ef4444',
-            boxShadow: sseConnected ? '0 0 6px rgba(74, 222, 128, 0.4)' : 'none',
           }} />
           <span style={{ 
             fontSize: '12px', 
@@ -179,19 +176,15 @@ export function TopStatusBar() {
   );
 }
 
-function StatusPill({ color, label }: { color: string; label: string }) {
+function StatusIndicator({ color, label, value }: { color: string; label: string; value?: string }) {
   return (
     <div style={{
       display: 'flex',
       alignItems: 'center',
       gap: '6px',
-      padding: '3px 10px',
-      borderRadius: '100px',
-      background: `${color}10`,
-      border: `1px solid ${color}20`,
       fontSize: '12px',
       fontWeight: 500,
-      color: color,
+      color: 'var(--text-secondary)',
       whiteSpace: 'nowrap',
     }}>
       <div style={{
@@ -200,7 +193,8 @@ function StatusPill({ color, label }: { color: string; label: string }) {
         borderRadius: '50%',
         background: color,
       }} />
-      {label}
+      <span>{label}</span>
+      {value && <span style={{ color }}>{value}</span>}
     </div>
   );
 }

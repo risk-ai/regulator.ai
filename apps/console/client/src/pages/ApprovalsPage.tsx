@@ -42,11 +42,11 @@ export function ApprovalsPage() {
               padding: '8px 16px',
               fontSize: '13px',
               fontWeight: activeTab === tab ? 600 : 400,
-              color: activeTab === tab ? '#a78bfa' : 'var(--text-tertiary)',
-              background: activeTab === tab ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+              color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === tab ? '2px solid #7c3aed' : '2px solid transparent',
-              borderRadius: '8px 8px 0 0',
+              borderBottom: activeTab === tab ? '2px solid var(--text-primary)' : '2px solid transparent',
+              borderRadius: 0,
               cursor: 'pointer',
               fontFamily: 'var(--font-sans)',
               transition: 'all 150ms',
@@ -110,13 +110,9 @@ function TierCard({ tier, label, desc, color }: {
 }) {
   return (
     <div style={{
-      background: `linear-gradient(135deg, ${color}12, ${color}06)`,
-      border: `1px solid ${color}30`,
+      background: 'var(--bg-primary)',
       borderRadius: '12px',
       padding: '16px',
-      borderLeft: `3px solid ${color}`,
-      backdropFilter: 'blur(8px)',
-      transition: 'all 200ms ease',
     }}>
       <div style={{
         display: 'flex',

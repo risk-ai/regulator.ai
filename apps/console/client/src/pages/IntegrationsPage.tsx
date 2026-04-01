@@ -48,7 +48,6 @@ const EVENT_TYPES = [
 const styles = {
   card: {
     background: 'var(--bg-primary)',
-    border: '1px solid var(--border-subtle)',
     borderRadius: '12px',
     padding: '20px',
     cursor: 'pointer',

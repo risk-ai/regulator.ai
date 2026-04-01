@@ -99,68 +99,14 @@ export function HistoryPage() {
           ))}
         </div>
       ) : (
-        /* Premium empty state */
-        <div style={{
-          background: 'var(--bg-primary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '16px',
-          padding: '48px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '8px',
-          }}>
+        /* Compact empty state */
+        <div className="empty-state">
+          <div className="empty-state-icon">📋</div>
+          <h3 className="empty-state-title">
             {loading ? 'Loading audit trail…' : 'Audit trail is empty'}
           </h3>
-          <p style={{
-            fontSize: '14px',
-            color: 'var(--text-tertiary)',
-            maxWidth: '400px',
-            margin: '0 auto 24px',
-            lineHeight: 1.6,
-          }}>
-            Every governance action will appear here — intents, warrants,
-            executions, verifications, and policy decisions.
-          </p>
-          
-          {/* Pipeline visualization */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            marginBottom: '24px',
-            flexWrap: 'wrap',
-          }}>
-            {['🎯 Intent', '📋 Policy', '🔐 Warrant', '⚡ Execute', '🔍 Verify', '📋 Audit'].map((step, i) => (
-              <React.Fragment key={step}>
-                <div style={{
-                  padding: '6px 12px',
-                  borderRadius: '8px',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-default)',
-                  fontSize: '12px',
-                  color: 'var(--text-secondary)',
-                  fontWeight: 500,
-                }}>
-                  {step}
-                </div>
-                {i < 5 && (
-                  <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>→</span>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-          
-          <p style={{
-            fontSize: '12px',
-            color: 'var(--text-muted)',
-          }}>
-            Submit an intent from the Intent page to see your first audit entry.
+          <p className="empty-state-description">
+            Every governance action will appear here.
           </p>
         </div>
       )}

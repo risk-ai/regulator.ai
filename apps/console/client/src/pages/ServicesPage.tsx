@@ -68,9 +68,9 @@ export function ServicesPage() {
 
       {/* Overall status */}
       {health && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', padding: '12px 16px', background: health.status === 'healthy' ? 'rgba(74,222,128,0.06)' : 'rgba(248,113,113,0.06)', border: `1px solid ${health.status === 'healthy' ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'}`, borderRadius: '10px' }}>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: health.status === 'healthy' ? '#10b981' : '#ef4444' }} />
-          <span style={{ fontSize: '14px', fontWeight: 700, color: health.status === 'healthy' ? '#10b981' : '#ef4444', textTransform: 'uppercase' }}>ALL SYSTEMS {health.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', padding: '12px 0' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: health.status === 'healthy' ? '#10b981' : '#ef4444' }} />
+          <span style={{ fontSize: '14px', fontWeight: 600, color: health.status === 'healthy' ? '#10b981' : '#ef4444' }}>ALL SYSTEMS {health.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED'}</span>
           <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginLeft: 'auto', fontFamily: 'var(--font-mono)' }}>v{health.version} · {health.mode} · uptime {formatUptime(health.uptime_seconds)}</span>
         </div>
       )}
@@ -94,7 +94,7 @@ export function ServicesPage() {
           {governanceEngines.map(engine => {
             const { status, color } = getStatus(engine.key);
             return (
-              <div key={engine.name} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div key={engine.name} style={{ background: 'var(--bg-primary)', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '18px' }}>{engine.icon}</span>
                   <div>

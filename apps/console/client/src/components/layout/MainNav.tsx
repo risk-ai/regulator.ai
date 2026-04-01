@@ -184,15 +184,15 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
+              gap: '8px',
+              padding: '8px 16px',
               fontSize: '13px',
               fontWeight: isActive ? 600 : 400,
-              color: isActive ? '#a78bfa' : 'var(--text-tertiary)',
-              background: isActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+              color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              background: 'transparent',
               border: 'none',
-              borderBottom: isActive ? '2px solid #7c3aed' : '2px solid transparent',
-              borderRadius: '8px 8px 0 0',
+              borderBottom: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
+              borderRadius: 0,
               cursor: 'pointer',
               transition: 'all 150ms ease',
               whiteSpace: 'nowrap',
@@ -201,13 +201,11 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
             onMouseEnter={(e) => {
               if (!isActive) {
                 e.currentTarget.style.color = 'var(--text-secondary)';
-                e.currentTarget.style.background = 'var(--bg-secondary)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isActive) {
                 e.currentTarget.style.color = 'var(--text-tertiary)';
-                e.currentTarget.style.background = 'transparent';
               }
             }}
           >
@@ -225,14 +223,14 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            padding: '8px 14px',
+            padding: '8px 16px',
             fontSize: '13px',
             fontWeight: isSecondaryActive ? 600 : 400,
-            color: isSecondaryActive ? '#a78bfa' : 'var(--text-tertiary)',
-            background: isSecondaryActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
+            color: isSecondaryActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+            background: 'transparent',
             border: 'none',
-            borderBottom: isSecondaryActive ? '2px solid #7c3aed' : '2px solid transparent',
-            borderRadius: '8px 8px 0 0',
+            borderBottom: isSecondaryActive ? '2px solid var(--text-primary)' : '2px solid transparent',
+            borderRadius: 0,
             cursor: 'pointer',
             transition: 'all 150ms ease',
             whiteSpace: 'nowrap',
@@ -241,13 +239,11 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
           onMouseEnter={(e) => {
             if (!isSecondaryActive) {
               e.currentTarget.style.color = 'var(--text-secondary)';
-              e.currentTarget.style.background = 'var(--bg-secondary)';
             }
           }}
           onMouseLeave={(e) => {
             if (!isSecondaryActive) {
               e.currentTarget.style.color = 'var(--text-tertiary)';
-              e.currentTarget.style.background = 'transparent';
             }
           }}
         >

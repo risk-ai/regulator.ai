@@ -42,9 +42,8 @@ const s = {
     gap: '12px', marginBottom: '28px',
   } as React.CSSProperties,
   statCard: (color: string) => ({
-    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+    background: 'rgba(255,255,255,0.03)',
     borderRadius: '10px', padding: '20px', textAlign: 'center' as const,
-    borderTop: `3px solid ${color}`,
   }),
   statValue: (color: string) => ({
     fontSize: '32px', fontWeight: 700, color, lineHeight: 1.1,
@@ -73,10 +72,10 @@ const s = {
   } as React.CSSProperties,
   tab: (active: boolean) => ({
     padding: '10px 18px', fontSize: '13px', fontWeight: active ? 600 : 400,
-    color: active ? '#a78bfa' : '#94a3b8',
-    background: active ? 'rgba(124,58,237,0.08)' : 'transparent',
-    border: 'none', borderBottom: active ? '2px solid #7c3aed' : '2px solid transparent',
-    borderRadius: '6px 6px 0 0', cursor: 'pointer',
+    color: active ? 'var(--text-primary)' : '#94a3b8',
+    background: 'transparent',
+    border: 'none', borderBottom: active ? '2px solid var(--text-primary)' : '2px solid transparent',
+    borderRadius: 0, cursor: 'pointer',
   }),
 
   // Buttons

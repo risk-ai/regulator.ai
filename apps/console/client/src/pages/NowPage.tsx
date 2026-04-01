@@ -145,38 +145,30 @@ export function NowPage() {
             padding: '6px 14px', 
             borderRadius: '8px', 
             fontSize: '11px', 
-            background: 'linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary))', 
-            border: '1px solid rgba(124, 58, 237, 0.2)', 
+            background: 'var(--bg-secondary)', 
+            border: 'none', 
             color: 'var(--text-secondary)', 
             cursor: 'pointer', 
             fontFamily: 'var(--font-sans)',
             transition: 'all 200ms ease',
-            ':hover': {
-              transform: 'translateY(-1px)',
-              boxShadow: '0 0 15px rgba(124, 58, 237, 0.15)'
-            }
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 0 15px rgba(124, 58, 237, 0.15)';
+            e.currentTarget.style.color = 'var(--text-primary)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.color = 'var(--text-secondary)';
           }}
         >↻ Refresh</button>
       </div>
 
       {error && (
         <div style={{ 
-          background: 'linear-gradient(135deg, rgba(248, 113, 113, 0.12), rgba(248, 113, 113, 0.06))', 
-          border: '1px solid rgba(248, 113, 113, 0.3)', 
+          background: 'var(--error-bg)', 
           borderRadius: '12px', 
           padding: '14px 18px', 
           marginBottom: '20px', 
           fontSize: '13px', 
-          color: '#f87171',
-          boxShadow: '0 0 20px rgba(248, 113, 113, 0.1)'
+          color: 'var(--error-text)',
         }}>
           {error}
         </div>
@@ -267,31 +259,32 @@ export function NowPage() {
         {snapshot.proposals.pending > 0 && (
           <div 
             onClick={() => nav('approvals')}
-            className="card-premium"
             style={{ 
-              background: 'var(--warning-bg)', 
-              border: '1px solid var(--warning-border)', 
-              padding: 'var(--space-5) var(--space-6)', 
-              marginBottom: 'var(--space-6)', 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 'var(--space-4)', 
-              cursor: 'pointer'
+              gap: 'var(--space-3)', 
+              padding: 'var(--space-4) 0',
+              marginBottom: 'var(--space-6)', 
+              cursor: 'pointer',
+              transition: 'opacity 150ms'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.opacity = '0.7';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.opacity = '1';
             }}
           >
-            <span style={{ fontSize: '20px' }}>⏳</span>
-            <div>
-              <div className="text-body" style={{ fontWeight: 600, color: 'var(--warning-text)' }}>
-                {snapshot.proposals.pending} proposal{snapshot.proposals.pending !== 1 ? 's' : ''} awaiting approval
-              </div>
-              <div className="text-helper" style={{ marginTop: 'var(--space-1)' }}>Click to review →</div>
-            </div>
+            <div style={{ 
+              width: '8px', 
+              height: '8px', 
+              borderRadius: '50%', 
+              background: 'var(--warning-text)' 
+            }} />
+            <span className="text-body" style={{ fontWeight: 600, color: 'var(--warning-text)' }}>
+              {snapshot.proposals.pending} proposal{snapshot.proposals.pending !== 1 ? 's' : ''} awaiting approval
+            </span>
+            <span className="text-helper">→</span>
           </div>
         )}
 
@@ -313,7 +306,7 @@ export function NowPage() {
               <span className="text-section-label">Live Pipeline Events</span>
               <span className="text-helper" style={{ fontFamily: 'var(--font-mono)' }}>via SSE</span>
             </div>
-            <div className="card-premium" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--bg-primary)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
               {liveEvents.slice(0, 5).map((ev, i) => (
                 <LiveEventRow key={i} event={ev} isLast={i === Math.min(liveEvents.length, 5) - 1} />
               ))}
@@ -336,10 +329,10 @@ export function NowPage() {
               View all →
             </button>
           </div>
-          <div className="card-premium" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ background: 'var(--bg-primary)', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
             {snapshot.audit.recent.length === 0 ? (
               <div style={{ 
-                padding: 'var(--space-8)', 
+                padding: 'var(--space-6)', 
                 textAlign: 'center', 
                 color: 'var(--text-tertiary)', 
                 fontSize: 'var(--text-body)' 
@@ -407,9 +400,6 @@ function StatCard({ label, value, total, suffix, sub, color, onClick }: { label:
       className="kpi-card"
       style={{ 
         cursor: onClick ? 'pointer' : 'default',
-        border: `1px solid var(--border-subtle)`,
-        position: 'relative',
-        overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
         if (onClick) {
@@ -521,8 +511,7 @@ function QuickAction({ icon, label, desc, onClick }: { icon: string; label: stri
     <div 
       onClick={onClick} 
       style={{ 
-        background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
-        border: '1px solid rgba(124, 58, 237, 0.2)', 
+        background: 'var(--bg-primary)', 
         borderRadius: '12px', 
         padding: '16px 18px', 
         cursor: 'pointer', 
@@ -530,15 +519,12 @@ function QuickAction({ icon, label, desc, onClick }: { icon: string; label: stri
         display: 'flex', 
         alignItems: 'flex-start', 
         gap: '12px',
-        backdropFilter: 'blur(8px)'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 0 15px rgba(124, 58, 237, 0.15)';
+        e.currentTarget.style.background = 'var(--bg-secondary)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.background = 'var(--bg-primary)';
       }}
     >
       <span style={{ fontSize: '22px' }}>{icon}</span>

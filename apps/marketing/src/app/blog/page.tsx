@@ -229,7 +229,7 @@ export default function BlogPage() {
             <ArrowLeft className="w-4 h-4" />
             <Shield className="w-7 h-7 text-violet-400" />
             <span className="font-bold text-white">
-              Vienna<span className="text-purple-400">OS</span>
+              Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-6">

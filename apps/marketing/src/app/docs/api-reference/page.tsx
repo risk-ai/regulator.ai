@@ -339,7 +339,7 @@ export default function ApiReferencePage() {
             <span className="text-slate-700 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
               <Shield className="w-6 h-6 text-violet-400" />
-              <span className="font-bold text-white text-sm">Vienna<span className="text-purple-400">OS</span></span>
+              <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
             </div>
             <span className="text-slate-700 text-xs font-mono hidden sm:inline">API v1</span>
           </div>

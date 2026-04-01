@@ -9,7 +9,12 @@ import React, { useState, FormEvent } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
 
 export function LoginScreen() {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  // Auto-detect register mode from URL params (?mode=register or ?plan=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialMode = (urlParams.get('mode') === 'register' || urlParams.has('plan')) ? 'register' : 'login';
+  const selectedPlan = urlParams.get('plan') || '';
+
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');

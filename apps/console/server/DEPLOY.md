@@ -1,80 +1,52 @@
-# Vienna OS Console — Fly.io Deployment Guide
+# Vienna OS Console — Deployment Guide
 
-## Prerequisites
-- Fly.io CLI (`flyctl`) installed
-- Authenticated: `fly auth login`
+## Deployment Target: Vercel
 
-## Quick Deploy (3 commands)
+Console (frontend + backend proxy) deploys to Vercel via GitHub Actions or Vercel auto-deploy.
+
+## Quick Deploy
+
+Push to `main` triggers auto-deploy via Vercel. For manual deploys:
 
 ```bash
-# From the repo root
-cd apps/console/server
-
-# Set required secrets (one-time)
-fly secrets set \
-  VIENNA_OPERATOR_PASSWORD="$(openssl rand -hex 16)" \
-  VIENNA_SESSION_SECRET="$(openssl rand -hex 32)" \
-  JWT_SECRET="$(openssl rand -hex 32)" \
-  VIENNA_WARRANT_KEY="$(openssl rand -hex 32)" \
-  POSTGRES_URL="postgres://neondb_owner:PASSWORD@ep-purple-smoke-adpumuth-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&options=endpoint%3Dep-purple-smoke-adpumuth" \
-  --app vienna-os
-
-# Deploy
-fly deploy --remote-only --app vienna-os
+# From apps/console
+vercel --prod --token=$VERCEL_TOKEN --yes
 ```
+
+## CI/CD Workflows
+
+- `.github/workflows/deploy-production.yml` — Manual trigger, deploys backend (console-proxy) + frontend (console) to Vercel
+- `.github/workflows/deploy-staging.yml` — Staging deploys
 
 ## Environment Variables
 
-### Required for boot
-| Variable | Description | How to set |
-|---|---|---|
-| `VIENNA_OPERATOR_PASSWORD` | Operator login password | Auto-generated if missing |
-| `VIENNA_SESSION_SECRET` | Session encryption key | Auto-generated if missing |
+Set via Vercel dashboard or `vercel env add`:
 
-### Recommended
+### Required
 | Variable | Description |
 |---|---|
-| `POSTGRES_URL` | Neon Postgres connection (falls back to SQLite) |
+| `DATABASE_URL` | Neon Postgres connection string |
 | `JWT_SECRET` | JWT signing key |
-| `VIENNA_WARRANT_KEY` | Warrant HMAC signing key |
-| `ANTHROPIC_API_KEY` | Claude API key (for chat features) |
+| `STRIPE_SECRET_KEY` | Stripe live secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `RESEND_API_KEY` | Transactional email |
+| `CONSOLE_URL` | `https://console.regulator.ai` |
 
 ### Optional
 | Variable | Description |
 |---|---|
-| `CORS_ORIGIN` | Allowed origins (default: regulator.ai domains) |
-| `SLACK_WEBHOOK_URL` | Slack notifications |
-| `RESEND_API_KEY` | Email notifications |
+| `VITE_API_URL` | API URL for frontend (`https://api.regulator.ai`) |
+| `CORS_ORIGIN` | Allowed origins |
+| `ANTHROPIC_API_KEY` | Claude API (chat features) |
 | `GITHUB_TOKEN` | GitHub integration |
+| `SLACK_WEBHOOK_URL` | Slack notifications |
 
 ## Verify
 
 ```bash
-# Check health
-curl https://vienna-os.fly.dev/health
-
-# Check logs
-fly logs --app vienna-os
+curl https://console.regulator.ai/api/v1/health
 ```
 
-## Troubleshooting
+## Note
 
-### Health check fails
-The server now boots without crashing on missing env vars. It will:
-- Auto-generate VIENNA_OPERATOR_PASSWORD (logged to console)
-- Auto-generate VIENNA_SESSION_SECRET (ephemeral)
-- Fall back to SQLite if POSTGRES_URL not set
-- Skip AI features if ANTHROPIC_API_KEY not set
-
-### Machine lease conflicts
-```bash
-fly machines list --app vienna-os
-# If stale machines exist:
-fly machines destroy <machine-id> --app vienna-os --force
-```
-
-### Redeploy
-```bash
-cd apps/console/server
-fly deploy --remote-only --app vienna-os
-```
+Fly.io deployment was retired. All infrastructure runs on Vercel + Neon.

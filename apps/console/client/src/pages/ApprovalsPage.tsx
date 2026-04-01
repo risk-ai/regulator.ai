@@ -110,10 +110,13 @@ function TierCard({ tier, label, desc, color }: {
 }) {
   return (
     <div style={{
-      background: `${color}08`,
-      border: `1px solid ${color}20`,
+      background: `linear-gradient(135deg, ${color}12, ${color}06)`,
+      border: `1px solid ${color}30`,
       borderRadius: '12px',
       padding: '16px',
+      borderLeft: `3px solid ${color}`,
+      backdropFilter: 'blur(8px)',
+      transition: 'all 200ms ease',
     }}>
       <div style={{
         display: 'flex',

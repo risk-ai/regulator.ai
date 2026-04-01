@@ -837,7 +837,10 @@ module.exports = async function handler(req, res) {
     // Audit log
     if (path === '/api/v1/audit/recent' || path === '/api/v1/audit') {
       const limit = parseInt(url.searchParams.get('limit') || '50');
-      const events = await tenantQuery('SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
+      const [events, countResult] = await Promise.all([
+        tenantQuery('SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId),
+        tenantQuery('SELECT count(*)::int as total FROM regulator.audit_log', [], tenantId),
+      ]);
       return res.status(200).json({
         success: true,
         data: {
@@ -855,7 +858,7 @@ module.exports = async function handler(req, res) {
             tenant_id: e.tenant_id,
             details: typeof e.details === 'object' ? JSON.stringify(e.details) : (e.details || ''),
           })),
-          total: events.length,
+          total: parseInt(countResult[0]?.total || 0),
         }
       });
     }

@@ -59,6 +59,7 @@ export function NowPage() {
       const proposals = proposalsRes.data || [];
       const warrants = warrantsRes.data || [];
       const auditEntries = auditRes.data?.entries || [];
+      const auditTotal = auditRes.data?.total || auditEntries.length;
       const policies = policiesRes.data || [];
       const rules = rulesRes.data || [];
 
@@ -66,7 +67,7 @@ export function NowPage() {
         agents: { total: agents.length, active: agents.filter((a: any) => a.status === 'active').length, suspended: agents.filter((a: any) => a.status === 'suspended').length },
         proposals: { total: proposals.length, pending: proposals.filter((p: any) => p.state === 'pending').length, approved: proposals.filter((p: any) => p.state === 'approved' || p.state === 'warranted').length, denied: proposals.filter((p: any) => p.state === 'denied').length },
         warrants: { total: warrants.length, active: warrants.filter((w: any) => !w.revoked && new Date(w.expires_at) > new Date()).length, revoked: warrants.filter((w: any) => w.revoked).length, expired: warrants.filter((w: any) => !w.revoked && new Date(w.expires_at) <= new Date()).length },
-        audit: { total: auditEntries.length, recent: auditEntries },
+        audit: { total: auditTotal, recent: auditEntries },
         policies: { total: policies.length, enabled: policies.filter((p: any) => p.enabled).length },
         policyRules: { total: rules.length, enabled: rules.filter((r: any) => r.enabled).length },
       });

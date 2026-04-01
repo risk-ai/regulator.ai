@@ -797,7 +797,7 @@ module.exports = async function handler(req, res) {
       if (proposals.length === 0) return res.status(404).json({ success: false, error: 'Not found' });
       const p = proposals[0];
       const warrant = p.warrant_id ? (await query('SELECT * FROM regulator.warrants WHERE id = $1', [p.warrant_id]))[0] : null;
-      const evals = await query('SELECT * FROM regulator.policy_evaluations WHERE intent_id = $1', [approvalId]);
+      const evals = await tenantQuery('SELECT * FROM regulator.policy_evaluations WHERE intent_id = $1', [approvalId], tenantId);
       return res.status(200).json({ success: true, data: { proposal: p, warrant, evaluations: evals } });
     }
 
@@ -1257,7 +1257,7 @@ module.exports = async function handler(req, res) {
       const agentId = path.split('/').pop();
       const agents = await tenantQuery('SELECT * FROM regulator.agent_registry WHERE id = $1', [agentId], tenantId);
       if (agents.length === 0) return res.status(404).json({ success: false, error: 'Agent not found' });
-      const activity = await query('SELECT * FROM regulator.agent_activity WHERE agent_id = $1 ORDER BY created_at DESC LIMIT 20', [agentId]);
+      const activity = await tenantQuery('SELECT * FROM regulator.agent_activity WHERE agent_id = $1 ORDER BY created_at DESC LIMIT 20', [agentId], tenantId);
       return res.status(200).json({ success: true, data: { ...agents[0], recentActivity: activity } });
     }
 
@@ -1280,7 +1280,7 @@ module.exports = async function handler(req, res) {
     // ========== Activity ==========
     if (path === '/api/v1/activity/feed') {
       const limit = parseInt(url.searchParams.get('limit') || '50');
-      const events = await query('SELECT id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit]);
+      const events = await tenantQuery('SELECT id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
       return res.status(200).json({
         success: true,
         data: events.map(e => ({
@@ -1390,7 +1390,7 @@ module.exports = async function handler(req, res) {
       });
     }
     if (path === '/api/v1/compliance/templates') {
-      const templates = await query('SELECT * FROM regulator.report_templates ORDER BY created_at DESC');
+      const templates = await tenantQuery('SELECT * FROM regulator.report_templates ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: templates });
     }
     if (path.match(/^\/api\/v1\/compliance\/reports\/[^/]+\/pdf$/)) {
@@ -1403,7 +1403,7 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/compliance\/reports\/[^/]+$/) && req.method === 'GET') {
       const id = path.split('/').pop();
-      const reports = await query('SELECT * FROM regulator.compliance_reports WHERE id = $1', [id]);
+      const reports = await tenantQuery('SELECT * FROM regulator.compliance_reports WHERE id = $1', [id], tenantId);
       if (reports.length === 0) return res.status(404).json({ success: false, error: 'Report not found' });
       return res.status(200).json({ success: true, data: reports[0] });
     }
@@ -1416,7 +1416,7 @@ module.exports = async function handler(req, res) {
 
     // ========== Action Types (expanded) ==========
     if (path === '/api/v1/action-types/categories') {
-      const cats = await query('SELECT DISTINCT category, count(*) as cnt FROM regulator.action_types GROUP BY category ORDER BY category');
+      const cats = await tenantQuery('SELECT DISTINCT category, count(*) as cnt FROM regulator.action_types GROUP BY category ORDER BY category', [], tenantId);
       return res.status(200).json({
         success: true,
         data: cats.map(c => ({ name: c.category, count: parseInt(c.cnt) })),
@@ -1424,12 +1424,12 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/action-types\/[^/]+\/usage$/) && req.method === 'GET') {
       const id = path.split('/')[4];
-      const usage = await query('SELECT * FROM regulator.action_type_usage WHERE action_type_id = $1 ORDER BY created_at DESC LIMIT 20', [id]);
+      const usage = await tenantQuery('SELECT * FROM regulator.action_type_usage WHERE action_type_id = $1 ORDER BY created_at DESC LIMIT 20', [id], tenantId);
       return res.status(200).json({ success: true, data: usage });
     }
     if (path.match(/^\/api\/v1\/action-types\/[^/]+$/) && req.method === 'GET') {
       const id = path.split('/').pop();
-      const types = await query('SELECT * FROM regulator.action_types WHERE id = $1', [id]);
+      const types = await tenantQuery('SELECT * FROM regulator.action_types WHERE id = $1', [id], tenantId);
       if (types.length === 0) return res.status(404).json({ success: false, error: 'Action type not found' });
       return res.status(200).json({ success: true, data: { ...types[0], stats: { total: 0, last24h: 0, avgLatencyMs: 0 } } });
     }
@@ -1474,7 +1474,7 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/events$/)) {
       const id = path.split('/')[4];
-      const events = await query('SELECT * FROM regulator.integration_events WHERE integration_id = $1 ORDER BY created_at DESC LIMIT 20', [id]);
+      const events = await tenantQuery('SELECT * FROM regulator.integration_events WHERE integration_id = $1 ORDER BY created_at DESC LIMIT 20', [id], tenantId);
       return res.status(200).json({ success: true, data: events });
     }
 

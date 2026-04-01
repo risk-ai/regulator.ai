@@ -346,21 +346,19 @@ module.exports = async function handler(req, res) {
       }
 
       const id = crypto.randomUUID();
-      const tenantId = crypto.randomUUID();
+      const newTenantId = crypto.randomUUID();
       const passwordHash = await hashPassword(password);
       const verificationToken = crypto.randomBytes(32).toString('hex');
+
+      // Create tenant FIRST (user.tenant_id has FK constraint to tenants.id)
+      await query('INSERT INTO regulator.tenants (id, name, slug, plan, created_at) VALUES ($1, $2, $3, $4, NOW())',
+        [newTenantId, company || email.split('@')[1], (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-'), plan || 'community']);
       
       await query(
         `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
          VALUES ($1, $2, $3, $4, $5, 'admin', NOW())`,
-        [id, email, name || email.split('@')[0], passwordHash, tenantId]
+        [id, email, name || email.split('@')[0], passwordHash, newTenantId]
       );
-
-      // Create tenant
-      try {
-        await query('INSERT INTO regulator.tenants (id, name, slug, plan, created_at) VALUES ($1, $2, $3, $4, NOW())',
-          [tenantId, company || email.split('@')[1], (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-'), plan || 'community']);
-      } catch {}
 
       // Send verification email via Resend (fire-and-forget)
       const RESEND_API_KEY = process.env.RESEND_API_KEY;

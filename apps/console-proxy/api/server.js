@@ -43,7 +43,8 @@ async function query(text, params = []) {
 }
 
 // Simple JWT
-const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET || 'fallback-secret';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET or VIENNA_SESSION_SECRET must be set. Refusing to start with fallback secret.');
 
 function createToken(payload) {
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
@@ -672,9 +673,9 @@ module.exports = async function handler(req, res) {
     // System Now snapshot (NowPage)
     if (path === '/api/v1/system/now') {
       const [agentCounts, auditRecent, warrantCounts] = await Promise.all([
-        query('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry'),
-        query('SELECT event, created_at, details FROM regulator.audit_log ORDER BY created_at DESC LIMIT 10'),
-        query('SELECT count(*) as total FROM regulator.warrants WHERE revoked = false'),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry', [], tenantId),
+        tenantQuery('SELECT event, created_at, details FROM regulator.audit_log ORDER BY created_at DESC LIMIT 10', [], tenantId),
+        tenantQuery('SELECT count(*) as total FROM regulator.warrants WHERE revoked = false', [], tenantId),
       ]);
       return res.status(200).json({
         success: true,
@@ -792,7 +793,7 @@ module.exports = async function handler(req, res) {
     // Approval detail
     if (path.match(/^\/api\/v1\/approvals\/[^/]+$/) && req.method === 'GET') {
       const approvalId = path.split('/').pop();
-      const proposals = await query('SELECT * FROM regulator.proposals WHERE id = $1', [approvalId]);
+      const proposals = await tenantQuery('SELECT * FROM regulator.proposals WHERE id = $1', [approvalId], tenantId);
       if (proposals.length === 0) return res.status(404).json({ success: false, error: 'Not found' });
       const p = proposals[0];
       const warrant = p.warrant_id ? (await query('SELECT * FROM regulator.warrants WHERE id = $1', [p.warrant_id]))[0] : null;
@@ -805,7 +806,7 @@ module.exports = async function handler(req, res) {
       const approvalId = path.split('/')[4];
       const body = await parseBody(req);
       // Reuse proposal approve logic
-      const proposals = await query('SELECT * FROM regulator.proposals WHERE id = $1', [approvalId]);
+      const proposals = await tenantQuery('SELECT * FROM regulator.proposals WHERE id = $1', [approvalId], tenantId);
       if (proposals.length === 0) return res.status(404).json({ success: false, error: 'Not found' });
       const p = proposals[0];
       const warrantId = crypto.randomUUID();
@@ -907,8 +908,8 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/compliance/reports' && req.method === 'GET') {
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
-      const reports = await query('SELECT * FROM regulator.compliance_reports ORDER BY generated_at DESC LIMIT $1 OFFSET $2', [limit, offset]);
-      const countResult = await query('SELECT count(*) as cnt FROM regulator.compliance_reports');
+      const reports = await tenantQuery('SELECT * FROM regulator.compliance_reports ORDER BY generated_at DESC LIMIT $1 OFFSET $2', [limit, offset], tenantId);
+      const countResult = await tenantQuery('SELECT count(*) as cnt FROM regulator.compliance_reports', [], tenantId);
       return res.status(200).json({ success: true, data: { reports, total: parseInt(countResult[0]?.cnt || 0), limit, offset } });
     }
 
@@ -962,7 +963,7 @@ module.exports = async function handler(req, res) {
       }
 
       // 1. Verify agent exists and is active
-      const agents = await query('SELECT id, display_name, status, trust_score, rate_limit_per_minute FROM regulator.agent_registry WHERE id = $1', [agent_id]);
+      const agents = await tenantQuery('SELECT id, display_name, status, trust_score, rate_limit_per_minute FROM regulator.agent_registry WHERE id = $1', [agent_id], tenantId);
       if (agents.length === 0) {
         return res.status(404).json({ success: false, error: 'Agent not found' });
       }
@@ -977,7 +978,7 @@ module.exports = async function handler(req, res) {
       const proposalId = crypto.randomUUID();
 
       // 2. Evaluate against policy rules (deterministic)
-      const rules = await query('SELECT * FROM regulator.policy_rules WHERE enabled = true ORDER BY priority ASC');
+      const rules = await tenantQuery('SELECT * FROM regulator.policy_rules WHERE enabled = true ORDER BY priority ASC', [], tenantId);
       let matchedRule = null;
       let riskTier = 'T1'; // default
       let policyDecision = 'pending_approval'; // default
@@ -1003,7 +1004,7 @@ module.exports = async function handler(req, res) {
       }
 
       // Also check policies table
-      const policies = await query('SELECT * FROM regulator.policies WHERE enabled = true');
+      const policies = await tenantQuery('SELECT * FROM regulator.policies WHERE enabled = true', [], tenantId);
       for (const policy of policies) {
         const policyRules = policy.rules || {};
         if (policyRules.match) {
@@ -1103,7 +1104,7 @@ module.exports = async function handler(req, res) {
       const { warrant_id, signature } = body;
       if (!warrant_id) return res.status(400).json({ success: false, error: 'warrant_id required' });
 
-      const warrants = await query('SELECT * FROM regulator.warrants WHERE id = $1', [warrant_id]);
+      const warrants = await tenantQuery('SELECT * FROM regulator.warrants WHERE id = $1', [warrant_id], tenantId);
       if (warrants.length === 0) return res.status(404).json({ success: false, error: 'Warrant not found' });
 
       const w = warrants[0];
@@ -1127,7 +1128,7 @@ module.exports = async function handler(req, res) {
       const body = await parseBody(req);
       const approver = body.approved_by || body.reviewer || 'operator';
       const reason = body.reason || body.decision_reason || null;
-      const proposals = await query('SELECT * FROM regulator.proposals WHERE id = $1', [proposalId]);
+      const proposals = await tenantQuery('SELECT * FROM regulator.proposals WHERE id = $1', [proposalId], tenantId);
       if (proposals.length === 0) return res.status(404).json({ success: false, error: 'Proposal not found' });
       
       const p = proposals[0];
@@ -1190,8 +1191,8 @@ module.exports = async function handler(req, res) {
 
     // Fleet overview
     if (path === '/api/v1/fleet' && req.method === 'GET') {
-      const agents = await query('SELECT * FROM regulator.agent_registry ORDER BY registered_at DESC');
-      const alerts = await query('SELECT * FROM regulator.agent_alerts ORDER BY created_at DESC LIMIT 10');
+      const agents = await tenantQuery('SELECT * FROM regulator.agent_registry ORDER BY registered_at DESC', [], tenantId);
+      const alerts = await tenantQuery('SELECT * FROM regulator.agent_alerts ORDER BY created_at DESC LIMIT 10', [], tenantId);
       return res.status(200).json({
         success: true,
         data: {
@@ -1247,14 +1248,14 @@ module.exports = async function handler(req, res) {
 
     // Fleet alerts
     if (path === '/api/v1/fleet/alerts' && req.method === 'GET') {
-      const alerts = await query('SELECT * FROM regulator.agent_alerts ORDER BY created_at DESC LIMIT 20');
+      const alerts = await tenantQuery('SELECT * FROM regulator.agent_alerts ORDER BY created_at DESC LIMIT 20', [], tenantId);
       return res.status(200).json({ success: true, data: alerts });
     }
 
     // Fleet agent detail
     if (path.match(/^\/api\/v1\/fleet\/agents\/[^/]+$/) && req.method === 'GET') {
       const agentId = path.split('/').pop();
-      const agents = await query('SELECT * FROM regulator.agent_registry WHERE id = $1', [agentId]);
+      const agents = await tenantQuery('SELECT * FROM regulator.agent_registry WHERE id = $1', [agentId], tenantId);
       if (agents.length === 0) return res.status(404).json({ success: false, error: 'Agent not found' });
       const activity = await query('SELECT * FROM regulator.agent_activity WHERE agent_id = $1 ORDER BY created_at DESC LIMIT 20', [agentId]);
       return res.status(200).json({ success: true, data: { ...agents[0], recentActivity: activity } });
@@ -1544,17 +1545,16 @@ module.exports = async function handler(req, res) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
-      res.setHeader('Access-Control-Allow-Origin', '*');
+      // CORS already set by cors() — do not override with wildcard
 
       // Send initial connection event
       res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
 
-      // Poll audit log every 2 seconds for new events
+      // Poll audit log every 2 seconds for new events (tenant-scoped)
       let lastId = null;
       const interval = setInterval(async () => {
         try {
-          let q = 'SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT 1';
-          const events = await query(q);
+          const events = await tenantQuery('SELECT * FROM regulator.audit_log ORDER BY created_at DESC LIMIT 1', [], tenantId);
           if (events.length > 0 && events[0].id !== lastId) {
             lastId = events[0].id;
             res.write(`data: ${JSON.stringify({

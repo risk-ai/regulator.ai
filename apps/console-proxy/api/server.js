@@ -385,7 +385,7 @@ module.exports = async function handler(req, res) {
       const token = createToken({
         sub: id,
         email,
-        tenant_id: tenantId,
+        tenant_id: newTenantId,
         role: 'admin',
       });
 
@@ -415,7 +415,7 @@ module.exports = async function handler(req, res) {
         success: true,
         data: {
           user: { id, email, name: name || email.split('@')[0], role: 'admin' },
-          tenant: { id: tenantId, slug: company || email.split('@')[1], plan: plan || 'community' },
+          tenant: { id: newTenantId, slug: company || email.split('@')[1], plan: plan || 'community' },
           tokens: {
             accessToken: token,
             refreshToken: refreshToken,

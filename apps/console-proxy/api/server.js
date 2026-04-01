@@ -965,18 +965,21 @@ module.exports = async function handler(req, res) {
       }
 
       // 1. Verify agent exists and is active
-      const agents = await tenantQuery('SELECT id, display_name, status, trust_score, rate_limit_per_minute FROM regulator.agent_registry WHERE id = $1', [agent_id], tenantId);
+      const agents = await query('SELECT id, display_name, status, trust_score, rate_limit_per_minute, tenant_id FROM regulator.agent_registry WHERE id = $1', [agent_id]);
       if (agents.length === 0) {
         return res.status(404).json({ success: false, error: 'Agent not found' });
       }
       const agent = agents[0];
+      // Verify tenant match (agent must belong to authenticated tenant)
+      const intentTenantId = tenantId || agent.tenant_id;
+      if (tenantId && agent.tenant_id && agent.tenant_id !== tenantId) {
+        return res.status(404).json({ success: false, error: 'Agent not found' });
+      }
       if (agent.status !== 'active') {
         await query('INSERT INTO regulator.audit_log (id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, NOW(), $6)',
-          [crypto.randomUUID(), 'intent_rejected', agent.display_name, tierToInt('T0'), JSON.stringify({ reason: 'agent_suspended', agent_id, action }), agent.tenant_id || '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+          [crypto.randomUUID(), 'intent_rejected', agent.display_name, tierToInt('T0'), JSON.stringify({ reason: 'agent_suspended', agent_id, action }), intentTenantId]);
         return res.status(403).json({ success: false, error: `Agent ${agent.display_name} is ${agent.status}`, code: 'AGENT_SUSPENDED' });
       }
-
-      const tenantId = agent.tenant_id || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
       const proposalId = crypto.randomUUID();
 
       // 2. Evaluate against policy rules (deterministic)

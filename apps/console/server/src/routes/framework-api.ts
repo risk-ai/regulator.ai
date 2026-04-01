@@ -9,7 +9,9 @@
  */
 
 import express from 'express';
+import crypto from 'crypto';
 import { eventBus } from '../services/eventBus.js';
+import { queryOne } from '../db/postgres.js';
 
 const router = express.Router();
 
@@ -17,9 +19,10 @@ const router = express.Router();
 
 /**
  * API key authentication middleware
+ * Validates vos_ prefixed keys against the api_keys table.
  * Expects: Authorization: Bearer vos_xxx
  */
-function apiKeyAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+async function apiKeyAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer vos_')) {
     return res.status(401).json({
@@ -29,13 +32,48 @@ function apiKeyAuth(req: express.Request, res: express.Response, next: express.N
   }
 
   const apiKey = authHeader.slice(7);
-  // TODO: Validate API key against tenant database
-  // For now, accept any vos_ prefixed key
-  (req as any).apiKey = apiKey;
-  (req as any).agentId = req.headers['x-vienna-agent'] || 'unknown';
-  (req as any).framework = req.headers['x-vienna-framework'] || 'unknown';
   
-  next();
+  // Validate against database
+  try {
+    const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+    const keyPrefix = apiKey.substring(0, 8);
+    
+    const record = await queryOne<{
+      id: string;
+      tenant_id: string;
+      scopes: string[];
+      agent_id: string | null;
+      rate_limit: number;
+      revoked_at: string | null;
+      expires_at: string | null;
+    }>(
+      `SELECT id, tenant_id, scopes, agent_id, rate_limit, revoked_at, expires_at
+       FROM api_keys
+       WHERE key_prefix = $1 AND key_hash = $2`,
+      [keyPrefix, keyHash]
+    );
+    
+    if (!record || record.revoked_at || (record.expires_at && new Date(record.expires_at) < new Date())) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid or expired API key'
+      });
+    }
+    
+    (req as any).apiKey = apiKey;
+    (req as any).tenantId = record.tenant_id;
+    (req as any).apiKeyScopes = record.scopes;
+    (req as any).agentId = req.headers['x-vienna-agent'] || record.agent_id || 'unknown';
+    (req as any).framework = req.headers['x-vienna-framework'] || 'unknown';
+    
+    next();
+  } catch (err) {
+    console.error('[FrameworkAPI] API key validation error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'API key validation failed'
+    });
+  }
 }
 
 router.use(apiKeyAuth);

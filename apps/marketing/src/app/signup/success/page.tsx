@@ -129,13 +129,16 @@ function SuccessContent() {
             </div>
           </div>
 
-          {/* Sandbox Console */}
+          {/* Console Access */}
           <div className="bg-navy-900 border border-navy-600 rounded-xl p-6 mb-6">
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-purple-400" />
-              Try the Live Console
+              Your Console is Ready
             </h3>
-            <div className="space-y-3 font-mono text-sm mb-4">
+            <p className="text-sm text-slate-400 mb-4">
+              Create your account on the console to get your API key. Your agent can start using Vienna OS immediately after sign-up.
+            </p>
+            <div className="font-mono text-sm mb-4">
               <div className="flex items-center gap-3">
                 <span className="text-slate-500 w-20">URL:</span>
                 <a
@@ -147,13 +150,9 @@ function SuccessContent() {
                   console.regulator.ai
                 </a>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-slate-500 w-20">Login:</span>
-                <span className="text-white">vienna / vienna2024</span>
-              </div>
             </div>
             <p className="text-xs text-slate-500 mb-4">
-              This is a shared environment — perfect for testing and learning Vienna OS features.
+              An API key is auto-generated when you register — copy it and hand it to your agent.
             </p>
           </div>
 

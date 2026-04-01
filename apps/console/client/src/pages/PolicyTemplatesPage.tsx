@@ -82,14 +82,14 @@ export default function PolicyTemplatesPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Policy Templates</h1>
-        <p className="text-gray-600">
+        <h1 className="text-3xl font-bold text-[#e2e8f0] mb-2">Policy Templates</h1>
+        <p className="text-[rgba(255,255,255,0.6)]">
           Choose from pre-built governance templates to get started quickly
         </p>
       </div>
 
       {/* Category Tabs */}
-      <div className="mb-6 flex space-x-2 border-b border-gray-200">
+      <div className="mb-6 flex space-x-2 border-b border-[rgba(255,255,255,0.08)]">
         {categories.map((category) => (
           <button
             key={category.id}
@@ -97,7 +97,7 @@ export default function PolicyTemplatesPage() {
             className={`px-4 py-2 border-b-2 transition-colors ${
               selectedCategory === category.id
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
+                : 'border-transparent text-[rgba(255,255,255,0.6)] hover:text-[#e2e8f0]'
             }`}
           >
             <span className="mr-2">{category.icon}</span>
@@ -110,28 +110,28 @@ export default function PolicyTemplatesPage() {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-gray-600">Loading templates...</p>
+          <p className="mt-4 text-[rgba(255,255,255,0.6)]">Loading templates...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
             <div
               key={template.id}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              className="border border-[rgba(255,255,255,0.08)] rounded-lg p-6 hover:bg-[rgba(255,255,255,0.04)] transition-all cursor-pointer"
               onClick={() => setSelectedTemplate(template)}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="text-4xl">{template.icon}</div>
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                <span className="px-2 py-1 bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] text-xs rounded">
                   {template.category}
                 </span>
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-[#e2e8f0] mb-2">
                 {template.name}
               </h3>
               
-              <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+              <p className="text-sm text-[rgba(255,255,255,0.6)] mb-4 line-clamp-3">
                 {template.description}
               </p>
 
@@ -146,7 +146,7 @@ export default function PolicyTemplatesPage() {
                     </span>
                   ))}
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-[rgba(255,255,255,0.4)]">
                   Used {template.use_count}x
                 </span>
               </div>
@@ -172,41 +172,41 @@ export default function PolicyTemplatesPage() {
           onClick={() => setSelectedTemplate(null)}
         >
           <div
-            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
+            className="bg-[#12131a] rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 border border-[rgba(255,255,255,0.08)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-6">
               <div>
                 <div className="text-5xl mb-3">{selectedTemplate.icon}</div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-[#e2e8f0] mb-2">
                   {selectedTemplate.name}
                 </h2>
-                <p className="text-gray-600">{selectedTemplate.description}</p>
+                <p className="text-[rgba(255,255,255,0.6)]">{selectedTemplate.description}</p>
               </div>
               <button
                 onClick={() => setSelectedTemplate(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-[rgba(255,255,255,0.4)] hover:text-[rgba(255,255,255,0.6)]"
               >
                 ✕
               </button>
             </div>
 
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Policy Rules</h3>
-              <div className="bg-gray-50 rounded p-4">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+              <h3 className="font-semibold text-[#e2e8f0] mb-3">Policy Rules</h3>
+              <div className="bg-[rgba(255,255,255,0.03)] rounded p-4">
+                <pre className="text-sm text-[rgba(255,255,255,0.6)] whitespace-pre-wrap">
                   {JSON.stringify(selectedTemplate.rules, null, 2)}
                 </pre>
               </div>
             </div>
 
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-2">Tags</h3>
+              <h3 className="font-semibold text-[#e2e8f0] mb-2">Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedTemplate.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded"
+                    className="px-3 py-1 bg-[rgba(59,130,246,0.15)] text-blue-400 text-sm rounded"
                   >
                     {tag}
                   </span>
@@ -223,7 +223,7 @@ export default function PolicyTemplatesPage() {
               </button>
               <button
                 onClick={() => setSelectedTemplate(null)}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border border-[rgba(255,255,255,0.08)] rounded-lg hover:bg-[rgba(255,255,255,0.04)] transition-colors text-[rgba(255,255,255,0.6)]"
               >
                 Cancel
               </button>

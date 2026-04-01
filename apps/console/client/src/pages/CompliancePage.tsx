@@ -137,17 +137,17 @@ const s = {
 
   // Report Viewer
   viewerWrapper: {
-    background: '#ffffff', borderRadius: '12px', padding: '0', overflow: 'hidden',
+    background: '#12131a', borderRadius: '12px', padding: '0', overflow: 'hidden',
     border: '1px solid rgba(255,255,255,0.1)',
   } as React.CSSProperties,
   viewerToolbar: {
     display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between',
-    padding: '12px 20px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
+    padding: '12px 20px', background: '#1a1b26', borderBottom: '1px solid rgba(255,255,255,0.08)',
   } as React.CSSProperties,
-  viewerContent: { padding: '32px 40px' } as React.CSSProperties,
+  viewerContent: { padding: '32px 40px', background: 'var(--surface-secondary, #12131a)' } as React.CSSProperties,
   viewerNav: {
     position: 'sticky' as const, top: 0, display: 'flex', flexDirection: 'column' as const,
-    gap: '2px', padding: '12px', background: 'rgba(0,0,0,0.02)', borderRight: '1px solid #e2e8f0',
+    gap: '2px', padding: '12px', background: '#0f1015', borderRight: '1px solid rgba(255,255,255,0.08)',
     minWidth: '200px',
   } as React.CSSProperties,
   viewerNavItem: (active: boolean) => ({
@@ -171,30 +171,30 @@ const s = {
   },
 
   // Section in viewer
-  sectionBlock: { marginBottom: '32px', color: '#1a1a2e' } as React.CSSProperties,
-  sectionTitle: { fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #e2e8f0' } as React.CSSProperties,
+  sectionBlock: { marginBottom: '32px', color: '#e2e8f0' } as React.CSSProperties,
+  sectionTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' } as React.CSSProperties,
   kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '16px' } as React.CSSProperties,
-  kpiCard: { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px', textAlign: 'center' as const } as React.CSSProperties,
-  kpiValue: (color = '#1a1a2e') => ({ fontSize: '24px', fontWeight: 700, color }),
-  kpiLabel: { fontSize: '10px', color: '#64748b', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
+  kpiCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '14px', textAlign: 'center' as const } as React.CSSProperties,
+  kpiValue: (color = '#e2e8f0') => ({ fontSize: '24px', fontWeight: 700, color }),
+  kpiLabel: { fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
 
   barRow: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' } as React.CSSProperties,
-  barLabel: { width: '120px', fontSize: '12px', fontWeight: 500, color: '#334155', textAlign: 'right' as const } as React.CSSProperties,
-  barTrack: { flex: 1, height: '16px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' } as React.CSSProperties,
+  barLabel: { width: '120px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.6)', textAlign: 'right' as const } as React.CSSProperties,
+  barTrack: { flex: 1, height: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' } as React.CSSProperties,
   barFill: (pct: number, color: string) => ({ width: `${pct}%`, height: '100%', background: color, borderRadius: '4px' }),
-  barValue: { width: '36px', fontSize: '12px', fontWeight: 600, color: '#334155' } as React.CSSProperties,
+  barValue: { width: '36px', fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
 
   dataTable: { width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px', marginBottom: '12px' } as React.CSSProperties,
-  dtTh: { padding: '8px 10px', textAlign: 'left' as const, fontWeight: 600, color: '#334155', borderBottom: '2px solid #e2e8f0', background: '#f1f5f9', fontSize: '10px', textTransform: 'uppercase' as const } as React.CSSProperties,
-  dtTd: { padding: '8px 10px', borderBottom: '1px solid #f1f5f9', color: '#1a1a2e' } as React.CSSProperties,
+  dtTh: { padding: '8px 10px', textAlign: 'left' as const, fontWeight: 600, color: 'rgba(255,255,255,0.6)', borderBottom: '2px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', fontSize: '10px', textTransform: 'uppercase' as const } as React.CSSProperties,
+  dtTd: { padding: '8px 10px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#e2e8f0' } as React.CSSProperties,
 
   trustBar: (score: number) => {
     const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
     return { display: 'inline-flex', alignItems: 'center', gap: '4px', color };
   },
 
-  highlight: { background: '#f8fafc', borderRadius: '8px', padding: '14px 18px', marginTop: '12px' } as React.CSSProperties,
-  highlightItem: { fontSize: '13px', color: '#334155', marginBottom: '4px', lineHeight: 1.5 } as React.CSSProperties,
+  highlight: { background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '14px 18px', marginTop: '12px' } as React.CSSProperties,
+  highlightItem: { fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', lineHeight: 1.5 } as React.CSSProperties,
 
   rec: (severity: string) => {
     const map: Record<string, [string, string]> = { critical: ['#fef2f2', '#ef4444'], warning: ['#fffbeb', '#f59e0b'], info: ['#eff6ff', '#3b82f6'] };
@@ -202,17 +202,17 @@ const s = {
     return { padding: '12px 14px', borderRadius: '8px', marginBottom: '8px', borderLeft: `4px solid ${border}`, background: bg };
   },
   recCategory: { fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginLeft: '8px' } as React.CSSProperties,
-  recMessage: { fontSize: '13px', color: '#1a1a2e', margin: '4px 0' } as React.CSSProperties,
-  recAction: { fontSize: '12px', color: '#64748b', fontStyle: 'italic' } as React.CSSProperties,
+  recMessage: { fontSize: '13px', color: '#e2e8f0', margin: '4px 0' } as React.CSSProperties,
+  recAction: { fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' } as React.CSSProperties,
 
   callout: (type: 'green' | 'yellow') => ({
     padding: '10px 14px', borderRadius: '8px', marginBottom: '8px', fontSize: '13px',
-    background: type === 'green' ? '#f0fdf4' : '#fffbeb',
+    background: type === 'green' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(245, 158, 11, 0.15)',
     borderLeft: `4px solid ${type === 'green' ? '#22c55e' : '#f59e0b'}`,
-    color: '#1a1a2e',
+    color: '#e2e8f0',
   }),
 
-  empty: { textAlign: 'center' as const, padding: '60px 20px', color: '#64748b' } as React.CSSProperties,
+  empty: { textAlign: 'center' as const, padding: '60px 20px', color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
   spinner: { display: 'inline-block', width: '16px', height: '16px', border: '2px solid #7c3aed', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' } as React.CSSProperties,
 };
 
@@ -630,15 +630,15 @@ function ReportViewer({ report, activeSection, onSectionChange, onBack }: {
       <div style={s.viewerToolbar}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button onClick={onBack} style={{ ...s.ghostBtn, color: '#64748b' }}>← Back</button>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: '#1a1a2e' }}>{report.title}</span>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>{report.title}</span>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <a href={complianceApi.getPdfUrl(report.id)} target="_blank" rel="noreferrer"
-            style={{ ...s.primaryBtn, textDecoration: 'none', fontSize: '12px', padding: '8px 14px', background: '#1a1a2e' }}>
+            style={{ ...s.primaryBtn, textDecoration: 'none', fontSize: '12px', padding: '8px 14px', background: '#7c3aed' }}>
             Download PDF
           </a>
           <a href={complianceApi.getCsvUrl(report.id)}
-            style={{ ...s.secondaryBtn, textDecoration: 'none', color: '#1a1a2e', borderColor: '#e2e8f0' }}>
+            style={{ ...s.secondaryBtn, textDecoration: 'none', color: '#a78bfa', borderColor: 'rgba(124,58,237,0.2)' }}>
             Export CSV
           </a>
         </div>
@@ -659,8 +659,8 @@ function ReportViewer({ report, activeSection, onSectionChange, onBack }: {
           {/* Report Header */}
           <div style={{ marginBottom: '32px', borderBottom: '3px solid #7c3aed', paddingBottom: '20px' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', letterSpacing: '2px', marginBottom: '8px' }}>VIENNA OS</div>
-            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#1a1a2e', margin: '0 0 6px' }}>{report.title}</h1>
-            <div style={{ fontSize: '13px', color: '#64748b' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#e2e8f0', margin: '0 0 6px' }}>{report.title}</h1>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
               Period: <strong>{new Date(report.period_start).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong> — <strong>{new Date(report.period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>
               {' · '}Generated: {new Date(report.generated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
@@ -994,7 +994,7 @@ function BarChart({ items }: { items: Array<{ label: string; value: number; colo
 
 function InlineBar({ pct }: { pct: number }) {
   return (
-    <span style={{ display: 'inline-block', width: '60px', height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
+    <span style={{ display: 'inline-block', width: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
       <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#7c3aed', borderRadius: '3px' }} />
     </span>
   );
@@ -1003,7 +1003,7 @@ function InlineBar({ pct }: { pct: number }) {
 function MiniChart({ data }: { data: Array<{ date: string; count: number }> }) {
   const max = Math.max(...data.map(d => d.count), 1);
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid #e2e8f0' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
       {data.map((d, i) => (
         <div key={i} title={`${d.date}: ${d.count}`}
           style={{ flex: 1, minWidth: '3px', background: '#7c3aed', borderRadius: '2px 2px 0 0', opacity: 0.8,
@@ -1017,7 +1017,7 @@ function TrustBar({ score }: { score: number }) {
   const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
   return (
     <span style={s.trustBar(score)}>
-      <span style={{ width: '40px', height: '5px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden', display: 'inline-block' }}>
+      <span style={{ width: '40px', height: '5px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', display: 'inline-block' }}>
         <span style={{ display: 'block', width: `${score}%`, height: '100%', background: color, borderRadius: '3px' }} />
       </span>
       <span style={{ fontSize: '11px', fontWeight: 600 }}>{score}</span>

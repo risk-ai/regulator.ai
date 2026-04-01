@@ -18,7 +18,36 @@ module.exports = async function handler(req, res) {
   try {
     const format = queryParams.format || 'json';
     const limit = parseInt(queryParams.limit || '1000');
-    
+
+    // Recent audit log (used by dashboard)
+    if (path === '/recent' || path === '' || path === '/') {
+      const recentLimit = parseInt(queryParams.limit || '50');
+      const [events, countResult] = await Promise.all([
+        pool.query('SELECT * FROM regulator.audit_log WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2', [tenantId, recentLimit]),
+        pool.query('SELECT count(*)::int as total FROM regulator.audit_log WHERE tenant_id = $1', [tenantId]),
+      ]);
+      return res.json({
+        success: true,
+        data: {
+          entries: events.rows.map(e => ({
+            id: e.id,
+            type: (e.event || '').includes('warrant') ? 'warrant' : (e.event || '').includes('policy') ? 'policy' : (e.event || '').includes('intent') ? 'intent' : 'execution',
+            action: e.event || 'Unknown',
+            event: e.event,
+            actor: e.actor || 'system',
+            risk_tier: e.risk_tier,
+            status: 'success',
+            timestamp: e.created_at,
+            proposal_id: e.proposal_id,
+            warrant_id: e.warrant_id,
+            tenant_id: e.tenant_id,
+            details: typeof e.details === 'object' ? JSON.stringify(e.details) : (e.details || ''),
+          })),
+          total: parseInt(countResult.rows[0]?.total || 0),
+        }
+      });
+    }
+
     // Audit executions
     if (path === '/executions') {
       const result = await pool.query(

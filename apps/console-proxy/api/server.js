@@ -744,12 +744,14 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/warrants' && req.method === 'GET') {
       const status = url.searchParams.get('status');
       const limit = parseInt(url.searchParams.get('limit') || '50');
-      let q = 'SELECT w.*, p.action, p.agent_id, p.risk_tier as proposal_risk FROM regulator.warrants w LEFT JOIN regulator.proposals p ON w.proposal_id = p.id';
+      const conditions = [];
       const params = [];
-      if (status === 'approved') { q += ' WHERE w.revoked = false'; }
-      else if (status === 'revoked') { q += ' WHERE w.revoked = true'; }
-      q += ' ORDER BY w.created_at DESC LIMIT $' + (params.length + 1);
+      if (status === 'approved') conditions.push('w.revoked = false');
+      else if (status === 'revoked') conditions.push('w.revoked = true');
+      if (tenantId) { params.push(tenantId); conditions.push('w.tenant_id = $' + params.length); }
+      const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
       params.push(limit);
+      const q = 'SELECT w.id, w.proposal_id, w.signature, w.expires_at, w.revoked, w.revoked_at, w.revoked_reason, w.issued_by, w.created_at, w.tenant_id, p.action, p.agent_id, p.risk_tier as proposal_risk FROM regulator.warrants w LEFT JOIN regulator.proposals p ON w.proposal_id = p.id' + where + ' ORDER BY w.created_at DESC LIMIT $' + params.length;
       const warrants = await query(q, params);
       return res.status(200).json({ success: true, data: warrants });
     }

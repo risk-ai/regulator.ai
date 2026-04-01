@@ -16,8 +16,9 @@ function hashApiKey(key) {
 }
 
 module.exports = async function handler(req, res) {
-  const user = requireAuth(req, res);
+  const user = await requireAuth(req, res);
   if (!user) return;
+  const tenantId = user.tenant_id;
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/api-keys/, '');
   
@@ -26,10 +27,10 @@ module.exports = async function handler(req, res) {
     if (path === '' || path === '/' && req.method === 'GET') {
       const keys = await pool.query(
         `SELECT id, name, key_hash as key_prefix, created_at, last_used_at, expires_at, revoked
-         FROM api_keys
+         FROM regulator.api_keys
          WHERE tenant_id = $1
          ORDER BY created_at DESC`,
-        ['default'] // Replace with actual tenant from auth
+        [tenantId]
       );
       
       return res.json({

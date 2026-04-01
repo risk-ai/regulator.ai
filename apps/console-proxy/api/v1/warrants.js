@@ -24,17 +24,14 @@ module.exports = async function handler(req, res) {
       const limit = parseInt(queryParams.limit || '50');
       
       const result = await pool.query(
-        `SELECT 
-          e.execution_id as warrant_id,
-          e.execution_id,
-          e.event_timestamp as issued_at,
-          e.payload->>'signature' as signature,
-          CASE WHEN e.event_timestamp < NOW() - INTERVAL '1 hour' THEN true ELSE false END as expired
-        FROM execution_ledger_events e
-        WHERE e.tenant_id = $1 
-          AND e.event_type = 'warrant_issued'
-        ORDER BY e.event_timestamp DESC
-        LIMIT $2`,
+        `SELECT w.id, w.proposal_id, w.signature, w.expires_at, w.revoked, 
+                w.revoked_at, w.revoked_reason, w.issued_by, w.created_at, w.tenant_id,
+                p.action, p.agent_id, p.risk_tier as proposal_risk
+         FROM regulator.warrants w 
+         LEFT JOIN regulator.proposals p ON w.proposal_id = p.id
+         WHERE w.tenant_id = $1
+         ORDER BY w.created_at DESC
+         LIMIT $2`,
         [tenantId, limit]
       );
       

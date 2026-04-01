@@ -1456,7 +1456,7 @@ export default function Home() {
                 { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Enterprise", "/enterprise"], ["Pricing", "/pricing"], ["Status", "/status"]] },
                 { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
                 { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
-                { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Twitter", "https://twitter.com/Vienna_OS"], ["LinkedIn", "https://linkedin.com/company/vienna-os"], ["Discord", "https://discord.gg/vienna-os"]] },
+                { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Report Bug", "https://github.com/risk-ai/regulator.ai/issues/new"], ["Twitter", "https://twitter.com/Vienna_OS"], ["LinkedIn", "https://linkedin.com/company/vienna-os"], ["Discord", "https://discord.gg/vienna-os"]] },
               ].map((col) => (
                 <div key={col.title}>
                   <h4 className="text-sm font-bold text-white mb-4 tracking-wide">{col.title}</h4>

@@ -48,8 +48,46 @@ function extractTenantId(req) {
   } catch { return null; }
 }
 
+/**
+ * Require authentication (middleware)
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ * @param {Object} options - { optional: boolean }
+ * @returns {Promise<Object|null>} User payload or null if optional
+ */
+async function requireAuth(req, res, options = {}) {
+  const cookies = parseCookies(req.headers?.cookie);
+  const token = cookies?.vienna_session || (req.headers?.authorization || '').replace('Bearer ', '');
+  
+  if (!token) {
+    if (options.optional) return null;
+    res.status(401).json({
+      success: false,
+      error: 'Authentication required',
+      code: 'UNAUTHORIZED',
+      timestamp: new Date().toISOString(),
+    });
+    return null;
+  }
+  
+  const payload = verifyToken(token);
+  if (!payload) {
+    if (options.optional) return null;
+    res.status(401).json({
+      success: false,
+      error: 'Invalid or expired token',
+      code: 'INVALID_TOKEN',
+      timestamp: new Date().toISOString(),
+    });
+    return null;
+  }
+  
+  return payload;
+}
+
 module.exports = {
   parseCookies,
   verifyToken,
   extractTenantId,
+  requireAuth,
 };

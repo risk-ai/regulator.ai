@@ -91,6 +91,7 @@ import { createActivityFeedRouter } from './routes/activity-feed.js';
 import { createSlackRouter } from './routes/slack.js';
 import { createAnalyticsRouter } from './routes/analytics.js';
 import { createAgentTemplatesRouter } from './routes/agent-templates.js';
+import { createFeedbackRouter } from './routes/feedback.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -426,6 +427,9 @@ export function createApp(
   
   // Phase 31: Analytics Dashboard
   app.use(`${apiPrefix}/analytics`, requireAuth, createAnalyticsRouter());
+  
+  // Feedback / Bug Reports
+  app.use(`${apiPrefix}/feedback`, requireAuth, createFeedbackRouter());
   
   // Validation logging (browser testing) — require auth
   app.use(`${apiPrefix}/validation`, requireAuth, createValidationRouter());

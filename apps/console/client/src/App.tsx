@@ -32,6 +32,7 @@ import { ThemeProvider } from './contexts/ThemeContext.js';
 import { useAuthStore } from './store/authStore.js';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
+import { FeedbackWidget } from './components/feedback/FeedbackWidget.js';
 import { apiClient } from './api/client.js';
 
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
@@ -303,6 +304,9 @@ export function App() {
               onSkip={handleOnboardingSkip}
             />
           )}
+          
+          {/* Feedback Widget */}
+          <FeedbackWidget />
         </div>
       </ErrorBoundary>
     </ThemeProvider>

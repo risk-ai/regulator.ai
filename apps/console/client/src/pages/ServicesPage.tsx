@@ -53,7 +53,7 @@ export function ServicesPage() {
     const s = check.status;
     return {
       status: s === 'healthy' ? 'Operational' : s === 'warning' ? 'Warning' : s === 'unhealthy' ? 'Down' : s,
-      color: s === 'healthy' ? '#4ade80' : s === 'warning' ? '#fbbf24' : '#f87171',
+      color: s === 'healthy' ? '#10b981' : s === 'warning' ? '#f59e0b' : '#ef4444',
     };
   };
 
@@ -69,8 +69,8 @@ export function ServicesPage() {
       {/* Overall status */}
       {health && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', padding: '12px 16px', background: health.status === 'healthy' ? 'rgba(74,222,128,0.06)' : 'rgba(248,113,113,0.06)', border: `1px solid ${health.status === 'healthy' ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)'}`, borderRadius: '10px' }}>
-          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: health.status === 'healthy' ? '#4ade80' : '#f87171' }} />
-          <span style={{ fontSize: '14px', fontWeight: 700, color: health.status === 'healthy' ? '#4ade80' : '#f87171', textTransform: 'uppercase' }}>ALL SYSTEMS {health.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED'}</span>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: health.status === 'healthy' ? '#10b981' : '#ef4444' }} />
+          <span style={{ fontSize: '14px', fontWeight: 700, color: health.status === 'healthy' ? '#10b981' : '#ef4444', textTransform: 'uppercase' }}>ALL SYSTEMS {health.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED'}</span>
           <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginLeft: 'auto', fontFamily: 'var(--font-mono)' }}>v{health.version} · {health.mode} · uptime {formatUptime(health.uptime_seconds)}</span>
         </div>
       )}
@@ -79,7 +79,7 @@ export function ServicesPage() {
       {health && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '24px' }}>
           <MiniStat label="Endpoints" value={health.endpoints?.total || 0} sub={`${health.endpoints?.healthy || 0} healthy`} color="#a78bfa" />
-          <MiniStat label="DB Latency" value={health.checks?.database?.latency_ms || 0} sub="ms" color={health.checks?.database?.latency_ms > 200 ? '#f87171' : '#4ade80'} />
+          <MiniStat label="DB Latency" value={health.checks?.database?.latency_ms || 0} sub="ms" color={health.checks?.database?.latency_ms > 200 ? '#ef4444' : '#10b981'} />
           <MiniStat label="Proposals" value={health.checks?.pipeline?.proposals || 0} sub="total" color="#60a5fa" />
           <MiniStat label="Audit Events" value={health.checks?.pipeline?.audit_events || 0} sub="total" color="#94a3b8" />
           <MiniStat label="Agents" value={health.checks?.agents?.count || 0} sub="registered" color="#D4A520" />
@@ -128,7 +128,7 @@ export function ServicesPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <span style={{ fontSize: '16px' }}>{svc.icon}</span>
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{svc.label}</span>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: svc.status === 'healthy' ? '#4ade80' : '#f87171', marginLeft: 'auto' }} />
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: svc.status === 'healthy' ? '#10b981' : '#ef4444', marginLeft: 'auto' }} />
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{svc.value}</div>
               <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{svc.sub}</div>

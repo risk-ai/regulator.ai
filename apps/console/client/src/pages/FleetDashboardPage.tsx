@@ -19,20 +19,20 @@ import {
 // ============================================================================
 
 const COLORS = {
-  bg: '#111827',
-  card: '#1f2937',
-  cardHover: '#263244',
+  bg: '#0a0a0f',
+  card: '#12131a',
+  cardHover: '#1a1b26',
   border: 'rgba(255,255,255,0.06)',
-  borderActive: 'rgba(255,255,255,0.12)',
-  green: '#4ade80',
-  yellow: '#fbbf24',
-  red: '#f87171',
+  borderActive: 'rgba(255,255,255,0.10)',
+  green: '#10b981',
+  yellow: '#f59e0b',
+  red: '#ef4444',
   blue: '#3b82f6',
-  purple: '#a78bfa',
-  cyan: '#22d3ee',
-  textPrimary: '#f9fafb',
-  textSecondary: '#9ca3af',
-  textMuted: '#6b7280',
+  purple: '#7c3aed',
+  cyan: '#06b6d4',
+  textPrimary: '#ffffff',
+  textSecondary: 'rgba(255,255,255,0.7)',
+  textMuted: 'rgba(255,255,255,0.5)',
 };
 
 const STATUS_COLORS: Record<string, string> = {

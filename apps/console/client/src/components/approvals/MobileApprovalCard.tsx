@@ -24,15 +24,15 @@ interface MobileApprovalCardProps {
 
 const TIER_CONFIG = {
   T0: { color: '#94a3b8', label: 'Auto' },
-  T1: { color: '#fbbf24', label: 'Single' },
-  T2: { color: '#f87171', label: 'Multi-Party' }
+  T1: { color: '#f59e0b', label: 'Single' },
+  T2: { color: '#ef4444', label: 'Multi-Party' }
 };
 
 const PRIORITY_CONFIG = {
   low: { color: '#94a3b8', icon: '●' },
-  medium: { color: '#fbbf24', icon: '●' },
+  medium: { color: '#f59e0b', icon: '●' },
   high: { color: '#f97316', icon: '▲' },
-  critical: { color: '#f87171', icon: '🚨' }
+  critical: { color: '#ef4444', icon: '🚨' }
 };
 
 export function MobileApprovalCard({

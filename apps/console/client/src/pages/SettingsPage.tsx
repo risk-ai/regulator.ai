@@ -61,7 +61,7 @@ export function SettingsPage() {
         {/* Session */}
         <SettingsCard title="Session">
           <SettingsRow label="Operator" value={user?.email || "User" || 'vienna'} />
-          <SettingsRow label="Status" value="Active" valueColor="#4ade80" />
+          <SettingsRow label="Status" value="Active" valueColor="#10b981" />
           <SettingsRow label="Environment" value="Production" />
           <SettingsRow label="Tenant" value="system" />
           <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
@@ -72,7 +72,7 @@ export function SettingsPage() {
                 borderRadius: '6px',
                 border: '1px solid rgba(248, 113, 113, 0.2)',
                 background: 'rgba(248, 113, 113, 0.08)',
-                color: '#f87171',
+                color: '#ef4444',
                 fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -104,11 +104,11 @@ export function SettingsPage() {
 
         {/* API Configuration */}
         <SettingsCard title="API & Integrations">
-          <SettingsRow label="Intent Gateway" value="Enabled" valueColor="#4ade80" />
+          <SettingsRow label="Intent Gateway" value="Enabled" valueColor="#10b981" />
           <SettingsRow label="Agent Auth" value="Source-based" />
           <SettingsRow label="Rate Limit" value="60 req/min per IP" />
           <SettingsRow label="CORS Origins" value="regulator.ai, localhost" />
-          <SettingsRow label="SSE Streaming" value="Enabled" valueColor="#4ade80" />
+          <SettingsRow label="SSE Streaming" value="Enabled" valueColor="#10b981" />
         </SettingsCard>
 
         {/* Webhook Notifications — API-backed */}
@@ -206,9 +206,9 @@ function GovernanceConfigCard() {
         <SettingsRow label="T0 Threshold" value={`≤ ${config.riskThresholds.low}`} mono />
         <SettingsRow label="T1 Threshold" value={`≤ ${config.riskThresholds.medium}`} mono />
         <SettingsRow label="T2 Threshold" value={`≤ ${config.riskThresholds.high}`} mono />
-        <SettingsRow label="T0 Policy" value={config.autoApproveLowRisk ? 'Auto-approve' : 'Manual'} valueColor={config.autoApproveLowRisk ? '#4ade80' : '#fbbf24'} />
-        <SettingsRow label="T1 Policy" value="Single operator approval" valueColor="#fbbf24" />
-        <SettingsRow label="T2 Policy" value="Multi-party approval" valueColor="#f87171" />
+        <SettingsRow label="T0 Policy" value={config.autoApproveLowRisk ? 'Auto-approve' : 'Manual'} valueColor={config.autoApproveLowRisk ? '#10b981' : '#f59e0b'} />
+        <SettingsRow label="T1 Policy" value="Single operator approval" valueColor="#f59e0b" />
+        <SettingsRow label="T2 Policy" value="Multi-party approval" valueColor="#ef4444" />
         <SettingsRow label="Warrant TTL (T0)" value={`${config.warrantTtlT0}s`} mono />
         <SettingsRow label="Warrant TTL (T1)" value={`${config.warrantTtlT1}s`} mono />
         <SettingsRow label="Warrant TTL (T2)" value={`${config.warrantTtlT2}s`} mono />
@@ -217,7 +217,7 @@ function GovernanceConfigCard() {
           <button onClick={() => setEditing(true)} style={{
             padding: '6px 16px', borderRadius: '6px',
             border: '1px solid rgba(124, 58, 237, 0.3)',
-            background: 'rgba(124, 58, 237, 0.08)', color: '#a78bfa',
+            background: 'rgba(124, 58, 237, 0.08)', color: '#7c3aed',
             fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
           }}>Edit Configuration</button>
         </div>
@@ -256,7 +256,7 @@ function GovernanceConfigCard() {
             padding: '4px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
             border: `1px solid ${config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
             background: config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
-            color: config.autoApproveLowRisk ? '#4ade80' : '#f87171',
+            color: config.autoApproveLowRisk ? '#10b981' : '#ef4444',
           }}>
           {config.autoApproveLowRisk ? 'ON' : 'OFF'}
         </button>
@@ -272,7 +272,7 @@ function GovernanceConfigCard() {
         <button onClick={handleSave} style={{
           flex: 1, padding: '8px 16px', borderRadius: '6px',
           border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
-          color: '#4ade80', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+          color: '#10b981', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
         }}>Save Settings</button>
         <button onClick={handleReset} style={{
           padding: '8px 16px', borderRadius: '6px',
@@ -287,7 +287,7 @@ function GovernanceConfigCard() {
       </div>
 
       {saved && (
-        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#4ade80', textAlign: 'center' }}>
+        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#10b981', textAlign: 'center' }}>
           ✓ Settings saved
         </div>
       )}
@@ -404,7 +404,7 @@ function SimulationCard() {
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            background: running ? '#4ade80' : '#6b7280',
+            background: running ? '#10b981' : '#6b7280',
             boxShadow: running ? '0 0 6px rgba(74, 222, 128, 0.5)' : 'none',
           }} />
           <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Status</span>
@@ -417,7 +417,7 @@ function SimulationCard() {
             borderRadius: '4px',
             border: `1px solid ${running ? 'rgba(248, 113, 113, 0.3)' : 'rgba(74, 222, 128, 0.3)'}`,
             background: running ? 'rgba(248, 113, 113, 0.08)' : 'rgba(74, 222, 128, 0.08)',
-            color: running ? '#f87171' : '#4ade80',
+            color: running ? '#ef4444' : '#10b981',
             fontSize: '11px',
             fontWeight: 600,
             cursor: loading ? 'wait' : 'pointer',
@@ -448,7 +448,7 @@ function SimulationCard() {
       <SettingsRow
         label="Running Since"
         value={running ? formatDuration(status?.startedAt ?? null) : 'Stopped'}
-        valueColor={running ? '#4ade80' : '#6b7280'}
+        valueColor={running ? '#10b981' : '#6b7280'}
       />
       <SettingsRow
         label="Last Tick"
@@ -492,7 +492,7 @@ function SimulationCard() {
             borderRadius: '6px',
             border: '1px solid rgba(248, 113, 113, 0.2)',
             background: 'rgba(248, 113, 113, 0.08)',
-            color: '#f87171',
+            color: '#ef4444',
             fontSize: '11px',
             fontWeight: 600,
             cursor: loading ? 'wait' : 'pointer',
@@ -632,7 +632,7 @@ function BillingCard() {
     <SettingsCard title="Billing & Subscription">
       <SettingsRow label="Plan" value="Professional" valueColor="#7c3aed" />
       <SettingsRow label="Price" value="$99/month" />
-      <SettingsRow label="Status" value="Active" valueColor="#4ade80" />
+      <SettingsRow label="Status" value="Active" valueColor="#10b981" />
       <SettingsRow label="Next billing" value="Apr 30, 2026" />
       
       {error && (
@@ -643,7 +643,7 @@ function BillingCard() {
           border: '1px solid rgba(248, 113, 113, 0.2)',
           borderRadius: '6px',
           fontSize: '11px',
-          color: '#f87171',
+          color: '#ef4444',
         }}>
           {error}
         </div>

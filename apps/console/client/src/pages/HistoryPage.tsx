@@ -21,18 +21,18 @@ interface AuditEntry {
 
 const typeConfig: Record<string, { icon: string; color: string; bg: string; label: string }> = {
   intent: { icon: '🎯', color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.08)', label: 'Intent' },
-  warrant: { icon: '🔐', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.08)', label: 'Warrant' },
-  execution: { icon: '⚡', color: '#4ade80', bg: 'rgba(74, 222, 128, 0.08)', label: 'Execution' },
+  warrant: { icon: '🔐', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)', label: 'Warrant' },
+  execution: { icon: '⚡', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', label: 'Execution' },
   verification: { icon: '🔍', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.08)', label: 'Verification' },
   policy: { icon: '📋', color: '#34d399', bg: 'rgba(52, 211, 153, 0.08)', label: 'Policy' },
-  anomaly: { icon: '⚠️', color: '#f87171', bg: 'rgba(248, 113, 113, 0.08)', label: 'Anomaly' },
+  anomaly: { icon: '⚠️', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.08)', label: 'Anomaly' },
 };
 
 const statusColors: Record<string, { color: string; bg: string }> = {
-  success: { color: '#4ade80', bg: 'rgba(74, 222, 128, 0.1)' },
-  failed: { color: '#f87171', bg: 'rgba(248, 113, 113, 0.1)' },
-  pending: { color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.1)' },
-  rejected: { color: '#f87171', bg: 'rgba(248, 113, 113, 0.1)' },
+  success: { color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  failed: { color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+  pending: { color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  rejected: { color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
 };
 
 export function HistoryPage() {

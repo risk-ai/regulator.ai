@@ -82,7 +82,7 @@ const INTENT_ACTIONS: IntentAction[] = [
     label: 'Restart Service',
     desc: 'Restart a specific service — requires operator approval',
     tier: 'T1',
-    tierColor: '#fbbf24',
+    tierColor: '#f59e0b',
     params: [
       { key: 'service', label: 'Service Name', placeholder: 'api-gateway', required: true },
     ],
@@ -92,14 +92,14 @@ const INTENT_ACTIONS: IntentAction[] = [
     label: 'Trigger Backup',
     desc: 'Initiate a state graph backup',
     tier: 'T1',
-    tierColor: '#fbbf24',
+    tierColor: '#f59e0b',
   },
   {
     id: 'update_configuration',
     label: 'Update Configuration',
     desc: 'Modify a runtime configuration value',
     tier: 'T1',
-    tierColor: '#fbbf24',
+    tierColor: '#f59e0b',
     params: [
       { key: 'key', label: 'Config Key', placeholder: 'rate_limit.max_requests', required: true },
       { key: 'value', label: 'New Value', placeholder: '100', required: true },
@@ -110,7 +110,7 @@ const INTENT_ACTIONS: IntentAction[] = [
     label: 'Check Service Logs',
     desc: 'Retrieve recent logs for a specific service',
     tier: 'T1',
-    tierColor: '#fbbf24',
+    tierColor: '#f59e0b',
     params: [
       { key: 'service', label: 'Service Name', placeholder: 'intent-gateway', required: true },
     ],
@@ -331,9 +331,9 @@ export function IntentPage() {
                     fontFamily: 'var(--font-mono)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
-                    color: isSuccess ? '#4ade80' : '#f87171',
-                    background: isSuccess ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)',
-                    border: `1px solid ${isSuccess ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`,
+                    color: isSuccess ? '#10b981' : '#ef4444',
+                    background: isSuccess ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${isSuccess ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
                   }}>
                     {isSuccess ? '✓ Executed' : '✗ Failed'}
                   </div>

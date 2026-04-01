@@ -126,14 +126,14 @@ export function WebhookManager() {
             display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px',
             borderBottom: i < webhooks.length - 1 ? '1px solid var(--border-subtle)' : 'none',
           }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: wh.enabled ? '#4ade80' : '#94a3b8' }} />
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: wh.enabled ? '#10b981' : '#94a3b8' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{wh.url}</div>
               <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
                 Events: {Array.isArray(wh.events) ? wh.events.join(', ') : '*'}
               </div>
             </div>
-            <button onClick={() => handleDelete(wh.id)} style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '10px', background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', color: '#f87171', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+            <button onClick={() => handleDelete(wh.id)} style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '10px', background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', color: '#ef4444', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
               Delete
             </button>
           </div>

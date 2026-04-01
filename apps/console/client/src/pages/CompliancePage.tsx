@@ -90,7 +90,7 @@ const s = {
     borderRadius: '6px', cursor: 'pointer',
   } as React.CSSProperties,
   dangerBtn: {
-    padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#f87171',
+    padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#ef4444',
     background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
     borderRadius: '4px', cursor: 'pointer',
   } as React.CSSProperties,
@@ -311,7 +311,7 @@ export function CompliancePage() {
         ))}
       </div>
 
-      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#f87171', fontSize: '13px', marginBottom: '16px' }}>{error} <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', color: '#f87171', cursor: 'pointer' }}>✕</button></div>}
+      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{error} <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>✕</button></div>}
 
       {/* Dashboard Tab */}
       {tab === 'dashboard' && (
@@ -333,11 +333,11 @@ export function CompliancePage() {
                 <div style={s.statLabel}>Actions Governed</div>
               </div>
               <div style={s.statCard(stats.compliance_rate >= 95 ? '#22c55e' : '#ef4444')}>
-                <div style={s.statValue(stats.compliance_rate >= 95 ? '#4ade80' : '#f87171')}>{stats.compliance_rate}%</div>
+                <div style={s.statValue(stats.compliance_rate >= 95 ? '#10b981' : '#ef4444')}>{stats.compliance_rate}%</div>
                 <div style={s.statLabel}>Compliance Rate</div>
               </div>
               <div style={s.statCard(stats.policy_violations > 10 ? '#ef4444' : stats.policy_violations > 0 ? '#f59e0b' : '#22c55e')}>
-                <div style={s.statValue(stats.policy_violations > 10 ? '#f87171' : stats.policy_violations > 0 ? '#fbbf24' : '#4ade80')}>{stats.policy_violations}</div>
+                <div style={s.statValue(stats.policy_violations > 10 ? '#ef4444' : stats.policy_violations > 0 ? '#f59e0b' : '#10b981')}>{stats.policy_violations}</div>
                 <div style={s.statLabel}>Policy Violations</div>
               </div>
               <div style={s.statCard('#3b82f6')}>
@@ -345,11 +345,11 @@ export function CompliancePage() {
                 <div style={s.statLabel}>Avg Approval Time</div>
               </div>
               <div style={s.statCard(stats.unauthorized_executions > 0 ? '#ef4444' : '#22c55e')}>
-                <div style={s.statValue(stats.unauthorized_executions > 0 ? '#f87171' : '#4ade80')}>{stats.unauthorized_executions}</div>
+                <div style={s.statValue(stats.unauthorized_executions > 0 ? '#ef4444' : '#10b981')}>{stats.unauthorized_executions}</div>
                 <div style={s.statLabel}>Unauthorized Executions</div>
               </div>
               <div style={s.statCard(stats.fleet_health_score >= 80 ? '#22c55e' : stats.fleet_health_score >= 60 ? '#f59e0b' : '#ef4444')}>
-                <div style={s.statValue(stats.fleet_health_score >= 80 ? '#4ade80' : stats.fleet_health_score >= 60 ? '#fbbf24' : '#f87171')}>
+                <div style={s.statValue(stats.fleet_health_score >= 80 ? '#10b981' : stats.fleet_health_score >= 60 ? '#f59e0b' : '#ef4444')}>
                   {stats.fleet_health_score}<span style={s.statUnit}>/100</span>
                 </div>
                 <div style={s.statLabel}>Fleet Health Score</div>

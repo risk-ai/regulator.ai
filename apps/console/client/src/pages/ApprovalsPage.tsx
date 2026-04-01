@@ -89,13 +89,13 @@ export function ApprovalsPage() {
           tier="T1"
           label="Single Approval"
           desc="Config changes, service restarts, data writes"
-          color="#fbbf24"
+          color="#f59e0b"
         />
         <TierCard
           tier="T2"
           label="Multi-Party"
           desc="Deployments, payments, data deletion"
-          color="#f87171"
+          color="#ef4444"
         />
       </div>
     </PageLayout>

@@ -55,7 +55,7 @@ export function RuntimePage() {
   useEffect(() => { if (events.length > 0) load(); }, [events.length]);
 
   const statusColors: Record<string, string> = {
-    executed: '#4ade80', denied: '#f87171', expired: '#94a3b8', revoked: '#f97316', pending: '#fbbf24',
+    executed: '#10b981', denied: '#ef4444', expired: '#94a3b8', revoked: '#f97316', pending: '#f59e0b',
   };
 
   return (
@@ -67,7 +67,7 @@ export function RuntimePage() {
             width: '10px', 
             height: '10px', 
             borderRadius: '50%', 
-            background: stats?.health === 'healthy' ? '#4ade80' : '#f87171',
+            background: stats?.health === 'healthy' ? '#10b981' : '#ef4444',
             boxShadow: stats?.health === 'healthy' 
               ? '0 0 12px rgba(74, 222, 128, 0.6), 0 0 6px rgba(74, 222, 128, 0.4)' 
               : '0 0 12px rgba(248, 113, 113, 0.6), 0 0 6px rgba(248, 113, 113, 0.4)'
@@ -82,7 +82,7 @@ export function RuntimePage() {
             padding: '2px 8px', 
             borderRadius: '4px', 
             background: 'rgba(74, 222, 128, 0.08)', 
-            color: '#4ade80', 
+            color: '#10b981', 
             border: '1px solid rgba(74, 222, 128, 0.2)', 
             fontFamily: 'var(--font-mono)', 
             fontWeight: 600,
@@ -110,11 +110,11 @@ export function RuntimePage() {
           {/* Pipeline metrics */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
             <MetricCard label="Proposals" value={stats.envelopes.total} color="#60a5fa" />
-            <MetricCard label="Succeeded" value={stats.envelopes.succeeded} color="#4ade80" />
-            <MetricCard label="Failed" value={stats.envelopes.failed} color="#f87171" />
-            <MetricCard label="Queue" value={stats.queueDepth} color="#fbbf24" />
+            <MetricCard label="Succeeded" value={stats.envelopes.succeeded} color="#10b981" />
+            <MetricCard label="Failed" value={stats.envelopes.failed} color="#ef4444" />
+            <MetricCard label="Queue" value={stats.queueDepth} color="#f59e0b" />
             <MetricCard label="Throughput" value={stats.throughputPerMinute} suffix="/min" color="#a78bfa" />
-            <MetricCard label="Error Rate" value={Math.round(stats.errorRate * 100)} suffix="%" color={stats.errorRate > 0.1 ? '#f87171' : '#4ade80'} />
+            <MetricCard label="Error Rate" value={Math.round(stats.errorRate * 100)} suffix="%" color={stats.errorRate > 0.1 ? '#ef4444' : '#10b981'} />
             <MetricCard label="Audit Events" value={stats.auditEvents} color="#94a3b8" />
           </div>
 

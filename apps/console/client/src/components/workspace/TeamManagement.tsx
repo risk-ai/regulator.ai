@@ -17,7 +17,7 @@ interface TeamMember {
 const ROLE_CONFIG: Record<string, { label: string; color: string; desc: string }> = {
   owner: { label: 'Owner', color: '#D4A520', desc: 'Full access, billing, workspace settings' },
   admin: { label: 'Admin', color: '#a78bfa', desc: 'Manage agents, policies, and team members' },
-  operator: { label: 'Operator', color: '#4ade80', desc: 'Approve/deny proposals, manage warrants' },
+  operator: { label: 'Operator', color: '#10b981', desc: 'Approve/deny proposals, manage warrants' },
   viewer: { label: 'Viewer', color: '#94a3b8', desc: 'Read-only access to dashboard and audit trail' },
 };
 

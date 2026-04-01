@@ -16,9 +16,9 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, trend, trendValue, icon, status = 'healthy' }: MetricCardProps) {
   const statusColors = {
-    healthy: { bg: 'rgba(74, 222, 128, 0.1)', border: 'rgba(74, 222, 128, 0.3)', text: '#4ade80' },
-    warning: { bg: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.3)', text: '#fbbf24' },
-    critical: { bg: 'rgba(248, 113, 113, 0.1)', border: 'rgba(248, 113, 113, 0.3)', text: '#f87171' },
+    healthy: { bg: 'rgba(74, 222, 128, 0.1)', border: 'rgba(74, 222, 128, 0.3)', text: '#10b981' },
+    warning: { bg: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.3)', text: '#f59e0b' },
+    critical: { bg: 'rgba(248, 113, 113, 0.1)', border: 'rgba(248, 113, 113, 0.3)', text: '#ef4444' },
   };
   
   const colors = statusColors[status];
@@ -56,9 +56,9 @@ interface TimelineItemProps {
 
 function TimelineItem({ time, title, description, status }: TimelineItemProps) {
   const statusColors = {
-    success: '#4ade80',
-    warning: '#fbbf24',
-    error: '#f87171',
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
     info: '#60a5fa',
   };
   
@@ -234,9 +234,9 @@ export function PremiumDashboard() {
 
 function HealthBar({ label, value, status }: { label: string; value: number; status: 'healthy' | 'warning' | 'critical' }) {
   const statusColors = {
-    healthy: '#4ade80',
-    warning: '#fbbf24',
-    critical: '#f87171',
+    healthy: '#10b981',
+    warning: '#f59e0b',
+    critical: '#ef4444',
   };
   
   return (
@@ -288,9 +288,9 @@ function PipelineArrow() {
 
 function PhaseProgress({ phase, progress, status }: { phase: string; progress: number; status: 'complete' | 'active' | 'planned' }) {
   const statusConfig = {
-    complete: { color: '#4ade80', label: 'Complete', icon: '✓' },
+    complete: { color: '#10b981', label: 'Complete', icon: '✓' },
     active: { color: '#60a5fa', label: 'In Progress', icon: '⏳' },
-    planned: { color: '#9ca3af', label: 'Planned', icon: '○' },
+    planned: { color: 'var(--text-secondary)', label: 'Planned', icon: '○' },
   };
   
   const config = statusConfig[status];

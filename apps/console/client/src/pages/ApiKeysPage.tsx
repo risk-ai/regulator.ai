@@ -123,23 +123,23 @@ export function ApiKeysPage() {
 
   const getStatusBadge = (key: ApiKey) => {
     if (key.revoked) {
-      return { text: 'Revoked', color: '#6b7280' };
+      return { text: 'Revoked', color: 'var(--text-muted)' };
     }
     
     const now = new Date();
     const expires = new Date(key.expires_at);
     
     if (expires < now) {
-      return { text: 'Expired', color: '#f87171' };
+      return { text: 'Expired', color: '#ef4444' };
     }
     
     // Check if expiring soon (within 7 days)
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     if (expires < sevenDaysFromNow) {
-      return { text: 'Expiring Soon', color: '#fbbf24' };
+      return { text: 'Expiring Soon', color: '#f59e0b' };
     }
     
-    return { text: 'Active', color: '#4ade80' };
+    return { text: 'Active', color: '#10b981' };
   };
 
   const [copied, setCopied] = useState(false);
@@ -186,7 +186,7 @@ export function ApiKeysPage() {
             <h3 style={{
               fontSize: '14px',
               fontWeight: 600,
-              color: '#4ade80',
+              color: '#10b981',
               marginBottom: '12px',
             }}>
               ✓ API Key Created
@@ -223,7 +223,7 @@ export function ApiKeysPage() {
                   borderRadius: '4px',
                   border: '1px solid rgba(74, 222, 128, 0.3)',
                   background: copied ? 'rgba(74, 222, 128, 0.15)' : 'rgba(74, 222, 128, 0.08)',
-                  color: '#4ade80',
+                  color: '#10b981',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -282,7 +282,7 @@ export function ApiKeysPage() {
             </div>
           ) : error ? (
             <div style={{ padding: '40px', textAlign: 'center' }}>
-              <p style={{ color: '#f87171', fontSize: '12px' }}>
+              <p style={{ color: '#ef4444', fontSize: '12px' }}>
                 {error}
               </p>
               <button
@@ -422,7 +422,7 @@ export function ApiKeysPage() {
                             borderRadius: '4px',
                             border: '1px solid rgba(248, 113, 113, 0.3)',
                             background: 'rgba(248, 113, 113, 0.08)',
-                            color: '#f87171',
+                            color: '#ef4444',
                             fontSize: '10px',
                             fontWeight: 600,
                             cursor: revoking === key.id ? 'wait' : 'pointer',

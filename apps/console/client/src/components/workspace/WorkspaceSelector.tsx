@@ -59,7 +59,7 @@ export function WorkspaceSelector({ currentWorkspaceId, onSwitch }: WorkspaceSel
     community: '#94a3b8',
     team: '#a78bfa',
     business: '#D4A520',
-    enterprise: '#4ade80',
+    enterprise: '#10b981',
   };
 
   return (
@@ -109,7 +109,7 @@ export function WorkspaceSelector({ currentWorkspaceId, onSwitch }: WorkspaceSel
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600 }}>{ws.name}</div>
               </div>
-              {ws.id === current.id && <span style={{ fontSize: '12px', color: '#4ade80' }}>✓</span>}
+              {ws.id === current.id && <span style={{ fontSize: '12px', color: '#10b981' }}>✓</span>}
             </button>
           ))}
           <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '6px 12px' }}>

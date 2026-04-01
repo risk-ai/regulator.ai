@@ -139,7 +139,7 @@ export function NotificationCenter() {
             right: '4px',
             width: '8px',
             height: '8px',
-            background: '#f87171',
+            background: '#ef4444',
             borderRadius: '50%',
             border: '2px solid var(--bg-primary)',
           }} />

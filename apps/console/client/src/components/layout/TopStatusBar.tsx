@@ -27,15 +27,15 @@ export function TopStatusBar() {
   const queueDepth = systemStatus?.queue_depth ?? 0;
   
   const stateColors: Record<string, string> = {
-    healthy: '#4ade80',
-    running: '#4ade80',
-    degraded: '#fbbf24',
-    paused: '#fbbf24',
-    recovering: '#fb923c',
-    critical: '#f87171',
-    stopped: '#f87171',
-    offline: '#6b7280',
-    loading: '#6b7280',
+    healthy: '#10b981',
+    running: '#10b981',
+    degraded: '#f59e0b',
+    paused: '#f59e0b',
+    recovering: '#f97316',
+    critical: '#ef4444',
+    stopped: '#ef4444',
+    offline: 'rgba(255,255,255,0.3)',
+    loading: 'rgba(255,255,255,0.3)',
   };
   
   return (
@@ -104,12 +104,12 @@ export function TopStatusBar() {
             width: '6px', 
             height: '6px', 
             borderRadius: '50%', 
-            background: sseConnected ? '#4ade80' : '#f87171',
+            background: sseConnected ? '#10b981' : '#ef4444',
             boxShadow: sseConnected ? '0 0 6px rgba(74, 222, 128, 0.4)' : 'none',
           }} />
           <span style={{ 
             fontSize: '12px', 
-            color: sseConnected ? '#4ade80' : '#f87171',
+            color: sseConnected ? '#10b981' : '#ef4444',
             fontWeight: 500,
           }}>
             {sseConnected ? 'Live' : 'Reconnecting…'}

@@ -116,28 +116,28 @@ const DEFAULT_MOCK_INTENT = `{
 
 const styles = {
   card: {
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: '8px',
     padding: '20px',
   } as React.CSSProperties,
   input: {
-    background: '#111827',
+    background: '#0a0a0f',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '6px',
     padding: '8px 12px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '13px',
     fontFamily: 'var(--font-sans)',
     outline: 'none',
     width: '100%',
   } as React.CSSProperties,
   select: {
-    background: '#111827',
+    background: '#0a0a0f',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '6px',
     padding: '8px 12px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '13px',
     fontFamily: 'var(--font-sans)',
     outline: 'none',
@@ -167,7 +167,7 @@ const styles = {
   } as React.CSSProperties,
   btnSecondary: {
     background: 'rgba(255,255,255,0.06)',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
   } as React.CSSProperties,
   btnDanger: {
     background: 'rgba(248,113,113,0.1)',
@@ -175,13 +175,13 @@ const styles = {
   } as React.CSSProperties,
   btnGhost: {
     background: 'transparent',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     padding: '6px 10px',
   } as React.CSSProperties,
   label: {
     fontSize: '12px',
     fontWeight: 500,
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     marginBottom: '4px',
     display: 'block',
   } as React.CSSProperties,
@@ -193,15 +193,15 @@ const styles = {
     fontSize: '11px',
     fontFamily: 'var(--font-mono, monospace)',
     background: 'rgba(255,255,255,0.06)',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     gap: '4px',
   } as React.CSSProperties,
   textarea: {
-    background: '#111827',
+    background: '#0a0a0f',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: '6px',
     padding: '12px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '12px',
     fontFamily: 'var(--font-mono, monospace)',
     outline: 'none',
@@ -269,7 +269,7 @@ function ActionBadge({ action }: { action: string }) {
 /** Condition chips display */
 function ConditionChips({ conditions }: { conditions: PolicyCondition[] }) {
   if (!conditions || conditions.length === 0) {
-    return <span style={{ fontSize: '12px', color: '#6b7280' }}>No conditions (catch-all)</span>;
+    return <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No conditions (catch-all)</span>;
   }
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -299,8 +299,8 @@ function EmptyState({ icon, title, description, action }: {
       padding: '48px 32px',
     }}>
       <div style={{ fontSize: '40px', marginBottom: '12px' }}>{icon}</div>
-      <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#f3f4f6', margin: '0 0 8px 0' }}>{title}</h3>
-      <p style={{ fontSize: '13px', color: '#9ca3af', margin: '0 0 16px 0' }}>{description}</p>
+      <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px 0' }}>{title}</h3>
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px 0' }}>{description}</p>
       {action}
     </div>
   );
@@ -334,7 +334,7 @@ function ConditionRow({ condition, index, onChange, onRemove }: ConditionRowProp
       padding: '8px 0',
     }}>
       {/* Index */}
-      <span style={{ fontSize: '11px', color: '#6b7280', width: '24px', textAlign: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: '11px', color: 'var(--text-muted)', width: '24px', textAlign: 'center', flexShrink: 0 }}>
         {index > 0 ? 'AND' : 'IF'}
       </span>
 
@@ -385,7 +385,7 @@ function ConditionRow({ condition, index, onChange, onRemove }: ConditionRowProp
       {/* Value */}
       <div style={{ flex: 1, minWidth: '120px' }}>
         {(condition.operator === 'exists' || condition.operator === 'not_exists') ? (
-          <span style={{ fontSize: '12px', color: '#6b7280', padding: '8px' }}>—</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)', padding: '8px' }}>—</span>
         ) : condition.operator === 'between' || condition.operator === 'time_between' ? (
           <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
             <input
@@ -398,7 +398,7 @@ function ConditionRow({ condition, index, onChange, onRemove }: ConditionRowProp
               }}
               placeholder={condition.operator === 'time_between' ? 'HH:MM' : 'min'}
             />
-            <span style={{ color: '#6b7280', fontSize: '12px' }}>—</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>—</span>
             <input
               style={{ ...styles.input, width: '45%' }}
               value={Array.isArray(condition.value) ? String(condition.value[1] ?? '') : ''}
@@ -557,7 +557,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
       padding: '24px',
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{
-        background: '#1f2937',
+        background: '#12131a',
         border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: '12px',
         width: '100%',
@@ -575,7 +575,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#f3f4f6' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>
             {rule?.id ? 'Edit Policy Rule' : 'New Policy Rule'}
           </h2>
           <button onClick={onClose} style={{ ...styles.btn, ...styles.btnGhost, fontSize: '18px' }}>×</button>
@@ -610,16 +610,16 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <label style={{ ...styles.label, marginBottom: 0 }}>Conditions</label>
-                <span style={{ fontSize: '11px', color: '#6b7280' }}>All conditions must match (AND)</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>All conditions must match (AND)</span>
               </div>
               <div style={{
-                background: '#111827',
+                background: '#0a0a0f',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: '8px',
                 padding: '12px',
               }}>
                 {conditions.length === 0 ? (
-                  <p style={{ fontSize: '12px', color: '#6b7280', textAlign: 'center', margin: '8px 0' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', margin: '8px 0' }}>
                     No conditions — this rule will match all intents (catch-all)
                   </p>
                 ) : (
@@ -732,11 +732,11 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
           </div>
 
           {/* Right: Test Panel */}
-          <div style={{ flex: '0 0 40%', padding: '24px', overflowY: 'auto', background: '#111827' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#f3f4f6', margin: '0 0 12px 0' }}>
+          <div style={{ flex: '0 0 40%', padding: '24px', overflowY: 'auto', background: '#0a0a0f' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 12px 0' }}>
               🧪 Test Policy Rules
             </h3>
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 12px 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 12px 0' }}>
               Enter a mock intent to test against <strong>all active rules</strong>:
             </p>
 
@@ -789,12 +789,12 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                   borderRadius: '8px',
                   marginBottom: '12px',
                 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#f3f4f6', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
                     {testResult.matched_rule
                       ? `⚡ Rule Matched: ${testResult.matched_rule.rule_name}`
                       : '✅ No Rule Matched — Default Action Applied'}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                     Action: <ActionBadge action={testResult.matched_rule?.action || testResult.default_action} />
                     {testResult.matched_rule?.approval_tier && (
                       <span style={{ marginLeft: '8px' }}>Tier: {testResult.matched_rule.approval_tier}</span>
@@ -806,7 +806,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                 {testResult.all_results.map((r, i) => (
                   <div key={i} style={{
                     padding: '10px 12px',
-                    background: '#1f2937',
+                    background: '#12131a',
                     borderRadius: '6px',
                     marginBottom: '6px',
                     border: `1px solid ${r.matched ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.04)'}`,
@@ -832,7 +832,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                             padding: '2px 0',
                           }}>
                             {cd.passed ? '✓' : '✗'} {cd.field} {cd.operator} {JSON.stringify(cd.expected)}
-                            <span style={{ color: '#6b7280' }}> (actual: {JSON.stringify(cd.actual)})</span>
+                            <span style={{ color: 'var(--text-muted)' }}> (actual: {JSON.stringify(cd.actual)})</span>
                           </div>
                         ))}
                       </div>
@@ -880,7 +880,7 @@ function TemplateLibrary({ templates, onImport, onClose }: {
       padding: '24px',
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{
-        background: '#1f2937',
+        background: '#12131a',
         border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: '12px',
         width: '100%',
@@ -895,14 +895,14 @@ function TemplateLibrary({ templates, onImport, onClose }: {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#f3f4f6' }}>
+          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>
             📋 Industry Templates
           </h2>
           <button onClick={onClose} style={{ ...styles.btn, ...styles.btnGhost, fontSize: '18px' }}>×</button>
         </div>
 
         <div style={{ padding: '24px' }}>
-          <p style={{ fontSize: '13px', color: '#9ca3af', margin: '0 0 20px 0' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px 0' }}>
             Import pre-built governance rules for common industries. Rules are created as disabled for review before activation.
           </p>
 
@@ -915,10 +915,10 @@ function TemplateLibrary({ templates, onImport, onClose }: {
               alignItems: 'flex-start',
             }}>
               <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#f3f4f6', margin: '0 0 4px 0' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
                   {tpl.name}
                 </h3>
-                <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 8px 0' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px 0' }}>
                   {tpl.description}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -970,7 +970,7 @@ function AuditTrailView() {
   }, []);
 
   if (loading) {
-    return <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>Loading evaluations…</div>;
+    return <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>Loading evaluations…</div>;
   }
 
   if (evaluations.length === 0) {
@@ -992,7 +992,7 @@ function AuditTrailView() {
               <th key={h} style={{
                 padding: '10px 14px',
                 textAlign: 'left',
-                color: '#9ca3af',
+                color: 'var(--text-secondary)',
                 fontWeight: 500,
                 fontSize: '11px',
                 textTransform: 'uppercase',
@@ -1004,12 +1004,12 @@ function AuditTrailView() {
         <tbody>
           {evaluations.map(ev => (
             <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-              <td style={{ padding: '8px 14px', color: '#9ca3af', fontFamily: 'var(--font-mono, monospace)' }}>
+              <td style={{ padding: '8px 14px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono, monospace)' }}>
                 {new Date(ev.evaluated_at).toLocaleString()}
               </td>
-              <td style={{ padding: '8px 14px', color: '#f3f4f6' }}>{ev.rule_name || ev.rule_id?.slice(0, 8) || '—'}</td>
-              <td style={{ padding: '8px 14px', color: '#9ca3af', fontFamily: 'var(--font-mono, monospace)' }}>{ev.agent_id || '—'}</td>
-              <td style={{ padding: '8px 14px', color: '#9ca3af' }}>{ev.action_type || '—'}</td>
+              <td style={{ padding: '8px 14px', color: 'var(--text-primary)' }}>{ev.rule_name || ev.rule_id?.slice(0, 8) || '—'}</td>
+              <td style={{ padding: '8px 14px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono, monospace)' }}>{ev.agent_id || '—'}</td>
+              <td style={{ padding: '8px 14px', color: 'var(--text-secondary)' }}>{ev.action_type || '—'}</td>
               <td style={{ padding: '8px 14px' }}>
                 <span style={{
                   ...styles.chip,
@@ -1264,7 +1264,7 @@ export function PolicyBuilderPage() {
 
           {/* Loading */}
           {loading ? (
-            <div style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
+            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
               Loading policy rules…
             </div>
           ) : filteredRules.length === 0 ? (
@@ -1295,13 +1295,13 @@ export function PolicyBuilderPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <th style={{ padding: '10px 14px', textAlign: 'left', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', width: '30px' }}></th>
-                    <th style={{ padding: '10px 14px', textAlign: 'left', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'left', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Conditions</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'left', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'center', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'left', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Last Triggered</th>
-                    <th style={{ padding: '10px 14px', textAlign: 'right', color: '#9ca3af', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', width: '30px' }}></th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Conditions</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Last Triggered</th>
+                    <th style={{ padding: '10px 14px', textAlign: 'right', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1323,15 +1323,15 @@ export function PolicyBuilderPage() {
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                     >
                       {/* Drag handle + priority */}
-                      <td style={{ padding: '10px 14px', color: '#6b7280', fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', textAlign: 'center' }}>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'var(--font-mono, monospace)', textAlign: 'center' }}>
                         <span title={`Priority: ${rule.priority}`}>⠿</span>
                       </td>
 
                       {/* Name */}
                       <td style={{ padding: '10px 14px' }}>
-                        <div style={{ fontWeight: 500, color: '#f3f4f6', marginBottom: '2px' }}>{rule.name}</div>
+                        <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '2px' }}>{rule.name}</div>
                         {rule.description && (
-                          <div style={{ fontSize: '11px', color: '#6b7280' }}>{rule.description}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{rule.description}</div>
                         )}
                       </td>
 
@@ -1358,7 +1358,7 @@ export function PolicyBuilderPage() {
                       </td>
 
                       {/* Last triggered */}
-                      <td style={{ padding: '10px 14px', fontSize: '11px', color: '#6b7280', fontFamily: 'var(--font-mono, monospace)' }}>
+                      <td style={{ padding: '10px 14px', fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono, monospace)' }}>
                         {rule.last_triggered
                           ? new Date(rule.last_triggered).toLocaleDateString()
                           : '—'}
@@ -1403,7 +1403,7 @@ export function PolicyBuilderPage() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: '11px',
-                color: '#6b7280',
+                color: 'var(--text-muted)',
               }}>
                 <span>{filteredRules.length} rules · {filteredRules.filter(r => r.enabled).length} active</span>
                 <span>Rules evaluated highest priority first</span>

@@ -87,12 +87,12 @@ const styles = {
   title: {
     fontSize: '24px',
     fontWeight: 700,
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     margin: 0,
   } as React.CSSProperties,
   subtitle: {
     fontSize: '14px',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     marginTop: '4px',
   } as React.CSSProperties,
   registerBtn: {
@@ -131,7 +131,7 @@ const styles = {
     gap: '16px',
   } as React.CSSProperties,
   card: {
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255, 255, 255, 0.06)',
     borderRadius: '8px',
     padding: '20px',
@@ -141,7 +141,7 @@ const styles = {
   } as React.CSSProperties,
   cardHover: {
     borderColor: 'rgba(124, 58, 237, 0.3)',
-    background: '#243044',
+    background: '#1a1b26',
   } as React.CSSProperties,
   cardHeader: {
     display: 'flex',
@@ -163,17 +163,17 @@ const styles = {
   cardTitle: {
     fontSize: '15px',
     fontWeight: 600,
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     margin: 0,
   } as React.CSSProperties,
   cardSlug: {
     fontSize: '12px',
-    color: '#6b7280',
+    color: 'var(--text-muted)',
     fontFamily: 'monospace',
   } as React.CSSProperties,
   cardDescription: {
     fontSize: '13px',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     marginBottom: '14px',
     lineHeight: '1.4',
     minHeight: '36px',
@@ -199,12 +199,12 @@ const styles = {
     top: '12px',
     right: '12px',
     fontSize: '14px',
-    color: '#6b7280',
+    color: 'var(--text-muted)',
     title: 'Built-in (cannot be deleted)',
   } as React.CSSProperties,
   usageCount: {
     fontSize: '12px',
-    color: '#6b7280',
+    color: 'var(--text-muted)',
   } as React.CSSProperties,
   // Modal styles
   overlay: {
@@ -218,7 +218,7 @@ const styles = {
     padding: '20px',
   } as React.CSSProperties,
   modal: {
-    background: '#111827',
+    background: '#0a0a0f',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '12px',
     width: '100%',
@@ -230,7 +230,7 @@ const styles = {
   modalTitle: {
     fontSize: '20px',
     fontWeight: 700,
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     marginBottom: '24px',
     display: 'flex',
     justifyContent: 'space-between',
@@ -249,10 +249,10 @@ const styles = {
   input: {
     width: '100%',
     padding: '10px 12px',
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '6px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box' as const,
@@ -260,10 +260,10 @@ const styles = {
   textarea: {
     width: '100%',
     padding: '10px 12px',
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '6px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     outline: 'none',
     resize: 'vertical' as const,
@@ -274,10 +274,10 @@ const styles = {
   select: {
     width: '100%',
     padding: '10px 12px',
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '6px',
-    color: '#f3f4f6',
+    color: 'var(--text-primary)',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box' as const,
@@ -309,7 +309,7 @@ const styles = {
   }),
   riskDesc: {
     fontSize: '11px',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     marginTop: '4px',
   } as React.CSSProperties,
   iconGrid: {
@@ -319,7 +319,7 @@ const styles = {
     maxHeight: '120px',
     overflow: 'auto',
     padding: '8px',
-    background: '#1f2937',
+    background: '#12131a',
     borderRadius: '6px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
   } as React.CSSProperties,
@@ -361,7 +361,7 @@ const styles = {
   cancelBtn: {
     padding: '10px 20px',
     background: 'transparent',
-    color: '#9ca3af',
+    color: 'var(--text-secondary)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '6px',
     fontSize: '14px',
@@ -420,11 +420,11 @@ const styles = {
   emptyState: {
     textAlign: 'center' as const,
     padding: '60px 20px',
-    color: '#6b7280',
+    color: 'var(--text-muted)',
   } as React.CSSProperties,
   // Detail panel
   detailPanel: {
-    background: '#111827',
+    background: '#0a0a0f',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '12px',
     padding: '24px',
@@ -442,13 +442,13 @@ const styles = {
   sectionLabel: {
     fontSize: '11px',
     fontWeight: 600,
-    color: '#6b7280',
+    color: 'var(--text-muted)',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.5px',
     marginBottom: '8px',
   } as React.CSSProperties,
   schemaBlock: {
-    background: '#1f2937',
+    background: '#12131a',
     border: '1px solid rgba(255, 255, 255, 0.06)',
     borderRadius: '6px',
     padding: '12px',
@@ -651,7 +651,7 @@ export function ActionTypesPage() {
       ) : actionTypes.length === 0 ? (
         <div style={styles.emptyState}>
           <p style={{ fontSize: '40px', marginBottom: '12px' }}>⚡</p>
-          <p style={{ fontSize: '16px', color: '#9ca3af' }}>No action types found</p>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>No action types found</p>
           <p style={{ fontSize: '13px', marginTop: '4px' }}>Register your first custom action type to get started</p>
         </div>
       ) : (
@@ -746,7 +746,7 @@ function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, risk
   if (loading) {
     return (
       <div style={styles.detailPanel}>
-        <p style={{ color: '#9ca3af' }}>Loading details...</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Loading details...</p>
       </div>
     );
   }
@@ -761,8 +761,8 @@ function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, risk
             <span style={{ fontSize: '24px' }}>{getIconEmoji(type.icon)}</span>
           </div>
           <div>
-            <h2 style={{ margin: 0, color: '#f3f4f6', fontSize: '18px' }}>{type.display_name}</h2>
-            <span style={{ fontFamily: 'monospace', fontSize: '13px', color: '#6b7280' }}>{type.action_type}</span>
+            <h2 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px' }}>{type.display_name}</h2>
+            <span style={{ fontFamily: 'monospace', fontSize: '13px', color: 'var(--text-muted)' }}>{type.action_type}</span>
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -781,7 +781,7 @@ function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, risk
             </button>
           )}
           <button
-            style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '18px' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px' }}
             onClick={onClose}
           >
             ✕
@@ -834,16 +834,16 @@ function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, risk
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#6b7280', fontSize: '12px', margin: 0 }}>No usage recorded</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: 0 }}>No usage recorded</p>
             )}
           </div>
 
           <div style={styles.detailSection}>
             <div style={styles.sectionLabel}>Metadata</div>
-            <div style={{ fontSize: '12px', color: '#6b7280', lineHeight: '1.8' }}>
-              <div>Created by: <span style={{ color: '#9ca3af' }}>{type.created_by}</span></div>
-              <div>Created: <span style={{ color: '#9ca3af' }}>{new Date(type.created_at).toLocaleString()}</span></div>
-              <div>Updated: <span style={{ color: '#9ca3af' }}>{new Date(type.updated_at).toLocaleString()}</span></div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.8' }}>
+              <div>Created by: <span style={{ color: 'var(--text-secondary)' }}>{type.created_by}</span></div>
+              <div>Created: <span style={{ color: 'var(--text-secondary)' }}>{new Date(type.created_at).toLocaleString()}</span></div>
+              <div>Updated: <span style={{ color: 'var(--text-secondary)' }}>{new Date(type.updated_at).toLocaleString()}</span></div>
             </div>
           </div>
         </div>
@@ -959,7 +959,7 @@ function RegistrationModal({ editingType, onClose, onSaved, onError }: Registrat
         <div style={styles.modalTitle}>
           <span>{isEdit ? '✏️ Edit Action Type' : '➕ Register New Action Type'}</span>
           <button
-            style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '20px' }}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px' }}
             onClick={onClose}
           >
             ✕
@@ -990,7 +990,7 @@ function RegistrationModal({ editingType, onClose, onSaved, onError }: Registrat
         <div style={styles.formGroup}>
           <label style={styles.label}>
             Action Type Identifier
-            <span style={{ fontWeight: 400, color: '#6b7280', marginLeft: '8px' }}>
+            <span style={{ fontWeight: 400, color: 'var(--text-muted)', marginLeft: '8px' }}>
               (auto-generated, editable)
             </span>
           </label>
@@ -1062,7 +1062,7 @@ function RegistrationModal({ editingType, onClose, onSaved, onError }: Registrat
         <div style={styles.formGroup}>
           <label style={styles.label}>
             Payload Schema (JSON)
-            <span style={{ fontWeight: 400, color: '#6b7280', marginLeft: '8px' }}>
+            <span style={{ fontWeight: 400, color: 'var(--text-muted)', marginLeft: '8px' }}>
               optional — validates incoming payloads
             </span>
           </label>

@@ -263,42 +263,40 @@ export function NowPage() {
       )}
 
       {snapshot && !isEmptyWorkspace && (<>
-        {/* Pending banner */}
+        {/* Pending Approvals Banner */}
         {snapshot.proposals.pending > 0 && (
           <div 
-            onClick={() => nav('approvals')} 
+            onClick={() => nav('approvals')}
+            className="card-premium"
             style={{ 
-              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.06))', 
-              border: '1px solid rgba(251, 191, 36, 0.3)', 
-              borderRadius: '12px', 
-              padding: '16px 20px', 
-              marginBottom: '24px', 
+              background: 'var(--warning-bg)', 
+              border: '1px solid var(--warning-border)', 
+              padding: 'var(--space-5) var(--space-6)', 
+              marginBottom: 'var(--space-6)', 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '12px', 
-              cursor: 'pointer',
-              transition: 'all 200ms ease',
-              boxShadow: '0 0 15px rgba(251, 191, 36, 0.1)'
+              gap: 'var(--space-4)', 
+              cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = '0 0 25px rgba(251, 191, 36, 0.2)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 0 15px rgba(251, 191, 36, 0.1)';
             }}
           >
             <span style={{ fontSize: '20px' }}>⏳</span>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: '#fbbf24' }}>{snapshot.proposals.pending} proposal{snapshot.proposals.pending !== 1 ? 's' : ''} awaiting approval</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '3px' }}>Click to review →</div>
+              <div className="text-body" style={{ fontWeight: 600, color: 'var(--warning-text)' }}>
+                {snapshot.proposals.pending} proposal{snapshot.proposals.pending !== 1 ? 's' : ''} awaiting approval
+              </div>
+              <div className="text-helper" style={{ marginTop: 'var(--space-1)' }}>Click to review →</div>
             </div>
           </div>
         )}
 
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        {/* KPI Dashboard */}
+        <div className="section-gap" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-4)' }}>
           <StatCard label="Agents" value={snapshot.agents.active} total={snapshot.agents.total} suffix="active" color="#a78bfa" onClick={() => nav('fleet')} />
           <StatCard label="Proposals" value={snapshot.proposals.total} sub={`${snapshot.proposals.pending} pending · ${snapshot.proposals.approved} approved`} color="#60a5fa" onClick={() => nav('intent')} />
           <StatCard label="Warrants" value={snapshot.warrants.active} total={snapshot.warrants.total} suffix="active" color="#fbbf24" onClick={() => nav('approvals')} />
@@ -307,22 +305,15 @@ export function NowPage() {
           <StatCard label="Audit Events" value={snapshot.audit.total} sub="recent shown below" color="#94a3b8" onClick={() => nav('history')} />
         </div>
 
-        {/* Live events from SSE */}
+        {/* Live Pipeline Events */}
         {liveEvents.length > 0 && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite' }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Live Pipeline Events</span>
-              <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>via SSE</span>
+          <div className="section-gap">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-3)' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-text)', animation: 'pulse 2s infinite' }} />
+              <span className="text-section-label">Live Pipeline Events</span>
+              <span className="text-helper" style={{ fontFamily: 'var(--font-mono)' }}>via SSE</span>
             </div>
-            <div style={{ 
-              background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
-              border: '1px solid rgba(124, 58, 237, 0.2)', 
-              borderRadius: '12px', 
-              overflow: 'hidden',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 0 20px rgba(124, 58, 237, 0.08)'
-            }}>
+            <div className="card-premium" style={{ padding: 0, overflow: 'hidden' }}>
               {liveEvents.slice(0, 5).map((ev, i) => (
                 <LiveEventRow key={i} event={ev} isLast={i === Math.min(liveEvents.length, 5) - 1} />
               ))}
@@ -330,22 +321,31 @@ export function NowPage() {
           </div>
         )}
 
-        {/* Recent audit */}
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Recent Pipeline Activity</span>
-            <button onClick={() => nav('history')} style={{ padding: '3px 10px', borderRadius: '5px', fontSize: '11px', background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-tertiary)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>View all →</button>
+        {/* Recent Pipeline Activity */}
+        <div className="section-gap">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
+            <span className="text-section-label">Recent Pipeline Activity</span>
+            <button 
+              onClick={() => nav('history')} 
+              className="btn-premium"
+              style={{ 
+                padding: 'var(--space-2) var(--space-3)', 
+                fontSize: 'var(--text-helper)'
+              }}
+            >
+              View all →
+            </button>
           </div>
-          <div style={{ 
-            background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
-            border: '1px solid rgba(124, 58, 237, 0.2)', 
-            borderRadius: '12px', 
-            overflow: 'hidden',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 0 20px rgba(124, 58, 237, 0.08)'
-          }}>
+          <div className="card-premium" style={{ padding: 0, overflow: 'hidden' }}>
             {snapshot.audit.recent.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '13px' }}>No audit events yet. Submit an intent to see the pipeline.</div>
+              <div style={{ 
+                padding: 'var(--space-8)', 
+                textAlign: 'center', 
+                color: 'var(--text-tertiary)', 
+                fontSize: 'var(--text-body)' 
+              }}>
+                No audit events yet. Submit an intent to see the pipeline in action.
+              </div>
             ) : snapshot.audit.recent.map((entry, i) => (
               <AuditRow key={entry.id || i} entry={entry} isLast={i === snapshot.audit.recent.length - 1} />
             ))}
@@ -403,99 +403,103 @@ export function NowPage() {
 function StatCard({ label, value, total, suffix, sub, color, onClick }: { label: string; value: number; total?: number; suffix?: string; sub?: string; color: string; onClick?: () => void }) {
   return (
     <div 
-      onClick={onClick} 
+      onClick={onClick}
+      className="kpi-card"
       style={{ 
-        background: `linear-gradient(135deg, ${color}12, ${color}06)`, 
-        border: `1px solid ${color}30`, 
-        borderRadius: '12px', 
-        padding: '18px', 
-        cursor: onClick ? 'pointer' : 'default', 
-        transition: 'all 200ms ease',
-        backdropFilter: 'blur(8px)',
+        cursor: onClick ? 'pointer' : 'default',
+        border: `1px solid var(--border-subtle)`,
         position: 'relative',
         overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
         if (onClick) {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = `0 8px 25px ${color}20`;
+          e.currentTarget.style.transform = 'translateY(-1px)';
         }
       }}
       onMouseLeave={(e) => {
         if (onClick) {
           e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = 'none';
         }
       }}
     >
-      {/* Subtle gradient overlay */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `linear-gradient(135deg, ${color}08, transparent)`,
-        pointerEvents: 'none'
-      }} />
-      
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>{label}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-          <span style={{ 
-            fontSize: '32px', 
-            fontWeight: 700, 
-            color, 
-            fontFamily: 'var(--font-mono)', 
-            lineHeight: 1,
-            textShadow: `0 0 10px ${color}40`
-          }}>{value}</span>
-          {total !== undefined && <span style={{ fontSize: '14px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>/{total}</span>}
-          {suffix && <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{suffix}</span>}
-        </div>
-        {sub && <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '6px' }}>{sub}</div>}
+      <div className="label">{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
+        <span className="value" style={{ color }}>{value}</span>
+        {total !== undefined && <span className="text-helper">/{total}</span>}
+        {suffix && <span className="text-helper">{suffix}</span>}
       </div>
+      {sub && <div className="text-helper" style={{ marginTop: 'var(--space-2)' }}>{sub}</div>}
     </div>
   );
 }
 
 function LiveEventRow({ event, isLast }: { event: PipelineEvent; isLast: boolean }) {
-  const colors: Record<string, string> = { warrant_issued: '#D4A520', execution_verified: '#4ade80', execution_denied: '#f87171', proposal_pending: '#60a5fa', proposal_denied: '#f87171', warrant_revoked: '#f97316' };
+  const colors: Record<string, string> = { 
+    warrant_issued: 'var(--warning-text)', 
+    execution_verified: 'var(--success-text)', 
+    execution_denied: 'var(--error-text)', 
+    proposal_pending: 'var(--info-text)', 
+    proposal_denied: 'var(--error-text)', 
+    warrant_revoked: 'var(--warning-text)' 
+  };
   const eventName = event.event || 'unknown';
-  const color = colors[eventName] || '#94a3b8';
+  const color = colors[eventName] || 'var(--text-tertiary)';
+  
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)', background: 'rgba(74, 222, 128, 0.02)' }}>
-      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 1s' }} />
-      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{eventName.replace(/_/g, ' ')}</span>
-      <span style={{ fontSize: '10px', color, fontFamily: 'var(--font-mono)', padding: '1px 5px', borderRadius: '3px', background: `${color}12` }}>T{event.risk_tier ?? 0}</span>
-      <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginLeft: 'auto' }}>{event.actor || 'system'}</span>
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 'var(--space-3)', 
+      padding: 'var(--space-3) var(--space-5)', 
+      borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)',
+      background: 'var(--success-bg)',
+      height: '48px'
+    }}>
+      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success-text)', animation: 'pulse 1s' }} />
+      <span className="text-helper" style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+        {eventName.replace(/_/g, ' ')}
+      </span>
+      <span className="status-badge neutral" style={{ fontSize: 'var(--text-helper)' }}>
+        T{event.risk_tier ?? 0}
+      </span>
+      <span className="text-helper" style={{ marginLeft: 'auto' }}>{event.actor || 'system'}</span>
     </div>
   );
 }
 
 function AuditRow({ entry, isLast }: { entry: AuditEntry; isLast: boolean }) {
   const eventName = entry.event || entry.action || 'unknown';
-  const colors: Record<string, string> = { warrant_issued: '#fbbf24', execution_verified: '#4ade80', execution_denied: '#f87171', proposal_pending: '#60a5fa', proposal_denied: '#f87171', warrant_revoked: '#f97316', intent_rejected: '#ef4444', operator_login: '#94a3b8' };
-  const color = colors[eventName] || '#94a3b8';
+  const colors: Record<string, string> = { 
+    warrant_issued: 'var(--warning-text)', 
+    execution_verified: 'var(--success-text)', 
+    execution_denied: 'var(--error-text)', 
+    proposal_pending: 'var(--info-text)', 
+    proposal_denied: 'var(--error-text)', 
+    warrant_revoked: 'var(--warning-text)', 
+    intent_rejected: 'var(--error-text)', 
+    operator_login: 'var(--text-tertiary)' 
+  };
+  const color = colors[eventName] || 'var(--text-tertiary)';
   const tier = ['T0', 'T1', 'T2', 'T3'][entry.risk_tier ?? 0] || `T${entry.risk_tier}`;
   const time = entry.created_at ? new Date(entry.created_at).toLocaleTimeString() : '';
+  
   return (
     <div style={{ 
       display: 'flex', 
       alignItems: 'center', 
-      gap: '12px', 
-      padding: '12px 16px', 
-      borderBottom: isLast ? 'none' : '1px solid rgba(124, 58, 237, 0.1)',
-      borderLeft: `4px solid ${color}`,
-      background: isLast ? 'none' : `linear-gradient(90deg, ${color}05, transparent)`,
-      position: 'relative'
+      gap: 'var(--space-4)', 
+      padding: 'var(--space-4) var(--space-5)', 
+      borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)',
+      height: '48px'
     }}>
-      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 8px ${color}60` }} />
+      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, flexShrink: 0 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{eventName.replace(/_/g, ' ')}</span>
-          <span style={{ 
-            fontSize: '10px', 
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <span className="text-body" style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+            {eventName.replace(/_/g, ' ')}
+          </span>
+          <span className="status-badge neutral" style={{ 
+            fontSize: 'var(--text-helper)', 
             fontWeight: 600, 
             color, 
             fontFamily: 'var(--font-mono)', 

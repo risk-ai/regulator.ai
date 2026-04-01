@@ -13,9 +13,9 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
+    <div className="min-h-screen" style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
       <TopStatusBar />
-      <main className="container mx-auto px-6 py-6">
+      <main className="container mx-auto" style={{ padding: 'var(--space-8) var(--space-6)' }}>
         {children}
       </main>
     </div>

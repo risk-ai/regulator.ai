@@ -121,7 +121,7 @@ export default function ComparePage() {
         "@type": "SoftwareApplication",
         "@id": "https://regulator.ai/compare#software",
         "name": "Vienna OS",
-        "description": "Execution control layer for AI agents. Unlike prompt filtering (Guardrails AI), model monitoring (Arthur AI), or compliance documentation (Credo AI), Vienna OS controls what agents can actually do through cryptographic warrants and policy enforcement.",
+        "description": "governance and authorization layer for AI agents. Unlike prompt filtering (Guardrails AI), model monitoring (Arthur AI), or compliance documentation (Credo AI), Vienna OS controls what agents can actually do through cryptographic warrants and policy enforcement.",
         "url": "https://regulator.ai",
         "applicationCategory": "SecurityApplication",
         "applicationSubCategory": "AI Governance",
@@ -392,7 +392,7 @@ export default function ComparePage() {
       {/* Footer */}
       <footer className="border-t border-navy-800 mt-16 py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-slate-500">
-          © 2026 Technetwork 2 LLC dba ai.ventures. Vienna OS — The execution control layer for AI systems.
+          © 2026 Technetwork 2 LLC dba ai.ventures. Vienna OS — The governance and authorization layer for AI systems.
         </div>
       </footer>
     </div>

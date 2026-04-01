@@ -252,7 +252,7 @@ function SuccessContent() {
         <div className="mt-12 flex items-center justify-center gap-2">
           <Shield className="w-4 h-4 text-purple-400" />
           <span className="text-sm text-slate-600">
-            Vienna OS — Governed AI Execution Layer
+            Vienna OS — Governed AI Authorization Layer
           </span>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Integration Guide — Connect Your Agent Framework",
   description:
-    "Step-by-step guide to integrating the Vienna OS execution kernel with LangChain, CrewAI, AutoGen, OpenClaw frameworks for warrants-based governance and cryptographic execution authority.",
+    "Step-by-step guide to integrating the Vienna OS Governance Kernel with LangChain, CrewAI, AutoGen, OpenClaw frameworks for warrants-based governance and cryptographic execution authority.",
 };
 
 export default function IntegrationGuidePage() {

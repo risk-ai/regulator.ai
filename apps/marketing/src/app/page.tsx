@@ -195,7 +195,7 @@ function AnimatedStat({ value, suffix = "", label, sub }: { value: number | stri
 
 /** Animated pipeline — sequential pulse */
 function AnimatedPipeline() {
-  const STEPS = ["Intent", "Policy", "Risk Tier", "Approval", "Warrant", "Execute", "Verify", "Audit"];
+  const STEPS = ["Intent", "Policy", "Risk Tier", "Approval", "Warrant", "Agent Acts", "Verify", "Audit"];
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -234,7 +234,7 @@ function AnimatedPipeline() {
     }
     const baseMap: Record<string, string> = {
       "Approval": "bg-purple-500/10 text-purple-400 border border-purple-500/20",
-      "Execute": "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+      "Agent Acts": "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
       "Verify": "bg-rose-500/10 text-rose-400 border border-rose-500/20",
     };
     return `px-3 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-500 ${baseMap[step] || "bg-navy-900/80 text-slate-400 border border-navy-700"}`;
@@ -270,10 +270,10 @@ function TypewriterCode() {
     { text: '  tenant_id: "prod"', cls: "", parts: [{ text: "  tenant_id", cls: "text-emerald-400" }, { text: ': ', cls: "" }, { text: '"prod"', cls: "text-green-300" }] },
     { text: "}", cls: "text-amber-400" },
     { text: "", cls: "" },
-    { text: "// Vienna evaluates → issues warrant → executes", cls: "text-slate-500" },
+    { text: "// Vienna evaluates → issues warrant → agent executes", cls: "text-slate-500" },
     { text: "{", cls: "text-amber-400" },
     { text: "  success: true,", cls: "", parts: [{ text: "  success", cls: "text-emerald-400" }, { text: ": ", cls: "" }, { text: "true", cls: "text-blue-400" }, { text: ",", cls: "" }] },
-    { text: '  status: "executed",', cls: "", parts: [{ text: "  status", cls: "text-emerald-400" }, { text: ': ', cls: "" }, { text: '"executed"', cls: "text-green-300" }, { text: ",", cls: "" }] },
+    { text: '  status: "authorized",', cls: "", parts: [{ text: "  status", cls: "text-emerald-400" }, { text: ': ', cls: "" }, { text: '"authorized"', cls: "text-green-300" }, { text: ",", cls: "" }] },
     { text: '  warrant_id: "wrt-7f3a...",', cls: "", parts: [{ text: "  warrant_id", cls: "text-emerald-400" }, { text: ': ', cls: "" }, { text: '"wrt-7f3a..."', cls: "text-green-300" }, { text: ",", cls: "" }] },
     { text: "  verified: true", cls: "", parts: [{ text: "  verified", cls: "text-emerald-400" }, { text: ": ", cls: "" }, { text: "true", cls: "text-blue-400" }] },
     { text: "}", cls: "text-amber-400" },
@@ -417,7 +417,7 @@ export default function Home() {
         "@id": "https://regulator.ai/#software",
         "name": "Vienna OS",
         "alternateName": "Vienna Operating System",
-        "description": "The execution control layer for autonomous AI systems. Provides cryptographic warrants, policy enforcement, risk tiering, and immutable audit trails for AI agent governance.",
+        "description": "The governance and authorization layer for autonomous AI systems. Provides cryptographic warrants, policy enforcement, risk tiering, and immutable audit trails for AI agent governance.",
         "url": "https://regulator.ai",
         "downloadUrl": "https://github.com/risk-ai/regulator.ai",
         "operatingSystem": "Cross-platform",
@@ -586,7 +586,7 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-                The execution control layer for autonomous AI systems.
+                The governance and authorization layer for autonomous AI systems.
                 Every agent action requires a cryptographic <span className="text-amber-400 font-medium">warrant</span> — signed, scoped,
                 and time-limited. No warrant, no execution.
               </p>
@@ -817,7 +817,7 @@ export default function Home() {
             <AnimatedStat value={100} suffix="%" label="Enforcement Coverage" sub="Every action authorized" />
             <AnimatedStat value={4} label="Risk Tiers" sub="T0 auto → T3 multi-party" />
             <AnimatedStat value="∞" label="Action Types" sub="Any agent, any operation" />
-            <AnimatedStat value={9} label="Control Engines" sub="Complete execution stack" />
+            <AnimatedStat value={9} label="Control Engines" sub="Complete governance stack" />
           </div>
         </div>
       </section>
@@ -836,10 +836,10 @@ export default function Home() {
                 <span className="text-sm text-purple-300 font-bold uppercase tracking-wider">Platform</span>
               </div>
               <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
-                Execution <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Control</span> Infrastructure
+                Governance <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Control</span> Infrastructure
               </h2>
               <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                System primitives for controlling what AI agents can do.
+                System primitives for authorizing what AI agents can do.
                 Not monitoring. Not documentation. Enforcement.
               </p>
             </div>
@@ -1220,7 +1220,7 @@ export default function Home() {
                   How it <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">works</span>
                 </h2>
                 <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-                  Vienna OS is the execution control layer between agent intent and real-world action. Agents stay autonomous — within enforced boundaries.
+                  Vienna OS is the governance layer between agent intent and real-world action. Agents stay autonomous — within enforced boundaries.
                 </p>
                 
                 {/* Enhanced timeline with numbered steps and connecting lines */}
@@ -1234,7 +1234,7 @@ export default function Home() {
                     { icon: Scale, text: "Risk tier assigned — T0/T1/T2", color: "text-indigo-400" },
                     { icon: Users, text: "Operator approves if T1/T2", color: "text-violet-400" },
                     { icon: Lock, text: "Warrant issued — signed, scoped, time-limited", color: "text-amber-400" },
-                    { icon: Zap, text: "Execution router runs the action", color: "text-green-400" },
+                    { icon: Zap, text: "Agent executes with warrant authorization", color: "text-green-400" },
                     { icon: Eye, text: "Verification confirms scope compliance", color: "text-emerald-400" },
                     { icon: BookOpen, text: "Audit trail records everything", color: "text-cyan-400" },
                   ].map((step, i) => (
@@ -1365,7 +1365,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { icon: Shield, color: "text-purple-400", title: "Cornell Law × ai.ventures", desc: "Built by a legal technologist who understands both compliance frameworks and distributed systems. Patent-protected (USPTO #64/018,152)." },
-            { icon: Server, color: "text-blue-400", title: "Running in Production", desc: "Live at console.regulator.ai. 9 execution control engines, cryptographic warrant issuance, immutable audit ledger. Not a whitepaper." },
+            { icon: Server, color: "text-blue-400", title: "Running in Production", desc: "Live at console.regulator.ai. 9 governance engines, cryptographic warrant issuance, immutable audit ledger. Not a whitepaper." },
             { icon: Zap, color: "text-emerald-400", title: "Framework Agnostic", desc: "One API. Works with OpenClaw, LangChain, CrewAI, AutoGen — any system that makes HTTP requests. 5 lines to integrate." },
           ].map((card, i) => (
             <ScrollReveal key={card.title} delay={i * 0.1}>
@@ -1436,7 +1436,7 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="text-sm text-slate-400 leading-relaxed mb-6">
-                  The execution control layer for AI systems.
+                  The governance and authorization layer for AI systems.
                 </p>
                 <div className="flex items-center gap-4">
                   <a href="https://github.com/risk-ai/regulator.ai" className="text-slate-500 hover:text-white transition">
@@ -1554,15 +1554,15 @@ signature: 0x7f3a...b2c1`,
     },
     {
       id: 5,
-      title: "Execution routed",
-      description: "To runtime",
-      detail: "Authorized action is routed to the appropriate execution environment",
+      title: "Agent executes",
+      description: "With warrant authorization",
+      detail: "Agent performs the authorized action using its own integrations, presenting the warrant as proof of authorization",
       icon: "⚡",
-      code: `// Execution routing
-runtime: kubernetes
-namespace: production
+      code: `// Agent execution
+warrant: wrt-7f3a2b1c
+runtime: agent's own infra
 action: rolling_deployment
-status: in_progress`,
+authorization: verified ✓`,
       color: "emerald"
     },
     {

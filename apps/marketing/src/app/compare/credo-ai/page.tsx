@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vienna OS vs Credo AI — Comparison | Execution Kernel vs Compliance Documentation",
-  description: "Compare Vienna OS and Credo AI. Credo generates compliance documentation; Vienna OS is the execution kernel for autonomous AI with warrants-based governance.",
+  title: "Vienna OS vs Credo AI — Comparison | Governance Kernel vs Compliance Documentation",
+  description: "Compare Vienna OS and Credo AI. Credo generates compliance documentation; Vienna OS is the governance kernel for autonomous AI with warrants-based governance.",
   openGraph: {
-    title: "Vienna OS vs Credo AI — Execution Kernel vs Compliance Documentation",
-    description: "When you need more than paperwork — detailed comparison of Credo AI vs Vienna OS execution kernel with cryptographic execution authority.",
+    title: "Vienna OS vs Credo AI — Governance Kernel vs Compliance Documentation",
+    description: "When you need more than paperwork — detailed comparison of Credo AI vs Vienna OS Governance Kernel with cryptographic execution authority.",
   },
 };
 

@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Security",
   description:
-    "Vienna OS security architecture - execution kernel security model with cryptographic warrants, warrants-based governance, tenant isolation, and cryptographic execution authority.",
+    "Vienna OS security architecture - governance kernel security model with cryptographic warrants, warrants-based governance, tenant isolation, and cryptographic execution authority.",
 };
 
 const securityFeatures = [
@@ -253,7 +253,7 @@ export default function SecurityPage() {
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-purple-400" />
             <span className="text-sm text-slate-500">
-              Vienna OS — Governed AI Execution Layer
+              Vienna OS — Governed AI Authorization Layer
             </span>
           </div>
           <div className="flex items-center gap-6">

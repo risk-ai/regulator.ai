@@ -52,7 +52,7 @@ export function WelcomeEmail({ name, plan, email }: WelcomeEmailProps) {
           color: 'rgba(255,255,255,0.9)',
           fontWeight: '400'
         }}>
-          Governed AI Execution Layer
+          Governed AI Authorization Layer
         </p>
       </div>
 

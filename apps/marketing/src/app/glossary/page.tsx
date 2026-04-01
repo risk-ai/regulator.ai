@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "AI Governance Glossary — Vienna OS",
-  description: "Key terms for the execution kernel of autonomous AI: execution warrants, warrants-based governance, cryptographic execution authority, risk tiering, policy engines, and audit trails.",
+  description: "Key terms for the governance kernel of autonomous AI: execution warrants, warrants-based governance, cryptographic execution authority, risk tiering, policy engines, and audit trails.",
   openGraph: {
     title: "AI Governance Glossary — Vienna OS",
-    description: "Learn the vocabulary of execution kernel governance for autonomous AI. From cryptographic execution authority to warrants-based governance.",
+    description: "Learn the vocabulary of AI governance. From cryptographic execution authority to warrants-based governance.",
   },
 };
 

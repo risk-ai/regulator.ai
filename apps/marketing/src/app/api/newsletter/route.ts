@@ -60,7 +60,7 @@ async function sendWelcomeEmail(email: string): Promise<boolean> {
           <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 32px;">
             <h3 style="color: white; font-size: 18px; margin-top: 0; margin-bottom: 16px;">What's Vienna OS?</h3>
             <p style="margin: 0 0 16px 0; line-height: 1.6;">
-              Vienna OS is the <strong style="color: #8b5cf6;">execution control layer</strong> for AI agent systems. 
+              Vienna OS is the <strong style="color: #8b5cf6;">governance and authorization layer</strong> for AI agent systems. 
               Instead of hoping agents behave correctly, we make misbehavior impossible through:
             </p>
             <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">

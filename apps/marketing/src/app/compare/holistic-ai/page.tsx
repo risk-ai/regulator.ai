@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vienna OS vs Holistic AI — Comparison | Execution Kernel vs Risk Auditing",
-  description: "Compare Vienna OS and Holistic AI. Holistic audits AI systems for bias and compliance; Vienna OS is the execution kernel for autonomous AI with warrants-based governance.",
+  title: "Vienna OS vs Holistic AI — Comparison | Governance Kernel vs Risk Auditing",
+  description: "Compare Vienna OS and Holistic AI. Holistic audits AI systems for bias and compliance; Vienna OS is the governance kernel for autonomous AI with warrants-based governance.",
   openGraph: {
-    title: "Vienna OS vs Holistic AI — Execution Kernel vs Risk Auditing",
-    description: "When you need more than auditing — detailed comparison of Holistic AI vs Vienna OS execution kernel with cryptographic execution authority.",
+    title: "Vienna OS vs Holistic AI — Governance Kernel vs Risk Auditing",
+    description: "When you need more than auditing — detailed comparison of Holistic AI vs Vienna OS Governance Kernel with cryptographic execution authority.",
   },
 };
 

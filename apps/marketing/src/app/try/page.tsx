@@ -1366,7 +1366,7 @@ export default function TryPage() {
       {/* ─── Footer ─── */}
       <footer className="border-t border-navy-700/30 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-warm-600">
-          <span>Vienna OS — The execution control layer for AI systems</span>
+          <span>Vienna OS — The governance and authorization layer for AI systems</span>
           <a href="/docs" className="text-gold-400 hover:text-gold-300 transition">Documentation →</a>
         </div>
       </footer>

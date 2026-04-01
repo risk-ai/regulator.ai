@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Frequently asked questions about Vienna OS - the execution kernel for autonomous AI. Learn about warrants-based governance, cryptographic execution authority, and enterprise deployment.",
+  description: "Frequently asked questions about Vienna OS - the governance kernel for autonomous AI. Learn about warrants-based governance, cryptographic execution authority, and enterprise deployment.",
 };
 
 const faqs = [

@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vienna OS vs Arthur AI — Comparison | Execution Kernel vs Model Monitoring",
-  description: "Compare Vienna OS and Arthur AI. Arthur monitors model performance; Vienna OS is the execution kernel for autonomous AI with warrants-based governance.",
+  title: "Vienna OS vs Arthur AI — Comparison | Governance Kernel vs Model Monitoring",
+  description: "Compare Vienna OS and Arthur AI. Arthur monitors model performance; Vienna OS is the governance kernel for autonomous AI with warrants-based governance.",
   openGraph: {
-    title: "Vienna OS vs Arthur AI — Execution Kernel vs Model Monitoring",
-    description: "When you need more than monitoring — detailed comparison of Arthur AI vs Vienna OS execution kernel with cryptographic execution authority.",
+    title: "Vienna OS vs Arthur AI — Governance Kernel vs Model Monitoring",
+    description: "When you need more than monitoring — detailed comparison of Arthur AI vs Vienna OS Governance Kernel with cryptographic execution authority.",
   },
 };
 

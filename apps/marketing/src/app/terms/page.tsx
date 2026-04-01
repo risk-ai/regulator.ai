@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms of Service for Vienna OS - the execution kernel for autonomous AI with warrants-based governance and cryptographic execution authority.",
+  description: "Terms of Service for Vienna OS - the governance kernel for autonomous AI with warrants-based governance and cryptographic execution authority.",
 };
 
 export default function TermsPage() {

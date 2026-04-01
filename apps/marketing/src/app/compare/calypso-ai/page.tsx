@@ -3,11 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Vienna OS vs Calypso AI — Comparison | Execution Kernel vs Security Testing",
-  description: "Compare Vienna OS and Calypso AI. Calypso tests AI models for vulnerabilities; Vienna OS is the execution kernel for autonomous AI with warrants-based governance.",
+  title: "Vienna OS vs Calypso AI — Comparison | Governance Kernel vs Security Testing",
+  description: "Compare Vienna OS and Calypso AI. Calypso tests AI models for vulnerabilities; Vienna OS is the governance kernel for autonomous AI with warrants-based governance.",
   openGraph: {
-    title: "Vienna OS vs Calypso AI — Execution Kernel vs Security Testing",
-    description: "When you need more than testing — detailed comparison of Calypso AI vs Vienna OS execution kernel with cryptographic execution authority.",
+    title: "Vienna OS vs Calypso AI — Governance Kernel vs Security Testing",
+    description: "When you need more than testing — detailed comparison of Calypso AI vs Vienna OS Governance Kernel with cryptographic execution authority.",
   },
 };
 

@@ -7,16 +7,16 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 
 export const metadata: Metadata = {
   title: {
-    default: "Vienna OS — Execution Kernel for Autonomous AI",
+    default: "Vienna OS — Governance Kernel for Autonomous AI",
     template: "%s | Vienna OS",
   },
   description:
-    "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority, policy enforcement, and immutable audit trails for AI systems.",
+    "The governance kernel that controls what autonomous AI can do. Warrants-based authorization with cryptographic execution authority, policy enforcement, and immutable audit trails for AI systems.",
   metadataBase: new URL("https://regulator.ai"),
   openGraph: {
-    title: "Vienna OS — Execution Kernel for Autonomous AI",
+    title: "Vienna OS — Governance Kernel for Autonomous AI",
     description:
-      "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority.",
+      "The governance kernel that controls what autonomous AI can do. Warrants-based authorization with cryptographic execution authority.",
     url: "https://regulator.ai",
     siteName: "Vienna OS",
     type: "website",
@@ -26,15 +26,15 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Vienna OS — The Execution Control Layer for AI Systems",
+        alt: "Vienna OS — The Governance and Authorization Layer for AI Systems",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Vienna OS — Execution Kernel for Autonomous AI",
+    title: "Vienna OS — Governance Kernel for Autonomous AI",
     description:
-      "The execution kernel that governs what autonomous AI can do. Warrants-based governance with cryptographic execution authority.",
+      "The governance kernel that controls what autonomous AI can do. Warrants-based authorization with cryptographic execution authority.",
     images: ["/og-image.png"],
   },
   robots: {

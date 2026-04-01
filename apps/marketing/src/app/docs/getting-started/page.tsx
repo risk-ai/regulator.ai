@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Getting Started with Vienna OS — 5-Minute Setup Guide",
-  description: "Add the execution kernel to your autonomous AI project in 5 minutes. Install the SDK, submit your first warrants-based intent, and see cryptographic execution authority in action.",
+  description: "Add the governance kernel to your autonomous AI project in 5 minutes. Install the SDK, submit your first warrants-based intent, and see cryptographic execution authority in action.",
   openGraph: {
     title: "Getting Started with Vienna OS — 5-Minute Setup",
-    description: "Install the execution kernel. Submit a warranted intent. See governance in action. 5 minutes.",
+    description: "Install the governance kernel. Submit a warranted intent. See governance in action. 5 minutes.",
   },
 };
 

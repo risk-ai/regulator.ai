@@ -25,22 +25,22 @@ interface NavItem {
 /* ── Primary nav: always visible in top bar ── */
 const PRIMARY_NAV: NavItem[] = [
   { id: 'now', label: 'Dashboard', description: 'System posture & action center', icon: '⚡' },
-  { id: 'fleet', label: 'Agents', description: 'Agent fleet & templates', icon: '🤖' },
-  { id: 'policies', label: 'Policies', description: 'Governance rules & templates', icon: '🛡️' },
+  { id: 'fleet', label: 'Agents', description: 'Agent fleet management', icon: '🤖' },
+  { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
   { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
-  { id: 'activity', label: 'Activity', description: 'Real-time activity & audit trail', icon: '📊' },
-  { id: 'api-keys', label: 'API Keys', description: 'Programmatic access keys', icon: '🔑' },
+  { id: 'policies', label: 'Policies', description: 'Governance rules', icon: '🛡️' },
+  { id: 'activity', label: 'Activity', description: 'Real-time activity feed', icon: '📊' },
+  { id: 'history', label: 'Audit', description: 'Execution ledger & audit trail', icon: '📋' },
+  { id: 'compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
+  { id: 'api-keys', label: 'API Keys', description: 'Programmatic access', icon: '🔑' },
   { id: 'settings', label: 'Settings', description: 'Configuration', icon: '⚙️' },
 ];
 
 /* ── Secondary nav: visible in mobile menu & "More" dropdown ── */
 const SECONDARY_NAV: NavItem[] = [
   { id: 'runtime', label: 'Runtime', description: 'Execution pipeline & reconciliation', icon: '⚙️' },
-  { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
   { id: 'action-types', label: 'Actions', description: 'Action type registry', icon: '⚡' },
   { id: 'integrations', label: 'Integrations', description: 'External service adapters', icon: '🔌' },
-  { id: 'compliance', label: 'Compliance', description: 'Governance reports', icon: '📊' },
-  { id: 'history', label: 'History', description: 'Execution ledger & audit', icon: '📋' },
   { id: 'workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
   { id: 'policy-templates', label: 'Policy Templates', description: 'Pre-built policy templates', icon: '📋' },
   { id: 'agent-templates', label: 'Agent Templates', description: 'Agent integration templates', icon: '🤖' },

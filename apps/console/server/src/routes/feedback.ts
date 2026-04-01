@@ -42,10 +42,10 @@ export function createFeedbackRouter(): Router {
         hasScreenshot: !!screenshot,
       };
 
-      // Send to Slack webhook if configured
-      const slackWebhook = process.env.FEEDBACK_SLACK_WEBHOOK;
-      if (slackWebhook) {
-        await sendToSlack(slackWebhook, feedback, screenshot);
+      // Send to Discord webhook if configured
+      const discordWebhook = process.env.FEEDBACK_DISCORD_WEBHOOK;
+      if (discordWebhook) {
+        await sendToDiscord(discordWebhook, feedback, screenshot);
       } else {
         // Fallback: log to console
         console.log('[Feedback]', JSON.stringify(feedback, null, 2));
@@ -71,73 +71,58 @@ export function createFeedbackRouter(): Router {
 }
 
 /**
- * Send feedback to Slack via webhook
+ * Send feedback to Discord via webhook
  */
-async function sendToSlack(webhookUrl: string, feedback: any, screenshot?: string) {
-  const blocks: any[] = [
-    {
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: '🐛 New Bug Report / Feedback',
-        emoji: true,
+async function sendToDiscord(webhookUrl: string, feedback: any, screenshot?: string) {
+  const embed = {
+    title: '🐛 New Bug Report / Feedback',
+    color: 0x5865F2, // Discord blurple
+    fields: [
+      {
+        name: '👤 User',
+        value: feedback.user?.email || 'Anonymous',
+        inline: true,
       },
-    },
-    {
-      type: 'section',
-      fields: [
-        {
-          type: 'mrkdwn',
-          text: `*User:*\n${feedback.user?.email || 'Anonymous'}`,
-        },
-        {
-          type: 'mrkdwn',
-          text: `*Page:*\n${feedback.page}`,
-        },
-        {
-          type: 'mrkdwn',
-          text: `*Time:*\n${new Date(feedback.timestamp).toLocaleString()}`,
-        },
-        {
-          type: 'mrkdwn',
-          text: `*Tenant:*\n${feedback.user?.tenantId || 'N/A'}`,
-        },
-      ],
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*Message:*\n${feedback.message}`,
+      {
+        name: '📍 Page',
+        value: `\`${feedback.page}\``,
+        inline: true,
       },
+      {
+        name: '🕐 Time',
+        value: new Date(feedback.timestamp).toLocaleString(),
+        inline: true,
+      },
+      {
+        name: '🏢 Tenant',
+        value: `\`${feedback.user?.tenantId?.substring(0, 8) || 'N/A'}\``,
+        inline: true,
+      },
+      {
+        name: '💬 Message',
+        value: feedback.message.length > 1024 ? feedback.message.substring(0, 1021) + '...' : feedback.message,
+        inline: false,
+      },
+    ],
+    footer: {
+      text: `User Agent: ${feedback.userAgent.substring(0, 100)}`,
     },
-  ];
+    timestamp: new Date(feedback.timestamp).toISOString(),
+  };
 
   if (feedback.hasScreenshot) {
-    blocks.push({
-      type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: '📸 Screenshot attached (check API logs or store in S3)',
-        },
-      ],
+    embed.fields.push({
+      name: '📸 Screenshot',
+      value: 'Screenshot captured (check server logs or configure S3 upload)',
+      inline: false,
     });
   }
 
-  blocks.push({
-    type: 'context',
-    elements: [
-      {
-        type: 'mrkdwn',
-        text: `User Agent: ${feedback.userAgent}`,
-      },
-    ],
-  });
-
   const payload = {
-    blocks,
-    text: `New feedback from ${feedback.user?.email || 'Anonymous'}: ${feedback.message.substring(0, 100)}`,
+    content: `New feedback from **${feedback.user?.email || 'Anonymous'}**`,
+    embeds: [embed],
+    username: 'Vienna Feedback Bot',
+    avatar_url: 'https://regulator.ai/logo-icon.png',
   };
 
   const response = await fetch(webhookUrl, {
@@ -147,10 +132,10 @@ async function sendToSlack(webhookUrl: string, feedback: any, screenshot?: strin
   });
 
   if (!response.ok) {
-    throw new Error(`Slack webhook failed: ${response.status}`);
+    throw new Error(`Discord webhook failed: ${response.status}`);
   }
 
-  // TODO: If screenshot provided, upload to S3 and include link in Slack message
-  // For now, screenshots are logged server-side but not sent to Slack
-  // (Slack webhooks don't support file uploads directly)
+  // TODO: If screenshot provided, upload to S3 and include image in Discord embed
+  // For now, screenshots are logged server-side but not sent to Discord
+  // Discord supports direct image URLs in embeds via embed.image.url
 }

@@ -1176,6 +1176,127 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Demo data already seeded' });
     }
 
+    // ========== Simulation Engine ==========
+    // In-memory simulation state (per-process; resets on cold start)
+    // The global simState is defined at top of handler scope
+
+    if (path === '/api/v1/simulation/status' && req.method === 'GET') {
+      return res.status(200).json({
+        success: true,
+        data: {
+          running: !!global.__simRunning,
+          startedAt: global.__simStartedAt || null,
+          lastTickAt: global.__simLastTick || null,
+          tickCount: global.__simTickCount || 0,
+          actionsGenerated: global.__simActionsGenerated || 0,
+          alertsGenerated: global.__simAlertsGenerated || 0,
+        },
+      });
+    }
+
+    if (path === '/api/v1/simulation/start' && req.method === 'POST') {
+      global.__simRunning = true;
+      global.__simStartedAt = new Date().toISOString();
+      global.__simTickCount = global.__simTickCount || 0;
+      global.__simActionsGenerated = global.__simActionsGenerated || 0;
+      global.__simAlertsGenerated = global.__simAlertsGenerated || 0;
+      return res.status(200).json({ success: true, message: 'Simulation started' });
+    }
+
+    if (path === '/api/v1/simulation/stop' && req.method === 'POST') {
+      global.__simRunning = false;
+      return res.status(200).json({ success: true, message: 'Simulation stopped' });
+    }
+
+    if (path === '/api/v1/simulation/seed' && req.method === 'POST') {
+      // Seed realistic demo data into the tenant's tables
+      const tid = tenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
+      const actions = [
+        'deploy_model', 'scale_infrastructure', 'rotate_credentials', 'audit_compliance',
+        'update_policy', 'restart_service', 'scan_vulnerabilities', 'approve_budget',
+        'onboard_agent', 'revoke_access', 'evaluate_risk', 'generate_report',
+      ];
+      const tiers = [0, 0, 0, 1, 1, 2]; // Weighted toward T0
+      const states = ['approved', 'approved', 'approved', 'approved', 'denied', 'pending'];
+
+      // Get existing agents for this tenant
+      const agents = await query('SELECT id, display_name FROM regulator.agent_registry WHERE tenant_id = $1 LIMIT 10', [tid]);
+      if (agents.length === 0) {
+        return res.status(400).json({ success: false, error: 'No agents found. Register agents first.' });
+      }
+
+      let actionsGenerated = 0;
+      let alertsGenerated = 0;
+      const now = Date.now();
+
+      for (let i = 0; i < 24; i++) {
+        const agent = agents[Math.floor(Math.random() * agents.length)];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        const tier = tiers[Math.floor(Math.random() * tiers.length)];
+        const state = states[Math.floor(Math.random() * states.length)];
+        const timestamp = new Date(now - Math.random() * 86400000); // random within 24h
+
+        const proposalId = crypto.randomUUID();
+        await query(
+          `INSERT INTO regulator.proposals (id, agent_id, action, payload, risk_tier, state, created_at, tenant_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [proposalId, agent.id, action, JSON.stringify({ simulation: true, seeded: true }), tier, state, timestamp, tid]
+        );
+        actionsGenerated++;
+
+        // Create warrant for approved proposals
+        if (state === 'approved') {
+          const warrantId = crypto.randomUUID();
+          const sig = crypto.createHash('sha256').update(warrantId + proposalId).digest('hex').slice(0, 32);
+          await query(
+            `INSERT INTO regulator.warrants (id, proposal_id, signature, expires_at, issued_by, created_at, tenant_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            [warrantId, proposalId, sig, new Date(timestamp.getTime() + 3600000), 'simulation-engine', timestamp, tid]
+          );
+        }
+
+        // Create audit entry
+        await query(
+          `INSERT INTO regulator.audit_log (id, proposal_id, event, actor, risk_tier, details, created_at, tenant_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [crypto.randomUUID(), proposalId, state === 'denied' ? 'proposal_denied' : 'proposal_' + state,
+           agent.display_name || 'sim-agent', tier,
+           JSON.stringify({ action, simulation: true, seeded: true }),
+           timestamp, tid]
+        );
+
+        if (state === 'denied') alertsGenerated++;
+      }
+
+      global.__simActionsGenerated = (global.__simActionsGenerated || 0) + actionsGenerated;
+      global.__simAlertsGenerated = (global.__simAlertsGenerated || 0) + alertsGenerated;
+      global.__simTickCount = (global.__simTickCount || 0) + 1;
+      global.__simLastTick = new Date().toISOString();
+
+      return res.status(200).json({
+        success: true,
+        data: { actions: actionsGenerated, alerts: alertsGenerated, message: `Seeded ${actionsGenerated} actions` },
+      });
+    }
+
+    if (path === '/api/v1/simulation/reset' && req.method === 'POST') {
+      const tid = tenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb';
+      // Delete simulation-seeded data (identified by payload containing simulation: true)
+      await query(`DELETE FROM regulator.audit_log WHERE tenant_id = $1 AND details::text LIKE '%"simulation":true%'`, [tid]);
+      await query(`DELETE FROM regulator.warrants WHERE tenant_id = $1 AND proposal_id IN (SELECT id FROM regulator.proposals WHERE tenant_id = $1 AND payload::text LIKE '%"simulation":true%')`, [tid]);
+      await query(`DELETE FROM regulator.proposals WHERE tenant_id = $1 AND payload::text LIKE '%"simulation":true%'`, [tid]);
+
+      // Reset counters
+      global.__simRunning = false;
+      global.__simStartedAt = null;
+      global.__simLastTick = null;
+      global.__simTickCount = 0;
+      global.__simActionsGenerated = 0;
+      global.__simAlertsGenerated = 0;
+
+      return res.status(200).json({ success: true, message: 'Simulation data cleared' });
+    }
+
     // Files upload
     if (path === '/api/v1/files/upload') {
       return res.status(200).json({ success: true, data: { url: '' } });

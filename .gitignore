@@ -106,3 +106,55 @@ apps/console/server/dist/
 apps/console/server/build/
 .env.vercel
 *.swp
+
+# Build output (Next.js)
+apps/**/.next/
+
+# Internal audit/work documents
+*AUDIT*.md
+*CRITICAL_FIXES*.md
+*STRESS_TEST*.md
+*NEON_QUOTA*.md
+AIDEN_*.md
+VIENNA_AUDIT_*.md
+
+# Demo assets (too large for git)
+*.mp4
+*.mov
+*.avi
+
+# Internal archives
+archive/
+validation-results/
+
+# Internal scripts
+scripts/fix-logos.js
+scripts/load-test.js
+
+# Temporary load test files
+load-test.js
+stress-test*.js
+
+# Brand asset originals (keep clean versions only)
+apps/marketing/public/brand/original/
+BUSINESS-PLAN.md
+
+# Internal marketing/GTM (not for public repo)
+docs/GOOGLE-ADS*.md
+docs/HACKERNEWS*.md
+docs/LAUNCH-*.md
+docs/*LAUNCH*.md
+docs/SEO-*.md
+docs/SOCIAL-*.md
+docs/NEWSLETTER*.md
+docs/PRODUCT-HUNT*.md
+docs/PHASE*-GTM*.md
+docs/POST-LAUNCH*.md
+docs/DEVTO-*.md
+docs/YOUTUBE-*.md
+docs/DEMO-SCRIPT*.md
+docs/DISCORD-SETUP*.md
+docs/STRUCTURED-DATA*.md
+docs/devto/
+BUSINESS-PLAN.md
+patent/

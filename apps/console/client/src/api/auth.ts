@@ -55,6 +55,11 @@ export interface RegisterResponse {
     refreshToken: string;
     expiresIn: number;
   };
+  apiKey?: {
+    key: string;
+    id: string;
+    note: string;
+  };
 }
 
 export interface LogoutResponse {

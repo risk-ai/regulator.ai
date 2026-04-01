@@ -113,7 +113,87 @@ export function NowPage() {
 
       {error && <div style={{ background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', fontSize: '13px', color: '#f87171' }}>{error}</div>}
 
-      {snapshot && (<>
+      {/* Welcome Screen for Empty Workspace */}
+      {isEmptyWorkspace && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(167, 139, 250, 0.08))',
+          border: '1px solid rgba(124, 58, 237, 0.2)',
+          borderRadius: '16px',
+          padding: '32px',
+          textAlign: 'center',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle glow effect */}
+          <div style={{ 
+            position: 'absolute',
+            top: '-50%',
+            left: '-50%',
+            width: '200%',
+            height: '200%',
+            background: 'radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 50%)',
+            animation: 'pulse 4s ease-in-out infinite'
+          }} />
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛡️</div>
+            <h2 style={{ 
+              fontSize: '28px', 
+              fontWeight: 700, 
+              color: 'var(--text-primary)', 
+              marginBottom: '12px',
+              background: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Welcome to Vienna OS
+            </h2>
+            <p style={{ 
+              fontSize: '16px', 
+              color: 'var(--text-secondary)', 
+              marginBottom: '32px',
+              maxWidth: '600px',
+              margin: '0 auto 32px auto',
+              lineHeight: '1.5'
+            }}>
+              Your AI governance platform is ready. Start by setting up your first agent, creating policies, or generating an API key for programmatic access.
+            </p>
+            
+            {/* Quick start actions */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: '16px',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }}>
+              <QuickStartCard 
+                icon="🤖" 
+                title="Register an Agent" 
+                description="Add your first AI agent to the fleet"
+                onClick={() => nav('fleet')}
+                primary
+              />
+              <QuickStartCard 
+                icon="📋" 
+                title="Create a Policy" 
+                description="Define governance rules and constraints"
+                onClick={() => nav('policies')}
+              />
+              <QuickStartCard 
+                icon="🔑" 
+                title="Generate API Key" 
+                description="Get programmatic access to the platform"
+                onClick={() => nav('api-keys')}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {snapshot && !isEmptyWorkspace && (<>
         {/* Pending banner */}
         {snapshot.proposals.pending > 0 && (
           <div onClick={() => nav('approvals')} style={{ background: 'rgba(251, 191, 36, 0.08)', border: '1px solid rgba(251, 191, 36, 0.2)', borderRadius: '10px', padding: '14px 18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>

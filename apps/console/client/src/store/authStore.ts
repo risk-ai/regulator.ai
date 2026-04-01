@@ -89,6 +89,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
         localStorage.setItem('vienna_access_token', response.tokens.accessToken);
         localStorage.setItem('vienna_refresh_token', response.tokens.refreshToken);
         
+        // Store auto-provisioned API key so the onboarding wizard can display it
+        if (response.apiKey?.key) {
+          sessionStorage.setItem('vienna_starter_api_key', response.apiKey.key);
+        }
+        
         set({
           authenticated: true,
           user: response.user,

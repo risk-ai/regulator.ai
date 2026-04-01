@@ -157,6 +157,40 @@ router.post('/register', async (req: Request, res: Response) => {
     // Store refresh token
     await storeRefreshToken(result.userId, refreshToken);
 
+    // Auto-provision a starter API key so the user's agent can immediately integrate
+    let starterApiKey: { apiKey: string; keyId: string } | null = null;
+    try {
+      starterApiKey = await createApiKey({
+        tenantId: result.tenantId,
+        name: 'Default API Key',
+        scopes: ['intents:write', 'intents:read', 'agents:write', 'agents:read', 'policies:read', 'warrants:read', 'audit:read'],
+        rateLimit: 1000,
+        createdBy: result.userId,
+      });
+      console.log(`[Auth] Auto-provisioned API key for new user ${email}`);
+    } catch (apiKeyErr) {
+      console.error('[Auth] Failed to auto-provision API key:', apiKeyErr);
+      // Don't fail registration if API key creation fails
+    }
+
+    // Also seed a default policy so the pipeline isn't empty
+    try {
+      await query(
+        `INSERT INTO policies (id, tenant_id, name, description, enabled, priority, created_by)
+         VALUES ($1, $2, $3, $4, true, 1, $5)
+         ON CONFLICT DO NOTHING`,
+        [
+          uuidv4(),
+          result.tenantId,
+          'Default Governance Policy',
+          'Auto-created starter policy. Low-risk actions (T0) auto-approve. Higher tiers require review.',
+          result.userId,
+        ]
+      );
+    } catch (seedErr) {
+      console.error('[Auth] Failed to seed default policy:', seedErr);
+    }
+
     res.status(201).json({
       success: true,
       data: {
@@ -176,6 +210,12 @@ router.post('/register', async (req: Request, res: Response) => {
           refreshToken,
           expiresIn: 900, // 15 minutes
         },
+        // Include the auto-provisioned API key so the user's agent can use it immediately
+        apiKey: starterApiKey ? {
+          key: starterApiKey.apiKey,
+          id: starterApiKey.keyId,
+          note: 'Your API key — save this now, it won\'t be shown again. Use as: Authorization: Bearer <key>',
+        } : undefined,
       },
       timestamp: new Date().toISOString(),
     });

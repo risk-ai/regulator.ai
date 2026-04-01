@@ -143,6 +143,10 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
   // Step 4: Connect & Test
   const [testResult, setTestResult] = useState<any>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [apiKeyCopied, setApiKeyCopied] = useState(false);
+
+  // Retrieve the auto-provisioned API key from sessionStorage (set during registration)
+  const starterApiKey = typeof window !== 'undefined' ? sessionStorage.getItem('vienna_starter_api_key') : null;
 
   useEffect(() => {
     // Pre-fill organization name from auth context
@@ -452,16 +456,47 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
     </div>
   );
 
-  const renderStep4 = () => (
+  const renderStep4 = () => {
+    const displayApiKey = starterApiKey || 'your-api-key-here';
+    const agentId = createdAgent?.id || 'your-agent-id';
+
+    return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-4">Connect & Test</h2>
         <p className="text-gray-300 text-lg">
-          Get your Vienna OS SDK integration ready and run your first test.
+          Your API key is ready. Give it to your agent and you&apos;re live.
         </p>
       </div>
 
       <div className="space-y-6">
+        {/* API Key Display */}
+        {starterApiKey && (
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-white mb-2">🔑 Your API Key</h3>
+            <p className="text-gray-300 text-sm mb-4">
+              This was auto-generated when you signed up. Save it now — it won&apos;t be shown again.
+            </p>
+            <div className="flex items-center gap-2 bg-gray-900 rounded-lg p-3">
+              <code className="flex-1 text-green-400 text-sm font-mono break-all">{starterApiKey}</code>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(starterApiKey);
+                  setApiKeyCopied(true);
+                  setTimeout(() => setApiKeyCopied(false), 2000);
+                }}
+                className={`px-3 py-1.5 rounded text-xs font-semibold transition ${
+                  apiKeyCopied 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                {apiKeyCopied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* SDK Installation */}
         <div className="bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-white mb-4">1. Install Vienna OS SDK</h3>
@@ -481,52 +516,61 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         </div>
 
-        {/* Code Snippet */}
-        {createdAgent && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">2. Connect Your Agent</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="text-sm text-gray-300 mb-2">TypeScript</div>
-                <div className="bg-gray-900 rounded p-4 font-mono text-sm overflow-x-auto">
-                  <pre className="text-gray-300">{`import { ViennaOS } from 'vienna-os';
+        {/* Code Snippet — always show, with real key if available */}
+        <div className="bg-gray-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">2. Connect Your Agent</h3>
+          <p className="text-gray-400 text-sm mb-4">
+            Drop this into your agent&apos;s codebase. It handles governance automatically — your agent submits intents, Vienna OS evaluates policies and issues warrants.
+          </p>
+          <div className="space-y-4">
+            <div>
+              <div className="text-sm text-gray-300 mb-2">TypeScript</div>
+              <div className="bg-gray-900 rounded p-4 font-mono text-sm overflow-x-auto">
+                <pre className="text-gray-300">{`import { ViennaOS } from 'vienna-os';
 
 const vienna = new ViennaOS({
-  agentId: '${createdAgent.id}',
-  apiKey: 'your-api-key-here',
-  baseUrl: '${window.location.origin}/api/v1'
+  agentId: '${agentId}',
+  apiKey: '${displayApiKey}',
+  baseUrl: 'https://console.regulator.ai/api/v1'
 });
 
-// Submit an action for governance
+// Your agent submits intents — Vienna OS handles governance
 const result = await vienna.submit({
-  action: 'send_email',
-  recipient: 'user@example.com',
-  metadata: { priority: 'high' }
-});`}</pre>
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-300 mb-2">Python</div>
-                <div className="bg-gray-900 rounded p-4 font-mono text-sm overflow-x-auto">
-                  <pre className="text-gray-300">{`import vienna_os
+  action: 'deploy',
+  resource: 'api-service',
+  environment: 'production',
+});
 
-vienna = vienna_os.Client(
-    agent_id='${createdAgent.id}',
-    api_key='your-api-key-here',
-    base_url='${window.location.origin}/api/v1'
+if (result.status === 'approved') {
+  // Proceed with the action — warrant is attached
+  console.log('Warrant:', result.warrant.id);
+}`}</pre>
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-300 mb-2">Python</div>
+              <div className="bg-gray-900 rounded p-4 font-mono text-sm overflow-x-auto">
+                <pre className="text-gray-300">{`from vienna_sdk import ViennaClient
+
+vienna = ViennaClient(
+    agent_id='${agentId}',
+    api_key='${displayApiKey}',
+    base_url='https://console.regulator.ai/api/v1'
 )
 
-# Submit an action for governance
-result = vienna.submit(
-    action='send_email',
-    recipient='user@example.com',
-    metadata={'priority': 'high'}
-)`}</pre>
-                </div>
+# Your agent submits intents — Vienna OS handles governance
+result = vienna.intents.submit(
+    action='deploy',
+    resource='api-service',
+    environment='production',
+)
+
+if result.status == 'approved':
+    print(f'Warrant: {result.warrant.id}')`}</pre>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Test Button */}
         <div className="bg-gray-800 rounded-lg p-6">
@@ -571,7 +615,8 @@ result = vienna.submit(
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

@@ -183,7 +183,7 @@ export function NowPage() {
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 1,
           background: 'var(--border-subtle)', borderRadius: 8,
-          overflow: 'hidden', marginBottom: 40,
+          overflow: 'hidden', marginBottom: 32,
         }}>
           <Metric label="Agents" value={snapshot.agents.active} detail={`/${snapshot.agents.total}`} onClick={() => nav('fleet')} />
           <Metric label="Proposals" value={snapshot.proposals.total} detail={snapshot.proposals.pending > 0 ? `${snapshot.proposals.pending} pending` : undefined} onClick={() => nav('intent')} />
@@ -193,54 +193,104 @@ export function NowPage() {
           <Metric label="Audit Events" value={snapshot.audit.total} onClick={() => nav('history')} />
         </div>
 
-        {/* ═══ ZONE 3: Activity ═══ */}
+        {/* ═══ ZONE 3: Two-column activity layout ═══ */}
+        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 24, alignItems: 'start' }}>
 
-        {/* Live events */}
-        {liveEvents.length > 0 && (
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981' }} />
+          {/* LEFT: Live Governance Stream */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: connected ? '#10b981' : 'var(--text-tertiary)' }} />
               <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
-                Live Events
+                Live Governance
               </span>
             </div>
-            {liveEvents.slice(0, 5).map((ev, i) => (
-              <EventRow key={i} name={ev.event || 'unknown'} actor={ev.actor} tier={ev.risk_tier} />
-            ))}
+            <div style={{ background: 'var(--bg-primary)', borderRadius: 8, overflow: 'hidden' }}>
+              {liveEvents.length > 0 ? (
+                liveEvents.slice(0, 8).map((ev, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 16px',
+                    borderBottom: i < Math.min(liveEvents.length, 8) - 1 ? '1px solid var(--border-subtle)' : 'none',
+                  }}>
+                    <div style={{
+                      width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                      background: (ev.event || '').includes('denied') ? '#ef4444' : (ev.event || '').includes('verified') ? '#10b981' : '#3b82f6',
+                    }} />
+                    <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', flex: 1, minWidth: 0 }}>
+                      {(ev.event || 'unknown').replace(/_/g, ' ')}
+                    </span>
+                    <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+                      T{ev.risk_tier ?? 0}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                      {ev.actor || 'system'}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '24px 16px', color: 'var(--text-tertiary)', fontSize: 13 }}>
+                  Waiting for governance events…
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Recent audit */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
-              Recent Activity
-            </span>
-            <span
-              onClick={() => nav('history')}
-              style={{ fontSize: 11, color: 'var(--text-tertiary)', cursor: 'pointer', transition: 'color 150ms' }}
-              onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
-            >
-              View all →
-            </span>
+          {/* RIGHT: Recent Activity */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                Recent Activity
+              </span>
+              <span
+                onClick={() => nav('history')}
+                style={{ fontSize: 11, color: 'var(--text-tertiary)', cursor: 'pointer', transition: 'color 150ms' }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
+              >
+                View all →
+              </span>
+            </div>
+            <div style={{ background: 'var(--bg-primary)', borderRadius: 8, overflow: 'hidden' }}>
+              {snapshot.audit.recent.length === 0 ? (
+                <div style={{ padding: '24px 16px' }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>No events yet</div>
+                  <span
+                    onClick={() => nav('intent')}
+                    style={{ fontSize: 12, color: 'var(--text-tertiary)', cursor: 'pointer', transition: 'color 150ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
+                  >
+                    Submit intent →
+                  </span>
+                </div>
+              ) : (
+                snapshot.audit.recent.slice(0, 6).map((entry, i) => {
+                  const name = entry.event || entry.action || 'unknown';
+                  const colors: Record<string, string> = {
+                    warrant_issued: '#f59e0b', execution_verified: '#10b981', execution_denied: '#ef4444',
+                    proposal_pending: '#3b82f6', proposal_denied: '#ef4444', warrant_revoked: '#f59e0b',
+                  };
+                  const color = colors[name] || 'var(--text-tertiary)';
+                  return (
+                    <div key={entry.id || i} style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 16px',
+                      borderBottom: i < Math.min(snapshot.audit.recent.length, 6) - 1 ? '1px solid var(--border-subtle)' : 'none',
+                    }}>
+                      <div style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                        {name.replace(/_/g, ' ')}
+                      </span>
+                      <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
+                        {entry.created_at ? new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-          {snapshot.audit.recent.length === 0 ? (
-            <p style={{ fontSize: 13, color: 'var(--text-tertiary)', padding: '8px 0' }}>
-              No events yet. Submit an intent to see the governance pipeline in action.
-            </p>
-          ) : (
-            snapshot.audit.recent.map((entry, i) => (
-              <EventRow
-                key={entry.id || i}
-                name={entry.event || entry.action || 'unknown'}
-                actor={entry.actor}
-                tier={entry.risk_tier}
-                time={entry.created_at ? new Date(entry.created_at).toLocaleTimeString() : undefined}
-                proposalId={entry.proposal_id}
-              />
-            ))
-          )}
+
         </div>
 
       </>)}
@@ -279,37 +329,4 @@ function Metric({ label, value, detail, onClick }: {
   );
 }
 
-/* ─── Event row (used for both live + audit) ─── */
-function EventRow({ name, actor, tier, time, proposalId }: {
-  name: string; actor?: string; tier?: number; time?: string; proposalId?: string;
-}) {
-  const eventColors: Record<string, string> = {
-    warrant_issued: '#f59e0b', execution_verified: '#10b981', execution_denied: '#ef4444',
-    proposal_pending: '#3b82f6', proposal_denied: '#ef4444', warrant_revoked: '#f59e0b',
-    intent_rejected: '#ef4444',
-  };
-  const color = eventColors[name] || 'var(--text-tertiary)';
-  const tierLabel = tier !== undefined ? `T${tier}` : null;
 
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      padding: '8px 0', borderBottom: '1px solid var(--border-subtle)',
-      fontSize: 13,
-    }}>
-      <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
-      <span style={{ fontWeight: 500, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-        {name.replace(/_/g, ' ')}
-      </span>
-      {tierLabel && (
-        <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-          {tierLabel}
-        </span>
-      )}
-      <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-tertiary)' }}>
-        {actor || 'system'}
-      </span>
-      {time && <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>{time}</span>}
-    </div>
-  );
-}

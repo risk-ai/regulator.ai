@@ -43,13 +43,8 @@ function SuccessContent() {
         })
 
         // Google Ads conversion tracking
-        // TODO: Replace AW-18052030396/L79LCKKov5IcELy_8J9D with actual regulator.ai Google Ads conversion
-        (window as any).gtag('event', 'conversion', {
-          send_to: 'AW-18052030396/L79LCKKov5IcELy_8J9D',
-          value: value,
-          currency: 'USD',
-          transaction_id: sessionId,
-        })
+        // Regulator.ai doesn't have its own Google Ads account yet
+        // When one is created, add: gtag('event', 'conversion', { send_to: 'AW-XXXXXX/YYYYYY', ... })
       }
     }
   }, [plan, sessionId, verified])

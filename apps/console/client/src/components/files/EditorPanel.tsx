@@ -139,7 +139,7 @@ export function EditorPanel({ filePath, onFileSaved, onFileDeleted }: Props) {
   
   if (!filePath) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
+      <div className="flex-1 flex items-center justify-center text-[rgba(255,255,255,0.4)]">
         <div className="text-center">
           <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -153,14 +153,14 @@ export function EditorPanel({ filePath, onFileSaved, onFileDeleted }: Props) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-white">
+      <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.08)] bg-[#12131a]">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 truncate">
+            <h3 className="text-sm font-medium text-[#e2e8f0] truncate">
               {filePath}
             </h3>
             {fileInfo && (
-              <div className="flex gap-3 mt-1 text-xs text-gray-500">
+              <div className="flex gap-3 mt-1 text-xs text-[rgba(255,255,255,0.4)]">
                 <span>{formatSize(fileInfo.size)}</span>
                 <span>Modified: {formatDate(fileInfo.modified)}</span>
                 {isDirty && <span className="text-orange-600 font-medium">● Unsaved changes</span>}
@@ -209,7 +209,7 @@ export function EditorPanel({ filePath, onFileSaved, onFileDeleted }: Props) {
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-sm text-gray-500">Loading file...</p>
+              <p className="mt-2 text-sm text-[rgba(255,255,255,0.4)]">Loading file...</p>
             </div>
           </div>
         ) : (

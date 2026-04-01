@@ -74,14 +74,14 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
   
   const getStateBadgeColor = (state: string): string => {
     switch (state) {
-      case 'queued': return 'bg-gray-100 text-gray-700';
+      case 'queued': return 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.6)]';
       case 'executing': return 'bg-blue-100 text-blue-700';
       case 'completed': return 'bg-green-100 text-green-700';
       case 'verified': return 'bg-green-100 text-green-700';
       case 'failed': return 'bg-red-100 text-red-700';
       case 'blocked': return 'bg-yellow-100 text-yellow-700';
       case 'dead_letter': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      default: return 'bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.6)]';
     }
   };
   
@@ -100,39 +100,39 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Detail header */}
-        <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+        <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.08)] flex items-center gap-2">
           <button
             onClick={() => setDetailView(null)}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-[rgba(255,255,255,0.4)] hover:text-[rgba(255,255,255,0.6)]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
           </button>
-          <h3 className="text-sm font-semibold text-gray-900">Envelope Detail</h3>
+          <h3 className="text-sm font-semibold text-[#e2e8f0]">Envelope Detail</h3>
         </div>
         
         {/* Detail content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Envelope ID */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Envelope ID</label>
-            <code className="block text-xs bg-gray-100 p-2 rounded font-mono break-all">
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Envelope ID</label>
+            <code className="block text-xs bg-[rgba(255,255,255,0.06)] p-2 rounded font-mono break-all">
               {detailView.envelope_id}
             </code>
           </div>
           
           {/* Objective ID */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Objective ID</label>
-            <code className="block text-xs bg-gray-100 p-2 rounded font-mono break-all">
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Objective ID</label>
+            <code className="block text-xs bg-[rgba(255,255,255,0.06)] p-2 rounded font-mono break-all">
               {detailView.objective_id}
             </code>
           </div>
           
           {/* State */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">State</label>
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">State</label>
             <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStateBadgeColor(detailView.state)}`}>
               {detailView.state}
             </span>
@@ -140,50 +140,50 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
           
           {/* Action & Target */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Action</label>
-            <p className="text-sm text-gray-900">{detailView.action_type}</p>
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Action</label>
+            <p className="text-sm text-[#e2e8f0]">{detailView.action_type}</p>
           </div>
           
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Target</label>
-            <code className="block text-xs bg-gray-100 p-2 rounded font-mono break-all">
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Target</label>
+            <code className="block text-xs bg-[rgba(255,255,255,0.06)] p-2 rounded font-mono break-all">
               {detailView.target}
             </code>
           </div>
           
           {/* Warrant */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Warrant</label>
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Warrant</label>
             {detailView.warrant_id ? (
-              <code className="block text-xs bg-gray-100 p-2 rounded font-mono break-all">
+              <code className="block text-xs bg-[rgba(255,255,255,0.06)] p-2 rounded font-mono break-all">
                 {detailView.warrant_id}
               </code>
             ) : (
-              <span className="text-xs text-gray-500">None</span>
+              <span className="text-xs text-[rgba(255,255,255,0.4)]">None</span>
             )}
           </div>
           
           {/* Verification */}
           {detailView.verification_status && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Verification</label>
-              <span className="text-xs text-gray-900">{detailView.verification_status}</span>
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Verification</label>
+              <span className="text-xs text-[#e2e8f0]">{detailView.verification_status}</span>
             </div>
           )}
           
           {/* Retry count */}
           {detailView.retry_count > 0 && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Retry Count</label>
-              <span className="text-xs text-gray-900">{detailView.retry_count}</span>
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Retry Count</label>
+              <span className="text-xs text-[#e2e8f0]">{detailView.retry_count}</span>
             </div>
           )}
           
           {/* Parent */}
           {detailView.parent_envelope_id && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Parent Envelope</label>
-              <code className="block text-xs bg-gray-100 p-2 rounded font-mono break-all">
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Parent Envelope</label>
+              <code className="block text-xs bg-[rgba(255,255,255,0.06)] p-2 rounded font-mono break-all">
                 {detailView.parent_envelope_id}
               </code>
             </div>
@@ -191,28 +191,28 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
           
           {/* Timestamps */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Queued At</label>
-            <span className="text-xs text-gray-900">{new Date(detailView.queued_at).toLocaleString()}</span>
+            <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Queued At</label>
+            <span className="text-xs text-[#e2e8f0]">{new Date(detailView.queued_at).toLocaleString()}</span>
           </div>
           
           {detailView.started_at && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Started At</label>
-              <span className="text-xs text-gray-900">{new Date(detailView.started_at).toLocaleString()}</span>
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Started At</label>
+              <span className="text-xs text-[#e2e8f0]">{new Date(detailView.started_at).toLocaleString()}</span>
             </div>
           )}
           
           {detailView.completed_at && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Completed At</label>
-              <span className="text-xs text-gray-900">{new Date(detailView.completed_at).toLocaleString()}</span>
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Completed At</label>
+              <span className="text-xs text-[#e2e8f0]">{new Date(detailView.completed_at).toLocaleString()}</span>
             </div>
           )}
           
           {/* Error */}
           {detailView.error && (
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Error</label>
+              <label className="block text-xs font-medium text-[rgba(255,255,255,0.4)] mb-1">Error</label>
               <pre className="text-xs bg-red-50 text-red-700 p-2 rounded overflow-x-auto">
                 {detailView.error}
               </pre>
@@ -236,7 +236,7 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
       {/* List */}
       <div className="flex-1 overflow-y-auto">
         {loading && envelopes.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-[rgba(255,255,255,0.4)]">
             <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             <p className="mt-2 text-sm">Loading envelopes...</p>
           </div>
@@ -249,12 +249,12 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
         )}
         
         {!loading && !error && envelopes.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-[rgba(255,255,255,0.4)]">
             <svg className="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
             <p className="mt-2 text-sm">No envelopes yet</p>
-            <p className="mt-1 text-xs text-gray-400">Perform file operations to see execution</p>
+            <p className="mt-1 text-xs text-[rgba(255,255,255,0.35)]">Perform file operations to see execution</p>
           </div>
         )}
         
@@ -264,7 +264,7 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
             onClick={() => handleEnvelopeClick(envelope)}
             className={`
               px-4 py-3 border-b border-gray-100 cursor-pointer
-              hover:bg-gray-50 transition-colors
+              hover:bg-[#0f1015] transition-colors
               ${selectedEnvelope === envelope.envelope_id ? 'bg-blue-50 hover:bg-blue-100' : ''}
             `}
           >
@@ -273,21 +273,21 @@ export function EnvelopeVisualizerPanel({ refreshTrigger, selectedEnvelope, onEn
               <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${getStateBadgeColor(envelope.state)}`}>
                 {envelope.state}
               </span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-[rgba(255,255,255,0.4)]">
                 {formatTimestamp(envelope.queued_at)}
               </span>
             </div>
             
             {/* Action & Target */}
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-[#e2e8f0] truncate">
               {envelope.action_type}
             </p>
-            <code className="block text-xs text-gray-600 truncate font-mono">
+            <code className="block text-xs text-[rgba(255,255,255,0.5)] truncate font-mono">
               {envelope.target}
             </code>
             
             {/* Metadata */}
-            <div className="flex gap-2 mt-1 text-xs text-gray-500">
+            <div className="flex gap-2 mt-1 text-xs text-[rgba(255,255,255,0.4)]">
               {envelope.warrant_id && (
                 <span className="flex items-center gap-1">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">

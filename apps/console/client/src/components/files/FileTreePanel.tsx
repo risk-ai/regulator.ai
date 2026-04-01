@@ -112,7 +112,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Search bar */}
-      <div className="px-4 py-2 border-b border-gray-200">
+      <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.08)]">
         <div className="relative">
           <input
             type="text"
@@ -122,7 +122,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
             className="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <svg 
-            className="absolute left-2.5 top-2.5 w-4 h-4 text-gray-400 pointer-events-none"
+            className="absolute left-2.5 top-2.5 w-4 h-4 text-[rgba(255,255,255,0.35)] pointer-events-none"
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -132,7 +132,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-2 p-0.5 text-gray-400 hover:text-gray-600"
+              className="absolute right-2 top-2 p-0.5 text-[rgba(255,255,255,0.35)] hover:text-gray-600"
               title="Clear search"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,25 +144,25 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
       </div>
       
       {/* Path breadcrumb */}
-      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+      <div className="px-4 py-2 bg-[#0f1015] border-b border-[rgba(255,255,255,0.08)] flex items-center gap-2">
         <button
           onClick={goUp}
           disabled={currentPath === '/'}
-          className="p-1 text-gray-500 hover:text-gray-700 disabled:text-gray-300 disabled:cursor-not-allowed"
+          className="p-1 text-[rgba(255,255,255,0.4)] hover:text-[rgba(255,255,255,0.6)] disabled:text-gray-300 disabled:cursor-not-allowed"
           title="Go up"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
-        <span className="text-sm font-mono text-gray-700 truncate">
+        <span className="text-sm font-mono text-[rgba(255,255,255,0.6)] truncate">
           {currentPath || '/'}
         </span>
         {onUpload && (
           <>
             <button
               onClick={handleUploadClick}
-              className="ml-auto p-1 text-gray-500 hover:text-blue-600"
+              className="ml-auto p-1 text-[rgba(255,255,255,0.4)] hover:text-blue-600"
               title="Upload files"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,7 +180,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
         )}
         <button
           onClick={() => loadDirectory(currentPath)}
-          className={`${onUpload ? '' : 'ml-auto'} p-1 text-gray-500 hover:text-gray-700`}
+          className={`${onUpload ? '' : 'ml-auto'} p-1 text-[rgba(255,255,255,0.4)] hover:text-[rgba(255,255,255,0.6)]`}
           title="Refresh"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
       {/* File list */}
       <div className="flex-1 overflow-y-auto">
         {loading && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-[rgba(255,255,255,0.4)]">
             <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             <p className="mt-2 text-sm">Loading...</p>
           </div>
@@ -205,13 +205,13 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
         )}
         
         {!loading && !error && files.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-[rgba(255,255,255,0.4)]">
             <p className="text-sm">Empty directory</p>
           </div>
         )}
         
         {!loading && !error && files.length > 0 && filteredFiles.length === 0 && (
-          <div className="p-4 text-center text-gray-500">
+          <div className="p-4 text-center text-[rgba(255,255,255,0.4)]">
             <p className="text-sm">No files match "{searchQuery}"</p>
             <button
               onClick={() => setSearchQuery('')}
@@ -228,7 +228,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
             onClick={() => handleClick(file)}
             className={`
               px-4 py-2 border-b border-gray-100 cursor-pointer
-              hover:bg-gray-50 transition-colors
+              hover:bg-[#0f1015] transition-colors
               ${selectedFile === file.path ? 'bg-blue-50 hover:bg-blue-100' : ''}
             `}
           >
@@ -239,17 +239,17 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
                   <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-[rgba(255,255,255,0.35)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                 </svg>
               )}
               
               {/* Name */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-medium text-[#e2e8f0] truncate">
                   {file.name}
                 </p>
-                <div className="flex gap-2 text-xs text-gray-500">
+                <div className="flex gap-2 text-xs text-[rgba(255,255,255,0.4)]">
                   {file.size !== undefined && (
                     <span>{formatSize(file.size)}</span>
                   )}
@@ -258,7 +258,7 @@ export function FileTreePanel({ selectedFile, onFileSelect, onPathChange, onUplo
               
               {/* Directory indicator */}
               {file.type === 'directory' && (
-                <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[rgba(255,255,255,0.35)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               )}

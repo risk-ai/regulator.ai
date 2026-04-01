@@ -74,12 +74,12 @@ export function AICommandBar({ currentFile, onObjectiveCreated }: Props) {
   };
   
   return (
-    <div className="px-4 py-3 bg-white border-b border-gray-200">
+    <div className="px-4 py-3 bg-[#12131a] border-b border-[rgba(255,255,255,0.08)]">
       <form onSubmit={handleSubmit} className="space-y-2">
         {/* Attachments */}
         {attachments.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-500 font-medium">Attachments:</span>
+            <span className="text-xs text-[rgba(255,255,255,0.4)] font-medium">Attachments:</span>
             {attachments.map(path => (
               <div
                 key={path}
@@ -130,7 +130,7 @@ export function AICommandBar({ currentFile, onObjectiveCreated }: Props) {
               type="button"
               onClick={handleAttachCurrent}
               disabled={processing}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 text-sm font-medium text-[rgba(255,255,255,0.6)] bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="Attach current file"
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

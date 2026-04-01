@@ -11,8 +11,12 @@ const jwt = require('jsonwebtoken');
 
 // Initialize Passport
 function initializeOAuth() {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GITHUB_CLIENT_ID) {
-    console.warn('[OAuth] Google or GitHub OAuth not configured. Social login disabled.');
+  // Normalize env var casing (Vercel env vars may have inconsistent casing)
+  const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || process.env.Github_Client_ID;
+  const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || process.env.Github_Client_Secret;
+  
+  if (!process.env.GOOGLE_CLIENT_ID && !GITHUB_CLIENT_ID) {
+    console.warn('[OAuth] Neither Google nor GitHub OAuth configured. Social login disabled.');
     return;
   }
 
@@ -23,7 +27,7 @@ function initializeOAuth() {
         {
           clientID: process.env.GOOGLE_CLIENT_ID,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-          callbackURL: `${process.env.API_URL || 'https://api.regulator.ai'}/api/v1/auth/google/callback`,
+          callbackURL: `${process.env.API_URL || 'https://console.regulator.ai'}/api/v1/auth/google/callback`,
         },
         async (accessToken, refreshToken, profile, done) => {
           try {
@@ -44,13 +48,13 @@ function initializeOAuth() {
   }
 
   // GitHub OAuth Strategy
-  if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  if (GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET) {
     passport.use(
       new GitHubStrategy(
         {
-          clientID: process.env.GITHUB_CLIENT_ID,
-          clientSecret: process.env.GITHUB_CLIENT_SECRET,
-          callbackURL: `${process.env.API_URL || 'https://api.regulator.ai'}/api/v1/auth/github/callback`,
+          clientID: GITHUB_CLIENT_ID,
+          clientSecret: GITHUB_CLIENT_SECRET,
+          callbackURL: `${process.env.API_URL || 'https://console.regulator.ai'}/api/v1/auth/github/callback`,
           scope: ['user:email'],
         },
         async (accessToken, refreshToken, profile, done) => {

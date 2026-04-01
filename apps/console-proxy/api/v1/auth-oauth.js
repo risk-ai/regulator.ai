@@ -4,9 +4,19 @@
  */
 
 const passport = require('passport');
-const { generateToken } = require('../../lib/oauth');
+const { generateToken, initializeOAuth } = require('../../lib/oauth');
+
+// Initialize OAuth strategies on cold start (Vercel serverless)
+let initialized = false;
+function ensureInitialized() {
+  if (!initialized) {
+    initializeOAuth();
+    initialized = true;
+  }
+}
 
 module.exports = (req, res) => {
+  ensureInitialized();
   const url = new URL(req.url, `http://${req.headers.host}`);
   const path = url.pathname;
 

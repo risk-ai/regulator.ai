@@ -93,7 +93,7 @@ export function HistoryPage() {
       }
     >
       {entries.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {entries.map((entry) => (
             <AuditRow key={entry.id} entry={entry} />
           ))}
@@ -177,73 +177,133 @@ function AuditRow({ entry }: { entry: AuditEntry }) {
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
-      padding: '12px 16px',
+      padding: '14px 20px 14px 16px',
       background: 'var(--bg-primary)',
       borderRadius: '8px',
       border: '1px solid var(--border-subtle)',
-      transition: 'all 150ms',
+      borderLeft: `4px solid ${config.color}`,
+      transition: 'all 200ms ease',
       cursor: 'pointer',
+      position: 'relative',
+      backdropFilter: 'blur(8px)',
+      // Ledger paper texture
+      backgroundImage: 'linear-gradient(90deg, transparent 0%, rgba(124, 58, 237, 0.02) 50%, transparent 100%)',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateX(4px)';
+      e.currentTarget.style.boxShadow = `0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px ${config.color}15`;
+      e.currentTarget.style.borderLeftColor = config.color;
+      e.currentTarget.style.borderLeftWidth = '6px';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateX(0)';
+      e.currentTarget.style.boxShadow = 'none';
+      e.currentTarget.style.borderLeftWidth = '4px';
     }}>
-      {/* Type icon */}
-      <span style={{ fontSize: '16px' }}>{config.icon}</span>
       
-      {/* Type badge */}
+      {/* Official seal/type indicator */}
       <div style={{
-        padding: '2px 8px',
-        borderRadius: '100px',
-        background: config.bg,
-        fontSize: '11px',
-        fontWeight: 600,
-        color: config.color,
-        minWidth: '80px',
-        textAlign: 'center',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '32px',
+        height: '32px',
+        borderRadius: '50%',
+        background: `linear-gradient(135deg, ${config.color}20, ${config.color}10)`,
+        border: `1px solid ${config.color}30`,
+        fontSize: '14px',
+        flexShrink: 0,
       }}>
-        {config.label}
+        {config.icon}
       </div>
       
-      {/* Action */}
-      <div style={{
-        flex: 1,
-        fontSize: '13px',
-        fontWeight: 500,
-        color: 'var(--text-primary)',
-        fontFamily: 'var(--font-mono)',
-      }}>
-        {entry.action}
+      {/* Entry details */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '2px',
+        }}>
+          {/* Type badge */}
+          <div style={{
+            padding: '2px 8px',
+            borderRadius: '4px',
+            background: config.bg,
+            fontSize: '10px',
+            fontWeight: 700,
+            color: config.color,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            border: `1px solid ${config.color}25`,
+          }}>
+            {config.label}
+          </div>
+          
+          {/* Status */}
+          <div style={{
+            padding: '2px 8px',
+            borderRadius: '4px',
+            background: status.bg,
+            fontSize: '10px',
+            fontWeight: 600,
+            color: status.color,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            border: `1px solid ${status.color}25`,
+          }}>
+            {entry.status}
+          </div>
+          
+          {/* Execution ID reference */}
+          {entry.execution_id && (
+            <div style={{
+              fontSize: '9px',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)',
+              background: 'var(--bg-secondary)',
+              padding: '1px 6px',
+              borderRadius: '3px',
+              border: '1px solid var(--border-subtle)',
+            }}>
+              {entry.execution_id.slice(0, 12)}
+            </div>
+          )}
+        </div>
+        
+        {/* Action description */}
+        <div style={{
+          fontSize: '13px',
+          fontWeight: 500,
+          color: 'var(--text-primary)',
+          fontFamily: 'var(--font-mono)',
+          lineHeight: 1.4,
+        }}>
+          {entry.action}
+        </div>
       </div>
       
-      {/* Status */}
+      {/* Official timestamp (monospace) */}
       <div style={{
-        padding: '2px 8px',
-        borderRadius: '100px',
-        background: status.bg,
-        fontSize: '11px',
-        fontWeight: 600,
-        color: status.color,
+        textAlign: 'right',
+        flexShrink: 0,
       }}>
-        {entry.status}
-      </div>
-      
-      {/* Execution ID */}
-      {entry.execution_id && (
         <div style={{
           fontSize: '11px',
-          color: 'var(--text-muted)',
+          color: 'var(--text-secondary)',
           fontFamily: 'var(--font-mono)',
+          fontWeight: 600,
         }}>
-          {entry.execution_id.slice(0, 12)}…
+          {new Date(entry.timestamp).toLocaleTimeString()}
         </div>
-      )}
-      
-      {/* Timestamp */}
-      <div style={{
-        fontSize: '11px',
-        color: 'var(--text-tertiary)',
-        fontFamily: 'var(--font-mono)',
-        minWidth: '80px',
-        textAlign: 'right',
-      }}>
-        {new Date(entry.timestamp).toLocaleTimeString()}
+        <div style={{
+          fontSize: '9px',
+          color: 'var(--text-tertiary)',
+          fontFamily: 'var(--font-mono)',
+          marginTop: '1px',
+        }}>
+          {new Date(entry.timestamp).toLocaleDateString()}
+        </div>
       </div>
     </div>
   );

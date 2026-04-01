@@ -74,6 +74,20 @@
   100% { opacity: 1; }
 }
 
+@keyframes flow-pulse {
+  0% { 
+    transform: translateY(-100%); 
+    opacity: 0; 
+  }
+  50% { 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translateY(100%); 
+    opacity: 0; 
+  }
+}
+
 @keyframes shimmer {
   0% { background-position: -200px 0; }
   100% { background-position: calc(200px + 100%) 0; }

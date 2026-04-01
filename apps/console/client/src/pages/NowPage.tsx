@@ -93,25 +93,93 @@ export function NowPage() {
 
   return (
     <PageLayout title="System Posture" description="Live operational status">
+      {/* Grid background pattern */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(rgba(124, 58, 237, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 58, 237, 0.02) 1px, transparent 1px)',
+        backgroundSize: '20px 20px',
+        pointerEvents: 'none',
+        zIndex: -1
+      }} />
+
       {/* Status bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: connected ? '#4ade80' : error ? '#f87171' : '#fbbf24' }} />
+            <div style={{ 
+              width: '8px', 
+              height: '8px', 
+              borderRadius: '50%', 
+              background: connected ? '#4ade80' : error ? '#f87171' : '#fbbf24',
+              boxShadow: connected ? '0 0 15px rgba(74, 222, 128, 0.6)' : error ? '0 0 15px rgba(248, 113, 113, 0.6)' : '0 0 15px rgba(251, 191, 36, 0.6)',
+              animation: connected ? 'pulse 2s infinite' : 'none'
+            }} />
             <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
               {connected ? 'STREAMING' : 'POLLING'} · {lastRefresh.toLocaleTimeString()}
             </span>
           </div>
           {connected && (
-            <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.08)', color: '#4ade80', border: '1px solid rgba(74, 222, 128, 0.2)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+            <span style={{ 
+              fontSize: '10px', 
+              padding: '2px 8px', 
+              borderRadius: '4px', 
+              background: 'rgba(74, 222, 128, 0.12)', 
+              color: '#4ade80', 
+              border: '1px solid rgba(74, 222, 128, 0.3)', 
+              fontFamily: 'var(--font-mono)', 
+              fontWeight: 600,
+              boxShadow: '0 0 10px rgba(74, 222, 128, 0.15)'
+            }}>
               SSE LIVE
             </span>
           )}
         </div>
-        <button onClick={() => { setLoading(true); loadSnapshot(); }} style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>↻ Refresh</button>
+        <button 
+          onClick={() => { setLoading(true); loadSnapshot(); }} 
+          style={{ 
+            padding: '6px 14px', 
+            borderRadius: '8px', 
+            fontSize: '11px', 
+            background: 'linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary))', 
+            border: '1px solid rgba(124, 58, 237, 0.2)', 
+            color: 'var(--text-secondary)', 
+            cursor: 'pointer', 
+            fontFamily: 'var(--font-sans)',
+            transition: 'all 200ms ease',
+            ':hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: '0 0 15px rgba(124, 58, 237, 0.15)'
+            }
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 0 15px rgba(124, 58, 237, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >↻ Refresh</button>
       </div>
 
-      {error && <div style={{ background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', borderRadius: '10px', padding: '12px 16px', marginBottom: '16px', fontSize: '13px', color: '#f87171' }}>{error}</div>}
+      {error && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, rgba(248, 113, 113, 0.12), rgba(248, 113, 113, 0.06))', 
+          border: '1px solid rgba(248, 113, 113, 0.3)', 
+          borderRadius: '12px', 
+          padding: '14px 18px', 
+          marginBottom: '20px', 
+          fontSize: '13px', 
+          color: '#f87171',
+          boxShadow: '0 0 20px rgba(248, 113, 113, 0.1)'
+        }}>
+          {error}
+        </div>
+      )}
 
       {/* Welcome Screen for Empty Workspace */}
       {isEmptyWorkspace && (
@@ -196,20 +264,43 @@ export function NowPage() {
       {snapshot && !isEmptyWorkspace && (<>
         {/* Pending banner */}
         {snapshot.proposals.pending > 0 && (
-          <div onClick={() => nav('approvals')} style={{ background: 'rgba(251, 191, 36, 0.08)', border: '1px solid rgba(251, 191, 36, 0.2)', borderRadius: '10px', padding: '14px 18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-            <span style={{ fontSize: '18px' }}>⏳</span>
+          <div 
+            onClick={() => nav('approvals')} 
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(251, 191, 36, 0.06))', 
+              border: '1px solid rgba(251, 191, 36, 0.3)', 
+              borderRadius: '12px', 
+              padding: '16px 20px', 
+              marginBottom: '24px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              cursor: 'pointer',
+              transition: 'all 200ms ease',
+              boxShadow: '0 0 15px rgba(251, 191, 36, 0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 0 25px rgba(251, 191, 36, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 0 15px rgba(251, 191, 36, 0.1)';
+            }}
+          >
+            <span style={{ fontSize: '20px' }}>⏳</span>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 600, color: '#fbbf24' }}>{snapshot.proposals.pending} proposal{snapshot.proposals.pending !== 1 ? 's' : ''} awaiting approval</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '2px' }}>Click to review →</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '3px' }}>Click to review →</div>
             </div>
           </div>
         )}
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '16px', marginBottom: '32px' }}>
           <StatCard label="Agents" value={snapshot.agents.active} total={snapshot.agents.total} suffix="active" color="#a78bfa" onClick={() => nav('fleet')} />
           <StatCard label="Proposals" value={snapshot.proposals.total} sub={`${snapshot.proposals.pending} pending · ${snapshot.proposals.approved} approved`} color="#60a5fa" onClick={() => nav('intent')} />
-          <StatCard label="Warrants" value={snapshot.warrants.active} total={snapshot.warrants.total} suffix="active" color="#D4A520" onClick={() => nav('approvals')} />
+          <StatCard label="Warrants" value={snapshot.warrants.active} total={snapshot.warrants.total} suffix="active" color="#fbbf24" onClick={() => nav('approvals')} />
           <StatCard label="Policies" value={snapshot.policies.enabled} total={snapshot.policies.total} suffix="enabled" color="#4ade80" onClick={() => nav('policies')} />
           <StatCard label="Rules" value={snapshot.policyRules.enabled} total={snapshot.policyRules.total} suffix="enabled" color="#818cf8" onClick={() => nav('policy-templates')} />
           <StatCard label="Audit Events" value={snapshot.audit.total} sub="recent shown below" color="#94a3b8" onClick={() => nav('history')} />
@@ -223,7 +314,14 @@ export function NowPage() {
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Live Pipeline Events</span>
               <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>via SSE</span>
             </div>
-            <div style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{ 
+              background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
+              border: '1px solid rgba(124, 58, 237, 0.2)', 
+              borderRadius: '12px', 
+              overflow: 'hidden',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 0 20px rgba(124, 58, 237, 0.08)'
+            }}>
               {liveEvents.slice(0, 5).map((ev, i) => (
                 <LiveEventRow key={i} event={ev} isLast={i === Math.min(liveEvents.length, 5) - 1} />
               ))}
@@ -237,9 +335,16 @@ export function NowPage() {
             <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Recent Pipeline Activity</span>
             <button onClick={() => nav('history')} style={{ padding: '3px 10px', borderRadius: '5px', fontSize: '11px', background: 'transparent', border: '1px solid var(--border-subtle)', color: 'var(--text-tertiary)', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>View all →</button>
           </div>
-          <div style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', overflow: 'hidden' }}>
+          <div style={{ 
+            background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
+            border: '1px solid rgba(124, 58, 237, 0.2)', 
+            borderRadius: '12px', 
+            overflow: 'hidden',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 0 20px rgba(124, 58, 237, 0.08)'
+          }}>
             {snapshot.audit.recent.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '13px' }}>No audit events yet. Submit an intent to see the pipeline.</div>
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '13px' }}>No audit events yet. Submit an intent to see the pipeline.</div>
             ) : snapshot.audit.recent.map((entry, i) => (
               <AuditRow key={entry.id || i} entry={entry} isLast={i === snapshot.audit.recent.length - 1} />
             ))}
@@ -256,8 +361,38 @@ export function NowPage() {
       </>)}
 
       {!snapshot && !error && loading && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#a78bfa', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 0' }}>
+          {/* Loading skeleton with shimmer */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', 
+            gap: '16px', 
+            width: '100%',
+            marginBottom: '40px' 
+          }}>
+            {[...Array(6)].map((_, i) => (
+              <div 
+                key={i}
+                style={{ 
+                  background: 'linear-gradient(90deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 1.5s ease-in-out infinite',
+                  border: '1px solid rgba(124, 58, 237, 0.1)', 
+                  borderRadius: '12px', 
+                  height: '120px'
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            border: '3px solid rgba(124, 58, 237, 0.2)', 
+            borderTopColor: '#a78bfa', 
+            borderRadius: '50%', 
+            animation: 'spin 0.8s linear infinite',
+            boxShadow: '0 0 15px rgba(167, 139, 250, 0.3)'
+          }} />
         </div>
       )}
     </PageLayout>
@@ -266,14 +401,59 @@ export function NowPage() {
 
 function StatCard({ label, value, total, suffix, sub, color, onClick }: { label: string; value: number; total?: number; suffix?: string; sub?: string; color: string; onClick?: () => void }) {
   return (
-    <div onClick={onClick} style={{ background: `${color}08`, border: `1px solid ${color}15`, borderRadius: '10px', padding: '16px', cursor: onClick ? 'pointer' : 'default', transition: 'all 150ms' }}>
-      <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-        <span style={{ fontSize: '28px', fontWeight: 700, color, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{value}</span>
-        {total !== undefined && <span style={{ fontSize: '13px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>/{total}</span>}
-        {suffix && <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{suffix}</span>}
+    <div 
+      onClick={onClick} 
+      style={{ 
+        background: `linear-gradient(135deg, ${color}12, ${color}06)`, 
+        border: `1px solid ${color}30`, 
+        borderRadius: '12px', 
+        padding: '18px', 
+        cursor: onClick ? 'pointer' : 'default', 
+        transition: 'all 200ms ease',
+        backdropFilter: 'blur(8px)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+      onMouseEnter={(e) => {
+        if (onClick) {
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = `0 8px 25px ${color}20`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) {
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'none';
+        }
+      }}
+    >
+      {/* Subtle gradient overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `linear-gradient(135deg, ${color}08, transparent)`,
+        pointerEvents: 'none'
+      }} />
+      
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>{label}</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+          <span style={{ 
+            fontSize: '32px', 
+            fontWeight: 700, 
+            color, 
+            fontFamily: 'var(--font-mono)', 
+            lineHeight: 1,
+            textShadow: `0 0 10px ${color}40`
+          }}>{value}</span>
+          {total !== undefined && <span style={{ fontSize: '14px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>/{total}</span>}
+          {suffix && <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{suffix}</span>}
+        </div>
+        {sub && <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '6px' }}>{sub}</div>}
       </div>
-      {sub && <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '4px' }}>{sub}</div>}
     </div>
   );
 }
@@ -294,19 +474,37 @@ function LiveEventRow({ event, isLast }: { event: PipelineEvent; isLast: boolean
 
 function AuditRow({ entry, isLast }: { entry: AuditEntry; isLast: boolean }) {
   const eventName = entry.event || entry.action || 'unknown';
-  const colors: Record<string, string> = { warrant_issued: '#D4A520', execution_verified: '#4ade80', execution_denied: '#f87171', proposal_pending: '#60a5fa', proposal_denied: '#f87171', warrant_revoked: '#f97316', intent_rejected: '#ef4444', operator_login: '#94a3b8' };
+  const colors: Record<string, string> = { warrant_issued: '#fbbf24', execution_verified: '#4ade80', execution_denied: '#f87171', proposal_pending: '#60a5fa', proposal_denied: '#f87171', warrant_revoked: '#f97316', intent_rejected: '#ef4444', operator_login: '#94a3b8' };
   const color = colors[eventName] || '#94a3b8';
   const tier = ['T0', 'T1', 'T2', 'T3'][entry.risk_tier ?? 0] || `T${entry.risk_tier}`;
   const time = entry.created_at ? new Date(entry.created_at).toLocaleTimeString() : '';
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)' }}>
-      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color, flexShrink: 0 }} />
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '12px', 
+      padding: '12px 16px', 
+      borderBottom: isLast ? 'none' : '1px solid rgba(124, 58, 237, 0.1)',
+      borderLeft: `4px solid ${color}`,
+      background: isLast ? 'none' : `linear-gradient(90deg, ${color}05, transparent)`,
+      position: 'relative'
+    }}>
+      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, flexShrink: 0, boxShadow: `0 0 8px ${color}60` }} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{eventName.replace(/_/g, ' ')}</span>
-          <span style={{ fontSize: '10px', fontWeight: 600, color, fontFamily: 'var(--font-mono)', padding: '1px 5px', borderRadius: '3px', background: `${color}12` }}>{tier}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{eventName.replace(/_/g, ' ')}</span>
+          <span style={{ 
+            fontSize: '10px', 
+            fontWeight: 600, 
+            color, 
+            fontFamily: 'var(--font-mono)', 
+            padding: '2px 6px', 
+            borderRadius: '4px', 
+            background: `${color}15`,
+            border: `1px solid ${color}30`
+          }}>{tier}</span>
         </div>
-        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>{entry.actor || 'system'} · {time}</div>
+        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{entry.actor || 'system'} · {time}</div>
       </div>
       {entry.proposal_id && <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>{entry.proposal_id.substring(0, 8)}...</span>}
     </div>
@@ -315,11 +513,94 @@ function AuditRow({ entry, isLast }: { entry: AuditEntry; isLast: boolean }) {
 
 function QuickAction({ icon, label, desc, onClick }: { icon: string; label: string; desc: string; onClick: () => void }) {
   return (
-    <div onClick={onClick} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '14px 16px', cursor: 'pointer', transition: 'all 150ms', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-      <span style={{ fontSize: '20px' }}>{icon}</span>
+    <div 
+      onClick={onClick} 
+      style={{ 
+        background: 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))', 
+        border: '1px solid rgba(124, 58, 237, 0.2)', 
+        borderRadius: '12px', 
+        padding: '16px 18px', 
+        cursor: 'pointer', 
+        transition: 'all 200ms ease', 
+        display: 'flex', 
+        alignItems: 'flex-start', 
+        gap: '12px',
+        backdropFilter: 'blur(8px)'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 0 15px rgba(124, 58, 237, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      <span style={{ fontSize: '22px' }}>{icon}</span>
       <div>
         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
-        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{desc}</div>
+        <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '3px' }}>{desc}</div>
+      </div>
+    </div>
+  );
+}
+
+function QuickStartCard({ icon, title, description, onClick, primary }: { icon: string; title: string; description: string; onClick: () => void; primary?: boolean }) {
+  return (
+    <div 
+      onClick={onClick}
+      style={{
+        background: primary 
+          ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(167, 139, 250, 0.08))'
+          : 'linear-gradient(135deg, var(--bg-primary), var(--bg-secondary))',
+        border: primary 
+          ? '1px solid rgba(124, 58, 237, 0.4)'
+          : '1px solid rgba(124, 58, 237, 0.2)',
+        borderRadius: '12px',
+        padding: '20px',
+        cursor: 'pointer',
+        transition: 'all 200ms ease',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = primary 
+          ? '0 10px 30px rgba(124, 58, 237, 0.25)'
+          : '0 8px 25px rgba(124, 58, 237, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      {primary && (
+        <div style={{
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: 'radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 50%)',
+          animation: 'pulse 3s ease-in-out infinite'
+        }} />
+      )}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ fontSize: '32px', marginBottom: '12px' }}>{icon}</div>
+        <h3 style={{ 
+          fontSize: '16px', 
+          fontWeight: 600, 
+          color: 'var(--text-primary)', 
+          marginBottom: '8px',
+          margin: '0 0 8px 0'
+        }}>{title}</h3>
+        <p style={{ 
+          fontSize: '12px', 
+          color: 'var(--text-secondary)', 
+          lineHeight: '1.4',
+          margin: 0
+        }}>{description}</p>
       </div>
     </div>
   );

@@ -1297,31 +1297,33 @@ export default function Home() {
                 <ArrowRight className="w-5 h-5 text-slate-500 rotate-90 md:rotate-0" />
                 
                 {/* Decision Diamond */}
-                <div className="relative">
-                  <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl px-4 py-3 text-center">
-                    <div className="text-amber-400 font-semibold">Risk Tier?</div>
-                    <div className="text-xs text-slate-400 mt-1">T0/T1 vs T2/T3</div>
+                <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl px-4 py-3 text-center">
+                  <div className="text-amber-400 font-semibold">Risk Tier?</div>
+                  <div className="text-xs text-slate-400 mt-1">T0/T1 vs T2/T3</div>
+                </div>
+              </div>
+              
+              {/* Branch Paths - separate row, proper flow layout */}
+              <div className="flex items-start justify-center gap-4 mt-6">
+                {/* Connector lines */}
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-px h-4 bg-slate-500" />
+                  <div className="bg-purple-500/15 border border-purple-500/30 rounded-lg px-4 py-2.5 text-center">
+                    <div className="text-purple-400 font-medium text-xs">⚡ Vienna Direct</div>
+                    <div className="text-xs text-slate-500 mt-0.5">T0/T1</div>
                   </div>
-                  
-                  {/* Branches */}
-                  <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-px h-6 bg-slate-500" />
-                  <div className="absolute top-full mt-9 left-1/2 -translate-x-1/2 w-64 h-px bg-slate-500" />
-                  
-                  {/* Vienna Direct Path */}
-                  <div className="absolute top-full mt-12 -left-20 bg-purple-500/15 border border-purple-500/30 rounded-lg px-3 py-2 text-center">
-                    <div className="text-purple-400 font-medium text-xs">Vienna Direct</div>
-                    <div className="text-xs text-slate-500">T0/T1</div>
-                  </div>
-                  
-                  {/* Agent Passback Path */}
-                  <div className="absolute top-full mt-12 -right-20 bg-blue-500/15 border border-blue-500/30 rounded-lg px-3 py-2 text-center">
-                    <div className="text-blue-400 font-medium text-xs">Agent Passback</div>
-                    <div className="text-xs text-slate-500">T2/T3</div>
+                </div>
+                
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-px h-4 bg-slate-500" />
+                  <div className="bg-blue-500/15 border border-blue-500/30 rounded-lg px-4 py-2.5 text-center">
+                    <div className="text-blue-400 font-medium text-xs">🔄 Agent Passback</div>
+                    <div className="text-xs text-slate-500 mt-0.5">T2/T3</div>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-8 text-center">
+              <div className="mt-6 text-center">
                 <p className="text-sm text-slate-400 max-w-2xl mx-auto">
                   Every action is classified by risk tier. Low-risk actions execute immediately through Vienna's handlers.
                   High-risk actions require approval and execute through the agent's own infrastructure with warrant authorization.

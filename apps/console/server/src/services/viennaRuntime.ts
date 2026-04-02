@@ -1238,6 +1238,312 @@ export class ViennaRuntimeService {
   // ==========================================================================
   // Directives
   // ==========================================================================
+  // Execution Submit Pipeline (Fix #1, #2, #3, #5)
+  // ==========================================================================
+
+  /**
+   * Evaluate an intent through the full governance pipeline for /execution/submit.
+   * 
+   * FIX #1: Uses policy engine for risk classification instead of string matching.
+   * FIX #2: Resolves per-tenant execution mode policy.
+   * FIX #5: Converges /submit with /intent pipeline.
+   * 
+   * Returns evaluation result with risk tier, execution mode, and warrant (if applicable).
+   */
+  async evaluateIntentForExecution(params: {
+    action: string;
+    agent_id: string;
+    tenant_id: string;
+    parameters: Record<string, any>;
+    source: string;
+    simulation: boolean;
+  }): Promise<{
+    accepted: boolean;
+    risk_tier: string;
+    execution_mode: 'direct' | 'passback';
+    requires_approval: boolean;
+    warrant_id?: string;
+    execution_id?: string;
+    objective_id?: string;
+    instruction?: any;
+    constraints?: any;
+    callback_token?: string;
+    error?: string;
+    policy_details?: any;
+  }> {
+    const { action, agent_id, tenant_id, parameters, source, simulation } = params;
+
+    try {
+      // Step 1: Look up action type in registry for default risk tier
+      let registeredRiskTier: string | null = null;
+      try {
+        const { queryOne: dbQueryOne } = await import('../db/postgres.js');
+        const actionType = await dbQueryOne<any>(
+          'SELECT default_risk_tier, enabled FROM regulator.action_types WHERE action_type = $1',
+          [action]
+        );
+        if (actionType) {
+          if (!actionType.enabled) {
+            return {
+              accepted: false,
+              risk_tier: 'unknown',
+              execution_mode: 'passback',
+              requires_approval: false,
+              error: `Action type "${action}" is disabled`,
+            };
+          }
+          registeredRiskTier = actionType.default_risk_tier;
+        }
+      } catch (err) {
+        // action_types table may not exist yet — fall through to policy eval
+        console.warn('[ViennaRuntimeService] action_types lookup failed:', err);
+      }
+
+      // Step 2: Evaluate policies via IntentGateway
+      let riskTier = registeredRiskTier || 'T0';
+      let policyDetails: any = null;
+      let policyBlocked = false;
+      let requiresApproval = false;
+
+      try {
+        const stateGraph = this.viennaCore?.stateGraph;
+        if (stateGraph && stateGraph.evaluatePolicies) {
+          const intent = {
+            intent_type: action,
+            tenant_id,
+            source: { type: 'agent', id: agent_id, platform: source },
+            payload: { action, ...parameters },
+          };
+
+          const policyActions = stateGraph.evaluatePolicies(tenant_id, intent);
+          policyDetails = policyActions;
+
+          for (const pa of policyActions) {
+            if (pa.action.type === 'block') {
+              policyBlocked = true;
+              return {
+                accepted: false,
+                risk_tier: riskTier,
+                execution_mode: 'passback',
+                requires_approval: false,
+                error: `Blocked by policy: ${pa.policy_name}`,
+                policy_details: policyActions,
+              };
+            }
+            if (pa.action.type === 'require_approval') {
+              requiresApproval = true;
+              riskTier = pa.action.params?.tier || riskTier;
+            }
+            if (pa.action.type === 'set_risk_tier') {
+              riskTier = pa.action.params?.tier || riskTier;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[ViennaRuntimeService] Policy evaluation error:', err);
+        // Continue with default risk tier if policy eval fails
+      }
+
+      // Step 3: Resolve per-tenant execution mode policy (FIX #2)
+      let executionMode: 'direct' | 'passback' = 'direct';
+      const defaultModePolicy: Record<string, string> = {
+        T0: 'direct',
+        T1: 'direct',
+        T2: 'passback',
+        T3: 'passback',
+      };
+
+      try {
+        const { queryOne: dbQueryOne } = await import('../db/postgres.js');
+        const tenant = await dbQueryOne<any>(
+          'SELECT execution_mode_policy FROM regulator.tenants WHERE id = $1',
+          [tenant_id]
+        );
+        if (tenant?.execution_mode_policy) {
+          const modePolicy = typeof tenant.execution_mode_policy === 'string'
+            ? JSON.parse(tenant.execution_mode_policy)
+            : tenant.execution_mode_policy;
+          executionMode = (modePolicy[riskTier] || defaultModePolicy[riskTier] || 'passback') as 'direct' | 'passback';
+        } else {
+          executionMode = (defaultModePolicy[riskTier] || 'passback') as 'direct' | 'passback';
+        }
+      } catch (err) {
+        // If tenant lookup fails, use defaults
+        executionMode = (defaultModePolicy[riskTier] || 'passback') as 'direct' | 'passback';
+      }
+
+      // T3 actions with require_approval always passback — never auto-execute destructive ops
+      if (riskTier === 'T3' && requiresApproval) {
+        executionMode = 'passback';
+      }
+
+      // Simulation — don't issue warrants or execute
+      if (simulation) {
+        return {
+          accepted: true,
+          risk_tier: riskTier,
+          execution_mode: executionMode,
+          requires_approval: requiresApproval,
+          policy_details: policyDetails,
+        };
+      }
+
+      // Step 4: Issue warrant
+      const executionId = `exe_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      let warrantId: string | null = null;
+      let instruction: any = null;
+      let constraints: any = null;
+      let callbackToken: string | null = null;
+
+      try {
+        // Take truth snapshot
+        const truthSnapshotId = `truth_${Date.now()}`;
+
+        // Build allowed actions scope
+        const allowedActions = [`${action}:${parameters?.target || tenant_id}`];
+
+        // Build constraints from parameters
+        constraints = {
+          max_duration_ms: riskTier === 'T3' ? 300000 : riskTier === 'T2' ? 600000 : 3600000,
+          allowed_targets: parameters?.target ? [parameters.target] : ['*'],
+          required_verification: executionMode === 'passback',
+        };
+
+        const warrant = await this.viennaCore.warrant.issue({
+          truthSnapshotId,
+          planId: executionId,
+          objective: `Execute ${action}`,
+          riskTier: riskTier,
+          allowedActions,
+          expiresInMinutes: riskTier === 'T3' ? 5 : riskTier === 'T2' ? 15 : 60,
+          constraints,
+        });
+
+        warrantId = warrant.warrant_id;
+
+        // For passback, build instruction payload
+        if (executionMode === 'passback') {
+          instruction = {
+            action,
+            parameters: parameters || {},
+            warrant_id: warrantId,
+            constraints,
+            callback_url: '/api/v1/webhooks/execution-callback',
+            execution_id: executionId,
+          };
+
+          // Generate callback HMAC token for signature verification
+          const crypto = await import('crypto');
+          callbackToken = crypto.randomBytes(32).toString('hex');
+
+          // Create execution record in awaiting_callback state
+          try {
+            const { createExecution } = await import('./executionPersistence.js');
+            await createExecution({
+              execution_id: executionId,
+              tenant_id,
+              warrant_id: warrantId,
+              execution_mode: 'delegated',
+              state: 'awaiting_callback',
+              risk_tier: riskTier,
+              objective: `Execute ${action}`,
+              steps: [{
+                step_index: 0,
+                step_name: action,
+                tier: riskTier,
+                action: { type: action, ...parameters },
+                status: 'delegated',
+              }],
+              timeline: [{
+                state: 'awaiting_callback',
+                detail: `Warrant issued for passback execution`,
+                timestamp: new Date().toISOString(),
+              }],
+              result: null,
+            });
+          } catch (err) {
+            console.warn('[ViennaRuntimeService] Failed to create execution record:', err);
+          }
+        }
+      } catch (err) {
+        console.error('[ViennaRuntimeService] Warrant issuance failed:', err);
+        // If warrant issuance fails, we can't proceed
+        return {
+          accepted: false,
+          risk_tier: riskTier,
+          execution_mode: executionMode,
+          requires_approval: false,
+          error: `Warrant issuance failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        };
+      }
+
+      return {
+        accepted: true,
+        risk_tier: riskTier,
+        execution_mode: executionMode,
+        requires_approval: requiresApproval,
+        warrant_id: warrantId || undefined,
+        execution_id: executionId,
+        objective_id: `obj_${action}_${Date.now()}`,
+        instruction,
+        constraints,
+        callback_token: callbackToken || undefined,
+        policy_details: policyDetails,
+      };
+    } catch (error) {
+      console.error('[ViennaRuntimeService] evaluateIntentForExecution error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Submit an envelope through the QueuedExecutor pipeline (FIX #3).
+   * 
+   * Routes direct execution through the full governance pipeline:
+   * recursion guard, rate limiter, agent budget, execution queue,
+   * dead letter queue, retry policy, concurrency control.
+   */
+  async submitToExecutionPipeline(envelope: any): Promise<{
+    execution_id: string;
+    status: string;
+    queued: boolean;
+    queue_id?: string;
+  }> {
+    try {
+      const queuedExecutor = this.viennaCore.queuedExecutor;
+
+      if (!queuedExecutor) {
+        throw new Error('QueuedExecutor not initialized');
+      }
+
+      // Submit through the full pipeline
+      const result = await queuedExecutor.submit(envelope);
+
+      return {
+        execution_id: envelope.envelope_id,
+        status: result.queued ? 'queued' : 'executing',
+        queued: result.queued || false,
+        queue_id: result.queue_id,
+      };
+    } catch (error: any) {
+      // Classify the rejection reason
+      if (error.name === 'RateLimitError') {
+        throw new Error(`Rate limited: ${error.message}`);
+      }
+      if (error.name === 'BudgetExceededError') {
+        throw new Error(`Agent budget exceeded: ${error.message}`);
+      }
+      if (error.name === 'RecursionBlockedError') {
+        throw new Error(`Recursion guard blocked: ${error.message}`);
+      }
+      if (error.name === 'BackpressureError') {
+        throw new Error(`Queue full (backpressure): ${error.message}`);
+      }
+      throw error;
+    }
+  }
+
+  // ==========================================================================
 
   async submitDirective(request: SubmitDirectiveRequest): Promise<{
     directive_id: string;

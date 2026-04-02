@@ -397,12 +397,18 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
 
   /**
    * POST /api/v1/execution/submit
-   * Submit an intent/action for execution
-   * Returns either direct execution or passback warrant
+   * Submit an intent/action for execution via the full governance pipeline.
+   * 
+   * FIX #1: Risk tier determined by policy engine, not string matching.
+   * FIX #2: Execution mode (direct/passback) is per-tenant configurable.
+   * FIX #3: Direct execution routes through QueuedExecutor pipeline.
+   * FIX #5: Converges with /api/v1/intent pipeline internally.
+   * 
+   * Returns either direct execution result or passback warrant.
    */
   router.post('/submit', async (req: Request, res: Response) => {
     try {
-      const { action, agent_id, tenant_id, parameters, source } = req.body;
+      const { action, agent_id, tenant_id, parameters, source, simulation } = req.body;
       
       if (!action || !agent_id || !tenant_id) {
         const err: ErrorResponse = {
@@ -415,73 +421,139 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
         return;
       }
 
-      // Determine risk tier based on action type and parameters
-      // This is a simplified classification - real implementation would be more sophisticated
-      let riskTier: 'T0' | 'T1' | 'T2' | 'T3' = 'T0';
-      
-      if (action.includes('deploy') && tenant_id === 'production') {
-        riskTier = 'T2';
-      } else if (action.includes('delete') || action.includes('drop')) {
-        riskTier = 'T3';
-      } else if (action.includes('update') || action.includes('modify')) {
-        riskTier = 'T1';
+      // ── FIX #1: Policy-based risk classification ──────────────────────
+      // Route through the IntentGateway for proper policy evaluation
+      // instead of naive string matching on action names.
+      const intentResult = await vienna.evaluateIntentForExecution({
+        action,
+        agent_id,
+        tenant_id,
+        parameters: parameters || {},
+        source: source || 'api',
+        simulation: simulation || false,
+      });
+
+      if (!intentResult.accepted) {
+        // Policy blocked this intent
+        const response: SuccessResponse<{
+          mode: 'blocked';
+          reason: string;
+          risk_tier: string;
+          policy_details?: any;
+        }> = {
+          success: true,
+          data: {
+            mode: 'blocked',
+            reason: intentResult.error || 'Blocked by policy',
+            risk_tier: intentResult.risk_tier || 'unknown',
+            policy_details: intentResult.policy_details,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        res.status(403).json(response);
+        return;
       }
 
-      // Determine execution mode based on risk tier
-      const mode = (riskTier === 'T0' || riskTier === 'T1') ? 'direct' : 'passback';
-      
-      if (mode === 'direct') {
-        // Vienna Direct Execution: Submit to execution engine
-        const executionResult = await vienna.submitExecutionIntent({
-          action,
-          agent_id,
+      // Simulation mode — return evaluation result without execution
+      if (simulation) {
+        const response: SuccessResponse<{
+          mode: 'simulation';
+          risk_tier: string;
+          execution_mode: string;
+          would_require_approval: boolean;
+          policy_evaluation: any;
+        }> = {
+          success: true,
+          data: {
+            mode: 'simulation',
+            risk_tier: intentResult.risk_tier,
+            execution_mode: intentResult.execution_mode,
+            would_require_approval: intentResult.requires_approval || false,
+            policy_evaluation: intentResult.policy_details,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        res.json(response);
+        return;
+      }
+
+      const riskTier = intentResult.risk_tier as 'T0' | 'T1' | 'T2' | 'T3';
+
+      // ── FIX #2: Per-tenant execution mode policy ──────────────────────
+      // Look up tenant-specific execution mode for this risk tier.
+      // Falls back to default: T0/T1=direct, T2/T3=passback.
+      const executionMode = intentResult.execution_mode; // Already resolved by evaluateIntentForExecution
+
+      if (executionMode === 'direct') {
+        // ── FIX #3: Route through QueuedExecutor pipeline ─────────────
+        // This ensures direct execution gets: recursion guard, rate limiting,
+        // agent budget, dead letter queue, retry policy, concurrency control.
+        const envelope = {
+          envelope_id: `env_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          envelope_type: action,
+          warrant_id: intentResult.warrant_id,
+          objective_id: intentResult.objective_id || `obj_${action}_${Date.now()}`,
+          proposed_by: agent_id,
           tenant_id,
-          parameters: parameters || {},
-          source: source || 'unknown',
-        });
-        
+          actions: [{
+            type: action,
+            target: parameters?.target || tenant_id,
+            parameters: parameters || {},
+          }],
+          execution_class: riskTier,
+          causal_depth: 0,
+          source: source || 'api',
+          fail_fast: true,
+        };
+
+        const queueResult = await vienna.submitToExecutionPipeline(envelope);
+
         const response: SuccessResponse<{
           mode: 'direct';
           execution_id: string;
+          envelope_id: string;
           status: string;
           risk_tier: string;
+          warrant_id: string | null;
+          queued: boolean;
         }> = {
           success: true,
           data: {
             mode: 'direct',
-            execution_id: executionResult.execution_id,
-            status: executionResult.status,
+            execution_id: queueResult.execution_id || envelope.envelope_id,
+            envelope_id: envelope.envelope_id,
+            status: queueResult.status || 'queued',
             risk_tier: riskTier,
+            warrant_id: intentResult.warrant_id || null,
+            queued: queueResult.queued || false,
           },
           timestamp: new Date().toISOString(),
         };
         
         res.json(response);
       } else {
-        // Agent Passback: Issue warrant for agent to execute locally
-        const warrantResult = await vienna.issueExecutionWarrant({
-          action,
-          agent_id,
-          tenant_id,
-          parameters: parameters || {},
-          source: source || 'unknown',
-          risk_tier: riskTier,
-        });
-        
+        // Passback mode: Issue warrant for agent to execute locally
+        // Warrant already issued during intent evaluation
         const response: SuccessResponse<{
           mode: 'passback';
           warrant_id: string;
+          execution_id: string;
           instruction: any;
           constraints: any;
           risk_tier: string;
+          callback_url: string;
+          callback_token: string | null;
         }> = {
           success: true,
           data: {
             mode: 'passback',
-            warrant_id: warrantResult.warrant_id,
-            instruction: warrantResult.instruction,
-            constraints: warrantResult.constraints,
+            warrant_id: intentResult.warrant_id,
+            execution_id: intentResult.execution_id,
+            instruction: intentResult.instruction,
+            constraints: intentResult.constraints,
             risk_tier: riskTier,
+            callback_url: `/api/v1/webhooks/execution-callback`,
+            callback_token: intentResult.callback_token || null,
           },
           timestamp: new Date().toISOString(),
         };

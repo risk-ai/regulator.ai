@@ -290,25 +290,58 @@ export function createExecutionCallbackRouter(): Router {
         callback_status: status,
       });
 
-      // 11. If verifying, trigger verification flow
+      // 11. FIX #4: Real verification before promoting to complete
       if (newState === 'verifying' && status === 'success') {
-        // Mark as complete after verification (simplified — Vienna can add real verification)
-        await execute(
-          `UPDATE regulator.execution_log 
-           SET state = 'complete',
-               updated_at = NOW(),
-               completed_at = NOW(),
-               timeline = timeline || $1::jsonb
-           WHERE execution_id = $2`,
-          [
-            JSON.stringify([{
-              state: 'complete',
-              detail: 'Delegated execution verified complete via callback',
-              timestamp: new Date().toISOString(),
-            }]),
-            execution_id,
-          ],
+        const verificationResult = await verifyCallbackResult(
+          execution_id,
+          execution.tenant_id,
+          redactedResult,
         );
+
+        if (verificationResult.verified) {
+          // Verification passed — promote to complete
+          await execute(
+            `UPDATE regulator.execution_log 
+             SET state = 'complete',
+                 updated_at = NOW(),
+                 completed_at = NOW(),
+                 timeline = timeline || $1::jsonb
+             WHERE execution_id = $2`,
+            [
+              JSON.stringify([{
+                state: 'complete',
+                detail: 'Delegated execution verified complete via callback',
+                verification: verificationResult.checks,
+                timestamp: new Date().toISOString(),
+              }]),
+              execution_id,
+            ],
+          );
+        } else {
+          // Verification failed — mark as failed with details
+          await execute(
+            `UPDATE regulator.execution_log 
+             SET state = 'failed',
+                 updated_at = NOW(),
+                 completed_at = NOW(),
+                 timeline = timeline || $1::jsonb
+             WHERE execution_id = $2`,
+            [
+              JSON.stringify([{
+                state: 'failed',
+                detail: `Callback verification failed: ${verificationResult.reason}`,
+                verification: verificationResult.checks,
+                timestamp: new Date().toISOString(),
+              }]),
+              execution_id,
+            ],
+          );
+
+          await logCallbackEvent(execution_id, execution.tenant_id, 'callback_verification_failed', {
+            reason: verificationResult.reason,
+            checks: verificationResult.checks,
+          });
+        }
       }
 
       console.log(`[ExecutionCallback] Accepted callback for ${execution_id}: ${previousState} → ${newState}`);
@@ -336,6 +369,221 @@ export function createExecutionCallbackRouter(): Router {
 }
 
 // ---- Helpers ----
+
+/**
+ * FIX #4: Verify callback result against warrant scope and constraints.
+ * 
+ * Checks:
+ * 1. Scope match — did the agent execute the action the warrant authorized?
+ * 2. Constraint compliance — did the result stay within warrant constraints?
+ * 3. Tenant verification policy — respects per-tenant config.
+ */
+async function verifyCallbackResult(
+  executionId: string,
+  tenantId: string,
+  callbackResult: any,
+): Promise<{ verified: boolean; reason?: string; checks: Record<string, any> }> {
+  const checks: Record<string, any> = {
+    scope_match: { passed: true, detail: 'not checked' },
+    constraint_compliance: { passed: true, detail: 'not checked' },
+    warrant_valid: { passed: true, detail: 'not checked' },
+  };
+
+  try {
+    // Load tenant verification policy
+    let verifyScope = true;
+    let verifyConstraints = true;
+    let autoPromoteOnSkip = false;
+
+    try {
+      const tenant = await queryOne<any>(
+        `SELECT callback_verification_policy FROM regulator.tenants WHERE id = $1`,
+        [tenantId],
+      );
+      if (tenant?.callback_verification_policy) {
+        const policy = typeof tenant.callback_verification_policy === 'string'
+          ? JSON.parse(tenant.callback_verification_policy)
+          : tenant.callback_verification_policy;
+        verifyScope = policy.verify_scope_match !== false;
+        verifyConstraints = policy.verify_constraints !== false;
+        autoPromoteOnSkip = policy.auto_promote_on_skip === true;
+
+        if (!policy.enabled) {
+          // Verification disabled for this tenant
+          checks.scope_match.detail = 'skipped (tenant policy: disabled)';
+          checks.constraint_compliance.detail = 'skipped (tenant policy: disabled)';
+          return { verified: true, checks };
+        }
+      }
+    } catch (err) {
+      // If tenant lookup fails, use defaults (verify everything)
+      console.warn('[CallbackVerification] Tenant policy lookup failed, using defaults:', err);
+    }
+
+    // Load the execution record to get warrant_id and expected action
+    const execution = await queryOne<any>(
+      `SELECT warrant_id, steps, objective, risk_tier 
+       FROM regulator.execution_log 
+       WHERE execution_id = $1`,
+      [executionId],
+    );
+
+    if (!execution) {
+      return {
+        verified: false,
+        reason: 'Execution record not found during verification',
+        checks,
+      };
+    }
+
+    // Parse steps to get expected action
+    let expectedSteps: any[] = [];
+    try {
+      expectedSteps = typeof execution.steps === 'string'
+        ? JSON.parse(execution.steps)
+        : (execution.steps || []);
+    } catch (e) {
+      // If steps parsing fails, skip scope check
+    }
+
+    // Check 1: Scope match — verify the reported action matches what was authorized
+    if (verifyScope && expectedSteps.length > 0 && callbackResult) {
+      const expectedAction = expectedSteps[0]?.action?.type || expectedSteps[0]?.step_name;
+      const reportedAction = callbackResult?.action || callbackResult?.action_type;
+
+      if (reportedAction && expectedAction) {
+        if (reportedAction !== expectedAction) {
+          checks.scope_match = {
+            passed: false,
+            detail: `Expected action "${expectedAction}", callback reported "${reportedAction}"`,
+            expected: expectedAction,
+            reported: reportedAction,
+          };
+
+          return {
+            verified: false,
+            reason: `Scope mismatch: warrant authorized "${expectedAction}" but callback reported "${reportedAction}"`,
+            checks,
+          };
+        } else {
+          checks.scope_match = {
+            passed: true,
+            detail: `Action "${reportedAction}" matches warrant scope`,
+          };
+        }
+      } else {
+        checks.scope_match = {
+          passed: true,
+          detail: 'Scope check skipped: action type not reported in callback',
+        };
+      }
+    }
+
+    // Check 2: Warrant still valid at callback time
+    if (execution.warrant_id) {
+      try {
+        // Look up warrant expiry
+        const warrant = await queryOne<any>(
+          `SELECT expires_at, revoked FROM regulator.warrants WHERE warrant_id = $1`,
+          [execution.warrant_id],
+        );
+
+        if (warrant) {
+          if (warrant.revoked) {
+            checks.warrant_valid = {
+              passed: false,
+              detail: `Warrant ${execution.warrant_id} was revoked`,
+            };
+            return {
+              verified: false,
+              reason: `Warrant ${execution.warrant_id} was revoked before callback received`,
+              checks,
+            };
+          }
+
+          const expiresAt = new Date(warrant.expires_at);
+          if (expiresAt < new Date()) {
+            checks.warrant_valid = {
+              passed: false,
+              detail: `Warrant expired at ${warrant.expires_at}`,
+            };
+            return {
+              verified: false,
+              reason: `Warrant expired at ${warrant.expires_at} before callback received`,
+              checks,
+            };
+          }
+
+          checks.warrant_valid = {
+            passed: true,
+            detail: `Warrant ${execution.warrant_id} valid until ${warrant.expires_at}`,
+          };
+        } else {
+          checks.warrant_valid = {
+            passed: true,
+            detail: 'Warrant record not found (may be in-memory only)',
+          };
+        }
+      } catch (err) {
+        checks.warrant_valid = {
+          passed: true,
+          detail: 'Warrant check skipped due to lookup error',
+        };
+      }
+    }
+
+    // Check 3: Constraint compliance
+    if (verifyConstraints && callbackResult) {
+      // Check duration constraint if execution has timing data
+      if (callbackResult.duration_ms && expectedSteps[0]?.action?.timeout_ms) {
+        const maxDuration = expectedSteps[0].action.timeout_ms;
+        if (callbackResult.duration_ms > maxDuration) {
+          checks.constraint_compliance = {
+            passed: false,
+            detail: `Execution took ${callbackResult.duration_ms}ms, exceeding ${maxDuration}ms limit`,
+          };
+          return {
+            verified: false,
+            reason: `Duration constraint violated: ${callbackResult.duration_ms}ms > ${maxDuration}ms`,
+            checks,
+          };
+        }
+      }
+
+      // Check target constraint
+      if (callbackResult.target && expectedSteps[0]?.action?.target) {
+        const expectedTarget = expectedSteps[0].action.target;
+        if (expectedTarget !== '*' && callbackResult.target !== expectedTarget) {
+          checks.constraint_compliance = {
+            passed: false,
+            detail: `Target mismatch: expected "${expectedTarget}", got "${callbackResult.target}"`,
+          };
+          return {
+            verified: false,
+            reason: `Target constraint violated: expected "${expectedTarget}", got "${callbackResult.target}"`,
+            checks,
+          };
+        }
+      }
+
+      checks.constraint_compliance = {
+        passed: true,
+        detail: 'All constraints satisfied',
+      };
+    }
+
+    return { verified: true, checks };
+
+  } catch (err) {
+    console.error('[CallbackVerification] Unexpected error:', err);
+    // On unexpected verification errors, fail safe — don't auto-promote
+    return {
+      verified: false,
+      reason: `Verification error: ${err instanceof Error ? err.message : 'Unknown'}`,
+      checks,
+    };
+  }
+}
 
 async function logCallbackEvent(
   executionId: string,

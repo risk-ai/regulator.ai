@@ -101,7 +101,7 @@ function DonutChart({ completed, failed, pending }: { completed: number; failed:
       <text x={cx} y={cy - 6} textAnchor="middle" fill="#10b981" fontSize="28" fontWeight="700"
         fontFamily="var(--font-mono, monospace)">{completed}</text>
       <text x={cx} y={cy + 14} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="11"
-        fontFamily="var(--font-mono, monospace)" textTransform="uppercase" letterSpacing="0.05em">Completed</text>
+        fontFamily="var(--font-mono, monospace)" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>Completed</text>
     </svg>
   );
 }

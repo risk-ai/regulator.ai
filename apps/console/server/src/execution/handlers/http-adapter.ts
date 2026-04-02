@@ -29,6 +29,13 @@ export interface HttpAdapterRequest {
   body?: any;
   timeout_ms?: number;           // default: 30000, max: 120000
   expected_status?: number[];    // default: [200, 201, 202, 204]
+  retry_config?: RetryConfig;    // Optional override, otherwise uses adapter's default
+}
+
+export interface RetryConfig {
+  max_retries: number;           // 0 = no retries, 1-3 = retry with backoff
+  backoff_base_ms: number;       // Base delay between retries (default: 1000)
+  backoff_max_ms: number;        // Max delay (default: 30000)
 }
 
 export interface HttpAdapterResponse {
@@ -99,23 +106,49 @@ function injectAuth(
   return result;
 }
 
+// ---- Retry Logic ----
+
+/**
+ * Calculate exponential backoff with jitter.
+ */
+function calculateBackoff(attempt: number, baseMs: number, maxMs: number): number {
+  const exponential = Math.min(baseMs * Math.pow(2, attempt), maxMs);
+  const jitter = Math.random() * 0.3 * exponential; // ±30% jitter
+  return Math.floor(exponential + jitter);
+}
+
+/**
+ * Sleep for ms milliseconds.
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // ---- Adapter ----
 
 /**
- * Execute an HTTP request with credential injection.
+ * Execute an HTTP request with credential injection and retry logic.
  * Returns redacted response suitable for persistence.
  */
 export async function executeHttpRequest(
   tenantId: string,
   request: HttpAdapterRequest,
+  onRetry?: (attempt: number, delayMs: number, error: string) => void,
 ): Promise<HttpAdapterResponse> {
   const startTime = Date.now();
   let resolvedCreds: ResolvedCredentials | null = null;
   let secretMap: ResolvedSecretMap = {};
 
   try {
-    // 1. Resolve credentials
+    // 1. Resolve credentials and retry config
     resolvedCreds = await resolveCredentials(tenantId, request.adapter_config_id);
+    
+    // Get retry config from request override or adapter default
+    const retryConfig: RetryConfig = request.retry_config || {
+      max_retries: 0,
+      backoff_base_ms: 1000,
+      backoff_max_ms: 30000,
+    };
     
     // Build secret map for redaction
     secretMap = {
@@ -135,57 +168,103 @@ export async function executeHttpRequest(
     // 3. Inject auth (in-memory only)
     headers = injectAuth(headers, resolvedCreds);
 
-    // 4. Make request
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    // 4. Execute request with retry logic
+    let lastError: Error | null = null;
+    let attempt = 0;
+    const maxAttempts = retryConfig.max_retries + 1; // max_retries=0 → 1 attempt, max_retries=3 → 4 attempts
 
-    let fetchResponse: Response;
-    try {
-      fetchResponse = await fetch(request.url, {
-        method: request.method,
-        headers,
-        body: request.body ? JSON.stringify(request.body) : undefined,
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
+    while (attempt < maxAttempts) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+        let fetchResponse: Response;
+        try {
+          fetchResponse = await fetch(request.url, {
+            method: request.method,
+            headers,
+            body: request.body ? JSON.stringify(request.body) : undefined,
+            signal: controller.signal,
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        const latencyMs = Date.now() - startTime;
+
+        // 5. Read response
+        const responseHeaders: Record<string, string> = {};
+        fetchResponse.headers.forEach((value, key) => {
+          responseHeaders[key] = value;
+        });
+
+        let responseBody: any;
+        const contentType = fetchResponse.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          responseBody = await fetchResponse.json();
+        } else {
+          const text = await fetchResponse.text();
+          responseBody = text.length > MAX_RESPONSE_BODY_BYTES 
+            ? text.substring(0, MAX_RESPONSE_BODY_BYTES) + '...[truncated]'
+            : text;
+        }
+
+        const success = expectedStatus.includes(fetchResponse.status);
+
+        // 6. Build response and REDACT before returning
+        const rawResponse: HttpAdapterResponse = {
+          success,
+          status_code: fetchResponse.status,
+          headers: responseHeaders,
+          body: responseBody,
+          latency_ms: latencyMs,
+          adapter_config_id: request.adapter_config_id,
+          auth_mode: resolvedCreds.auth_mode,
+          error: success ? undefined : `Unexpected status ${fetchResponse.status}`,
+        };
+
+        // If status is retryable (5xx or timeout) and we have retries left, retry
+        if (!success && fetchResponse.status >= 500 && attempt < maxAttempts - 1) {
+          lastError = new Error(`HTTP ${fetchResponse.status}`);
+          attempt++;
+          const delayMs = calculateBackoff(attempt - 1, retryConfig.backoff_base_ms, retryConfig.backoff_max_ms);
+          
+          if (onRetry) {
+            onRetry(attempt, delayMs, `HTTP ${fetchResponse.status}`);
+          }
+          
+          console.log(`[HttpAdapter] Retry ${attempt}/${retryConfig.max_retries} after ${delayMs}ms (HTTP ${fetchResponse.status})`);
+          await sleep(delayMs);
+          continue;
+        }
+
+        // REDACT — this is the critical security step
+        return redactSecrets(rawResponse, secretMap) as HttpAdapterResponse;
+
+      } catch (error: any) {
+        lastError = error;
+        
+        // Retry on network errors and timeouts if retries remain
+        if (attempt < maxAttempts - 1) {
+          attempt++;
+          const delayMs = calculateBackoff(attempt - 1, retryConfig.backoff_base_ms, retryConfig.backoff_max_ms);
+          
+          if (onRetry) {
+            onRetry(attempt, delayMs, error.message);
+          }
+          
+          console.log(`[HttpAdapter] Retry ${attempt}/${retryConfig.max_retries} after ${delayMs}ms (${error.message})`);
+          await sleep(delayMs);
+          continue;
+        }
+        
+        // No more retries, throw
+        throw error;
+      }
     }
 
-    const latencyMs = Date.now() - startTime;
-
-    // 5. Read response
-    const responseHeaders: Record<string, string> = {};
-    fetchResponse.headers.forEach((value, key) => {
-      responseHeaders[key] = value;
-    });
-
-    let responseBody: any;
-    const contentType = fetchResponse.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      responseBody = await fetchResponse.json();
-    } else {
-      const text = await fetchResponse.text();
-      responseBody = text.length > MAX_RESPONSE_BODY_BYTES 
-        ? text.substring(0, MAX_RESPONSE_BODY_BYTES) + '...[truncated]'
-        : text;
-    }
-
-    const success = expectedStatus.includes(fetchResponse.status);
-
-    // 6. Build response and REDACT before returning
-    const rawResponse: HttpAdapterResponse = {
-      success,
-      status_code: fetchResponse.status,
-      headers: responseHeaders,
-      body: responseBody,
-      latency_ms: latencyMs,
-      adapter_config_id: request.adapter_config_id,
-      auth_mode: resolvedCreds.auth_mode,
-      error: success ? undefined : `Unexpected status ${fetchResponse.status}`,
-    };
-
-    // REDACT — this is the critical security step
-    return redactSecrets(rawResponse, secretMap) as HttpAdapterResponse;
+    // If we exhausted all retries, throw the last error
+    throw lastError || new Error('Max retries exceeded');
 
   } catch (error: any) {
     const latencyMs = Date.now() - startTime;

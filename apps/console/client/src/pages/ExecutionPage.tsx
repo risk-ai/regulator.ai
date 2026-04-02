@@ -37,14 +37,14 @@ export function ExecutionPage() {
   const fetchExecutionData = useCallback(async () => {
     try {
       const [active, queue, metrics] = await Promise.all([
-        executionApi.getActive(),
-        executionApi.getQueue(),
-        executionApi.getMetrics(),
+        executionApi.getActive().catch(() => []),
+        executionApi.getQueue().catch(() => null),
+        executionApi.getMetrics().catch(() => null),
       ]);
 
-      setActiveExecutions(active);
-      setQueueSnapshot(queue);
-      setExecutionMetrics(metrics);
+      setActiveExecutions(Array.isArray(active) ? active : []);
+      setQueueSnapshot(queue && typeof queue === 'object' ? queue : null);
+      setExecutionMetrics(metrics && typeof metrics === 'object' ? metrics : null);
       setError(null);
     } catch (err) {
       console.error('[ExecutionPage] Failed to fetch execution data:', err);
@@ -55,10 +55,11 @@ export function ExecutionPage() {
   // Fetch execution records
   const fetchExecutionRecords = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/execution-records?limit=20');
+      const response = await fetch('/api/v1/execution-records?limit=20', { credentials: 'include' });
       if (response.ok) {
-        const records = await response.json();
-        setExecutionRecords(records);
+        const json = await response.json();
+        const records = json?.data ?? json;
+        setExecutionRecords(Array.isArray(records) ? records : []);
       }
     } catch (err) {
       console.warn('[ExecutionPage] Failed to fetch execution records:', err);

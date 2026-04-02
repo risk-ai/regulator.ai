@@ -66,6 +66,7 @@ interface PipelineResult {
   scenario: string;
   outcome: "approved" | "denied" | "auto-approved";
   tier: string;
+  execution_mode: "vienna_direct" | "agent_passback";
   pipeline: PipelineStep[];
   warrant: Warrant | null;
   audit_trail: AuditEntry[];
@@ -105,6 +106,7 @@ function scenarioWireTransfer(): PipelineResult {
     scenario: "wire_transfer",
     outcome: "approved",
     tier: "T2",
+    execution_mode: "agent_passback", // T2+ requires human approval
     pipeline,
     warrant: {
       warrant_id: warrantId,
@@ -153,6 +155,7 @@ function scenarioProductionDeploy(): PipelineResult {
     scenario: "production_deploy",
     outcome: "approved",
     tier: afterHours ? "T1+" : "T1",
+    execution_mode: afterHours ? "agent_passback" : "vienna_direct", // T1+ requires passback
     pipeline,
     warrant: {
       warrant_id: warrantId,
@@ -200,6 +203,7 @@ function scenarioPatientRecord(): PipelineResult {
     scenario: "patient_record_update",
     outcome: "approved",
     tier: "T1",
+    execution_mode: "vienna_direct", // T1 handled directly
     pipeline,
     warrant: {
       warrant_id: warrantId,
@@ -245,6 +249,7 @@ function scenarioDenied(): PipelineResult {
     scenario: "denied_scope_creep",
     outcome: "denied",
     tier: "DENIED",
+    execution_mode: "vienna_direct", // Denials handled directly
     pipeline,
     warrant: null,
     audit_trail: buildAudit(pipeline),
@@ -281,6 +286,7 @@ function scenarioAutoApproved(): PipelineResult {
     scenario: "auto_approved_read",
     outcome: "auto-approved",
     tier: "T0",
+    execution_mode: "vienna_direct", // T0 always direct
     pipeline,
     warrant: {
       warrant_id: warrantId,
@@ -298,6 +304,146 @@ function scenarioAutoApproved(): PipelineResult {
       { rule_id: "ACC-001", name: "read-only-auto-approve", conditions: "action == 'read' && no_side_effects", matched: true, result: "Auto-approve (T0)" },
       { rule_id: "ACC-002", name: "sensitive-data-check", conditions: "resource in sensitive_list", matched: false },
       { rule_id: "AUD-001", name: "mandatory-audit", conditions: "always", matched: true, result: "Append to ledger (compact)" },
+    ],
+    total_duration_ms: totalMs,
+  };
+}
+
+function scenarioSocialMediaPost(): PipelineResult {
+  const executionId = uuid();
+  const warrantId = uuid();
+  const ts = now();
+  
+  const pipeline: PipelineStep[] = [
+    { step: "intent_received", label: "Intent Received", status: "success", duration_ms: jitter(3, 1), detail: "Agent 'marketing-bot-4' requests social media post on @company Twitter account", timestamp: ts },
+    { step: "policy_engine", label: "Policy Engine", status: "success", duration_ms: jitter(18, 6), detail: "Matched rule 'brand-safety-filter' — content scanned for compliance, toxicity, and brand guidelines", timestamp: ts },
+    { step: "risk_assessment", label: "Risk Assessment", status: "success", duration_ms: jitter(12, 4), detail: "Risk tier: T1 — public-facing content requires approval for brand safety and regulatory compliance", timestamp: ts },
+    { step: "approval_gate", label: "Approval Gate", status: "success", duration_ms: jitter(900, 300), detail: "T1 approval: approved by brand-manager (0.7s) — content reviewed for tone, compliance, factual accuracy", timestamp: ts },
+    { step: "warrant_issued", label: "Warrant Issued", status: "success", duration_ms: jitter(4, 2), detail: `Warrant ${warrantId.slice(0, 8)}… issued — scoped to specific post content, 300s TTL, post-only access`, timestamp: ts },
+    { step: "execution", label: "Execution", status: "success", duration_ms: jitter(35, 10), detail: "Social media post published: Twitter @company (ID: tw_1823847362) — engagement tracking enabled", timestamp: ts },
+    { step: "verification", label: "Verification", status: "success", duration_ms: jitter(8, 3), detail: "Post verification: content matches approved draft ✓, metadata correct ✓, engagement monitoring active", timestamp: ts },
+    { step: "audit_logged", label: "Audit Logged", status: "success", duration_ms: jitter(2, 1), detail: "Brand safety audit entry appended — content hash, approval chain, publication timestamp recorded", timestamp: ts },
+  ];
+  const totalMs = pipeline.reduce((sum, s) => sum + s.duration_ms, 0);
+
+  return {
+    execution_id: executionId,
+    scenario: "social_media_post",
+    outcome: "approved",
+    tier: "T1",
+    execution_mode: "vienna_direct", // T1 handled directly
+    pipeline,
+    warrant: {
+      warrant_id: warrantId,
+      issued_at: ts,
+      expires_at: new Date(Date.now() + 300000).toISOString(),
+      ttl_seconds: 300,
+      scope: { action: "social_post", platform: "twitter", account: "@company", content_hash: sha256Fake().slice(0, 16) },
+      constraints: { single_post: true, engagement_tracking: true, brand_compliant: true, no_bulk_posting: true },
+      signature_hash: sha256Fake(),
+      issuer: "vienna-os://policy-engine/v1",
+      verified: true,
+    },
+    audit_trail: buildAudit(pipeline),
+    policy_rules: [
+      { rule_id: "BRA-001", name: "brand-safety-filter", conditions: "platform in social_platforms", matched: true, result: "Apply content scanning" },
+      { rule_id: "BRA-002", name: "approval-required", conditions: "action == 'social_post'", matched: true, result: "Require T1 approval" },
+      { rule_id: "COM-001", name: "regulatory-check", conditions: "public_communication == true", matched: true, result: "Verify compliance" },
+      { rule_id: "AUD-001", name: "mandatory-audit", conditions: "always", matched: true, result: "Append to brand audit ledger" },
+    ],
+    total_duration_ms: totalMs,
+  };
+}
+
+function scenarioAIModelTraining(): PipelineResult {
+  const executionId = uuid();
+  const warrantId = uuid();
+  const ts = now();
+  
+  const pipeline: PipelineStep[] = [
+    { step: "intent_received", label: "Intent Received", status: "success", duration_ms: jitter(4, 2), detail: "Agent 'ml-training-agent-7' requests model training on customer dataset (47,329 records, 12GB)", timestamp: ts },
+    { step: "policy_engine", label: "Policy Engine", status: "success", duration_ms: jitter(24, 8), detail: "Matched rule 'customer-data-training' — privacy impact assessment required, anonymization verified", timestamp: ts },
+    { step: "risk_assessment", label: "Risk Assessment", status: "success", duration_ms: jitter(16, 6), detail: "Risk tier: T2 — customer data training requires privacy officer + data steward approval", timestamp: ts },
+    { step: "approval_gate", label: "Approval Gate", status: "success", duration_ms: jitter(1800, 600), detail: "T2 multi-party approval: approved by privacy-officer (1.2s) + data-steward (0.8s) — PIA reviewed", timestamp: ts },
+    { step: "warrant_issued", label: "Warrant Issued", status: "success", duration_ms: jitter(6, 3), detail: `Warrant ${warrantId.slice(0, 8)}… issued — scoped to training only, 48h TTL, deletion required post-training`, timestamp: ts },
+    { step: "execution", label: "Execution", status: "success", duration_ms: jitter(180000, 60000), detail: "Model training initiated: customer-behavior-v3.1 (47,329 records processed, differential privacy ε=0.5)", timestamp: ts },
+    { step: "verification", label: "Verification", status: "success", duration_ms: jitter(15, 5), detail: "Training verification: anonymization confirmed ✓, resource limits respected ✓, output privacy budget consumed", timestamp: ts },
+    { step: "audit_logged", label: "Audit Logged", status: "success", duration_ms: jitter(3, 1), detail: "Privacy audit entry appended — data lineage, consent verification, model metrics, deletion schedule", timestamp: ts },
+  ];
+  const totalMs = pipeline.reduce((sum, s) => sum + s.duration_ms, 0);
+
+  return {
+    execution_id: executionId,
+    scenario: "ai_model_training",
+    outcome: "approved",
+    tier: "T2",
+    execution_mode: "agent_passback", // T2+ requires human approval
+    pipeline,
+    warrant: {
+      warrant_id: warrantId,
+      issued_at: ts,
+      expires_at: new Date(Date.now() + 172800000).toISOString(), // 48 hours
+      ttl_seconds: 172800,
+      scope: { action: "model_training", dataset: "customer-behavior", records: 47329, model_id: "customer-behavior-v3.1" },
+      constraints: { privacy_budget: 0.5, deletion_required: true, training_only: true, no_inference: true, differential_privacy: true },
+      signature_hash: sha256Fake(),
+      issuer: "vienna-os://policy-engine/v1",
+      verified: true,
+    },
+    audit_trail: buildAudit(pipeline),
+    policy_rules: [
+      { rule_id: "PRI-001", name: "customer-data-training", conditions: "data_type == 'customer' && action == 'training'", matched: true, result: "Require T2 privacy review" },
+      { rule_id: "PRI-002", name: "anonymization-check", conditions: "customer_data == true", matched: true, result: "Verify anonymization" },
+      { rule_id: "PRI-003", name: "differential-privacy", conditions: "model_training == true", matched: true, result: "Apply DP with ε≤1.0" },
+      { rule_id: "GOV-002", name: "resource-limits", conditions: "training_job == true", matched: true, result: "Apply compute quotas" },
+      { rule_id: "AUD-001", name: "mandatory-audit", conditions: "always", matched: true, result: "Append to privacy audit ledger" },
+    ],
+    total_duration_ms: totalMs,
+  };
+}
+
+function scenarioContractSigning(): PipelineResult {
+  const executionId = uuid();
+  const warrantId = uuid();
+  const ts = now();
+  
+  const pipeline: PipelineStep[] = [
+    { step: "intent_received", label: "Intent Received", status: "success", duration_ms: jitter(5, 2), detail: "Agent 'legal-agent-2' requests e-signature on $500K vendor contract (TechVendor-Inc-MSA-2024)", timestamp: ts },
+    { step: "policy_engine", label: "Policy Engine", status: "success", duration_ms: jitter(45, 15), detail: "Matched rule 'high-value-contract' — amount $500K exceeds $100K threshold, legal review mandatory", timestamp: ts },
+    { step: "risk_assessment", label: "Risk Assessment", status: "success", duration_ms: jitter(28, 10), detail: "Risk tier: T3 — legal commitment requires legal counsel + CFO + executive approval (3-party minimum)", timestamp: ts },
+    { step: "approval_gate", label: "Approval Gate", status: "success", duration_ms: jitter(7200, 1800), detail: "T3 multi-party approval: approved by legal-counsel (4.2s) + cfo (2.1s) + ceo (1.8s) — contract terms reviewed", timestamp: ts },
+    { step: "warrant_issued", label: "Warrant Issued", status: "success", duration_ms: jitter(8, 4), detail: `Warrant ${warrantId.slice(0, 8)}… issued — scoped to specific contract SHA-256, 1h TTL, signature-only access`, timestamp: ts },
+    { step: "execution", label: "Execution", status: "success", duration_ms: jitter(120, 40), detail: "E-signature executed: TechVendor-Inc-MSA-2024.pdf signed via DocuSign (envelope ID: DS_847362)", timestamp: ts },
+    { step: "verification", label: "Verification", status: "success", duration_ms: jitter(25, 8), detail: "Signature verification: document integrity ✓, signatory authority ✓, legal compliance ✓, contract active", timestamp: ts },
+    { step: "audit_logged", label: "Audit Logged", status: "success", duration_ms: jitter(4, 2), detail: "Legal audit entry appended — contract hash, approval chain, signature certificate, effective date", timestamp: ts },
+  ];
+  const totalMs = pipeline.reduce((sum, s) => sum + s.duration_ms, 0);
+
+  return {
+    execution_id: executionId,
+    scenario: "contract_signing",
+    outcome: "approved",
+    tier: "T3",
+    execution_mode: "agent_passback", // T3 always requires passback
+    pipeline,
+    warrant: {
+      warrant_id: warrantId,
+      issued_at: ts,
+      expires_at: new Date(Date.now() + 3600000).toISOString(), // 1 hour
+      ttl_seconds: 3600,
+      scope: { action: "e_signature", contract: "TechVendor-Inc-MSA-2024", amount: 500000, currency: "USD", document_hash: sha256Fake().slice(0, 32) },
+      constraints: { single_signature: true, legal_reviewed: true, multi_party_approved: true, high_value: true },
+      signature_hash: sha256Fake(),
+      issuer: "vienna-os://policy-engine/v1",
+      verified: true,
+    },
+    audit_trail: buildAudit(pipeline),
+    policy_rules: [
+      { rule_id: "LEG-001", name: "high-value-contract", conditions: "action == 'signature' && amount > $100K", matched: true, result: "Elevate to T3, require legal review" },
+      { rule_id: "LEG-002", name: "contract-authority-check", conditions: "legal_commitment == true", matched: true, result: "Verify signatory authority" },
+      { rule_id: "LEG-003", name: "three-party-approval", conditions: "tier == T3", matched: true, result: "Require 3+ executive approvers" },
+      { rule_id: "FIN-004", name: "financial-commitment", conditions: "amount >= $100K", matched: true, result: "CFO approval required" },
+      { rule_id: "AUD-001", name: "mandatory-audit", conditions: "always", matched: true, result: "Append to legal audit ledger" },
     ],
     total_duration_ms: totalMs,
   };
@@ -366,6 +512,12 @@ function scenarioCustom(body: {
 
   const denied = outcome === "denied";
   const warrantId = denied ? null : uuid();
+  
+  // Determine execution mode based on tier
+  let executionMode: "vienna_direct" | "agent_passback" = "vienna_direct";
+  if (tier === "T2" || tier === "T3" || tier === "T1+") {
+    executionMode = "agent_passback"; // Human approval required
+  }
 
   const pipeline: PipelineStep[] = [
     { step: "intent_received", label: "Intent Received", status: "success", duration_ms: jitter(3, 1), detail: `Agent '${agentId}' requests '${actionName}'${amount ? ` (amount: $${amount.toLocaleString()})` : ""}`, timestamp: ts },
@@ -384,6 +536,7 @@ function scenarioCustom(body: {
     scenario: "custom",
     outcome,
     tier,
+    execution_mode: executionMode,
     pipeline,
     warrant: warrantId
       ? {
@@ -426,6 +579,15 @@ export async function POST(request: Request) {
         break;
       case "auto_approved_read":
         result = scenarioAutoApproved();
+        break;
+      case "social_media_post":
+        result = scenarioSocialMediaPost();
+        break;
+      case "ai_model_training":
+        result = scenarioAIModelTraining();
+        break;
+      case "contract_signing":
+        result = scenarioContractSigning();
         break;
       case "custom":
         result = scenarioCustom(body);

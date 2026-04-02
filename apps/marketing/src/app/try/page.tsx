@@ -47,6 +47,7 @@ interface PipelineResult {
   scenario: string;
   outcome: "approved" | "denied" | "auto-approved";
   tier: string;
+  execution_mode: "vienna_direct" | "agent_passback";
   pipeline: PipelineStep[];
   warrant: Warrant | null;
   audit_trail: AuditEntry[];
@@ -208,6 +209,8 @@ export default function TryPage() {
   const [showRiskFactors, setShowRiskFactors] = useState(false);
   const [showWarrantBuilder, setShowWarrantBuilder] = useState(false);
   const [interactiveMode, setInteractiveMode] = useState<'scenarios' | 'tier_picker' | 'warrant_builder'>('scenarios');
+  const [runningAllScenarios, setRunningAllScenarios] = useState(false);
+  const [currentScenarioIndex, setCurrentScenarioIndex] = useState(0);
 
   const pipelineRef = useRef<HTMLDivElement>(null);
 
@@ -219,6 +222,16 @@ export default function TryPage() {
     setShowWarrant(false);
     setWarrantVerified(false);
     setActiveTab("pipeline");
+
+    // Auto-scroll to pipeline view on execution
+    setTimeout(() => {
+      if (pipelineRef.current) {
+        pipelineRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }, 100);
 
     const steps = data.pipeline;
     let i = 0;
@@ -248,6 +261,23 @@ export default function TryPage() {
     // Start after a brief pause
     setTimeout(runStep, 200);
   }, []);
+
+  /* ─── Run All Scenarios ─── */
+  const runAllScenarios = async () => {
+    setRunningAllScenarios(true);
+    const executableScenarios = scenarios.filter(s => s.id !== 'custom').slice(0, 6); // First 6 scenarios
+    
+    for (let i = 0; i < executableScenarios.length; i++) {
+      setCurrentScenarioIndex(i);
+      setSelected(executableScenarios[i].id);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause between scenarios
+      await execute();
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Let user see results
+    }
+    
+    setRunningAllScenarios(false);
+    setCurrentScenarioIndex(0);
+  };
 
   /* ─── Execute scenario ─── */
   const execute = async () => {
@@ -298,21 +328,29 @@ export default function TryPage() {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       const idx = scenarios.findIndex((s) => s.id === selected);
+      
       if (e.key === "ArrowDown" || e.key === "j") {
         e.preventDefault();
         setSelected(scenarios[Math.min(idx + 1, scenarios.length - 1)].id);
       } else if (e.key === "ArrowUp" || e.key === "k") {
         e.preventDefault();
         setSelected(scenarios[Math.max(idx - 1, 0)].id);
-      } else if (e.key === "Enter" && !loading) {
+      } else if (e.key === "Enter" && !loading && !runningAllScenarios) {
         e.preventDefault();
         execute();
+      } else if (e.key === "r" && (e.metaKey || e.ctrlKey) && !loading) {
+        e.preventDefault();
+        runAllScenarios();
+      } else if (e.key === "Escape" && loading) {
+        e.preventDefault();
+        setLoading(false);
+        setAnimatingStep(-1);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, loading]);
+  }, [selected, loading, runningAllScenarios]);
 
   const tc = (tier: string) => tierColors[tier] || tierColors["?"];
 
@@ -685,27 +723,56 @@ export default function TryPage() {
               </div>
             </div>
 
-            {/* Execute button - made more prominent */}
-            <div className="sticky top-4 z-10">
+            {/* Execute buttons - made more prominent */}
+            <div className="sticky top-4 z-10 space-y-2">
               <button
                 onClick={execute}
-                disabled={loading}
+                disabled={loading || runningAllScenarios}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 disabled:from-gold-400/50 disabled:to-gold-400/50 text-navy-950 font-bold px-6 py-4 rounded-xl transition text-sm shadow-lg shadow-gold-400/20"
               >
                 {loading ? (
-                  <span className="flex items-center gap-2">
+                  <>
                     <span className="inline-block w-4 h-4 border-2 border-navy-900/30 border-t-navy-900 rounded-full animate-spin" />
                     Running Pipeline…
-                  </span>
+                    <button
+                      onClick={() => {
+                        setLoading(false);
+                        setAnimatingStep(-1);
+                      }}
+                      className="ml-2 text-navy-700 hover:text-navy-600 text-xs"
+                    >
+                      Cancel
+                    </button>
+                  </>
                 ) : (
                   <>
                     <Play className="w-5 h-5" /> Execute Pipeline
                   </>
                 )}
               </button>
-              <p className="text-[10px] text-warm-600 text-center mt-2">
-                Press Enter to execute · Simulated locally
-              </p>
+              
+              {/* Run All Scenarios button */}
+              <button
+                onClick={runAllScenarios}
+                disabled={loading || runningAllScenarios}
+                className="w-full flex items-center justify-center gap-2 bg-purple-600/90 hover:bg-purple-500 disabled:bg-purple-600/30 text-white font-medium px-4 py-3 rounded-lg transition text-sm"
+              >
+                {runningAllScenarios ? (
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Running All ({currentScenarioIndex + 1}/6)
+                  </>
+                ) : (
+                  <>
+                    🎬 Run All Scenarios
+                  </>
+                )}
+              </button>
+              
+              <div className="text-[10px] text-warm-600 text-center space-y-1">
+                <p>Enter: Execute • ↑↓: Navigate • Esc: Cancel • ⌘R: Run All</p>
+                <p>Simulated locally • Click steps for details</p>
+              </div>
             </div>
           </div>
 
@@ -1011,16 +1078,35 @@ export default function TryPage() {
                         {result.outcome === "denied" ? "🛑" : result.outcome === "auto-approved" ? "⚡" : "✅"}
                       </span>
                       <div>
-                        <p className={`font-semibold text-sm ${
-                          result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-gold-400"
-                        }`}>
-                          {result.outcome === "denied" ? "Action Denied" : result.outcome === "auto-approved" ? "Auto-Approved" : "Approved"}
-                          {" — "}
-                          <span className="font-mono">{result.tier}</span>
-                        </p>
-                        <p className="text-xs text-warm-500">
-                          Execution {result.execution_id.slice(0, 8)}… · {result.total_duration_ms}ms total
-                        </p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className={`font-semibold text-sm ${
+                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-gold-400"
+                          }`}>
+                            {result.outcome === "denied" ? "Action Denied" : result.outcome === "auto-approved" ? "Auto-Approved" : "Approved"}
+                            {" — "}
+                            <span className="font-mono">{result.tier}</span>
+                          </p>
+                          {/* Execution Mode Badge */}
+                          {result.execution_mode && result.outcome !== "denied" && (
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
+                              result.execution_mode === "vienna_direct" 
+                                ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
+                                : "bg-purple-400/10 text-purple-400 border border-purple-400/20"
+                            }`}>
+                              {result.execution_mode === "vienna_direct" ? "⚡ Vienna Direct" : "🔄 Agent Passback"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-warm-500">
+                          <span>Execution {result.execution_id.slice(0, 8)}… · {result.total_duration_ms}ms total</span>
+                          {/* Execution Mode Explanation */}
+                          {result.execution_mode === "vienna_direct" && result.outcome !== "denied" && (
+                            <span className="text-[10px] text-emerald-400">• Zero human latency</span>
+                          )}
+                          {result.execution_mode === "agent_passback" && (
+                            <span className="text-[10px] text-purple-400">• Human oversight required</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <a
@@ -1032,58 +1118,129 @@ export default function TryPage() {
                   </div>
                 </div>
 
+                {/* Pipeline Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between text-xs text-warm-500 mb-2">
+                    <span>Pipeline Progress</span>
+                    <span>{visibleSteps.length}/{result.pipeline.length} steps completed</span>
+                  </div>
+                  <div className="w-full bg-navy-800/50 rounded-full h-1.5">
+                    <div 
+                      className="bg-gradient-to-r from-gold-400 to-emerald-400 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${(visibleSteps.length / result.pipeline.length) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
                 {/* Steps */}
                 {result.pipeline.map((step, i) => {
                   const visible = visibleSteps.includes(i);
                   const active = animatingStep === i;
                   const isDenied = step.status === "denied";
                   const isSkipped = step.status === "skipped";
+                  const isComplete = visible && !active;
 
                   return (
                     <div
                       key={step.step}
+                      onClick={() => {
+                        // Make steps clickable for details
+                        if (visible) {
+                          setActiveTab("audit");
+                        }
+                      }}
                       className={`
-                        rounded-xl border p-3.5 transition-all duration-500
+                        rounded-xl border p-3.5 transition-all duration-500 cursor-pointer group relative
                         ${!visible ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}
-                        ${active ? "border-gold-400/40 bg-gold-400/5 shadow-[0_0_20px_rgba(212,165,32,0.08)]" : ""}
+                        ${active ? "border-gold-400/40 bg-gold-400/5 shadow-[0_0_20px_rgba(212,165,32,0.08)] animate-pulse" : ""}
                         ${isDenied && visible && !active ? "border-red-500/30 bg-red-500/5" : ""}
                         ${isSkipped && visible && !active ? "border-navy-700/30 bg-navy-800/30 opacity-50" : ""}
-                        ${!isDenied && !isSkipped && visible && !active ? "border-navy-700/50 bg-navy-800/50" : ""}
+                        ${isComplete && !isDenied && !isSkipped ? "border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40" : ""}
+                        ${visible && !active ? "hover:bg-navy-700/30" : ""}
                       `}
                     >
+                      {/* Connecting line between steps */}
+                      {i > 0 && visible && (
+                        <div className="absolute -top-3 left-7 w-0.5 h-6 bg-gold-400/30" />
+                      )}
+
                       <div className="flex items-start gap-3">
                         <div className={`
-                          w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm transition-all duration-500
+                          w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm transition-all duration-500 relative
                           ${active ? "bg-gold-400/20 scale-110" : ""}
-                          ${isDenied && !active ? "bg-red-500/10" : ""}
+                          ${isDenied && !active ? "bg-red-500/10 border-2 border-red-500/30" : ""}
                           ${isSkipped && !active ? "bg-navy-700/30" : ""}
-                          ${!isDenied && !isSkipped && !active ? "bg-navy-700/50" : ""}
+                          ${isComplete && !isDenied && !isSkipped ? "bg-emerald-400/10 border-2 border-emerald-400/30" : ""}
+                          ${!visible ? "bg-navy-700/30" : ""}
                         `}>
-                          {isSkipped ? "—" : stepIcons[step.step] || "•"}
+                          {/* Pulse effect for active step */}
+                          {active && (
+                            <div className="absolute inset-0 rounded-lg bg-gold-400/20 animate-ping" />
+                          )}
+                          
+                          {/* Status-based icon */}
+                          {isSkipped ? (
+                            <span className="text-warm-600">—</span>
+                          ) : isDenied ? (
+                            <span className="text-red-400 font-bold">✗</span>
+                          ) : isComplete ? (
+                            <span className="text-emerald-400 font-bold">✓</span>
+                          ) : (
+                            stepIcons[step.step] || "•"
+                          )}
                         </div>
+                        
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className={`font-medium text-sm ${isSkipped ? "text-warm-600" : isDenied ? "text-red-400" : "text-white"}`}>
+                            <span className={`font-medium text-sm transition-colors ${
+                              isSkipped ? "text-warm-600" : 
+                              isDenied ? "text-red-400" : 
+                              active ? "text-gold-400" :
+                              isComplete ? "text-emerald-400" : "text-white"
+                            }`}>
                               {step.label}
                             </span>
+                            
+                            {/* Status badge with animation */}
                             {visible && !isSkipped && (
                               <span className={`
-                                inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded
-                                ${isDenied ? "text-red-400 bg-red-400/10" : "text-emerald-400 bg-emerald-400/10"}
+                                inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all
+                                ${isDenied ? "text-red-400 bg-red-400/10 border border-red-400/20" : 
+                                  active ? "text-gold-400 bg-gold-400/10 border border-gold-400/20 animate-pulse" :
+                                  "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"}
                               `}>
-                                {isDenied ? "✗ denied" : "✓ ok"}
+                                {isDenied ? "✗ denied" : active ? "⏳ running" : "✓ complete"}
+                              </span>
+                            )}
+                            
+                            {/* Click hint */}
+                            {visible && (
+                              <span className="text-[9px] text-warm-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                                Click for audit
                               </span>
                             )}
                           </div>
-                          <p className={`text-xs leading-relaxed ${isSkipped ? "text-warm-700" : "text-warm-500"}`}>
+                          
+                          <p className={`text-xs leading-relaxed transition-colors ${
+                            isSkipped ? "text-warm-700" : 
+                            active ? "text-warm-300" : 
+                            "text-warm-500"
+                          }`}>
                             {step.detail}
                           </p>
                         </div>
-                        {visible && step.duration_ms > 0 && (
-                          <span className="text-[10px] font-mono text-warm-600 flex-shrink-0 mt-0.5">
-                            {step.duration_ms}ms
+                        
+                        {/* Duration and step number */}
+                        <div className="flex flex-col items-end gap-1">
+                          {visible && step.duration_ms > 0 && (
+                            <span className="text-[10px] font-mono text-warm-600">
+                              {step.duration_ms}ms
+                            </span>
+                          )}
+                          <span className="text-[9px] text-warm-700 font-mono">
+                            #{i + 1}
                           </span>
-                        )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1103,9 +1260,9 @@ export default function TryPage() {
                       <p className="text-[11px] font-mono text-warm-500">{result.warrant.warrant_id}</p>
                     </div>
                   </div>
-                  {/* Verified stamp */}
+                  {/* Verified stamp with enhanced animation */}
                   <div className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-700
+                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-700 relative
                     ${warrantVerified
                       ? "bg-emerald-400/10 border-emerald-400/30 scale-100 opacity-100"
                       : showWarrant
@@ -1113,11 +1270,16 @@ export default function TryPage() {
                       : "opacity-0 scale-90"
                     }
                   `}>
+                    {/* Stamp effect ring */}
+                    {warrantVerified && (
+                      <div className="absolute inset-0 rounded-lg border-2 border-emerald-400/50 animate-ping" />
+                    )}
+                    
                     <span className={`text-sm transition-all duration-500 ${warrantVerified ? "text-emerald-400" : "text-warm-600"}`}>
                       {warrantVerified ? "✓" : "…"}
                     </span>
-                    <span className={`text-xs font-semibold ${warrantVerified ? "text-emerald-400" : "text-warm-500"}`}>
-                      {warrantVerified ? "Verified" : "Verifying"}
+                    <span className={`text-xs font-semibold transition-all duration-300 ${warrantVerified ? "text-emerald-400" : "text-warm-500"}`}>
+                      {warrantVerified ? "VERIFIED" : "Verifying"}
                     </span>
                   </div>
                 </div>

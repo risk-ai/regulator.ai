@@ -94,6 +94,7 @@ import { createAgentTemplatesRouter } from './routes/agent-templates.js';
 import { createFeedbackRouter } from './routes/feedback.js';
 import { createExecutionCallbackRouter } from './routes/execution-callbacks.js';
 import { createManagedExecutionRouter } from './routes/managed-execution.js';
+import { createAdapterConfigsRouter } from './routes/adapter-configs.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -370,6 +371,7 @@ export function createApp(
   
   // Phase 4A: Managed execution with adapter resolution
   app.use(`${apiPrefix}/executions`, requireAuth, createManagedExecutionRouter());
+  app.use(`${apiPrefix}/adapters`, requireAuth, createAdapterConfigsRouter());
   
   app.use(`${apiPrefix}/reconciliation`, requireAuth, createReconciliationRouter());
   

@@ -24,7 +24,7 @@ describe('Callback Receiver — Phase 4A', () => {
 
     await execute(
       `INSERT INTO regulator.execution_log 
-       (execution_id, tenant_id, warrant_id, status, created_at)
+       (execution_id, tenant_id, warrant_id, state, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [executionId, TEST_TENANT, 'wrt_test', 'executing']
     );
@@ -98,7 +98,7 @@ describe('Callback Receiver — Phase 4A', () => {
 
     expect(response.status).toBe(400);
     const result = await response.json();
-    expect(result.success).toBe(false);
+    expect(result.accepted).toBe(false);
     expect(result.error).toContain('execution_id');
   });
 
@@ -117,7 +117,7 @@ describe('Callback Receiver — Phase 4A', () => {
 
     expect(response.status).toBe(400);
     const result = await response.json();
-    expect(result.success).toBe(false);
+    expect(result.accepted).toBe(false);
     expect(result.error).toContain('status');
   });
 
@@ -136,7 +136,7 @@ describe('Callback Receiver — Phase 4A', () => {
 
     expect(response.status).toBe(404);
     const result = await response.json();
-    expect(result.success).toBe(false);
+    expect(result.accepted).toBe(false);
     expect(result.error).toContain('not found');
   });
 
@@ -145,7 +145,7 @@ describe('Callback Receiver — Phase 4A', () => {
     const terminalExecId = `exe_terminal_${Date.now()}`;
     await execute(
       `INSERT INTO regulator.execution_log 
-       (execution_id, tenant_id, warrant_id, status, created_at)
+       (execution_id, tenant_id, warrant_id, state, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [terminalExecId, TEST_TENANT, 'wrt_test', 'complete']
     );
@@ -164,7 +164,7 @@ describe('Callback Receiver — Phase 4A', () => {
 
     expect(response.status).toBe(409);
     const result = await response.json();
-    expect(result.success).toBe(false);
+    expect(result.accepted).toBe(false);
     expect(result.error).toContain('terminal');
   });
 });

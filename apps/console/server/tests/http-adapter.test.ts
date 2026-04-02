@@ -12,7 +12,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { executeHttpRequest } from '../src/execution/handlers/http-adapter.js';
 import { query, execute } from '../src/db/postgres.js';
-import { encryptCredentials } from '../src/services/credentialCrypto.js';
+import { encryptCredential } from '../src/services/credentialCrypto.js';
 
 const TEST_TENANT = 'test_tenant_http_adapter';
 
@@ -22,7 +22,7 @@ describe('HTTP Adapter — Phase 4A', () => {
   beforeAll(async () => {
     // Create test adapter config with encrypted credentials
     const credentials = JSON.stringify({ token: 'test_bearer_token_12345' });
-    const encryptedCreds = encryptCredentials(credentials);
+    const encryptedCreds = encryptCredential(credentials);
 
     const result = await query<{ id: string }>(
       `INSERT INTO regulator.adapter_configs 

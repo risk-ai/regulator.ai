@@ -732,6 +732,47 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: agents });
     }
 
+    // ========== ADAPTER CONFIGS (Credential Store) — Phase 4A ==========
+    if (path === '/api/v1/adapters' && req.method === 'GET') {
+      const configs = await tenantQuery(
+        `SELECT id, tenant_id, adapter_type, name, endpoint_url, headers, auth_type, auth_mode,
+                credential_alias, enabled, created_at, updated_at, disabled_at, disabled_reason,
+                CASE WHEN encrypted_credentials IS NOT NULL THEN true ELSE false END as has_credentials
+         FROM regulator.adapter_configs ORDER BY created_at DESC LIMIT 50`, [], tenantId
+      );
+      return res.status(200).json({ success: true, data: configs, count: configs.length });
+    }
+
+    if (path === '/api/v1/adapters' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { adapter_type, name, endpoint_url, headers, auth_mode, credential_alias, credentials } = body;
+      if (!adapter_type || !name || !endpoint_url || !credentials) {
+        return res.status(400).json({ success: false, error: 'adapter_type, name, endpoint_url, and credentials required' });
+      }
+      // Encrypt credentials
+      const credStr = typeof credentials === 'string' ? credentials : JSON.stringify(credentials);
+      const CREDENTIAL_KEY = process.env.VIENNA_CREDENTIAL_KEY;
+      if (!CREDENTIAL_KEY) {
+        return res.status(503).json({ success: false, error: 'VIENNA_CREDENTIAL_KEY not configured' });
+      }
+      const cryptoLib = await import('crypto');
+      const keyBuf = /^[0-9a-f]{64}$/i.test(CREDENTIAL_KEY) ? Buffer.from(CREDENTIAL_KEY, 'hex') : Buffer.from(CREDENTIAL_KEY, 'base64');
+      const iv = cryptoLib.randomBytes(12);
+      const cipher = cryptoLib.createCipheriv('aes-256-gcm', keyBuf, iv);
+      const enc = Buffer.concat([cipher.update(credStr, 'utf8'), cipher.final()]);
+      const authTag = cipher.getAuthTag();
+      const encrypted = `${iv.toString('base64')}:${Buffer.concat([enc, authTag]).toString('base64')}`;
+      
+      const result = await query(
+        `INSERT INTO regulator.adapter_configs 
+         (tenant_id, adapter_type, name, endpoint_url, headers, auth_type, auth_mode, credential_alias, encrypted_credentials, enabled)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true) RETURNING id, tenant_id, adapter_type, name, endpoint_url, auth_mode, credential_alias, enabled, created_at`,
+        [tenantId || 'default', adapter_type, name, endpoint_url, headers ? JSON.stringify(headers) : null,
+         auth_mode || 'bearer', auth_mode || 'bearer', credential_alias || null, encrypted]
+      );
+      return res.status(201).json({ success: true, data: result[0] });
+    }
+
     // Policies
     if (path === '/api/v1/policies' && req.method === 'GET') {
       const policies = await tenantQuery('SELECT * FROM regulator.policies ORDER BY created_at DESC LIMIT 50', [], tenantId);

@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { query, execute } from '../src/db/postgres.js';
-import { encryptCredentials } from '../src/services/credentialCrypto.js';
+import { encryptCredential } from '../src/services/credentialCrypto.js';
 import { executeHttpRequest } from '../src/execution/handlers/http-adapter.js';
 
 const TENANT_A = 'tenant_a_isolation_test';
@@ -22,8 +22,8 @@ describe('Tenant Isolation — Phase 4A', () => {
 
   beforeAll(async () => {
     // Create adapter configs for both tenants
-    const credsA = encryptCredentials(JSON.stringify({ token: 'tenant_a_secret_token' }));
-    const credsB = encryptCredentials(JSON.stringify({ token: 'tenant_b_secret_token' }));
+    const credsA = encryptCredential(JSON.stringify({ token: 'tenant_a_secret_token' }));
+    const credsB = encryptCredential(JSON.stringify({ token: 'tenant_b_secret_token' }));
 
     const resultA = await query<{ id: string }>(
       `INSERT INTO regulator.adapter_configs 
@@ -106,13 +106,13 @@ describe('Tenant Isolation — Phase 4A', () => {
     const execB = `exe_tenant_b_${Date.now()}`;
 
     await execute(
-      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, status, created_at)
+      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, state, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [execA, TENANT_A, 'wrt_a', 'executing']
     );
 
     await execute(
-      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, status, created_at)
+      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, state, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [execB, TENANT_B, 'wrt_b', 'executing']
     );
@@ -137,7 +137,7 @@ describe('Tenant Isolation — Phase 4A', () => {
   it('should prevent callback from triggering other tenant execution', async () => {
     const execA = `exe_callback_test_${Date.now()}`;
     await execute(
-      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, status, created_at)
+      `INSERT INTO regulator.execution_log (execution_id, tenant_id, warrant_id, state, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
       [execA, TENANT_A, 'wrt_a', 'executing']
     );

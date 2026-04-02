@@ -31,6 +31,71 @@ const TERMINAL_STATES = ['complete', 'failed', 'cancelled', 'archived'];
 // States that accept callbacks
 const CALLBACK_ACCEPTING_STATES = ['executing', 'awaiting_callback'];
 
+// Rate limiting: Track callback timestamps per execution_id
+const callbackTimestamps = new Map<string, number>();
+const RATE_LIMIT_MS = 1000; // Max 1 callback per second per execution
+
+// JSON Schema for callback payload
+const CALLBACK_SCHEMA = {
+  type: 'object',
+  required: ['execution_id', 'status'],
+  properties: {
+    execution_id: { type: 'string', pattern: '^exe_[a-zA-Z0-9_-]+$' },
+    status: { type: 'string', enum: ['success', 'failure'] },
+    result: { type: 'object' },
+    error: { type: 'string' },
+    timestamp: { type: 'string' },
+  },
+  additionalProperties: false,
+};
+
+/**
+ * Validate JSON against schema (simple validator).
+ */
+function validateSchema(payload: any, schema: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  // Check required fields
+  if (schema.required) {
+    for (const field of schema.required) {
+      if (!(field in payload)) {
+        errors.push(`Missing required field: ${field}`);
+      }
+    }
+  }
+  
+  // Check types and constraints
+  for (const [key, value] of Object.entries(payload)) {
+    const propSchema = schema.properties?.[key];
+    if (!propSchema && !schema.additionalProperties) {
+      errors.push(`Unexpected field: ${key}`);
+      continue;
+    }
+    
+    if (propSchema) {
+      // Type check
+      if (propSchema.type && typeof value !== propSchema.type) {
+        errors.push(`Field ${key} must be ${propSchema.type}, got ${typeof value}`);
+      }
+      
+      // Enum check
+      if (propSchema.enum && !propSchema.enum.includes(value)) {
+        errors.push(`Field ${key} must be one of: ${propSchema.enum.join(', ')}`);
+      }
+      
+      // Pattern check
+      if (propSchema.pattern && typeof value === 'string') {
+        const regex = new RegExp(propSchema.pattern);
+        if (!regex.test(value)) {
+          errors.push(`Field ${key} does not match pattern: ${propSchema.pattern}`);
+        }
+      }
+    }
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
 export function createExecutionCallbackRouter(): Router {
   const router = Router();
 
@@ -43,32 +108,52 @@ export function createExecutionCallbackRouter(): Router {
     const receivedAt = new Date().toISOString();
 
     try {
-      // 1. Validate payload shape
+      // 1. JSON Schema validation
+      const validation = validateSchema(req.body, CALLBACK_SCHEMA);
+      if (!validation.valid) {
+        console.warn(`[ExecutionCallback] Schema validation failed: ${validation.errors.join(', ')}`);
+        return res.status(400).json({
+          accepted: false,
+          error: 'Invalid payload schema',
+          details: validation.errors,
+          code: 'INVALID_SCHEMA',
+          timestamp: receivedAt,
+        });
+      }
+
       const { execution_id, status, result, error, timestamp } = req.body as CallbackPayload;
 
-      if (!execution_id || typeof execution_id !== 'string') {
-        return res.status(400).json({
+      // 2. Rate limiting (max 1 callback per second per execution)
+      const now = Date.now();
+      const lastCallback = callbackTimestamps.get(execution_id);
+      
+      if (lastCallback && (now - lastCallback) < RATE_LIMIT_MS) {
+        console.warn(`[ExecutionCallback] Rate limit exceeded for ${execution_id} (${now - lastCallback}ms since last)`);
+        return res.status(429).json({
           accepted: false,
-          error: 'Missing or invalid execution_id',
-          code: 'INVALID_PAYLOAD',
+          error: 'Rate limit exceeded (max 1 callback per second)',
+          code: 'RATE_LIMIT_EXCEEDED',
           timestamp: receivedAt,
+          retry_after_ms: RATE_LIMIT_MS - (now - lastCallback),
         });
       }
-
-      if (!status || !['success', 'failure'].includes(status)) {
-        return res.status(400).json({
-          accepted: false,
-          error: 'Missing or invalid status (must be "success" or "failure")',
-          code: 'INVALID_PAYLOAD',
-          timestamp: receivedAt,
-        });
+      
+      callbackTimestamps.set(execution_id, now);
+      
+      // Clean up old timestamps (prevent memory leak)
+      if (callbackTimestamps.size > 10000) {
+        const cutoff = now - 60000; // Remove entries older than 1 minute
+        for (const [id, ts] of callbackTimestamps.entries()) {
+          if (ts < cutoff) callbackTimestamps.delete(id);
+        }
       }
 
-      // 2. Look up execution
+      // 3. Look up execution with FOR UPDATE lock (prevents concurrent callback processing)
       const execution = await queryOne<any>(
         `SELECT id, execution_id, tenant_id, state, execution_mode 
          FROM regulator.execution_log 
-         WHERE execution_id = $1`,
+         WHERE execution_id = $1
+         FOR UPDATE`,
         [execution_id],
       );
 
@@ -82,7 +167,7 @@ export function createExecutionCallbackRouter(): Router {
         });
       }
 
-      // 3. Signature verification (if configured)
+      // 4. Signature verification (if configured)
       const signatureHeader = req.headers['x-callback-signature'] as string;
       if (signatureHeader) {
         // Look up callback secret from adapter config
@@ -116,7 +201,7 @@ export function createExecutionCallbackRouter(): Router {
         }
       }
 
-      // 4. Check current state — reject if terminal
+      // 5. Check current state — reject if terminal (idempotent)
       if (TERMINAL_STATES.includes(execution.state)) {
         console.warn(`[ExecutionCallback] Duplicate/late callback for ${execution_id} (state: ${execution.state})`);
         
@@ -136,7 +221,7 @@ export function createExecutionCallbackRouter(): Router {
         });
       }
 
-      // 5. Check if in callback-accepting state
+      // 6. Check if in callback-accepting state
       if (!CALLBACK_ACCEPTING_STATES.includes(execution.state)) {
         console.warn(`[ExecutionCallback] Callback for ${execution_id} in unexpected state: ${execution.state}`);
         
@@ -155,14 +240,14 @@ export function createExecutionCallbackRouter(): Router {
         });
       }
 
-      // 6. Redact callback result before persistence
+      // 7. Redact callback result before persistence
       const redactedResult = result ? redactSecrets(result) : null;
       const redactedError = error || null;
 
       const previousState = execution.state;
       const newState = status === 'success' ? 'verifying' : 'failed';
 
-      // 7. Update execution state
+      // 8. Update execution state
       await execute(
         `UPDATE regulator.execution_log 
          SET state = $1, 
@@ -182,7 +267,7 @@ export function createExecutionCallbackRouter(): Router {
         ],
       );
 
-      // 8. Add timeline entry
+      // 9. Add timeline entry
       await execute(
         `UPDATE regulator.execution_log 
          SET timeline = timeline || $1::jsonb
@@ -198,14 +283,14 @@ export function createExecutionCallbackRouter(): Router {
         ],
       );
 
-      // 9. Log audit event
+      // 10. Log audit event
       await logCallbackEvent(execution_id, execution.tenant_id, 'callback_accepted', {
         previous_state: previousState,
         new_state: newState,
         callback_status: status,
       });
 
-      // 10. If verifying, trigger verification flow
+      // 11. If verifying, trigger verification flow
       if (newState === 'verifying' && status === 'success') {
         // Mark as complete after verification (simplified — Vienna can add real verification)
         await execute(

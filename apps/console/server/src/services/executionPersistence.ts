@@ -111,9 +111,9 @@ export async function transitionState(
   extras?: { result?: any; error?: string; actor?: string },
   secrets?: ResolvedSecretMap,
 ): Promise<boolean> {
-  // Get current state
+  // Get current state with FOR UPDATE lock to prevent race conditions
   const current = await queryOne<{ state: string }>(
-    'SELECT state FROM regulator.execution_log WHERE execution_id = $1 AND tenant_id = $2',
+    'SELECT state FROM regulator.execution_log WHERE execution_id = $1 AND tenant_id = $2 FOR UPDATE',
     [executionId, tenantId],
   );
 

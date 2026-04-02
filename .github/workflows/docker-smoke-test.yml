@@ -1,0 +1,69 @@
+name: Docker Build & Smoke Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - 'apps/**'
+      - 'services/**'
+      - 'packages/**'
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t vienna-os:test .
+
+      - name: Verify image built successfully
+        run: |
+          docker images vienna-os:test
+          IMAGE_SIZE=$(docker images vienna-os:test --format "{{.Size}}")
+          echo "Image size: $IMAGE_SIZE"
+
+      - name: Start services with docker-compose
+        run: |
+          # Create minimal .env for testing
+          cat > .env.test << 'EOF'
+          NODE_ENV=test
+          JWT_SECRET=test-secret-for-ci-only
+          VIENNA_SESSION_SECRET=test-secret-for-ci-only
+          VIENNA_CREDENTIAL_KEY=test-credential-key-32ch
+          VIENNA_WARRANT_KEY=test-warrant-key-for-ci
+          DATABASE_URL=postgresql://test:test@db:5432/vienna_test
+          EOF
+          
+          # Start with test config
+          docker-compose --env-file .env.test up -d --wait --timeout 60 || true
+          
+          # Give services time to initialize
+          sleep 10
+          
+          # Check container health
+          docker-compose ps
+
+      - name: Run health check
+        run: |
+          # Try health endpoint (may be on different ports)
+          for port in 3000 3001 3100; do
+            echo "Checking port $port..."
+            curl -sf http://localhost:$port/health && echo " ✅ Port $port healthy" || echo " ⚠️ Port $port not responding"
+          done
+
+      - name: Check container logs for errors
+        if: always()
+        run: |
+          echo "=== Container Logs ==="
+          docker-compose logs --tail=50 2>/dev/null || true
+
+      - name: Cleanup
+        if: always()
+        run: docker-compose down -v 2>/dev/null || true

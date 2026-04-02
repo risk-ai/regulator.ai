@@ -4,150 +4,157 @@ vienna-os: Official Python SDK for Vienna OS
 AI Agent Governance Platform SDK providing typed access to
 intent submission, policy management, fleet operations,
 approval workflows, integrations, and compliance reporting.
+
+This SDK provides full parity with the Node.js SDK.
 """
 
 __version__ = "0.1.0"
 
 # ─── Client ───────────────────────────────────────────────────────────────────
-from .client import ViennaClient
+from .client import ViennaClient, ViennaClientLegacy, Intent
 
-# ─── Modules ──────────────────────────────────────────────────────────────────
+# ─── Errors ───────────────────────────────────────────────────────────────────
+from .client import (
+    ViennaError,
+    AuthError,
+    PolicyDeniedError,
+    WarrantExpiredError,
+)
+
+# ─── Legacy Modules (for backward compatibility) ─────────────────────────────
 from .fleet import FleetModule
 from .policies import PoliciesModule
 from .warrants import IntentModule, ApprovalsModule
 from .compliance import ComplianceModule
 
-# ─── Errors ───────────────────────────────────────────────────────────────────
-from .client import (
-    ViennaError,
-    ViennaAuthError,
-    ViennaForbiddenError,
-    ViennaNotFoundError,
-    ViennaRateLimitError,
-    ViennaValidationError,
-    ViennaServerError,
-)
+# ─── Types (if needed for legacy compatibility) ──────────────────────────────
+try:
+    from .types import (
+        # Config
+        ViennaConfig,
+        ApiResponse,
+        PaginationParams,
+        PaginatedList,
+        RequestOptions,
 
-# ─── Types ────────────────────────────────────────────────────────────────────
-from .types import (
-    # Config
-    ViennaConfig,
-    ApiResponse,
-    PaginationParams,
-    PaginatedList,
-    RequestOptions,
+        # Intent
+        ActionType,
+        RiskTier,
+        IntentStatus,
+        IntentRequest,
+        IntentResult,
+        IntentStatusResponse,
+        IntentSimulationResult,
+        PolicyMatch,
 
-    # Intent
-    ActionType,
-    RiskTier,
-    IntentStatus,
-    IntentRequest,
-    IntentResult,
-    IntentStatusResponse,
-    IntentSimulationResult,
-    PolicyMatch,
+        # Policies
+        ConditionOperator,
+        PolicyCondition,
+        PolicyAction,
+        PolicyRule,
+        PolicyCreateParams,
+        PolicyUpdateParams,
+        PolicyListParams,
+        PolicyEvaluation,
+        PolicyTemplate,
 
-    # Policies
-    ConditionOperator,
-    PolicyCondition,
-    PolicyAction,
-    PolicyRule,
-    PolicyCreateParams,
-    PolicyUpdateParams,
-    PolicyListParams,
-    PolicyEvaluation,
-    PolicyTemplate,
+        # Fleet
+        AgentStatus,
+        FleetAgent,
+        AgentMetrics,
+        AgentActivity,
+        AlertSeverity,
+        FleetAlert,
+        FleetAlertParams,
 
-    # Fleet
-    AgentStatus,
-    FleetAgent,
-    AgentMetrics,
-    AgentActivity,
-    AlertSeverity,
-    FleetAlert,
-    FleetAlertParams,
+        # Approvals
+        ApprovalStatus,
+        Approval,
+        ApprovalListParams,
+        ApproveParams,
+        DenyParams,
 
-    # Approvals
-    ApprovalStatus,
-    Approval,
-    ApprovalListParams,
-    ApproveParams,
-    DenyParams,
+        # Compliance
+        ComplianceReportType,
+        ReportStatus,
+        ComplianceReport,
+        ComplianceSummary,
+        ComplianceGenerateParams,
+        QuickStatsParams,
 
-    # Compliance
-    ComplianceReportType,
-    ReportStatus,
-    ComplianceReport,
-    ComplianceSummary,
-    ComplianceGenerateParams,
-    QuickStatsParams,
-
-    # Audit & Warrant
-    AuditEntry,
-    Warrant,
-)
+        # Audit & Warrant
+        AuditEntry,
+        Warrant,
+    )
+    
+    _types_available = True
+except ImportError:
+    _types_available = False
 
 __all__ = [
-    # Client
+    # Main Client (Node SDK parity)
     "ViennaClient",
+    "Intent",
     
-    # Modules
+    # Errors matching Node SDK
+    "ViennaError",
+    "AuthError", 
+    "PolicyDeniedError",
+    "WarrantExpiredError",
+    
+    # Legacy Client & Modules (backward compatibility)
+    "ViennaClientLegacy",
     "FleetModule",
     "PoliciesModule", 
     "IntentModule",
     "ApprovalsModule",
     "ComplianceModule",
-    
-    # Errors
-    "ViennaError",
-    "ViennaAuthError", 
-    "ViennaForbiddenError",
-    "ViennaNotFoundError",
-    "ViennaRateLimitError",
-    "ViennaValidationError",
-    "ViennaServerError",
-    
-    # Types
-    "ViennaConfig",
-    "ApiResponse",
-    "PaginationParams", 
-    "PaginatedList",
-    "RequestOptions",
-    "ActionType",
-    "RiskTier",
-    "IntentStatus",
-    "IntentRequest",
-    "IntentResult",
-    "IntentStatusResponse", 
-    "IntentSimulationResult",
-    "PolicyMatch",
-    "ConditionOperator",
-    "PolicyCondition",
-    "PolicyAction", 
-    "PolicyRule",
-    "PolicyCreateParams",
-    "PolicyUpdateParams",
-    "PolicyListParams",
-    "PolicyEvaluation",
-    "PolicyTemplate",
-    "AgentStatus",
-    "FleetAgent",
-    "AgentMetrics",
-    "AgentActivity", 
-    "AlertSeverity",
-    "FleetAlert",
-    "FleetAlertParams",
-    "ApprovalStatus",
-    "Approval",
-    "ApprovalListParams",
-    "ApproveParams",
-    "DenyParams",
-    "ComplianceReportType",
-    "ReportStatus", 
-    "ComplianceReport",
-    "ComplianceSummary",
-    "ComplianceGenerateParams",
-    "QuickStatsParams",
-    "AuditEntry",
-    "Warrant",
 ]
+
+# Add types to __all__ if available
+if _types_available:
+    __all__.extend([
+        # Types
+        "ViennaConfig",
+        "ApiResponse",
+        "PaginationParams", 
+        "PaginatedList",
+        "RequestOptions",
+        "ActionType",
+        "RiskTier",
+        "IntentStatus",
+        "IntentRequest",
+        "IntentResult",
+        "IntentStatusResponse", 
+        "IntentSimulationResult",
+        "PolicyMatch",
+        "ConditionOperator",
+        "PolicyCondition",
+        "PolicyAction", 
+        "PolicyRule",
+        "PolicyCreateParams",
+        "PolicyUpdateParams",
+        "PolicyListParams",
+        "PolicyEvaluation",
+        "PolicyTemplate",
+        "AgentStatus",
+        "FleetAgent",
+        "AgentMetrics",
+        "AgentActivity", 
+        "AlertSeverity",
+        "FleetAlert",
+        "FleetAlertParams",
+        "ApprovalStatus",
+        "Approval",
+        "ApprovalListParams",
+        "ApproveParams",
+        "DenyParams",
+        "ComplianceReportType",
+        "ReportStatus", 
+        "ComplianceReport",
+        "ComplianceSummary",
+        "ComplianceGenerateParams",
+        "QuickStatsParams",
+        "AuditEntry",
+        "Warrant",
+    ])

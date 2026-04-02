@@ -482,7 +482,40 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
       // ── FIX #2: Per-tenant execution mode policy ──────────────────────
       // Look up tenant-specific execution mode for this risk tier.
       // Falls back to default: T0/T1=direct, T2/T3=passback.
-      const executionMode = intentResult.execution_mode; // Already resolved by evaluateIntentForExecution
+      
+      // Get tenant's execution mode preferences
+      let executionMode = intentResult.execution_mode; // Default from policy engine
+      
+      try {
+        // Import query here to avoid circular dependencies
+        const { queryOne } = await import('../db/postgres.js');
+        const tenant = await queryOne<{ settings: any }>(
+          'SELECT settings FROM regulator.tenants WHERE id = $1',
+          [tenant_id]
+        );
+        
+        const tenantSettings = tenant?.settings || {};
+        const tenantExecutionModes = tenantSettings.execution_modes || {};
+        
+        // Override with tenant preference if set, otherwise use default tier mapping
+        if (tenantExecutionModes[riskTier]) {
+          executionMode = tenantExecutionModes[riskTier];
+        } else if (tenantExecutionModes.default) {
+          executionMode = tenantExecutionModes.default;
+        } else {
+          // Fall back to hard-coded defaults: T0/T1=direct, T2/T3=passback
+          const defaultModes = {
+            'T0': 'direct',
+            'T1': 'direct', 
+            'T2': 'passback',
+            'T3': 'passback'
+          };
+          executionMode = defaultModes[riskTier] || 'passback';
+        }
+      } catch (dbError) {
+        console.warn('[Execution] Failed to fetch tenant execution mode preferences, using default:', dbError);
+        // Keep the original execution mode from intent evaluation
+      }
 
       if (executionMode === 'direct') {
         // ── FIX #3: Route through QueuedExecutor pipeline ─────────────

@@ -24,6 +24,151 @@ interface ExecutionRecord {
   operator?: string;
 }
 
+interface ExecutionModesConfig {
+  T0: 'direct' | 'passback';
+  T1: 'direct' | 'passback';
+  T2: 'direct' | 'passback';
+  T3: 'direct' | 'passback';
+  default: 'direct' | 'passback';
+}
+
+/**
+ * Execution Mode Configuration Indicator
+ * Shows current tier→mode mapping with link to Settings
+ */
+function ExecutionModeIndicator() {
+  const [config, setConfig] = useState<ExecutionModesConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchExecutionModes();
+  }, []);
+
+  const fetchExecutionModes = async () => {
+    try {
+      const response = await fetch('/api/v1/settings/execution-modes', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('vienna_access_token')}`,
+        },
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setConfig(result.data);
+      }
+    } catch (err) {
+      console.error('Error fetching execution modes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getModeIcon = (mode: 'direct' | 'passback') => {
+    return mode === 'direct' ? '⚡' : '🔄';
+  };
+
+  const getModeColor = (mode: 'direct' | 'passback') => {
+    return mode === 'direct' ? '#7c3aed' : '#3b82f6';
+  };
+
+  if (loading || !config) {
+    return null; // Don't show anything while loading
+  }
+
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: '12px',
+      padding: '16px 20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    }}>
+      <div>
+        <div style={{
+          fontSize: '12px',
+          fontWeight: 600,
+          color: 'var(--text-tertiary)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          marginBottom: '8px',
+        }}>
+          Current Execution Mode Configuration
+        </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          flexWrap: 'wrap',
+        }}>
+          {(['T0', 'T1', 'T2', 'T3'] as const).map(tier => (
+            <div
+              key={tier}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 8px',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '6px',
+                fontSize: '11px',
+              }}
+            >
+              <span style={{
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                fontFamily: 'var(--font-mono)',
+              }}>
+                {tier}
+              </span>
+              <span style={{
+                color: getModeColor(config[tier]),
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2px',
+              }}>
+                {getModeIcon(config[tier])}
+                <span style={{ fontSize: '10px', fontWeight: 500 }}>
+                  {config[tier] === 'direct' ? 'Direct' : 'Passback'}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <a
+        href="/settings"
+        style={{
+          padding: '6px 12px',
+          borderRadius: '6px',
+          border: '1px solid rgba(124, 58, 237, 0.3)',
+          background: 'rgba(124, 58, 237, 0.08)',
+          color: '#7c3aed',
+          fontSize: '11px',
+          fontWeight: 600,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          transition: 'all 150ms',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(124, 58, 237, 0.12)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(124, 58, 237, 0.08)';
+        }}
+      >
+        ⚙️ Configure
+      </a>
+    </div>
+  );
+}
+
 export function ExecutionPage() {
   const [activeExecutions, setActiveExecutions] = useState<EnvelopeExecution[]>([]);
   const [queueSnapshot, setQueueSnapshot] = useState<QueueSnapshot | null>(null);
@@ -173,6 +318,9 @@ export function ExecutionPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {/* Mode Configuration Indicator */}
+      <ExecutionModeIndicator />
+      
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>

@@ -95,6 +95,7 @@ import { createFeedbackRouter } from './routes/feedback.js';
 import { createExecutionCallbackRouter } from './routes/execution-callbacks.js';
 import { createManagedExecutionRouter } from './routes/managed-execution.js';
 import { createAdapterConfigsRouter } from './routes/adapter-configs.js';
+import { createSettingsRouter } from './routes/settings.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -454,6 +455,9 @@ export function createApp(
   
   // Demo data seeding (onboarding)
   app.use(`${apiPrefix}/demo`, requireAuth, createDemoRouter(viennaRuntime));
+  
+  // Settings (tenant configuration)
+  app.use(`${apiPrefix}/settings`, requireAuth, createSettingsRouter());
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

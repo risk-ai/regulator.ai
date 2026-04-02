@@ -102,6 +102,9 @@ export function SettingsPage() {
         {/* Governance Config — Editable */}
         <GovernanceConfigCard />
 
+        {/* Execution Mode Configuration */}
+        <ExecutionModeConfigCard />
+
         {/* API Configuration */}
         <SettingsCard title="API & Integrations">
           <SettingsRow label="Intent Gateway" value="Enabled" valueColor="#10b981" />
@@ -517,6 +520,326 @@ function SimulationCard() {
           textAlign: 'center',
         }}>
           {actionLabel}
+        </div>
+      )}
+    </SettingsCard>
+  );
+}
+
+// ============================================================================
+// Execution Mode Configuration Card
+// ============================================================================
+
+interface ExecutionModesConfig {
+  T0: 'direct' | 'passback';
+  T1: 'direct' | 'passback';
+  T2: 'direct' | 'passback';
+  T3: 'direct' | 'passback';
+  default: 'direct' | 'passback';
+}
+
+const DEFAULT_EXECUTION_MODES: ExecutionModesConfig = {
+  T0: 'direct',
+  T1: 'direct',
+  T2: 'passback',
+  T3: 'passback',
+  default: 'direct',
+};
+
+function ExecutionModeConfigCard() {
+  const [config, setConfig] = useState<ExecutionModesConfig>(DEFAULT_EXECUTION_MODES);
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load current configuration on mount
+  useEffect(() => {
+    fetchExecutionModes();
+  }, []);
+
+  const fetchExecutionModes = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/v1/settings/execution-modes', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('vienna_access_token')}`,
+        },
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setConfig(result.data);
+      } else {
+        throw new Error('Failed to fetch execution modes');
+      }
+    } catch (err) {
+      console.error('Error fetching execution modes:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/v1/settings/execution-modes', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('vienna_access_token')}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(config),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setConfig(result.data);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save execution modes');
+      }
+    } catch (err) {
+      console.error('Error saving execution modes:', err);
+      setError(err instanceof Error ? err.message : 'Save failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleModeToggle = (tier: keyof ExecutionModesConfig) => {
+    setConfig(prev => ({
+      ...prev,
+      [tier]: prev[tier] === 'direct' ? 'passback' : 'direct',
+    }));
+  };
+
+  const handlePreset = (preset: 'all-direct' | 'all-passback' | 'recommended') => {
+    switch (preset) {
+      case 'all-direct':
+        setConfig({
+          T0: 'direct',
+          T1: 'direct',
+          T2: 'direct',
+          T3: 'direct',
+          default: 'direct',
+        });
+        break;
+      case 'all-passback':
+        setConfig({
+          T0: 'passback',
+          T1: 'passback',
+          T2: 'passback',
+          T3: 'passback',
+          default: 'passback',
+        });
+        break;
+      case 'recommended':
+        setConfig(DEFAULT_EXECUTION_MODES);
+        break;
+    }
+  };
+
+  const tierDescriptions = {
+    T0: 'Auto-approved, lowest risk',
+    T1: 'Low risk, single operator',
+    T2: 'Medium risk, multi-party',
+    T3: 'Critical, requires justification',
+    default: 'Fallback for unclassified actions',
+  };
+
+  const getModeColor = (mode: 'direct' | 'passback') => {
+    return mode === 'direct' ? '#7c3aed' : '#3b82f6'; // Purple for direct, blue for passback
+  };
+
+  const getModeIndicator = (mode: 'direct' | 'passback') => {
+    return mode === 'direct' ? '⚡' : '🔄';
+  };
+
+  if (loading && !config) {
+    return (
+      <SettingsCard title="Execution Mode Preferences">
+        <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+          Loading execution modes...
+        </div>
+      </SettingsCard>
+    );
+  }
+
+  return (
+    <SettingsCard title="Execution Mode Preferences">
+      {error && (
+        <div style={{
+          marginBottom: '12px',
+          padding: '8px 12px',
+          background: 'rgba(248, 113, 113, 0.08)',
+          border: '1px solid rgba(248, 113, 113, 0.2)',
+          borderRadius: '6px',
+          fontSize: '11px',
+          color: '#ef4444',
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Preset buttons */}
+      <div style={{
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid var(--border-subtle)',
+        display: 'flex',
+        gap: '8px',
+        flexWrap: 'wrap',
+      }}>
+        <button
+          onClick={() => handlePreset('all-direct')}
+          disabled={loading}
+          style={{
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
+            background: 'rgba(124, 58, 237, 0.08)',
+            color: '#7c3aed',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          All Vienna Direct
+        </button>
+        <button
+          onClick={() => handlePreset('all-passback')}
+          disabled={loading}
+          style={{
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            background: 'rgba(59, 130, 246, 0.08)',
+            color: '#3b82f6',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          All Agent Passback
+        </button>
+        <button
+          onClick={() => handlePreset('recommended')}
+          disabled={loading}
+          style={{
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'rgba(16, 185, 129, 0.08)',
+            color: '#10b981',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          Recommended
+        </button>
+      </div>
+
+      {/* Tier configuration */}
+      <div style={{ marginBottom: '16px' }}>
+        {(['T0', 'T1', 'T2', 'T3', 'default'] as const).map(tier => (
+          <div
+            key={tier}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 0',
+              borderBottom: tier !== 'default' ? '1px solid var(--border-subtle)' : 'none',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                {tier === 'default' ? 'Default' : tier}
+              </div>
+              <div style={{ fontSize: '10px', color: 'var(--text-tertiary)' }}>
+                {tierDescriptions[tier]}
+              </div>
+            </div>
+            <button
+              onClick={() => handleModeToggle(tier)}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                border: `1px solid ${getModeColor(config[tier])}30`,
+                background: `${getModeColor(config[tier])}10`,
+                color: getModeColor(config[tier]),
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit',
+                opacity: loading ? 0.6 : 1,
+                transition: 'all 150ms',
+              }}
+            >
+              <span>{getModeIndicator(config[tier])}</span>
+              <span>{config[tier] === 'direct' ? 'Vienna Direct' : 'Agent Passback'}</span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Save button */}
+      <div style={{
+        marginTop: '16px',
+        paddingTop: '12px',
+        borderTop: '1px solid var(--border-subtle)',
+      }}>
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'rgba(16, 185, 129, 0.08)',
+            color: '#10b981',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? 'Saving...' : 'Save Execution Mode Preferences'}
+        </button>
+      </div>
+
+      {saved && (
+        <div style={{
+          marginTop: '8px',
+          padding: '6px 10px',
+          borderRadius: '4px',
+          background: 'rgba(16, 185, 129, 0.06)',
+          border: '1px solid rgba(16, 185, 129, 0.15)',
+          fontSize: '11px',
+          color: '#10b981',
+          textAlign: 'center',
+        }}>
+          ✓ Execution mode preferences saved
         </div>
       )}
     </SettingsCard>

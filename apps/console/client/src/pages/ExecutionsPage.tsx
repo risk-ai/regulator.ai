@@ -211,11 +211,42 @@ export function ExecutionsPage() {
     if (selected === id) { setSelected(null); setDetail(null); return; }
     setSelected(id);
     setDetailLoading(true);
+    setDetail(null); // Clear previous detail to avoid stale data
     try {
       const res = await fetch(`/api/v1/executions/${id}`, { credentials: 'include' });
-      const data = await res.json();
-      if (data.success) setDetail(data.data);
-    } catch (err) { console.error(err); } finally { setDetailLoading(false); }
+      const rawData = await res.json();
+      
+      if (rawData.success && rawData.data) {
+        // Transform API response to match expected shape with defensive handling
+        const data = rawData.data;
+        const transformed: ExecutionDetail = {
+          execution_id: data.execution_id || id,
+          state: data.summary?.status || data.state || 'unknown',
+          risk_tier: data.summary?.risk_tier || data.risk_tier || 'T0',
+          objective: data.summary?.objective || data.objective || 'No objective',
+          execution_mode: data.summary?.execution_mode || data.execution_mode || 'passthrough',
+          warrant_id: data.summary?.warrant_id || data.warrant_id || null,
+          proposal_id: data.summary?.proposal_id || data.proposal_id || null,
+          steps: [],
+          timeline: Array.isArray(data.timeline) ? data.timeline : [],
+          result: data.outcome?.result || data.result || null,
+          created_at: data.summary?.started_at || data.created_at || new Date().toISOString(),
+          completed_at: data.summary?.completed_at || data.completed_at || null,
+          detailed_steps: Array.isArray(data.plan?.steps) ? data.plan.steps : (Array.isArray(data.detailed_steps) ? data.detailed_steps : []),
+          ledger_events: Array.isArray(data.timeline) ? data.timeline : (Array.isArray(data.ledger_events) ? data.ledger_events : []),
+          audit_entries: Array.isArray(data.audit_entries) ? data.audit_entries : [],
+        };
+        setDetail(transformed);
+      } else {
+        console.error('Invalid execution data:', rawData);
+        setDetail(null);
+      }
+    } catch (err) { 
+      console.error('Failed to load execution detail:', err); 
+      setDetail(null);
+    } finally { 
+      setDetailLoading(false); 
+    }
   };
 
   const filters = [
@@ -368,9 +399,9 @@ function DetailPanel({ detail, loading, onClose }: { detail: ExecutionDetail | n
   if (!detail) return null;
 
   const tabs = [
-    { key: 'timeline' as const, label: 'Timeline', count: (detail.timeline || []).length },
-    { key: 'steps' as const, label: 'Steps', count: (detail.detailed_steps || []).length },
-    { key: 'events' as const, label: 'Events', count: (detail.ledger_events || []).length },
+    { key: 'timeline' as const, label: 'Timeline', count: Array.isArray(detail.timeline) ? detail.timeline.length : 0 },
+    { key: 'steps' as const, label: 'Steps', count: Array.isArray(detail.detailed_steps) ? detail.detailed_steps.length : 0 },
+    { key: 'events' as const, label: 'Events', count: Array.isArray(detail.ledger_events) ? detail.ledger_events.length : 0 },
     { key: 'result' as const, label: 'Result', count: detail.result ? 1 : 0 },
   ];
 
@@ -412,9 +443,9 @@ function DetailPanel({ detail, loading, onClose }: { detail: ExecutionDetail | n
 
       {/* Tab content */}
       <div style={{ padding: '16px 20px', maxHeight: '400px', overflowY: 'auto' }}>
-        {activeTab === 'timeline' && <TimelineView timeline={detail.timeline || []} />}
-        {activeTab === 'steps' && <StepsView steps={detail.detailed_steps || []} />}
-        {activeTab === 'events' && <EventsView events={detail.ledger_events || []} />}
+        {activeTab === 'timeline' && <TimelineView timeline={Array.isArray(detail.timeline) ? detail.timeline : []} />}
+        {activeTab === 'steps' && <StepsView steps={Array.isArray(detail.detailed_steps) ? detail.detailed_steps : []} />}
+        {activeTab === 'events' && <EventsView events={Array.isArray(detail.ledger_events) ? detail.ledger_events : []} />}
         {activeTab === 'result' && <ResultView result={detail.result} />}
       </div>
     </div>

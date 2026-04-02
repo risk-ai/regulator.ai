@@ -151,8 +151,49 @@ export default function ExecutionDetailPage() {
         throw new Error(`Failed to fetch execution: ${response.statusText}`);
       }
       
-      const data = await response.json();
-      setExecution(data.data);
+      const result = await response.json();
+      const rawData = result.data;
+      
+      // Transform API response to match expected shape
+      const execution: ExecutionDetail = {
+        execution_id: rawData.execution_id,
+        tenant_id: rawData.summary?.tenant_id || 'unknown',
+        state: rawData.summary?.status || 'unknown',
+        risk_tier: rawData.summary?.risk_tier || 'T0',
+        objective: rawData.summary?.objective || 'No objective provided',
+        warrant_id: rawData.summary?.warrant_id || null,
+        created_at: rawData.summary?.started_at || new Date().toISOString(),
+        updated_at: rawData.summary?.updated_at || new Date().toISOString(),
+        completed_at: rawData.summary?.completed_at || null,
+        timeline: Array.isArray(rawData.timeline) ? rawData.timeline.map((event: any) => ({
+          state: event.stage || event.event_type || 'unknown',
+          detail: event.summary || event.event_type || 'No details',
+          timestamp: event.event_timestamp || new Date().toISOString(),
+          actor: event.actor,
+          step_index: event.step_index,
+          error: event.status === 'failed' ? (event.summary || 'Unknown error') : undefined,
+        })) : [],
+        detailed_steps: rawData.plan?.steps ? (Array.isArray(rawData.plan.steps) ? rawData.plan.steps.map((step: any, index: number) => ({
+          step_index: index,
+          step_name: step.action || step.step_name || `Step ${index + 1}`,
+          tier: step.tier || rawData.summary?.risk_tier || 'T0',
+          status: step.status || 'pending',
+          adapter_id: step.adapter_id || null,
+          adapter_used: step.adapter_used,
+          latency_ms: step.latency_ms,
+          status_code: step.status_code,
+          result: step.result,
+        })) : []) : [],
+        ledger_events: Array.isArray(rawData.timeline) ? rawData.timeline.map((event: any, i: number) => ({
+          event_type: event.event_type || 'unknown',
+          payload_json: event,
+          timestamp: event.event_timestamp || new Date().toISOString(),
+          sequence_num: i,
+        })) : [],
+        total_latency_ms: rawData.summary?.total_latency_ms,
+      };
+      
+      setExecution(execution);
       setLoading(false);
     } catch (err: any) {
       console.error('Failed to fetch execution detail:', err);
@@ -328,6 +369,24 @@ function Section({
 }
 
 function Timeline({ entries }: { entries: TimelineEntry[] }) {
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  
+  if (safeEntries.length === 0) {
+    return (
+      <div style={{ 
+        padding: '16px',
+        backgroundColor: COLORS.card,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: '8px',
+        color: COLORS.textMuted,
+        fontSize: '13px',
+        ...MONO,
+      }}>
+        No timeline events available
+      </div>
+    );
+  }
+  
   return (
     <div style={{ position: 'relative', paddingLeft: '32px' }}>
       {/* Vertical line */}
@@ -340,7 +399,7 @@ function Timeline({ entries }: { entries: TimelineEntry[] }) {
         backgroundColor: COLORS.border,
       }} />
 
-      {entries.map((entry, i) => (
+      {safeEntries.map((entry, i) => (
         <div key={i} style={{ position: 'relative', marginBottom: '24px' }}>
           {/* Dot */}
           <div style={{
@@ -389,10 +448,27 @@ function Timeline({ entries }: { entries: TimelineEntry[] }) {
 
 function Steps({ steps }: { steps: DetailedStep[] }) {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  const safeSteps = Array.isArray(steps) ? steps : [];
+  
+  if (safeSteps.length === 0) {
+    return (
+      <div style={{ 
+        padding: '16px',
+        backgroundColor: COLORS.card,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: '8px',
+        color: COLORS.textMuted,
+        fontSize: '13px',
+        ...MONO,
+      }}>
+        No execution steps available
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {steps.map(step => (
+      {safeSteps.map(step => (
         <div 
           key={step.step_index}
           style={{
@@ -473,6 +549,24 @@ function Steps({ steps }: { steps: DetailedStep[] }) {
 }
 
 function LedgerEvents({ events }: { events: LedgerEvent[] }) {
+  const safeEvents = Array.isArray(events) ? events : [];
+  
+  if (safeEvents.length === 0) {
+    return (
+      <div style={{ 
+        padding: '16px',
+        backgroundColor: COLORS.card,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: '8px',
+        color: COLORS.textMuted,
+        fontSize: '13px',
+        ...MONO,
+      }}>
+        No ledger events available
+      </div>
+    );
+  }
+  
   return (
     <div style={{ 
       backgroundColor: COLORS.card, 
@@ -482,7 +576,7 @@ function LedgerEvents({ events }: { events: LedgerEvent[] }) {
       maxHeight: '400px',
       overflowY: 'auto',
     }}>
-      {events.map((event, i) => (
+      {safeEvents.map((event, i) => (
         <div 
           key={i}
           style={{

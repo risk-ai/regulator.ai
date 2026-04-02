@@ -1142,15 +1142,92 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // 9. Return pipeline result
+      // 9. Auto-trigger execution if action has execution_config (Phase 5 bridge)
+      let executionResult = null;
+      if (warrant && !simulation) {
+        try {
+          const actionTypeRow = await query('SELECT execution_config FROM regulator.action_types WHERE action_type = $1', [action]);
+          const execConfig = actionTypeRow[0]?.execution_config;
+          
+          if (execConfig && execConfig.steps && execConfig.steps.length > 0) {
+            const executionId = `exe_${crypto.randomUUID().replace(/-/g, '').slice(0, 20)}`;
+            
+            // Resolve adapter aliases to adapter_config IDs
+            const resolvedSteps = [];
+            for (let i = 0; i < execConfig.steps.length; i++) {
+              const stepDef = execConfig.steps[i];
+              let adapterId = stepDef.adapter_id || null;
+              
+              // Resolve alias to ID
+              if (!adapterId && stepDef.adapter_alias) {
+                const adapterRow = await tenantQuery(
+                  'SELECT id FROM regulator.adapter_configs WHERE credential_alias = $1 AND enabled = true LIMIT 1',
+                  [stepDef.adapter_alias], tenantId
+                );
+                if (adapterRow[0]) adapterId = adapterRow[0].id;
+              }
+              
+              // Substitute template variables from payload
+              let url = stepDef.action?.url || '';
+              if (payload) {
+                Object.entries(payload).forEach(([k, v]) => {
+                  url = url.replace(`{{${k}}}`, String(v));
+                });
+              }
+              
+              resolvedSteps.push({
+                step_index: i,
+                step_name: stepDef.step_name || `Step ${i}`,
+                tier: stepDef.tier || 'managed',
+                action: { ...stepDef.action, url },
+                params: { ...(stepDef.params || {}), ...(payload || {}) },
+                adapter_id: adapterId,
+              });
+            }
+            
+            // Create execution record
+            await query(
+              `INSERT INTO regulator.execution_log 
+               (execution_id, tenant_id, warrant_id, proposal_id, execution_mode, state, risk_tier, objective, steps, timeline, created_at, updated_at)
+               VALUES ($1, $2, $3, $4, 'managed', 'planned', $5, $6, $7, $8, NOW(), NOW())`,
+              [executionId, tenantId || 'default', warrant.id, proposalId, riskTier, action,
+               JSON.stringify(resolvedSteps),
+               JSON.stringify([{ state: 'planned', detail: 'Created from intent pipeline', timestamp: new Date().toISOString() }])]
+            );
+            
+            // Update proposal with execution_id
+            await query('UPDATE regulator.proposals SET execution_id = $1 WHERE id = $2', [executionId, proposalId]);
+            
+            executionResult = {
+              execution_id: executionId,
+              state: 'planned',
+              steps: resolvedSteps.length,
+              message: 'Execution created and queued. Use GET /api/v1/executions/' + executionId + ' to track progress.',
+            };
+            
+            // Audit
+            await query(
+              'INSERT INTO regulator.audit_log (id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)',
+              [crypto.randomUUID(), proposalId, warrant.id, 'execution_created', agent.display_name, tierToInt(riskTier),
+               JSON.stringify({ execution_id: executionId, steps: resolvedSteps.length, action }), tenantId]
+            );
+          }
+        } catch (execErr) {
+          console.error('[Intent→Execution] Failed to create execution:', execErr);
+          // Don't fail the intent — execution is a bonus
+        }
+      }
+
+      // 10. Return pipeline result
       return res.status(200).json({
         success: true,
         data: {
           proposal: { id: proposalId, state: proposalState, risk_tier: riskTier },
           policy_evaluation: { id: evalId, decision: policyDecision, matched_rule: matchedRule?.name || 'default', tier: riskTier },
           warrant: warrant,
+          execution: executionResult,
           simulation: !!simulation,
-          pipeline: simulation ? 'simulated' : (warrant ? 'executed' : 'pending_approval'),
+          pipeline: simulation ? 'simulated' : (warrant ? (executionResult ? 'executing' : 'executed') : 'pending_approval'),
         }
       });
     }

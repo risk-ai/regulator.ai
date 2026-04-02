@@ -34,7 +34,27 @@ class AuditLog {
     this.eventIndex = new Map(); // Fast lookup by ID
     this.initialized = true;
     
-    console.log('[AuditLog] Initialized', { maxEvents: this.maxEvents });
+    // FIX #5: Postgres dual-write for durable audit trail.
+    // In-memory buffer is kept for fast queries; Postgres is the durable store.
+    this.pgPool = options.pgPool || null;
+    this.pgWriteEnabled = !!this.pgPool;
+    this.pgWriteFailures = 0;
+    this.maxPgWriteFailures = 50; // Log warning after 50 consecutive failures
+    
+    console.log('[AuditLog] Initialized', { 
+      maxEvents: this.maxEvents,
+      pgDualWrite: this.pgWriteEnabled 
+    });
+  }
+
+  /**
+   * Connect a Postgres pool for durable audit writes.
+   * Call this after initialization if pgPool wasn't passed to constructor.
+   */
+  connectPgPool(pool) {
+    this.pgPool = pool;
+    this.pgWriteEnabled = true;
+    console.log('[AuditLog] Postgres dual-write enabled');
   }
   
   /**
@@ -65,11 +85,46 @@ class AuditLog {
       this.eventIndex.delete(oldest.id);
     }
     
-    // Append event
+    // Append event to in-memory buffer
     this.events.push(enriched);
     this.eventIndex.set(eventId, enriched);
+
+    // FIX #5: Dual-write to Postgres (fire-and-forget, don't block the caller)
+    if (this.pgWriteEnabled && this.pgPool) {
+      this._persistToPostgres(enriched).catch(err => {
+        this.pgWriteFailures++;
+        if (this.pgWriteFailures <= 3 || this.pgWriteFailures % this.maxPgWriteFailures === 0) {
+          console.error(`[AuditLog] Postgres write failed (${this.pgWriteFailures} total):`, err.message);
+        }
+      });
+    }
     
     return eventId;
+  }
+
+  /**
+   * Persist audit event to Postgres regulator.audit_log
+   * @private
+   */
+  async _persistToPostgres(event) {
+    await this.pgPool.query(
+      `INSERT INTO regulator.audit_log (proposal_id, warrant_id, event, actor, risk_tier, details, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        event.proposal_id || null,
+        event.warrant_id || null,
+        event.action || event.event_type || 'unknown',
+        event.operator || event.actor || event.agent_id || 'system',
+        event.risk_tier ? parseInt(String(event.risk_tier).replace('T', '')) : null,
+        JSON.stringify({
+          audit_event_id: event.id,
+          ...event,
+        }),
+        event.timestamp || new Date().toISOString(),
+      ]
+    );
+    // Reset failure counter on success
+    this.pgWriteFailures = 0;
   }
   
   /**

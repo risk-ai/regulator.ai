@@ -6,7 +6,13 @@
 const crypto = require('crypto');
 const { pool } = require('../../database/client');
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET || 'fallback-secret';
+// FIX #6: Remove hardcoded fallback — fail hard if no secret configured
+const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET;
+if (!JWT_SECRET) {
+  console.error('[FATAL] JWT_SECRET or VIENNA_SESSION_SECRET must be set. Refusing to start with insecure defaults.');
+  // In serverless (Vercel), we can't process.exit — reject all auth instead
+  // The requireAuth function will deny all requests when JWT_SECRET is falsy
+}
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -20,6 +26,7 @@ function parseCookies(cookieHeader) {
 
 function verifyToken(token) {
   try {
+    if (!JWT_SECRET) return null; // No secret configured — reject all JWTs
     const [header, body, sig] = token.split('.');
     const expected = crypto.createHmac('sha256', JWT_SECRET).update(header + '.' + body).digest('base64url');
     if (sig !== expected) return null;

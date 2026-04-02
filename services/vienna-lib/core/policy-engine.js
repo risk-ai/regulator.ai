@@ -527,14 +527,40 @@ class PolicyEngine {
    * @private
    */
   _createNoMatchDecision(plan, startTime) {
+    // FIX #3: Respect tenant-level default_policy_decision setting.
+    // New tenants default to DENY (secure posture). Legacy tenants can opt into ALLOW.
+    let defaultDecision = DECISION_TYPES.ALLOW;
+    let defaultReason = 'No matching policy found, defaulting to allow (legacy)';
+
+    // Check tenant config for default_policy_decision
+    if (plan.tenant_id && this.stateGraph) {
+      try {
+        const tenant = typeof this.stateGraph.getTenant === 'function'
+          ? this.stateGraph.getTenant(plan.tenant_id)
+          : null;
+        if (tenant && tenant.default_policy_decision === 'deny') {
+          defaultDecision = DECISION_TYPES.DENY;
+          defaultReason = 'No matching policy found, tenant default is deny';
+        } else if (!tenant) {
+          // Unknown tenant — default deny for safety
+          defaultDecision = DECISION_TYPES.DENY;
+          defaultReason = 'No matching policy found, unknown tenant defaults to deny';
+        }
+      } catch (err) {
+        // On error reading tenant config, fail safe to deny
+        defaultDecision = DECISION_TYPES.DENY;
+        defaultReason = 'No matching policy found, tenant lookup failed — defaulting to deny';
+      }
+    }
+
     return createPolicyDecision({
       plan_id: plan.plan_id,
       policy_id: null,
       policy_version: null,
-      decision: DECISION_TYPES.ALLOW,
-      reasons: ['No matching policy found, defaulting to allow'],
+      decision: defaultDecision,
+      reasons: [defaultReason],
       requirements: {
-        approval_required: false
+        approval_required: defaultDecision === DECISION_TYPES.DENY
       },
       evaluated_context: {
         plan_summary: {
@@ -543,7 +569,8 @@ class PolicyEngine {
           environment: plan.environment,
           risk_tier: plan.risk_tier
         },
-        evaluation_time_ms: Date.now() - startTime
+        evaluation_time_ms: Date.now() - startTime,
+        default_policy_decision: defaultDecision === DECISION_TYPES.DENY ? 'deny' : 'allow'
       }
     });
   }

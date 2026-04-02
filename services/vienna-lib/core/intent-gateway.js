@@ -345,13 +345,24 @@ class IntentGateway {
       return { valid: false, error: 'invalid_payload' };
     }
 
-    // Check supported intent types
+    // FIX #1: Fall through to DB-registered action types instead of hard-rejecting.
+    // The hardcoded list covers legacy built-in types. Custom types registered in
+    // the action_types table are validated by the /api/v1/intent route layer,
+    // so the gateway should allow them through for policy evaluation.
     if (!this.options.supported_intent_types.includes(intent.intent_type)) {
-      return {
-        valid: false,
-        error: 'unsupported_intent_type',
-        supported: this.options.supported_intent_types
-      };
+      // Check if this is a DB-registered custom action type (async not available
+      // in synchronous validateIntent, so we mark it for passthrough and let the
+      // route layer's DB lookup be authoritative)
+      if (!intent._dbValidated) {
+        // Not in built-in list AND not pre-validated by route layer — reject
+        return {
+          valid: false,
+          error: 'unsupported_intent_type',
+          supported: this.options.supported_intent_types,
+          hint: 'Register custom action types via POST /api/v1/action-types or pass _dbValidated:true from the route layer'
+        };
+      }
+      // DB-validated custom type — allow through
     }
 
     // Intent-specific validation

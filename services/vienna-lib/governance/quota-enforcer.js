@@ -27,14 +27,27 @@ class QuotaEnforcer {
     }
     
     if (!tenant) {
-      // Default quota for unknown tenants
+      // FIX #2: Default-deny for unknown/unregistered tenants.
+      // Tenants must be explicitly registered with a quota allocation.
+      // The 'system' tenant is exempted as an internal caller.
+      const tenantIdStr = typeof tenantId === 'object' ? tenantId.tenant_id : tenantId;
+      if (tenantIdStr === 'system') {
+        return {
+          allowed: true,
+          used: 0,
+          limit: 1000,
+          available: 1000,
+          utilization: 0,
+          reason: 'system_tenant_exempt'
+        };
+      }
       return {
-        allowed: true,
+        allowed: false,
         used: 0,
-        limit: 100,
-        available: 100,
+        limit: 0,
+        available: 0,
         utilization: 0,
-        reason: 'default_quota'
+        reason: 'tenant_not_registered'
       };
     }
 

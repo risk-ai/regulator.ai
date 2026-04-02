@@ -115,13 +115,15 @@ export function createIntentRouter(): Router {
       }
 
       // Build intent with operator source
-      const intent = {
+      // FIX #1: Mark DB-validated custom types so IntentGateway allows them through
+      const intent: Record<string, any> = {
         intent_type,
         source: {
           type: 'operator',
           id: operator_id,
         },
         payload,
+        _dbValidated: !!actionType, // true if found in action_types registry
       };
 
       // Phase 21-30: Submit with governance context

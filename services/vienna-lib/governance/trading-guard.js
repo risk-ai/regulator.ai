@@ -5,8 +5,11 @@
  */
 
 class TradingGuard {
-  constructor(adapter) {
+  constructor(adapter, options = {}) {
     this.adapter = adapter;
+    // FIX #4: fail_closed_for_trading — when true, state load failures
+    // block trading-critical actions instead of silently allowing them.
+    this.failClosedForTrading = options.fail_closed_for_trading || false;
   }
   
   /**
@@ -17,10 +20,29 @@ class TradingGuard {
    */
   async check(actions) {
     // Load runtime state
-    const runtimeState = await this.adapter.loadRuntimeState();
+    let runtimeState;
+    try {
+      runtimeState = await this.adapter.loadRuntimeState();
+    } catch (err) {
+      // FIX #4: If state load fails and fail_closed is enabled, block trading-critical actions
+      if (this.failClosedForTrading) {
+        const tradingCritical = this._filterTradingCritical(actions);
+        if (tradingCritical.length > 0) {
+          return {
+            safe: false,
+            reason: 'STATE_LOAD_FAILED_FAIL_CLOSED',
+            message: 'Cannot verify trading safety — runtime state unavailable, fail-closed enabled',
+            blocked_actions: tradingCritical.map(a => a.type),
+            error: err.message
+          };
+        }
+      }
+      // Non-trading actions pass through even on state failure
+      return { safe: true, reason: 'State load failed, no trading-critical actions' };
+    }
     
     // If no autonomous window active, all actions safe
-    if (!runtimeState.autonomous_window_active) {
+    if (!runtimeState || !runtimeState.autonomous_window_active) {
       return { safe: true, reason: 'No autonomous window active' };
     }
     

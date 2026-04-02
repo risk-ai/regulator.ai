@@ -92,6 +92,8 @@ import { createSlackRouter } from './routes/slack.js';
 import { createAnalyticsRouter } from './routes/analytics.js';
 import { createAgentTemplatesRouter } from './routes/agent-templates.js';
 import { createFeedbackRouter } from './routes/feedback.js';
+import { createExecutionCallbackRouter } from './routes/execution-callbacks.js';
+import { createManagedExecutionRouter } from './routes/managed-execution.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -365,6 +367,10 @@ export function createApp(
   // Phase 10: Autonomous operations visibility
   app.use(`${apiPrefix}/managed-objectives`, requireAuth, createManagedObjectivesRouter(viennaRuntime));
   app.use(`${apiPrefix}/executions`, requireAuth, createExecutionsRouter(viennaRuntime));
+  
+  // Phase 4A: Managed execution with adapter resolution
+  app.use(`${apiPrefix}/executions`, requireAuth, createManagedExecutionRouter());
+  
   app.use(`${apiPrefix}/reconciliation`, requireAuth, createReconciliationRouter());
   
   // Phase 11: Intent Gateway (canonical action ingress)
@@ -430,6 +436,10 @@ export function createApp(
   
   // Feedback / Bug Reports
   app.use(`${apiPrefix}/feedback`, requireAuth, createFeedbackRouter());
+  
+  // Phase 4A: Execution Callbacks (webhook receiver for delegated execution)
+  // Note: Public endpoint (external systems call this), signature verification inside handler
+  app.use(`${apiPrefix}/webhooks/execution-callback`, createExecutionCallbackRouter());
   
   // Validation logging (browser testing) — require auth
   app.use(`${apiPrefix}/validation`, requireAuth, createValidationRouter());

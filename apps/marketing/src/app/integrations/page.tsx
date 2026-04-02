@@ -135,6 +135,34 @@ const notificationAdapters = [
     features: ["Custom event handlers", "HMAC signature verification", "Retry with backoff", "Event filtering"],
     icon: "🔗",
   },
+  {
+    name: "Stripe Billing",
+    status: "live" as const,
+    desc: "Usage-based metered billing for agent executions. Team $49/mo, Business $99/mo pricing tiers.",
+    features: ["Metered billing by execution", "Multi-tier pricing", "Invoice automation", "Usage analytics"],
+    icon: "💳",
+  },
+  {
+    name: "Sentry Monitoring",
+    status: "live" as const,
+    desc: "Error tracking and performance monitoring for the Vienna OS governance pipeline.",
+    features: ["Real-time error tracking", "Performance monitoring", "Alert integration", "Debug context"],
+    icon: "🔍",
+  },
+  {
+    name: "Google Analytics",
+    status: "live" as const,
+    desc: "GA4 analytics integration for console usage tracking and governance metrics.",
+    features: ["Console usage tracking", "Governance metrics", "Custom events", "User journey analysis"],
+    icon: "📊",
+  },
+  {
+    name: "Docker Self-hosting",
+    status: "live" as const,
+    desc: "Community tier supports self-hosted Docker deployments with full governance capabilities.",
+    features: ["Docker container support", "Self-hosted deployment", "Community tier included", "Air-gapped capable"],
+    icon: "🐳",
+  },
 ];
 
 const statusLabels = {

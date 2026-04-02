@@ -586,9 +586,9 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-                The governance and authorization layer for autonomous AI systems.
-                Every agent action requires a cryptographic <span className="text-amber-400 font-medium">warrant</span> — signed, scoped,
-                and time-limited. No warrant, no execution.
+                Agents propose. Vienna decides. Execute with proof. 
+                Dual execution model: <span className="text-purple-400 font-medium">Vienna Direct</span> for low-risk,
+                <span className="text-blue-400 font-medium"> Agent Passback</span> for high-risk with cryptographic <span className="text-amber-400 font-medium">warrants</span>.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
                 <a 
@@ -814,10 +814,10 @@ export default function Home() {
         
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            <AnimatedStat value={100} suffix="%" label="Enforcement Coverage" sub="Every action authorized" />
+            <AnimatedStat value={80} suffix="+" label="Database Tables" sub="Full persistence layer" />
+            <AnimatedStat value={62} label="API Endpoints" sub="Complete REST coverage" />
+            <AnimatedStat value={28} label="Execution Modules" sub="Comprehensive runtime" />
             <AnimatedStat value={4} label="Risk Tiers" sub="T0 auto → T3 multi-party" />
-            <AnimatedStat value="∞" label="Action Types" sub="Any agent, any operation" />
-            <AnimatedStat value={9} label="Control Engines" sub="Complete governance stack" />
           </div>
         </div>
       </section>
@@ -845,7 +845,7 @@ export default function Home() {
             </div>
           </ScrollReveal>
 
-          {/* Enhanced two-column feature grid with better visual hierarchy */}
+          {/* Enhanced platform feature grid with better visual hierarchy */}
           <div className="grid md:grid-cols-2 gap-6 mb-16">
             {[
               { icon: Workflow, title: "Intent Normalization Layer", desc: "Single entry point for all agent requests. Every proposal is normalized, validated, and routed into the enforcement pipeline.", color: "text-blue-400", bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5", border: "border-blue-500/20" },
@@ -854,6 +854,8 @@ export default function Home() {
               { icon: Eye, title: "Post-Execution Verification", desc: "Did the agent do exactly what the warrant authorized? Scope drift detection, timing verification, constraint enforcement. Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
               { icon: BookOpen, title: "Immutable Audit Ledger", desc: "Append-only, tamper-evident record. Every intent, policy decision, warrant, execution, and verification — permanently and cryptographically recorded.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
               { icon: BarChart3, title: "Blast Radius Classification", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. T3 needs justification + rollback plan. Actions classified by impact.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
+              { icon: Zap, title: "Dual Execution Engine", desc: "Vienna Direct for T0/T1 actions executed by Vienna's runtime. Agent Passback for T2/T3 actions with warrant authorization to agent's infrastructure.", color: "text-violet-400", bg: "bg-gradient-to-br from-violet-500/10 to-violet-600/5", border: "border-violet-500/20" },
+              { icon: Server, title: "SDK Integration", desc: "Node.js and Python SDKs on npm and PyPI. 5 lines to integrate with any agent framework — OpenClaw, LangChain, CrewAI, AutoGen, or custom REST.", color: "text-cyan-400", bg: "bg-gradient-to-br from-cyan-500/10 to-cyan-600/5", border: "border-cyan-500/20" },
             ].map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.08}>
                 <div className={`${f.bg} border ${f.border} rounded-xl p-6 card-hover flex gap-5 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300`}>
@@ -1781,15 +1783,18 @@ signature: 0x7f3a...b2c1`,
     },
     {
       id: 5,
-      title: "Agent executes",
-      description: "With warrant authorization",
-      detail: "Agent performs the authorized action using its own integrations, presenting the warrant as proof of authorization",
+      title: "Execution (Direct/Passback)",
+      description: "Vienna Direct or Agent Passback",
+      detail: "T0/T1 actions: Vienna executes directly. T2/T3 actions: Agent executes with warrant proof using its own infrastructure and integrations",
       icon: "⚡",
-      code: `// Agent execution
+      code: `// T2/T3: Agent Passback mode
 warrant: wrt-7f3a2b1c
 runtime: agent's own infra
 action: rolling_deployment
-authorization: verified ✓`,
+authorization: verified ✓
+
+// T0/T1: Vienna Direct mode
+// (Vienna executes via handlers)`,
       color: "emerald"
     },
     {

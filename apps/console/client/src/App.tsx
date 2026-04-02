@@ -25,6 +25,7 @@ import PolicyTemplatesPage from './pages/PolicyTemplatesPage.js';
 import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
 import ActivityFeedPage from './pages/ActivityFeedPage.js';
 import { ApiKeysPage } from './pages/ApiKeysPage.js';
+import ExecutionsPage from './pages/ExecutionsPage.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -249,6 +250,9 @@ export function App() {
       
       case 'api-keys':
         return <ApiKeysPage />;
+      
+      case 'executions':
+        return <ExecutionsPage />;
       
       case 'settings':
         return <SettingsPage />;

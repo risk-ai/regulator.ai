@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'executions' | 'settings';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -30,6 +30,7 @@ const PRIMARY_NAV: NavItem[] = [
   { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
   { id: 'policies', label: 'Policies', description: 'Governance rules', icon: '🛡️' },
   { id: 'activity', label: 'Activity', description: 'Real-time activity feed', icon: '📊' },
+  { id: 'executions', label: 'Executions', description: 'Execution monitoring', icon: '⚙️' },
   { id: 'history', label: 'Audit', description: 'Execution ledger & audit trail', icon: '📋' },
   { id: 'compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
   { id: 'api-keys', label: 'API Keys', description: 'Programmatic access', icon: '🔑' },

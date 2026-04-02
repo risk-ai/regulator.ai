@@ -1,0 +1,584 @@
+/**
+ * Execution Detail Page — Phase 5 Task 5.4
+ * 
+ * Shows full execution details: timeline, steps, ledger events.
+ * Matches FleetDashboardPage style (dark theme, monospace).
+ */
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface ExecutionDetail {
+  execution_id: string;
+  tenant_id: string;
+  state: string;
+  risk_tier: string;
+  objective: string;
+  warrant_id: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  timeline: TimelineEntry[];
+  detailed_steps: DetailedStep[];
+  ledger_events: LedgerEvent[];
+  total_latency_ms?: number;
+}
+
+interface TimelineEntry {
+  state: string;
+  detail: string;
+  timestamp: string;
+  actor?: string;
+  step_index?: number;
+  error?: string;
+}
+
+interface DetailedStep {
+  step_index: number;
+  step_name: string;
+  tier: string;
+  status: string;
+  adapter_id: string | null;
+  adapter_used?: string;
+  latency_ms?: number;
+  status_code?: number;
+  result?: any;
+}
+
+interface LedgerEvent {
+  event_type: string;
+  payload_json: any;
+  timestamp: string;
+  sequence_num: number;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const COLORS = {
+  bg: '#0a0a0f',
+  card: '#12131a',
+  cardHover: '#1a1b26',
+  border: 'rgba(255,255,255,0.06)',
+  green: '#10b981',
+  yellow: '#f59e0b',
+  red: '#ef4444',
+  blue: '#3b82f6',
+  gray: '#6b7280',
+  amber: '#f59e0b',
+  textPrimary: '#ffffff',
+  textSecondary: 'rgba(255,255,255,0.7)',
+  textMuted: 'rgba(255,255,255,0.5)',
+};
+
+const STATE_COLORS: Record<string, string> = {
+  planned: COLORS.gray,
+  approved: COLORS.blue,
+  executing: COLORS.amber,
+  awaiting_callback: COLORS.yellow,
+  verifying: COLORS.blue,
+  complete: COLORS.green,
+  failed: COLORS.red,
+  cancelled: COLORS.gray,
+};
+
+const MONO: React.CSSProperties = { 
+  fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace" 
+};
+
+const API_BASE = '/api/v1';
+
+// ============================================================================
+// Utility
+// ============================================================================
+
+function formatTimestamp(ts: string): string {
+  const date = new Date(ts);
+  return date.toLocaleString();
+}
+
+function relativeTime(ts: string | null): string {
+  if (!ts) return 'never';
+  const diff = Date.now() - new Date(ts).getTime();
+  if (diff < 0) return 'just now';
+  const secs = Math.floor(diff / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+function formatLatency(ms: number | undefined): string {
+  if (!ms) return 'N/A';
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export default function ExecutionDetailPage() {
+  const { executionId } = useParams<{ executionId: string }>();
+  const navigate = useNavigate();
+  const [execution, setExecution] = useState<ExecutionDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showLedger, setShowLedger] = useState(false);
+
+  useEffect(() => {
+    if (executionId) {
+      fetchExecutionDetail(executionId);
+    }
+  }, [executionId]);
+
+  async function fetchExecutionDetail(id: string) {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE}/executions/${id}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch execution: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setExecution(data.data);
+      setLoading(false);
+    } catch (err: any) {
+      console.error('Failed to fetch execution detail:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: COLORS.bg, 
+        color: COLORS.textPrimary,
+        padding: '24px',
+      }}>
+        <div style={{ color: COLORS.textMuted, ...MONO }}>
+          Loading execution...
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !execution) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: COLORS.bg, 
+        color: COLORS.textPrimary,
+        padding: '24px',
+      }}>
+        <div style={{ 
+          backgroundColor: COLORS.card, 
+          border: `1px solid ${COLORS.red}`,
+          padding: '16px',
+          borderRadius: '8px',
+          color: COLORS.red,
+          ...MONO,
+        }}>
+          Error: {error || 'Execution not found'}
+        </div>
+        <button
+          onClick={() => navigate('/executions')}
+          style={{
+            marginTop: '16px',
+            padding: '8px 16px',
+            backgroundColor: COLORS.card,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: '8px',
+            color: COLORS.textPrimary,
+            cursor: 'pointer',
+            ...MONO,
+          }}
+        >
+          ← Back to Executions
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: COLORS.bg, 
+      color: COLORS.textPrimary,
+      padding: '24px',
+    }}>
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/executions')}
+        style={{
+          marginBottom: '24px',
+          padding: '8px 16px',
+          backgroundColor: COLORS.card,
+          border: `1px solid ${COLORS.border}`,
+          borderRadius: '8px',
+          color: COLORS.textSecondary,
+          cursor: 'pointer',
+          fontSize: '13px',
+          ...MONO,
+        }}
+      >
+        ← Back to Executions
+      </button>
+
+      {/* Header */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: 600, ...MONO }}>
+            {execution.execution_id}
+          </h1>
+          <StateBadge state={execution.state} />
+          <RiskBadge tier={execution.risk_tier} />
+        </div>
+        <p style={{ color: COLORS.textMuted, fontSize: '14px', marginBottom: '12px' }}>
+          {execution.objective}
+        </p>
+        <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: COLORS.textSecondary }}>
+          {execution.warrant_id && (
+            <span>Warrant: <code style={MONO}>{execution.warrant_id}</code></span>
+          )}
+          <span>Created: {relativeTime(execution.created_at)}</span>
+          {execution.completed_at && (
+            <span>Completed: {relativeTime(execution.completed_at)}</span>
+          )}
+          {execution.total_latency_ms && (
+            <span>Total Latency: {formatLatency(execution.total_latency_ms)}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Timeline */}
+      <Section title="Timeline">
+        <Timeline entries={execution.timeline} />
+      </Section>
+
+      {/* Steps */}
+      <Section title="Steps">
+        <Steps steps={execution.detailed_steps} />
+      </Section>
+
+      {/* Ledger Events (Collapsible) */}
+      <Section title="Ledger Events" collapsible expanded={showLedger} onToggle={() => setShowLedger(!showLedger)}>
+        {showLedger && (
+          <LedgerEvents events={execution.ledger_events} />
+        )}
+      </Section>
+    </div>
+  );
+}
+
+// ============================================================================
+// Sub-Components
+// ============================================================================
+
+function Section({ 
+  title, 
+  children,
+  collapsible = false,
+  expanded = true,
+  onToggle,
+}: { 
+  title: string; 
+  children: React.ReactNode;
+  collapsible?: boolean;
+  expanded?: boolean;
+  onToggle?: () => void;
+}) {
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      <div 
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          marginBottom: '16px',
+          cursor: collapsible ? 'pointer' : 'default',
+        }}
+        onClick={collapsible ? onToggle : undefined}
+      >
+        <h2 style={{ fontSize: '18px', fontWeight: 600, ...MONO }}>
+          {title}
+        </h2>
+        {collapsible && (
+          <span style={{ color: COLORS.textMuted, fontSize: '14px' }}>
+            {expanded ? '▼' : '▶'}
+          </span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Timeline({ entries }: { entries: TimelineEntry[] }) {
+  return (
+    <div style={{ position: 'relative', paddingLeft: '32px' }}>
+      {/* Vertical line */}
+      <div style={{
+        position: 'absolute',
+        left: '11px',
+        top: '8px',
+        bottom: '8px',
+        width: '2px',
+        backgroundColor: COLORS.border,
+      }} />
+
+      {entries.map((entry, i) => (
+        <div key={i} style={{ position: 'relative', marginBottom: '24px' }}>
+          {/* Dot */}
+          <div style={{
+            position: 'absolute',
+            left: '-27px',
+            top: '4px',
+            width: '12px',
+            height: '12px',
+            borderRadius: '50%',
+            backgroundColor: STATE_COLORS[entry.state] || COLORS.gray,
+            border: `2px solid ${COLORS.bg}`,
+          }} />
+
+          {/* Content */}
+          <div style={{
+            backgroundColor: COLORS.card,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: '8px',
+            padding: '12px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <StateBadge state={entry.state} />
+              <span style={{ fontSize: '11px', color: COLORS.textMuted, ...MONO }}>
+                {formatTimestamp(entry.timestamp)}
+              </span>
+            </div>
+            <div style={{ fontSize: '13px', color: COLORS.textSecondary }}>
+              {entry.detail}
+            </div>
+            {entry.error && (
+              <div style={{ 
+                marginTop: '8px', 
+                fontSize: '12px', 
+                color: COLORS.red,
+                fontFamily: 'monospace',
+              }}>
+                Error: {entry.error}
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Steps({ steps }: { steps: DetailedStep[] }) {
+  const [expandedStep, setExpandedStep] = useState<number | null>(null);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {steps.map(step => (
+        <div 
+          key={step.step_index}
+          style={{
+            backgroundColor: COLORS.card,
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: '8px',
+            padding: '16px',
+          }}
+        >
+          <div 
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+            onClick={() => setExpandedStep(expandedStep === step.step_index ? null : step.step_index)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ 
+                fontSize: '11px', 
+                color: COLORS.textMuted, 
+                fontWeight: 600,
+                ...MONO,
+              }}>
+                {step.step_index}
+              </span>
+              <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                {step.step_name}
+              </span>
+              <StatusBadge status={step.status} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', color: COLORS.textMuted }}>
+              {step.latency_ms && <span>{formatLatency(step.latency_ms)}</span>}
+              {step.status_code && <span>HTTP {step.status_code}</span>}
+              <span>{expandedStep === step.step_index ? '▼' : '▶'}</span>
+            </div>
+          </div>
+
+          {expandedStep === step.step_index && (
+            <div style={{ marginTop: '16px', fontSize: '12px', color: COLORS.textSecondary }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Tier:</strong> {step.tier}
+              </div>
+              {step.adapter_id && (
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Adapter:</strong> <code style={MONO}>{step.adapter_id}</code>
+                </div>
+              )}
+              {step.adapter_used && (
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Adapter Used:</strong> {step.adapter_used}
+                </div>
+              )}
+              {step.result && (
+                <div style={{ marginTop: '12px' }}>
+                  <strong>Result:</strong>
+                  <pre style={{ 
+                    marginTop: '8px',
+                    padding: '12px',
+                    backgroundColor: COLORS.bg,
+                    border: `1px solid ${COLORS.border}`,
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    overflowX: 'auto',
+                    ...MONO,
+                  }}>
+                    {JSON.stringify(step.result, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LedgerEvents({ events }: { events: LedgerEvent[] }) {
+  return (
+    <div style={{ 
+      backgroundColor: COLORS.card, 
+      border: `1px solid ${COLORS.border}`,
+      borderRadius: '8px',
+      padding: '16px',
+      maxHeight: '400px',
+      overflowY: 'auto',
+    }}>
+      {events.map((event, i) => (
+        <div 
+          key={i}
+          style={{
+            paddingBottom: '12px',
+            marginBottom: '12px',
+            borderBottom: i < events.length - 1 ? `1px solid ${COLORS.border}` : 'none',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: COLORS.blue, ...MONO }}>
+              {event.event_type}
+            </span>
+            <span style={{ fontSize: '11px', color: COLORS.textMuted, ...MONO }}>
+              #{event.sequence_num} · {formatTimestamp(event.timestamp)}
+            </span>
+          </div>
+          <pre style={{ 
+            fontSize: '11px', 
+            color: COLORS.textSecondary,
+            margin: 0,
+            ...MONO,
+          }}>
+            {JSON.stringify(event.payload_json, null, 2)}
+          </pre>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StateBadge({ state }: { state: string }) {
+  const color = STATE_COLORS[state] || COLORS.gray;
+  return (
+    <span style={{
+      padding: '4px 8px',
+      backgroundColor: `${color}22`,
+      border: `1px solid ${color}`,
+      borderRadius: '4px',
+      fontSize: '11px',
+      fontWeight: 600,
+      color: color,
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+    }}>
+      {state}
+    </span>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    complete: COLORS.green,
+    failed: COLORS.red,
+    executing: COLORS.amber,
+    pending: COLORS.gray,
+    skipped: COLORS.textMuted,
+  };
+  const color = colors[status] || COLORS.gray;
+  
+  return (
+    <span style={{
+      padding: '3px 6px',
+      backgroundColor: `${color}22`,
+      border: `1px solid ${color}`,
+      borderRadius: '3px',
+      fontSize: '10px',
+      fontWeight: 600,
+      color: color,
+      textTransform: 'uppercase',
+    }}>
+      {status}
+    </span>
+  );
+}
+
+function RiskBadge({ tier }: { tier: string }) {
+  const colors: Record<string, string> = {
+    'T0': COLORS.green,
+    'T1': COLORS.blue,
+    'T2': COLORS.yellow,
+    'T3': COLORS.red,
+  };
+  const color = colors[tier] || COLORS.gray;
+  
+  return (
+    <span style={{
+      padding: '4px 8px',
+      backgroundColor: `${color}22`,
+      border: `1px solid ${color}`,
+      borderRadius: '4px',
+      fontSize: '11px',
+      fontWeight: 600,
+      color: color,
+      ...MONO,
+    }}>
+      {tier}
+    </span>
+  );
+}

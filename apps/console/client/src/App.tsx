@@ -21,6 +21,7 @@ import { ActionTypesPage } from './pages/ActionTypesPage.js';
 import { FleetDashboardPage } from './pages/FleetDashboardPage.js';
 import { IntegrationsPage } from './pages/IntegrationsPage.js';
 import { CompliancePage } from './pages/CompliancePage.js';
+import { ExecutionPage } from './pages/ExecutionPage.js';
 import PolicyTemplatesPage from './pages/PolicyTemplatesPage.js';
 import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
 import ActivityFeedPage from './pages/ActivityFeedPage.js';
@@ -122,7 +123,7 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'api-keys', 'settings'];
+      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'api-keys', 'settings', 'execution'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
@@ -210,6 +211,9 @@ export function App() {
       
       case 'fleet':
         return <FleetDashboardPage />;
+      
+      case 'execution':
+        return <ExecutionPage />;
       
       case 'workspace':
         return <WorkspacePage />;

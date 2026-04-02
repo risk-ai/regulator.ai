@@ -1133,6 +1133,233 @@ export default function Home() {
       </section>
 
       {/* ============================================
+          TWO PATHS TO EXECUTION — Dual execution model
+          ============================================ */}
+      <section className="relative bg-gradient-to-b from-navy-900 via-slate-800 to-navy-900 py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(168,85,247,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(59,130,246,0.08),transparent)]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-5 py-2.5 mb-6 backdrop-blur-sm">
+                <span className="text-sm text-amber-300 font-bold uppercase tracking-wider">Execution Model</span>
+              </div>
+              <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+                Two Paths to <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Execution</span>
+              </h2>
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Vienna OS supports both direct execution and agent passback modes, 
+                giving you operational flexibility while maintaining complete governance.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* Execution Mode Comparison */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-16">
+            {/* Vienna Direct */}
+            <ScrollReveal delay={0.1}>
+              <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-8 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-purple-400" />
+                
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                    <span className="text-2xl">🏢</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Vienna Direct</h3>
+                    <p className="text-purple-400 font-medium">Vienna executes the action</p>
+                  </div>
+                </div>
+
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  For low-risk actions (T0/T1), Vienna OS can execute directly through its 
+                  built-in handlers. Shell commands, API calls, database queries — all with 
+                  full audit trails and constraint enforcement.
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Built-in Execution Handlers</div>
+                      <div className="text-xs text-slate-400">Shell, HTTP, DB, Cloud APIs</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Immediate Execution</div>
+                      <div className="text-xs text-slate-400">No agent round-trip latency</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Complete Audit Trail</div>
+                      <div className="text-xs text-slate-400">Every action logged and verifiable</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-navy-900/50 rounded-lg p-4 border border-purple-500/20">
+                  <div className="text-xs text-purple-400 font-mono font-bold mb-2">RISK TIERS</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-mono">T0</span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 font-mono">T1</span>
+                    <span className="text-xs text-slate-500">Auto-approved execution</span>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Agent Passback */}
+            <ScrollReveal delay={0.2}>
+              <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-8 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-400" />
+                
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Agent Passback</h3>
+                    <p className="text-blue-400 font-medium">Agent executes with warrant</p>
+                  </div>
+                </div>
+
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  For high-risk actions (T2/T3), Vienna issues a cryptographic execution 
+                  warrant. The agent executes using its own infrastructure, presenting 
+                  the warrant as proof of authorization.
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Cryptographic Warrants</div>
+                      <div className="text-xs text-slate-400">HMAC-signed, time-limited authorization</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Agent Infrastructure</div>
+                      <div className="text-xs text-slate-400">Use existing tools and integrations</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <div className="text-sm font-medium text-white">Constraint Enforcement</div>
+                      <div className="text-xs text-slate-400">Scope and time limits enforced</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-navy-900/50 rounded-lg p-4 border border-blue-500/20">
+                  <div className="text-xs text-blue-400 font-mono font-bold mb-2">RISK TIERS</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20 font-mono">T2</span>
+                    <span className="text-xs px-2 py-1 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-mono">T3</span>
+                    <span className="text-xs text-slate-500">Multi-party approval required</span>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+
+          {/* Execution Flow Diagram */}
+          <ScrollReveal delay={0.3}>
+            <div className="bg-gradient-to-br from-navy-800/50 to-slate-800/50 border border-navy-700/60 rounded-2xl p-8 backdrop-blur-sm">
+              <h3 className="text-xl font-semibold text-white mb-6 text-center">
+                Execution Decision Flow
+              </h3>
+              
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-sm">
+                {/* Start */}
+                <div className="bg-emerald-500/15 border border-emerald-500/30 rounded-xl px-4 py-3 text-center">
+                  <div className="text-emerald-400 font-semibold">Agent Intent</div>
+                  <div className="text-xs text-slate-400 mt-1">Action request</div>
+                </div>
+                
+                <ArrowRight className="w-5 h-5 text-slate-500 rotate-90 md:rotate-0" />
+                
+                {/* Policy Evaluation */}
+                <div className="bg-purple-500/15 border border-purple-500/30 rounded-xl px-4 py-3 text-center">
+                  <div className="text-purple-400 font-semibold">Policy Engine</div>
+                  <div className="text-xs text-slate-400 mt-1">Risk assessment</div>
+                </div>
+                
+                <ArrowRight className="w-5 h-5 text-slate-500 rotate-90 md:rotate-0" />
+                
+                {/* Decision Diamond */}
+                <div className="relative">
+                  <div className="bg-amber-500/15 border border-amber-500/30 rounded-xl px-4 py-3 text-center">
+                    <div className="text-amber-400 font-semibold">Risk Tier?</div>
+                    <div className="text-xs text-slate-400 mt-1">T0/T1 vs T2/T3</div>
+                  </div>
+                  
+                  {/* Branches */}
+                  <div className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-px h-6 bg-slate-500" />
+                  <div className="absolute top-full mt-9 left-1/2 -translate-x-1/2 w-64 h-px bg-slate-500" />
+                  
+                  {/* Vienna Direct Path */}
+                  <div className="absolute top-full mt-12 -left-20 bg-purple-500/15 border border-purple-500/30 rounded-lg px-3 py-2 text-center">
+                    <div className="text-purple-400 font-medium text-xs">Vienna Direct</div>
+                    <div className="text-xs text-slate-500">T0/T1</div>
+                  </div>
+                  
+                  {/* Agent Passback Path */}
+                  <div className="absolute top-full mt-12 -right-20 bg-blue-500/15 border border-blue-500/30 rounded-lg px-3 py-2 text-center">
+                    <div className="text-blue-400 font-medium text-xs">Agent Passback</div>
+                    <div className="text-xs text-slate-500">T2/T3</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-8 text-center">
+                <p className="text-sm text-slate-400 max-w-2xl mx-auto">
+                  Every action is classified by risk tier. Low-risk actions execute immediately through Vienna's handlers.
+                  High-risk actions require approval and execute through the agent's own infrastructure with warrant authorization.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Benefits */}
+          <ScrollReveal delay={0.4}>
+            <div className="mt-16 grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: "🔐",
+                  title: "Zero Trust",
+                  desc: "Every action requires cryptographic authorization, regardless of execution mode."
+                },
+                {
+                  icon: "⚡",
+                  title: "Operational Flexibility", 
+                  desc: "Use Vienna's handlers for speed or agent infrastructure for complex integrations."
+                },
+                {
+                  icon: "📊",
+                  title: "Complete Audit Trail",
+                  desc: "Immutable record of every intent, approval, warrant, and execution result."
+                }
+              ].map((benefit, i) => (
+                <div key={benefit.title} className="bg-navy-800/50 border border-navy-700/60 rounded-xl p-6 text-center">
+                  <div className="text-3xl mb-4">{benefit.icon}</div>
+                  <h4 className="text-lg font-semibold text-white mb-3">{benefit.title}</h4>
+                  <p className="text-sm text-slate-400 leading-relaxed">{benefit.desc}</p>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ============================================
           WHY THIS MUST EXIST — Without/With contrast
           ============================================ */}
       <section className="relative bg-gradient-to-b from-transparent via-red-900/5 to-transparent py-20">

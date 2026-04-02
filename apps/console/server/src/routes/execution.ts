@@ -11,6 +11,7 @@
  * POST   /api/v1/execution/resume
  * POST   /api/v1/execution/integrity-check
  * POST   /api/v1/execution/emergency-override
+ * POST   /api/v1/execution/submit
  */
 
 import { Router, Request, Response } from 'express';
@@ -388,6 +389,112 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         code: 'OVERRIDE_ERROR',
+        timestamp: new Date().toISOString(),
+      };
+      res.status(500).json(err);
+    }
+  });
+
+  /**
+   * POST /api/v1/execution/submit
+   * Submit an intent/action for execution
+   * Returns either direct execution or passback warrant
+   */
+  router.post('/submit', async (req: Request, res: Response) => {
+    try {
+      const { action, agent_id, tenant_id, parameters, source } = req.body;
+      
+      if (!action || !agent_id || !tenant_id) {
+        const err: ErrorResponse = {
+          success: false,
+          error: 'Missing required fields: action, agent_id, tenant_id',
+          code: 'INVALID_REQUEST',
+          timestamp: new Date().toISOString(),
+        };
+        res.status(400).json(err);
+        return;
+      }
+
+      // Determine risk tier based on action type and parameters
+      // This is a simplified classification - real implementation would be more sophisticated
+      let riskTier: 'T0' | 'T1' | 'T2' | 'T3' = 'T0';
+      
+      if (action.includes('deploy') && tenant_id === 'production') {
+        riskTier = 'T2';
+      } else if (action.includes('delete') || action.includes('drop')) {
+        riskTier = 'T3';
+      } else if (action.includes('update') || action.includes('modify')) {
+        riskTier = 'T1';
+      }
+
+      // Determine execution mode based on risk tier
+      const mode = (riskTier === 'T0' || riskTier === 'T1') ? 'direct' : 'passback';
+      
+      if (mode === 'direct') {
+        // Vienna Direct Execution: Submit to execution engine
+        const executionResult = await vienna.submitExecutionIntent({
+          action,
+          agent_id,
+          tenant_id,
+          parameters: parameters || {},
+          source: source || 'unknown',
+        });
+        
+        const response: SuccessResponse<{
+          mode: 'direct';
+          execution_id: string;
+          status: string;
+          risk_tier: string;
+        }> = {
+          success: true,
+          data: {
+            mode: 'direct',
+            execution_id: executionResult.execution_id,
+            status: executionResult.status,
+            risk_tier: riskTier,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        
+        res.json(response);
+      } else {
+        // Agent Passback: Issue warrant for agent to execute locally
+        const warrantResult = await vienna.issueExecutionWarrant({
+          action,
+          agent_id,
+          tenant_id,
+          parameters: parameters || {},
+          source: source || 'unknown',
+          risk_tier: riskTier,
+        });
+        
+        const response: SuccessResponse<{
+          mode: 'passback';
+          warrant_id: string;
+          instruction: any;
+          constraints: any;
+          risk_tier: string;
+        }> = {
+          success: true,
+          data: {
+            mode: 'passback',
+            warrant_id: warrantResult.warrant_id,
+            instruction: warrantResult.instruction,
+            constraints: warrantResult.constraints,
+            risk_tier: riskTier,
+          },
+          timestamp: new Date().toISOString(),
+        };
+        
+        res.json(response);
+      }
+    } catch (error) {
+      console.error('[ExecutionRoute] Error submitting execution:', error);
+      
+      const err: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'EXECUTION_SUBMIT_ERROR',
         timestamp: new Date().toISOString(),
       };
       res.status(500).json(err);

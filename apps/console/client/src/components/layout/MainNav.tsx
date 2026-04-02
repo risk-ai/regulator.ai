@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings' | 'execution';
 
 interface MainNavProps {
   currentSection: NavSection;
@@ -27,6 +27,7 @@ const PRIMARY_NAV: NavItem[] = [
   { id: 'now', label: 'Dashboard', description: 'System posture & action center', icon: '⚡' },
   { id: 'fleet', label: 'Agents', description: 'Agent fleet management', icon: '🤖' },
   { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
+  { id: 'execution', label: 'Execution', description: 'Live execution pipeline', icon: '▶️' },
   { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
   { id: 'policies', label: 'Policies', description: 'Governance rules', icon: '🛡️' },
   { id: 'activity', label: 'Activity', description: 'Real-time activity feed', icon: '📊' },

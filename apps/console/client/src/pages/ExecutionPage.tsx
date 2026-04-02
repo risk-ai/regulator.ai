@@ -358,7 +358,7 @@ export function ExecutionPage() {
                         background: 'var(--accent-primary)',
                         color: 'white',
                       }}>
-                        {execution.status}
+                        {execution.state}
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-tertiary)' }}>
@@ -412,7 +412,7 @@ export function ExecutionPage() {
                     textAlign: 'center',
                   }}>
                     <div style={{ fontSize: '24px', fontWeight: 600, color: 'var(--accent-primary)', marginBottom: '4px' }}>
-                      {queueSnapshot.queue_depth}
+                      {queueSnapshot.queued}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
                       Queued
@@ -426,7 +426,7 @@ export function ExecutionPage() {
                     textAlign: 'center',
                   }}>
                     <div style={{ fontSize: '24px', fontWeight: 600, color: '#f87171', marginBottom: '4px' }}>
-                      {queueSnapshot.blocked_count || 0}
+                      {queueSnapshot.blocked || 0}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
                       Blocked
@@ -445,15 +445,15 @@ export function ExecutionPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
                       <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.total_processed || 0}</div>
+                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.total_executed || 0}</div>
                         <div>Processed</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.success_rate || '0%'}</div>
+                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.success_rate != null ? `${(executionMetrics.success_rate * 100).toFixed(1)}%` : '0%'}</div>
                         <div>Success Rate</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.avg_processing_time || '0ms'}</div>
+                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.avg_latency_ms ? `${executionMetrics.avg_latency_ms}ms` : '0ms'}</div>
                         <div>Avg Time</div>
                       </div>
                     </div>

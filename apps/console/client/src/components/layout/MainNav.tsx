@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings' | 'execution';
+export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings' | 'execution' | 'executions';
 
 interface MainNavProps {
   currentSection: NavSection;

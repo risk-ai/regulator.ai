@@ -732,6 +732,47 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: agents });
     }
 
+    // ========== ADAPTER CONFIGS (Credential Store) — Phase 4A ==========
+    if (path === '/api/v1/adapters' && req.method === 'GET') {
+      const configs = await tenantQuery(
+        `SELECT id, tenant_id, adapter_type, name, endpoint_url, headers, auth_type, auth_mode,
+                credential_alias, enabled, created_at, updated_at, disabled_at, disabled_reason,
+                CASE WHEN encrypted_credentials IS NOT NULL THEN true ELSE false END as has_credentials
+         FROM regulator.adapter_configs ORDER BY created_at DESC LIMIT 50`, [], tenantId
+      );
+      return res.status(200).json({ success: true, data: configs, count: configs.length });
+    }
+
+    if (path === '/api/v1/adapters' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { adapter_type, name, endpoint_url, headers, auth_mode, credential_alias, credentials } = body;
+      if (!adapter_type || !name || !endpoint_url || !credentials) {
+        return res.status(400).json({ success: false, error: 'adapter_type, name, endpoint_url, and credentials required' });
+      }
+      // Encrypt credentials
+      const credStr = typeof credentials === 'string' ? credentials : JSON.stringify(credentials);
+      const CREDENTIAL_KEY = process.env.VIENNA_CREDENTIAL_KEY;
+      if (!CREDENTIAL_KEY) {
+        return res.status(503).json({ success: false, error: 'VIENNA_CREDENTIAL_KEY not configured' });
+      }
+      const cryptoLib = await import('crypto');
+      const keyBuf = /^[0-9a-f]{64}$/i.test(CREDENTIAL_KEY) ? Buffer.from(CREDENTIAL_KEY, 'hex') : Buffer.from(CREDENTIAL_KEY, 'base64');
+      const iv = cryptoLib.randomBytes(12);
+      const cipher = cryptoLib.createCipheriv('aes-256-gcm', keyBuf, iv);
+      const enc = Buffer.concat([cipher.update(credStr, 'utf8'), cipher.final()]);
+      const authTag = cipher.getAuthTag();
+      const encrypted = `${iv.toString('base64')}:${Buffer.concat([enc, authTag]).toString('base64')}`;
+      
+      const result = await query(
+        `INSERT INTO regulator.adapter_configs 
+         (tenant_id, adapter_type, name, endpoint_url, headers, auth_type, auth_mode, credential_alias, encrypted_credentials, enabled)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true) RETURNING id, tenant_id, adapter_type, name, endpoint_url, auth_mode, credential_alias, enabled, created_at`,
+        [tenantId || 'default', adapter_type, name, endpoint_url, headers ? JSON.stringify(headers) : null,
+         auth_mode || 'bearer', auth_mode || 'bearer', credential_alias || null, encrypted]
+      );
+      return res.status(201).json({ success: true, data: result[0] });
+    }
+
     // Policies
     if (path === '/api/v1/policies' && req.method === 'GET') {
       const policies = await tenantQuery('SELECT * FROM regulator.policies ORDER BY created_at DESC LIMIT 50', [], tenantId);
@@ -956,10 +997,23 @@ module.exports = async function handler(req, res) {
     // Flow: intent → proposal → policy eval → warrant (or deny) → audit
     if (path === '/api/v1/agent/intent' && req.method === 'POST') {
       const body = await parseBody(req);
-      const { agent_id, action, payload, simulation } = body;
+      let { agent_id, action, payload, simulation } = body;
 
-      if (!agent_id || !action) {
-        return res.status(400).json({ success: false, error: 'agent_id and action are required' });
+      if (!action) {
+        return res.status(400).json({ success: false, error: 'action is required' });
+      }
+
+      // Auto-resolve agent_id from first active agent if not provided (console UI compat)
+      if (!agent_id) {
+        const defaultAgents = await tenantQuery(
+          'SELECT id FROM regulator.agent_registry WHERE status = $1 ORDER BY registered_at ASC LIMIT 1',
+          ['active'], tenantId
+        );
+        if (defaultAgents.length > 0) {
+          agent_id = defaultAgents[0].id;
+        } else {
+          return res.status(400).json({ success: false, error: 'agent_id is required (no active agents found to auto-resolve)' });
+        }
       }
 
       // 1. Verify agent exists and is active
@@ -1088,15 +1142,92 @@ module.exports = async function handler(req, res) {
         }
       }
 
-      // 9. Return pipeline result
+      // 9. Auto-trigger execution if action has execution_config (Phase 5 bridge)
+      let executionResult = null;
+      if (warrant && !simulation) {
+        try {
+          const actionTypeRow = await query('SELECT execution_config FROM regulator.action_types WHERE action_type = $1', [action]);
+          const execConfig = actionTypeRow[0]?.execution_config;
+          
+          if (execConfig && execConfig.steps && execConfig.steps.length > 0) {
+            const executionId = `exe_${crypto.randomUUID().replace(/-/g, '').slice(0, 20)}`;
+            
+            // Resolve adapter aliases to adapter_config IDs
+            const resolvedSteps = [];
+            for (let i = 0; i < execConfig.steps.length; i++) {
+              const stepDef = execConfig.steps[i];
+              let adapterId = stepDef.adapter_id || null;
+              
+              // Resolve alias to ID
+              if (!adapterId && stepDef.adapter_alias) {
+                const adapterRow = await tenantQuery(
+                  'SELECT id FROM regulator.adapter_configs WHERE credential_alias = $1 AND enabled = true LIMIT 1',
+                  [stepDef.adapter_alias], tenantId
+                );
+                if (adapterRow[0]) adapterId = adapterRow[0].id;
+              }
+              
+              // Substitute template variables from payload
+              let url = stepDef.action?.url || '';
+              if (payload) {
+                Object.entries(payload).forEach(([k, v]) => {
+                  url = url.replace(`{{${k}}}`, String(v));
+                });
+              }
+              
+              resolvedSteps.push({
+                step_index: i,
+                step_name: stepDef.step_name || `Step ${i}`,
+                tier: stepDef.tier || 'managed',
+                action: { ...stepDef.action, url },
+                params: { ...(stepDef.params || {}), ...(payload || {}) },
+                adapter_id: adapterId,
+              });
+            }
+            
+            // Create execution record
+            await query(
+              `INSERT INTO regulator.execution_log 
+               (execution_id, tenant_id, warrant_id, proposal_id, execution_mode, state, risk_tier, objective, steps, timeline, created_at, updated_at)
+               VALUES ($1, $2, $3, $4, 'managed', 'planned', $5, $6, $7, $8, NOW(), NOW())`,
+              [executionId, tenantId || 'default', warrant.id, proposalId, riskTier, action,
+               JSON.stringify(resolvedSteps),
+               JSON.stringify([{ state: 'planned', detail: 'Created from intent pipeline', timestamp: new Date().toISOString() }])]
+            );
+            
+            // Update proposal with execution_id
+            await query('UPDATE regulator.proposals SET execution_id = $1 WHERE id = $2', [executionId, proposalId]);
+            
+            executionResult = {
+              execution_id: executionId,
+              state: 'planned',
+              steps: resolvedSteps.length,
+              message: 'Execution created and queued. Use GET /api/v1/executions/' + executionId + ' to track progress.',
+            };
+            
+            // Audit
+            await query(
+              'INSERT INTO regulator.audit_log (id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)',
+              [crypto.randomUUID(), proposalId, warrant.id, 'execution_created', agent.display_name, tierToInt(riskTier),
+               JSON.stringify({ execution_id: executionId, steps: resolvedSteps.length, action }), tenantId]
+            );
+          }
+        } catch (execErr) {
+          console.error('[Intent→Execution] Failed to create execution:', execErr);
+          // Don't fail the intent — execution is a bonus
+        }
+      }
+
+      // 10. Return pipeline result
       return res.status(200).json({
         success: true,
         data: {
           proposal: { id: proposalId, state: proposalState, risk_tier: riskTier },
           policy_evaluation: { id: evalId, decision: policyDecision, matched_rule: matchedRule?.name || 'default', tier: riskTier },
           warrant: warrant,
+          execution: executionResult,
           simulation: !!simulation,
-          pipeline: simulation ? 'simulated' : (warrant ? 'executed' : 'pending_approval'),
+          pipeline: simulation ? 'simulated' : (warrant ? (executionResult ? 'executing' : 'executed') : 'pending_approval'),
         }
       });
     }

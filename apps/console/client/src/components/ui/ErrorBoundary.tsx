@@ -20,6 +20,8 @@ interface ErrorBoundaryProps {
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  private hashChangeListener?: () => void;
+
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -27,6 +29,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
+  }
+
+  componentDidMount() {
+    // Reset error state when route changes (hash-based routing)
+    this.hashChangeListener = () => {
+      if (this.state.hasError) {
+        this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+      }
+    };
+    window.addEventListener('hashchange', this.hashChangeListener);
+  }
+
+  componentWillUnmount() {
+    if (this.hashChangeListener) {
+      window.removeEventListener('hashchange', this.hashChangeListener);
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Live Demo — Vienna OS",
+  title: "Interactive Demo — Vienna OS",
   description:
-    "Watch the Vienna OS governance kernel govern autonomous AI agents in real time. Multi-agent scenarios with warrants-based governance, cryptographic execution authority, and policy enforcement — live.",
+    "Experience Vienna OS governance in action — interactive demos with real API calls, live pipeline execution, cryptographic warrants, and policy enforcement. See AI agent governance live.",
 };
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {

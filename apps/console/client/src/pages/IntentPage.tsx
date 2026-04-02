@@ -119,19 +119,41 @@ const INTENT_ACTIONS: IntentAction[] = [
 
 export function IntentPage() {
   const [selectedAction, setSelectedAction] = useState('check_health');
+  const [selectedAgent, setSelectedAgent] = useState('');
+  const [agents, setAgents] = useState<{ id: string; display_name: string; status: string }[]>([]);
   const [params, setParams] = useState<Record<string, string>>({});
   const [simulation, setSimulation] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
 
+  // Fetch registered agents on mount
+  React.useEffect(() => {
+    fetch('/api/v1/agents', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        const agentList = (data.data || data.agents || []).filter((a: any) => a.status === 'active');
+        setAgents(agentList);
+        if (agentList.length > 0 && !selectedAgent) {
+          setSelectedAgent(agentList[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const action = INTENT_ACTIONS.find(a => a.id === selectedAction)!;
 
   const handleSubmit = async () => {
+    if (!selectedAgent) {
+      setResult({ success: false, error: 'Please select an agent' });
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
     try {
       const body: Record<string, unknown> = {
+        agent_id: selectedAgent,
         action: selectedAction,
         source: 'openclaw',
         tenant_id: 'system',
@@ -187,6 +209,37 @@ export function IntentPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
         {/* Left: Intent Selector + Params */}
         <div>
+          {/* Agent Selector */}
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+              Acting Agent
+            </div>
+            <select
+              value={selectedAgent}
+              onChange={(e) => setSelectedAgent(e.target.value)}
+              style={{
+                width: '100%',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                fontSize: '13px',
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-mono)',
+                outline: 'none',
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }}
+            >
+              {agents.length === 0 && <option value="">Loading agents...</option>}
+              {agents.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.display_name} ({a.id.slice(0, 8)}...)
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Action Grid */}
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
             Select Action

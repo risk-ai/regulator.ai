@@ -956,10 +956,23 @@ module.exports = async function handler(req, res) {
     // Flow: intent → proposal → policy eval → warrant (or deny) → audit
     if (path === '/api/v1/agent/intent' && req.method === 'POST') {
       const body = await parseBody(req);
-      const { agent_id, action, payload, simulation } = body;
+      let { agent_id, action, payload, simulation } = body;
 
-      if (!agent_id || !action) {
-        return res.status(400).json({ success: false, error: 'agent_id and action are required' });
+      if (!action) {
+        return res.status(400).json({ success: false, error: 'action is required' });
+      }
+
+      // Auto-resolve agent_id from first active agent if not provided (console UI compat)
+      if (!agent_id) {
+        const defaultAgents = await tenantQuery(
+          'SELECT id FROM regulator.agent_registry WHERE status = $1 ORDER BY registered_at ASC LIMIT 1',
+          ['active'], tenantId
+        );
+        if (defaultAgents.length > 0) {
+          agent_id = defaultAgents[0].id;
+        } else {
+          return res.status(400).json({ success: false, error: 'agent_id is required (no active agents found to auto-resolve)' });
+        }
       }
 
       // 1. Verify agent exists and is active

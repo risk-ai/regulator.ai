@@ -46,7 +46,7 @@ Both surfaces are served by a **Next.js product shell**, with the Vienna Workspa
                                      ▼
                     ┌────────────────────────────────┐
                     │  Vienna Runtime Service        │
-                    │  (Fly.io / Separate Deployment)│
+                    │  (Separate Deployment)         │
                     │                                │
                     │  ┌──────────────────────────┐  │
                     │  │  Express HTTP API        │  │
@@ -170,7 +170,7 @@ Both surfaces are served by a **Next.js product shell**, with the Vienna Workspa
 
 ### Vienna Runtime (Express Service)
 
-**Deployment:** Fly.io (or similar persistent host)  
+**Deployment:** Cloud platform with persistent storage (Vercel, Railway, Render, or similar)  
 **Responsibilities:**
 - Serve Vienna HTTP API
 - Manage investigation/incident state
@@ -289,7 +289,7 @@ CORS_ORIGIN=https://regulator.ai
 
 **Vienna Runtime:**
 - Platform: Local dev server (`npm run dev`)
-- Or: Fly.io preview instance
+- Or: Cloud preview instance
 
 ---
 
@@ -300,7 +300,7 @@ CORS_ORIGIN=https://regulator.ai
 - Custom domain: https://regulator.ai
 
 **Vienna Runtime:**
-- Platform: Fly.io (recommended) or Railway/Render
+- Platform: Vercel, Railway, Render, or similar cloud platform
 - Multi-region deployment
 - Persistent volumes for SQLite (preview) or Postgres connection
 - Object storage for artifacts
@@ -505,7 +505,7 @@ Different jobs, different mental models. Admin is CRUD-oriented governance contr
 - Check deployment assumptions
 
 **For Stage 6 (production integration):**
-- Deploy Vienna Runtime to Fly.io
+- Deploy Vienna Runtime to cloud platform
 - Add auth enforcement on proxy routes
 - Migrate SQLite → Neon Postgres
 - Migrate filesystem → S3/Vercel Blob

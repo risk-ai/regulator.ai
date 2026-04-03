@@ -17,9 +17,11 @@
     "build:server": "npm run build --workspace=apps/console/server",
     "install:all": "npm install"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
   }
 }

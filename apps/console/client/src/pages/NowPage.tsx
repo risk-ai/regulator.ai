@@ -251,9 +251,11 @@ export function NowPage() {
               </span>
             </div>
             <div style={{ background: 'var(--bg-primary)', borderRadius: 8, overflow: 'hidden' }}>
-              {snapshot.audit.recent.length === 0 ? (
+              {(snapshot.audit.recent.length === 0 && snapshot.agents.total === 0 && snapshot.proposals.total === 0 && snapshot.warrants.total === 0) ? (
+                <GettingStartedPanel />
+              ) : snapshot.audit.recent.length === 0 ? (
                 <div style={{ padding: '24px 16px' }}>
-                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>No events yet</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 }}>No recent events</div>
                   <span
                     onClick={() => nav('intent')}
                     style={{ fontSize: 12, color: 'var(--text-tertiary)', cursor: 'pointer', transition: 'color 150ms' }}
@@ -295,6 +297,157 @@ export function NowPage() {
 
       </>)}
     </div>
+  );
+}
+
+/* ─── Getting Started Panel (shown when no real activity) ─── */
+function GettingStartedPanel() {
+  const demoEvents = [
+    { event: 'wire_transfer_approved', actor: 'finance-agent', tier: 2, time: '2 min ago', color: '#10b981' },
+    { event: 'production_deploy_check', actor: 'devops-bot', tier: 1, time: '5 min ago', color: '#3b82f6' },
+    { event: 'policy_violation_denied', actor: 'rogue-agent', tier: 0, time: '12 min ago', color: '#ef4444' },
+    { event: 'hipaa_access_warranted', actor: 'health-ai', tier: 1, time: '18 min ago', color: '#f59e0b' },
+    { event: 'contract_review_pending', actor: 'legal-assistant', tier: 3, time: '25 min ago', color: '#8b5cf6' },
+    { event: 'data_query_auto_approved', actor: 'analytics-agent', tier: 0, time: '31 min ago', color: '#10b981' },
+  ];
+
+  return (
+    <div>
+      {/* Demo Data Badge */}
+      <div style={{ 
+        padding: '8px 12px', 
+        margin: '12px 16px 16px',
+        background: 'rgba(139, 92, 246, 0.1)',
+        border: '1px solid rgba(139, 92, 246, 0.2)', 
+        borderRadius: 6,
+        textAlign: 'center' as const
+      }}>
+        <span style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 500 }}>
+          🚀 Demo Data — Connect your first agent to see real activity
+        </span>
+      </div>
+
+      {/* Simulated Live Activity Feed */}
+      <div style={{ marginBottom: 16 }}>
+        {demoEvents.map((event, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '8px 16px',
+            borderBottom: i < demoEvents.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+            opacity: 0.8
+          }}>
+            <div style={{ 
+              width: 5, 
+              height: 5, 
+              borderRadius: '50%', 
+              background: event.color, 
+              flexShrink: 0 
+            }} />
+            <span style={{ 
+              fontSize: 12, 
+              fontWeight: 500, 
+              color: 'var(--text-primary)', 
+              fontFamily: 'var(--font-mono)', 
+              flex: 1, 
+              minWidth: 0 
+            }}>
+              {event.event.replace(/_/g, ' ')}
+            </span>
+            <span style={{ 
+              fontSize: 10, 
+              color: 'var(--text-tertiary)', 
+              fontFamily: 'var(--font-mono)' 
+            }}>
+              T{event.tier}
+            </span>
+            <span style={{ 
+              fontSize: 10, 
+              color: 'var(--text-tertiary)',
+              fontFamily: 'var(--font-mono)',
+              minWidth: '60px',
+              textAlign: 'right' as const
+            }}>
+              {event.time}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{ 
+        padding: '16px',
+        borderTop: '1px solid var(--border-subtle)',
+        background: 'var(--bg-secondary)'
+      }}>
+        <div style={{ 
+          fontSize: 11, 
+          fontWeight: 500, 
+          color: 'var(--text-tertiary)', 
+          textTransform: 'uppercase' as const,
+          letterSpacing: '0.05em',
+          marginBottom: 12 
+        }}>
+          Quick Start
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+          <QuickActionButton 
+            icon="📋" 
+            label="Explore Policy Templates"
+            onClick={() => window.location.hash = 'policy-templates'}
+          />
+          <QuickActionButton 
+            icon="🔑" 
+            label="Create API Key"
+            onClick={() => window.location.hash = 'settings'}
+          />
+          <QuickActionButton 
+            icon="🎮" 
+            label="Try Interactive Demo"
+            onClick={() => window.open('/try', '_blank')}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Quick Action Button ─── */
+function QuickActionButton({ icon, label, onClick }: { 
+  icon: string; 
+  label: string; 
+  onClick: () => void; 
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 12px',
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 6,
+        cursor: 'pointer',
+        transition: 'all 150ms',
+        fontSize: 12,
+        color: 'var(--text-secondary)',
+        fontWeight: 500
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background = 'var(--bg-tertiary)';
+        e.currentTarget.style.borderColor = 'var(--border-primary)';
+        e.currentTarget.style.color = 'var(--text-primary)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'var(--bg-primary)';
+        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+        e.currentTarget.style.color = 'var(--text-secondary)';
+      }}
+    >
+      <span style={{ fontSize: 14 }}>{icon}</span>
+      <span>{label}</span>
+    </button>
   );
 }
 

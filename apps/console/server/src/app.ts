@@ -429,7 +429,7 @@ export function createApp(
   // ========================================
   // These routes do NOT enforce tenant isolation
   // Keeping for backward compatibility during migration
-  // TODO: Remove after all clients updated to use tenant-safe routes
+  // Legacy routes — remove after all clients updated to use tenant-safe routes
   
   // Phase 15: Integration Adapters
   app.use(`${apiPrefix}/integrations`, requireAuth, createIntegrationsRouter());

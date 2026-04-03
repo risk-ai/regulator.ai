@@ -11,7 +11,7 @@
 import express from 'express';
 import crypto from 'crypto';
 import { eventBus } from '../services/eventBus.js';
-import { queryOne } from '../db/postgres.js';
+import { query, queryOne, execute } from '../db/postgres.js';
 
 const router = express.Router();
 
@@ -377,13 +377,41 @@ router.post('/executions', async (req, res) => {
       console.warn('[Framework API] Audit log write failed:', auditErr);
     }
 
+    // Verify warrant before acknowledging execution
+    let warrantValid = false;
+    try {
+      const viennaCore = (req as any).app?.locals?.viennaCore;
+      if (viennaCore?.warrant) {
+        const verification = await viennaCore.warrant.verify(warrant_id);
+        warrantValid = verification.valid === true;
+        if (!warrantValid) {
+          console.warn(`[framework-api] Execution reported against invalid warrant ${warrant_id}: ${verification.reason}`);
+        }
+      }
+    } catch (verifyErr) {
+      console.warn('[framework-api] Warrant verification failed during execution report:', verifyErr);
+    }
+
+    // Record agent activity
+    try {
+      await execute(
+        `INSERT INTO agent_activity (agent_id, action_type, result, latency_ms, risk_tier, context, created_at)
+         VALUES ($1, 'execution', $2, $3, null, $4, NOW())`,
+        [
+          agent_id || 'unknown',
+          success ? 'executed' : 'failed',
+          metrics?.duration_ms || null,
+          JSON.stringify({ execution_id: executionId, warrant_id, warrant_valid: warrantValid }),
+        ]
+      );
+    } catch {}
+
     res.json({
       success: true,
       execution_id: executionId,
       warrant_id,
       recorded: true,
-      verified: false, // Warrant scope verification not yet implemented
-      verification_note: 'Execution recorded. Full warrant scope verification is planned.',
+      verified: warrantValid,
       timestamp
     });
   } catch (error: any) {
@@ -416,8 +444,42 @@ router.post('/agents', async (req, res) => {
       capabilities: capabilities || []
     }, tenantId);
 
-    // FIXME(state-graph): Persist agent registration in state graph
-    console.warn(`[framework-api] Agent ${agent_id} registered but not persisted to state graph`);
+    // Persist to agent_registry (upsert)
+    try {
+      await execute(
+        `INSERT INTO agent_registry (agent_id, display_name, description, agent_type, status, config, tags, registered_by, last_heartbeat)
+         VALUES ($1, $2, $3, $4, 'active', $5, $6, $7, NOW())
+         ON CONFLICT (agent_id) DO UPDATE SET
+           display_name = EXCLUDED.display_name,
+           description = COALESCE(EXCLUDED.description, agent_registry.description),
+           config = EXCLUDED.config,
+           tags = EXCLUDED.tags,
+           status = 'active',
+           last_heartbeat = NOW(),
+           updated_at = NOW()`,
+        [
+          agent_id,
+          name,
+          config?.description || null,
+          framework === 'supervised' ? 'supervised' : 'semi-autonomous',
+          JSON.stringify({ ...(config || {}), framework, capabilities: capabilities || [] }),
+          JSON.stringify(capabilities || []),
+          (req as any).agentId || 'api',
+        ]
+      );
+    } catch (dbErr) {
+      console.warn('[framework-api] Agent registry write failed (non-critical):', dbErr);
+    }
+
+    // Record in audit log
+    try {
+      await execute(
+        `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
+         VALUES ($1, 'agent.registered', $2, $3, 0, NOW())`,
+        [tenantId, agent_id, JSON.stringify({ agent_id, framework, capabilities: capabilities || [], name })]
+      );
+    } catch {}
+
     res.status(201).json({
       success: true,
       agent_id,
@@ -450,8 +512,31 @@ router.post('/agents/:agentId/heartbeat', async (req, res) => {
       last_seen: timestamp
     }, tenantId);
 
-    // FIXME(state-graph): Update agent last_seen in state graph
-    console.warn(`[framework-api] Agent ${agentId} heartbeat received but last_seen not persisted`);
+    // Persist heartbeat to agent_registry
+    try {
+      const updated = await queryOne<{ agent_id: string }>(
+        `UPDATE agent_registry
+         SET last_heartbeat = NOW(),
+             status = CASE WHEN $2 = 'healthy' THEN 'active' ELSE $2 END,
+             updated_at = NOW()
+         WHERE agent_id = $1
+         RETURNING agent_id`,
+        [agentId, status || 'healthy']
+      );
+
+      if (!updated) {
+        // Auto-register agent on first heartbeat
+        await execute(
+          `INSERT INTO agent_registry (agent_id, display_name, status, last_heartbeat, registered_by)
+           VALUES ($1, $1, 'active', NOW(), 'heartbeat')
+           ON CONFLICT (agent_id) DO UPDATE SET last_heartbeat = NOW(), status = 'active', updated_at = NOW()`,
+          [agentId]
+        );
+      }
+    } catch (dbErr) {
+      console.warn('[framework-api] Agent heartbeat DB update failed (non-critical):', dbErr);
+    }
+
     res.json({
       success: true,
       agent_id: agentId,
@@ -460,6 +545,223 @@ router.post('/agents/:agentId/heartbeat', async (req, res) => {
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- Approvals ---
+
+/**
+ * POST /api/v1/approvals/:approvalId/approve
+ * Approve a pending T2/T3 intent → issues a warrant.
+ */
+router.post('/approvals/:approvalId/approve', async (req, res) => {
+  try {
+    const { approvalId } = req.params;
+    const { reason } = req.body;
+    const tenantId = (req as any).tenantId || 'default';
+    const operatorId = (req as any).agentId || 'operator';
+
+    // Find the pending approval in audit_log
+    const approval = await queryOne<{ details: any }>(
+      `SELECT details FROM audit_log
+       WHERE event = 'approval.required' AND details->>'approval_id' = $1 AND tenant_id = $2
+       ORDER BY created_at DESC LIMIT 1`,
+      [approvalId, tenantId]
+    );
+
+    if (!approval) {
+      return res.status(404).json({ success: false, error: 'Approval not found' });
+    }
+
+    const details = typeof approval.details === 'string' ? JSON.parse(approval.details) : approval.details;
+    const intentId = details.intent_id;
+    const action = details.action;
+    const riskTier = details.risk_tier;
+
+    // Check if already resolved
+    const alreadyResolved = await queryOne(
+      `SELECT id FROM audit_log
+       WHERE (event = 'intent.approved' OR event = 'intent.denied') 
+         AND details->>'intent_id' = $1 AND tenant_id = $2`,
+      [intentId, tenantId]
+    );
+
+    if (alreadyResolved) {
+      return res.status(409).json({ success: false, error: 'Intent already resolved' });
+    }
+
+    // Issue warrant via Warrant Authority
+    const viennaCore = (req as any).app?.locals?.viennaCore;
+    let warrant: any = null;
+
+    if (viennaCore?.warrant) {
+      try {
+        warrant = await viennaCore.warrant.issue({
+          truthSnapshotId: `truth_${intentId}`,
+          planId: intentId,
+          approvalId: approvalId,
+          objective: `${action} (approved by ${operatorId})`,
+          riskTier: riskTier,
+          allowedActions: [action],
+          forbiddenActions: [],
+          constraints: details.params || {},
+          expiresInMinutes: riskTier === 'T2' ? 15 : 5,
+          justification: riskTier === 'T3' ? (reason || 'Approved via API') : undefined,
+          rollbackPlan: riskTier === 'T3' ? 'Manual rollback required' : undefined,
+          issuer: operatorId,
+        });
+      } catch (warrantErr: any) {
+        console.error('[framework-api] Warrant issuance failed on approval:', warrantErr);
+        return res.status(500).json({ success: false, error: `Warrant issuance failed: ${warrantErr.message}` });
+      }
+    }
+
+    // Record approval in audit log
+    await execute(
+      `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
+       VALUES ($1, 'intent.approved', $2, $3, $4, NOW())`,
+      [tenantId, operatorId, JSON.stringify({
+        intent_id: intentId,
+        approval_id: approvalId,
+        warrant_id: warrant?.warrant_id || null,
+        risk_tier: riskTier,
+        reason,
+        approved_by: operatorId,
+      }), riskTier === 'T2' ? 2 : 3]
+    );
+
+    eventBus.emitIntentApproved({
+      intent_id: intentId,
+      warrant_id: warrant?.warrant_id || 'pending',
+      approved_by: operatorId,
+      risk_tier: riskTier,
+    }, tenantId);
+
+    res.json({
+      success: true,
+      approval_id: approvalId,
+      intent_id: intentId,
+      status: 'approved',
+      warrant_id: warrant?.warrant_id || null,
+      warrant: warrant ? {
+        warrant_id: warrant.warrant_id,
+        issued_at: warrant.issued_at,
+        expires_at: warrant.expires_at,
+        risk_tier: warrant.risk_tier,
+        allowed_actions: warrant.allowed_actions,
+        signature: warrant.signature,
+      } : null,
+    });
+  } catch (error: any) {
+    console.error('[framework-api] Approval error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/v1/approvals/:approvalId/deny
+ * Deny a pending T2/T3 intent.
+ */
+router.post('/approvals/:approvalId/deny', async (req, res) => {
+  try {
+    const { approvalId } = req.params;
+    const { reason } = req.body;
+    const tenantId = (req as any).tenantId || 'default';
+    const operatorId = (req as any).agentId || 'operator';
+
+    if (!reason) {
+      return res.status(400).json({ success: false, error: 'reason is required for denials' });
+    }
+
+    const approval = await queryOne<{ details: any }>(
+      `SELECT details FROM audit_log
+       WHERE event = 'approval.required' AND details->>'approval_id' = $1 AND tenant_id = $2
+       ORDER BY created_at DESC LIMIT 1`,
+      [approvalId, tenantId]
+    );
+
+    if (!approval) {
+      return res.status(404).json({ success: false, error: 'Approval not found' });
+    }
+
+    const details = typeof approval.details === 'string' ? JSON.parse(approval.details) : approval.details;
+
+    // Record denial
+    await execute(
+      `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
+       VALUES ($1, 'intent.denied', $2, $3, $4, NOW())`,
+      [tenantId, operatorId, JSON.stringify({
+        intent_id: details.intent_id,
+        approval_id: approvalId,
+        reason,
+        denied_by: operatorId,
+      }), details.risk_tier === 'T2' ? 2 : 3]
+    );
+
+    eventBus.emitIntentDenied({
+      intent_id: details.intent_id,
+      denied_by: operatorId,
+      reason,
+      risk_tier: details.risk_tier,
+    }, tenantId);
+
+    res.json({
+      success: true,
+      approval_id: approvalId,
+      intent_id: details.intent_id,
+      status: 'denied',
+      reason,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/v1/approvals/pending
+ * List pending approvals for this tenant.
+ */
+router.get('/approvals/pending', async (req, res) => {
+  try {
+    const tenantId = (req as any).tenantId || 'default';
+
+    const pending = await query<{ details: any; created_at: string }>(
+      `SELECT details, created_at FROM audit_log
+       WHERE event = 'approval.required' AND tenant_id = $1
+         AND NOT EXISTS (
+           SELECT 1 FROM audit_log a2
+           WHERE (a2.event = 'intent.approved' OR a2.event = 'intent.denied')
+             AND a2.details->>'intent_id' = audit_log.details->>'intent_id'
+             AND a2.tenant_id = $1
+         )
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [tenantId]
+    );
+
+    const approvals = (pending || []).map(row => {
+      const d = typeof row.details === 'string' ? JSON.parse(row.details) : row.details;
+      // Check if expired
+      const expired = d.expires_at && new Date(d.expires_at) < new Date();
+      return {
+        approval_id: d.approval_id,
+        intent_id: d.intent_id,
+        action: d.action,
+        risk_tier: d.risk_tier,
+        required_approvers: d.required_approvers,
+        expires_at: d.expires_at,
+        expired,
+        created_at: row.created_at,
+      };
+    }).filter(a => !a.expired); // Filter out expired
+
+    res.json({
+      success: true,
+      approvals,
+      count: approvals.length,
+    });
+  } catch (error: any) {
+    res.json({ success: true, approvals: [], count: 0 });
   }
 });
 

@@ -90,12 +90,36 @@ export async function initializeViennaCore(config?: {
   });
   console.log('[ViennaCore] Warrant Authority initialized with Postgres adapter');
 
+  // Initialize Approval Manager (manages T2/T3 approval lifecycle)
+  let approvalManager: any = null;
+  try {
+    const ApprovalManager = require('@vienna/lib/core/approval-manager');
+    approvalManager = new ApprovalManager(stateGraph);
+    console.log('[ViennaCore] Approval Manager initialized');
+
+    // Start approval expiration sweep (runs every 5 minutes)
+    setInterval(async () => {
+      try {
+        const expired = await approvalManager.sweepExpired();
+        if (expired > 0) {
+          console.log(`[ViennaCore] Swept ${expired} expired approvals`);
+        }
+      } catch (err) {
+        // Non-critical
+      }
+    }, 5 * 60 * 1000);
+    console.log('[ViennaCore] Approval expiration sweep scheduled (every 5 min)');
+  } catch (err) {
+    console.warn('[ViennaCore] ApprovalManager not available:', err);
+  }
+
   // Assemble Vienna Core runtime (minimal Phase 1)
   viennaCore = {
     stateGraph,
     workspaceManager,
     intentGateway,
     warrant,
+    approvalManager,
     
     // Compatibility shims for ViennaRuntimeService
     queuedExecutor: {

@@ -19,13 +19,15 @@ Run this example to understand how Vienna OS protects AI agents without slowing 
 git clone https://github.com/risk-ai/regulator.ai.git
 cd regulator.ai/examples/5-minute-quickstart
 
-# Install dependencies
+# Install dependencies (uses local SDK)
 npm install
 
 # Run the demo
 npm start
 # OR: node index.js
 ```
+
+**Note:** This example uses Vienna OS's demo API, so it works even if you don't have Vienna OS running locally.
 
 ## Troubleshooting
 

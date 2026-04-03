@@ -1,5 +1,6 @@
-# Vienna OS SDK for Python
-vienna-os-sdk>=1.0.0
+# Vienna OS SDK for Python (use local development version)
+# vienna-os-sdk>=1.0.0  # Not yet published
+-e ../../sdk/python
 
 # Environment management
 python-dotenv>=1.0.0

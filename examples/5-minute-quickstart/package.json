@@ -10,7 +10,7 @@
     "test": "node index.js --test"
   },
   "dependencies": {
-    "@vienna-os/sdk": "^1.0.0",
+    "@vienna-os/sdk": "file:../../sdk/typescript",
     "chalk": "^5.3.0"
   },
   "bin": {

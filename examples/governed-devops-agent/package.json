@@ -14,7 +14,7 @@
     "demo:full": "node agent.js --full-workflow"
   },
   "dependencies": {
-    "@vienna-os/sdk": "^1.0.0",
+    "@vienna-os/sdk": "file:../../sdk/typescript",
     "dotenv": "^16.4.5",
     "chalk": "^5.3.0"
   },

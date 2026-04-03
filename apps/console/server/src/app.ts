@@ -96,6 +96,8 @@ import { createExecutionCallbackRouter } from './routes/execution-callbacks.js';
 import { createManagedExecutionRouter } from './routes/managed-execution.js';
 import { createAdapterConfigsRouter } from './routes/adapter-configs.js';
 import { createSettingsRouter } from './routes/settings.js';
+import connectRouter from './routes/connect.js';
+import anomaliesRouter from './routes/anomalies.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -458,6 +460,12 @@ export function createApp(
   
   // Settings (tenant configuration)
   app.use(`${apiPrefix}/settings`, requireAuth, createSettingsRouter());
+  
+  // Agent Connection Wizard
+  app.use(`${apiPrefix}/connect`, requireAuth, connectRouter);
+  
+  // Anomaly Detection
+  app.use(`${apiPrefix}/anomalies`, requireAuth, anomaliesRouter);
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

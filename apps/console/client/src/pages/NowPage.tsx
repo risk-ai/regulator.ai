@@ -17,6 +17,16 @@ interface SystemSnapshot {
   audit: { total: number; recent: AuditEntry[] };
   policies: { total: number; enabled: number };
   policyRules: { total: number; enabled: number };
+  anomalies: { total: number; critical: number; high: number; recent: AnomalyAlert[] };
+}
+
+interface AnomalyAlert {
+  id: string;
+  type: 'rate_spike' | 'scope_violation' | 'unusual_pattern' | 'repeated_denial' | 'off_hours';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  agent_id: string;
+  description: string;
+  detected_at: string;
 }
 
 interface AuditEntry {
@@ -46,13 +56,14 @@ export function NowPage() {
   const loadSnapshot = useCallback(async () => {
     try {
       setError(null);
-      const [agentsRes, proposalsRes, warrantsRes, auditRes, policiesRes, rulesRes] = await Promise.all([
+      const [agentsRes, proposalsRes, warrantsRes, auditRes, policiesRes, rulesRes, anomaliesRes] = await Promise.all([
         fetchJSON('/api/v1/agents'),
         fetchJSON('/api/v1/proposals'),
         fetchJSON('/api/v1/warrants'),
         fetchJSON('/api/v1/audit/recent?limit=10'),
         fetchJSON('/api/v1/policies'),
         fetchJSON('/api/v1/policy-rules'),
+        fetchJSON('/api/v1/anomalies?limit=5'),
       ]);
 
       const agents = agentsRes.data || [];
@@ -390,6 +401,11 @@ function GettingStartedPanel() {
           Quick Start
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+          <QuickActionButton 
+            icon="🤖" 
+            label="Connect Your Agent"
+            onClick={() => window.location.hash = 'connect'}
+          />
           <QuickActionButton 
             icon="📋" 
             label="Explore Policy Templates"

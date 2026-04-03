@@ -3,56 +3,45 @@
  */
 
 import { Router } from 'express';
-import { getStateGraph } from '@vienna/lib';
+import { anomalyDetectionService } from '../services/anomalyDetection.js';
 
 const router = Router();
-const stateGraph = getStateGraph();
-
-// Initialize anomaly detector
-let anomalyDetector: any = null;
-
-async function getAnomalyDetector() {
-  if (!anomalyDetector) {
-    const { AgentAnomalyDetector } = require('@vienna/lib/detection/anomaly-detector');
-    anomalyDetector = new AgentAnomalyDetector(await getStateGraph());
-  }
-  return anomalyDetector;
-}
 
 /**
  * GET /api/v1/anomalies
  * 
- * List detected anomalies with optional filters
+ * List recent anomaly alerts
  */
 router.get('/', async (req, res) => {
   try {
-    await stateGraph.initialize();
-    const detector = await getAnomalyDetector();
+    const anomalies = await anomalyDetectionService.detectAnomalies();
 
-    const filters = {
-      anomaly_type: req.query.anomaly_type as string,
-      severity: req.query.severity as string,
-      status: req.query.status as string,
-      entity_type: req.query.entity_type as string,
-      entity_id: req.query.entity_id as string,
-      limit: req.query.limit ? parseInt(req.query.limit as string) : 50,
-      offset: req.query.offset ? parseInt(req.query.offset as string) : 0
-    };
-
-    // Run detection if requested
-    if (req.query.run_detection === 'true') {
-      console.log('[Anomalies API] Running real-time anomaly detection...');
-      await detector.detect();
+    // Apply filters
+    let filteredAnomalies = anomalies;
+    
+    if (req.query.type) {
+      filteredAnomalies = filteredAnomalies.filter(a => a.type === req.query.type);
+    }
+    
+    if (req.query.severity) {
+      filteredAnomalies = filteredAnomalies.filter(a => a.severity === req.query.severity);
+    }
+    
+    if (req.query.agent_id) {
+      filteredAnomalies = filteredAnomalies.filter(a => a.agent_id === req.query.agent_id);
     }
 
-    // Get anomalies from state graph (this would need to be implemented)
-    const anomalies = stateGraph.listAnomalies ? stateGraph.listAnomalies(filters) : [];
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+    const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+    
+    const paginatedAnomalies = filteredAnomalies.slice(offset, offset + limit);
 
     res.json({
       success: true,
-      anomalies,
-      count: anomalies.length,
-      filters,
+      anomalies: paginatedAnomalies,
+      total: filteredAnomalies.length,
+      limit,
+      offset,
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
@@ -215,29 +204,50 @@ router.post('/acknowledge/:id', async (req, res) => {
 });
 
 /**
- * POST /api/v1/anomalies/detect
+ * GET /api/v1/anomalies/stats
  * 
- * Trigger immediate anomaly detection run
+ * Summary stats (alerts by type, severity)
  */
-router.post('/detect', async (req, res) => {
+router.get('/stats', async (req, res) => {
   try {
-    const detector = await getAnomalyDetector();
+    const stats = await anomalyDetectionService.getStats();
 
-    console.log('[Anomalies API] Running on-demand anomaly detection...');
-    const anomalies = await detector.detect();
+    res.json({
+      success: true,
+      stats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('[Anomalies API] Stats failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
-    const stats = detector.getStats();
+/**
+ * POST /api/v1/anomalies/check
+ * 
+ * Trigger manual anomaly check
+ */
+router.post('/check', async (req, res) => {
+  try {
+    console.log('[Anomalies API] Running manual anomaly detection...');
+    const anomalies = await anomalyDetectionService.detectAnomalies();
+    const stats = await anomalyDetectionService.getStats();
 
     res.json({
       success: true,
       message: 'Anomaly detection completed',
       anomalies_found: anomalies.length,
       anomalies,
-      detection_stats: stats,
+      stats,
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    console.error('[Anomalies API] Detection run failed:', error);
+    console.error('[Anomalies API] Manual check failed:', error);
     res.status(500).json({
       success: false,
       error: error.message,

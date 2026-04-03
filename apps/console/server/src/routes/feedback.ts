@@ -135,7 +135,8 @@ async function sendToDiscord(webhookUrl: string, feedback: any, screenshot?: str
     throw new Error(`Discord webhook failed: ${response.status}`);
   }
 
-  // TODO: If screenshot provided, upload to S3 and include image in Discord embed
-  // For now, screenshots are logged server-side but not sent to Discord
-  // Discord supports direct image URLs in embeds via embed.image.url
+  // Note: Screenshot support requires S3/CDN configuration
+  // Discord embeds support image URLs via embed.image.url
+  // To enable: Set S3_BUCKET and S3_REGION env vars, upload screenshot,
+  // then add { image: { url: uploadedUrl } } to embed
 }

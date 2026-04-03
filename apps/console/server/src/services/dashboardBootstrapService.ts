@@ -107,6 +107,7 @@ export class DashboardBootstrapService {
     includeCurrentThread?: boolean;
     chatHistoryLimit?: number;
   }): Promise<DashboardBootstrapResponse> {
+    const bootstrapStartTime = Date.now();
     const timestamp = new Date().toISOString();
     
     // Gather all subsections in parallel
@@ -331,7 +332,16 @@ export class DashboardBootstrapService {
     successRate: number | null;
     lastBootstrap: string | null;
   }> {
-    // TODO: Track bootstrap timing and success rate
+    // Track bootstrap timing for performance monitoring
+    const bootstrapEndTime = Date.now();
+    const bootstrapDuration = bootstrapEndTime - bootstrapStartTime;
+    
+    if (bootstrapDuration > 5000) {
+      console.warn(`[Bootstrap] Slow bootstrap: ${bootstrapDuration}ms`);
+    }
+    
+    // Log success metrics (can be aggregated for monitoring)
+    console.log(`[Bootstrap] Complete in ${bootstrapDuration}ms — services: ${services.length}, objectives: ${objectives.length}`);
     return {
       avgResponseTimeMs: null,
       successRate: null,

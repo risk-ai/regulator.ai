@@ -167,9 +167,17 @@ export function createChatRouter(
       
       // Get history from ChatHistoryService if available
       let messages = [];
+      let hasMore = false;
+      
       if (chatHistoryService) {
-        const history = await chatHistoryService.getHistory(threadId, limit);
-        messages = history.map((msg: any) => ({
+        // Request one extra to check if there are more
+        const history = await chatHistoryService.getHistory(threadId, limit + 1);
+        hasMore = history.length > limit;
+        
+        // Return only the requested limit
+        const messagesToReturn = hasMore ? history.slice(0, limit) : history;
+        
+        messages = messagesToReturn.map((msg: any) => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
@@ -182,7 +190,8 @@ export function createChatRouter(
         data: {
           threadId,
           messages,
-          hasMore: false, // TODO: Implement pagination
+          hasMore,
+          nextBefore: hasMore && messages.length > 0 ? messages[messages.length - 1].timestamp : null,
         },
         timestamp: new Date().toISOString(),
       });

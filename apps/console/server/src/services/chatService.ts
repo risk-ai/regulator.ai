@@ -383,8 +383,26 @@ export class ChatService {
     }>;
     has_more: boolean;
   }> {
-    // TODO: Implement chat history storage
-    // For now, return empty
+    // Delegate to ChatHistoryService if available
+    if (this.chatHistory) {
+      try {
+        const threadId = params.threadId || 'default';
+        const limit = params.limit || 50;
+        const history = await this.chatHistory.getHistory(threadId, limit + 1);
+        const hasMore = history.length > limit;
+        const messages = (hasMore ? history.slice(0, limit) : history).map((msg: any) => ({
+          messageId: msg.messageId || msg.id,
+          role: msg.role === 'user' ? 'operator' : 'vienna',
+          content: msg.content,
+          timestamp: msg.timestamp,
+        }));
+        return { messages, has_more: hasMore };
+      } catch (error) {
+        console.warn('[ChatService] History retrieval failed:', error);
+      }
+    }
+    
+    // Fallback: empty history
     return {
       messages: [],
       has_more: false,

@@ -12,6 +12,86 @@ export function createAnalyticsRouter(): Router {
   const router = Router();
 
   /**
+   * Get value summary for dashboard widget
+   * GET /api/v1/analytics/value-summary
+   */
+  router.get('/value-summary', async (req: Request, res: Response) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = getTenantId(authReq);
+
+      // Query audit_log for total events
+      const auditEvents = await query<any>(
+        `SELECT COUNT(*) as count FROM audit_log WHERE tenant_id = $1`,
+        [tenantId]
+      );
+
+      // Query approval_requests for approvals processed
+      const approvalsProcessed = await query<any>(
+        `SELECT COUNT(*) as count FROM approval_requests WHERE tenant_id = $1 AND status IN ('approved', 'denied')`,
+        [tenantId]
+      );
+
+      // Query execution_ledger_summary for actions governed  
+      const actionsGoverned = await query<any>(
+        `SELECT COUNT(DISTINCT execution_id) as count FROM execution_ledger_summary WHERE tenant_id = $1`,
+        [tenantId]
+      );
+
+      // Count denied/blocked as "violations caught"
+      const violationsCaught = await query<any>(
+        `SELECT COUNT(*) as count FROM approval_requests WHERE tenant_id = $1 AND status = 'denied'`,
+        [tenantId]
+      );
+
+      const auditTotal = parseInt(auditEvents[0]?.count || 0);
+      const approvalsTotal = parseInt(approvalsProcessed[0]?.count || 0);
+      const actionsTotal = parseInt(actionsGoverned[0]?.count || 0);
+      const violationsTotal = parseInt(violationsCaught[0]?.count || 0);
+
+      // For new tenants with no data, return sample/seed numbers with demo flag
+      const hasData = auditTotal > 0 || approvalsTotal > 0 || actionsTotal > 0;
+
+      if (!hasData) {
+        return res.json({
+          success: true,
+          data: {
+            actions_governed: 247,
+            violations_caught: 12,
+            approvals_processed: 38,
+            estimated_risk_avoided: 142500,
+            audit_events: 1247,
+            demo: true
+          }
+        });
+      }
+
+      // Estimate risk avoided: violations * average transaction value (use a formula)
+      const avgTransactionValue = 11875; // $11,875 average per blocked action
+      const estimatedRiskAvoided = violationsTotal * avgTransactionValue;
+
+      res.json({
+        success: true,
+        data: {
+          actions_governed: actionsTotal,
+          violations_caught: violationsTotal,
+          approvals_processed: approvalsTotal,
+          estimated_risk_avoided: estimatedRiskAvoided,
+          audit_events: auditTotal,
+          demo: false
+        }
+      });
+    } catch (error) {
+      console.error('[Analytics] Value summary error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get value summary',
+        code: 'ANALYTICS_VALUE_SUMMARY_ERROR'
+      });
+    }
+  });
+
+  /**
    * Get agent performance metrics
    * GET /api/v1/analytics/agents
    */

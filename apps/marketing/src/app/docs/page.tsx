@@ -44,7 +44,7 @@ interface NavSection {
 const sections: NavSection[] = [
   {
     id: "quickstart",
-    label: "Quick Start",
+    label: "Quickstart (5 min)",
     icon: <Terminal className="w-4 h-4" />,
     children: [
       { id: "qs-get-api-key", label: "Get API Key" },
@@ -515,6 +515,64 @@ export default function DocsPage() {
 
         {/* ── Main Content ── */}
         <main ref={mainRef} className="flex-1 min-w-0 px-6 sm:px-8 lg:px-16 py-10 max-w-4xl">
+
+          {/* ══════════════════════════════════════════════════════════════════
+               QUICK LINKS SECTION
+             ══════════════════════════════════════════════════════════════════ */}
+          
+          <div className="mb-12">
+            <h1 className="text-3xl font-bold text-white mb-4">Vienna OS Documentation</h1>
+            <p className="text-slate-400 mb-8">
+              Enterprise-grade governance for AI agents. Start here for quick setup or dive deep into concepts and APIs.
+            </p>
+            
+            {/* Quick Start Cards */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <a 
+                href="/docs/quickstart" 
+                className="bg-[#141820] border border-[#1C222E] rounded-xl p-6 hover:border-purple-500/30 transition group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Terminal className="w-5 h-5 text-blue-400" />
+                  <h3 className="font-semibold text-white group-hover:text-purple-400 transition">Quickstart (5 min)</h3>
+                </div>
+                <p className="text-sm text-slate-400">Get from zero to your first governed agent in minutes</p>
+              </a>
+
+              <a 
+                href="/docs/github-action" 
+                className="bg-[#141820] border border-[#1C222E] rounded-xl p-6 hover:border-purple-500/30 transition group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Code className="w-5 h-5 text-emerald-400" />
+                  <h3 className="font-semibold text-white group-hover:text-purple-400 transition">GitHub Action</h3>
+                </div>
+                <p className="text-sm text-slate-400">Add governance to your CI/CD pipeline</p>
+              </a>
+
+              <a 
+                href="/docs/api-reference" 
+                className="bg-[#141820] border border-[#1C222E] rounded-xl p-6 hover:border-purple-500/30 transition group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Zap className="w-5 h-5 text-amber-400" />
+                  <h3 className="font-semibold text-white group-hover:text-purple-400 transition">API Reference</h3>
+                </div>
+                <p className="text-sm text-slate-400">Complete API documentation and examples</p>
+              </a>
+
+              <a 
+                href="/docs/integration-guide" 
+                className="bg-[#141820] border border-[#1C222E] rounded-xl p-6 hover:border-purple-500/30 transition group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <Settings className="w-5 h-5 text-cyan-400" />
+                  <h3 className="font-semibold text-white group-hover:text-purple-400 transition">Integration Guide</h3>
+                </div>
+                <p className="text-sm text-slate-400">Framework integrations (LangChain, CrewAI, OpenAI)</p>
+              </a>
+            </div>
+          </div>
 
           {/* ════════════════════════════════════════════════════════════════
                SECTION 1: QUICK START

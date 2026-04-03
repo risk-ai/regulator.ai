@@ -18,6 +18,16 @@ interface SystemSnapshot {
   policies: { total: number; enabled: number };
   policyRules: { total: number; enabled: number };
   anomalies: { total: number; critical: number; high: number; recent: AnomalyAlert[] };
+  valueSummary?: ValueSummary;
+}
+
+interface ValueSummary {
+  actions_governed: number;
+  violations_caught: number;
+  approvals_processed: number;
+  estimated_risk_avoided: number;
+  audit_events: number;
+  demo: boolean;
 }
 
 interface AnomalyAlert {
@@ -56,7 +66,7 @@ export function NowPage() {
   const loadSnapshot = useCallback(async () => {
     try {
       setError(null);
-      const [agentsRes, proposalsRes, warrantsRes, auditRes, policiesRes, rulesRes, anomaliesRes] = await Promise.all([
+      const [agentsRes, proposalsRes, warrantsRes, auditRes, policiesRes, rulesRes, anomaliesRes, valueSummaryRes] = await Promise.all([
         fetchJSON('/api/v1/agents'),
         fetchJSON('/api/v1/proposals'),
         fetchJSON('/api/v1/warrants'),
@@ -64,6 +74,7 @@ export function NowPage() {
         fetchJSON('/api/v1/policies'),
         fetchJSON('/api/v1/policy-rules'),
         fetchJSON('/api/v1/anomalies?limit=5'),
+        fetchJSON('/api/v1/analytics/value-summary').catch(() => ({ data: null })),
       ]);
 
       const agents = agentsRes.data || [];
@@ -74,6 +85,7 @@ export function NowPage() {
       const policies = policiesRes.data || [];
       const rules = rulesRes.data || [];
       const anomalies = anomaliesRes.data || [];
+      const valueSummary = valueSummaryRes.data;
 
       setSnapshot({
         agents: { total: agents.length, active: agents.filter((a: any) => a.status === 'active').length, suspended: agents.filter((a: any) => a.status === 'suspended').length },
@@ -88,6 +100,7 @@ export function NowPage() {
           high: anomalies.filter((a: any) => a.severity === 'high').length,
           recent: anomalies.slice(0, 5) 
         },
+        valueSummary,
       });
       setLastRefresh(new Date());
     } catch (err) {
@@ -201,7 +214,7 @@ export function NowPage() {
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 1,
           background: 'var(--border-subtle)', borderRadius: 8,
-          overflow: 'hidden', marginBottom: 32,
+          overflow: 'hidden', marginBottom: 24,
         }}>
           <Metric label="Agents" value={snapshot.agents.active} detail={`/${snapshot.agents.total}`} onClick={() => nav('fleet')} />
           <Metric label="Proposals" value={snapshot.proposals.total} detail={snapshot.proposals.pending > 0 ? `${snapshot.proposals.pending} pending` : undefined} onClick={() => nav('intent')} />
@@ -210,6 +223,9 @@ export function NowPage() {
           <Metric label="Rules" value={snapshot.policyRules.enabled} detail={`/${snapshot.policyRules.total}`} onClick={() => nav('policy-templates')} />
           <Metric label="Audit Events" value={snapshot.audit.total} onClick={() => nav('history')} />
         </div>
+
+        {/* Value Delivered Widget */}
+        <ValueDeliveredWidget snapshot={snapshot} />
 
         {/* ═══ ZONE 3: Two-column activity layout ═══ */}
         <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 24, alignItems: 'start' }}>
@@ -471,6 +487,178 @@ function QuickActionButton({ icon, label, onClick }: {
       <span style={{ fontSize: 14 }}>{icon}</span>
       <span>{label}</span>
     </button>
+  );
+}
+
+/* ─── Value Delivered Widget ─── */
+function ValueDeliveredWidget({ snapshot }: { snapshot: SystemSnapshot }) {
+  const [countersVisible, setCountersVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setCountersVisible(true), 200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Use actual data if available, otherwise show demo data
+  const valueSummary = snapshot.valueSummary || {
+    actions_governed: 247,
+    violations_caught: 12,
+    approvals_processed: 38,
+    estimated_risk_avoided: 142500,
+    audit_events: 1247,
+    demo: true
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(0)}K`;
+    }
+    return `$${amount}`;
+  };
+
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: 12,
+      padding: '20px 24px',
+      marginBottom: 32,
+      position: 'relative' as const,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16 }}>🛡️</span>
+          <h3 style={{ 
+            margin: 0, 
+            fontSize: 16, 
+            fontWeight: 600, 
+            color: 'var(--text-primary)' 
+          }}>
+            Value Delivered
+          </h3>
+        </div>
+        {valueSummary.demo && (
+          <span style={{
+            fontSize: 10,
+            padding: '2px 8px',
+            borderRadius: 4,
+            background: 'rgba(139, 92, 246, 0.1)',
+            color: '#8b5cf6',
+            fontWeight: 500,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.05em',
+          }}>
+            Demo Data
+          </span>
+        )}
+      </div>
+
+      {/* Value Metrics */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: '16px',
+      }}>
+        <ValueMetric 
+          label="Actions Governed" 
+          value={valueSummary.actions_governed} 
+          color="#10b981"
+          animate={countersVisible}
+        />
+        <ValueMetric 
+          label="Violations Caught" 
+          value={valueSummary.violations_caught} 
+          color="#ef4444"
+          animate={countersVisible}
+        />
+        <ValueMetric 
+          label="Approvals Processed" 
+          value={valueSummary.approvals_processed} 
+          color="#3b82f6"
+          animate={countersVisible}
+        />
+        <ValueMetric 
+          label="Estimated Risk Avoided" 
+          value={valueSummary.estimated_risk_avoided} 
+          color="#10b981"
+          formatter={formatCurrency}
+          animate={countersVisible}
+        />
+        <ValueMetric 
+          label="Audit Events" 
+          value={valueSummary.audit_events} 
+          color="#8b5cf6"
+          animate={countersVisible}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Value Metric Component ─── */
+function ValueMetric({ 
+  label, 
+  value, 
+  color, 
+  formatter,
+  animate = false 
+}: { 
+  label: string; 
+  value: number; 
+  color: string; 
+  formatter?: (value: number) => string;
+  animate?: boolean;
+}) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (!animate) {
+      setDisplayValue(value);
+      return;
+    }
+
+    const duration = 1500; // Animation duration in ms
+    const steps = 60; // Number of animation steps
+    const increment = value / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= value) {
+        current = value;
+        clearInterval(timer);
+      }
+      setDisplayValue(Math.round(current));
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, [value, animate]);
+
+  return (
+    <div style={{ textAlign: 'left' as const }}>
+      <div style={{
+        fontSize: 11,
+        fontWeight: 500,
+        color: 'var(--text-tertiary)',
+        textTransform: 'uppercase' as const,
+        letterSpacing: '0.05em',
+        marginBottom: 4,
+      }}>
+        {label}
+      </div>
+      <div style={{
+        fontSize: 20,
+        fontWeight: 700,
+        color: color,
+        fontVariantNumeric: 'tabular-nums',
+        lineHeight: 1,
+      }}>
+        {formatter ? formatter(displayValue) : displayValue.toLocaleString()}
+      </div>
+    </div>
   );
 }
 

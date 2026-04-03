@@ -73,6 +73,7 @@ export function NowPage() {
       const auditTotal = auditRes.data?.total || auditEntries.length;
       const policies = policiesRes.data || [];
       const rules = rulesRes.data || [];
+      const anomalies = anomaliesRes.data || [];
 
       setSnapshot({
         agents: { total: agents.length, active: agents.filter((a: any) => a.status === 'active').length, suspended: agents.filter((a: any) => a.status === 'suspended').length },
@@ -81,6 +82,12 @@ export function NowPage() {
         audit: { total: auditTotal, recent: auditEntries },
         policies: { total: policies.length, enabled: policies.filter((p: any) => p.enabled).length },
         policyRules: { total: rules.length, enabled: rules.filter((r: any) => r.enabled).length },
+        anomalies: { 
+          total: anomalies.length, 
+          critical: anomalies.filter((a: any) => a.severity === 'critical').length,
+          high: anomalies.filter((a: any) => a.severity === 'high').length,
+          recent: anomalies.slice(0, 5) 
+        },
       });
       setLastRefresh(new Date());
     } catch (err) {

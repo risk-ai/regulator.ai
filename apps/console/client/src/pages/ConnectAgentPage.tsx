@@ -40,7 +40,7 @@ export function ConnectAgentPage() {
 
   const loadPolicyPacks = async () => {
     try {
-      const response = await apiClient.get('/policy-templates/packs');
+      const response: any = await apiClient.get('/policy-templates/packs');
       setPolicyPacks(response.packs || [
         {
           id: 'soc2',

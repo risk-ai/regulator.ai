@@ -1,0 +1,91 @@
+name: 'Vienna OS Governance Check'
+description: 'Run governance checks on deployments through Vienna OS'
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  api-key:
+    description: 'Vienna OS API key'
+    required: true
+  action:
+    description: 'Action to govern (e.g., deploy, release, migrate)'
+    required: true
+    default: 'deploy'
+  environment:
+    description: 'Target environment'
+    required: false
+    default: 'production'
+  agent-id:
+    description: 'Agent identifier'
+    required: false
+    default: 'github-actions'
+
+outputs:
+  governance-mode:
+    description: 'Governance mode returned by Vienna OS'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Submit governance check
+      shell: bash
+      run: |
+        echo "🛡️ Vienna OS Governance Check"
+        echo "Action: ${{ inputs.action }}"
+        echo "Environment: ${{ inputs.environment }}"
+        echo "Repository: ${{ github.repository }}"
+        
+        RESPONSE=$(curl -s -X POST https://console.regulator.ai/api/v1/execution/submit \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "action": "${{ inputs.action }}",
+            "agent_id": "${{ inputs.agent-id }}",
+            "tenant_id": "from-api-key",
+            "parameters": {
+              "environment": "${{ inputs.environment }}",
+              "repository": "${{ github.repository }}",
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}",
+              "actor": "${{ github.actor }}",
+              "workflow": "${{ github.workflow }}",
+              "run_id": "${{ github.run_id }}",
+              "run_number": "${{ github.run_number }}"
+            },
+            "source": "github-actions",
+            "metadata": {
+              "github": {
+                "repository": "${{ github.repository }}",
+                "ref": "${{ github.ref }}",
+                "sha": "${{ github.sha }}",
+                "actor": "${{ github.actor }}",
+                "event_name": "${{ github.event_name }}",
+                "workflow": "${{ github.workflow }}",
+                "job": "${{ github.job }}",
+                "run_id": "${{ github.run_id }}",
+                "run_number": "${{ github.run_number }}"
+              }
+            }
+          }')
+        
+        echo "Vienna OS Response:"
+        echo "$RESPONSE" | jq '.' || echo "$RESPONSE"
+        
+        # Extract governance mode
+        MODE=$(echo "$RESPONSE" | jq -r '.data.mode // empty')
+        
+        if [ "$MODE" = "blocked" ]; then
+          echo "::error::🚨 Deployment blocked by Vienna OS governance policy"
+          echo "::error::Review the governance policies or seek approval before proceeding"
+          exit 1
+        elif [ "$MODE" = "approval_required" ]; then
+          APPROVAL_ID=$(echo "$RESPONSE" | jq -r '.data.approval_id // empty')
+          echo "::warning::⏳ Vienna OS governance approval required"
+          echo "::warning::Approval ID: $APPROVAL_ID"
+          echo "::warning::Check your Vienna OS console or Slack for approval"
+          exit 1
+        fi
+        
+        echo "governance-mode=$MODE" >> $GITHUB_OUTPUT
+        echo "✅ Vienna OS governance check passed (mode: $MODE)"

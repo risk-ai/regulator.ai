@@ -32,11 +32,150 @@ export interface SlackNotification {
   sent_at: Date;
 }
 
+export interface SlackApprovalMessage {
+  channel: string;
+  action: string;
+  agent_id: string;
+  risk_tier: string;
+  execution_id: string;
+  details: string;
+  warrant_id?: string;
+}
+
 export class SlackService {
   /**
-   * Send approval request to Slack
+   * Send approval request to Slack with interactive buttons
    */
   async sendApprovalRequest(
+    tenantId: string,
+    execution_id: string,
+    data: SlackApprovalMessage
+  ): Promise<void> {
+    const workspace = await this.getWorkspace(tenantId);
+    if (!workspace || !workspace.enabled) {
+      console.log('[Slack] No workspace configured for tenant:', tenantId);
+      return;
+    }
+
+    const channel = workspace.channel_approvals || workspace.channel_alerts;
+    if (!channel) {
+      console.log('[Slack] No approval channel configured');
+      return;
+    }
+
+    // Risk tier badge styling
+    const riskBadge = this.getRiskTierBadge(data.risk_tier);
+    
+    // Build Slack message with enhanced approval interface
+    const message = {
+      channel,
+      text: `🤖 ${riskBadge} Approval Required - ${data.action}`,
+      blocks: [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: `🤖 ${riskBadge} Vienna OS Approval Required`,
+          },
+        },
+        {
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `*Agent:*\n${data.agent_id}`,
+            },
+            {
+              type: 'mrkdwn',
+              text: `*Risk Tier:*\n${riskBadge}`,
+            },
+            {
+              type: 'mrkdwn',
+              text: `*Action:*\n${data.action}`,
+            },
+            {
+              type: 'mrkdwn',
+              text: `*Execution ID:*\n\`${execution_id}\``,
+            },
+          ],
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Details:*\n${data.details}`,
+          },
+        },
+        ...(data.warrant_id ? [{
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*Warrant ID:* \`${data.warrant_id}\``,
+          },
+        }] : []),
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '✅ Approve',
+              },
+              style: 'primary',
+              value: execution_id,
+              action_id: `approve_${execution_id}`,
+            },
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: '❌ Deny',
+              },
+              style: 'danger',
+              value: execution_id,
+              action_id: `deny_${execution_id}`,
+            },
+          ],
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `Timestamp: ${new Date().toISOString()} | Use \`/vienna approve ${execution_id}\` or buttons above`,
+            },
+          ],
+        },
+      ],
+    };
+
+    // Send to Slack
+    const response = await this.sendMessage(workspace.access_token, message);
+
+    // Log notification
+    if (response.ok) {
+      await query(
+        `INSERT INTO slack_notifications 
+         (workspace_id, tenant_id, type, entity_type, entity_id, channel_id, message_ts)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          workspace.id,
+          tenantId,
+          'approval_request',
+          'execution',
+          execution_id,
+          channel,
+          response.ts,
+        ]
+      );
+    }
+  }
+
+  /**
+   * Legacy approval request (for backward compatibility)
+   */
+  async sendApprovalRequestLegacy(
     tenantId: string,
     approvalId: string,
     data: {
@@ -306,6 +445,60 @@ export class SlackService {
     );
 
     return workspace;
+  }
+
+  /**
+   * Update an interaction message (for approve/deny responses)
+   */
+  async updateInteractionMessage(
+    payload: any,
+    update: { text?: string; blocks?: any[] }
+  ): Promise<void> {
+    const workspace = await this.getWorkspaceByTeamId(payload.team.id);
+    if (!workspace) return;
+
+    await fetch('https://slack.com/api/chat.update', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${workspace.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel: payload.channel.id,
+        ts: payload.message.ts,
+        ...update,
+      }),
+    });
+  }
+
+  /**
+   * Get workspace by Slack team ID
+   */
+  private async getWorkspaceByTeamId(teamId: string): Promise<SlackWorkspace | null> {
+    try {
+      return await queryOne<SlackWorkspace>(
+        'SELECT * FROM slack_workspaces WHERE team_id = $1 AND enabled = true',
+        [teamId]
+      );
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Get risk tier badge styling
+   */
+  private getRiskTierBadge(tier: string): string {
+    switch (tier?.toUpperCase()) {
+      case 'T1':
+        return '🔴 T1';
+      case 'T2':
+        return '🟡 T2';
+      case 'T3':
+        return '🟠 T3';
+      default:
+        return `⚪ ${tier}`;
+    }
   }
 }
 

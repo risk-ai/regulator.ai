@@ -19,8 +19,8 @@ const steps = [
     content: [
       { type: "text", value: "Choose your language:" },
       { type: "tabs", tabs: [
-        { label: "TypeScript/Node.js", code: "npm install @vienna-os/sdk" },
-        { label: "Python", code: "pip install vienna-sdk" },
+        { label: "TypeScript/Node.js", code: "npm install vienna-os" },
+        { label: "Python", code: "pip install vienna-os" },
       ]},
       { type: "text", value: "Get your API key from the Vienna OS console or use the sandbox for testing." },
     ],
@@ -31,19 +31,19 @@ const steps = [
     icon: Terminal,
     content: [
       { type: "tabs", tabs: [
-        { label: "TypeScript", code: `import { ViennaClient } from '@vienna-os/sdk';
+        { label: "TypeScript", code: `import { ViennaClient } from 'vienna-os';
 
 const vienna = new ViennaClient({
   apiKey: process.env.VIENNA_API_KEY,
   // Use sandbox for testing:
-  // baseUrl: 'https://regulator.ai/api/try'
+  // baseUrl: 'https://console.regulator.ai/api/v1'
 });` },
-        { label: "Python", code: `from vienna_sdk import ViennaClient
+        { label: "Python", code: `from vienna_os import ViennaClient
 
 vienna = ViennaClient(
     api_key=os.environ["VIENNA_API_KEY"],
     # Use sandbox for testing:
-    # base_url="https://regulator.ai/api/try"
+    # base_url="https://console.regulator.ai/api/v1"
 )` },
       ]},
     ],
@@ -181,6 +181,32 @@ export default function GettingStartedPage() {
             <p><span className="text-slate-500">6.</span> <span className="text-cyan-400">Execution controlled</span> — Action runs within warrant constraints</p>
             <p><span className="text-slate-500">7.</span> <span className="text-emerald-400">Verified</span> — Post-execution state compared to truth snapshot</p>
             <p><span className="text-slate-500">8.</span> <span className="text-slate-400">Audit logged</span> — Immutable record with full warrant chain</p>
+          </div>
+        </div>
+
+        {/* Integrations section */}
+        <div className="mt-12 bg-gradient-to-r from-slate-900/50 to-violet-900/20 border border-slate-700/50 rounded-xl p-8">
+          <h2 className="text-xl font-bold mb-4">Integrations</h2>
+          <p className="text-slate-300 mb-6">Connect Vienna OS to your existing tools for seamless governance:</p>
+          
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-violet-400">💬 Slack Approval Bot</h3>
+              <p className="text-sm text-slate-400">Approve/deny T1+ actions directly from Slack with interactive buttons</p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-violet-400">🐙 GitHub Action</h3>
+              <p className="text-sm text-slate-400">Govern CI/CD deployments and releases in your workflows</p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 text-sm">
+            <Link href="/docs/github-action" className="text-cyan-400 hover:text-cyan-300 transition">
+              GitHub Action →
+            </Link>
+            <Link href="/docs/integration-guide" className="text-violet-400 hover:text-violet-300 transition">
+              All Integrations →
+            </Link>
           </div>
         </div>
 

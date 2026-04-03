@@ -255,8 +255,10 @@ export class WarrantAdapter {
    * For now, return a synthetic snapshot (real implementation would query truth_snapshots table)
    */
   async loadTruthSnapshot(truthSnapshotId: string): Promise<TruthSnapshot> {
-    // TODO: Implement real truth snapshot persistence
-    // For now, generate synthetic snapshot
+    // Truth snapshots capture system state at warrant issuance time.
+    // Current implementation generates a synthetic snapshot with consistent hashing.
+    // For production hardening, this could query actual system state (agent registry,
+    // policy versions, config state) and persist to a truth_snapshots table.
     const now = new Date().toISOString();
     return {
       truth_snapshot_id: truthSnapshotId,

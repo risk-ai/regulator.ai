@@ -338,116 +338,89 @@ $ curl http://localhost:3100/health
 
 4. **Server crashed on startup**
    - Check logs for stack traces
-   - Missing dependencies (native modules)
+   - Missing dependencies
 
 **Resolution:**
 
 ```bash
 # Fix environment variables
-fly secrets set MISSING_VAR=value
+vercel env add MISSING_VAR production
 
-# Restart machine
-fly machine restart <machine-id>
-
-# Force redeploy
-fly deploy --config fly.toml --force
+# Redeploy
+vercel --prod
 ```
 
-### Issue: Build Fails with Missing Files
+### Issue: Build Fails
 
 **Symptoms:**
-- Docker build fails with "file not found"
-- Example: `turbo.json: not found`
+- Deployment fails during build step
+- "Module not found" errors
 
 **Diagnosis:**
 
-Check Dockerfile COPY commands reference existing files:
+Check Vercel deployment logs:
 
 ```bash
-cd ~/.openclaw/workspace/regulator-ai-repo
-cat apps/console/server/Dockerfile | grep COPY
-```
-
-**Resolution:**
-
-Remove or conditionally copy missing files:
-
-```dockerfile
-# Instead of:
-COPY turbo.json ./
-
-# Use (if optional):
-COPY turbo.json ./ || true
-
-# Or remove line if file doesn't exist
-```
-
-### Issue: Machine Lease Conflicts
-
-**Symptoms:**
-- Error: `failed to get lease on VM`
-- Error: `lease currently held by <id>`
-
-**Diagnosis:**
-
-```bash
-fly status  # Check machine state
+vercel logs --follow
 ```
 
 **Resolution:**
 
 ```bash
-# Wait 5 minutes for lease to expire, OR:
-fly machine stop <machine-id>
-fly machine start <machine-id>
+# Clear build cache
+vercel --force
+
+# Or check package.json dependencies
+pnpm install
+git add package.json pnpm-lock.yaml
+git commit -m "fix: update dependencies"
+git push origin main
 ```
 
-### Issue: Out of Memory (OOM)
+### Issue: Function Timeout
 
 **Symptoms:**
-- Machine stops unexpectedly
-- Logs show "out of memory"
+- 504 Gateway Timeout
+- "FUNCTION_INVOCATION_TIMEOUT"
 
 **Diagnosis:**
 
+Check function execution time in logs:
+
 ```bash
-fly logs | grep -i "memory\|oom"
+vercel logs | grep "Duration:"
 ```
 
 **Resolution:**
 
-```bash
-# Increase memory allocation
-fly scale memory 4096  # 4 GB
+Optimize slow functions or increase timeout (requires Pro/Enterprise plan):
 
-# Or optimize code (reduce memory usage)
+```json
+// vercel.json
+{
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 60
+    }
+  }
+}
 ```
 
 ### Issue: Slow Performance
 
 **Symptoms:**
-- Health checks timeout intermittently
-- High latency (>1s)
+- High latency
+- Slow API responses
 
 **Diagnosis:**
 
-```bash
-# Check machine metrics
-fly metrics
-
-# Check machine size
-fly status
-```
+Check Vercel Analytics or deployment logs.
 
 **Resolution:**
 
-```bash
-# Vertical scaling
-fly scale cpu 4
-fly scale memory 4096
-
-# Or optimize queries (add database indexes)
-```
+1. Enable Edge Functions for faster cold starts
+2. Optimize database queries
+3. Add caching headers
 
 ---
 
@@ -458,43 +431,36 @@ fly scale memory 4096
 **Real-time:**
 
 ```bash
-fly logs --app vienna-os
+vercel logs --follow
 ```
 
 **Filtered:**
 
 ```bash
-fly logs --app vienna-os | grep ERROR
+vercel logs | grep ERROR
 ```
 
-**Specific machine:**
+**Specific deployment:**
 
 ```bash
-fly logs --instance <machine-id>
+vercel logs <deployment-url>
 ```
 
 ### Metrics Dashboard
 
-```bash
-fly dashboard
-```
-
-Opens Fly.io web dashboard with:
+Access Vercel Dashboard → Project → Analytics:
 - Request rate
-- Response time
+- Response time  
 - Error rate
-- Memory usage
-- CPU usage
+- Bandwidth usage
+- Function invocations
 
-### Alerts (Optional)
+### Alerts
 
-**Set up monitoring alerts:**
-
-1. Fly.io → App → Monitoring
-2. Add alert rules:
-   - Health check failures (>3 consecutive)
-   - High error rate (>5% of requests)
-   - High memory usage (>80%)
+Vercel Pro/Enterprise plans include:
+- Deployment notifications
+- Error rate alerts
+- Budget alerts
 
 ---
 
@@ -502,22 +468,15 @@ Opens Fly.io web dashboard with:
 
 ### Rollback to Previous Deployment
 
-```bash
-# List recent deployments
-fly releases
+Via dashboard:
+1. Vercel Dashboard → Deployments
+2. Find last known good deployment
+3. Click "Promote to Production"
 
-# Rollback to specific version
-fly releases rollback <version-number>
-```
-
-### Emergency Rollback
+Via CLI:
 
 ```bash
-# Stop current machine
-fly machine stop <machine-id>
-
-# Start previous known-good image
-fly deploy --image registry.fly.io/vienna-os:deployment-<old-id>
+vercel rollback
 ```
 
 ---
@@ -526,13 +485,13 @@ fly deploy --image registry.fly.io/vienna-os:deployment-<old-id>
 
 Before deploying to production:
 
-- [ ] All required environment variables set (`fly secrets list`)
-- [ ] Database configured and migrated
-- [ ] Health endpoint responding (`curl https://vienna-os.fly.dev/health`)
+- [ ] All required environment variables set (Vercel dashboard)
+- [ ] Database configured and migrated (Neon)
+- [ ] Health endpoint responding (`curl https://console.regulator.ai/api/v1/health`)
 - [ ] CORS origins configured correctly
-- [ ] SSL/TLS certificate valid (automatic with Fly.io)
-- [ ] Monitoring alerts configured
-- [ ] Backup strategy defined (database dumps)
+- [ ] SSL/TLS certificate valid (automatic with Vercel)
+- [ ] Monitoring dashboard reviewed
+- [ ] Backup strategy defined (Neon point-in-time recovery)
 - [ ] Incident response plan documented
 - [ ] Rollback procedure tested
 

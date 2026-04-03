@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { useResponsive } from '../hooks/useResponsive.js';
 
 interface IntentAction {
   id: string;
@@ -125,6 +126,7 @@ export function IntentPage() {
   const [simulation, setSimulation] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const { isMobile } = useResponsive();
 
   // Fetch registered agents on mount
   React.useEffect(() => {
@@ -206,7 +208,7 @@ export function IntentPage() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
         {/* Left: Intent Selector + Params */}
         <div>
           {/* Agent Selector */}

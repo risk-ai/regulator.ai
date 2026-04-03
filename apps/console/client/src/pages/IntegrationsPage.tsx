@@ -544,6 +544,7 @@ function IntegrationDetail({ id, schemas, onBack, onEdit, onDelete }: {
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { isMobile } = useResponsive();
 
   useEffect(() => {
     (async () => {

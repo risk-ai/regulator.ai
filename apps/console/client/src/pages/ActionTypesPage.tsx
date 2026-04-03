@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useResponsive } from '../hooks/useResponsive.js';
 import {
   actionTypesApi,
   type ActionType,
@@ -483,6 +484,7 @@ export function ActionTypesPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const { isMobile } = useResponsive();
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -743,6 +745,8 @@ interface DetailPanelProps {
 }
 
 function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, riskBg }: DetailPanelProps) {
+  const { isMobile } = useResponsive();
+  
   if (loading) {
     return (
       <div style={styles.detailPanel}>
@@ -789,7 +793,7 @@ function DetailPanel({ type, loading, onEdit, onDelete, onClose, riskColor, risk
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '20px' }}>
         <div>
           <div style={styles.detailSection}>
             <div style={styles.sectionLabel}>Description</div>

@@ -414,12 +414,12 @@ function GettingStartedPanel() {
           <QuickActionButton 
             icon="🔑" 
             label="Create API Key"
-            onClick={() => window.location.hash = 'settings'}
+            onClick={() => window.location.hash = 'api-keys'}
           />
           <QuickActionButton 
             icon="🎮" 
             label="Try Interactive Demo"
-            onClick={() => window.open('/try', '_blank')}
+            onClick={() => window.open('https://regulator.ai/try', '_blank')}
           />
         </div>
       </div>

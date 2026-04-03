@@ -42,9 +42,13 @@ function SuccessContent() {
           ],
         })
 
-        // Google Ads conversion tracking
-        // Regulator.ai doesn't have its own Google Ads account yet
-        // When one is created, add: gtag('event', 'conversion', { send_to: 'AW-XXXXXX/YYYYYY', ... })
+        // Google Ads conversion tracking — Regulator.AI account 540-527-3762
+        (window as any).gtag('event', 'conversion', {
+          send_to: 'AW-18052030396/L79LCKKov5IcELy_8J9D',
+          value: value,
+          currency: 'USD',
+          transaction_id: sessionId,
+        })
       }
     }
   }, [plan, sessionId, verified])

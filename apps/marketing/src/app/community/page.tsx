@@ -1,0 +1,232 @@
+import type { Metadata } from "next";
+import { Shield, Github, MessageCircle, BookOpen, Users, Heart, Star, ArrowRight, Code, Lightbulb } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Community — Vienna OS",
+  description:
+    "Join the Vienna OS community. Contribute to open-source AI governance, get help, share ideas, and shape the future of responsible AI.",
+  openGraph: {
+    title: "Community — Vienna OS",
+    description: "Join the Vienna OS community for open-source AI governance.",
+    url: "https://regulator.ai/community",
+  },
+};
+
+const channels = [
+  {
+    name: "GitHub Discussions",
+    description: "Ask questions, share ideas, and get help from the community and maintainers.",
+    icon: Github,
+    href: "https://github.com/risk-ai/vienna-os/discussions",
+    cta: "Join Discussion",
+    color: "bg-slate-500/20",
+    textColor: "text-slate-300",
+  },
+  {
+    name: "Discord",
+    description: "Real-time chat with other Vienna OS users, contributors, and the core team.",
+    icon: MessageCircle,
+    href: "https://discord.gg/VpQUjSTw",
+    cta: "Join Discord",
+    color: "bg-indigo-500/20",
+    textColor: "text-indigo-400",
+  },
+  {
+    name: "Twitter / X",
+    description: "Follow @Vienna_OS for product updates, governance insights, and community highlights.",
+    icon: Star,
+    href: "https://twitter.com/Vienna_OS",
+    cta: "Follow Us",
+    color: "bg-blue-500/20",
+    textColor: "text-blue-400",
+  },
+];
+
+const contributions = [
+  {
+    title: "Report Bugs",
+    description: "Found something broken? Open an issue on GitHub with reproduction steps.",
+    icon: "🐛",
+    href: "https://github.com/risk-ai/vienna-os/issues/new?template=bug_report.md",
+  },
+  {
+    title: "Request Features",
+    description: "Have an idea for Vienna OS? We'd love to hear it.",
+    icon: "💡",
+    href: "https://github.com/risk-ai/vienna-os/issues/new?template=feature_request.md",
+  },
+  {
+    title: "Submit a PR",
+    description: "Code contributions welcome. Check CONTRIBUTING.md for guidelines.",
+    icon: "🔧",
+    href: "https://github.com/risk-ai/vienna-os/blob/main/CONTRIBUTING.md",
+  },
+  {
+    title: "Write Documentation",
+    description: "Help improve docs, write tutorials, or translate to other languages.",
+    icon: "📝",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/docs",
+  },
+  {
+    title: "Share Your Use Case",
+    description: "Using Vienna OS in production? We'd love to feature your story.",
+    icon: "📣",
+    href: "mailto:hello@ai.ventures?subject=Vienna%20OS%20Use%20Case",
+  },
+  {
+    title: "Security Reports",
+    description: "Found a vulnerability? Report it responsibly via our security policy.",
+    icon: "🔒",
+    href: "https://github.com/risk-ai/vienna-os/blob/main/SECURITY.md",
+  },
+];
+
+export default function CommunityPage() {
+  return (
+    <div className="min-h-screen bg-navy-900">
+      {/* Header */}
+      <div className="border-b border-navy-700">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-2 text-white font-bold text-lg">
+            <Shield className="w-5 h-5 text-purple-400" />
+            Vienna OS
+          </a>
+          <div className="flex items-center gap-6">
+            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/examples" className="text-sm text-slate-400 hover:text-white transition">Examples</a>
+            <a
+              href="https://console.regulator.ai"
+              className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition"
+            >
+              Console
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="max-w-6xl mx-auto px-6 pt-16 pb-12">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 text-purple-400 text-sm font-medium mb-4 bg-purple-500/10 px-4 py-2 rounded-full">
+            <Users className="w-4 h-4" />
+            Open Source Community
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Build the Future of AI Governance
+          </h1>
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            Vienna OS is open source under the BSL-1.1 license. Join developers, security engineers,
+            and compliance professionals building responsible AI infrastructure.
+          </p>
+        </div>
+
+        {/* Community Channels */}
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          {channels.map((channel) => (
+            <a
+              key={channel.name}
+              href={channel.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-navy-800 border border-navy-700 rounded-2xl p-8 hover:border-purple-500/30 transition group"
+            >
+              <div className={`w-14 h-14 ${channel.color} rounded-xl flex items-center justify-center mb-6`}>
+                <channel.icon className={`w-7 h-7 ${channel.textColor}`} />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">{channel.name}</h2>
+              <p className="text-slate-400 text-sm mb-6 leading-relaxed">{channel.description}</p>
+              <span className="inline-flex items-center gap-2 text-purple-400 text-sm font-medium group-hover:text-purple-300 transition">
+                {channel.cta}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* Contributing */}
+        <div className="mb-16">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-white mb-3">
+              <Heart className="w-6 h-6 text-red-400 inline mr-2" />
+              Ways to Contribute
+            </h2>
+            <p className="text-slate-400 max-w-lg mx-auto">
+              Every contribution matters — from bug reports to code to documentation.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {contributions.map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-navy-800/50 border border-navy-700 rounded-xl p-6 hover:border-purple-500/20 transition"
+              >
+                <span className="text-2xl mb-3 block">{item.icon}</span>
+                <h3 className="text-white font-semibold mb-1">{item.title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">{item.description}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Open Source Stats */}
+        <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-800/30 rounded-2xl p-12 text-center mb-16">
+          <h2 className="text-2xl font-bold text-white mb-3">Open Source at Heart</h2>
+          <p className="text-slate-400 mb-8 max-w-lg mx-auto">
+            Vienna OS core is open source. Inspect every line of the governance engine that controls your AI agents.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://github.com/risk-ai/vienna-os"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl transition font-semibold border border-slate-600"
+            >
+              <Github className="w-5 h-5" />
+              Star on GitHub
+            </a>
+            <a
+              href="/docs"
+              className="inline-flex items-center justify-center gap-2 text-slate-300 hover:text-white border border-slate-600 hover:border-slate-500 px-8 py-3 rounded-xl transition font-semibold"
+            >
+              <BookOpen className="w-5 h-5" />
+              Read the Docs
+            </a>
+          </div>
+        </div>
+
+        {/* Code of Conduct */}
+        <div className="bg-navy-800/50 border border-navy-700 rounded-2xl p-8 text-center">
+          <Lightbulb className="w-8 h-8 text-yellow-400 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">Community Guidelines</h3>
+          <p className="text-slate-400 max-w-lg mx-auto text-sm leading-relaxed">
+            We&apos;re committed to providing a welcoming, inclusive environment for everyone.
+            Be respectful, constructive, and helpful. See our{" "}
+            <a
+              href="https://github.com/risk-ai/vienna-os/blob/main/CODE_OF_CONDUCT.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300 transition"
+            >
+              Code of Conduct
+            </a>{" "}
+            for details.
+          </p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t border-navy-700 mt-16">
+        <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
+          <span className="text-sm text-slate-500">© 2026 Technetwork 2 LLC dba ai.ventures</span>
+          <div className="flex items-center gap-1">
+            <Shield className="w-4 h-4 text-purple-400" />
+            <span className="text-sm text-slate-500">Vienna OS</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

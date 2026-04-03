@@ -48,6 +48,27 @@ export function createManagedExecutionRouter(): Router {
 
       console.log(`[ManagedExecution] Starting ${execId} — ${steps.length} steps, tenant=${tenantId}`);
 
+      // 0. Validate warrant if provided (reject expired/revoked/invalid warrants)
+      if (warrant_id) {
+        try {
+          const viennaCore = (req as any).app?.locals?.viennaCore;
+          if (viennaCore?.warrant) {
+            const verification = await viennaCore.warrant.verify(warrant_id);
+            if (!verification.valid) {
+              return res.status(403).json({
+                success: false,
+                error: `Warrant invalid: ${verification.reason}`,
+                code: 'WARRANT_INVALID',
+                warrant_id,
+              });
+            }
+          }
+        } catch (verifyErr) {
+          console.warn(`[ManagedExecution] Warrant verification failed for ${warrant_id}:`, verifyErr);
+          // Don't block execution if warrant system is unavailable — log and continue
+        }
+      }
+
       // 1. Create execution record (state: planned)
       await createExecution({
         execution_id: execId,

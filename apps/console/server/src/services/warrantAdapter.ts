@@ -63,11 +63,14 @@ export class WarrantAdapter {
     // Store Vienna warrant fields in the 'scope' JSONB column
     const sql = `
       INSERT INTO regulator.warrants (
-        intent_id, agent_id, risk_tier, scope, signature, expires_at,
-        revoked, issued_by, created_at
+        warrant_id, intent_id, agent_id, risk_tier, scope, signature, expires_at,
+        revoked, issued_by, tenant_id, created_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()
       )
+      ON CONFLICT (warrant_id) WHERE warrant_id IS NOT NULL DO UPDATE SET
+        status = EXCLUDED.scope->>'status',
+        updated_at = NOW()
       RETURNING id
     `;
 
@@ -93,7 +96,18 @@ export class WarrantAdapter {
       invalidation_reason: warrant.invalidation_reason,
     };
 
+    // Resolve tenant_id: if it's a UUID string, use it directly; otherwise look up or use null
+    let tenantIdParam: string | null = null;
+    if (this.tenantId && this.tenantId !== 'default') {
+      // Check if it's a valid UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(this.tenantId)) {
+        tenantIdParam = this.tenantId;
+      }
+    }
+
     const result = await queryOne<{ id: string }>(sql, [
+      warrant.warrant_id, // warrant_id
       warrant.plan_id || warrant.warrant_id, // intent_id
       warrant.issued_by || 'framework_api', // agent_id
       warrant.risk_tier || 'T0',
@@ -102,6 +116,7 @@ export class WarrantAdapter {
       warrant.expires_at,
       warrant.status === 'invalidated', // revoked boolean
       warrant.issued_by || 'vienna',
+      tenantIdParam, // tenant_id (UUID or null)
     ]);
 
     console.log(`[WarrantAdapter] Saved warrant ${warrant.warrant_id} (DB ID: ${result?.id}) for tenant ${this.tenantId}`);
@@ -111,13 +126,13 @@ export class WarrantAdapter {
    * Load warrant from database (adapted to existing schema)
    */
   async loadWarrant(warrantId: string): Promise<WarrantRecord | null> {
-    // Search for warrant_id in the scope JSONB column
+    // Search by warrant_id column or scope JSONB
     const sql = `
       SELECT 
         id, intent_id, agent_id, risk_tier, scope, signature, expires_at,
         revoked, revoked_at, revoked_reason, issued_by, created_at
       FROM regulator.warrants
-      WHERE scope->>'warrant_id' = $1
+      WHERE warrant_id = $1 OR scope->>'warrant_id' = $1
       ORDER BY created_at DESC
       LIMIT 1
     `;

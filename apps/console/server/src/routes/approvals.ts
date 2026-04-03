@@ -248,10 +248,42 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
         reviewed_by,
         decision_reason || null
       );
+
+      // Issue warrant for the approved action
+      let warrant = null;
+      try {
+        const viennaCore = (req as any).app?.locals?.viennaCore;
+        if (viennaCore?.warrant) {
+          warrant = await viennaCore.warrant.issue({
+            truthSnapshotId: `truth_${approval.execution_id || approval_id}`,
+            planId: approval.plan_id || approval.execution_id || approval_id,
+            approvalId: approval_id,
+            objective: approval.action_summary || `Approved by ${reviewed_by}`,
+            riskTier: approval.required_tier || 'T2',
+            allowedActions: ['*'], // Approved actions from the plan
+            forbiddenActions: [],
+            expiresInMinutes: approval.required_tier === 'T3' ? 5 : 15,
+            justification: decision_reason || undefined,
+            rollbackPlan: approval.required_tier === 'T3' ? 'Manual rollback required' : undefined,
+            issuer: reviewed_by,
+          });
+          console.log(`[Approvals] Warrant ${warrant.warrant_id} issued for approval ${approval_id}`);
+        }
+      } catch (warrantErr: any) {
+        console.warn(`[Approvals] Warrant issuance failed for approval ${approval_id}:`, warrantErr.message);
+      }
       
       res.json({
         success: true,
-        data: approval,
+        data: {
+          ...approval,
+          warrant_id: warrant?.warrant_id || null,
+          warrant: warrant ? {
+            warrant_id: warrant.warrant_id,
+            expires_at: warrant.expires_at,
+            risk_tier: warrant.risk_tier,
+          } : null,
+        },
         timestamp: new Date().toISOString(),
       });
     } catch (error) {

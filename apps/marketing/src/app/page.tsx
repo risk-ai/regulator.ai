@@ -529,7 +529,7 @@ export default function Home() {
                 ["#pricing", "Pricing"],
                 ["/enterprise", "Enterprise"],
                 ["/compare", "Compare"],
-                ["/demo", "Demo"],
+                ["/try", "Try Live"],
                 ["/docs", "Docs"],
               ].map(([href, label]) => (
                 <a key={href} href={href} className="text-sm text-slate-400 hover:text-white transition font-medium tracking-wide">{label}</a>
@@ -553,7 +553,7 @@ export default function Home() {
               <a href="#industries" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Industries</a>
               <a href="#pricing" className="block text-sm text-slate-300 hover:text-white transition" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
               <a href="/enterprise" className="block text-sm text-slate-300 hover:text-white transition">Enterprise</a>
-              <a href="/demo" className="block text-sm text-slate-300 hover:text-white transition">Demo</a>
+              <a href="/try" className="block text-sm text-slate-300 hover:text-white transition">Try Live</a>
               <a href="/docs" className="block text-sm text-slate-300 hover:text-white transition">Docs</a>
               <a href="/blog" className="block text-sm text-slate-300 hover:text-white transition">Blog</a>
               <a 
@@ -608,12 +608,12 @@ export default function Home() {
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 animate-fade-up" style={{ animationDelay: "0.4s" }}>
                 <a 
-                  href="/demo" 
-                  onClick={() => analytics.ctaClick('hero', 'watch_demo')}
+                  href="/try" 
+                  onClick={() => analytics.ctaClick('hero', 'try_sandbox')}
                   className="text-sm text-slate-400 hover:text-purple-400 transition-colors flex items-center gap-2 group"
                 >
                   <Play className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  Watch Demo
+                  Interactive Demo
                 </a>
                 <a 
                   href="/docs" 
@@ -1684,7 +1684,7 @@ export default function Home() {
               </div>
               
               {[
-                { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Live Demo", "/demo"], ["Try Live", "/try"], ["Docs", "/docs"], ["Enterprise", "/enterprise"], ["Pricing", "/pricing"], ["Status", "/status"]] },
+                { title: "Product", links: [["Console", "https://console.regulator.ai"], ["Try Live", "/try"], ["Docs", "/docs"], ["Enterprise", "/enterprise"], ["Pricing", "/pricing"], ["Status", "/status"]] },
                 { title: "Company", links: [["About", "/about"], ["Blog", "/blog"], ["Changelog", "/changelog"], ["Contact", "/contact"], ["Security", "/security"]] },
                 { title: "Legal", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["FAQ", "/faq"]] },
                 { title: "Connect", links: [["GitHub", "https://github.com/risk-ai/regulator.ai"], ["Report Bug", "https://github.com/risk-ai/regulator.ai/issues/new"], ["Twitter", "https://twitter.com/Vienna_OS"], ["LinkedIn", "https://linkedin.com/company/vienna-os"], ["Discord", "https://discord.gg/VpQUjSTw"]] },

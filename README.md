@@ -103,7 +103,7 @@ Native language bindings for seamless integration:
 
 ```typescript
 // TypeScript
-import { ViennaClient } from '@vienna-os/client';
+import { ViennaClient } from '@vienna-os/sdk';
 const vienna = new ViennaClient({ endpoint: 'https://vienna.company.com' });
 await vienna.submitIntent('deploy_service', { service: 'api', version: '1.2.3' });
 ```
@@ -167,13 +167,13 @@ Core governance algorithms protected under Patent Application #64/018,152
 ### Installation
 
 ```bash
-npm install @vienna-os/core
+npm install @vienna-os/sdk
 ```
 
 ### Basic Usage
 
 ```javascript
-import { Vienna } from '@vienna-os/core';
+import { Vienna } from '@vienna-os/sdk';
 
 // Initialize Vienna OS client
 const vienna = new Vienna({
@@ -280,11 +280,11 @@ class TradingCrew(Crew):
 
 ## Links
 
-- 📚 **[Documentation](https://docs.vienna-os.com)** — Complete setup and API reference
-- 🚀 **[Live Demo](https://demo.vienna-os.com)** — Try Vienna OS with sample agents
-- 🖥️ **[Console](https://console.vienna-os.com)** — Manage your Vienna OS instance  
-- 💬 **[Discord](https://discord.gg/vienna-os)** — Community support and discussions
-- 📝 **[Blog](https://blog.vienna-os.com)** — Architecture deep-dives and case studies
+- 📚 **[Documentation](https://regulator.ai/docs)** — Complete setup and API reference
+- 🚀 **[Try Live](https://regulator.ai/try)** — Interactive sandbox with real governance pipeline
+- 🖥️ **[Console](https://console.regulator.ai)** — Manage your Vienna OS instance  
+- 💬 **[Discord](https://discord.gg/VpQUjSTw)** — Community support and discussions
+- 📝 **[Blog](https://regulator.ai/blog)** — Architecture deep-dives and case studies
 
 ---
 
@@ -369,6 +369,6 @@ Vienna OS is developed by [ai.ventures](https://ai.ventures) in partnership with
 
 **Govern your agents. Ship with confidence.**
 
-[🌐 vienna-os.com](https://vienna-os.com) • [📧 hello@vienna-os.com](mailto:hello@vienna-os.com) • [🐙 GitHub](https://github.com/risk-ai/regulator.ai)
+[🌐 regulator.ai](https://regulator.ai) • [📧 admin@ai.ventures](mailto:admin@ai.ventures) • [🐙 GitHub](https://github.com/risk-ai/regulator.ai)
 
 </div>

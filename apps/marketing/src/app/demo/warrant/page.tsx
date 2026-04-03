@@ -320,7 +320,7 @@ export default function WarrantDemo() {
           <span className="font-semibold text-sm">Vienna OS</span>
         </a>
         <div className="flex items-center gap-4">
-          <a href="/demo" className="text-xs text-slate-400 hover:text-white transition">Multi-Agent Demo</a>
+          <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Multi-Agent Demo</a>
           <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Try API</a>
           <a href="/signup" className="text-xs bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg transition font-medium">
             Get Started
@@ -745,7 +745,7 @@ export default function WarrantDemo() {
               Start Governing <ArrowRight className="w-4 h-4" />
             </a>
             <a
-              href="/demo"
+              href="/try"
               className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition text-sm border border-navy-700"
             >
               Watch Multi-Agent Demo

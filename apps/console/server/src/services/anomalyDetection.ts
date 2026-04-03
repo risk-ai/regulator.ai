@@ -309,6 +309,76 @@ export class AnomalyDetectionService {
   }
 
   /**
+   * Get agent behavioral baseline
+   */
+  async getAgentBaseline(agentId: string): Promise<any | null> {
+    try {
+      const stateGraph = await this.getStateGraph();
+      
+      // Get historical events for baseline calculation (last 30 days)
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const events = await this.getRecentAuditEvents(thirtyDaysAgo);
+      const agentEvents = events.filter(e => e.agent_id === agentId);
+      
+      if (agentEvents.length < 10) {
+        // Not enough data for baseline
+        return null;
+      }
+
+      // Calculate baseline metrics
+      const actionTypes = new Map<string, number>();
+      const hourlyActivity = new Map<number, number>();
+      let totalErrorRate = 0;
+      let errorCount = 0;
+
+      for (const event of agentEvents) {
+        // Action type distribution
+        const actionType = event.action_type || 'unknown';
+        actionTypes.set(actionType, (actionTypes.get(actionType) || 0) + 1);
+
+        // Activity by hour
+        const hour = new Date(event.created_at).getHours();
+        hourlyActivity.set(hour, (hourlyActivity.get(hour) || 0) + 1);
+
+        // Error rate
+        if (event.event === 'execution_denied' || event.event === 'execution_failed') {
+          errorCount++;
+        }
+      }
+
+      totalErrorRate = (errorCount / agentEvents.length) * 100;
+
+      // Calculate velocity (events per day)
+      const firstEvent = new Date(agentEvents[0].created_at);
+      const lastEvent = new Date(agentEvents[agentEvents.length - 1].created_at);
+      const durationDays = Math.max(1, (lastEvent.getTime() - firstEvent.getTime()) / (24 * 60 * 60 * 1000));
+      const velocityMean = agentEvents.length / durationDays;
+
+      return {
+        agent_id: agentId,
+        created_at: firstEvent.toISOString(),
+        last_updated: lastEvent.toISOString(),
+        sample_size: agentEvents.length,
+        metrics: {
+          velocity: {
+            mean: Math.round(velocityMean * 100) / 100,
+            std_dev: Math.round(velocityMean * 0.2 * 100) / 100, // Estimate: 20% of mean
+          },
+          error_rate: {
+            mean: Math.round(totalErrorRate * 100) / 100,
+            std_dev: Math.round(totalErrorRate * 0.15 * 100) / 100, // Estimate: 15% of mean
+          },
+        },
+        action_patterns: Object.fromEntries(actionTypes),
+        active_hours: Object.fromEntries(hourlyActivity),
+      };
+    } catch (error) {
+      console.error('[AnomalyDetection] Failed to get agent baseline:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get anomaly statistics
    */
   async getStats(): Promise<any> {

@@ -6,7 +6,7 @@
 import { Router, Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/jwtAuth.js';
 import { getTenantId } from '../middleware/tenantContext.js';
-import { query } from '../db/postgres.js';
+import { query, queryOne } from '../db/postgres.js';
 
 export function createAnalyticsRouter(): Router {
   const router = Router();
@@ -282,31 +282,76 @@ export function createAnalyticsRouter(): Router {
       const { period = '7d' } = req.query;
 
       // Calculate time range
-      let since = new Date();
+      const endDate = new Date();
+      const startDate = new Date();
       switch (period) {
         case '24h':
-          since.setHours(since.getHours() - 24);
+          startDate.setHours(startDate.getHours() - 24);
           break;
         case '7d':
-          since.setDate(since.getDate() - 7);
+          startDate.setDate(startDate.getDate() - 7);
           break;
         case '30d':
-          since.setDate(since.getDate() - 30);
+          startDate.setDate(startDate.getDate() - 30);
           break;
       }
 
-      // Get cost metrics (placeholder - needs actual cost tracking)
+      // Get cost metrics from execution metadata
+      // Cost is estimated from token usage in execution results
+      const costQuery = `
+        SELECT 
+          COALESCE(SUM((result->>'estimated_cost')::numeric), 0) as total_cost,
+          COUNT(*) as execution_count
+        FROM regulator.executions
+        WHERE tenant_id = $1
+          AND created_at >= $2
+          AND created_at < $3
+          AND result IS NOT NULL
+          AND result->>'estimated_cost' IS NOT NULL
+      `;
+      
+      const costResult = await queryOne<{ total_cost: number; execution_count: number }>(
+        costQuery,
+        [tenantId, startDate.toISOString(), endDate.toISOString()]
+      );
+
+      // Get cost breakdown by agent
+      const agentCostQuery = `
+        SELECT 
+          e.agent_id,
+          COALESCE(SUM((e.result->>'estimated_cost')::numeric), 0) as cost,
+          COUNT(*) as executions
+        FROM regulator.executions e
+        WHERE e.tenant_id = $1
+          AND e.created_at >= $2
+          AND e.created_at < $3
+          AND e.result IS NOT NULL
+          AND e.result->>'estimated_cost' IS NOT NULL
+        GROUP BY e.agent_id
+        ORDER BY cost DESC
+        LIMIT 10
+      `;
+      
+      const agentCosts = await query<{ agent_id: string; cost: number; executions: number }>(
+        agentCostQuery,
+        [tenantId, startDate.toISOString(), endDate.toISOString()]
+      );
+
       const costData = {
         period,
-        total_estimated_cost: 0, // TODO: Implement cost tracking
-        cost_by_agent: [],
-        cost_trend: []
+        total_estimated_cost: parseFloat(costResult?.total_cost?.toString() || '0'),
+        execution_count: costResult?.execution_count || 0,
+        cost_by_agent: agentCosts.map(row => ({
+          agent_id: row.agent_id,
+          cost: parseFloat(row.cost.toString()),
+          executions: row.executions
+        })),
+        cost_trend: [] // Trend analysis would require time-bucketing
       };
 
       res.json({
         success: true,
-        data: costData,
-        message: 'Cost tracking coming soon'
+        data: costData
       });
     } catch (error) {
       console.error('[Analytics] Costs error:', error);

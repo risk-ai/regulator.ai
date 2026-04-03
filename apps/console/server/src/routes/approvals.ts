@@ -70,7 +70,7 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
           step_id: approval.step_id,
           tier: approval.required_tier, // Map required_tier → tier
           target_id: targetEntities[0] || 'unknown', // Extract first target
-          action_type: 'restart_service', // TODO: Extract from plan
+          action_type: approval.action_type || approval.action_summary?.split(' ')[0]?.toLowerCase() || 'unknown', // Extract from approval or summary
           action_summary: approval.action_summary,
           risk_summary: approval.risk_summary,
           status: approval.status,

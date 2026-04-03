@@ -69,7 +69,7 @@ router.get('/agents/:agentId', async (req, res) => {
     const agentId = req.params.agentId;
 
     // Get agent baseline for debugging (if available)
-    const baseline = null; // TODO: Implement getAgentBaseline if needed
+    const baseline = await detector.getAgentBaseline(agentId);
     
     // Filter anomalies for this agent
     const filters = {

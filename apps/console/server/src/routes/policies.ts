@@ -16,8 +16,8 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
    */
   router.get('/', async (req: Request, res: Response) => {
     try {
-      // TODO: Get tenant_id from authenticated session
-      const tenant_id = 'default';
+      // Get tenant_id from authenticated session (set by auth middleware)
+      const tenant_id = (req as any).user?.tenantId || (req as any).session?.tenantId || 'default';
       
       // TEMP: Return empty array until StateGraph API is updated
       // Vienna Core is operational, but legacy route needs refactoring
@@ -65,9 +65,9 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
         });
       }
       
-      // TODO: Get tenant_id and operator_id from authenticated session
-      const tenant_id = 'default';
-      const created_by = (req as any).session?.operator || 'unknown';
+      // Get tenant_id and operator_id from authenticated session (set by auth middleware)
+      const tenant_id = (req as any).user?.tenantId || (req as any).session?.tenantId || 'default';
+      const created_by = (req as any).user?.email || (req as any).session?.operator || 'unknown';
       
       const stateGraph = viennaRuntime.getStateGraph();
       const policy_id = stateGraph.createPolicy({

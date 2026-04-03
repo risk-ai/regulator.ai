@@ -279,6 +279,24 @@ export class ChatHistoryService {
   }
 
   /**
+   * Get chat history for a thread
+   */
+  getHistory(threadId: string, limit?: number): ChatMessage[] {
+    if (!this.db) throw new Error('Database not initialized');
+
+    let query = 'SELECT * FROM messages WHERE threadId = ? ORDER BY timestamp ASC';
+    const params: any[] = [threadId];
+
+    if (limit) {
+      query += ' LIMIT ?';
+      params.push(limit);
+    }
+
+    const stmt = this.db.prepare(query);
+    return stmt.all(...params) as ChatMessage[];
+  }
+
+  /**
    * Create a message (and thread if needed)
    */
   createMessage(options: CreateMessageOptions): { message: ChatMessage; thread: ChatThread } {

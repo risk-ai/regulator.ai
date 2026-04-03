@@ -201,7 +201,8 @@ async function start() {
       runtimeStatsService,
       providerHealthService,
       systemNowService,
-      agentIntentBridge
+      agentIntentBridge,
+      chatHistory
     );
     
     // Expose State Graph and Workspace Manager to routes (Phase 13)

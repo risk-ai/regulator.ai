@@ -111,7 +111,8 @@ export function createApp(
   runtimeStatsService?: RuntimeStatsService,
   providerHealthService?: ProviderHealthService,
   systemNowService?: SystemNowService,
-  agentIntentBridge?: any
+  agentIntentBridge?: any,
+  chatHistoryService?: any
 ): Express {
   const app = express();
   
@@ -343,7 +344,7 @@ export function createApp(
   app.use(`${apiPrefix}/system/services`, requireAuth, createServicesRouter(viennaRuntime));
   
   // Chat (require auth) - Phase 6.6: Route through Vienna for LLM provider selection
-  app.use(`${apiPrefix}/chat`, requireAuth, createChatRouter(viennaRuntime, providerHealthService));
+  app.use(`${apiPrefix}/chat`, requireAuth, createChatRouter(viennaRuntime, providerHealthService, chatHistoryService));
   app.use(`${apiPrefix}/approvals`, requireAuth, createApprovalsRouter(viennaRuntime));
   
   // Files workspace (require auth)

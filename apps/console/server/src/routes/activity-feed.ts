@@ -351,23 +351,15 @@ export function createActivityFeedRouter(viennaRuntime: ViennaRuntimeService): R
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    // SSE streaming - send heartbeat for now
-    // TODO: Implement actual event streaming when Vienna Runtime supports EventEmitter
+    // Note: Real-time event streaming is available via /api/v1/stream endpoint
+    // This endpoint provides a simple heartbeat-only feed
+    // For full SSE events, clients should use the dedicated stream endpoint
     const heartbeat = setInterval(() => {
       res.write(`:heartbeat\n\n`);
-    }, 30000)
-
-    req.on('close', () => {
-      clearInterval(heartbeat);
-    });
-
-    // Keep-alive ping every 30 seconds
-    const keepAlive = setInterval(() => {
-      res.write(':ping\n\n');
     }, 30000);
 
     req.on('close', () => {
-      clearInterval(keepAlive);
+      clearInterval(heartbeat);
     });
   });
 

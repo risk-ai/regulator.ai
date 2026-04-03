@@ -124,8 +124,19 @@ export function createAssistantRouter(
         reason = 'service_unavailable';
       }
       
-      // TODO: Add runtime health check
-      // For now, assume runtime healthy if we got this far
+      // Check Vienna Runtime health
+      let runtimeHealthy = true;
+      try {
+        const runtimeHealth = vienna.getHealth();
+        runtimeHealthy = runtimeHealth.state === 'HEALTHY' && runtimeHealth.executor_ready;
+        if (!runtimeHealthy) {
+          degraded = true;
+          if (!reason) reason = 'runtime_degraded';
+        }
+      } catch (error) {
+        console.warn('[AssistantRouter] Failed to check runtime health:', error);
+        degraded = true;
+      }
       
       const response: SuccessResponse<AssistantStatusResponse> = {
         success: true,

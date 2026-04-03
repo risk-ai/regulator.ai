@@ -12,22 +12,14 @@
 
 import { Router, Request, Response } from 'express';
 import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
+import type { ChatHistoryService } from '../services/chatHistoryService.js';
 
 export function createChatRouter(
   vienna: ViennaRuntimeService,
-  providerHealthService?: any
+  providerHealthService?: any,
+  chatHistoryService?: ChatHistoryService
 ): Router {
   const router = Router();
-  
-  // TODO: Implement proper chat service
-  const chatService = {
-    async getHistory(params: any) {
-      return { messages: [], hasMore: false };
-    },
-    async getThreads(params: any) {
-      return { threads: [], hasMore: false };
-    }
-  };
   
   /**
    * POST /api/v1/chat/message
@@ -173,17 +165,24 @@ export function createChatRouter(
         return;
       }
       
-      const history = await chatService.getHistory({
-        threadId,
-        limit,
-        before,
-      });
+      // Get history from ChatHistoryService if available
+      let messages = [];
+      if (chatHistoryService) {
+        const history = await chatHistoryService.getHistory(threadId, limit);
+        messages = history.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+        }));
+      }
       
       res.json({
         success: true,
         data: {
           threadId,
-          messages: history,
+          messages,
+          hasMore: false, // TODO: Implement pagination
         },
         timestamp: new Date().toISOString(),
       });
@@ -208,10 +207,22 @@ export function createChatRouter(
       const status = req.query.status as 'active' | 'archived' | undefined;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
       
-      const threads = await chatService.getThreads({
-        status,
-        limit,
-      });
+      // Get threads from ChatHistoryService if available
+      let threads: any[] = [];
+      if (chatHistoryService) {
+        const allThreads = await chatHistoryService.listThreads();
+        threads = allThreads
+          .filter((t: any) => !status || t.status === status)
+          .slice(0, limit)
+          .map((t: any) => ({
+            id: t.id,
+            status: t.status || 'active',
+            lastMessage: t.lastMessage,
+            messageCount: t.messageCount || 0,
+            createdAt: t.createdAt,
+            updatedAt: t.updatedAt,
+          }));
+      }
       
       res.json({
         success: true,

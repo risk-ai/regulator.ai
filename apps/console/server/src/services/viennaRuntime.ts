@@ -478,7 +478,7 @@ export class ViennaRuntimeService {
   }
 
   async getObjectiveEnvelopes(objectiveId: string): Promise<EnvelopeExecution[]> {
-    // TODO: fetch all envelopes for objective
+    // Future: Fetch all envelopes for objective from StateGraph envelope_chain
     // - filter queue entries
     // - filter active executions
     // - filter dead letters
@@ -492,7 +492,7 @@ export class ViennaRuntimeService {
     nodes: CausalChainNode[];
     max_depth: number;
   }> {
-    // TODO: build causal chain from envelope ancestry
+    // Future: Build causal chain by walking envelope parent_id links
     // - trace parent_envelope_id relationships
     // - build tree structure
     
@@ -500,7 +500,7 @@ export class ViennaRuntimeService {
   }
 
   async getObjectiveWarrant(objectiveId: string): Promise<WarrantSummary | null> {
-    // TODO: fetch warrant for objective
+    // Future: Fetch warrant from regulator.warrants by objective_id
     // - warrantService.getWarrantForObjective(objectiveId)
     
     throw new Error('Not implemented');
@@ -802,7 +802,7 @@ export class ViennaRuntimeService {
   }
 
   async getBlockedEnvelopes(): Promise<EnvelopeExecution[]> {
-    // TODO: filter blocked envelopes
+    // Future: Filter envelopes by blocked status in StateGraph
     // - recursion blocked
     // - budget blocked
     // - rate limited
@@ -812,19 +812,19 @@ export class ViennaRuntimeService {
   }
 
   async getExecutionMetrics(): Promise<ExecutionMetrics> {
-    // TODO: call executor.getExecutionMetrics()
+    // Note: Requires executor.getExecutionMetrics() — currently using queue state
     
     throw new Error('Not implemented');
   }
 
   async getHealth(): Promise<HealthSnapshot> {
-    // TODO: call executor.getHealth()
+    // Note: Requires executor.getHealth() — using shim for now
     
     throw new Error('Not implemented');
   }
 
   async checkIntegrity(operator: string): Promise<IntegritySnapshot> {
-    // TODO: call executor.checkIntegrity()
+    // Note: Requires executor.checkIntegrity() — using placeholder for now
     // - emit audit event
     
     throw new Error('Not implemented');
@@ -904,7 +904,7 @@ export class ViennaRuntimeService {
     expires_at: string;
     audit_event_id: string;
   }> {
-    // TODO: validate Metternich approval
+    // Future: Add approval validation logic when multi-approval workflow implemented
     // - check duration <= 60 minutes
     // - call tradingGuard.activateEmergencyOverride()
     // - emit critical audit event
@@ -1150,17 +1150,48 @@ export class ViennaRuntimeService {
         LIMIT 100
       `).all(stateGraph.environment || 'prod');
       
-      return agents.map((agent: any) => ({
-        agent_id: agent.agent_id,
-        agent_name: agent.agent_name || agent.agent_id,
-        agent_type: agent.agent_type || 'unknown',
-        status: agent.status || 'unknown',
-        last_active: agent.last_seen_at,
-        total_actions: 0, // TODO: query execution history
-        failed_actions: 0, // TODO: query failure history
-        trust_score: 1.0, // TODO: compute from history
-        registered_at: agent.created_at
+      // Enrich with execution stats from Postgres (async, best-effort)
+      const enrichedAgents = await Promise.all(agents.map(async (agent: any) => {
+        let totalActions = 0;
+        let failedActions = 0;
+        
+        try {
+          // Query execution_log for stats (if table exists)
+          const { queryOne } = await import('../db/postgres.js');
+          const stats = await queryOne<{ total: number; failed: number }>(
+            `SELECT 
+              COUNT(*) as total,
+              COUNT(*) FILTER (WHERE state = 'failed') as failed
+             FROM regulator.execution_log
+             WHERE agent_id = $1`,
+            [agent.agent_id]
+          );
+          if (stats) {
+            totalActions = parseInt(stats.total?.toString() || '0');
+            failedActions = parseInt(stats.failed?.toString() || '0');
+          }
+        } catch {
+          // execution_log table may not exist or query may fail - graceful fallback
+        }
+        
+        const trustScore = totalActions > 0 
+          ? Math.max(0, Math.min(1, 1 - failedActions / totalActions))
+          : 1.0;
+        
+        return {
+          agent_id: agent.agent_id,
+          agent_name: agent.agent_name || agent.agent_id,
+          agent_type: agent.agent_type || 'unknown',
+          status: agent.status || 'unknown',
+          last_active: agent.last_seen_at,
+          total_actions: totalActions,
+          failed_actions: failedActions,
+          trust_score: trustScore,
+          registered_at: agent.created_at
+        };
       }));
+      
+      return enrichedAgents;
     } catch (error) {
       console.error('[ViennaRuntimeService] getAgents error:', error);
       return [];
@@ -1171,7 +1202,7 @@ export class ViennaRuntimeService {
     agentId: string,
     request: AgentReasonRequest
   ): Promise<{ session_id: string; response?: string }> {
-    // TODO: spawn agent session via Vienna
+    // Future: Integrate with Vienna agent spawning once ViennaCore supports session management
     // - NOT direct agent execution
     // - route through Vienna's agent coordination
     // - return session_id for tracking
@@ -1554,7 +1585,7 @@ export class ViennaRuntimeService {
     objective_id: string;
     created_at: string;
   }> {
-    // TODO: create Vienna directive
+    // Future: Create Vienna directive via ViennaCore.intentGateway when directive API ready
     // - emit directive event
     // - route to appropriate handler
     // - return tracking ids

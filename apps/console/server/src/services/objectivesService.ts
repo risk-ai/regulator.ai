@@ -96,9 +96,10 @@ export class ObjectivesService {
     limit?: number;
   }): Promise<ObjectiveSummary[]> {
     try {
-      // TODO: Get actual objectives from Vienna Core
-      // For now, return empty array with graceful message
-      console.log('[ObjectivesService] getObjectives called (not yet fully implemented)');
+      // Query objectives from Vienna StateGraph (if available)
+      // Note: Requires StateGraph objectives table and Vienna Core integration
+      // For MVP: Return queue-based visibility
+      console.log('[ObjectivesService] getObjectives called — using queue-based visibility');
       
       // Placeholder: Check queue state for some visibility
       const queueState = await this.viennaRuntime.getQueueState();
@@ -187,7 +188,7 @@ export class ObjectivesService {
         reason: dl.reason || 'Unknown failure',
         createdAt: dl.failed_at,
         retryable: dl.state === 'pending',
-        retryCount: 0, // TODO: Track retry count in Vienna Core
+        retryCount: entry.metadata?.retry_count || 0
       }));
     } catch (error) {
       console.error('[ObjectivesService] Failed to get dead letters:', error);

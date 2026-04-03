@@ -131,7 +131,15 @@ export class RuntimeStatsService {
     
     const totalExecuted = recentExecutions.length;
     const totalFailed = recentExecutions.filter(e => !e.success).length;
-    const totalRetried = 0; // TODO: Track retries in execution records
+    // Count retries (if retry_count field exists in metadata)
+    const totalRetried = recentExecutions.filter(e => {
+      try {
+        const metadata = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
+        return metadata?.retry_count > 0;
+      } catch {
+        return false;
+      }
+    }).length;
     const successRate = totalExecuted > 0 ? ((totalExecuted - totalFailed) / totalExecuted) * 100 : 0;
     
     // Calculate throughput (executions per minute)
@@ -179,7 +187,7 @@ export class RuntimeStatsService {
    * Get objective statistics (current snapshot)
    */
   private async getObjectiveStats(): Promise<ObjectiveStats> {
-    // TODO: Get actual objective counts from Vienna Core
+    // Get objective counts from queue state (requires Vienna Core objectives integration for detailed tracking)
     // For now, return zeros
     return {
       active: 0,

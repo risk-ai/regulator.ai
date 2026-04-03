@@ -205,9 +205,10 @@ async function start() {
       chatHistory
     );
     
-    // Expose State Graph and Workspace Manager to routes (Phase 13)
+    // Expose State Graph, Workspace Manager, and Vienna Core to routes (Phase 13)
     app.locals.stateGraph = stateGraph;
     app.locals.workspaceManager = workspaceManager;
+    app.locals.viennaCore = viennaCore;
     
     // Start event stream
     eventStream.start();

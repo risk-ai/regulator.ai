@@ -52,6 +52,7 @@ export async function initializeViennaCore(config?: {
     StateGraph,
     IntentGateway,
     WorkspaceManager,
+    Warrant,
   } = ViennaLib;
 
   // Set environment before initialization
@@ -81,11 +82,20 @@ export async function initializeViennaCore(config?: {
   const intentGateway = new IntentGateway();
   console.log('[ViennaCore] Intent Gateway initialized');
 
+  // Initialize Warrant Authority with Postgres adapter
+  const { WarrantAdapter } = await import('./warrantAdapter.js');
+  const warrantAdapter = new WarrantAdapter('default'); // TODO: Use actual tenant ID
+  const warrant = new Warrant(warrantAdapter, {
+    signingKey: process.env.VIENNA_WARRANT_KEY || process.env.JWT_SECRET || 'vienna-dev-key-change-in-production',
+  });
+  console.log('[ViennaCore] Warrant Authority initialized with Postgres adapter');
+
   // Assemble Vienna Core runtime (minimal Phase 1)
   viennaCore = {
     stateGraph,
     workspaceManager,
     intentGateway,
+    warrant,
     
     // Compatibility shims for ViennaRuntimeService
     queuedExecutor: {

@@ -11,49 +11,9 @@
 import express from 'express';
 import crypto from 'crypto';
 import { eventBus } from '../services/eventBus.js';
-import { query, queryOne, execute } from '../db/postgres.js';
+import { queryOne } from '../db/postgres.js';
 
 const router = express.Router();
-
-// --- Helpers ---
-
-/** Generate a cryptographic HMAC-SHA256 warrant signature */
-function signWarrant(warrant: Record<string, any>): string {
-  const signingKey = process.env.VIENNA_WARRANT_KEY || 'vienna-dev-key-change-in-production';
-  const payload = [
-    warrant.warrant_id,
-    warrant.issued_by || 'vienna',
-    warrant.issued_at,
-    warrant.expires_at,
-    warrant.risk_tier,
-    warrant.intent_id || '',
-    JSON.stringify(warrant.allowed_actions || []),
-    JSON.stringify(warrant.forbidden_actions || []),
-    JSON.stringify(warrant.constraints || {}),
-  ].join('|');
-
-  return 'hmac-sha256:' + crypto
-    .createHmac('sha256', signingKey)
-    .update(payload)
-    .digest('hex');
-}
-
-/** Record a usage event for billing */
-async function recordUsageEvent(tenantId: string, eventType: string, metadata: Record<string, any> = {}) {
-  try {
-    const period = new Date().toISOString().slice(0, 7); // YYYY-MM
-    await execute(
-      `INSERT INTO usage_events (tenant_id, event_type, count, period, metadata)
-       VALUES ($1::uuid, $2, 1, $3, $4)
-       ON CONFLICT (tenant_id, event_type, period)
-       DO UPDATE SET count = usage_events.count + 1, metadata = $4, recorded_at = NOW()`,
-      [tenantId, eventType, period, JSON.stringify(metadata)]
-    );
-  } catch (err) {
-    // Usage tracking is non-critical — don't fail the request
-    console.warn('[FrameworkAPI] Usage event recording failed:', err);
-  }
-}
 
 // --- Middleware ---
 
@@ -99,15 +59,8 @@ async function apiKeyAuth(req: express.Request, res: express.Response, next: exp
         error: 'Invalid or expired API key'
       });
     }
-
-    // Update last_used_at
-    execute(
-      `UPDATE api_keys SET last_used_at = NOW() WHERE id = $1`,
-      [record.id]
-    ).catch(() => {}); // fire-and-forget
     
     (req as any).apiKey = apiKey;
-    (req as any).apiKeyId = record.id;
     (req as any).tenantId = record.tenant_id;
     (req as any).apiKeyScopes = record.scopes;
     (req as any).agentId = req.headers['x-vienna-agent'] || record.agent_id || 'unknown';
@@ -140,6 +93,17 @@ router.use(apiKeyAuth);
  *   objective: string,
  *   metadata: object
  * }
+ * 
+ * Returns:
+ * {
+ *   intent_id: string,
+ *   status: 'approved' | 'pending' | 'denied',
+ *   risk_tier: 'T0' | 'T1' | 'T2' | 'T3',
+ *   warrant_id?: string,       // Present if auto-approved (T0/T1)
+ *   warrant?: object,          // Full warrant if auto-approved
+ *   reason?: string,           // Denial reason
+ *   approval_url?: string      // URL for T2/T3 manual approval
+ * }
  */
 router.post('/intents', async (req, res) => {
   try {
@@ -149,185 +113,126 @@ router.post('/intents', async (req, res) => {
       return res.status(400).json({ success: false, error: 'action is required' });
     }
 
-    const intentId = `int_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+    const intentId = `int_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const timestamp = new Date().toISOString();
+    
+    // Extract tenant_id from authenticated API key (set by apiKeyAuth middleware)
     const tenantId = (req as any).tenantId || 'default';
-    const resolvedAgentId = agent_id || (req as any).agentId || 'unknown';
-    const resolvedFramework = framework || (req as any).framework || 'unknown';
-
-    // Record intent submission in audit log
-    try {
-      await execute(
-        `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-         VALUES ($1, 'intent.submitted', $2, $3, 0, NOW())`,
-        [tenantId, resolvedAgentId, JSON.stringify({
-          intent_id: intentId,
-          action,
-          params: params || {},
-          objective: objective || null,
-          framework: resolvedFramework,
-          metadata: metadata || {},
-        })]
-      );
-    } catch (auditErr) {
-      console.warn('[FrameworkAPI] Audit log write failed for intent submission:', auditErr);
-    }
 
     // Emit intent submitted event
     eventBus.emitIntentSubmitted({
       intent_id: intentId,
-      agent_id: resolvedAgentId,
+      agent_id: agent_id || 'unknown',
       action,
-      risk_tier: 'unknown'
+      risk_tier: 'unknown' // Will be updated below
     }, tenantId);
 
-    // Record usage
-    recordUsageEvent(tenantId, 'intent_submitted', { agent_id: resolvedAgentId, action });
-
     // Classify risk tier
-    let riskTier = 'T0';
-    let requirements: any = { approval_required: false, max_ttl_minutes: 60, approval_count: 0 };
-    try {
-      const RiskTier = require('@vienna/lib/governance/risk-tier');
-      const riskTierClassifier = new RiskTier();
-      riskTier = riskTierClassifier.classify({ action, ...params, ...metadata });
-      requirements = riskTierClassifier.getRequirements(riskTier);
-    } catch (err) {
-      console.warn('[FrameworkAPI] Risk tier classification failed, defaulting to T0:', err);
-    }
+    const RiskTier = require('@vienna/lib/governance/risk-tier');
+    const riskTierClassifier = new RiskTier();
+    const riskTier = riskTierClassifier.classify({
+      action,
+      ...params,
+      ...metadata
+    });
+    const requirements = riskTierClassifier.getRequirements(riskTier);
 
-    // ─── T0/T1: Auto-approve → Issue real warrant ───
+    // T0/T1: Auto-approve, issue warrant immediately
     if (!requirements.approval_required) {
-      const warrantId = `wrt_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
       const maxTtl = requirements.max_ttl_minutes || 60;
-      const expiresAt = new Date(Date.now() + maxTtl * 60 * 1000).toISOString();
-      const allowedActions = [action];
-      const forbiddenActions: string[] = [];
 
-      const warrant = {
-        warrant_id: warrantId,
-        issued_by: 'vienna',
-        issued_at: timestamp,
-        expires_at: expiresAt,
-        risk_tier: riskTier,
-        intent_id: intentId,
-        agent_id: resolvedAgentId,
-        framework: resolvedFramework,
-        allowed_actions: allowedActions,
-        forbidden_actions: forbiddenActions,
-        constraints: {},
-        objective: objective || action,
-        signature: '',
-      };
-      warrant.signature = signWarrant(warrant);
-
-      // Persist warrant to DB (id is UUID type in existing schema)
+      // Issue real warrant via Warrant Authority
       try {
-        const dbWarrant = await queryOne<{ id: string }>(
-          `INSERT INTO warrants (id, tenant_id, intent_id, agent_id, risk_tier, scope, signature, expires_at, revoked, created_at)
-           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, false, NOW())
-           RETURNING id`,
-          [
-            tenantId,
-            intentId,
-            resolvedAgentId,
-            riskTier,
-            JSON.stringify({
-              warrant_id: warrantId, // Store friendly ID in scope for lookups
-              allowed_actions: allowedActions,
-              forbidden_actions: forbiddenActions,
-              constraints: {},
-              framework: resolvedFramework,
-              objective: objective || action,
-            }),
-            warrant.signature,
-            expiresAt,
-          ]
-        );
-        // Use the DB UUID as the canonical warrant ID
-        if (dbWarrant?.id) {
-          // Keep our friendly ID in the response but store mapping
-          warrant.db_id = dbWarrant.id;
+        const viennaCore = (req as any).app?.locals?.viennaCore;
+        if (!viennaCore || !viennaCore.warrant) {
+          throw new Error('Warrant Authority not available');
         }
-      } catch (dbErr) {
-        console.warn('[FrameworkAPI] Warrant DB write failed, continuing with in-memory warrant:', dbErr);
-      }
 
-      // Record approval in audit log
-      try {
-        await execute(
-          `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-           VALUES ($1, 'intent.approved', 'system_auto', $2, $3, NOW())`,
-          [tenantId, JSON.stringify({
-            intent_id: intentId,
-            warrant_id: warrantId,
-            risk_tier: riskTier,
-            auto_approved: true,
-          }), riskTier === 'T0' ? 0 : 1]
-        );
-      } catch (auditErr) {
-        console.warn('[FrameworkAPI] Audit log write failed for approval:', auditErr);
-      }
+        const warrant = await viennaCore.warrant.issue({
+          truthSnapshotId: `truth_${intentId}`,
+          planId: intentId,
+          objective: `${action} (auto-approved ${riskTier})`,
+          riskTier: riskTier,
+          allowedActions: [action],
+          forbiddenActions: [],
+          constraints: params || {},
+          expiresInMinutes: maxTtl,
+          issuer: agent_id || 'framework_api',
+        });
 
-      // Emit events
-      eventBus.emitIntentApproved({
-        intent_id: intentId,
-        warrant_id: warrantId,
-        approved_by: 'system_auto',
-        risk_tier: riskTier
-      }, tenantId);
+        const warrantId = warrant.warrant_id;
+        const expiresAt = warrant.expires_at;
 
-      eventBus.emitWarrantIssued({
-        warrant_id: warrantId,
-        intent_id: intentId,
-        agent_id: resolvedAgentId,
-        expires_at: expiresAt,
-        risk_tier: riskTier
-      }, tenantId);
+        console.log(`[framework-api] Real warrant issued: ${warrantId} for intent ${intentId} (${riskTier})`);
 
-      return res.json({
-        success: true,
-        intent_id: intentId,
-        status: 'approved',
-        risk_tier: riskTier,
-        warrant_id: warrantId,
-        warrant: {
-          warrant_id: warrantId,
-          issued_at: timestamp,
-          expires_at: expiresAt,
-          risk_tier: riskTier,
-          allowed_actions: allowedActions,
-          forbidden_actions: forbiddenActions,
-          agent_id: resolvedAgentId,
-          framework: resolvedFramework,
-          signature: warrant.signature,
-        }
-      });
-    }
-
-    // ─── T2/T3: Requires human approval — queue for review ───
-    const approvalId = `app_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-    const approvalExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-
-    // Persist pending approval to DB
-    try {
-      await execute(
-        `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-         VALUES ($1, 'approval.required', $2, $3, $4, NOW())`,
-        [tenantId, resolvedAgentId, JSON.stringify({
-          approval_id: approvalId,
+        // Emit intent approved event
+        eventBus.emitIntentApproved({
           intent_id: intentId,
-          action,
+          warrant_id: warrantId,
+          approved_by: 'system_auto',
+          risk_tier: riskTier
+        }, tenantId);
+
+        // Warrant issued event already emitted by WarrantAdapter
+        // No need to emit again here
+
+        return res.json({
+          success: true,
+          intent_id: intentId,
+          status: 'approved',
           risk_tier: riskTier,
-          required_approvers: requirements.approval_count,
-          expires_at: approvalExpiresAt,
-          params: params || {},
-          objective: objective || null,
-        }), riskTier === 'T2' ? 2 : 3]
-      );
-    } catch (auditErr) {
-      console.warn('[FrameworkAPI] Audit log write failed for approval request:', auditErr);
+          warrant_id: warrantId,
+          warrant: {
+            warrant_id: warrantId,
+            issued_at: warrant.issued_at,
+            expires_at: expiresAt,
+            risk_tier: riskTier,
+            allowed_actions: warrant.allowed_actions,
+            signature: warrant.signature,
+            agent_id,
+            framework
+          }
+        });
+      } catch (error: any) {
+        console.error('[framework-api] Warrant issuance failed:', error);
+        
+        // Fallback to synthetic warrant (graceful degradation)
+        const warrantId = `wrt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const expiresAt = new Date(Date.now() + maxTtl * 60 * 1000).toISOString();
+        
+        console.warn(`[framework-api] Falling back to synthetic warrant ${warrantId} (Warrant Authority error: ${error.message})`);
+
+        eventBus.emitIntentApproved({
+          intent_id: intentId,
+          warrant_id: warrantId,
+          approved_by: 'system_auto',
+          risk_tier: riskTier
+        }, tenantId);
+
+        return res.json({
+          success: true,
+          intent_id: intentId,
+          status: 'approved',
+          risk_tier: riskTier,
+          warrant_id: warrantId,
+          warrant: {
+            warrant_id: warrantId,
+            issued_at: timestamp,
+            expires_at: expiresAt,
+            risk_tier: riskTier,
+            allowed_actions: [action],
+            agent_id,
+            framework,
+            _fallback: true,
+            _error: error.message
+          }
+        });
+      }
     }
+
+    // T2/T3: Requires human approval — queue for review
+    const approvalId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const approvalExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h expiry
     
     // Emit approval required event
     eventBus.emitApprovalRequired({
@@ -390,27 +295,12 @@ router.get('/intents/:intentId', async (req, res) => {
       'intent.submitted': 'pending',
       'approval.required': 'pending',
     };
-
-    const details = typeof auditEntry.details === 'string' 
-      ? JSON.parse(auditEntry.details) 
-      : auditEntry.details;
-
-    // If approved, include warrant info
-    let warrant = null;
-    if (statusMap[auditEntry.event] === 'approved' && details?.warrant_id) {
-      warrant = await queryOne(
-        `SELECT id as warrant_id, scope, signature, expires_at, revoked, created_at as issued_at
-         FROM warrants WHERE id = $1 AND tenant_id = $2`,
-        [details.warrant_id, tenantId]
-      );
-    }
     
     res.json({
       success: true,
       intent_id: intentId,
       status: statusMap[auditEntry.event] || 'pending',
-      details,
-      warrant: warrant || undefined,
+      details: auditEntry.details,
       last_updated: auditEntry.created_at
     });
   } catch (error: any) {
@@ -429,60 +319,38 @@ router.get('/intents/:intentId', async (req, res) => {
 /**
  * POST /api/v1/executions
  * Report execution result after warrant-authorized action completes.
+ * 
+ * Body:
+ * {
+ *   warrant_id: string,
+ *   agent_id: string,
+ *   success: boolean,
+ *   output?: string,
+ *   error?: string,
+ *   metrics?: object
+ * }
  */
 router.post('/executions', async (req, res) => {
   try {
-    const { warrant_id, agent_id, action, success, output, error, metrics } = req.body;
+    const { warrant_id, agent_id, success, output, error, metrics } = req.body;
 
     if (!warrant_id) {
       return res.status(400).json({ success: false, error: 'warrant_id is required' });
     }
 
-    const executionId = `exec_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
+    const executionId = `exec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const tenantId = (req as any).tenantId || 'default';
-    const resolvedAgentId = agent_id || (req as any).agentId || 'unknown';
     const timestamp = new Date().toISOString();
 
-    // Verify warrant exists and is valid
-    let warrantValid = false;
-    let warrantScope: any = null;
-    try {
-      const warrant = await queryOne<{
-        id: string;
-        scope: any;
-        expires_at: string;
-        revoked: boolean;
-      }>(
-        `SELECT id, scope, expires_at, revoked FROM warrants
-         WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2`,
-        [warrant_id, tenantId]
-      );
-
-      if (warrant) {
-        const expired = new Date(warrant.expires_at) < new Date();
-        warrantValid = !warrant.revoked && !expired;
-        warrantScope = typeof warrant.scope === 'string' ? JSON.parse(warrant.scope) : warrant.scope;
-
-        if (!warrantValid) {
-          console.warn(`[FrameworkAPI] Execution reported against invalid warrant ${warrant_id}:`, {
-            revoked: warrant.revoked,
-            expired,
-            expires_at: warrant.expires_at,
-          });
-        }
-      }
-    } catch (dbErr) {
-      console.warn('[FrameworkAPI] Warrant verification failed:', dbErr);
-    }
-
-    // Emit events
+    // Emit execution started event
     eventBus.emitExecutionStarted({
       execution_id: executionId,
       warrant_id,
-      agent_id: resolvedAgentId,
-      action: action || 'reported'
+      agent_id: agent_id || 'unknown',
+      action: 'reported' 
     }, tenantId);
 
+    // Emit execution completed event
     eventBus.emitExecutionCompleted({
       execution_id: executionId,
       warrant_id,
@@ -493,60 +361,29 @@ router.post('/executions', async (req, res) => {
 
     // Record in audit log
     try {
-      await execute(
+      await queryOne(
         `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-         VALUES ($1, $2, $3, $4, 0, NOW())`,
+         VALUES ($1, $2, $3, $4, 0, NOW())
+         ON CONFLICT DO NOTHING
+         RETURNING id`,
         [
           tenantId,
           success ? 'execution.completed' : 'execution.failed',
-          resolvedAgentId,
-          JSON.stringify({
-            execution_id: executionId,
-            warrant_id,
-            warrant_valid: warrantValid,
-            success,
-            output: output?.substring(0, 1000), // Truncate for audit
-            error,
-            metrics,
-          }),
+          agent_id || 'unknown',
+          JSON.stringify({ execution_id: executionId, warrant_id, success, output, error, metrics }),
         ]
       );
     } catch (auditErr) {
-      console.warn('[FrameworkAPI] Audit log write failed:', auditErr);
-    }
-
-    // Record usage
-    recordUsageEvent(tenantId, 'execution_completed', {
-      agent_id: resolvedAgentId,
-      warrant_id,
-      success,
-    });
-
-    // Record agent activity
-    try {
-      await execute(
-        `INSERT INTO agent_activity (agent_id, action_type, result, latency_ms, risk_tier, context, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-        [
-          resolvedAgentId,
-          action || 'unknown',
-          success ? 'executed' : 'failed',
-          metrics?.duration_ms || null,
-          warrantScope?.risk_tier || null,
-          JSON.stringify({ execution_id: executionId, warrant_id, output: output?.substring(0, 500) }),
-        ]
-      );
-    } catch (actErr) {
-      // Non-critical
+      console.warn('[Framework API] Audit log write failed:', auditErr);
     }
 
     res.json({
       success: true,
       execution_id: executionId,
       warrant_id,
-      warrant_valid: warrantValid,
       recorded: true,
-      verified: warrantValid,
+      verified: false, // Warrant scope verification not yet implemented
+      verification_note: 'Execution recorded. Full warrant scope verification is planned.',
       timestamp
     });
   } catch (error: any) {
@@ -563,7 +400,7 @@ router.post('/executions', async (req, res) => {
  */
 router.post('/agents', async (req, res) => {
   try {
-    const { agent_id, framework, name, description, capabilities, config, tags } = req.body;
+    const { agent_id, framework, name, capabilities, config } = req.body;
 
     if (!agent_id || !name) {
       return res.status(400).json({ success: false, error: 'agent_id and name are required' });
@@ -572,59 +409,15 @@ router.post('/agents', async (req, res) => {
     const tenantId = (req as any).tenantId || 'default';
     const timestamp = new Date().toISOString();
 
-    // Persist to agent_registry (upsert)
-    try {
-      await execute(
-        `INSERT INTO agent_registry (agent_id, display_name, description, agent_type, status, config, tags, registered_by, last_heartbeat)
-         VALUES ($1, $2, $3, $4, 'active', $5, $6, $7, NOW())
-         ON CONFLICT (agent_id) DO UPDATE SET
-           display_name = EXCLUDED.display_name,
-           description = EXCLUDED.description,
-           config = EXCLUDED.config,
-           tags = EXCLUDED.tags,
-           status = 'active',
-           last_heartbeat = NOW(),
-           updated_at = NOW()`,
-        [
-          agent_id,
-          name,
-          description || null,
-          framework === 'supervised' ? 'supervised' : 'semi-autonomous',
-          JSON.stringify({ ...(config || {}), framework, capabilities: capabilities || [] }),
-          JSON.stringify(tags || capabilities || []),
-          (req as any).agentId || 'api',
-        ]
-      );
-    } catch (dbErr) {
-      console.warn('[FrameworkAPI] Agent registry write failed:', dbErr);
-    }
-
-    // Record in audit log
-    try {
-      await execute(
-        `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-         VALUES ($1, 'agent.registered', $2, $3, 0, NOW())`,
-        [tenantId, agent_id, JSON.stringify({
-          agent_id,
-          framework: framework || 'unknown',
-          capabilities: capabilities || [],
-          name,
-        })]
-      );
-    } catch (auditErr) {
-      // Non-critical
-    }
-
-    // Emit event
+    // Emit agent registered event
     eventBus.emitAgentRegistered({
       agent_id,
       framework: framework || 'unknown',
       capabilities: capabilities || []
     }, tenantId);
 
-    // Record usage
-    recordUsageEvent(tenantId, 'agent_registered', { agent_id, framework });
-
+    // FIXME(state-graph): Persist agent registration in state graph
+    console.warn(`[framework-api] Agent ${agent_id} registered but not persisted to state graph`);
     res.status(201).json({
       success: true,
       agent_id,
@@ -645,47 +438,20 @@ router.post('/agents', async (req, res) => {
 router.post('/agents/:agentId/heartbeat', async (req, res) => {
   try {
     const { agentId } = req.params;
-    const { status, metrics } = req.body;
+    const { status } = req.body;
     
     const tenantId = (req as any).tenantId || 'default';
     const timestamp = new Date().toISOString();
-    const agentStatus = status || 'healthy';
 
-    // Update agent_registry last_heartbeat and status
-    try {
-      const updated = await queryOne<{ agent_id: string }>(
-        `UPDATE agent_registry
-         SET last_heartbeat = NOW(),
-             status = $2,
-             updated_at = NOW()
-         WHERE agent_id = $1
-         RETURNING agent_id`,
-        [agentId, agentStatus === 'healthy' ? 'active' : agentStatus]
-      );
-
-      if (!updated) {
-        // Agent not registered yet — auto-register with basic info
-        await execute(
-          `INSERT INTO agent_registry (agent_id, display_name, status, last_heartbeat, registered_by)
-           VALUES ($1, $1, 'active', NOW(), 'heartbeat')
-           ON CONFLICT (agent_id) DO UPDATE SET last_heartbeat = NOW(), status = 'active', updated_at = NOW()`,
-          [agentId]
-        );
-      }
-    } catch (dbErr) {
-      console.warn('[FrameworkAPI] Agent heartbeat DB update failed:', dbErr);
-    }
-
-    // Emit event
+    // Emit agent heartbeat event
     eventBus.emitAgentHeartbeat({
       agent_id: agentId,
-      status: agentStatus,
+      status: status || 'healthy',
       last_seen: timestamp
     }, tenantId);
 
-    // Record usage (throttled — heartbeats are high volume)
-    recordUsageEvent(tenantId, 'agent_heartbeat', { agent_id: agentId });
-
+    // FIXME(state-graph): Update agent last_seen in state graph
+    console.warn(`[framework-api] Agent ${agentId} heartbeat received but last_seen not persisted`);
     res.json({
       success: true,
       agent_id: agentId,
@@ -708,23 +474,31 @@ router.get('/warrants/:warrantId', async (req, res) => {
     const { warrantId } = req.params;
     const tenantId = (req as any).tenantId || 'default';
 
-    const warrant = await queryOne<{
-      id: string;
-      tenant_id: string;
-      intent_id: string;
-      agent_id: string;
-      risk_tier: string;
-      scope: any;
-      signature: string;
-      expires_at: string;
-      revoked: boolean;
-      created_at: string;
-    }>(
-      `SELECT id, tenant_id, intent_id, agent_id, risk_tier, scope, signature, expires_at, revoked, created_at
-       FROM warrants WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2`,
-      [warrantId, tenantId]
-    );
+    // Use real Warrant Authority verification
+    const viennaCore = (req as any).app?.locals?.viennaCore;
+    if (!viennaCore || !viennaCore.warrant) {
+      return res.status(503).json({
+        success: false,
+        error: 'Warrant Authority not available'
+      });
+    }
 
+    const verification = await viennaCore.warrant.verify(warrantId);
+
+    if (!verification.valid) {
+      return res.json({
+        success: true,
+        warrant_id: warrantId,
+        valid: false,
+        reason: verification.reason,
+        invalidated_at: verification.invalidated_at,
+        invalidation_reason: verification.invalidation_reason,
+      });
+    }
+
+    // Load full warrant details
+    const warrant = await viennaCore.warrant.adapter.loadWarrant(warrantId);
+    
     if (!warrant) {
       return res.status(404).json({
         success: false,
@@ -734,101 +508,27 @@ router.get('/warrants/:warrantId', async (req, res) => {
 
     const now = new Date();
     const expired = new Date(warrant.expires_at) < now;
-    const valid = !warrant.revoked && !expired;
-    const scope = typeof warrant.scope === 'string' ? JSON.parse(warrant.scope) : warrant.scope;
-
-    // Verify signature integrity
-    let signatureValid = false;
-    try {
-      const reconstructed = signWarrant({
-        warrant_id: warrant.id,
-        issued_by: 'vienna',
-        issued_at: warrant.created_at,
-        expires_at: warrant.expires_at,
-        risk_tier: warrant.risk_tier,
-        intent_id: warrant.intent_id,
-        allowed_actions: scope?.allowed_actions || [],
-        forbidden_actions: scope?.forbidden_actions || [],
-        constraints: scope?.constraints || {},
-      });
-      signatureValid = reconstructed === warrant.signature;
-    } catch {
-      signatureValid = false;
-    }
-
-    if (!signatureValid && warrant.signature) {
-      // Potential tampering — log it
-      console.error(`[FrameworkAPI] ⚠️ WARRANT SIGNATURE MISMATCH for ${warrantId}`);
-      try {
-        await execute(
-          `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-           VALUES ($1, 'warrant.tamper_detected', 'system', $2, 3, NOW())`,
-          [tenantId, JSON.stringify({ warrant_id: warrantId })]
-        );
-      } catch {}
-    }
-
-    const remainingMs = new Date(warrant.expires_at).getTime() - now.getTime();
 
     res.json({
       success: true,
       warrant_id: warrantId,
-      valid,
-      signature_valid: signatureValid,
-      revoked: warrant.revoked,
+      valid: !expired && warrant.status === 'issued',
       expired,
+      status: warrant.status,
       expires_at: warrant.expires_at,
-      issued_at: warrant.created_at,
+      issued_at: warrant.issued_at,
       risk_tier: warrant.risk_tier,
-      remaining_minutes: valid ? Math.floor(remainingMs / 60000) : 0,
-      scope,
-      agent_id: warrant.agent_id,
-      intent_id: warrant.intent_id,
+      allowed_actions: warrant.allowed_actions,
+      constraints: warrant.constraints,
+      signature: warrant.signature,
     });
   } catch (error: any) {
-    // Graceful fallback if warrants table doesn't exist
-    res.json({
-      success: true,
-      warrant_id: req.params.warrantId,
-      valid: false,
-      message: 'Warrant lookup unavailable'
+    console.error('[framework-api] Warrant verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Warrant verification failed',
+      message: error.message
     });
-  }
-});
-
-/**
- * POST /api/v1/warrants/:warrantId/revoke
- * Revoke an active warrant.
- */
-router.post('/warrants/:warrantId/revoke', async (req, res) => {
-  try {
-    const { warrantId } = req.params;
-    const { reason } = req.body;
-    const tenantId = (req as any).tenantId || 'default';
-
-    const updated = await queryOne<{ id: string }>(
-      `UPDATE warrants SET revoked = true, revoked_at = NOW() 
-       WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2 AND revoked = false 
-       RETURNING id`,
-      [warrantId, tenantId]
-    );
-
-    if (!updated) {
-      return res.status(404).json({ success: false, error: 'Warrant not found or already revoked' });
-    }
-
-    // Audit log
-    try {
-      await execute(
-        `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
-         VALUES ($1, 'warrant.revoked', $2, $3, 2, NOW())`,
-        [tenantId, (req as any).agentId, JSON.stringify({ warrant_id: warrantId, reason })]
-      );
-    } catch {}
-
-    res.json({ success: true, warrant_id: warrantId, revoked: true, reason });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -842,7 +542,8 @@ router.get('/policies', async (req, res) => {
   try {
     const tenantId = (req as any).tenantId || 'default';
     
-    const policies = await query<{
+    const { query: queryDb } = await import('../db/postgres.js');
+    const policies = await queryDb<{
       id: string;
       name: string;
       description: string | null;

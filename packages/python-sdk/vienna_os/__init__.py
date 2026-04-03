@@ -20,6 +20,23 @@ from .client import (
     PolicyDeniedError,
     WarrantExpiredError,
 )
+from .errors import (
+    ViennaAuthError,
+    ViennaForbiddenError,
+    ViennaNotFoundError,
+    ViennaRateLimitError,
+    ViennaValidationError,
+    ViennaServerError,
+)
+
+# ─── Framework Adapters ──────────────────────────────────────────────────────
+from .frameworks import (
+    FrameworkAdapter,
+    create_langchain_adapter,
+    create_crewai_adapter,
+    create_autogen_adapter,
+    create_openclaw_adapter,
+)
 
 # ─── Legacy Modules (for backward compatibility) ─────────────────────────────
 from .fleet import FleetModule
@@ -101,6 +118,21 @@ __all__ = [
     "AuthError", 
     "PolicyDeniedError",
     "WarrantExpiredError",
+    
+    # Extended Error Types
+    "ViennaAuthError",
+    "ViennaForbiddenError",
+    "ViennaNotFoundError",
+    "ViennaRateLimitError",
+    "ViennaValidationError",
+    "ViennaServerError",
+    
+    # Framework Adapters
+    "FrameworkAdapter",
+    "create_langchain_adapter",
+    "create_crewai_adapter",
+    "create_autogen_adapter",
+    "create_openclaw_adapter",
     
     # Legacy Client & Modules (backward compatibility)
     "ViennaClientLegacy",

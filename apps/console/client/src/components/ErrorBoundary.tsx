@@ -42,7 +42,11 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // TODO: Send to error tracking service (Sentry, etc.)
+    // Report to Sentry if available
+    if (typeof window !== 'undefined' && (window as any).Sentry) {
+      (window as any).Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } });
+    }
+    console.error('[ErrorBoundary] Uncaught error:', error, errorInfo);
   }
 
   handleReset = () => {

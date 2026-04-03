@@ -39,10 +39,15 @@ export function createWebhookRouter(): Router {
             plan: session?.metadata?.plan,
             customerId: session?.customer,
           });
-          // TODO: Auto-provision tenant for this customer
+          // FIXME(provisioning): Auto-provision tenant for this customer
           // - Create operator account
-          // - Set plan/quota limits
+          // - Set plan/quota limits  
           // - Send welcome email with credentials
+          console.warn('[Webhook] ⚠️ TENANT NOT PROVISIONED — checkout.session.completed received but auto-provisioning not implemented.', {
+            email: session?.customer_email,
+            plan: session?.metadata?.plan,
+            customerId: session?.customer,
+          });
           break;
         }
 
@@ -52,7 +57,11 @@ export function createWebhookRouter(): Router {
             status: subscription?.status,
             plan: subscription?.metadata?.plan,
           });
-          // TODO: Update tenant plan/quotas
+          // FIXME(provisioning): Update tenant plan/quotas
+          console.warn('[Webhook] ⚠️ PLAN NOT UPDATED — subscription.updated received but tenant quota update not implemented.', {
+            status: subscription?.status,
+            plan: subscription?.metadata?.plan,
+          });
           break;
         }
 
@@ -61,7 +70,10 @@ export function createWebhookRouter(): Router {
           console.log('[Webhook] Subscription canceled:', {
             customerId: subscription?.customer,
           });
-          // TODO: Downgrade tenant to community or deactivate
+          // FIXME(provisioning): Downgrade tenant to community or deactivate
+          console.warn('[Webhook] ⚠️ TENANT NOT DOWNGRADED — subscription.deleted received but downgrade not implemented.', {
+            customerId: subscription?.customer,
+          });
           break;
         }
 

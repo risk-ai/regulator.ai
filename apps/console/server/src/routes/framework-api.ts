@@ -160,8 +160,9 @@ router.post('/intents', async (req, res) => {
         risk_tier: riskTier
       }, tenantId);
 
-      // TODO: Issue real warrant via Warrant Authority
-      // For now, return structured response
+      // FIXME(warrant-authority): Issue real warrant via Warrant Authority
+      // Currently returns a synthetic warrant; wire to WarrantAuthority.issue() when ready
+      console.warn(`[framework-api] Synthetic warrant issued for intent ${intentId} — Warrant Authority not yet wired`);
       return res.json({
         success: true,
         intent_id: intentId,
@@ -366,7 +367,8 @@ router.post('/agents', async (req, res) => {
       capabilities: capabilities || []
     }, tenantId);
 
-    // TODO: Store in state graph
+    // FIXME(state-graph): Persist agent registration in state graph
+    console.warn(`[framework-api] Agent ${agent_id} registered but not persisted to state graph`);
     res.status(201).json({
       success: true,
       agent_id,
@@ -399,7 +401,8 @@ router.post('/agents/:agentId/heartbeat', async (req, res) => {
       last_seen: timestamp
     }, tenantId);
 
-    // TODO: Update agent last_seen in state graph
+    // FIXME(state-graph): Update agent last_seen in state graph
+    console.warn(`[framework-api] Agent ${agentId} heartbeat received but last_seen not persisted`);
     res.json({
       success: true,
       agent_id: agentId,

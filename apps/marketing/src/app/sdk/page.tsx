@@ -288,7 +288,7 @@ if proposal.state == 'approved':
               </Link>
 
               <Link
-                href="/examples"
+                href="https://github.com/risk-ai/vienna-os/tree/main/examples"
                 className="bg-white rounded-xl border-2 border-slate-200 p-6 hover:border-violet-300 hover:shadow-lg transition-all group"
               >
                 <Code className="w-8 h-8 text-violet-600 mb-4" />

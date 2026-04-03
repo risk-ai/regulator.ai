@@ -255,7 +255,7 @@ jobs:
         <div className="border-t border-gray-700 mt-12 pt-8">
           <p className="text-sm text-gray-400">
             Need help? Contact support at <a href="mailto:support@regulator.ai" className="text-purple-400">support@regulator.ai</a> or 
-            join our <a href="/community" className="text-purple-400">developer community</a>.
+            join our <a href="https://github.com/risk-ai/vienna-os/discussions" className="text-purple-400">developer community</a>.
           </p>
         </div>
       </div>

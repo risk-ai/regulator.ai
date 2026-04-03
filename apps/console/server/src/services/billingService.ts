@@ -48,7 +48,7 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
     max_intents_per_month: 10000,
     max_storage_gb: 10,
     price_monthly: 29,
-    stripe_price_id: 'price_vienna_team_monthly',
+    stripe_price_id: process.env.STRIPE_PRICE_TEAM_MONTHLY || 'price_vienna_team_monthly',
     overage_pricing: {
       agents: 5,    // $5 per extra agent
       intents: 10,  // $10 per 1000 extra intents
@@ -62,7 +62,7 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
     max_intents_per_month: 50000,
     max_storage_gb: 50,
     price_monthly: 99,
-    stripe_price_id: 'price_vienna_business_monthly',
+    stripe_price_id: process.env.STRIPE_PRICE_BUSINESS_MONTHLY || 'price_vienna_business_monthly',
     overage_pricing: {
       agents: 3,    // $3 per extra agent
       intents: 5,   // $5 per 1000 extra intents  
@@ -76,7 +76,7 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
     max_intents_per_month: -1, // Unlimited
     max_storage_gb: -1, // Unlimited
     price_monthly: 299, // Base price, custom pricing available
-    stripe_price_id: 'price_vienna_enterprise_monthly',
+    stripe_price_id: process.env.STRIPE_PRICE_ENTERPRISE_MONTHLY || 'price_vienna_enterprise_monthly',
   },
 };
 

@@ -59,7 +59,7 @@ Repository = "https://github.com/vienna-os/python-sdk"
 "Bug Tracker" = "https://github.com/vienna-os/python-sdk/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["vienna_os", "vienna_sdk"]
+packages = ["vienna_os"]
 
 [tool.black]
 line-length = 100

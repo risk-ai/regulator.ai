@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ExecutionPipelineStatus } from '../components/reconciliation/ExecutionPipelineStatus.js';
 import { executionApi } from '../api/execution.js';
+import { useResponsive } from '../hooks/useResponsive.js';
 import type { EnvelopeExecution, QueueSnapshot, ExecutionMetrics } from '../api/types.js';
 
 interface ExecutionRecord {
@@ -177,6 +178,7 @@ export function ExecutionPage() {
   const [isPaused, setIsPaused] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isMobile } = useResponsive();
 
   // Fetch execution data
   const fetchExecutionData = useCallback(async () => {
@@ -437,7 +439,7 @@ export function ExecutionPage() {
       </div>
 
       {/* Grid Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
         {/* Active Executions */}
         <div style={{
           background: 'var(--bg-primary)',
@@ -553,7 +555,7 @@ export function ExecutionPage() {
               </div>
             ) : (
               <div style={{ display: 'grid', gap: '16px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   <div style={{
                     background: 'var(--bg-secondary)',
                     borderRadius: '8px',
@@ -592,7 +594,7 @@ export function ExecutionPage() {
                     <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '12px' }}>
                       Pipeline Throughput
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '8px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
                       <div>
                         <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{executionMetrics.total_executed || 0}</div>
                         <div>Processed</div>

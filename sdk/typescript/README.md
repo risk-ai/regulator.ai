@@ -5,7 +5,15 @@ Strongly-typed TypeScript SDK for the Vienna OS AI Agent Governance Platform.
 ## Installation
 
 ```bash
+# Install from npm registry (when published)
 npm install @vienna-os/sdk
+
+# Or install from source (for development)
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai/sdk/typescript  
+npm install
+npm run build
+npm link
 ```
 
 ## Quick Start
@@ -14,23 +22,43 @@ npm install @vienna-os/sdk
 import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
-  baseUrl: 'https://api.regulator.ai',
-  apiKey: 'vos_...',
-  timeout: 30000, // optional, defaults to 30s
+  baseUrl: 'http://localhost:3100',  // or your Vienna OS instance
+  apiKey: 'your_api_key_here',       // optional for local dev
+  timeout: 30000,                    // optional, defaults to 30s
 });
 
 // Submit an intent
 const result = await vienna.submitIntent({
-  agent_id: 'my-agent',
-  action: 'deploy',
-  payload: { service: 'api-gateway', version: 'v2.0.0' },
-  risk_tier: 'T2',
+  agent_id: 'my-deployment-agent',
+  action: 'deploy_service',
+  payload: { 
+    service: 'api-gateway', 
+    version: 'v2.0.0',
+    environment: 'production'
+  },
+  risk_tier: 'T2',  // optional, can be auto-detected
 });
 
-if (result.pipeline === 'executed') {
-  console.log('Deployed with warrant:', result.warrant?.id);
-} else if (result.pipeline === 'pending_approval') {
-  console.log('Awaiting approval:', result.proposal?.id);
+// Handle different outcomes
+switch (result.pipeline) {
+  case 'executed':
+    console.log('✅ Deployed successfully');
+    console.log('Warrant ID:', result.warrant?.id);
+    break;
+    
+  case 'pending_approval':
+    console.log('⏳ Awaiting human approval');
+    console.log('Proposal ID:', result.proposal?.id);
+    console.log('Approve at: http://localhost:5173/approvals');
+    break;
+    
+  case 'blocked':
+    console.log('❌ Action blocked:', result.reason);
+    break;
+    
+  case 'simulated':
+    console.log('🧪 Simulation result:', result.would_approve);
+    break;
 }
 ```
 

@@ -1,10 +1,24 @@
 # Vienna OS — 5-Minute Quickstart
 
-See the complete governance pipeline in action without any setup.
+**See Vienna OS governance in action with zero setup required**
+
+Run this example to understand how Vienna OS protects AI agents without slowing them down.
+
+## Prerequisites
+
+**None!** This example works out of the box using Vienna OS demo endpoints.
 
 ## Run It
 
 ```bash
+# Clone repository  
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai/examples/5-minute-quickstart
+
+# Install dependencies (first time only)
+npm install
+
+# Run the demo
 node index.js
 ```
 

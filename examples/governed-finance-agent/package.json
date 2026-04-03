@@ -1,0 +1,16 @@
+{
+  "name": "vienna-governed-finance-agent",
+  "version": "1.0.0",
+  "description": "Production-ready financial agent with Vienna OS governance for SOX/FINRA compliance",
+  "main": "agent.py",
+  "scripts": {
+    "install-deps": "pip install -r requirements.txt",
+    "start": "python agent.py",
+    "test": "python test.py"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": ["vienna-os", "finance", "governance", "compliance", "SOX", "FINRA"],
+  "author": "Vienna OS Team",
+  "license": "MIT"
+}

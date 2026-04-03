@@ -1,29 +1,41 @@
 # Governed DevOps Agent — Vienna OS Example
 
-A simple DevOps agent that demonstrates Vienna OS governance in action.
+**A production-ready DevOps agent showing Vienna OS governance patterns**
 
 ## What it does
 
-Runs 4 simulated DevOps tasks through the Vienna governance pipeline:
+Demonstrates real-world DevOps operations with proper governance:
 
-| Task | Risk Tier | Expected Result |
-|------|-----------|-----------------|
-| Check service status | T0 | Auto-approved |
-| Deploy to production | T2 | Requires human approval |
-| Restart worker | T1 | Policy auto-approved |
-| Delete old logs | T1 | Policy auto-approved |
+| Operation | Risk Tier | Approval Flow | Example |
+|-----------|-----------|---------------|---------|
+| Health checks | T0 | Auto-approved | Service status, disk usage, memory |
+| Config updates | T1 | Policy-based | Environment variables, feature flags |
+| Service restarts | T1 | Policy-based | Rolling restart, graceful shutdown |
+| Production deploys | T2 | Human approval | New releases, database migrations |
+| Data operations | T2+ | Multi-party | Backups, data deletion, schema changes |
 
-## Run it
+## Prerequisites
+
+1. **Vienna OS running** (see main README.md)
+2. **Node.js 20+**
+3. **API key configured**
+
+## Quick Start
 
 ```bash
-# Install SDK
-npm install @vienna-os/sdk
+# Clone the repository
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai/examples/governed-devops-agent
 
-# Run with your API key
-VIENNA_API_KEY=vos_your_key node agent.js
+# Install dependencies 
+npm install
 
-# Or against local instance
-VIENNA_API_URL=http://localhost:3100 VIENNA_API_KEY=vos_dev node agent.js
+# Configure environment
+echo "VIENNA_API_URL=http://localhost:3100" > .env
+echo "VIENNA_API_KEY=your_key_here" >> .env
+
+# Run the agent
+npm start
 ```
 
 ## What you'll see

@@ -29,11 +29,21 @@ services:
       DATABASE_URL: postgres://vienna:vienna_dev@postgres:5432/vienna_dev
       JWT_SECRET: dev-jwt-secret-change-in-production
       CORS_ORIGIN: http://localhost:5173,http://localhost:3100
+      # Required for AI governance (add your key to .env.local)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Optional AI providers
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      # Session management
+      SESSION_SECRET: dev-session-secret-change-in-production
     ports:
       - "3100:3100"
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      # Mount .env.local for API keys (create this file)
+      - ./.env.local:/app/.env.local:ro
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/api/v1/health"]
       interval: 10s

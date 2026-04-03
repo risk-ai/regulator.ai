@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useResponsive } from '../hooks/useResponsive.js';
 import {
   complianceApi,
   type QuickStats,

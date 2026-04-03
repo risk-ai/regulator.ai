@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { apiClient } from '../api/client.js';
+import { useAuthStore } from '../store/authStore.js';
 
 type IntegrationMethod = 'api-proxy' | 'sdk' | 'webhook';
 type Provider = 'openai' | 'anthropic' | 'google' | 'custom';
@@ -23,6 +24,7 @@ interface PolicyPack {
 }
 
 export function ConnectAgentPage() {
+  const { tenant } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [method, setMethod] = useState<IntegrationMethod | null>(null);
   const [provider, setProvider] = useState<Provider>('openai');
@@ -31,7 +33,7 @@ export function ConnectAgentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [policyPacks, setPolicyPacks] = useState<PolicyPack[]>([]);
-  const [tenantId] = useState('demo-tenant'); // TODO: Get from auth context
+  const tenantId = tenant?.id || 'demo-tenant';
 
   useEffect(() => {
     // Load policy packs for step 3

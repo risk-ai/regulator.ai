@@ -164,37 +164,62 @@ Core governance algorithms protected under Patent Application #64/018,152
 
 ## Quick Start
 
-### Installation
+### 🚀 Try Vienna OS in 5 Minutes
 
+**Option A: Live Demo (No Setup Required)**
 ```bash
-npm install @vienna-os/sdk
+# Try the interactive sandbox
+curl -X POST https://regulator.ai/api/v1/demo \
+  -H "Content-Type: application/json" \
+  -d '{"action": "check_health", "risk_tier": "T0"}'
 ```
 
-### Basic Usage
+**Option B: Local Setup**
 
+1. **Clone and Install**
+```bash
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai
+npm install
+```
+
+2. **Configure Environment**
+```bash
+cp .env.example .env
+# Edit .env and add your ANTHROPIC_API_KEY
+```
+
+3. **Start Local Instance**
+```bash
+npm run dev
+# ✅ Vienna OS running at http://localhost:3100
+# ✅ Console available at http://localhost:5173
+```
+
+4. **Test with SDK**
 ```javascript
-import { Vienna } from '@vienna-os/sdk';
+import { ViennaClient } from '@vienna-os/sdk';
 
-// Initialize Vienna OS client
-const vienna = new Vienna({
-  endpoint: 'https://your-vienna-instance.com',
-  apiKey: process.env.VIENNA_API_KEY
+const vienna = new ViennaClient({
+  baseUrl: 'http://localhost:3100'
 });
 
-// Submit an agent intent
+// Submit a simple intent
 const result = await vienna.submitIntent({
-  action: 'deploy_service',
-  payload: { service: 'user-api', version: '2.1.0' },
-  source: { id: 'deployment-agent', platform: 'github-actions' }
+  agent_id: 'my-first-agent',
+  action: 'health_check',
+  payload: { service: 'api' }
 });
 
-// Check if approved
-if (result.approved) {
-  console.log('✅ Action approved and executed');
-} else {
-  console.log('⏳ Awaiting approval:', result.warrant_id);
-}
+console.log('Result:', result.pipeline); // "executed" (T0 auto-approved)
 ```
+
+### 🎯 Next Steps
+- **[Getting Started Guide](./docs/GETTING_STARTED.md)** — Complete developer onboarding (30 min)
+- **[5-Minute Quickstart](./docs/QUICKSTART.md)** — Build your first governed agent  
+- **[Example Apps](./examples/)** — Production-ready examples with full READMEs
+- **[SDK Documentation](./sdk/typescript/README.md)** — Complete TypeScript API reference
+- **[Console](http://localhost:5173)** — Visual management interface
 
 ---
 
@@ -280,11 +305,11 @@ class TradingCrew(Crew):
 
 ## Links
 
-- 📚 **[Documentation](https://regulator.ai/docs)** — Complete setup and API reference
-- 🚀 **[Try Live](https://regulator.ai/try)** — Interactive sandbox with real governance pipeline
-- 🖥️ **[Console](https://console.regulator.ai)** — Manage your Vienna OS instance  
+- 📚 **[Getting Started](./docs/GETTING_STARTED.md)** — Complete developer onboarding guide
+- 🚀 **[Try Live Demo](./examples/5-minute-quickstart/)** — Zero-setup governance demo
+- 📖 **[Documentation](./docs/)** — Architecture, API reference, deployment guides
 - 💬 **[Discord](https://discord.gg/VpQUjSTw)** — Community support and discussions
-- 📝 **[Blog](https://regulator.ai/blog)** — Architecture deep-dives and case studies
+- 📝 **[Examples](./examples/)** — Production-ready agent implementations
 
 ---
 

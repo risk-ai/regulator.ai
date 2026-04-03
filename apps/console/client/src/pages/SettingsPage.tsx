@@ -10,6 +10,7 @@ import { useAuthStore } from '../store/authStore.js';
 import { apiClient } from '../api/client.js';
 import { TeamManagement } from '../components/workspace/TeamManagement.js';
 import { WebhookManager } from '../components/workspace/WebhookManager.js';
+import { useResponsive } from '../hooks/useResponsive.js';
 
 // ============================================================================
 // Simulation Types & API
@@ -50,13 +51,14 @@ async function resetSimulation(): Promise<void> {
 
 export function SettingsPage() {
   const { user, logout } = useAuthStore();
+  const { isMobile } = useResponsive();
 
   return (
     <PageLayout
       title="Settings"
       description="Operator configuration and system information"
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
 
         {/* Session */}
         <SettingsCard title="Session">

@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { useResponsive } from '../hooks/useResponsive.js';
 import {
   listIntegrations,
   getIntegration,
@@ -119,6 +120,7 @@ export function IntegrationsPage() {
   const [view, setView] = useState<'list' | 'create' | 'detail' | 'edit'>('list');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const { isMobile } = useResponsive();
 
   const load = useCallback(async () => {
     try {
@@ -641,7 +643,7 @@ function IntegrationDetail({ id, schemas, onBack, onEdit, onDelete }: {
       {/* Config Summary */}
       <div style={styles.card}>
         <h3 style={{ ...styles.sectionTitle, marginBottom: '8px' }}>Configuration</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
           {Object.entries(integration.config).map(([key, val]) => (
             <div key={key} style={{ fontSize: '12px' }}>
               <span style={{ color: 'var(--text-tertiary)' }}>{key}: </span>

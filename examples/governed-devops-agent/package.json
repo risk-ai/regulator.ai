@@ -1,0 +1,19 @@
+{
+  "name": "vienna-governed-devops-agent",
+  "version": "1.0.0",
+  "description": "Production-ready DevOps agent with Vienna OS governance",
+  "main": "agent.js",
+  "type": "module",
+  "scripts": {
+    "start": "node agent.js",
+    "dev": "node --watch agent.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@vienna-os/sdk": "^1.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "keywords": ["vienna-os", "devops", "governance", "ai-agent"],
+  "author": "Vienna OS Team",
+  "license": "MIT"
+}

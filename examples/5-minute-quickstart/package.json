@@ -1,11 +1,22 @@
 {
   "name": "@vienna-os/quickstart",
-  "version": "0.1.0",
-  "description": "Vienna OS 5-minute quickstart — see governance in action",
+  "version": "1.0.0",
+  "description": "Vienna OS 5-minute quickstart — see governance in action with zero setup",
   "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "demo": "node index.js --demo",
+    "test": "node index.js --test"
+  },
+  "dependencies": {
+    "@vienna-os/sdk": "^1.0.0",
+    "chalk": "^5.3.0"
+  },
   "bin": {
     "vienna-quickstart": "./index.js"
   },
-  "keywords": ["vienna", "ai", "governance", "quickstart"],
+  "keywords": ["vienna-os", "ai-governance", "quickstart", "demo"],
+  "author": "Vienna OS Team",
   "license": "BUSL-1.1"
 }

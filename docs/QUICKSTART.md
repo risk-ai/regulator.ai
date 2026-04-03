@@ -19,8 +19,8 @@ A simple governed AI agent that:
 ## Prerequisites
 
 - **Node.js** 20+ ([download](https://nodejs.org/))
-- **npm** 10+
-- **Anthropic API key** ([get one](https://console.anthropic.com/))
+- **npm** 10+  
+- **Anthropic API key** ([get one](https://console.anthropic.com/)) — Required for AI-powered governance
 
 **Time required:** 15 minutes
 
@@ -29,8 +29,9 @@ A simple governed AI agent that:
 ## Step 1: Clone Repository (2 min)
 
 ```bash
-git clone https://github.com/vienna-os/core.git
-cd core
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai
+npm install
 ```
 
 **Or start from scratch:**
@@ -39,7 +40,7 @@ cd core
 mkdir my-vienna-agent
 cd my-vienna-agent
 npm init -y
-npm install @vienna/lib
+npm install @vienna-os/sdk
 ```
 
 ---
@@ -71,47 +72,44 @@ VIENNA_ENV=dev
 Create `agent.js`:
 
 ```javascript
-const { StateGraph, IntentGateway, Executor } = require('@vienna/lib');
+import { ViennaClient } from '@vienna-os/sdk';
 
-// Initialize Vienna OS components
-const stateGraph = new StateGraph({ 
-  environment: 'dev',
-  dbPath: './vienna-dev.db'
+// Initialize Vienna OS client
+const vienna = new ViennaClient({
+  baseUrl: process.env.VIENNA_API_URL || 'http://localhost:3100',
+  apiKey: process.env.VIENNA_API_KEY
 });
 
-const intentGateway = new IntentGateway({ stateGraph });
-const executor = new Executor({ stateGraph });
-
-// Initialize
-await stateGraph.initialize();
+console.log('🤖 Vienna OS client initialized');
 
 // Submit governed intent
 const intent = {
+  agent_id: 'quickstart-agent',
   action: 'check_health',
-  description: 'Check if all services are operational',
-  parameters: {
+  payload: {
     services: ['api', 'database']
   },
-  source: 'cli',
   metadata: {
-    operator: 'quickstart-user'
+    operator: 'quickstart-user',
+    source: 'cli'
   }
 };
 
 // Execute with governance
-const result = await intentGateway.submitIntent(intent);
+const result = await vienna.submitIntent(intent);
 
 console.log('Result:', JSON.stringify(result, null, 2));
 
-// View warrant (authorization + reasoning)
-const warrant = result.warrant;
-console.log('\\nWarrant ID:', warrant.id);
-console.log('Approved:', warrant.approved);
-console.log('Reasoning:', warrant.reasoning);
-
-// View audit trail
-const ledger = await stateGraph.getExecutionLedger(result.execution_id);
-console.log('\\nAudit Trail:', ledger.events.length, 'events');
+// Check execution status
+if (result.pipeline === 'executed') {
+  console.log('✅ Action executed successfully');
+  console.log('Warrant ID:', result.warrant?.id);
+} else if (result.pipeline === 'pending_approval') {
+  console.log('⏳ Action pending approval');
+  console.log('Proposal ID:', result.proposal?.id);
+} else {
+  console.log('❌ Action blocked:', result.reason);
+}
 ```
 
 ---
@@ -126,30 +124,21 @@ node agent.js
 
 ```json
 {
-  "success": true,
-  "execution_id": "exec_abc123",
-  "status": "success",
-  "result": {
-    "services_checked": 2,
-    "all_healthy": true,
-    "details": [
-      {"service": "api", "status": "healthy"},
-      {"service": "database", "status": "healthy"}
-    ]
-  },
+  "pipeline": "executed",
+  "intent_id": "intent_abc123",
   "warrant": {
     "id": "warrant_def456",
+    "action": "check_health",
+    "risk_tier": "T0",
     "approved": true,
     "reasoning": "Low-risk health check operation, auto-approved"
   },
-  "timestamp": "2026-03-26T14:15:00Z"
+  "risk_tier": "T0",
+  "execution_time_ms": 245
 }
 
+✅ Action executed successfully
 Warrant ID: warrant_def456
-Approved: true
-Reasoning: Low-risk health check operation, auto-approved
-
-Audit Trail: 4 events
 ```
 
 **Congratulations!** You just executed your first governed AI agent.
@@ -163,51 +152,35 @@ Let's add a custom action with risk validation.
 **Update `agent.js`:**
 
 ```javascript
-// Register custom action
-stateGraph.registerAction({
-  action_type: 'restart_service',
-  name: 'Restart Service',
-  description: 'Restart a system service',
-  risk_tier: 'T1',  // Requires approval
-  parameters_schema: {
-    type: 'object',
-    properties: {
-      service_name: { type: 'string' }
-    },
-    required: ['service_name']
-  }
-});
-
-// Submit high-risk intent
+// Submit higher-risk intent (requires approval)
 const riskyIntent = {
+  agent_id: 'quickstart-agent',
   action: 'restart_service',
-  description: 'Restart API server',
-  parameters: {
-    service_name: 'api'
+  payload: {
+    service_name: 'api',
+    force_restart: true
   },
-  source: 'cli',
+  risk_tier: 'T1', // Override automatic classification
   metadata: {
-    operator: 'quickstart-user'
+    operator: 'quickstart-user',
+    justification: 'Testing approval workflow'
   }
 };
 
-const result = await intentGateway.submitIntent(riskyIntent);
+const result = await vienna.submitIntent(riskyIntent);
 
-if (result.status === 'pending_approval') {
+if (result.pipeline === 'pending_approval') {
   console.log('⚠️  Action requires approval (T1 risk tier)');
-  console.log('Warrant ID:', result.warrant_id);
+  console.log('Proposal ID:', result.proposal?.id);
+  console.log('🔗 Approve at: http://localhost:5173/approvals');
   
-  // Approve warrant
-  await stateGraph.approveWarrant(result.warrant_id, {
-    approved_by: 'quickstart-user',
-    reasoning: 'Approved for testing'
-  });
+  // In production, approval happens through UI or separate API call
+  console.log('⏳ Waiting for human approval...');
   
-  // Execute
-  const finalResult = await executor.executeWarrant(result.warrant_id);
-  console.log('✅ Execution complete:', finalResult.status);
+} else if (result.pipeline === 'executed') {
+  console.log('✅ Action auto-approved and executed');
 } else {
-  console.log('Result:', result);
+  console.log('❌ Action blocked:', result.reason);
 }
 ```
 

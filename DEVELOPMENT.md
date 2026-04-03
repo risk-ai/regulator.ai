@@ -288,34 +288,30 @@ pnpm build
 NODE_ENV=production node apps/console/server/build/server.cjs
 ```
 
-### NUC Deployment (Production)
+### Vercel Deployment (Production)
 
-Vienna OS Console is deployed on a NUC (maxlawai) with Cloudflare Tunnel for secure external access.
+Vienna OS Console is deployed on Vercel serverless with automatic scaling.
 
 **Deployment process:**
 ```bash
-# Auto-deploy via cron (every 10 minutes)
-~/vienna-auto-deploy.sh
+# Deploy to production (automatic via GitHub push to main)
+git push origin main
 
-# Manual deployment
-cd ~/.openclaw/workspace/regulator-ai-repo
-git pull origin main
-cd apps/console/server
-npm install
-npm run build:prod
-sudo systemctl restart vienna-console
+# Or manual deploy via Vercel CLI
+vercel --prod
 
-# Check status
-sudo systemctl status vienna-console
-sudo journalctl -u vienna-console -n 50
+# Check deployment status
+vercel ls
+vercel inspect <deployment-url>
 ```
 
 **Infrastructure:**
-- **Host:** maxlawai NUC
-- **Services:** vienna-console (systemd), cloudflared-vienna
-- **URL:** https://console.regulator.ai → Cloudflare Tunnel
-- **Database:** Neon Postgres (shared with portfolio sites)
-- **Auto-deploy:** Git pull + build + restart (10-minute cron)
+- **Platform:** Vercel Serverless Functions + Edge Network
+- **Console API:** console.regulator.ai (serverless API routes)
+- **Marketing Site:** regulator.ai (Next.js SSR/ISR)
+- **Database:** Neon Postgres Launch plan (auto-scaling)
+- **Auto-deploy:** Push to `main` triggers production deployment
+- **Scaling:** Automatic (handles 500+ concurrent users)
 
 ## Troubleshooting
 

@@ -11,7 +11,7 @@
 
 ## 1. Purpose and Scope
 
-This policy establishes physical security controls for Vienna OS infrastructure, ensuring appropriate protection of computing resources, data, and facilities. Vienna OS operates on cloud infrastructure provided by Fly.io, with additional logical access controls implemented at the application layer.
+This policy establishes physical security controls for Vienna OS infrastructure, ensuring appropriate protection of computing resources, data, and facilities. Vienna OS operates on cloud infrastructure provided by Vercel (serverless functions) and Neon (PostgreSQL database), both SOC 2 Type II certified, with additional logical access controls implemented at the application layer.
 
 **Scope:** This policy covers all physical and logical access controls for Vienna OS production, staging, and development environments.
 
@@ -21,14 +21,14 @@ This policy establishes physical security controls for Vienna OS infrastructure,
 
 ### 2.1 Cloud Infrastructure Provider Controls
 
-Vienna OS operates exclusively on **Fly.io** cloud infrastructure, which provides SOC 2 Type II certified datacenter facilities with the following physical security controls:
+Vienna OS operates exclusively on **Vercel** (compute) and **Neon** (database) cloud infrastructure, both of which provide SOC 2 Type II certified datacenter facilities with the following physical security controls:
 
 **Datacenter Certifications:**
 - SOC 2 Type II compliance
 - ISO 27001:2013 certification
 - Physical security audited annually by third-party assessors
 
-**Fly.io Physical Security Controls:**
+**Vercel & Neon Physical Security Controls:**
 - **Perimeter Security:** Datacenter facilities with controlled access points, security guards, and surveillance systems
 - **Access Controls:** Multi-factor authentication, biometric scanners, and mantrap entry systems
 - **Environmental Controls:** Temperature, humidity, and power monitoring with automated alerting
@@ -36,19 +36,22 @@ Vienna OS operates exclusively on **Fly.io** cloud infrastructure, which provide
 - **Power Systems:** Redundant UPS systems and backup generators with fuel monitoring
 - **Network Security:** Physical segregation of customer traffic, secure cabling practices
 
-**Reference:** Fly.io compliance documentation available at https://fly.io/docs/about/compliance/
+**References:**
+- Vercel compliance: https://vercel.com/security
+- Neon compliance: https://neon.tech/docs/security/security-overview
 
 ### 2.2 Vendor Due Diligence
 
 **Annual Review Process:**
-1. Review Fly.io's SOC 2 Type II report and compliance certificates
+1. Review Vercel and Neon SOC 2 Type II reports and compliance certificates
 2. Verify continuation of physical security controls
 3. Assess any changes to datacenter facilities or security procedures
 4. Document review findings in vendor risk assessment
 
 **Current Status:**
 - Last reviewed: March 2026
-- Fly.io SOC 2 Type II report: Valid through December 2026
+- Vercel SOC 2 Type II certification: Current
+- Neon SOC 2 Type II certification: Current
 - No material weaknesses identified in physical controls
 
 ---
@@ -57,7 +60,7 @@ Vienna OS operates exclusively on **Fly.io** cloud infrastructure, which provide
 
 ### 3.1 Infrastructure Access Management
 
-Vienna OS implements defense-in-depth logical access controls on top of Fly.io's physical security:
+Vienna OS implements defense-in-depth logical access controls on top of Vercel and Neon's physical security:
 
 **Administrative Access:**
 - **SSH Access:** Key-based authentication only, no password authentication
@@ -162,7 +165,7 @@ Internet → CDN/WAF → Load Balancer → Application Servers → Database
 ### 5.1 Incident Classification
 
 **Physical Security Incidents:**
-- **Category 1 (Critical):** Unauthorized datacenter access, security breach at Fly.io facilities
+- **Category 1 (Critical):** Unauthorized datacenter access, security breach at Vercel or Neon facilities
 - **Category 2 (High):** Environmental failures affecting availability, power outages
 - **Category 3 (Medium):** Surveillance system failures, badge access issues
 - **Category 4 (Low):** Minor environmental alerts, routine maintenance notifications
@@ -179,7 +182,7 @@ Internet → CDN/WAF → Load Balancer → Application Servers → Database
 1. **Evidence Collection:** Preserve logs and audit trails
 2. **Root Cause Analysis:** Determine underlying cause of incident
 3. **Impact Assessment:** Evaluate data and system impacts
-4. **Vendor Coordination:** Coordinate with Fly.io on infrastructure incidents
+4. **Vendor Coordination:** Coordinate with Vercel and Neon on infrastructure incidents
 
 **Resolution and Recovery:**
 1. **Containment:** Implement measures to prevent incident escalation
@@ -230,7 +233,7 @@ monitoring_controls:
 **Evidence Collection:**
 - **Access Logs:** All authentication and authorization events
 - **Configuration Changes:** System and security configuration modifications  
-- **Vendor Documentation:** Fly.io compliance certificates and security reports
+- **Vendor Documentation:** Vercel and Neon compliance certificates and security reports
 - **Incident Records:** Complete incident response documentation and analysis
 
 ### 6.3 Key Performance Indicators (KPIs)
@@ -321,7 +324,8 @@ Department Managers    |    ✓    |           |         |    ✓
 - Data Classification Policy (DCP-001)
 
 **External References:**
-- Fly.io Compliance Documentation: https://fly.io/docs/about/compliance/
+- Vercel Security: https://vercel.com/security
+- Neon Security: https://neon.tech/docs/security/security-overview
 - SOC 2 Trust Services Criteria (AICPA)
 - ISO 27001:2013 Information Security Management
 - NIST Cybersecurity Framework

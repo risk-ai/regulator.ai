@@ -308,18 +308,17 @@ npx playwright test
 
 ## Deployment
 
-### Production (NUC)
+### Production (Vercel)
 
 ```bash
-# 1. Build client
-cd ~/regulator.ai/apps/console/client
-npm run build
+# 1. Push to main (triggers auto-deploy)
+git push origin main
 
-# 2. Deploy server with systemd
-sudo systemctl restart vienna-console-server
+# 2. Or deploy manually
+vercel --prod
 
 # 3. Verify
-curl http://localhost:3100/health
+curl https://console.regulator.ai/api/v1/health
 ```
 
 ### Docker

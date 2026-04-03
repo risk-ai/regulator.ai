@@ -316,16 +316,16 @@ export SLACK_WEBHOOK_URL=https://hooks.slack.com/...
 export JIRA_API_TOKEN=...
 ```
 
-### 2. Deploy to Fly.io
+### 2. Deploy to Vercel
 
 ```bash
-fly deploy --config fly.toml
+vercel --prod
 ```
 
 ### 3. Verify Health
 
 ```bash
-curl https://regulatory-monitor.fly.dev/health
+curl https://regulatory-monitor.vercel.app/api/health
 ```
 
 **Expected:**

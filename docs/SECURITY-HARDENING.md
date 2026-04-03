@@ -300,7 +300,7 @@ contacts:
 - [ ] **Web Console** (https://console.regulator.ai)
 - [ ] **Authentication systems** (JWT, SSO, MFA)
 - [ ] **Database layer** (PostgreSQL with RLS)
-- [ ] **Infrastructure** (NUC + Cloudflare Tunnel deployment)
+- [ ] **Infrastructure** (Vercel serverless + Neon database deployment)
 - [ ] **Third-party integrations** (monitoring, logging)
 
 ### Out-of-Scope Systems
@@ -368,7 +368,7 @@ const infraTests = [
 
 ### Vendor Selection Criteria
 - [ ] **Industry certifications** (OSCP, CISSP, CEH)
-- [ ] **Cloud platform expertise** (AWS, Cloudflare, NUC deployment experience)  
+- [ ] **Cloud platform expertise** (Vercel, Neon, serverless deployment experience)  
 - [ ] **API security specialization** (REST, GraphQL, JWT)
 - [ ] **Compliance experience** (SOC 2, ISO 27001)
 - [ ] **Reference customers** in similar industries

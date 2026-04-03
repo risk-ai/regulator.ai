@@ -229,27 +229,27 @@ const attestation = {
 **Control Description:** The entity maintains system availability as committed.
 
 **Vienna OS Implementation:**
-- **Fly.io deployment** with automatic container restarts
-- **Health check endpoints** (`/health` and `/api/v1/system/status`)
+- **Vercel serverless deployment** with automatic scaling and redundancy
+- **Health check endpoints** (`/api/v1/health` and `/api/v1/system/health/detailed`)
 - **Circuit breaker patterns** for external service dependencies
-- **Load balancing** across multiple container instances
-- **Database connection pooling** with automatic failover
+- **Vercel Edge Network** with 150+ global edge locations
+- **Database connection pooling** with automatic failover (Neon Launch)
 
 **High Availability Architecture:**
 ```yaml
-# Fly.io Configuration
-app: "vienna-os-prod"
-regions: ["iad", "lax", "fra"]
-instances: 3
+# Vercel Configuration
+framework: next.js
+regions: global (Edge Network)
+auto_scaling: serverless (automatic)
 health_checks:
-  - path: "/health"
-    interval: "30s"
+  - path: "/api/v1/health"
+    interval: "60s"
     timeout: "10s"
     
-auto_scaling:
-  min_instances: 2
-  max_instances: 10
-  cpu_threshold: 75
+functions:
+  maxDuration: 60
+  memory: 1024
+  concurrency: auto
 ```
 
 **Evidence/Audit Trail:**

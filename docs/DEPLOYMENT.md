@@ -1,6 +1,6 @@
 # Vienna OS Deployment Guide
 
-**Last Updated:** 2026-03-28  
+**Last Updated:** 2026-04-03  
 **Maintainer:** Vienna OS Core Team
 
 ---
@@ -10,7 +10,7 @@
 1. [Prerequisites](#prerequisites)
 2. [Environment Configuration](#environment-configuration)
 3. [Database Setup](#database-setup)
-4. [NUC Deployment](#nuc-deployment)
+4. [Vercel Deployment](#vercel-deployment)
 5. [Health Checks](#health-checks)
 6. [Troubleshooting](#troubleshooting)
 
@@ -21,15 +21,14 @@
 ### Required Tools
 
 - **Node.js** 20+ or 22+ (LTS recommended)
-- **npm** 10+
-- **systemd** (for service management)
-- **Cloudflare Tunnel** (cloudflared binary)
+- **npm** or **pnpm** 9+
+- **Vercel CLI** (optional, for manual deploys)
 
 ### Required Accounts
 
-- **Cloudflare account** (for tunnel management)
+- **Vercel account** (for serverless deployment)
 - **Anthropic API key** (for Claude models)
-- **GitHub account** (for repository access)
+- **GitHub account** (for repository access and auto-deploy)
 - **Neon account** (for Postgres database)
 
 ---
@@ -77,183 +76,168 @@ SENTRY_DSN=https://...@sentry.io/...
 SLACK_BOT_TOKEN=xoxb-...
 ```
 
-### Step 3: Set Fly.io Secrets
+### Step 3: Set Vercel Environment Variables
 
-**Set secrets in Fly.io (NOT in fly.toml):**
+**Set environment variables in Vercel dashboard or CLI:**
 
 ```bash
-fly secrets set ANTHROPIC_API_KEY=sk-ant-...
-fly secrets set SESSION_SECRET=$(openssl rand -hex 32)
-fly secrets set JWT_SECRET=$(openssl rand -hex 32)
-fly secrets set DATABASE_URL=postgresql://...  # if using Postgres
+# Via Vercel CLI
+vercel env add ANTHROPIC_API_KEY production
+vercel env add SESSION_SECRET production
+vercel env add JWT_SECRET production
+vercel env add DATABASE_URL production
+
+# Or via Vercel Dashboard
+# Project Settings → Environment Variables → Add New
 ```
 
-**Verify secrets:**
+**Generate secrets locally:**
 
 ```bash
-fly secrets list
+openssl rand -hex 32  # For SESSION_SECRET
+openssl rand -hex 32  # For JWT_SECRET
 ```
 
 ---
 
 ## Database Setup
 
-### Option A: SQLite (Default, Good for Development)
+### Neon PostgreSQL (Production)
 
-**No additional setup required.**
+Vienna OS uses Neon Postgres with auto-scaling on the Launch plan.
 
-Vienna OS will automatically create `state-graph.db` at startup.
+**Step 1: Create Neon Database**
 
-**Pros:**
-- Zero configuration
-- Fast local development
-- Easy backups (single file)
+1. Go to https://console.neon.tech
+2. Create new project: `vienna-os-production`
+3. Region: `us-east-1` (recommended for lowest latency to Vercel)
+4. Plan: Launch (auto-scaling, pooled connections)
 
-**Cons:**
-- Not recommended for multi-instance deployments
-- Limited concurrency
+**Step 2: Get Connection String**
 
-**Location:** `/app/data/state/state-graph.db` (inside container)
+From Neon dashboard, copy the pooled connection string:
 
-### Option B: PostgreSQL (Recommended for Production)
-
-**Step 1: Create Fly Postgres Database**
-
-```bash
-fly postgres create --name vienna-os-db --region iad
+```
+postgresql://user:password@ep-purple-smoke-adpumuth-pooler.c-2.us-east-1.aws.neon.tech/neondb
 ```
 
-**Step 2: Attach to App**
+**Step 3: Set DATABASE_URL in Vercel**
 
 ```bash
-fly postgres attach vienna-os-db --app vienna-os
-```
-
-This automatically sets `DATABASE_URL` secret.
-
-**Step 3: Verify Connection**
-
-```bash
-fly ssh console --app vienna-os
-$ echo $DATABASE_URL
+vercel env add DATABASE_URL production
+# Paste the connection string when prompted
 ```
 
 **Step 4: Run Migrations**
 
-Migrations run automatically on startup. Verify with:
+Migrations run automatically on first deployment. Verify in Vercel deployment logs:
 
 ```bash
-fly logs --app vienna-os | grep "Running migrations"
+vercel logs --follow
 ```
+
+Look for: `Running migrations... ✓`
 
 ---
 
-## NUC Deployment
+## Vercel Deployment
 
 ### Initial Setup
 
-**Step 1: Clone Repository**
+**Step 1: Connect GitHub Repository**
 
-```bash
-cd ~/.openclaw/workspace
-git clone https://github.com/risk-ai/regulator.ai.git regulator-ai-repo
-cd regulator-ai-repo
+1. Go to https://vercel.com/new
+2. Import Git Repository: `risk-ai/regulator.ai`
+3. Framework Preset: Next.js (auto-detected)
+4. Root Directory: `./` (monorepo auto-detected)
+
+**Step 2: Configure Build Settings**
+
+Vercel auto-detects the monorepo structure. Verify:
+
+```
+Build Command: pnpm build
+Output Directory: .next (auto)
+Install Command: pnpm install
 ```
 
-**Step 2: Install Dependencies**
+**Step 3: Add Environment Variables**
 
-```bash
-cd apps/console/server
-npm install
+In Vercel dashboard → Settings → Environment Variables:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+SESSION_SECRET=<generated-secret>
+JWT_SECRET=<generated-secret>
+DATABASE_URL=postgresql://...
+NODE_ENV=production
 ```
 
-**Step 3: Build Production**
+**Step 4: Deploy**
 
 ```bash
-npm run build:prod
+# Push to main triggers auto-deploy
+git push origin main
+
+# Or deploy manually
+vercel --prod
 ```
 
 ### Deploy Updates
 
 **Automated deployment (recommended):**
 
+Every push to `main` automatically triggers a production deployment.
+
 ```bash
-# Auto-deploy script runs every 10 minutes via cron
-~/vienna-auto-deploy.sh
+git add .
+git commit -m "feat: new feature"
+git push origin main
 ```
 
 **Manual deployment:**
 
 ```bash
-cd ~/.openclaw/workspace/regulator-ai-repo
-git pull origin main
-cd apps/console/server
-npm install
-npm run build:prod
-sudo systemctl restart vienna-console
+# Deploy current branch to production
+vercel --prod
+
+# Deploy specific branch
+vercel --prod --branch feature-branch
 ```
 
-### Configuration Reference
+### Deployment Monitoring
 
-**systemd service file (`/etc/systemd/system/vienna-console.service`):**
-
-```ini
-[Unit]
-Description=Vienna OS Console
-After=network.target
-
-[Service]
-Type=simple
-User=maxlawai
-WorkingDirectory=/home/maxlawai/.openclaw/workspace/regulator-ai-repo/apps/console/server
-ExecStart=/usr/bin/node build/server.cjs
-EnvironmentFile=/home/maxlawai/.openclaw/workspace/regulator-ai-repo/.env.console
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Cloudflare Tunnel service (`/etc/systemd/system/cloudflared-vienna.service`):**
-
-```ini
-[Unit]
-Description=Cloudflare Tunnel for Vienna Console
-After=network.target
-
-[Service]
-Type=simple
-User=maxlawai
-ExecStart=/usr/local/bin/cloudflared tunnel run vienna-console
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Service Management
-
-**Check service status:**
+**View deployment status:**
 
 ```bash
-sudo systemctl status vienna-console
-sudo systemctl status cloudflared-vienna
+vercel ls
+```
+
+**Inspect deployment:**
+
+```bash
+vercel inspect <deployment-url>
 ```
 
 **View logs:**
 
 ```bash
-sudo journalctl -u vienna-console -f
-sudo journalctl -u cloudflared-vienna -f
+vercel logs --follow
+vercel logs <deployment-url>
 ```
 
-**Restart services:**
+### Rollback
+
+**Rollback to previous deployment:**
+
+1. Go to Vercel dashboard → Deployments
+2. Find last known good deployment
+3. Click "Promote to Production"
+
+**Or via CLI:**
 
 ```bash
-sudo systemctl restart vienna-console
-sudo systemctl restart cloudflared-vienna
+vercel rollback
 ```
 
 ---
@@ -283,20 +267,19 @@ sudo systemctl restart cloudflared-vienna
 ### Manual Health Check
 
 ```bash
-# External (via Cloudflare Tunnel)
-curl https://console.regulator.ai/health
+# Production API health
+curl https://console.regulator.ai/api/v1/health
 
-# Local (direct to NUC)
-curl http://localhost:3100/health
+# Detailed health (includes DB latency, memory, CPU)
+curl https://console.regulator.ai/api/v1/system/health/detailed
+
+# Marketing site status page
+curl https://regulator.ai/status
 ```
 
-### Fly.io Health Check Configuration
+### Vercel Health Monitoring
 
-**In `fly.toml`:**
-
-```toml
-[[http_service.checks]]
-  interval = '15s'           # Check every 15 seconds
+Vercel provides automatic health monitoring via:
   timeout = '10s'            # Fail if no response in 10s
   grace_period = '30s'       # Allow 30s warmup on startup
   method = 'GET'

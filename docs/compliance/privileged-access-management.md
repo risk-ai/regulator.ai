@@ -653,11 +653,17 @@ vendor_access_controls:
 **Cloud Provider Privileged Access:**
 ```yaml
 cloud_provider_access:
-  fly_io_administrative_access:
+  vercel_administrative_access:
     account_structure: "dedicated_organizational_accounts"
     authentication: ["hardware_tokens", "corporate_sso_integration"]
     authorization: "principle_of_least_privilege_implementation"
-    monitoring: "cloud_trail_logging_and_analysis"
+    monitoring: "vercel_audit_logs_and_analytics"
+  
+  neon_database_access:
+    account_structure: "dedicated_organizational_accounts"
+    authentication: ["hardware_tokens", "corporate_sso_integration"]
+    authorization: "role_based_access_control"
+    monitoring: "database_audit_logging"
     
   access_policies:
     administrative_users: "maximum_3_users_with_full_administrative_access"

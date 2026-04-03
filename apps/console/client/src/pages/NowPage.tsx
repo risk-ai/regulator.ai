@@ -211,7 +211,7 @@ export function NowPage() {
         )}
 
         {/* Metric band — one cohesive row */}
-        <div style={{
+        <div className="dashboard-grid" style={{
           display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 1,
           background: 'var(--border-subtle)', borderRadius: 8,
           overflow: 'hidden', marginBottom: 24,
@@ -228,7 +228,12 @@ export function NowPage() {
         <ValueDeliveredWidget snapshot={snapshot} />
 
         {/* ═══ ZONE 3: Two-column activity layout ═══ */}
-        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 24, alignItems: 'start' }}>
+        <div className="dashboard-grid" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '3fr 2fr', 
+          gap: 24, 
+          alignItems: 'start' 
+        }}>
 
           {/* LEFT: Live Governance Stream */}
           <div>

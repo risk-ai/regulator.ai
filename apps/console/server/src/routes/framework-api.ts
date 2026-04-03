@@ -221,18 +221,19 @@ router.post('/intents', async (req, res) => {
       };
       warrant.signature = signWarrant(warrant);
 
-      // Persist warrant to DB
+      // Persist warrant to DB (id is UUID type in existing schema)
       try {
-        await execute(
+        const dbWarrant = await queryOne<{ id: string }>(
           `INSERT INTO warrants (id, tenant_id, intent_id, agent_id, risk_tier, scope, signature, expires_at, revoked, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, NOW())`,
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, false, NOW())
+           RETURNING id`,
           [
-            warrantId,
             tenantId,
             intentId,
             resolvedAgentId,
             riskTier,
             JSON.stringify({
+              warrant_id: warrantId, // Store friendly ID in scope for lookups
               allowed_actions: allowedActions,
               forbidden_actions: forbiddenActions,
               constraints: {},
@@ -243,6 +244,11 @@ router.post('/intents', async (req, res) => {
             expiresAt,
           ]
         );
+        // Use the DB UUID as the canonical warrant ID
+        if (dbWarrant?.id) {
+          // Keep our friendly ID in the response but store mapping
+          warrant.db_id = dbWarrant.id;
+        }
       } catch (dbErr) {
         console.warn('[FrameworkAPI] Warrant DB write failed, continuing with in-memory warrant:', dbErr);
       }
@@ -448,7 +454,7 @@ router.post('/executions', async (req, res) => {
         revoked: boolean;
       }>(
         `SELECT id, scope, expires_at, revoked FROM warrants
-         WHERE id = $1 AND tenant_id = $2`,
+         WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2`,
         [warrant_id, tenantId]
       );
 
@@ -715,7 +721,7 @@ router.get('/warrants/:warrantId', async (req, res) => {
       created_at: string;
     }>(
       `SELECT id, tenant_id, intent_id, agent_id, risk_tier, scope, signature, expires_at, revoked, created_at
-       FROM warrants WHERE id = $1 AND tenant_id = $2`,
+       FROM warrants WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2`,
       [warrantId, tenantId]
     );
 
@@ -801,7 +807,9 @@ router.post('/warrants/:warrantId/revoke', async (req, res) => {
     const tenantId = (req as any).tenantId || 'default';
 
     const updated = await queryOne<{ id: string }>(
-      `UPDATE warrants SET revoked = true WHERE id = $1 AND tenant_id = $2 AND revoked = false RETURNING id`,
+      `UPDATE warrants SET revoked = true, revoked_at = NOW() 
+       WHERE (id::text = $1 OR scope->>'warrant_id' = $1) AND tenant_id = $2 AND revoked = false 
+       RETURNING id`,
       [warrantId, tenantId]
     );
 

@@ -11,6 +11,117 @@ import { dispatchEvent, getIntegrationStats, resetCircuitBreaker } from '../serv
 import { verifyApprovalToken } from '../services/integrations/emailAdapter.js';
 import type { IntegrationRecord, IntegrationEventRecord } from '../services/integrations/types.js';
 
+import { eventBus } from '../services/eventBus.js';
+
+/**
+ * Resolve an approval (approve or deny) via the governance pipeline.
+ * Issues a real warrant on approval, records denial otherwise.
+ */
+async function resolveApproval(
+  approvalId: string,
+  action: 'approve' | 'deny',
+  reviewedBy: string,
+  source: 'slack' | 'email' | 'api',
+  req: Request
+) {
+  // Find the pending approval in audit_log
+  const approval = await queryOne<{ details: any; tenant_id: string }>(
+    `SELECT details, tenant_id FROM audit_log
+     WHERE event = 'approval.required' AND details->>'approval_id' = $1
+     ORDER BY created_at DESC LIMIT 1`,
+    [approvalId]
+  );
+
+  if (!approval) {
+    console.warn(`[Integrations] Approval ${approvalId} not found in audit_log`);
+    return;
+  }
+
+  const details = typeof approval.details === 'string' ? JSON.parse(approval.details) : approval.details;
+  const tenantId = approval.tenant_id;
+  const intentId = details.intent_id;
+
+  // Check if already resolved
+  const alreadyResolved = await queryOne(
+    `SELECT id FROM audit_log
+     WHERE (event = 'intent.approved' OR event = 'intent.denied')
+       AND details->>'intent_id' = $1 AND tenant_id = $2`,
+    [intentId, tenantId]
+  );
+
+  if (alreadyResolved) {
+    console.warn(`[Integrations] Intent ${intentId} already resolved, skipping`);
+    return;
+  }
+
+  if (action === 'approve') {
+    // Issue warrant via Warrant Authority
+    let warrant: any = null;
+    try {
+      const viennaCore = (req as any).app?.locals?.viennaCore;
+      if (viennaCore?.warrant) {
+        warrant = await viennaCore.warrant.issue({
+          truthSnapshotId: `truth_${intentId}`,
+          planId: intentId,
+          approvalId: approvalId,
+          objective: `${details.action} (approved by ${reviewedBy} via ${source})`,
+          riskTier: details.risk_tier,
+          allowedActions: [details.action],
+          forbiddenActions: [],
+          constraints: details.params || {},
+          expiresInMinutes: details.risk_tier === 'T3' ? 5 : 15,
+          justification: details.risk_tier === 'T3' ? `Approved via ${source} by ${reviewedBy}` : undefined,
+          rollbackPlan: details.risk_tier === 'T3' ? 'Manual rollback required' : undefined,
+          issuer: reviewedBy,
+        });
+        console.log(`[Integrations] Warrant ${warrant.warrant_id} issued for approval ${approvalId} via ${source}`);
+      }
+    } catch (err: any) {
+      console.error(`[Integrations] Warrant issuance failed for approval ${approvalId}:`, err);
+    }
+
+    // Record approval
+    await execute(
+      `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
+       VALUES ($1, 'intent.approved', $2, $3, $4, NOW())`,
+      [tenantId, reviewedBy, JSON.stringify({
+        intent_id: intentId,
+        approval_id: approvalId,
+        warrant_id: warrant?.warrant_id || null,
+        risk_tier: details.risk_tier,
+        source,
+        approved_by: reviewedBy,
+      }), details.risk_tier === 'T2' ? 2 : 3]
+    );
+
+    eventBus.emitIntentApproved({
+      intent_id: intentId,
+      warrant_id: warrant?.warrant_id || 'pending',
+      approved_by: reviewedBy,
+      risk_tier: details.risk_tier,
+    }, tenantId);
+  } else {
+    // Record denial
+    await execute(
+      `INSERT INTO audit_log (tenant_id, event, actor, details, risk_tier, created_at)
+       VALUES ($1, 'intent.denied', $2, $3, $4, NOW())`,
+      [tenantId, reviewedBy, JSON.stringify({
+        intent_id: intentId,
+        approval_id: approvalId,
+        reason: `Denied via ${source}`,
+        denied_by: reviewedBy,
+      }), details.risk_tier === 'T2' ? 2 : 3]
+    );
+
+    eventBus.emitIntentDenied({
+      intent_id: intentId,
+      denied_by: reviewedBy,
+      reason: `Denied via ${source}`,
+      risk_tier: details.risk_tier,
+    }, tenantId);
+  }
+}
+
 export function createIntegrationsRouter(): Router {
   const router = Router();
 
@@ -317,13 +428,18 @@ export function createIntegrationsRouter(): Router {
       const result = await adapter.handleCallback(payload);
 
       if (result.action === 'approve' || result.action === 'deny') {
-        // TODO: Wire to approval manager
-        // For now, dispatch an approval_resolved event
+        const approvalId = result.data.approval_id;
+        const reviewedBy = result.data.reviewed_by || 'slack_user';
+
+        // Resolve approval via governance pipeline
+        await resolveApproval(approvalId, result.action, reviewedBy, 'slack', req);
+
+        // Also dispatch integration event for logging
         await dispatchEvent({
           type: 'approval_resolved',
           data: {
-            approval_id: result.data.approval_id,
-            summary: `${result.action === 'approve' ? 'Approved' : 'Denied'} by ${result.data.reviewed_by} via Slack`,
+            approval_id: approvalId,
+            summary: `${result.action === 'approve' ? 'Approved' : 'Denied'} by ${reviewedBy} via Slack`,
             timestamp: new Date().toISOString(),
           },
         });
@@ -360,7 +476,11 @@ export function createIntegrationsRouter(): Router {
         return;
       }
 
-      // TODO: Wire to approval manager
+      // Resolve approval via governance pipeline
+      const approvalAction = verification.payload.act === 'approve' ? 'approve' : 'deny';
+      await resolveApproval(verification.payload.aid, approvalAction, 'email_user', 'email', req);
+
+      // Also dispatch integration event for logging
       await dispatchEvent({
         type: 'approval_resolved',
         data: {

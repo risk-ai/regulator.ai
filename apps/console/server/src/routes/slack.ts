@@ -222,7 +222,26 @@ export function createSlackRouter(): Router {
             ],
           });
 
-          // Trigger execution continuation (placeholder - would integrate with Vienna runtime)
+          // Issue warrant for the approved execution
+          try {
+            const viennaCore = (req as any).app?.locals?.viennaCore;
+            if (viennaCore?.warrant) {
+              const warrant = await viennaCore.warrant.issue({
+                truthSnapshotId: `truth_slack_${executionId}`,
+                planId: executionId,
+                approvalId: `slack_${userId}_${Date.now()}`,
+                objective: `Execution ${executionId} approved by ${userName} via Slack`,
+                riskTier: 'T2',
+                allowedActions: ['*'],
+                forbiddenActions: [],
+                expiresInMinutes: 15,
+                issuer: userName || userId,
+              });
+              console.log(`[Slack] Warrant ${warrant.warrant_id} issued for execution ${executionId}`);
+            }
+          } catch (warrantErr) {
+            console.warn(`[Slack] Warrant issuance failed for execution ${executionId}:`, warrantErr);
+          }
           console.log(`[Slack] Execution ${executionId} approved by ${userName}`);
 
         } else if (actionId.startsWith('deny_')) {

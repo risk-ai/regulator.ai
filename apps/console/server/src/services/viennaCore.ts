@@ -84,7 +84,8 @@ export async function initializeViennaCore(config?: {
 
   // Initialize Warrant Authority with Postgres adapter
   const { WarrantAdapter } = await import('./warrantAdapter.js');
-  const warrantAdapter = new WarrantAdapter('default'); // TODO: Use actual tenant ID
+  // Default tenant for system-level operations; per-request tenant resolved via API key middleware
+  const warrantAdapter = new WarrantAdapter(process.env.VIENNA_TENANT_ID || 'default');
   const warrant = new Warrant(warrantAdapter, {
     signingKey: process.env.VIENNA_WARRANT_KEY || process.env.JWT_SECRET || 'vienna-dev-key-change-in-production',
   });

@@ -311,14 +311,14 @@ npx playwright test
 ### Production (Vercel)
 
 ```bash
-# 1. Push to main (triggers auto-deploy)
-git push origin main
-
-# 2. Or deploy manually
+# 1. Deploy to Vercel
 vercel --prod
 
+# 2. Check deployment status
+vercel ls
+
 # 3. Verify
-curl https://console.regulator.ai/api/v1/health
+curl http://localhost:3100/health
 ```
 
 ### Docker

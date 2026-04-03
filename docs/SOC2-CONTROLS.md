@@ -229,27 +229,28 @@ const attestation = {
 **Control Description:** The entity maintains system availability as committed.
 
 **Vienna OS Implementation:**
-- **Vercel serverless deployment** with automatic scaling and redundancy
-- **Health check endpoints** (`/api/v1/health` and `/api/v1/system/health/detailed`)
+- **Vercel serverless deployment** with automatic function scaling
+- **Health check endpoints** (`/health` and `/api/v1/system/status`)
 - **Circuit breaker patterns** for external service dependencies
-- **Vercel Edge Network** with 150+ global edge locations
-- **Database connection pooling** with automatic failover (Neon Launch)
+- **Load balancing** across Vercel Edge Network
+- **Database connection pooling** with automatic failover
 
 **High Availability Architecture:**
 ```yaml
 # Vercel Configuration
-framework: next.js
-regions: global (Edge Network)
-auto_scaling: serverless (automatic)
+functions:
+  runtime: "nodejs20.x"
+  regions: ["iad1", "dub1", "hnd1"]  
+  auto_scaling: true
 health_checks:
-  - path: "/api/v1/health"
-    interval: "60s"
+  - path: "/health"
+    interval: "30s"
     timeout: "10s"
     
-functions:
-  maxDuration: 60
-  memory: 1024
-  concurrency: auto
+auto_scaling:
+  min_instances: 2
+  max_instances: 10
+  cpu_threshold: 75
 ```
 
 **Evidence/Audit Trail:**

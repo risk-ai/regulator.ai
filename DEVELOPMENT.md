@@ -290,28 +290,28 @@ NODE_ENV=production node apps/console/server/build/server.cjs
 
 ### Vercel Deployment (Production)
 
-Vienna OS Console is deployed on Vercel serverless with automatic scaling.
+Vienna OS Console and marketing site are both deployed on Vercel serverless infrastructure.
 
 **Deployment process:**
 ```bash
-# Deploy to production (automatic via GitHub push to main)
-git push origin main
+# Automatic deployment via Git push
+git push origin main  # Triggers Vercel deployment
 
-# Or manual deploy via Vercel CLI
-vercel --prod
+# Manual deployment via CLI
+npx vercel --prod
 
 # Check deployment status
-vercel ls
-vercel inspect <deployment-url>
+npx vercel ls
+npx vercel inspect <deployment-url>
 ```
 
 **Infrastructure:**
-- **Platform:** Vercel Serverless Functions + Edge Network
-- **Console API:** console.regulator.ai (serverless API routes)
-- **Marketing Site:** regulator.ai (Next.js SSR/ISR)
-- **Database:** Neon Postgres Launch plan (auto-scaling)
-- **Auto-deploy:** Push to `main` triggers production deployment
-- **Scaling:** Automatic (handles 500+ concurrent users)
+- **Platform:** Vercel serverless (Next.js)
+- **Sites:** 
+  - https://regulator.ai → Vercel serverless (marketing)
+  - https://console.regulator.ai → Vercel serverless (API + dashboard)
+- **Database:** Neon Postgres Launch plan (shared with portfolio sites)
+- **Auto-deploy:** Git-based deployment on push to main branch
 
 ## Troubleshooting
 

@@ -319,13 +319,13 @@ export JIRA_API_TOKEN=...
 ### 2. Deploy to Vercel
 
 ```bash
-vercel --prod
+vercel deploy --prod
 ```
 
 ### 3. Verify Health
 
 ```bash
-curl https://regulatory-monitor.vercel.app/api/health
+curl https://your-deployment.vercel.app/health
 ```
 
 **Expected:**

@@ -21,14 +21,14 @@
 ### Required Tools
 
 - **Node.js** 20+ or 22+ (LTS recommended)
-- **npm** or **pnpm** 9+
-- **Vercel CLI** (optional, for manual deploys)
+- **npm** or **pnpm**
+- **Vercel CLI** (`npm i -g vercel`)
 
 ### Required Accounts
 
 - **Vercel account** (for serverless deployment)
-- **Anthropic API key** (for Claude models)
-- **GitHub account** (for repository access and auto-deploy)
+- **Anthropic API key** (for Claude models)  
+- **GitHub account** (for repository access)
 - **Neon account** (for Postgres database)
 
 ---
@@ -46,28 +46,20 @@ cp .env.example .env
 **Minimum required for deployment:**
 
 ```env
-# Server
-PORT=3100
-HOST=0.0.0.0
-NODE_ENV=production
-
 # AI Provider
 ANTHROPIC_API_KEY=sk-ant-...
+
+# Database
+POSTGRES_URL=postgresql://user:password@host:5432/vienna_os
 
 # Security
 SESSION_SECRET=$(openssl rand -hex 32)
 JWT_SECRET=$(openssl rand -hex 32)
-
-# CORS
-CORS_ORIGIN=https://console.regulator.ai,https://vienna-os.fly.dev
 ```
 
 **Optional but recommended:**
 
 ```env
-# Database (if using PostgreSQL)
-DATABASE_URL=postgresql://user:password@host:5432/vienna_os
-
 # Logging
 LOG_LEVEL=info
 SENTRY_DSN=https://...@sentry.io/...
@@ -78,65 +70,55 @@ SLACK_BOT_TOKEN=xoxb-...
 
 ### Step 3: Set Vercel Environment Variables
 
-**Set environment variables in Vercel dashboard or CLI:**
+**Set environment variables in Vercel:**
 
 ```bash
-# Via Vercel CLI
+# Using Vercel CLI
 vercel env add ANTHROPIC_API_KEY production
+vercel env add POSTGRES_URL production
 vercel env add SESSION_SECRET production
 vercel env add JWT_SECRET production
-vercel env add DATABASE_URL production
 
-# Or via Vercel Dashboard
-# Project Settings → Environment Variables → Add New
+# Or via Vercel dashboard at vercel.com/project-name/settings/environment-variables
 ```
 
-**Generate secrets locally:**
+**Verify variables:**
 
 ```bash
-openssl rand -hex 32  # For SESSION_SECRET
-openssl rand -hex 32  # For JWT_SECRET
+vercel env ls
 ```
 
 ---
 
 ## Database Setup
 
-### Neon PostgreSQL (Production)
+### Neon Postgres (Production)
 
-Vienna OS uses Neon Postgres with auto-scaling on the Launch plan.
+Vienna OS uses Neon Postgres Launch plan for production deployment.
 
-**Step 1: Create Neon Database**
+**Step 1: Database is Pre-configured**
 
-1. Go to https://console.neon.tech
-2. Create new project: `vienna-os-production`
-3. Region: `us-east-1` (recommended for lowest latency to Vercel)
-4. Plan: Launch (auto-scaling, pooled connections)
+The database connection is already established via:
+- Host: `ep-purple-smoke-adpumuth-pooler.c-2.us-east-1.aws.neon.tech`
+- Database: `neondb` 
+- User: `neondb_owner`
 
-**Step 2: Get Connection String**
-
-From Neon dashboard, copy the pooled connection string:
-
-```
-postgresql://user:password@ep-purple-smoke-adpumuth-pooler.c-2.us-east-1.aws.neon.tech/neondb
-```
-
-**Step 3: Set DATABASE_URL in Vercel**
+**Step 2: Set Environment Variable**
 
 ```bash
-vercel env add DATABASE_URL production
-# Paste the connection string when prompted
+# Set in Vercel environment variables
+POSTGRES_URL=postgresql://neondb_owner:password@ep-purple-smoke-adpumuth-pooler.c-2.us-east-1.aws.neon.tech/neondb
 ```
 
-**Step 4: Run Migrations**
+**Step 3: Run Migrations**
 
-Migrations run automatically on first deployment. Verify in Vercel deployment logs:
+Migrations run automatically on deployment. Monitor via Vercel function logs.
 
-```bash
-vercel logs --follow
-```
-
-Look for: `Running migrations... ✓`
+**Features:**
+- Serverless-compatible connection pooling
+- Automatic scaling
+- Built-in backups and point-in-time recovery
+- Shared across all portfolio sites
 
 ---
 
@@ -144,101 +126,101 @@ Look for: `Running migrations... ✓`
 
 ### Initial Setup
 
-**Step 1: Connect GitHub Repository**
-
-1. Go to https://vercel.com/new
-2. Import Git Repository: `risk-ai/regulator.ai`
-3. Framework Preset: Next.js (auto-detected)
-4. Root Directory: `./` (monorepo auto-detected)
-
-**Step 2: Configure Build Settings**
-
-Vercel auto-detects the monorepo structure. Verify:
-
-```
-Build Command: pnpm build
-Output Directory: .next (auto)
-Install Command: pnpm install
-```
-
-**Step 3: Add Environment Variables**
-
-In Vercel dashboard → Settings → Environment Variables:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-SESSION_SECRET=<generated-secret>
-JWT_SECRET=<generated-secret>
-DATABASE_URL=postgresql://...
-NODE_ENV=production
-```
-
-**Step 4: Deploy**
+**Step 1: Connect Repository**
 
 ```bash
-# Push to main triggers auto-deploy
-git push origin main
+# Install Vercel CLI
+npm i -g vercel
 
-# Or deploy manually
-vercel --prod
+# Link project to Vercel
+vercel link
+
+# Or import via dashboard at vercel.com/new
 ```
+
+**Step 2: Configure Project**
+
+Vienna OS is configured as a Next.js project with:
+- Frontend: Static generation and serverless functions
+- Backend API: Vercel serverless functions
+- Database: Neon Postgres connection pooling
 
 ### Deploy Updates
 
 **Automated deployment (recommended):**
 
-Every push to `main` automatically triggers a production deployment.
-
 ```bash
-git add .
-git commit -m "feat: new feature"
+# Git-based deployment (triggers automatically)
 git push origin main
 ```
 
 **Manual deployment:**
 
 ```bash
-# Deploy current branch to production
+# Deploy to preview
+vercel
+
+# Deploy to production  
 vercel --prod
 
-# Deploy specific branch
-vercel --prod --branch feature-branch
+# Deploy specific directory
+cd apps/console && vercel --prod
 ```
 
-### Deployment Monitoring
+### Configuration Reference
 
-**View deployment status:**
+**vercel.json configuration:**
+
+```json
+{
+  "builds": [
+    {
+      "src": "apps/console/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/apps/console/server/src/routes/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
+
+### Domain Configuration
+
+**Production domains:**
+- **Marketing site:** `https://regulator.ai` → Vercel serverless
+- **Console/API:** `https://console.regulator.ai` → Vercel serverless
+
+**DNS Configuration:**
+- A/AAAA records point to Vercel edge network
+- SSL/TLS automatically managed by Vercel
+- Global CDN distribution via Vercel Edge Network
+
+### Monitoring & Logs
+
+**View deployment logs:**
 
 ```bash
-vercel ls
+vercel logs --app regulator-ai
+vercel logs --app console-regulator-ai
 ```
 
-**Inspect deployment:**
-
-```bash
-vercel inspect <deployment-url>
-```
-
-**View logs:**
+**Function logs:**
 
 ```bash
 vercel logs --follow
-vercel logs <deployment-url>
 ```
 
-### Rollback
-
-**Rollback to previous deployment:**
-
-1. Go to Vercel dashboard → Deployments
-2. Find last known good deployment
-3. Click "Promote to Production"
-
-**Or via CLI:**
-
-```bash
-vercel rollback
-```
+**Performance monitoring:**
+- Vercel Analytics (built-in)
+- Function duration and memory usage
+- Edge cache hit rates
 
 ---
 
@@ -267,78 +249,76 @@ vercel rollback
 ### Manual Health Check
 
 ```bash
-# Production API health
-curl https://console.regulator.ai/api/v1/health
+# Production health check
+curl https://console.regulator.ai/health
+curl https://regulator.ai/api/health
 
-# Detailed health (includes DB latency, memory, CPU)
-curl https://console.regulator.ai/api/v1/system/health/detailed
-
-# Marketing site status page
-curl https://regulator.ai/status
+# Preview deployment health check  
+curl https://preview-deployment-url.vercel.app/health
 ```
 
 ### Vercel Health Monitoring
 
-Vercel provides automatic health monitoring via:
-  timeout = '10s'            # Fail if no response in 10s
-  grace_period = '30s'       # Allow 30s warmup on startup
-  method = 'GET'
-  path = '/health'
-```
+**Built-in monitoring:**
+- Function execution logs via Vercel dashboard
+- Performance metrics (duration, memory usage)
+- Error tracking and stack traces
 
-**View health check logs:**
+**View function logs:**
 
 ```bash
-fly checks list
+vercel logs --follow
 ```
+
+**Custom health monitoring:**
+- Implement `/api/health` endpoint
+- Monitor via external services (Uptime Robot, Pingdom)
+- Set up Vercel integration alerts
 
 ---
 
 ## Troubleshooting
 
-### Issue: Deployment Fails with "Health Checks Failed"
+### Issue: Function Deployment Fails
 
 **Symptoms:**
-- Machine starts but health checks timeout
-- Machine stops after deployment
-- `/health` endpoint not responding
+- Build fails during deployment
+- Function times out on startup
+- 500 errors on API endpoints
 
 **Diagnosis:**
 
 ```bash
-# Check machine status
-fly status
+# Check deployment status
+vercel ls
 
-# View logs
-fly logs --app vienna-os
+# View deployment logs
+vercel logs <deployment-url>
 
-# SSH into machine
-fly ssh console --app vienna-os
-
-# Check if server is running
-$ ps aux | grep node
-
-# Test health endpoint locally
-$ curl http://localhost:3100/health
+# Test locally
+vercel dev
 ```
 
 **Common causes:**
 
-1. **Database connection failed**
-   - Verify `DATABASE_URL` secret is set
-   - Check database is running: `fly postgres status`
+1. **Build errors**
+   - Missing dependencies in package.json
+   - TypeScript compilation errors
+   - Import path resolution issues
 
-2. **Missing required environment variable**
-   - Check `fly secrets list`
-   - Verify `.env.example` variables are set
+2. **Environment variables missing**
+   - Verify `vercel env ls`
+   - Check required variables are set
 
-3. **Port mismatch**
-   - Server listening on wrong port
-   - Check `PORT` environment variable
+3. **Database connection failed**
+   - Verify `POSTGRES_URL` is correct
+   - Check Neon database status
+   - Connection pool exhaustion
 
-4. **Server crashed on startup**
-   - Check logs for stack traces
-   - Missing dependencies
+4. **Function timeout (10s limit)**
+   - Optimize slow queries
+   - Implement caching
+   - Break into smaller functions
 
 **Resolution:**
 
@@ -347,80 +327,92 @@ $ curl http://localhost:3100/health
 vercel env add MISSING_VAR production
 
 # Redeploy
-vercel --prod
-```
+vercel --prod --force
 
-### Issue: Build Fails
-
-**Symptoms:**
-- Deployment fails during build step
-- "Module not found" errors
-
-**Diagnosis:**
-
-Check Vercel deployment logs:
-
-```bash
+# Check function logs
 vercel logs --follow
 ```
 
-**Resolution:**
-
-```bash
-# Clear build cache
-vercel --force
-
-# Or check package.json dependencies
-pnpm install
-git add package.json pnpm-lock.yaml
-git commit -m "fix: update dependencies"
-git push origin main
-```
-
-### Issue: Function Timeout
+### Issue: Function Cold Starts
 
 **Symptoms:**
-- 504 Gateway Timeout
-- "FUNCTION_INVOCATION_TIMEOUT"
+- Slow initial response time (~2-3s)
+- Timeout on first request after inactivity
 
 **Diagnosis:**
 
-Check function execution time in logs:
-
-```bash
-vercel logs | grep "Duration:"
-```
+Check function execution time in Vercel dashboard.
 
 **Resolution:**
 
-Optimize slow functions or increase timeout (requires Pro/Enterprise plan):
-
-```json
-// vercel.json
-{
-  "functions": {
-    "api/**/*.ts": {
-      "maxDuration": 60
-    }
+```javascript
+// Implement function warming
+export default async function handler(req, res) {
+  // Keep database connections alive
+  if (req.query.warm === 'true') {
+    return res.json({ warm: true });
   }
+  
+  // Regular logic here
 }
 ```
 
-### Issue: Slow Performance
+### Issue: Environment Variable Sync
 
 **Symptoms:**
-- High latency
-- Slow API responses
+- Functions work locally but fail in production
+- "undefined" values for environment variables
 
 **Diagnosis:**
 
-Check Vercel Analytics or deployment logs.
+```bash
+# Check environment variables
+vercel env ls
+
+# Compare with local .env
+cat .env
+```
 
 **Resolution:**
 
-1. Enable Edge Functions for faster cold starts
-2. Optimize database queries
-3. Add caching headers
+```bash
+# Sync missing variables
+vercel env add MISSING_VAR production
+
+# Pull latest environment
+vercel env pull .env.local
+```
+
+### Issue: Database Connection Pool Exhaustion
+
+**Symptoms:**
+- "Connection pool exhausted" errors
+- Functions timeout randomly
+
+**Diagnosis:**
+
+Check Neon dashboard for active connections.
+
+**Resolution:**
+
+```javascript
+// Use connection pooling
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  max: 10, // Limit concurrent connections
+  idleTimeoutMillis: 30000,
+});
+
+// Always release connections
+const client = await pool.connect();
+try {
+  // Query here
+} finally {
+  client.release();
+}
+```
 
 ---
 
@@ -440,27 +432,34 @@ vercel logs --follow
 vercel logs | grep ERROR
 ```
 
-**Specific deployment:**
+**Specific function:**
 
 ```bash
-vercel logs <deployment-url>
+vercel logs --app console-regulator-ai
 ```
 
 ### Metrics Dashboard
 
-Access Vercel Dashboard → Project → Analytics:
-- Request rate
-- Response time  
+```bash
+vercel dashboard
+```
+
+Opens Vercel dashboard with:
+- Function invocations
+- Response time
 - Error rate
 - Bandwidth usage
-- Function invocations
+- Edge cache performance
 
-### Alerts
+### Alerts (Optional)
 
-Vercel Pro/Enterprise plans include:
-- Deployment notifications
-- Error rate alerts
-- Budget alerts
+**Set up monitoring alerts:**
+
+1. Vercel → Project → Settings → Integrations
+2. Add alert integrations:
+   - PagerDuty for function failures
+   - Slack for deployment notifications
+   - DataDog for performance monitoring
 
 ---
 
@@ -468,15 +467,26 @@ Vercel Pro/Enterprise plans include:
 
 ### Rollback to Previous Deployment
 
-Via dashboard:
-1. Vercel Dashboard → Deployments
-2. Find last known good deployment
-3. Click "Promote to Production"
+```bash
+# List recent deployments
+vercel ls
 
-Via CLI:
+# Promote previous deployment
+vercel promote <deployment-url> --yes
+
+# Or rollback via Git
+git revert <commit-hash>
+git push origin main  # Triggers new deployment
+```
+
+### Emergency Rollback
 
 ```bash
+# Instant rollback to last known good deployment
 vercel rollback
+
+# Or promote specific deployment URL
+vercel promote https://deployment-abc123.vercel.app
 ```
 
 ---
@@ -485,13 +495,13 @@ vercel rollback
 
 Before deploying to production:
 
-- [ ] All required environment variables set (Vercel dashboard)
-- [ ] Database configured and migrated (Neon)
-- [ ] Health endpoint responding (`curl https://console.regulator.ai/api/v1/health`)
-- [ ] CORS origins configured correctly
+- [ ] All required environment variables set (`vercel env ls`)
+- [ ] Database configured and migrated (Neon Postgres)
+- [ ] Health endpoints responding (`curl https://console.regulator.ai/health`)
+- [ ] DNS configured correctly (regulator.ai, console.regulator.ai)
 - [ ] SSL/TLS certificate valid (automatic with Vercel)
-- [ ] Monitoring dashboard reviewed
-- [ ] Backup strategy defined (Neon point-in-time recovery)
+- [ ] Function monitoring configured
+- [ ] Database backup strategy confirmed (Neon automatic backups)
 - [ ] Incident response plan documented
 - [ ] Rollback procedure tested
 

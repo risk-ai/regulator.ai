@@ -64,8 +64,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=maxlawai
-WorkingDirectory=/home/maxlawai/.openclaw/workspace/regulator.ai/apps/discord-bot
+User=vienna
+WorkingDirectory=/opt/vienna/regulator.ai/apps/discord-bot
 ExecStart=/usr/bin/node index.js
 Restart=always
 RestartSec=10

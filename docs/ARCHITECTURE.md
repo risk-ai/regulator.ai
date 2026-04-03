@@ -528,14 +528,14 @@ User/Agent Intent
 
 ### Scalability
 
-**Vercel Serverless:** Auto-scales to 500+ concurrent users  
-**Neon Launch Plan:** Auto-scales connections and compute  
-**Multi-region:** Vercel Edge Network (global)
+**Serverless (Vercel + Neon):** 1K-10K req/sec  
+**Multi-region (Vercel Edge):** 10K-100K req/sec  
+**Global scale:** 100K+ req/sec
 
 **Current deployment:**
-- **Platform:** Vercel Serverless Functions + Edge Network
-- **Database:** Neon Postgres Launch plan (auto-scaling)
-- **CDN:** Vercel Edge Network (150+ edge locations)
+- **Platform:** Vercel serverless functions (auto-scaling)
+- **Database:** Neon Postgres Launch plan (connection pooling)
+- **CDN:** Vercel Edge Network (global distribution)
 
 **Bottlenecks:**
 1. AI API calls (Anthropic rate limits: 5K req/min)
@@ -546,7 +546,6 @@ User/Agent Intent
 - Warrant caching (reuse for identical intents)
 - Policy caching (evaluate rules in-memory)
 - Async execution (return warrant_id immediately, execute in background)
-- Vercel Edge Functions (sub-50ms cold starts)
 
 ---
 
@@ -556,7 +555,7 @@ User/Agent Intent
 - [Warrant Policy](./WARRANT_POLICY.md) — Detailed warrant specifications
 - [Agent Protocols](./AGENT_PROTOCOLS.md) — How agents communicate with Vienna
 - [Adapter Development](./ADAPTER_DEVELOPMENT.md) — Build custom integrations
-- [Production Deployment](./DEPLOYMENT.md) — Deploy to Vercel
+- [Production Deployment](./DEPLOYMENT.md) — Deploy to Vercel serverless
 
 **Examples:**
 - [Regulatory Monitor](../examples/regulatory-monitor/) — Compliance automation

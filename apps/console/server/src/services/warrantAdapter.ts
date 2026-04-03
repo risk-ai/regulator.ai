@@ -56,93 +56,113 @@ export class WarrantAdapter {
   }
 
   /**
-   * Save warrant to database
+   * Save warrant to database (adapted to existing schema)
    */
   async saveWarrant(warrant: Partial<WarrantRecord>): Promise<void> {
+    // Adapt to existing schema: id (UUID), proposal_id, signature, expires_at, etc.
+    // Store Vienna warrant fields in the 'scope' JSONB column
     const sql = `
       INSERT INTO regulator.warrants (
-        warrant_id, change_id, version, issued_by, issued_at, expires_at, risk_tier,
-        truth_snapshot_id, truth_snapshot_hash, plan_id, approval_id, approval_ids,
-        objective, allowed_actions, forbidden_actions, constraints,
-        justification, rollback_plan, trading_safety, enhanced_audit,
-        status, invalidated_at, invalidation_reason, signature, tenant_id
+        intent_id, agent_id, risk_tier, scope, signature, expires_at,
+        revoked, issued_by, created_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-        $17, $18, $19, $20, $21, $22, $23, $24, $25
+        $1, $2, $3, $4, $5, $6, $7, $8, NOW()
       )
-      ON CONFLICT (warrant_id) DO UPDATE SET
-        status = EXCLUDED.status,
-        invalidated_at = EXCLUDED.invalidated_at,
-        invalidation_reason = EXCLUDED.invalidation_reason,
-        updated_at = NOW()
+      RETURNING id
     `;
 
-    await execute(sql, [
-      warrant.warrant_id,
-      warrant.change_id,
-      warrant.version || 2,
-      warrant.issued_by || 'vienna',
-      warrant.issued_at,
-      warrant.expires_at,
-      warrant.risk_tier,
-      warrant.truth_snapshot_id,
-      warrant.truth_snapshot_hash,
-      warrant.plan_id,
-      warrant.approval_id,
-      JSON.stringify(warrant.approval_ids || []),
-      warrant.objective,
-      JSON.stringify(warrant.allowed_actions || []),
-      JSON.stringify(warrant.forbidden_actions || []),
-      JSON.stringify(warrant.constraints || {}),
-      warrant.justification,
-      warrant.rollback_plan,
-      JSON.stringify(warrant.trading_safety || { trading_in_scope: false, risk: 'none' }),
-      warrant.enhanced_audit || false,
-      warrant.status || 'issued',
-      warrant.invalidated_at,
-      warrant.invalidation_reason,
+    const scope = {
+      warrant_id: warrant.warrant_id,
+      change_id: warrant.change_id,
+      version: warrant.version || 2,
+      truth_snapshot_id: warrant.truth_snapshot_id,
+      truth_snapshot_hash: warrant.truth_snapshot_hash,
+      plan_id: warrant.plan_id,
+      approval_id: warrant.approval_id,
+      approval_ids: warrant.approval_ids || [],
+      objective: warrant.objective,
+      allowed_actions: warrant.allowed_actions || [],
+      forbidden_actions: warrant.forbidden_actions || [],
+      constraints: warrant.constraints || {},
+      justification: warrant.justification,
+      rollback_plan: warrant.rollback_plan,
+      trading_safety: warrant.trading_safety || { trading_in_scope: false, risk: 'none' },
+      enhanced_audit: warrant.enhanced_audit || false,
+      status: warrant.status || 'issued',
+      invalidated_at: warrant.invalidated_at,
+      invalidation_reason: warrant.invalidation_reason,
+    };
+
+    const result = await queryOne<{ id: string }>(sql, [
+      warrant.plan_id || warrant.warrant_id, // intent_id
+      warrant.issued_by || 'framework_api', // agent_id
+      warrant.risk_tier || 'T0',
+      JSON.stringify(scope),
       warrant.signature,
-      this.tenantId,
+      warrant.expires_at,
+      warrant.status === 'invalidated', // revoked boolean
+      warrant.issued_by || 'vienna',
     ]);
 
-    console.log(`[WarrantAdapter] Saved warrant ${warrant.warrant_id} for tenant ${this.tenantId}`);
+    console.log(`[WarrantAdapter] Saved warrant ${warrant.warrant_id} (DB ID: ${result?.id}) for tenant ${this.tenantId}`);
   }
 
   /**
-   * Load warrant from database
+   * Load warrant from database (adapted to existing schema)
    */
   async loadWarrant(warrantId: string): Promise<WarrantRecord | null> {
+    // Search for warrant_id in the scope JSONB column
     const sql = `
       SELECT 
-        warrant_id, change_id, version, issued_by, issued_at, expires_at, risk_tier,
-        truth_snapshot_id, truth_snapshot_hash, plan_id, approval_id, approval_ids,
-        objective, allowed_actions, forbidden_actions, constraints,
-        justification, rollback_plan, trading_safety, enhanced_audit,
-        status, invalidated_at, invalidation_reason, signature, tenant_id,
-        created_at, updated_at
+        id, intent_id, agent_id, risk_tier, scope, signature, expires_at,
+        revoked, revoked_at, revoked_reason, issued_by, created_at
       FROM regulator.warrants
-      WHERE warrant_id = $1 AND tenant_id = $2
+      WHERE scope->>'warrant_id' = $1
+      ORDER BY created_at DESC
+      LIMIT 1
     `;
 
-    const row = await queryOne<any>(sql, [warrantId, this.tenantId]);
+    const row = await queryOne<any>(sql, [warrantId]);
     
     if (!row) {
       return null;
     }
 
-    // Parse JSON fields
+    // Extract Vienna warrant structure from scope JSONB
+    const scope = typeof row.scope === 'string' ? JSON.parse(row.scope) : row.scope;
+    
     return {
-      ...row,
-      approval_ids: typeof row.approval_ids === 'string' ? JSON.parse(row.approval_ids) : row.approval_ids,
-      allowed_actions: typeof row.allowed_actions === 'string' ? JSON.parse(row.allowed_actions) : row.allowed_actions,
-      forbidden_actions: typeof row.forbidden_actions === 'string' ? JSON.parse(row.forbidden_actions) : row.forbidden_actions,
-      constraints: typeof row.constraints === 'string' ? JSON.parse(row.constraints) : row.constraints,
-      trading_safety: typeof row.trading_safety === 'string' ? JSON.parse(row.trading_safety) : row.trading_safety,
+      warrant_id: scope.warrant_id || warrantId,
+      change_id: scope.change_id || row.intent_id,
+      version: scope.version || 2,
+      issued_by: row.issued_by,
+      issued_at: row.created_at,
+      expires_at: row.expires_at,
+      risk_tier: row.risk_tier,
+      truth_snapshot_id: scope.truth_snapshot_id || '',
+      truth_snapshot_hash: scope.truth_snapshot_hash || '',
+      plan_id: scope.plan_id || row.intent_id,
+      approval_id: scope.approval_id || null,
+      approval_ids: scope.approval_ids || [],
+      objective: scope.objective || '',
+      allowed_actions: scope.allowed_actions || [],
+      forbidden_actions: scope.forbidden_actions || [],
+      constraints: scope.constraints || {},
+      justification: scope.justification || null,
+      rollback_plan: scope.rollback_plan || null,
+      trading_safety: scope.trading_safety || { trading_in_scope: false, risk: 'none' },
+      enhanced_audit: scope.enhanced_audit || false,
+      status: row.revoked ? 'invalidated' : (scope.status || 'issued'),
+      invalidated_at: row.revoked_at || scope.invalidated_at || null,
+      invalidation_reason: row.revoked_reason || scope.invalidation_reason || null,
+      signature: row.signature,
+      tenant_id: this.tenantId,
+      created_at: row.created_at,
     };
   }
 
   /**
-   * List warrants (with optional filters)
+   * List warrants (with optional filters) - adapted to existing schema
    */
   async listWarrants(filters: {
     status?: 'issued' | 'invalidated';
@@ -151,23 +171,19 @@ export class WarrantAdapter {
   } = {}): Promise<WarrantRecord[]> {
     let sql = `
       SELECT 
-        warrant_id, change_id, version, issued_by, issued_at, expires_at, risk_tier,
-        truth_snapshot_id, truth_snapshot_hash, plan_id, approval_id, approval_ids,
-        objective, allowed_actions, forbidden_actions, constraints,
-        justification, rollback_plan, trading_safety, enhanced_audit,
-        status, invalidated_at, invalidation_reason, signature, tenant_id,
-        created_at, updated_at
+        id, intent_id, agent_id, risk_tier, scope, signature, expires_at,
+        revoked, revoked_at, revoked_reason, issued_by, created_at
       FROM regulator.warrants
-      WHERE tenant_id = $1
+      WHERE 1=1
     `;
 
-    const params: any[] = [this.tenantId];
-    let paramIndex = 2;
+    const params: any[] = [];
+    let paramIndex = 1;
 
-    if (filters.status) {
-      sql += ` AND status = $${paramIndex}`;
-      params.push(filters.status);
-      paramIndex++;
+    if (filters.status === 'invalidated') {
+      sql += ` AND revoked = true`;
+    } else if (filters.status === 'issued') {
+      sql += ` AND revoked = false`;
     }
 
     if (filters.risk_tier) {
@@ -185,14 +201,38 @@ export class WarrantAdapter {
 
     const rows = await query<any>(sql, params);
 
-    return rows.map(row => ({
-      ...row,
-      approval_ids: typeof row.approval_ids === 'string' ? JSON.parse(row.approval_ids) : row.approval_ids,
-      allowed_actions: typeof row.allowed_actions === 'string' ? JSON.parse(row.allowed_actions) : row.allowed_actions,
-      forbidden_actions: typeof row.forbidden_actions === 'string' ? JSON.parse(row.forbidden_actions) : row.forbidden_actions,
-      constraints: typeof row.constraints === 'string' ? JSON.parse(row.constraints) : row.constraints,
-      trading_safety: typeof row.trading_safety === 'string' ? JSON.parse(row.trading_safety) : row.trading_safety,
-    }));
+    return rows.map(row => {
+      const scope = typeof row.scope === 'string' ? JSON.parse(row.scope) : row.scope;
+      
+      return {
+        warrant_id: scope.warrant_id || row.id,
+        change_id: scope.change_id || row.intent_id,
+        version: scope.version || 2,
+        issued_by: row.issued_by,
+        issued_at: row.created_at,
+        expires_at: row.expires_at,
+        risk_tier: row.risk_tier,
+        truth_snapshot_id: scope.truth_snapshot_id || '',
+        truth_snapshot_hash: scope.truth_snapshot_hash || '',
+        plan_id: scope.plan_id || row.intent_id,
+        approval_id: scope.approval_id || null,
+        approval_ids: scope.approval_ids || [],
+        objective: scope.objective || '',
+        allowed_actions: scope.allowed_actions || [],
+        forbidden_actions: scope.forbidden_actions || [],
+        constraints: scope.constraints || {},
+        justification: scope.justification || null,
+        rollback_plan: scope.rollback_plan || null,
+        trading_safety: scope.trading_safety || { trading_in_scope: false, risk: 'none' },
+        enhanced_audit: scope.enhanced_audit || false,
+        status: row.revoked ? 'invalidated' : (scope.status || 'issued'),
+        invalidated_at: row.revoked_at || scope.invalidated_at || null,
+        invalidation_reason: row.revoked_reason || scope.invalidation_reason || null,
+        signature: row.signature,
+        tenant_id: this.tenantId,
+        created_at: row.created_at,
+      };
+    });
   }
 
   /**

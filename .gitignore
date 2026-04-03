@@ -158,3 +158,4 @@ docs/STRUCTURED-DATA*.md
 docs/devto/
 BUSINESS-PLAN.md
 patent/
+.env.prod

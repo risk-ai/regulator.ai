@@ -52,12 +52,12 @@ async function initApp() {
   const authConfig = {
     sessionTTL: 24 * 60 * 60 * 1000,
     maxSessions: 100,
-    operators: [{
+    operators: process.env.VIENNA_OPERATOR_PASSWORD ? [{
       name: process.env.VIENNA_OPERATOR_NAME || 'vienna',
-      passwordHash: '',
+      passwordHash: process.env.VIENNA_OPERATOR_PASSWORD, // Pre-hashed password from env
       role: 'admin' as const,
       active: true,
-    }],
+    }] : [],  // No default operator if password not configured — use DB auth only
     stateGraph: viennaCore?.stateGraph,
   };
   

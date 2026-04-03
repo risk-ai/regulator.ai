@@ -296,11 +296,44 @@ router.get('/intents/:intentId', async (req, res) => {
       'approval.required': 'pending',
     };
     
+    const details = typeof auditEntry.details === 'string'
+      ? JSON.parse(auditEntry.details)
+      : auditEntry.details;
+    const status = statusMap[auditEntry.event] || 'pending';
+
+    // If approved, include the warrant so the agent can use it
+    let warrant = null;
+    if (status === 'approved' && details?.warrant_id) {
+      try {
+        const viennaCore = (req as any).app?.locals?.viennaCore;
+        if (viennaCore?.warrant) {
+          const verification = await viennaCore.warrant.verify(details.warrant_id);
+          if (verification.valid) {
+            warrant = {
+              warrant_id: details.warrant_id,
+              valid: true,
+              expires_at: verification.warrant?.expires_at,
+              risk_tier: verification.risk_tier,
+              remaining_minutes: verification.remaining_minutes,
+              allowed_actions: verification.warrant?.allowed_actions,
+            };
+          } else {
+            warrant = {
+              warrant_id: details.warrant_id,
+              valid: false,
+              reason: verification.reason,
+            };
+          }
+        }
+      } catch {}
+    }
+
     res.json({
       success: true,
       intent_id: intentId,
-      status: statusMap[auditEntry.event] || 'pending',
-      details: auditEntry.details,
+      status,
+      details,
+      warrant: warrant || undefined,
       last_updated: auditEntry.created_at
     });
   } catch (error: any) {
@@ -375,6 +408,36 @@ router.post('/executions', async (req, res) => {
       );
     } catch (auditErr) {
       console.warn('[Framework API] Audit log write failed:', auditErr);
+    }
+
+    // Persist to execution_log for analytics and dashboard
+    try {
+      await execute(
+        `INSERT INTO execution_log (execution_id, tenant_id, warrant_id, execution_mode, state, risk_tier, objective, result, created_at, completed_at)
+         VALUES ($1, $2, $3, 'framework_api', $4, $5, $6, $7, NOW(), NOW())
+         ON CONFLICT (execution_id) DO UPDATE SET
+           state = EXCLUDED.state,
+           result = EXCLUDED.result,
+           completed_at = NOW()`,
+        [
+          executionId,
+          tenantId,
+          warrant_id || null,
+          success ? 'completed' : 'failed',
+          'T0', // Default; will be overridden by warrant scope if available
+          `Execution via Framework API: ${success ? 'success' : 'failed'}`,
+          JSON.stringify({
+            success,
+            output: output?.substring(0, 2000),
+            error,
+            metrics,
+            estimated_cost: metrics?.estimated_cost || null,
+          }),
+        ]
+      );
+    } catch (execLogErr) {
+      // Non-critical — analytics may be incomplete
+      console.warn('[Framework API] execution_log write failed:', execLogErr);
     }
 
     // Verify warrant before acknowledging execution

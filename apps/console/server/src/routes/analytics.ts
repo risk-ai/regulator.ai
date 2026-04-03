@@ -302,7 +302,7 @@ export function createAnalyticsRouter(): Router {
         SELECT 
           COALESCE(SUM((result->>'estimated_cost')::numeric), 0) as total_cost,
           COUNT(*) as execution_count
-        FROM regulator.executions
+        FROM regulator.execution_log
         WHERE tenant_id = $1
           AND created_at >= $2
           AND created_at < $3
@@ -321,7 +321,7 @@ export function createAnalyticsRouter(): Router {
           e.agent_id,
           COALESCE(SUM((e.result->>'estimated_cost')::numeric), 0) as cost,
           COUNT(*) as executions
-        FROM regulator.executions e
+        FROM regulator.execution_log e
         WHERE e.tenant_id = $1
           AND e.created_at >= $2
           AND e.created_at < $3

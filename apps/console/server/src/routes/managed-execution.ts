@@ -48,7 +48,7 @@ export function createManagedExecutionRouter(): Router {
 
       console.log(`[ManagedExecution] Starting ${execId} — ${steps.length} steps, tenant=${tenantId}`);
 
-      // 0. Validate warrant if provided (reject expired/revoked/invalid warrants)
+      // 0. Validate warrant if provided (reject expired/revoked/invalid warrants + scope check)
       if (warrant_id) {
         try {
           const viennaCore = (req as any).app?.locals?.viennaCore;
@@ -62,10 +62,37 @@ export function createManagedExecutionRouter(): Router {
                 warrant_id,
               });
             }
+
+            // Scope verification: check if requested actions are within warrant scope
+            const warrant = verification.warrant;
+            if (warrant?.allowed_actions && !warrant.allowed_actions.includes('*')) {
+              const requestedActions = steps.map((s: any) => s.action || s.adapter || s.type).filter(Boolean);
+              const unauthorized = requestedActions.filter(
+                (action: string) => !warrant.allowed_actions.includes(action)
+              );
+              if (unauthorized.length > 0) {
+                // Emit scope drift event
+                const { eventBus } = await import('../services/eventBus.js');
+                eventBus.emitScopeDrift({
+                  warrant_id,
+                  expected_actions: warrant.allowed_actions,
+                  actual_actions: requestedActions,
+                  drift_type: 'unauthorized_action',
+                }, tenantId);
+
+                return res.status(403).json({
+                  success: false,
+                  error: `Warrant scope violation: actions [${unauthorized.join(', ')}] not authorized`,
+                  code: 'WARRANT_SCOPE_VIOLATION',
+                  warrant_id,
+                  allowed_actions: warrant.allowed_actions,
+                  unauthorized_actions: unauthorized,
+                });
+              }
+            }
           }
         } catch (verifyErr) {
           console.warn(`[ManagedExecution] Warrant verification failed for ${warrant_id}:`, verifyErr);
-          // Don't block execution if warrant system is unavailable — log and continue
         }
       }
 

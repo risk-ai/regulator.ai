@@ -213,6 +213,29 @@ async function start() {
     // Start event stream
     eventStream.start();
     console.log('Event stream started');
+
+    // Bridge governance eventBus → SSE eventStream for real-time dashboard updates
+    const { eventBus } = await import('./services/eventBus.js');
+    const governanceEvents = [
+      'intent.submitted', 'intent.approved', 'intent.denied',
+      'warrant.issued', 'warrant.expired', 'warrant.tampered',
+      'agent.registered', 'agent.heartbeat', 'agent.trust_changed',
+      'execution.started', 'execution.completed', 'execution.scope_drift',
+      'approval.required', 'approval.resolved',
+    ];
+    for (const eventType of governanceEvents) {
+      eventBus.subscribe(
+        (data: any) => {
+          eventStream.publish({
+            type: eventType,
+            payload: data,
+            timestamp: new Date().toISOString(),
+          });
+        },
+        { eventType: eventType as any }
+      );
+    }
+    console.log(`Event bus → SSE bridge connected (${governanceEvents.length} event types)`);
     
     // Phase 5A: Connect event stream to Vienna Core for real-time observability
     if (viennaCore.queuedExecutor) {

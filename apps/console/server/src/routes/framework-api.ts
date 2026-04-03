@@ -937,4 +937,225 @@ router.get('/policies', async (req, res) => {
   }
 });
 
+// --- Real-time Event Stream ---
+
+/**
+ * GET /api/v1/stream/intents/:intentId
+ * SSE endpoint — subscribe to real-time updates for a specific intent.
+ * Useful for agents waiting on T2/T3 approval.
+ * 
+ * Events sent:
+ * - intent.approved (with warrant)
+ * - intent.denied (with reason)
+ * - approval.required (confirmation)
+ */
+router.get('/stream/intents/:intentId', (req, res) => {
+  const { intentId } = req.params;
+  const tenantId = (req as any).tenantId || 'default';
+
+  // Set SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no',
+  });
+
+  res.write(`data: ${JSON.stringify({ type: 'connected', intent_id: intentId })}\n\n`);
+
+  // Subscribe to eventBus for this intent
+  const { eventBus } = require('../services/eventBus.js');
+  const subscriptionIds: string[] = [];
+
+  for (const eventType of ['intent.approved', 'intent.denied'] as const) {
+    const subId = eventBus.subscribe(
+      (data: any) => {
+        if (data.intent_id === intentId) {
+          res.write(`event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`);
+          // Auto-close after resolution
+          setTimeout(() => {
+            res.write(`data: ${JSON.stringify({ type: 'stream_end' })}\n\n`);
+            res.end();
+          }, 500);
+        }
+      },
+      { eventType, tenantId }
+    );
+    subscriptionIds.push(subId);
+  }
+
+  // Heartbeat every 30s to keep connection alive
+  const heartbeat = setInterval(() => {
+    res.write(`: heartbeat\n\n`);
+  }, 30000);
+
+  // Cleanup on disconnect
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    for (const id of subscriptionIds) {
+      eventBus.unsubscribe(id);
+    }
+  });
+});
+
+// --- Agent Trust Score ---
+
+/**
+ * GET /api/v1/agents/:agentId/trust
+ * Get agent trust score with breakdown.
+ * Computed from execution history: success rate, policy violations, anomalies.
+ */
+router.get('/agents/:agentId/trust', async (req, res) => {
+  try {
+    const { agentId } = req.params;
+
+    // Get agent from registry
+    const agent = await queryOne<any>(
+      `SELECT agent_id, display_name, trust_score, status, last_heartbeat,
+              rate_limit_per_minute, rate_limit_per_hour
+       FROM agent_registry WHERE agent_id = $1`,
+      [agentId]
+    );
+
+    if (!agent) {
+      return res.status(404).json({ success: false, error: 'Agent not found' });
+    }
+
+    // Get execution stats (last 30 days)
+    const stats = await queryOne<any>(
+      `SELECT 
+         COUNT(*) as total_actions,
+         COUNT(*) FILTER (WHERE result = 'executed') as successful,
+         COUNT(*) FILTER (WHERE result = 'failed') as failed,
+         COUNT(*) FILTER (WHERE result = 'denied') as denied,
+         AVG(latency_ms) as avg_latency_ms
+       FROM agent_activity
+       WHERE agent_id = $1 AND created_at > NOW() - INTERVAL '30 days'`,
+      [agentId]
+    );
+
+    // Get alert counts
+    const alerts = await queryOne<any>(
+      `SELECT 
+         COUNT(*) FILTER (WHERE severity = 'critical') as critical_alerts,
+         COUNT(*) FILTER (WHERE severity = 'warning') as warning_alerts
+       FROM agent_alerts
+       WHERE agent_id = $1 AND created_at > NOW() - INTERVAL '30 days'`,
+      [agentId]
+    );
+
+    const totalActions = parseInt(stats?.total_actions || '0');
+    const successful = parseInt(stats?.successful || '0');
+    const failed = parseInt(stats?.failed || '0');
+    const denied = parseInt(stats?.denied || '0');
+    const criticalAlerts = parseInt(alerts?.critical_alerts || '0');
+
+    // Compute trust score (0-100)
+    let trustScore = agent.trust_score || 50;
+    if (totalActions > 0) {
+      const successRate = successful / totalActions;
+      const failureRate = failed / totalActions;
+      const denialRate = denied / totalActions;
+      
+      // Base: 50 + (success_rate * 40) - (failure_rate * 30) - (denial_rate * 20) - (critical_alerts * 5)
+      trustScore = Math.max(0, Math.min(100, Math.round(
+        50 + (successRate * 40) - (failureRate * 30) - (denialRate * 20) - (criticalAlerts * 5)
+      )));
+
+      // Update trust score in registry
+      await execute(
+        `UPDATE agent_registry SET trust_score = $2, updated_at = NOW() WHERE agent_id = $1`,
+        [agentId, trustScore]
+      );
+    }
+
+    res.json({
+      success: true,
+      agent_id: agentId,
+      trust_score: trustScore,
+      trust_level: trustScore >= 80 ? 'high' : trustScore >= 50 ? 'medium' : 'low',
+      breakdown: {
+        total_actions: totalActions,
+        successful,
+        failed,
+        denied,
+        success_rate: totalActions > 0 ? Math.round((successful / totalActions) * 100) : 0,
+        avg_latency_ms: Math.round(parseFloat(stats?.avg_latency_ms || '0')),
+        critical_alerts: criticalAlerts,
+        warning_alerts: parseInt(alerts?.warning_alerts || '0'),
+      },
+      status: agent.status,
+      last_heartbeat: agent.last_heartbeat,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- Usage & Quota Check ---
+
+/**
+ * GET /api/v1/usage
+ * Get current usage against plan limits for this tenant.
+ */
+router.get('/usage', async (req, res) => {
+  try {
+    const tenantId = (req as any).tenantId || 'default';
+
+    // Get tenant plan
+    const tenant = await queryOne<any>(
+      `SELECT id, name, plan, max_agents, max_policies, settings FROM tenants WHERE id = $1`,
+      [tenantId]
+    );
+
+    if (!tenant) {
+      return res.json({ success: true, plan: 'community', usage: {}, limits: {} });
+    }
+
+    const settings = typeof tenant.settings === 'string' ? JSON.parse(tenant.settings) : (tenant.settings || {});
+    const period = new Date().toISOString().slice(0, 7);
+
+    // Get current usage
+    const usageRows = await query<{ event_type: string; count: string }>(
+      `SELECT event_type, SUM(count) as count FROM usage_events
+       WHERE tenant_id = $1 AND period = $2
+       GROUP BY event_type`,
+      [tenantId, period]
+    );
+
+    const usage: Record<string, number> = {};
+    for (const row of usageRows) {
+      usage[row.event_type] = parseInt(row.count);
+    }
+
+    const maxIntents = settings.max_intents_per_month || 1000;
+    const intentsUsed = usage['intent_submitted'] || 0;
+
+    res.json({
+      success: true,
+      tenant_id: tenantId,
+      plan: tenant.plan,
+      period,
+      usage: {
+        intents: intentsUsed,
+        executions: usage['execution_completed'] || 0,
+        agents: usage['agent_registered'] || 0,
+        policies: usage['policy_created'] || 0,
+      },
+      limits: {
+        max_intents_per_month: maxIntents,
+        max_agents: tenant.max_agents,
+        max_policies: tenant.max_policies,
+        max_storage_gb: settings.max_storage_gb || 1,
+      },
+      utilization: {
+        intents_percent: maxIntents > 0 ? Math.round((intentsUsed / maxIntents) * 100) : 0,
+        agents_percent: tenant.max_agents > 0 ? Math.round(((usage['agent_registered'] || 0) / tenant.max_agents) * 100) : 0,
+      },
+    });
+  } catch (error: any) {
+    res.json({ success: true, plan: 'unknown', usage: {}, limits: {} });
+  }
+});
+
 export default router;

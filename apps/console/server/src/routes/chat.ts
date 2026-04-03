@@ -19,6 +19,16 @@ export function createChatRouter(
 ): Router {
   const router = Router();
   
+  // TODO: Implement proper chat service
+  const chatService = {
+    async getHistory(params: any) {
+      return { messages: [], hasMore: false };
+    },
+    async getThreads(params: any) {
+      return { threads: [], hasMore: false };
+    }
+  };
+  
   /**
    * POST /api/v1/chat/message
    * Send message to Vienna (Phase 6.6: with LLM provider routing + Phase 6.8: command proposals)

@@ -46,8 +46,8 @@ export function createAgentIntentRouter(
       // Simple auth for v1: require tenant in session or header
       // In production, use API key or signed token
       const authContext: AuthContext = {
-        tenant: req.session?.tenant || req.headers['x-tenant-id'] as string || 'system',
-        agent_id: req.session?.agent_id || agentRequest.source?.agent_id
+        tenant: (req as any).session?.tenant || req.headers['x-tenant-id'] as string || 'system',
+        agent_id: (req as any).session?.agent_id || agentRequest.source?.agent_id
       };
 
       // Process through agent intent bridge

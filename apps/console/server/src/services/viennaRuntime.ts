@@ -63,6 +63,10 @@ export class ViennaRuntimeService {
     return this.replayService;
   }
 
+  getStateGraph(): any {
+    return this.viennaCore?.stateGraph;
+  }
+
   // ==========================================================================
   // System Status & Diagnostics
   // ==========================================================================

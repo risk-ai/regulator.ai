@@ -97,7 +97,7 @@ import { createManagedExecutionRouter } from './routes/managed-execution.js';
 import { createAdapterConfigsRouter } from './routes/adapter-configs.js';
 import { createSettingsRouter } from './routes/settings.js';
 import connectRouter from './routes/connect.js';
-import anomaliesRouter from './routes/anomalies.js';
+import { createAnomaliesRouter } from './routes/anomalies.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -246,13 +246,13 @@ export function createApp(
         providerHealth.providers.anthropic = {
           status: anthropic.status,
           health: anthropic.status,
-          last_success: anthropic.lastSuccessAt || null,
+          last_success: 'lastSuccessAt' in anthropic ? anthropic.lastSuccessAt || null : null,
         };
         
         providerHealth.providers.local = {
           status: local.status,
           health: local.status,
-          last_success: local.lastSuccessAt || null,
+          last_success: 'lastSuccessAt' in local ? local.lastSuccessAt || null : null,
         };
         
         // Chat available if ANY provider healthy OR unknown (untested but usable)
@@ -320,7 +320,7 @@ export function createApp(
   // ============================================================================
   
   // Auth routes (must be public for login) with stricter rate limiting
-  app.use(`${apiPrefix}/auth`, authLimiter, createAuthRouter(authService));
+  app.use(`${apiPrefix}/auth`, authLimiter, createAuthRouter());
 
   // ============================================================================
   // Protected Routes (auth required)
@@ -465,7 +465,7 @@ export function createApp(
   app.use(`${apiPrefix}/connect`, requireAuth, connectRouter);
   
   // Anomaly Detection
-  app.use(`${apiPrefix}/anomalies`, requireAuth, anomaliesRouter);
+  app.use(`${apiPrefix}/anomalies`, requireAuth, createAnomaliesRouter(viennaRuntime));
   
   app.use(`${apiPrefix}/execution`, requireAuth, createExecutionRouter(viennaRuntime));
   app.use(`${apiPrefix}/decisions`, requireAuth, createDecisionsRouter(viennaRuntime));

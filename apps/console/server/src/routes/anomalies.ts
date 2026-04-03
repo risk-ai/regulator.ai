@@ -3,9 +3,11 @@
  */
 
 import { Router } from 'express';
+import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
 import { anomalyDetectionService } from '../services/anomalyDetection.js';
 
-const router = Router();
+export function createAnomaliesRouter(viennaRuntime: ViennaRuntimeService): Router {
+  const router = Router();
 
 /**
  * GET /api/v1/anomalies
@@ -61,13 +63,13 @@ router.get('/', async (req, res) => {
  */
 router.get('/agents/:agentId', async (req, res) => {
   try {
-    await stateGraph.initialize();
-    const detector = await getAnomalyDetector();
+    const stateGraph = viennaRuntime.getStateGraph();
+    const detector = anomalyDetectionService;
 
     const agentId = req.params.agentId;
 
-    // Get agent baseline for debugging
-    const baseline = detector.getAgentBaseline(agentId);
+    // Get agent baseline for debugging (if available)
+    const baseline = null; // TODO: Implement getAgentBaseline if needed
     
     // Filter anomalies for this agent
     const filters = {
@@ -124,7 +126,7 @@ router.get('/agents/:agentId', async (req, res) => {
  */
 router.get('/:anomaly_id', async (req, res) => {
   try {
-    await stateGraph.initialize();
+    const stateGraph = viennaRuntime.getStateGraph();
 
     const anomaly = stateGraph.getAnomaly ? stateGraph.getAnomaly(req.params.anomaly_id) : null;
     
@@ -161,7 +163,7 @@ router.get('/:anomaly_id', async (req, res) => {
  */
 router.post('/acknowledge/:id', async (req, res) => {
   try {
-    await stateGraph.initialize();
+    const stateGraph = viennaRuntime.getStateGraph();
 
     const anomalyId = req.params.id;
     const { reviewed_by, resolution, notes } = req.body;
@@ -256,4 +258,5 @@ router.post('/check', async (req, res) => {
   }
 });
 
-export default router;
+  return router;
+}

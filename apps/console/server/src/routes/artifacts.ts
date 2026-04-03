@@ -161,7 +161,7 @@ router.post('/', async (req: Request, res: Response) => {
       execution_id,
       objective_id,
       incident_id,
-      created_by: req.user?.username || 'system',
+      created_by: (req as any).user?.username || 'system',
     });
 
     res.status(201).json(artifact);

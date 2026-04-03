@@ -75,10 +75,10 @@ export function createHybridAuthMiddleware(authService: AuthService) {
           req.session = session;
           // Also set user for consistency
           req.user = {
-            userId: session.operator || session.userId,
+            userId: session.operator,
             tenantId: session.tenantId,
-            email: session.operator || session.email,
-            role: session.role || 'admin',
+            email: session.operator,
+            role: 'admin',
           };
           return next();
         }

@@ -221,7 +221,8 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
    */
   router.post('/:approval_id/approve', async (req: Request, res: Response) => {
     try {
-      const { ApprovalManager } = await import('../../../../../services/vienna-lib/core/approval-manager.js');
+      const ApprovalManagerModule = await import('../../../../../services/vienna-lib/core/approval-manager.js');
+      const ApprovalManager = ApprovalManagerModule.default || ApprovalManagerModule.ApprovalManager || ApprovalManagerModule;
       const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       await stateGraph.initialize();
@@ -291,7 +292,8 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
    */
   router.post('/:approval_id/deny', async (req: Request, res: Response) => {
     try {
-      const { ApprovalManager } = await import('../../../../../services/vienna-lib/core/approval-manager.js');
+      const ApprovalManagerModule = await import('../../../../../services/vienna-lib/core/approval-manager.js');
+      const ApprovalManager = ApprovalManagerModule.default || ApprovalManagerModule.ApprovalManager || ApprovalManagerModule;
       const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       await stateGraph.initialize();

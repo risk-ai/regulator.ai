@@ -510,7 +510,7 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
             'T2': 'passback',
             'T3': 'passback'
           };
-          executionMode = defaultModes[riskTier] || 'passback';
+          executionMode = (defaultModes[riskTier] || 'passback') as 'direct' | 'passback';
         }
       } catch (dbError) {
         console.warn('[Execution] Failed to fetch tenant execution mode preferences, using default:', dbError);

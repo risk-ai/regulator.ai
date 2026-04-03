@@ -1,10 +1,12 @@
 # Governed DevOps Agent — Vienna OS Example
 
-**A production-ready DevOps agent showing Vienna OS governance patterns**
+**A production-ready DevOps agent demonstrating Vienna OS governance patterns**
 
-## What it does
+This example shows how to build enterprise-grade DevOps automation with proper governance controls. Every operation goes through Vienna OS for validation, approval, and audit.
 
-Demonstrates real-world DevOps operations with proper governance:
+## ✨ What It Demonstrates
+
+Real-world DevOps operations with appropriate risk controls:
 
 | Operation | Risk Tier | Approval Flow | Example |
 |-----------|-----------|---------------|---------|
@@ -14,13 +16,22 @@ Demonstrates real-world DevOps operations with proper governance:
 | Production deploys | T2 | Human approval | New releases, database migrations |
 | Data operations | T2+ | Multi-party | Backups, data deletion, schema changes |
 
-## Prerequisites
+**Key Features:**
+- ✅ Comprehensive error handling and retry logic
+- ✅ Proper audit trails for compliance (SOX, ITIL)
+- ✅ Risk-appropriate approval workflows
+- ✅ Production-ready patterns and best practices
+- ✅ Integration with common DevOps tools
 
-1. **Vienna OS running** (see main README.md)
-2. **Node.js 20+**
-3. **API key configured**
+## 📋 Prerequisites
 
-## Quick Start
+1. **Vienna OS running locally** (see [main README](../../README.md) for setup)
+2. **Node.js 20+** ([download](https://nodejs.org/))
+3. **API access configured**
+
+## 🚀 Quick Start
+
+### 1. Clone and Install
 
 ```bash
 # Clone the repository
@@ -29,40 +40,94 @@ cd regulator.ai/examples/governed-devops-agent
 
 # Install dependencies 
 npm install
+```
 
-# Configure environment
+### 2. Configure Environment
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your settings
 echo "VIENNA_API_URL=http://localhost:3100" > .env
-echo "VIENNA_API_KEY=your_key_here" >> .env
+echo "VIENNA_API_KEY=dev_key_no_auth_needed" >> .env
 
-# Run the agent
+# Optional: Add your actual API key for production
+# echo "VIENNA_API_KEY=vos_your_production_key" >> .env
+```
+
+### 3. Run the Agent
+
+```bash
+# Run with default workflow
 npm start
+
+# Run specific scenarios
+npm run demo:health-check
+npm run demo:deployment
+npm run demo:emergency
 ```
 
-## What you'll see
+## 📊 What You'll See
 
-```
+```bash
 🤖 Governed DevOps Agent starting...
-✅ Registered with Vienna OS
+✅ Vienna OS connection verified
+✅ Agent registered successfully
 
-━━━ Task: Check service status ━━━
-  Action: check_status
-  Risk Tier: T0
-  Status: auto-approved
-  ✅ Approved — Warrant: wrt_abc123
-  ⚡ Executing: check_status...
-  📋 Execution reported to audit trail
+━━━ DevOps Operation: check_service_health ━━━
+  Payload: {"services": ["api", "database", "cache"]}
+  📊 Risk Assessment: T0 (auto-approved)
+  ✅ Executed successfully (234ms)
+  🎫 Warrant: wrt_abc123... | TTL: 5m | Audit: logged
 
-━━━ Task: Deploy to production ━━━
-  Action: deploy_code
-  Risk Tier: T2
-  Status: pending
-  ⏳ Awaiting human approval...
-  🔗 Approve at: console.regulator.ai
+━━━ DevOps Operation: deploy_service ━━━
+  Payload: {"service": "user-api", "version": "v2.1.0", "environment": "production"}
+  📊 Risk Assessment: T2 (human approval required)
+  ⏳ Pending approval: prop_def456...
+  🔗 Approve at: http://localhost:5173/approvals
+  📧 Notifications sent to: devops-team@company.com
+
+━━━ DevOps Operation: rollback_deployment ━━━
+  Payload: {"service": "user-api", "to_version": "v2.0.8", "reason": "Critical bug"}
+  📊 Risk Assessment: T1 (policy-approved due to emergency)
+  ✅ Executed successfully (1.2s)
+  🎫 Warrant: wrt_ghi789... | Emergency rollback authorized
 ```
 
-## Key concepts
+## 🔑 Key Governance Concepts
 
-- **Every action goes through Vienna** — even reads
-- **Risk tiers determine approval flow** — T0 is instant, T2 needs a human
-- **Warrants are scoped and time-limited** — the agent can only do what's approved
-- **Everything is audited** — full trail for compliance
+- **Every action flows through Vienna OS** — including read operations
+- **Risk-based approval workflows** — T0 auto-approves, T2 requires human oversight  
+- **Cryptographic warrants** — time-limited, scoped execution permissions
+- **Complete audit trails** — SOX/ITIL compliant logging for every operation
+- **Fail-safe design** — agent pauses for approval rather than proceeding unsafely
+
+## 💡 Production Patterns
+
+This example demonstrates enterprise-ready patterns:
+
+### Error Handling
+```javascript
+// Automatic retry with exponential backoff
+await this.submitIntent('deploy', payload, { retries: 3 });
+
+// Graceful degradation on Vienna OS unavailability  
+if (viennaUnavailable) {
+  await this.emergencyMode('critical_fix', payload);
+}
+```
+
+### Audit Integration
+```javascript
+// Every action generates compliance-ready audit trail
+const result = await vienna.submitIntent(intent);
+await auditLogger.logCompliance(result, 'SOX_404');
+```
+
+### Risk Detection
+```javascript
+// Context-aware risk classification
+const riskTier = this.detectRisk(action, environment, timeOfDay);
+intent.risk_tier = riskTier; // Override automatic detection
+```

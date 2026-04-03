@@ -89,8 +89,10 @@ ANTHROPIC_API_KEY=sk-ant-your-key-here
 # Or use OpenAI instead
 # OPENAI_API_KEY=sk-your-openai-key
 
-# Or use local Ollama (free)
+# Or use local Ollama (free - install from https://ollama.ai/)
 # OLLAMA_BASE_URL=http://localhost:11434
+
+# Note: Anthropic (Claude) is recommended for best governance reasoning
 ```
 
 **Start Vienna OS:**
@@ -254,8 +256,12 @@ new MyFirstAgent().run();
 **Create `.env`:**
 
 ```bash
+# For local development (no auth needed)
 VIENNA_API_URL=http://localhost:3100
 VIENNA_API_KEY=dev_key_no_auth_needed
+
+# For production, get your API key from Vienna OS console
+# VIENNA_API_KEY=vos_your_production_key_here
 ```
 
 ### Run Your Agent

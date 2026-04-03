@@ -7,11 +7,16 @@
   "scripts": {
     "start": "node agent.js",
     "dev": "node --watch agent.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "demo:health-check": "node agent.js --scenario=health-check",
+    "demo:deployment": "node agent.js --scenario=deployment", 
+    "demo:emergency": "node agent.js --scenario=emergency",
+    "demo:full": "node agent.js --full-workflow"
   },
   "dependencies": {
     "@vienna-os/sdk": "^1.0.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.4.5",
+    "chalk": "^5.3.0"
   },
   "keywords": ["vienna-os", "devops", "governance", "ai-agent"],
   "author": "Vienna OS Team",

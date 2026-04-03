@@ -40,12 +40,18 @@ This agent handles real-world financial operations with proper governance contro
 git clone https://github.com/risk-ai/regulator.ai.git
 cd regulator.ai/examples/governed-finance-agent
 
+# Create virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install Python dependencies
 pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env and add your VIENNA_API_KEY
+
+# For local development, .env defaults work out of the box
+# For production: Edit .env and add your actual VIENNA_API_KEY
 ```
 
 ### 2. Run the Agent
@@ -301,22 +307,73 @@ if result.approved:
 
 ## Support & Compliance
 
+## 🆘 Troubleshooting
+
+### Python Environment Issues
+
+**Error: `ModuleNotFoundError: No module named 'vienna_os_sdk'`**
+```bash
+# Install the SDK (may not be published yet)
+pip install -e ../../../sdk/python/
+# OR use development requirements
+pip install -r requirements.txt
+```
+
+**Error: `Python 3.9+ required`**
+```bash
+# Check Python version
+python3 --version
+# Install Python 3.9+ from https://python.org/
+```
+
+### Vienna OS Connection Issues
+
+**Error: `Cannot connect to Vienna OS`**
+```bash
+# Verify Vienna OS is running
+curl http://localhost:3100/api/v1/health
+
+# Check your .env file
+cat .env | grep VIENNA_API_URL
+```
+
+### Financial Operations Issues
+
+**Error: `Compliance validation failed`**
+- This is normal for demo - shows Vienna OS blocking invalid operations
+- Check agent logs for specific compliance violations
+
+**Error: `Warrant signature invalid`**
+- Restart Vienna OS if running locally
+- Check that clocks are synchronized
+
+### Performance Issues
+
+**Agent runs slowly:**
+- Use local development APIs (defaults in .env.example)  
+- Check network connectivity to Vienna OS
+- Consider using simulation mode for testing
+
+## 📞 Support & Compliance
+
 **Questions?**
-- 📧 Email: finance-support@vienna-os.com  
+- 📧 Email: support@regulator.ai  
 - 💬 Discord: https://discord.gg/vienna-os
-- 📞 Compliance Hotline: +1-555-VIENNA-1
+- 📖 Docs: https://regulator.ai/docs
 
 **Regulatory Validation:**
-- SOX compliance assessment available
-- FINRA audit support provided
-- Sample compliance reports included
+- SOX compliance patterns demonstrated
+- FINRA governance flows included
+- BSA/AML screening examples provided
+- Sample compliance reports in `/docs`
 
 **Contributing:**
 - Pull requests welcome for additional compliance scenarios
-- See `CONTRIBUTING.md` for regulatory requirements
+- See main repository `CONTRIBUTING.md` 
+- Financial compliance expertise appreciated
 
 ---
 
-**License:** MIT  
-**Regulatory Disclaimer:** This example demonstrates compliance patterns but should be reviewed by qualified compliance professionals before production use.  
+**License:** BUSL-1.1 (converts to Apache 2.0 in 2030)
+**Regulatory Disclaimer:** This example demonstrates governance patterns but should be reviewed by qualified compliance professionals before production use.  
 **Last Updated:** 2026-04-03

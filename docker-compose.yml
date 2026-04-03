@@ -1,5 +1,15 @@
 # Vienna OS — Local Development Environment
-# Usage: docker compose up
+# 
+# SETUP:
+# 1. cp .env.example .env.local
+# 2. Edit .env.local and add your ANTHROPIC_API_KEY
+# 3. docker compose up
+#
+# URLS:
+# - Backend: http://localhost:3100
+# - Frontend: http://localhost:5173
+# - Database: localhost:5432 (postgres/vienna:vienna_dev)
+
 version: '3.9'
 
 services:
@@ -42,8 +52,10 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      # Mount .env.local for API keys (create this file)
+      # Mount .env.local for API keys (create this file with your ANTHROPIC_API_KEY)
       - ./.env.local:/app/.env.local:ro
+      # Optional: Mount current directory for development
+      # - .:/app:delegated
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/api/v1/health"]
       interval: 10s

@@ -168,10 +168,10 @@ Core governance algorithms protected under Patent Application #64/018,152
 
 **Option A: Live Demo (No Setup Required)**
 ```bash
-# Try the interactive sandbox
-curl -X POST https://regulator.ai/api/v1/demo \
-  -H "Content-Type: application/json" \
-  -d '{"action": "check_health", "risk_tier": "T0"}'
+# Try the interactive quickstart example (no API keys needed)
+git clone https://github.com/risk-ai/regulator.ai.git
+cd regulator.ai/examples/5-minute-quickstart
+npm install && node index.js
 ```
 
 **Option B: Local Setup**
@@ -186,7 +186,7 @@ npm install
 2. **Configure Environment**
 ```bash
 cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+# Edit .env and add your ANTHROPIC_API_KEY (get one at https://console.anthropic.com/)
 ```
 
 3. **Start Local Instance**
@@ -218,8 +218,9 @@ console.log('Result:', result.pipeline); // "executed" (T0 auto-approved)
 - **[Getting Started Guide](./docs/GETTING_STARTED.md)** — Complete developer onboarding (30 min)
 - **[5-Minute Quickstart](./docs/QUICKSTART.md)** — Build your first governed agent  
 - **[Example Apps](./examples/)** — Production-ready examples with full READMEs
-- **[SDK Documentation](./sdk/typescript/README.md)** — Complete TypeScript API reference
-- **[Console](http://localhost:5173)** — Visual management interface
+- **[TypeScript SDK](./sdk/typescript/README.md)** — Complete TypeScript API reference
+- **[Python SDK](./sdk/python/README.md)** — Python client library
+- **[Console](http://localhost:5173)** — Visual management interface (when running locally)
 
 ---
 

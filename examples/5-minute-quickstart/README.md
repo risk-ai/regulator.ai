@@ -8,19 +8,36 @@ Run this example to understand how Vienna OS protects AI agents without slowing 
 
 **None!** This example works out of the box using Vienna OS demo endpoints.
 
-## Run It
+- No API keys needed
+- No Vienna OS installation required  
+- No authentication setup
+
+## Quick Run
 
 ```bash
 # Clone repository  
 git clone https://github.com/risk-ai/regulator.ai.git
 cd regulator.ai/examples/5-minute-quickstart
 
-# Install dependencies (first time only)
+# Install dependencies
 npm install
 
 # Run the demo
-node index.js
+npm start
+# OR: node index.js
 ```
+
+## Troubleshooting
+
+**Error: `npm: command not found`**
+- Install Node.js from https://nodejs.org/
+
+**Error: `permission denied`**
+- Run with `npm start` instead of `node index.js`
+
+**Connection issues:**
+- This example uses sandbox APIs - no local Vienna OS needed
+- Check your internet connection
 
 ## What It Does
 

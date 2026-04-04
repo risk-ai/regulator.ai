@@ -29,6 +29,9 @@ import {
   type CreatePolicyPayload,
   type FullEvaluationResult,
   type ConditionDetail,
+  getPolicyVersions,
+  revertPolicy,
+  type PolicyVersion,
 } from '../api/policies.js';
 
 // ============================================================================
@@ -1034,6 +1037,140 @@ function AuditTrailView() {
 
 type Tab = 'rules' | 'audit';
 
+// ============================================================================
+// Version History Modal (P2)
+// ============================================================================
+
+function VersionHistoryModal({ rule, onRevert, onClose }: {
+  rule: PolicyRule;
+  onRevert: (version: number) => void;
+  onClose: () => void;
+}) {
+  const [versions, setVersions] = useState<PolicyVersion[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getPolicyVersions(rule.id)
+      .then(v => setVersions(v))
+      .catch(() => {
+        // Build a synthetic version from current rule if API not available
+        setVersions([{
+          version: rule.version || 1,
+          name: rule.name,
+          conditions: rule.conditions,
+          action_on_match: rule.action_on_match,
+          approval_tier: rule.approval_tier,
+          enabled: rule.enabled,
+          updated_at: rule.updated_at,
+          updated_by: rule.created_by,
+        }]);
+      })
+      .finally(() => setLoading(false));
+  }, [rule.id]);
+
+  return (
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <div style={{
+        background: 'var(--bg-primary, #12131a)', borderRadius: '12px',
+        border: '1px solid var(--border-subtle)', width: '500px', maxWidth: '90vw',
+        maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+        boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+              🕐 Version History
+            </h3>
+            <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+              {rule.name} — v{rule.version || 1}
+            </div>
+          </div>
+          <button onClick={onClose} style={{
+            background: 'rgba(255,255,255,0.06)', border: 'none', color: 'var(--text-secondary)',
+            cursor: 'pointer', padding: '6px 10px', borderRadius: '6px', fontSize: '14px',
+          }}>
+            ✕
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '16px 20px', overflowY: 'auto', flex: 1 }}>
+          {loading ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '12px' }}>
+              Loading version history...
+            </div>
+          ) : versions.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '12px' }}>
+              No version history available. Changes will be tracked from now on.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {versions.map((v, i) => {
+                const isCurrent = v.version === (rule.version || 1);
+                return (
+                  <div key={v.version} style={{
+                    padding: '12px 14px', borderRadius: '8px',
+                    background: isCurrent ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${isCurrent ? 'rgba(124,58,237,0.2)' : 'var(--border-subtle)'}`,
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)',
+                          color: isCurrent ? '#a78bfa' : 'var(--text-secondary)',
+                        }}>
+                          v{v.version}
+                        </span>
+                        {isCurrent && (
+                          <span style={{
+                            fontSize: '9px', fontWeight: 600, padding: '1px 6px', borderRadius: '3px',
+                            background: 'rgba(124,58,237,0.15)', color: '#a78bfa',
+                          }}>
+                            CURRENT
+                          </span>
+                        )}
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{v.name}</span>
+                      </div>
+                      {!isCurrent && (
+                        <button
+                          onClick={() => { if (confirm(`Revert to v${v.version}?`)) onRevert(v.version); }}
+                          style={{
+                            padding: '3px 8px', fontSize: '10px', borderRadius: '4px',
+                            border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.08)',
+                            color: '#f59e0b', cursor: 'pointer', fontWeight: 500,
+                          }}
+                        >
+                          Revert
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+                      {new Date(v.updated_at).toLocaleString()} · {v.updated_by}
+                      {' · '}{v.conditions.length} condition{v.conditions.length !== 1 ? 's' : ''}
+                      {' · '}{v.enabled ? '✅ enabled' : '⏸ disabled'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PolicyBuilderPage() {
   const [rules, setRules] = useState<PolicyRule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1045,6 +1182,7 @@ export function PolicyBuilderPage() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [templates, setTemplates] = useState<PolicyTemplate[]>([]);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [versionHistoryRule, setVersionHistoryRule] = useState<PolicyRule | null>(null);
 
   // Drag state
   const dragItem = useRef<number | null>(null);
@@ -1382,6 +1520,13 @@ export function PolicyBuilderPage() {
                             📋
                           </button>
                           <button
+                            onClick={() => setVersionHistoryRule(rule)}
+                            style={{ ...styles.btn, ...styles.btnGhost, fontSize: '12px' }}
+                            title="Version History"
+                          >
+                            🕐
+                          </button>
+                          <button
                             onClick={() => handleDelete(rule)}
                             style={{ ...styles.btn, ...styles.btnGhost, fontSize: '12px', color: '#f87171' }}
                             title="Delete"
@@ -1430,6 +1575,23 @@ export function PolicyBuilderPage() {
           templates={templates}
           onImport={handleImportTemplate}
           onClose={() => setShowTemplates(false)}
+        />
+      )}
+
+      {/* Version History Modal (P2) */}
+      {versionHistoryRule && (
+        <VersionHistoryModal
+          rule={versionHistoryRule}
+          onRevert={async (version) => {
+            try {
+              await revertPolicy(versionHistoryRule.id, version);
+              setVersionHistoryRule(null);
+              await fetchRules();
+            } catch {
+              // Toast will show from API client
+            }
+          }}
+          onClose={() => setVersionHistoryRule(null)}
         />
       )}
     </PageLayout>

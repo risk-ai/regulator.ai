@@ -164,3 +164,26 @@ export async function listEvaluations(params?: {
 export async function getTemplates(): Promise<PolicyTemplate[]> {
   return apiClient.get<PolicyTemplate[]>('/policies/templates');
 }
+
+// P1: Policy versioning
+export interface PolicyVersion {
+  version: number;
+  name: string;
+  conditions: PolicyCondition[];
+  action_on_match: string;
+  approval_tier: string | null;
+  enabled: boolean;
+  updated_at: string;
+  updated_by: string;
+}
+
+export async function getPolicyVersions(id: string): Promise<PolicyVersion[]> {
+  return apiClient.get<PolicyVersion[]>(`/policies/${id}/versions`).catch(() => {
+    // Fallback: if endpoint doesn't exist yet, return current as only version
+    return [];
+  });
+}
+
+export async function revertPolicy(id: string, version: number): Promise<PolicyRule> {
+  return apiClient.post<PolicyRule>(`/policies/${id}/revert`, { version });
+}

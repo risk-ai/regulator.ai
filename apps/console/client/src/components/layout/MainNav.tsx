@@ -91,6 +91,60 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
           </button>
         </nav>
 
+        {/* P1: Mobile Bottom Navigation — Quick access to key actions */}
+        {!mobileMenuOpen && (
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: 'var(--bg-primary)',
+            borderTop: '1px solid var(--border-subtle)',
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            padding: '6px 0 env(safe-area-inset-bottom, 6px)',
+            zIndex: 999,
+          }}>
+            {[
+              { id: 'now' as NavSection, icon: '⚡', label: 'Home' },
+              { id: 'fleet' as NavSection, icon: '🤖', label: 'Agents' },
+              { id: 'approvals' as NavSection, icon: '✅', label: 'Approve' },
+              { id: 'executions' as NavSection, icon: '▶️', label: 'Exec' },
+              { id: 'analytics' as NavSection, icon: '📊', label: 'Stats' },
+            ].map(item => {
+              const isActive = currentSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id)}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '2px',
+                    padding: '4px 12px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    minWidth: '56px',
+                    minHeight: '44px',
+                  }}
+                >
+                  <span style={{ fontSize: '18px' }}>{item.icon}</span>
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: isActive ? 600 : 400,
+                    color: isActive ? '#a78bfa' : 'var(--text-tertiary)',
+                  }}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
           <div style={{

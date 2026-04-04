@@ -24,7 +24,9 @@ interface PolicyPack {
 }
 
 export function ConnectAgentPage() {
-  const { tenant } = useAuthStore();
+  const tenant = useAuthStore((state) => state.tenant);
+  const tenantId = tenant?.id || 'unknown';
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [method, setMethod] = useState<IntegrationMethod | null>(null);
   const [provider, setProvider] = useState<Provider>('openai');
@@ -33,7 +35,6 @@ export function ConnectAgentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [policyPacks, setPolicyPacks] = useState<PolicyPack[]>([]);
-  const tenantId = tenant?.id || 'demo-tenant';
 
   useEffect(() => {
     // Load policy packs for step 3

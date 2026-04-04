@@ -95,12 +95,15 @@ export function ObjectivesPanel() {
   };
   
   const handleRetry = async (deadLetterId: string) => {
+    const user = useAuthStore.getState().user;
+    const submittedBy = user?.email || user?.name || 'unknown-operator';
+    
     try {
       const response = await fetch(`/api/v1/deadletters/${deadLetterId}/requeue`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          submittedBy: useAuthStore((state) => state.user) || 'system', // TODO: Get from auth
+          submittedBy,
           reason: 'Operator requested retry',
         }),
       });

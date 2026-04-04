@@ -656,3 +656,62 @@ input:disabled, textarea:disabled, select:disabled {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ========================================
+   P2: WCAG AA ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Global focus-visible ring for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure all interactive elements have visible focus */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Minimum touch target size (44x44px) for interactive elements */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  a,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Smooth page transitions */
+main {
+  animation: fadeIn 150ms ease-out;
+}
+
+/* Improved link contrast */
+a {
+  color: var(--info-bright);
+}
+
+a:hover {
+  color: var(--accent-tertiary);
+}
+
+/* Better table row hover contrast */
+tr:hover {
+  background: var(--bg-hover) !important;
+}

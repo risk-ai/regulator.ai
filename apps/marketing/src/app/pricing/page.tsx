@@ -1,8 +1,9 @@
 "use client";
 
 import { Check, X, Zap, Building2, Shield, Rocket, Star, ArrowLeft } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { analytics } from "@/lib/analytics";
+import LeadCaptureModal from "@/components/LeadCaptureModal";
 
 const tiers = [
   {
@@ -174,9 +175,81 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 }
 
 export default function PricingPage() {
-  // Track pricing page view
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadCaptureTrigger, setLeadCaptureTrigger] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [engagementActions, setEngagementActions] = useState<string[]>([]);
+
+  // Track pricing page view and engagement
   useEffect(() => {
     analytics.pricingView();
+    
+    // Track high engagement behavior
+    const trackEngagement = (action: string) => {
+      setEngagementActions(prev => {
+        const newActions = [...prev, action];
+        
+        // Show lead capture after multiple engagement signals
+        if (newActions.length >= 3) {
+          analytics.highEngagementDetected(newActions);
+          setLeadCaptureTrigger('high_engagement');
+          setShowLeadCapture(true);
+        }
+        
+        return newActions;
+      });
+    };
+
+    // Track scroll depth
+    let maxScrollDepth = 0;
+    const handleScroll = () => {
+      const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+      if (scrollDepth > maxScrollDepth) {
+        maxScrollDepth = scrollDepth;
+        if (scrollDepth >= 50 && !engagementActions.includes('scroll_50')) {
+          trackEngagement('scroll_50');
+        }
+        if (scrollDepth >= 80 && !engagementActions.includes('scroll_80')) {
+          trackEngagement('scroll_80');
+        }
+      }
+    };
+
+    // Track time on page
+    const startTime = Date.now();
+    const timeTracker = setInterval(() => {
+      const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+      if (timeOnPage >= 60 && !engagementActions.includes('time_60s')) {
+        trackEngagement('time_60s');
+      }
+      if (timeOnPage >= 120 && !engagementActions.includes('time_120s')) {
+        trackEngagement('time_120s');
+      }
+    }, 10000);
+
+    // Track multiple plan clicks
+    const originalClick = analytics.pricingPlanClick;
+    let planClickCount = 0;
+    analytics.pricingPlanClick = (plan: string) => {
+      originalClick(plan);
+      planClickCount++;
+      if (planClickCount >= 2) {
+        trackEngagement('multiple_plan_clicks');
+      }
+      if (planClickCount >= 3) {
+        setLeadCaptureTrigger('multiple_pricing_clicks');
+        setSelectedPlan(plan);
+        setShowLeadCapture(true);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(timeTracker);
+      analytics.pricingPlanClick = originalClick;
+    };
   }, []);
 
   // Structured data for pricing page
@@ -289,6 +362,13 @@ export default function PricingPage() {
 
   return (
     <main className="min-h-screen bg-navy-900 text-white">
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        trigger={leadCaptureTrigger}
+        plan={selectedPlan}
+      />
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -311,6 +391,26 @@ export default function PricingPage() {
         </div>
       </nav>
 
+      {/* Returning Visitor Banner */}
+      {typeof window !== 'undefined' && localStorage.getItem('regulator_lead_capture') && (
+        <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-b border-purple-500/30">
+          <div className="max-w-7xl mx-auto px-6 py-3 text-center">
+            <p className="text-sm text-purple-300">
+              👋 Welcome back! We noticed your interest in Vienna OS. 
+              <button
+                onClick={() => {
+                  setLeadCaptureTrigger('returning_visitor');
+                  setShowLeadCapture(true);
+                }}
+                className="ml-2 underline hover:no-underline font-medium"
+              >
+                Get priority support →
+              </button>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header with gradient background */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
@@ -325,6 +425,23 @@ export default function PricingPage() {
               Start free with the open-source Community tier. Scale to Enterprise when you need
               SSO, compliance, and dedicated support.
             </p>
+            
+            {/* Urgent CTA for high-intent visitors */}
+            <div className="mt-8">
+              <button
+                onClick={() => {
+                  setLeadCaptureTrigger('header_priority_access');
+                  setShowLeadCapture(true);
+                }}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
+              >
+                <Zap className="w-4 h-4" />
+                Get Priority Access
+              </button>
+              <p className="text-xs text-slate-500 mt-2">
+                Skip the queue • Get personalized guidance
+              </p>
+            </div>
           </ScrollReveal>
         </div>
       </div>
@@ -379,19 +496,35 @@ export default function PricingPage() {
                 <p className="text-slate-300 text-sm mb-2 font-medium">{tier.agents}</p>
                 <p className="text-slate-500 text-sm mb-6 leading-relaxed">{tier.description}</p>
 
-                <a
-                  href={tier.ctaHref}
-                  onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
-                  className={`block text-center py-3 rounded-xl font-semibold text-sm transition mb-6 ${
-                    tier.highlight
-                      ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg hover:shadow-purple-500/25"
-                      : tier.premium
-                      ? "bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-navy-900 font-bold shadow-lg hover:shadow-gold-400/25"
-                      : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600 hover:border-navy-500"
-                  }`}
-                >
-                  {tier.cta}
-                </a>
+                <div className="space-y-3 mb-6">
+                  <a
+                    href={tier.ctaHref}
+                    onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
+                    className={`block text-center py-3 rounded-xl font-semibold text-sm transition ${
+                      tier.highlight
+                        ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg hover:shadow-purple-500/25"
+                        : tier.premium
+                        ? "bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-navy-900 font-bold shadow-lg hover:shadow-gold-400/25"
+                        : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600 hover:border-navy-500"
+                    }`}
+                  >
+                    {tier.cta}
+                  </a>
+                  
+                  {(tier.name === 'Team' || tier.name === 'Business') && (
+                    <button
+                      onClick={() => {
+                        analytics.pricingPlanClick(`${tier.name.toLowerCase()}_quote`);
+                        setLeadCaptureTrigger('quote_request');
+                        setSelectedPlan(tier.name);
+                        setShowLeadCapture(true);
+                      }}
+                      className="block w-full text-center py-2 rounded-lg font-medium text-xs border border-slate-600 text-slate-300 hover:bg-slate-700/30 hover:border-slate-500 transition"
+                    >
+                      Get Custom Quote
+                    </button>
+                  )}
+                </div>
 
                 <div className="space-y-3 flex-1">
                   {tier.features.map((feature) => (

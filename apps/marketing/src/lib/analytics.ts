@@ -18,4 +18,7 @@ export const analytics = {
   docsView: (section: string) => trackEvent('docs_view', { section }),
   ctaClick: (location: string, cta: string) => trackEvent('cta_click', { location, cta }),
   page: (name: string) => trackEvent('page_view', { page_title: name }),
+  leadCaptureShow: (trigger: string) => trackEvent('lead_capture_show', { trigger }),
+  leadCaptureSubmit: (email: string, interest: string) => trackEvent('lead_capture_submit', { email, interest }),
+  highEngagementDetected: (actions: string[]) => trackEvent('high_engagement_detected', { actions: actions.join(',') }),
 };

@@ -6,23 +6,24 @@ A financial operations agent that uses Vienna OS to govern
 high-value transactions with multi-party approval.
 
 Usage:
+    pip install vienna-os
     VIENNA_API_KEY=vos_xxx python agent.py
 """
 
 import os
-import sys
 import time
 
-# Add SDK to path if running from repo
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../packages/python-sdk'))
-
-from vienna_sdk import ViennaClient, ViennaError
+try:
+    from vienna_os import ViennaClient, ViennaError
+except ImportError:
+    print('ERROR: vienna-os package not installed')
+    print('Install: pip install vienna-os')
+    exit(1)
 
 client = ViennaClient(
     api_key=os.environ.get('VIENNA_API_KEY', 'vos_demo_key'),
-    base_url=os.environ.get('VIENNA_API_URL', 'https://api.regulator.ai'),
+    base_url=os.environ.get('VIENNA_API_URL', 'https://console.regulator.ai'),
     agent_id='finance-agent-demo',
-    framework='python-example',
 )
 
 # Simulated financial operations

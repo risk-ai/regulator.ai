@@ -28,37 +28,34 @@ export default function StatusPage() {
   const [loading, setLoading] = useState(true);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
-  const checkService = async (name: string, endpoint: string, url: string): Promise<ServiceStatus> => {
-    const start = performance.now();
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      const latencyMs = Math.round(performance.now() - start);
-      return { name, endpoint, url, operational: res.ok, latencyMs };
-    } catch {
-      return { name, endpoint, url, operational: false, latencyMs: null };
-    }
-  };
-
   const checkHealth = async () => {
     setLoading(true);
-
-    // Check each service independently
-    const results = await Promise.all([
-      checkService("Vienna OS Console", "console.regulator.ai", "https://console.regulator.ai"),
-      checkService("Health API", "/api/v1/health", "https://console.regulator.ai/api/v1/health"),
-      checkService("Intent Gateway API", "/api/v1/agent/intent", "https://console.regulator.ai/api/v1/health"),
-      checkService("Authentication", "/api/v1/auth", "https://console.regulator.ai/api/v1/health"),
-      checkService("Marketing Site", "regulator.ai", "https://regulator.ai"),
-    ]);
-    setServices(results);
-
-    // Also get the detailed health data
     try {
-      const res = await fetch("https://console.regulator.ai/api/v1/health");
+      // Use same-origin API route to avoid CORS issues
+      const res = await fetch("/api/status");
       const data = await res.json();
-      setHealth(data);
+
+      setServices(
+        (data.services || []).map((s: any) => ({
+          name: s.name,
+          endpoint: s.endpoint,
+          url: s.url,
+          operational: s.operational,
+          latencyMs: s.latencyMs,
+        }))
+      );
+
+      if (data.healthDetails) {
+        setHealth(data.healthDetails);
+      } else {
+        setHealth({
+          success: data.status === "operational",
+          error: data.status !== "operational" ? "Some services degraded" : undefined,
+        });
+      }
     } catch {
-      setHealth({ success: false, error: "Unable to reach Vienna OS" });
+      setHealth({ success: false, error: "Unable to check service status" });
+      setServices([]);
     }
 
     setLastCheck(new Date());

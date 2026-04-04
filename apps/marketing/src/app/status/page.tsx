@@ -5,27 +5,62 @@ import { Shield, ArrowLeft, RefreshCw } from "lucide-react";
 
 interface HealthData {
   success: boolean;
+  status?: string;
   data?: {
     runtime: { status: string; uptime_seconds: number };
     providers?: Record<string, unknown>;
   };
+  uptime_seconds?: number;
   error?: string;
+}
+
+interface ServiceStatus {
+  name: string;
+  endpoint: string;
+  url: string;
+  operational: boolean;
+  latencyMs: number | null;
 }
 
 export default function StatusPage() {
   const [health, setHealth] = useState<HealthData | null>(null);
+  const [services, setServices] = useState<ServiceStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
+  const checkService = async (name: string, endpoint: string, url: string): Promise<ServiceStatus> => {
+    const start = performance.now();
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const latencyMs = Math.round(performance.now() - start);
+      return { name, endpoint, url, operational: res.ok, latencyMs };
+    } catch {
+      return { name, endpoint, url, operational: false, latencyMs: null };
+    }
+  };
+
   const checkHealth = async () => {
     setLoading(true);
+
+    // Check each service independently
+    const results = await Promise.all([
+      checkService("Vienna OS Console", "console.regulator.ai", "https://console.regulator.ai"),
+      checkService("Health API", "/api/v1/health", "https://console.regulator.ai/api/v1/health"),
+      checkService("Intent Gateway API", "/api/v1/agent/intent", "https://console.regulator.ai/api/v1/health"),
+      checkService("Authentication", "/api/v1/auth", "https://console.regulator.ai/api/v1/health"),
+      checkService("Marketing Site", "regulator.ai", "https://regulator.ai"),
+    ]);
+    setServices(results);
+
+    // Also get the detailed health data
     try {
-      const res = await fetch("https://console.regulator.ai/health");
+      const res = await fetch("https://console.regulator.ai/api/v1/health");
       const data = await res.json();
       setHealth(data);
     } catch {
       setHealth({ success: false, error: "Unable to reach Vienna OS" });
     }
+
     setLastCheck(new Date());
     setLoading(false);
   };
@@ -36,8 +71,10 @@ export default function StatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const isHealthy = health?.success && health?.data?.runtime?.status === "healthy";
-  const uptime = health?.data?.runtime?.uptime_seconds;
+  const allServicesUp = services.length > 0 && services.every(s => s.operational);
+  const someServicesDown = services.length > 0 && services.some(s => !s.operational);
+  const isHealthy = allServicesUp || (health?.success === true) || (health as any)?.status === "healthy";
+  const uptime = health?.data?.runtime?.uptime_seconds || (health as any)?.uptime_seconds;
 
   const formatUptime = (s: number) => {
     const d = Math.floor(s / 86400);
@@ -93,26 +130,26 @@ export default function StatusPage() {
         {/* Services */}
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Services</h2>
         <div className="space-y-2 mb-8">
-          {[
-            { name: "Vienna OS Console", endpoint: "console.regulator.ai", check: isHealthy },
-            { name: "Intent Gateway API", endpoint: "/api/v1/agent/intent", check: isHealthy },
-            { name: "Authentication", endpoint: "/api/v1/auth/login", check: isHealthy },
-            { name: "Health API", endpoint: "/health", check: isHealthy },
-            { name: "Marketing Site", endpoint: "regulator.ai", check: true },
-          ].map((svc) => (
+          {services.map((svc) => (
             <div key={svc.name} className="flex items-center justify-between bg-navy-800 border border-navy-700 rounded-lg px-4 py-3">
               <div>
                 <span className="text-sm text-white font-medium">{svc.name}</span>
                 <span className="text-xs text-slate-600 ml-3 font-mono">{svc.endpoint}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${svc.check ? "bg-emerald-400" : "bg-red-400"}`} />
-                <span className={`text-xs font-medium ${svc.check ? "text-emerald-400" : "text-red-400"}`}>
-                  {svc.check ? "Operational" : "Down"}
+                {svc.latencyMs !== null && (
+                  <span className="text-xs text-slate-600 font-mono">{svc.latencyMs}ms</span>
+                )}
+                <div className={`w-2 h-2 rounded-full ${svc.operational ? "bg-emerald-400" : "bg-red-400"}`} />
+                <span className={`text-xs font-medium ${svc.operational ? "text-emerald-400" : "text-red-400"}`}>
+                  {svc.operational ? "Operational" : "Down"}
                 </span>
               </div>
             </div>
           ))}
+          {services.length === 0 && !loading && (
+            <div className="text-center text-sm text-slate-500 py-4">No service data yet. Refreshing...</div>
+          )}
         </div>
 
         {/* Uptime */}

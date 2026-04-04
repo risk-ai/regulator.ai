@@ -242,7 +242,7 @@ function AgentExpandedDetail({ detail }: { detail: AgentDetail }) {
 
   return (
     <tr>
-      <td colSpan={10} style={{ padding: 0, border: 'none' }}>
+      <td colSpan={11} style={{ padding: 0, border: 'none' }}>
         <div style={{
           background: '#161f2e',
           borderTop: `1px solid ${COLORS.border}`,
@@ -570,6 +570,10 @@ export function FleetDashboardPage() {
   const [agentDetail, setAgentDetail] = useState<AgentDetail | null>(null);
   const [trustModal, setTrustModal] = useState<{ agentId: string; score: number } | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  // P1: Search + filter + bulk actions
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedAgents, setSelectedAgents] = useState<Set<string>>(new Set());
 
   const fetchData = useCallback(async () => {
     try {
@@ -646,7 +650,42 @@ export function FleetDashboardPage() {
     );
   }
 
-  const { agents, summary } = overview;
+  const { agents: allAgents, summary } = overview;
+
+  // P1: Filter agents by search + status
+  const agents = allAgents.filter(a => {
+    if (searchQuery && !a.display_name.toLowerCase().includes(searchQuery.toLowerCase()) && !a.agent_id.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+    return true;
+  });
+
+  // P1: Bulk action handlers
+  const toggleSelect = (id: string) => {
+    setSelectedAgents(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = () => {
+    if (selectedAgents.size === agents.length) {
+      setSelectedAgents(new Set());
+    } else {
+      setSelectedAgents(new Set(agents.map(a => a.agent_id)));
+    }
+  };
+  const handleBulkSuspend = async () => {
+    if (!confirm(`Suspend ${selectedAgents.size} agents?`)) return;
+    for (const id of selectedAgents) await fleetApi.suspend(id);
+    setSelectedAgents(new Set());
+    fetchData();
+  };
+  const handleBulkActivate = async () => {
+    if (!confirm(`Activate ${selectedAgents.size} agents?`)) return;
+    for (const id of selectedAgents) await fleetApi.activate(id);
+    setSelectedAgents(new Set());
+    fetchData();
+  };
 
   // Generate sparkline data from trend
   const trendCounts = summary.trendData.map(t => t.count);
@@ -718,6 +757,78 @@ export function FleetDashboardPage() {
         />
       </div>
 
+      {/* P1: Search + Filter Bar */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <input
+          type="text"
+          placeholder="Search agents..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          style={{
+            padding: '6px 12px', fontSize: 12, borderRadius: 4,
+            border: `1px solid ${COLORS.border}`, background: 'rgba(255,255,255,0.04)',
+            color: COLORS.textPrimary, width: 200, fontFamily: 'inherit', outline: 'none',
+          }}
+        />
+        <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.03)', borderRadius: 4, padding: 2 }}>
+          {[
+            { key: 'all', label: 'All' },
+            { key: 'active', label: '🟢 Active' },
+            { key: 'idle', label: '🟡 Idle' },
+            { key: 'suspended', label: '🔴 Suspended' },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              style={{
+                padding: '4px 10px', fontSize: 11, borderRadius: 3, border: 'none', cursor: 'pointer',
+                fontWeight: statusFilter === f.key ? 600 : 400,
+                background: statusFilter === f.key ? 'rgba(255,255,255,0.08)' : 'transparent',
+                color: statusFilter === f.key ? COLORS.textPrimary : COLORS.textMuted,
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        {(searchQuery || statusFilter !== 'all') && (
+          <span style={{ ...MONO, fontSize: 10, color: COLORS.textMuted }}>
+            {agents.length} of {allAgents.length}
+          </span>
+        )}
+      </div>
+
+      {/* P1: Bulk Action Bar */}
+      {selectedAgents.size > 0 && (
+        <div style={{
+          display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12,
+          padding: '8px 12px', background: 'rgba(59,130,246,0.08)', borderRadius: 6,
+          border: `1px solid rgba(59,130,246,0.15)`,
+        }}>
+          <span style={{ fontSize: 12, color: COLORS.blue, fontWeight: 600 }}>
+            {selectedAgents.size} selected
+          </span>
+          <button onClick={handleBulkActivate} style={{
+            padding: '4px 10px', fontSize: 11, borderRadius: 4, border: `1px solid rgba(16,185,129,0.3)`,
+            background: 'rgba(16,185,129,0.1)', color: COLORS.green, cursor: 'pointer', fontWeight: 500,
+          }}>
+            ⚡ Activate All
+          </button>
+          <button onClick={handleBulkSuspend} style={{
+            padding: '4px 10px', fontSize: 11, borderRadius: 4, border: `1px solid rgba(239,68,68,0.3)`,
+            background: 'rgba(239,68,68,0.1)', color: COLORS.red, cursor: 'pointer', fontWeight: 500,
+          }}>
+            ⏸ Suspend All
+          </button>
+          <button onClick={() => setSelectedAgents(new Set())} style={{
+            padding: '4px 10px', fontSize: 11, borderRadius: 4, border: `1px solid ${COLORS.border}`,
+            background: 'transparent', color: COLORS.textMuted, cursor: 'pointer',
+          }}>
+            Clear
+          </button>
+        </div>
+      )}
+
       {/* Main Grid: Agent Table + Alerts */}
       <div style={{ 
         display: 'grid', 
@@ -735,6 +846,15 @@ export function FleetDashboardPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+
+                <th style={{ padding: '10px 10px', width: 28 }}>
+                  <input
+                    type="checkbox"
+                    checked={agents.length > 0 && selectedAgents.size === agents.length}
+                    onChange={toggleSelectAll}
+                    style={{ cursor: 'pointer', accentColor: COLORS.blue }}
+                  />
+                </th>
                 {['', 'Agent', 'Type', 'Trust', 'Actions', 'Latency', 'Errors', 'Alerts', 'Last Seen', ''].map((h, i) => (
                   <th key={i} style={{
                     textAlign: 'left',
@@ -755,7 +875,7 @@ export function FleetDashboardPage() {
             <tbody>
               {agents.length === 0 ? (
                 <tr>
-                  <td colSpan={10} style={{
+                  <td colSpan={11} style={{
                     padding: '40px 20px',
                     textAlign: 'center',
                     color: COLORS.textMuted,
@@ -784,6 +904,14 @@ export function FleetDashboardPage() {
                       onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = COLORS.cardHover; }}
                       onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'transparent'; }}
                     >
+                      <td style={{ padding: '8px 10px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedAgents.has(agent.agent_id)}
+                          onChange={() => toggleSelect(agent.agent_id)}
+                          style={{ cursor: 'pointer', accentColor: COLORS.blue }}
+                        />
+                      </td>
                       <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                         <StatusDot status={agent.status} />
                       </td>

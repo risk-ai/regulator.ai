@@ -719,7 +719,11 @@ export function FleetDashboardPage() {
       </div>
 
       {/* Main Grid: Agent Table + Alerts */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16 }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: window.innerWidth > 768 ? '1fr 340px' : '1fr', 
+        gap: 16 
+      }}>
         {/* Agent Table */}
         <div style={{
           background: COLORS.card,
@@ -727,7 +731,8 @@ export function FleetDashboardPage() {
           borderRadius: 6,
           overflow: 'hidden',
         }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${COLORS.border}` }}>
                 {['', 'Agent', 'Type', 'Trust', 'Actions', 'Latency', 'Errors', 'Alerts', 'Last Seen', ''].map((h, i) => (
@@ -748,7 +753,21 @@ export function FleetDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {agents.map(agent => {
+              {agents.length === 0 ? (
+                <tr>
+                  <td colSpan={10} style={{
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    color: COLORS.textMuted,
+                  }}>
+                    <div style={{ fontSize: 14, marginBottom: 8 }}>No agents registered</div>
+                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>
+                      Agents will appear here once they connect to Vienna OS
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                agents.map(agent => {
                 const isExpanded = expandedAgent === agent.agent_id;
                 const stale = isStale(agent.last_heartbeat);
 
@@ -821,9 +840,11 @@ export function FleetDashboardPage() {
                     )}
                   </React.Fragment>
                 );
-              })}
+              })
+              )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Alerts Panel */}

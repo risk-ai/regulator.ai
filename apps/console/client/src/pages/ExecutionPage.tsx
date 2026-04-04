@@ -59,7 +59,7 @@ function ExecutionModeIndicator() {
         setConfig(result.data);
       }
     } catch (err) {
-      console.error('Error fetching execution modes:', err);
+
     } finally {
       setLoading(false);
     }
@@ -194,7 +194,7 @@ export function ExecutionPage() {
       setExecutionMetrics(metrics && typeof metrics === 'object' ? metrics : null);
       setError(null);
     } catch (err) {
-      console.error('[ExecutionPage] Failed to fetch execution data:', err);
+
       setError(err instanceof Error ? err.message : 'Unknown error');
     }
   }, []);
@@ -209,7 +209,7 @@ export function ExecutionPage() {
         setExecutionRecords(Array.isArray(records) ? records : []);
       }
     } catch (err) {
-      console.warn('[ExecutionPage] Failed to fetch execution records:', err);
+
     }
   }, []);
 
@@ -240,7 +240,7 @@ export function ExecutionPage() {
       setIsPaused(true);
       fetchExecutionData();
     } catch (err) {
-      console.error('[ExecutionPage] Failed to pause execution:', err);
+
     }
   };
 
@@ -250,7 +250,7 @@ export function ExecutionPage() {
       setIsPaused(false);
       fetchExecutionData();
     } catch (err) {
-      console.error('[ExecutionPage] Failed to resume execution:', err);
+
     }
   };
 
@@ -270,7 +270,7 @@ export function ExecutionPage() {
       );
       fetchExecutionData();
     } catch (err) {
-      console.error('[ExecutionPage] Failed to activate emergency override:', err);
+
     }
   };
 

@@ -41,7 +41,7 @@ export function Dashboard() {
   }, []);
   
   const loadBootstrap = async () => {
-    console.log('[Dashboard] Loading bootstrap...');
+
     
     setLoading('status', true);
     setLoading('services', true);
@@ -50,12 +50,7 @@ export function Dashboard() {
     try {
       const bootstrap = await bootstrapApi.getBootstrap();
       
-      console.log('[Dashboard] Bootstrap loaded:', {
-        systemStatus: bootstrap.systemStatus.available,
-        providers: bootstrap.providers.available,
-        services: bootstrap.services.available,
-        chat: bootstrap.chat.available,
-      });
+
       
       // Hydrate system status
       if (bootstrap.systemStatus.available && bootstrap.systemStatus.data) {
@@ -86,15 +81,15 @@ export function Dashboard() {
         if (bootstrap.chat.currentThreadId) {
           setCurrentThreadId(bootstrap.chat.currentThreadId);
           localStorage.setItem('vienna:currentThreadId', bootstrap.chat.currentThreadId);
-          console.log('[Dashboard] Restored thread:', bootstrap.chat.currentThreadId);
+
         }
         
         if (bootstrap.chat.recentMessages && bootstrap.chat.recentMessages.length > 0) {
           setChatMessages(bootstrap.chat.recentMessages);
-          console.log('[Dashboard] Restored messages:', bootstrap.chat.recentMessages.length);
+
         }
       } else {
-        console.warn('[Dashboard] Chat unavailable:', bootstrap.chat.error);
+
       }
       
     } catch (error) {

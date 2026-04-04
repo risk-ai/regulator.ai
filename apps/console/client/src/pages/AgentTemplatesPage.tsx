@@ -39,7 +39,7 @@ export default function AgentTemplatesPage() {
         setTemplates(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch templates:', error);
+
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ export default function AgentTemplatesPage() {
       setSelectedTemplate(template);
       setShowCode(true);
     } catch (error) {
-      console.error('Failed to record template usage:', error);
+
     }
   };
 

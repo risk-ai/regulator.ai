@@ -198,7 +198,7 @@ export function ExecutionsPage() {
       if (execData.success) setExecutions(execData.data || []);
       if (statsData.success) setStats(statsData.data);
     } catch (err) {
-      console.error('Failed to fetch executions:', err);
+
     } finally {
       setLoading(false);
     }
@@ -238,11 +238,11 @@ export function ExecutionsPage() {
         };
         setDetail(transformed);
       } else {
-        console.error('Invalid execution data:', rawData);
+
         setDetail(null);
       }
     } catch (err) { 
-      console.error('Failed to load execution detail:', err); 
+ 
       setDetail(null);
     } finally { 
       setDetailLoading(false); 
@@ -320,7 +320,8 @@ export function ExecutionsPage() {
       {/* Main Content */}
       <div style={{ background: 'var(--bg-primary)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
         {loading ? <LoadingSpinner /> : executions.length === 0 ? <EmptyState /> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '700px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 {['Execution', 'State', 'Tier', 'Objective', 'Steps', 'Duration', 'Created'].map(h => (
@@ -379,6 +380,7 @@ export function ExecutionsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

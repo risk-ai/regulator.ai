@@ -237,18 +237,18 @@ export function CompliancePage() {
 
   // Fetch data
   const fetchStats = useCallback(async () => {
-    try { const data = await complianceApi.getQuickStats(period); setStats(data); } catch (e) { console.error('Stats error:', e); }
+    try { const data = await complianceApi.getQuickStats(period); setStats(data); } catch (e) { /* Error handled silently */ }
   }, [period]);
 
   const fetchReports = useCallback(async () => {
     try {
       const data = await complianceApi.listReports();
       setReports(data.reports); setReportsTotal(data.total);
-    } catch (e) { console.error('Reports error:', e); }
+    } catch (e) { /* Error handled silently */ }
   }, []);
 
   const fetchTemplates = useCallback(async () => {
-    try { const data = await complianceApi.listTemplates(); setTemplates(data); } catch (e) { console.error('Templates error:', e); }
+    try { const data = await complianceApi.listTemplates(); setTemplates(data); } catch (e) { /* Error handled silently */ }
   }, []);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);

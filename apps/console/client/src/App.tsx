@@ -28,6 +28,7 @@ import ActivityFeedPage from './pages/ActivityFeedPage.js';
 import { ApiKeysPage } from './pages/ApiKeysPage.js';
 import { ExecutionsPage } from './pages/ExecutionsPage.js';
 import { ConnectAgentPage } from './pages/ConnectAgentPage.js';
+import { NetworkStatus } from './components/common/NetworkStatus.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -319,6 +320,9 @@ export function App() {
           
           {/* Feedback Widget */}
           <FeedbackWidget />
+          
+          {/* Network Status Banner */}
+          <NetworkStatus />
         </div>
       </ErrorBoundary>
     </ThemeProvider>

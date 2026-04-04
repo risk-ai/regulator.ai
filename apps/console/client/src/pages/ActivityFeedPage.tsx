@@ -123,7 +123,7 @@ export default function ActivityFeedPage() {
       if (summaryRes.success) setSummary(summaryRes.data);
       setLastUpdated(new Date());
     } catch (e) {
-      console.error('Activity fetch failed:', e);
+
     } finally {
       setLoading(false);
     }

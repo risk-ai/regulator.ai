@@ -128,7 +128,7 @@ export function IntegrationsPage() {
       setIntegrations(ints);
       setSchemas(types);
     } catch (err) {
-      console.error('Failed to load integrations:', err);
+
     } finally {
       setLoading(false);
     }
@@ -557,7 +557,7 @@ function IntegrationDetail({ id, schemas, onBack, onEdit, onDelete }: {
         // evts might be the array directly or { data, total }
         setEvents(Array.isArray(evts) ? evts : (evts as any)?.data || evts || []);
       } catch (err) {
-        console.error('Failed to load integration:', err);
+
       } finally {
         setLoading(false);
       }

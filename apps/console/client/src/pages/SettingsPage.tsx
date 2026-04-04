@@ -576,7 +576,7 @@ function ExecutionModeConfigCard() {
         throw new Error('Failed to fetch execution modes');
       }
     } catch (err) {
-      console.error('Error fetching execution modes:', err);
+
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
@@ -608,7 +608,7 @@ function ExecutionModeConfigCard() {
         throw new Error(errorData.error || 'Failed to save execution modes');
       }
     } catch (err) {
-      console.error('Error saving execution modes:', err);
+
       setError(err instanceof Error ? err.message : 'Save failed');
     } finally {
       setLoading(false);
@@ -946,7 +946,7 @@ function BillingCard() {
       // Open Stripe customer portal in new tab
       window.open(response.url, '_blank');
     } catch (err: any) {
-      console.error('[Billing] Error:', err);
+
       setError(err?.message || 'Failed to open billing portal');
     } finally {
       setLoading(false);

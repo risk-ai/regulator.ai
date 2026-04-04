@@ -196,7 +196,7 @@ export default function ExecutionDetailPage() {
       setExecution(execution);
       setLoading(false);
     } catch (err: any) {
-      console.error('Failed to fetch execution detail:', err);
+
       setError(err.message);
       setLoading(false);
     }

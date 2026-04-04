@@ -231,6 +231,7 @@ export function FeedbackWidget() {
                   <img
                     src={screenshot}
                     alt="Screenshot"
+                    loading="lazy"
                     style={{
                       width: '100%',
                       display: 'block',

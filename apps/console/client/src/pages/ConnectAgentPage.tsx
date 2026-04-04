@@ -83,7 +83,7 @@ export function ConnectAgentPage() {
         }
       ]);
     } catch (err) {
-      console.warn('Failed to load policy packs:', err);
+
       // Use default fallback above
     }
   };
@@ -145,7 +145,7 @@ export function ConnectAgentPage() {
       });
       
       // Success!
-      console.log('Test action submitted:', response);
+
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to send test action');
     } finally {

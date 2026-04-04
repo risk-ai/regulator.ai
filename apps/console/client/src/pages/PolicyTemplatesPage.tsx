@@ -43,7 +43,7 @@ export default function PolicyTemplatesPage() {
         setTemplates(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch templates:', error);
+
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export default function PolicyTemplatesPage() {
         navigate('/policies');
       }
     } catch (error) {
-      console.error('Failed to instantiate template:', error);
+
     }
   };
 
@@ -114,7 +114,16 @@ export default function PolicyTemplatesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {templates.map((template) => (
+          {templates.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <div className="text-6xl mb-4">📋</div>
+              <p className="text-[rgba(255,255,255,0.6)] text-lg mb-2">No policy templates found</p>
+              <p className="text-[rgba(255,255,255,0.4)] text-sm">
+                {selectedCategory === 'all' ? 'Templates will appear here once they are created' : `No templates in the "${selectedCategory}" category`}
+              </p>
+            </div>
+          ) : (
+            templates.map((template) => (
             <div
               key={template.id}
               className="border border-[rgba(255,255,255,0.08)] rounded-lg p-6 hover:bg-[rgba(255,255,255,0.04)] transition-all cursor-pointer"
@@ -161,7 +170,8 @@ export default function PolicyTemplatesPage() {
                 Use Template
               </button>
             </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 

@@ -51,9 +51,9 @@ export function FilesWorkspace() {
       // Refresh file tree
       setRefreshTrigger(prev => prev + 1);
       
-      console.log('[FilesWorkspace] Upload complete:', result);
+
     } catch (error) {
-      console.error('[FilesWorkspace] Upload error:', error);
+
       alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
@@ -85,7 +85,7 @@ export function FilesWorkspace() {
     // Show objective in visualizer
     setSelectedEnvelope(objectiveId);
     setRefreshTrigger(prev => prev + 1);
-    console.log('[FilesWorkspace] Objective created:', objectiveId);
+
   }, []);
   
   return (

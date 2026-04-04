@@ -159,18 +159,18 @@ pip install vienna-os
           </p>
 
           <CodeBlock language="javascript" title="JavaScript / TypeScript">
-{`import { Vienna } from 'vienna-os';
+{`import { ViennaClient } from 'vienna-os';
 
-const vienna = new Vienna({
+const vienna = new ViennaClient({
   apiKey: process.env.VIENNA_API_KEY, // Get from console.regulator.ai → API Keys
 });`}
           </CodeBlock>
 
           <CodeBlock language="python" title="Python">
-{`from vienna_os import Vienna
+{`from vienna_os import ViennaClient
 import os
 
-vienna = Vienna(
+vienna = ViennaClient(
     api_key=os.environ['VIENNA_API_KEY']  # Get from console.regulator.ai → API Keys
 )`}
           </CodeBlock>
@@ -188,52 +188,50 @@ vienna = Vienna(
           </p>
 
           <CodeBlock language="javascript" title="JavaScript / TypeScript">
-{`// Before your agent acts, check with Vienna
-const decision = await vienna.govern({
+{`// Before your agent acts, submit an intent
+const result = await vienna.submitIntent({
   action: 'deploy_to_production',
-  agent: 'my-deploy-bot',
-  parameters: { 
+  payload: { 
     service: 'api-gateway',
     version: '2.4.1',
     environment: 'production' 
   }
 });
 
-if (decision.mode === 'direct') {
-  // Vienna executed it — you're done
-  console.log('Deployed:', decision.execution_id);
-} else if (decision.mode === 'passback') {
-  // You execute, Vienna issued the warrant
-  await myDeployFunction(decision.warrant, decision.constraints);
-  // Report back
-  await vienna.reportExecution(decision.warrant_id, { success: true });
-} else if (decision.mode === 'blocked') {
-  console.error('Blocked:', decision.reason);
+if (result.pipeline === 'executed') {
+  // Auto-approved and executed
+  console.log('Deployed:', result.execution_id);
+  console.log('Warrant:', result.warrant?.id);
+} else if (result.pipeline === 'pending_approval') {
+  // Requires human approval
+  console.log('Awaiting approval:', result.proposal_id);
+} else if (result.pipeline === 'denied') {
+  // Blocked by policy
+  console.error('Denied:', result.reason);
 }`}
           </CodeBlock>
 
           <CodeBlock language="python" title="Python">
-{`# Before your agent acts, check with Vienna
-decision = vienna.govern(
+{`# Before your agent acts, submit an intent
+result = vienna.submit_intent(
     action='deploy_to_production',
-    agent='my-deploy-bot',
-    parameters={
+    payload={
         'service': 'api-gateway',
         'version': '2.4.1',
         'environment': 'production'
     }
 )
 
-if decision.mode == 'direct':
-    # Vienna executed it — you're done
-    print(f"Deployed: {decision.execution_id}")
-elif decision.mode == 'passback':
-    # You execute, Vienna issued the warrant
-    my_deploy_function(decision.warrant, decision.constraints)
-    # Report back
-    vienna.report_execution(decision.warrant_id, success=True)
-elif decision.mode == 'blocked':
-    print(f"Blocked: {decision.reason}")`}
+if result.pipeline == 'executed':
+    # Auto-approved and executed
+    print(f"Deployed: {result.execution_id}")
+    print(f"Warrant: {result.warrant.id if result.warrant else None}")
+elif result.pipeline == 'pending_approval':
+    # Requires human approval
+    print(f"Awaiting approval: {result.proposal_id}")
+elif result.pipeline == 'denied':
+    # Blocked by policy
+    print(f"Denied: {result.reason}")`}
           </CodeBlock>
         </div>
 
@@ -332,12 +330,19 @@ crew = Crew(
               Wrap your function calls with Vienna governance:
             </p>
             <CodeBlock language="javascript" title="OpenAI Function Calling">
-{`import { Vienna } from 'vienna-os';
-const vienna = new Vienna({ apiKey: 'vos_...' });
+{`import { ViennaClient } from 'vienna-os';
+const vienna = new ViennaClient({ 
+  apiKey: 'vos_...',
+  agentId: 'openai-agent',
+  baseUrl: 'https://console.regulator.ai'
+});
 
-// Wrap your function calls
-const governedFunctions = vienna.wrapFunctions(myFunctions);
-// Use with OpenAI as normal — Vienna governs each call`}
+// Submit intent before each function call
+const result = await vienna.submitIntent({
+  action: 'call_function',
+  payload: { function: 'transfer_funds', args: {...} }
+});
+// Use result.warrant to prove authorization`}
             </CodeBlock>
           </div>
         </div>

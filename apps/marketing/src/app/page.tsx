@@ -141,7 +141,9 @@ function NetworkBackground() {
 /** Animated stats — count up on scroll */
 function AnimatedStat({ value, suffix = "", label, sub }: { value: number | string; suffix?: string; label: string; sub: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [display, setDisplay] = useState("0");
+  // SSR-safe: initial value is the real number (crawlers/social cards see real data)
+  const initialDisplay = typeof value === "number" ? value.toLocaleString() : String(value);
+  const [display, setDisplay] = useState(initialDisplay);
   const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
@@ -159,6 +161,7 @@ function AnimatedStat({ value, suffix = "", label, sub }: { value: number | stri
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
           if (typeof value === "number") {
+            setDisplay("0"); // Reset to 0 before animating up
             const duration = 1500;
             const start = performance.now();
             const animate = (now: number) => {

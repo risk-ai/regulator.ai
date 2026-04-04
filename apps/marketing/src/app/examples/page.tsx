@@ -15,6 +15,47 @@ export const metadata: Metadata = {
 
 const examples = [
   {
+    title: "Customer Support Agent — Tiered Governance",
+    description: "AI-powered customer support with T0/T1 auto-approval and T2/T3 human-in-the-loop for high-risk actions.",
+    language: "JavaScript",
+    icon: Zap,
+    code: `import { ViennaClient } from 'vienna-os';
+
+const vienna = new ViennaClient({
+  apiKey: process.env.VIENNA_API_KEY,
+  agentId: 'customer-support-agent',
+});
+
+// T0: Information request (instant approval)
+const checkOrder = await vienna.submitIntent({
+  action: 'check_order_status',
+  payload: { order_id: '#12345' }
+});
+// → Auto-approved, no review needed
+
+// T1: Small refund (instant approval)
+const smallRefund = await vienna.submitIntent({
+  action: 'process_refund',
+  payload: { amount: 35, reason: 'Damaged item' }
+});
+// → Auto-approved, logged for audit
+
+// T2: Large refund (requires approval)
+const largeRefund = await vienna.submitIntent({
+  action: 'process_refund',
+  payload: { amount: 250, reason: 'Defective' }
+});
+// → Pending human approval
+
+// T3: Account deletion (requires senior approval)
+const deletion = await vienna.submitIntent({
+  action: 'delete_account',
+  payload: { customer_id: 'cust_789' }
+});
+// → Pending senior approval + compliance review`,
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/customer-support-agent",
+  },
+  {
     title: "Quick Start — Submit Your First Intent",
     description: "Register an agent, create a policy, and submit an intent for approval in under 5 minutes.",
     language: "TypeScript",

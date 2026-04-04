@@ -235,10 +235,82 @@ elif result.pipeline == 'denied':
           </CodeBlock>
         </div>
 
-        {/* Step 4: See It Live */}
+        {/* Step 4: Handle Errors */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
             <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
+            Handle Errors
+          </h2>
+          <p className="text-slate-400 mb-4">
+            Always wrap Vienna calls in error handling. Common errors include authentication failures, rate limits, and network issues:
+          </p>
+
+          <CodeBlock language="javascript" title="JavaScript Error Handling">
+{`try {
+  const result = await vienna.submitIntent({
+    action: 'deploy_to_production',
+    payload: { service: 'api-gateway', version: '2.4.1' }
+  });
+
+  if (result.pipeline === 'executed') {
+    console.log('Deployed:', result.execution_id);
+  } else if (result.pipeline === 'pending_approval') {
+    console.log('Awaiting approval:', result.proposal_id);
+  } else if (result.pipeline === 'denied') {
+    console.error('Denied:', result.reason);
+  }
+} catch (error) {
+  if (error.code === 'UNAUTHORIZED') {
+    console.error('Invalid API key. Get one from console.regulator.ai → API Keys');
+  } else if (error.code === 'RATE_LIMITED') {
+    console.error('Rate limit exceeded. Retry in', error.retryAfter, 'seconds');
+  } else if (error.code === 'NETWORK_ERROR') {
+    console.error('Network error. Check your connection.');
+  } else {
+    console.error('Vienna error:', error.message);
+  }
+}`}
+          </CodeBlock>
+
+          <CodeBlock language="python" title="Python Error Handling">
+{`from vienna_os import ViennaClient, ViennaError, UnauthorizedError, RateLimitError
+
+try:
+    result = vienna.submit_intent(
+        action='deploy_to_production',
+        payload={'service': 'api-gateway', 'version': '2.4.1'}
+    )
+
+    if result.pipeline == 'executed':
+        print(f"Deployed: {result.execution_id}")
+    elif result.pipeline == 'pending_approval':
+        print(f"Awaiting approval: {result.proposal_id}")
+    elif result.pipeline == 'denied':
+        print(f"Denied: {result.reason}")
+
+except UnauthorizedError:
+    print("Invalid API key. Get one from console.regulator.ai → API Keys")
+except RateLimitError as e:
+    print(f"Rate limit exceeded. Retry in {e.retry_after} seconds")
+except ViennaError as e:
+    print(f"Vienna error: {e.message}")`}
+          </CodeBlock>
+
+          <Callout type="warning">
+            <strong>Common Errors:</strong>
+            <ul className="list-disc list-inside mt-2 space-y-1">
+              <li><InlineCode>UNAUTHORIZED</InlineCode> — Invalid or missing API key</li>
+              <li><InlineCode>RATE_LIMITED</InlineCode> — Too many requests (5000/15min default)</li>
+              <li><InlineCode>NETWORK_ERROR</InlineCode> — Connection timeout or DNS failure</li>
+              <li><InlineCode>INVALID_REQUEST</InlineCode> — Missing required fields (action, payload)</li>
+            </ul>
+          </Callout>
+        </div>
+
+        {/* Step 5: See It Live */}
+        <div className="mb-12">
+          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
             See It Live
           </h2>
           <p className="text-slate-400 mb-4">

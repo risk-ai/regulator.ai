@@ -1,0 +1,24 @@
+{
+  "name": "customer-support-agent",
+  "version": "1.0.0",
+  "description": "AI-powered customer support agent with Vienna OS governance",
+  "main": "agent.js",
+  "type": "module",
+  "scripts": {
+    "start": "node agent.js",
+    "demo": "node demo.js"
+  },
+  "keywords": [
+    "vienna-os",
+    "ai-governance",
+    "customer-support",
+    "ai-agent"
+  ],
+  "author": "Vienna OS",
+  "license": "MIT",
+  "dependencies": {
+    "vienna-os": "^1.0.0",
+    "openai": "^4.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

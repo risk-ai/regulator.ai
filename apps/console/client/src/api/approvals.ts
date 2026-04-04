@@ -127,3 +127,45 @@ export async function denyApproval(
   
   return data;
 }
+
+/**
+ * Bulk approve multiple approvals
+ */
+export async function bulkApproveApprovals(
+  approval_ids: string[],
+  reviewed_by: string,
+  decision_reason?: string
+): Promise<Approval[]> {
+  // apiClient.post already extracts .data from the response
+  const data = await apiClient.post<Approval[]>(
+    `/approvals/bulk/approve`,
+    {
+      approval_ids,
+      reviewed_by,
+      decision_reason: decision_reason || null,
+    }
+  );
+  
+  return data;
+}
+
+/**
+ * Bulk deny multiple approvals
+ */
+export async function bulkDenyApprovals(
+  approval_ids: string[],
+  reviewed_by: string,
+  decision_reason: string
+): Promise<Approval[]> {
+  // apiClient.post already extracts .data from the response
+  const data = await apiClient.post<Approval[]>(
+    `/approvals/bulk/deny`,
+    {
+      approval_ids,
+      reviewed_by,
+      decision_reason,
+    }
+  );
+  
+  return data;
+}

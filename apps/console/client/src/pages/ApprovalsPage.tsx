@@ -5,7 +5,7 @@
  * T1/T2 actions wait here for operator authorization.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { PendingApprovalsList } from '../components/approvals/PendingApprovalsList';
 import { ApprovalHistory } from '../components/approvals/ApprovalHistory';
@@ -15,10 +15,61 @@ import { ErrorBoundary } from '../components/ui/ErrorBoundary.js';
 export function ApprovalsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
+  const [focusedApprovalId, setFocusedApprovalId] = useState<string | null>(null);
+  const [showExpandedDetails, setShowExpandedDetails] = useState(false);
   const { isMobile } = useResponsive();
+  const pendingApprovalsRef = useRef<any>(null);
 
   const handleApprovalChange = () => {
     setRefreshKey(prev => prev + 1);
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle shortcuts when on pending tab and not in input fields
+      if (activeTab !== 'pending' || (e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          if (focusedApprovalId) {
+            setShowExpandedDetails(prev => !prev);
+          }
+          break;
+        case 'a':
+        case 'A':
+          e.preventDefault();
+          if (focusedApprovalId && pendingApprovalsRef.current) {
+            pendingApprovalsRef.current.approveApproval(focusedApprovalId);
+          }
+          break;
+        case 'd':
+        case 'D':
+          e.preventDefault();
+          if (focusedApprovalId && pendingApprovalsRef.current) {
+            pendingApprovalsRef.current.denyApproval(focusedApprovalId);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setShowExpandedDetails(false);
+          setFocusedApprovalId(null);
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab, focusedApprovalId]);
+
+  const handleApprovalFocus = (approvalId: string | null) => {
+    setFocusedApprovalId(approvalId);
+    if (approvalId) {
+      setShowExpandedDetails(false);
+    }
   };
 
   return (
@@ -60,8 +111,12 @@ export function ApprovalsPage() {
       {activeTab === 'pending' && (
         <ErrorBoundary>
           <PendingApprovalsList
+            ref={pendingApprovalsRef}
             key={refreshKey}
             onApprovalChange={handleApprovalChange}
+            focusedApprovalId={focusedApprovalId}
+            onApprovalFocus={handleApprovalFocus}
+            showExpandedDetails={showExpandedDetails}
           />
         </ErrorBoundary>
       )}
@@ -72,12 +127,33 @@ export function ApprovalsPage() {
         </ErrorBoundary>
       )}
 
+      {/* Keyboard shortcut hint bar */}
+      {activeTab === 'pending' && (
+        <div style={{
+          position: 'fixed',
+          bottom: '0',
+          left: '0',
+          right: '0',
+          background: 'var(--bg-secondary)',
+          borderTop: '1px solid var(--border-subtle)',
+          padding: '8px 16px',
+          fontSize: '12px',
+          color: 'var(--text-tertiary)',
+          textAlign: 'center',
+          zIndex: 1000,
+          fontFamily: 'var(--font-mono)'
+        }}>
+          ⌨️ Space: expand · A: approve · D: deny · Esc: close
+        </div>
+      )}
+
       {/* Risk tier reference */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
         gap: '12px',
         marginTop: '24px',
+        marginBottom: activeTab === 'pending' ? '40px' : '0'
       }}>
         <TierCard
           tier="T0"

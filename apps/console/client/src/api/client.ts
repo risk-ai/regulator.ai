@@ -8,6 +8,7 @@
  */
 
 import type { SuccessResponse, ErrorResponse } from './types.js';
+import { addToast } from '../store/toastStore.js';
 
 // Default to same-origin for all deployments
 // Vite proxy in dev, Express serves in production
@@ -122,6 +123,35 @@ export class ApiClient {
         if (apiError.isAuthError && authErrorCallback) {
           console.warn('[ApiClient] 401/403 detected, triggering logout');
           authErrorCallback();
+        } else if (!apiError.isAuthError) {
+          // Show toast for non-auth errors with actionable messages
+          let actionableMessage = apiError.message;
+          let action: { label: string; onClick: () => void } | undefined;
+
+          // Provide actionable messages for common errors
+          if (apiError.statusCode === 400) {
+            actionableMessage = `Bad request: ${apiError.message}`;
+          } else if (apiError.statusCode === 429) {
+            actionableMessage = 'Too many requests. Please wait and try again.';
+            action = {
+              label: 'Retry',
+              onClick: () => window.location.reload()
+            };
+          } else if (apiError.statusCode >= 500) {
+            actionableMessage = `Server error: ${apiError.message}`;
+            action = {
+              label: 'Retry',
+              onClick: () => window.location.reload()
+            };
+          } else if (apiError.code === 'NETWORK_ERROR' || apiError.code === 'TIMEOUT') {
+            actionableMessage = 'Network error. Check your connection.';
+            action = {
+              label: 'Retry',
+              onClick: () => window.location.reload()
+            };
+          }
+
+          addToast(actionableMessage, 'error', action);
         }
         
         throw apiError;

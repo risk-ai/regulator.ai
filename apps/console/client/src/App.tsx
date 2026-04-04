@@ -5,30 +5,11 @@
  * Main application entry point with auth gate and navigation
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { MainLayout } from './components/layout/MainLayout.js';
 import { MainNav, type NavSection } from './components/layout/MainNav.js';
-import { NowPage } from './pages/NowPage.js';
-import { RuntimePage } from './pages/RuntimePage.js';
-import { WorkspacePage } from './pages/WorkspacePage.js';
-import { HistoryPage } from './pages/HistoryPage.js';
-import { ServicesPage } from './pages/ServicesPage.js';
-import { SettingsPage } from './pages/SettingsPage.js';
-import { ApprovalsPage } from './pages/ApprovalsPage.js';
-import { IntentPage } from './pages/IntentPage.js';
-import { PolicyBuilderPage } from './pages/PolicyBuilderPage.js';
-import { ActionTypesPage } from './pages/ActionTypesPage.js';
-import { FleetDashboardPage } from './pages/FleetDashboardPage.js';
-import { IntegrationsPage } from './pages/IntegrationsPage.js';
-import { CompliancePage } from './pages/CompliancePage.js';
-import { ExecutionPage } from './pages/ExecutionPage.js';
-import PolicyTemplatesPage from './pages/PolicyTemplatesPage.js';
-import AgentTemplatesPage from './pages/AgentTemplatesPage.js';
-import ActivityFeedPage from './pages/ActivityFeedPage.js';
-import { ApiKeysPage } from './pages/ApiKeysPage.js';
-import { ExecutionsPage } from './pages/ExecutionsPage.js';
-import { ConnectAgentPage } from './pages/ConnectAgentPage.js';
 import { NetworkStatus } from './components/common/NetworkStatus.js';
+import { ErrorToast } from './components/common/ErrorToast.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -38,6 +19,56 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 import { FeedbackWidget } from './components/feedback/FeedbackWidget.js';
 import { apiClient } from './api/client.js';
+
+// Lazy-loaded pages
+const NowPage = React.lazy(() => import('./pages/NowPage.js').then(m => ({ default: m.NowPage })));
+const RuntimePage = React.lazy(() => import('./pages/RuntimePage.js').then(m => ({ default: m.RuntimePage })));
+const WorkspacePage = React.lazy(() => import('./pages/WorkspacePage.js').then(m => ({ default: m.WorkspacePage })));
+const HistoryPage = React.lazy(() => import('./pages/HistoryPage.js').then(m => ({ default: m.HistoryPage })));
+const ServicesPage = React.lazy(() => import('./pages/ServicesPage.js').then(m => ({ default: m.ServicesPage })));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage.js').then(m => ({ default: m.SettingsPage })));
+const ApprovalsPage = React.lazy(() => import('./pages/ApprovalsPage.js').then(m => ({ default: m.ApprovalsPage })));
+const IntentPage = React.lazy(() => import('./pages/IntentPage.js').then(m => ({ default: m.IntentPage })));
+const PolicyBuilderPage = React.lazy(() => import('./pages/PolicyBuilderPage.js').then(m => ({ default: m.PolicyBuilderPage })));
+const ActionTypesPage = React.lazy(() => import('./pages/ActionTypesPage.js').then(m => ({ default: m.ActionTypesPage })));
+const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.js').then(m => ({ default: m.FleetDashboardPage })));
+const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
+const CompliancePage = React.lazy(() => import('./pages/CompliancePage.js').then(m => ({ default: m.CompliancePage })));
+const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m => ({ default: m.ExecutionPage })));
+const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js'));
+const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js'));
+const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'));
+const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
+const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
+const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
+
+// Page loading spinner component
+function PageLoadingSpinner() {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '48px',
+      color: 'var(--text-tertiary)'
+    }}>
+      <div style={{
+        width: '32px',
+        height: '32px',
+        border: '2px solid var(--border-subtle)',
+        borderTop: '2px solid var(--text-primary)',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
@@ -296,7 +327,9 @@ export function App() {
           {/* Page Content */}
           <main className="container mx-auto px-6 py-6">
             <ErrorBoundary key={currentSection}>
-              {renderPage()}
+              <Suspense fallback={<PageLoadingSpinner />}>
+                {renderPage()}
+              </Suspense>
             </ErrorBoundary>
           </main>
           
@@ -323,6 +356,9 @@ export function App() {
           
           {/* Network Status Banner */}
           <NetworkStatus />
+          
+          {/* Error Toast System */}
+          <ErrorToast />
         </div>
       </ErrorBoundary>
     </ThemeProvider>

@@ -41,6 +41,7 @@ const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'))
 const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
+const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m => ({ default: m.AnalyticsPage })));
 
 // Page loading spinner component
 function PageLoadingSpinner() {
@@ -157,7 +158,7 @@ export function App() {
       const hash = window.location.hash.slice(1) as NavSection;
       
       // Valid sections
-      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'api-keys', 'settings', 'execution', 'executions', 'connect'];
+      const validSections: NavSection[] = ['now', 'runtime', 'fleet', 'workspace', 'approvals', 'policies', 'policy-templates', 'agent-templates', 'activity', 'intent', 'action-types', 'integrations', 'compliance', 'history', 'services', 'api-keys', 'settings', 'execution', 'executions', 'connect', 'analytics'];
       
       if (validSections.includes(hash)) {
         setCurrentSection(hash);
@@ -296,6 +297,9 @@ export function App() {
 
       case 'connect':
         return <ConnectAgentPage />;
+
+      case 'analytics':
+        return <AnalyticsPage />;
       
       default:
         return <NowPage />;

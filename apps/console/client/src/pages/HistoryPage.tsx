@@ -7,6 +7,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { exportCSV, exportPrintReport } from '../utils/exportReport.js';
+import { addToast } from '../store/toastStore.js';
 
 interface AuditEntry {
   id: string;
@@ -89,6 +91,41 @@ export function HistoryPage() {
               { value: 'policy', label: 'Policy decisions' },
             ]}
           />
+          <button
+            onClick={() => {
+              if (entries.length === 0) { addToast('No entries to export', 'warning'); return; }
+              exportCSV(`vienna-audit-${new Date().toISOString().slice(0,10)}.csv`, [{
+                title: 'Audit Trail',
+                headers: ['ID', 'Type', 'Action', 'Status', 'Details', 'Timestamp'],
+                rows: entries.map(e => [e.id, e.type, e.action, e.status, e.details || '', e.timestamp]),
+              }]);
+              addToast(`Exported ${entries.length} audit entries`, 'success');
+            }}
+            style={{
+              padding: '6px 12px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(16,185,129,0.08)',
+              color: '#10b981', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-mono)',
+            }}
+          >
+            📥 CSV
+          </button>
+          <button
+            onClick={() => {
+              if (entries.length === 0) { addToast('No entries to export', 'warning'); return; }
+              exportPrintReport('Vienna OS Governance Audit Report', [{
+                title: `Audit Trail — ${timeRange} · ${filterType === 'all' ? 'All Types' : filterType}`,
+                headers: ['ID', 'Type', 'Action', 'Status', 'Details', 'Timestamp'],
+                rows: entries.map(e => [e.id.slice(0,12), e.type, e.action, e.status, e.details || '', new Date(e.timestamp).toLocaleString()]),
+              }]);
+            }}
+            style={{
+              padding: '6px 12px', fontSize: '12px', borderRadius: '6px',
+              border: '1px solid rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.08)',
+              color: '#a78bfa', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-mono)',
+            }}
+          >
+            📄 PDF
+          </button>
         </div>
       }
     >

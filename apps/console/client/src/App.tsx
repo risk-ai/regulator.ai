@@ -10,6 +10,8 @@ import { MainLayout } from './components/layout/MainLayout.js';
 import { MainNav, type NavSection } from './components/layout/MainNav.js';
 import { NetworkStatus } from './components/common/NetworkStatus.js';
 import { ErrorToast } from './components/common/ErrorToast.js';
+import { DemoBanner } from './components/common/DemoBanner.js';
+import { useDemoMode } from './hooks/useDemoMode.js';
 import { LoginScreen } from './components/auth/LoginScreen.js';
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard.js';
 import { CommandPalette } from './components/search/CommandPalette.js';
@@ -75,6 +77,7 @@ const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
 
 export function App() {
   const { authenticated, loading, error, checkSession, loginWithOAuth } = useAuthStore();
+  const demoMode = useDemoMode();
   const [currentSection, setCurrentSection] = useState<NavSection>('now');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -327,6 +330,18 @@ export function App() {
         }}>
           {/* Top Navigation */}
           <MainNav currentSection={currentSection} onNavigate={handleNavigate} />
+          
+          {/* Demo Mode Banner */}
+          {authenticated && (
+            <DemoBanner
+              isDemoMode={demoMode.isDemoMode}
+              bannerDismissed={demoMode.bannerDismissed}
+              hasRealAgents={demoMode.hasRealAgents}
+              agentCount={demoMode.agentCount}
+              onDismiss={demoMode.dismissBanner}
+              onNavigate={handleNavigate}
+            />
+          )}
           
           {/* Page Content */}
           <main className="container mx-auto px-6 py-6">

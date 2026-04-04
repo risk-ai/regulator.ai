@@ -11,6 +11,7 @@ import { apiClient } from '../api/client.js';
 import { TeamManagement } from '../components/workspace/TeamManagement.js';
 import { WebhookManager } from '../components/workspace/WebhookManager.js';
 import { useResponsive } from '../hooks/useResponsive.js';
+import { useDemoMode } from '../hooks/useDemoMode.js';
 
 // ============================================================================
 // Simulation Types & API
@@ -89,6 +90,9 @@ export function SettingsPage() {
         {/* Billing & Subscription */}
         <BillingCard />
 
+        {/* Demo Mode Toggle */}
+        <DemoModeCard />
+
         {/* Simulation Engine */}
         <SimulationCard />
 
@@ -153,6 +157,57 @@ export function SettingsPage() {
         </SettingsCard>
       </div>
     </PageLayout>
+  );
+}
+
+// ============================================================================
+// Demo Mode Card (P2)
+// ============================================================================
+
+function DemoModeCard() {
+  const { isDemoMode, hasRealAgents, agentCount, forcedDemo, setForcedDemo } = useDemoMode();
+
+  return (
+    <SettingsCard title="Demo Mode">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div>
+          <div style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500 }}>
+            Show sample data
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+            Display demo governance data to explore Vienna OS features
+          </div>
+        </div>
+        <div
+          onClick={() => setForcedDemo(!forcedDemo)}
+          style={{
+            width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+            background: forcedDemo ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)',
+            border: `1px solid ${forcedDemo ? 'rgba(245,158,11,0.4)' : 'var(--border-subtle)'}`,
+            position: 'relative', transition: 'all 150ms',
+          }}
+        >
+          <div style={{
+            width: '14px', height: '14px', borderRadius: '50%', position: 'absolute', top: '2px',
+            left: forcedDemo ? '18px' : '2px',
+            background: forcedDemo ? '#f59e0b' : 'var(--text-tertiary)',
+            transition: 'all 150ms',
+          }} />
+        </div>
+      </div>
+      <div style={{
+        padding: '8px 12px', borderRadius: '6px', fontSize: '11px',
+        background: isDemoMode ? 'rgba(245,158,11,0.06)' : 'rgba(16,185,129,0.06)',
+        color: isDemoMode ? '#f59e0b' : '#10b981',
+        display: 'flex', alignItems: 'center', gap: '6px',
+      }}>
+        {isDemoMode ? '🧪' : '✅'}
+        {isDemoMode
+          ? `Demo mode active${!hasRealAgents ? ' — no agents connected' : ' (forced)'}`
+          : `Live mode — ${agentCount} agent${agentCount !== 1 ? 's' : ''} connected`
+        }
+      </div>
+    </SettingsCard>
   );
 }
 

@@ -6,55 +6,101 @@
 
 import React, { useState, useEffect } from 'react';
 
+type ConnectionQuality = 'good' | 'poor' | 'offline';
+
+interface NetworkState {
+  isOnline: boolean;
+  quality: ConnectionQuality;
+  reconnectAttempts: number;
+  lastHealthCheck: number | null;
+}
+
 export function NetworkStatus() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [networkState, setNetworkState] = useState<NetworkState>({
+    isOnline: navigator.onLine,
+    quality: 'good',
+    reconnectAttempts: 0,
+    lastHealthCheck: null
+  });
   const [showBanner, setShowBanner] = useState(false);
   const [retrying, setRetrying] = useState(false);
 
+  const checkHealth = async (): Promise<{ success: boolean; latency: number }> => {
+    const startTime = Date.now();
+    try {
+      const response = await fetch('/api/v1/health', { 
+        method: 'GET',
+        cache: 'no-cache',
+        headers: { 'Cache-Control': 'no-cache' },
+        signal: AbortSignal.timeout(5000)
+      });
+      const latency = Date.now() - startTime;
+      return { success: response.ok, latency };
+    } catch {
+      return { success: false, latency: Date.now() - startTime };
+    }
+  };
+
+  const determineQuality = (latency: number): ConnectionQuality => {
+    if (latency < 500) return 'good';
+    if (latency < 2000) return 'poor';
+    return 'offline';
+  };
+
   useEffect(() => {
     const handleOnline = () => {
-      setIsOnline(true);
+      setNetworkState(prev => ({ ...prev, isOnline: true, reconnectAttempts: 0 }));
       setShowBanner(false);
       setRetrying(false);
     };
 
     const handleOffline = () => {
-      setIsOnline(false);
+      setNetworkState(prev => ({ ...prev, isOnline: false, quality: 'offline' }));
       setShowBanner(true);
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Test connectivity periodically when offline
-    let intervalId: NodeJS.Timeout | null = null;
+    // Periodic health checks
+    const healthCheckInterval = setInterval(async () => {
+      const { success, latency } = await checkHealth();
+      const quality = success ? determineQuality(latency) : 'offline';
+      
+      setNetworkState(prev => ({
+        ...prev,
+        isOnline: navigator.onLine && success,
+        quality,
+        lastHealthCheck: Date.now(),
+        reconnectAttempts: success ? 0 : prev.reconnectAttempts + 1
+      }));
 
-    if (!isOnline && showBanner) {
-      setRetrying(true);
-      intervalId = setInterval(async () => {
-        try {
-          const response = await fetch('/api/v1/health', { 
-            method: 'GET',
-            cache: 'no-cache',
-            headers: { 'Cache-Control': 'no-cache' }
-          });
-          if (response.ok) {
-            setIsOnline(true);
-            setShowBanner(false);
-            setRetrying(false);
-          }
-        } catch {
-          // Still offline
-        }
-      }, 5000);
-    }
+      if (!success && !showBanner) {
+        setShowBanner(true);
+        setRetrying(true);
+      } else if (success && showBanner) {
+        setShowBanner(false);
+        setRetrying(false);
+      }
+    }, 10000); // Check every 10 seconds
+
+    // Initial health check
+    checkHealth().then(({ success, latency }) => {
+      const quality = success ? determineQuality(latency) : 'offline';
+      setNetworkState(prev => ({
+        ...prev,
+        isOnline: navigator.onLine && success,
+        quality,
+        lastHealthCheck: Date.now()
+      }));
+    });
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      if (intervalId) clearInterval(intervalId);
+      clearInterval(healthCheckInterval);
     };
-  }, [isOnline, showBanner]);
+  }, [showBanner]);
 
   // Also show banner on fetch failures
   useEffect(() => {
@@ -90,9 +136,64 @@ export function NetworkStatus() {
     };
   }, [showBanner]);
 
-  if (!showBanner) return null;
+  const getQualityIndicator = () => {
+    const baseStyles = {
+      position: 'fixed' as const,
+      top: '12px',
+      right: '12px',
+      width: '12px',
+      height: '12px',
+      borderRadius: '50%',
+      zIndex: 9998,
+      boxShadow: '0 0 0 2px rgba(0,0,0,0.2)'
+    };
+
+    switch (networkState.quality) {
+      case 'good':
+        return (
+          <div
+            style={{
+              ...baseStyles,
+              background: '#10b981',
+              boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.3)'
+            }}
+            title="Connection: Good"
+          />
+        );
+      case 'poor':
+        return (
+          <div
+            style={{
+              ...baseStyles,
+              background: '#f59e0b',
+              boxShadow: '0 0 0 2px rgba(245, 158, 11, 0.3)'
+            }}
+            title="Connection: Poor"
+          />
+        );
+      case 'offline':
+        return (
+          <div
+            style={{
+              ...baseStyles,
+              background: '#ef4444',
+              boxShadow: '0 0 0 2px rgba(239, 68, 68, 0.3)'
+            }}
+            title="Connection: Offline"
+          />
+        );
+    }
+  };
+
+  if (!showBanner) {
+    return getQualityIndicator();
+  }
 
   return (
+    <>
+      {getQualityIndicator()}
+      
+      {/* Banner */}
     <div style={{
       position: 'fixed',
       top: 0,
@@ -119,7 +220,10 @@ export function NetworkStatus() {
           }} />
         )}
         <span>
-          {retrying ? 'Connection lost. Reconnecting...' : 'You appear to be offline'}
+          {retrying 
+            ? `Connection lost. Reconnecting... (attempt ${networkState.reconnectAttempts})`
+            : 'You appear to be offline'
+          }
         </span>
       </div>
       
@@ -129,6 +233,6 @@ export function NetworkStatus() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-    </div>
+    </>
   );
 }

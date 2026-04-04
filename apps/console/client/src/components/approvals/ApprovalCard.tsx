@@ -13,9 +13,11 @@ interface ApprovalCardProps {
   approval: Approval;
   onAction: () => void;
   urgent?: boolean;
+  focused?: boolean;
+  showExpandedDetails?: boolean;
 }
 
-export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCardProps) {
+export function ApprovalCard({ approval, onAction, urgent = false, focused = false, showExpandedDetails = false }: ApprovalCardProps) {
   const user = useAuthStore((state) => state.user);
   const [acting, setActing] = useState(false);
   const [showDenyReason, setShowDenyReason] = useState(false);
@@ -83,14 +85,24 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
     ? Math.floor(approval.time_until_expiry_ms / 1000 / 60) 
     : null;
 
+  const getCardStyles = () => {
+    let baseStyles = 'rounded-lg border p-4 transition-all';
+    
+    if (focused) {
+      baseStyles += ' ring-2 ring-blue-500/50';
+    }
+    
+    if (urgent) {
+      baseStyles += ' bg-amber-950/20 border-amber-500/30';
+    } else {
+      baseStyles += ' bg-neutral-900/50 border-neutral-700/50';
+    }
+    
+    return baseStyles;
+  };
+
   return (
-    <div
-      className={`rounded-lg border p-4 ${
-        urgent
-          ? 'bg-amber-950/20 border-amber-500/30'
-          : 'bg-neutral-900/50 border-neutral-700/50'
-      }`}
-    >
+    <div className={getCardStyles()}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
@@ -144,6 +156,27 @@ export function ApprovalCard({ approval, onAction, urgent = false }: ApprovalCar
           </div>
         )}
       </div>
+
+      {/* Expanded details */}
+      {showExpandedDetails && (
+        <div className="mb-3 p-3 bg-neutral-950/50 rounded border border-neutral-700/30">
+          <h5 className="text-xs font-medium text-neutral-400 mb-2">Additional Details</h5>
+          <div className="space-y-1 text-xs text-neutral-300">
+            <div><span className="text-neutral-500">Plan ID:</span> {approval.plan_id}</div>
+            <div><span className="text-neutral-500">Execution ID:</span> {approval.execution_id}</div>
+            {approval.step_id && <div><span className="text-neutral-500">Step ID:</span> {approval.step_id}</div>}
+            <div><span className="text-neutral-500">Requested by:</span> {approval.requested_by}</div>
+            {approval.metadata && Object.keys(approval.metadata).length > 0 && (
+              <div>
+                <span className="text-neutral-500">Metadata:</span>
+                <pre className="mt-1 p-2 bg-neutral-900 rounded text-xs overflow-x-auto">
+                  {JSON.stringify(approval.metadata, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Error display */}
       {error && (

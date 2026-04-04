@@ -44,7 +44,8 @@ export function useDemoMode(): DemoModeState {
   // Check real agent count
   const checkAgents = useCallback(async () => {
     try {
-      const agents = await apiClient.get<any[]>('/fleet/agents').catch(() => []);
+      const response = await apiClient.get<any[]>('/agents').catch(() => ({ data: [] }));
+      const agents = (response as any)?.data || response || [];
       const realAgents = Array.isArray(agents) ? agents.length : 0;
       
       // If we transition from 0 → 1+ agents, clear the dismissed state

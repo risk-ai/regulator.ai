@@ -24,6 +24,8 @@ import {
   Calculator
 } from "lucide-react";
 import { analytics } from "@/lib/analytics";
+import LeadCaptureModal from "@/components/LeadCaptureModal";
+import FloatingContact from "@/components/FloatingContact";
 
 /* ============================================================
    SCROLL REVEAL ANIMATION
@@ -256,6 +258,9 @@ function ROICalculator() {
 }
 
 export default function EnterprisePage() {
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadCaptureTrigger, setLeadCaptureTrigger] = useState("");
+
   // Track enterprise page view & set document title
   useEffect(() => {
     analytics.ctaClick('navigation', 'enterprise_page_view');
@@ -275,6 +280,15 @@ export default function EnterprisePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-950 via-blue-950/20 to-slate-950 text-white">
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        trigger={leadCaptureTrigger}
+        plan="Enterprise"
+      />
+      {/* Floating Contact Widget */}
+      <FloatingContact />
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -332,6 +346,35 @@ export default function EnterprisePage() {
           </div>
         </div>
       </nav>
+
+      {/* Urgent Enterprise Contact Banner */}
+      <div className="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/30">
+        <div className="max-w-7xl mx-auto px-6 py-4 text-center">
+          <p className="text-sm text-red-300 mb-2">
+            🚨 <strong>Enterprise Demo Request?</strong> We're online now and can demo Vienna OS within the hour.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => {
+                setLeadCaptureTrigger('enterprise_urgent_banner');
+                setShowLeadCapture(true);
+              }}
+              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2 rounded-lg transition shadow-lg hover:shadow-red-500/25"
+            >
+              Schedule Demo Now →
+            </button>
+            <a
+              href="mailto:admin@ai.ventures?subject=Enterprise%20Demo%20Request"
+              className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition"
+            >
+              Email Us Directly
+            </a>
+          </div>
+          <p className="text-xs text-red-400 mt-2">
+            Available 24/7 • Response within 4 hours • Dedicated CSM assigned
+          </p>
+        </div>
+      </div>
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">

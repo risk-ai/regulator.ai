@@ -122,7 +122,7 @@ function LoginScreen({ onLogin }: { onLogin: (user: UserInfo) => void }) {
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       <form onSubmit={handleSubmit} style={{ background: '#111827', border: '1px solid #1f2937', borderRadius: 16, padding: 40, width: 400 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#f9fafb', marginBottom: 8 }}>🛡️ Vienna OS Admin</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#f9fafb', marginBottom: 8 }}> Vienna OS Admin</h1>
         <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 24 }}>regulator.ai management dashboard</p>
         {error && <div style={{ background: '#7f1d1d33', border: '1px solid #991b1b', borderRadius: 8, padding: '8px 12px', marginBottom: 16, color: '#fca5a5', fontSize: 13 }}>{error}</div>}
         <div style={{ marginBottom: 16 }}>
@@ -204,7 +204,7 @@ export default function AdminPage() {
       {/* Header */}
       <header style={{ background: '#111827', borderBottom: '1px solid #1f2937', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 20 }}>🛡️</span>
+          <span style={{ fontSize: 20 }}></span>
           <div>
             <span style={{ fontSize: 16, fontWeight: 700, color: '#f9fafb' }}>Vienna OS</span>
             <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8 }}>Admin Dashboard</span>
@@ -236,7 +236,7 @@ export default function AdminPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {/* System Health */}
-          <Section title="🏥 System Health">
+          <Section title=" System Health">
             <div style={{ display: 'grid', gap: 8 }}>
               {Object.entries(sys).map(([service, status]) => (
                 <div key={service} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #1f2937' }}>
@@ -249,7 +249,7 @@ export default function AdminPage() {
           </Section>
 
           {/* Compliance Overview */}
-          <Section title="📊 Compliance Overview">
+          <Section title=" Compliance Overview">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ padding: 12, background: '#0a0a0f', borderRadius: 8, textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 700, color: '#22c55e' }}>{compliance?.total_actions || 0}</div>
@@ -272,27 +272,27 @@ export default function AdminPage() {
         </div>
 
         {/* Recent Activity */}
-        <Section title="📋 Recent Activity">
+        <Section title=" Recent Activity">
           {bootstrap?.recentActivity && bootstrap.recentActivity.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {bootstrap.recentActivity.slice(0, 15).map((event, i) => {
                 const eventLabels: Record<string, string> = {
-                  operator_login: '🔑 Operator signed in',
-                  user_registered: '👤 New user registered',
-                  proposal_submitted: '📝 Proposal submitted',
-                  policy_evaluated: '🛡️ Policy evaluated',
-                  warrant_issued: '✅ Warrant issued',
-                  execution_completed: '⚡ Execution completed',
+                  operator_login: ' Operator signed in',
+                  user_registered: ' New user registered',
+                  proposal_submitted: ' Proposal submitted',
+                  policy_evaluated: ' Policy evaluated',
+                  warrant_issued: ' Warrant issued',
+                  execution_completed: ' Execution completed',
                   verification_passed: '✓ Verification passed',
-                  proposal_denied: '❌ Proposal denied',
-                  auto_approved: '🟢 Auto-approved',
-                  proposal_auto_approved: '🟢 Auto-approved',
+                  proposal_denied: ' Proposal denied',
+                  auto_approved: ' Auto-approved',
+                  proposal_auto_approved: ' Auto-approved',
                   proposal_pending_review: '⏳ Pending review',
-                  api_key_created: '🔐 API key created',
-                  password_reset_requested: '🔄 Password reset',
+                  api_key_created: ' API key created',
+                  password_reset_requested: ' Password reset',
                   execution_verified: '✓ Execution verified',
                 };
-                const label = eventLabels[event.type] || `📌 ${event.type?.replace(/_/g, ' ')}`;
+                const label = eventLabels[event.type] || `${event.type?.replace(/_/g, ' ')}`;
                 const age = formatAge(event.timestamp);
                 return (
                   <div key={event.id || i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < 14 ? '1px solid #1f2937' : 'none' }}>
@@ -314,17 +314,17 @@ export default function AdminPage() {
         </Section>
 
         {/* Quick Links */}
-        <Section title="🔗 Quick Links">
+        <Section title=" Quick Links">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: 'Operator Console', href: 'https://console.regulator.ai', icon: '🖥️' },
-              { label: 'Marketing Site', href: 'https://regulator.ai', icon: '🌐' },
-              { label: 'API Docs', href: 'https://regulator.ai/docs', icon: '📖' },
-              { label: 'GitHub', href: 'https://github.com/risk-ai/regulator.ai', icon: '🐙' },
-              { label: 'Stripe Dashboard', href: 'https://dashboard.stripe.com', icon: '💳' },
-              { label: 'GA4 Analytics', href: 'https://analytics.google.com/analytics/web/#/p/G-7LZLG0D79N', icon: '📊' },
+              { label: 'Operator Console', href: 'https://console.regulator.ai', icon: '' },
+              { label: 'Marketing Site', href: 'https://regulator.ai', icon: '' },
+              { label: 'API Docs', href: 'https://regulator.ai/docs', icon: '' },
+              { label: 'GitHub', href: 'https://github.com/risk-ai/regulator.ai', icon: '' },
+              { label: 'Stripe Dashboard', href: 'https://dashboard.stripe.com', icon: '' },
+              { label: 'GA4 Analytics', href: 'https://analytics.google.com/analytics/web/#/p/G-7LZLG0D79N', icon: '' },
               { label: 'Vercel', href: 'https://vercel.com/ai-ventures', icon: '▲' },
-              { label: 'Neon DB', href: 'https://console.neon.tech', icon: '🗄️' },
+              { label: 'Neon DB', href: 'https://console.neon.tech', icon: '' },
             ].map(link => (
               <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', background: '#0a0a0f', border: '1px solid #1f2937', borderRadius: 8, textDecoration: 'none', color: '#d1d5db', fontSize: 13, transition: 'border-color 150ms' }}>
@@ -335,7 +335,7 @@ export default function AdminPage() {
         </Section>
 
         {/* Business Metrics */}
-        <Section title="📈 Business Metrics">
+        <Section title=" Business Metrics">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div style={{ padding: 16, background: '#0a0a0f', borderRadius: 8 }}>
               <div style={{ fontSize: 11, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>MRR</div>

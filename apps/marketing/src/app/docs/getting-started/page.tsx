@@ -191,11 +191,11 @@ export default function GettingStartedPage() {
           
           <div className="grid md:grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
-              <h3 className="font-semibold text-violet-400">💬 Slack Approval Bot</h3>
+              <h3 className="font-semibold text-violet-400"> Slack Approval Bot</h3>
               <p className="text-sm text-slate-400">Approve/deny T1+ actions directly from Slack with interactive buttons</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-violet-400">🐙 GitHub Action</h3>
+              <h3 className="font-semibold text-violet-400">GitHub Action</h3>
               <p className="text-sm text-slate-400">Govern CI/CD deployments and releases in your workflows</p>
             </div>
           </div>

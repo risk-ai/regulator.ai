@@ -46,37 +46,37 @@ const contributions = [
   {
     title: "Report Bugs",
     description: "Found something broken? Open an issue on GitHub with reproduction steps.",
-    icon: "🐛",
+    icon: "",
     href: "https://github.com/risk-ai/vienna-os/issues/new?template=bug_report.md",
   },
   {
     title: "Request Features",
     description: "Have an idea for Vienna OS? We'd love to hear it.",
-    icon: "💡",
+    icon: "",
     href: "https://github.com/risk-ai/vienna-os/issues/new?template=feature_request.md",
   },
   {
     title: "Submit a PR",
     description: "Code contributions welcome. Check CONTRIBUTING.md for guidelines.",
-    icon: "🔧",
+    icon: "",
     href: "https://github.com/risk-ai/vienna-os/blob/main/CONTRIBUTING.md",
   },
   {
     title: "Write Documentation",
     description: "Help improve docs, write tutorials, or translate to other languages.",
-    icon: "📝",
+    icon: "",
     href: "https://github.com/risk-ai/vienna-os/tree/main/docs",
   },
   {
     title: "Share Your Use Case",
     description: "Using Vienna OS in production? We'd love to feature your story.",
-    icon: "📣",
+    icon: "",
     href: "mailto:hello@ai.ventures?subject=Vienna%20OS%20Use%20Case",
   },
   {
     title: "Security Reports",
     description: "Found a vulnerability? Report it responsibly via our security policy.",
-    icon: "🔒",
+    icon: "",
     href: "https://github.com/risk-ai/vienna-os/blob/main/SECURITY.md",
   },
 ];

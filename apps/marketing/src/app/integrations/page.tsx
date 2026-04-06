@@ -112,56 +112,56 @@ const notificationAdapters = [
     status: "live" as const,
     desc: "T1/T2 approval requests sent to Slack with interactive buttons. Real-time governance notifications.",
     features: ["Interactive approval buttons", "Execution status notifications", "Policy violation alerts", "Color-coded risk tiers"],
-    icon: "💬",
+    icon: "",
   },
   {
     name: "GitHub",
     status: "live" as const,
     desc: "Governed deployments with warrant metadata. PR status checks and audit trail comments.",
     features: ["Deployment governance", "PR status checks", "Audit trail comments", "Warrant-gated merges"],
-    icon: "🔄",
+    icon: "",
   },
   {
     name: "Email",
     status: "live" as const,
     desc: "Approval request emails, execution notifications, and daily governance digest.",
     features: ["Approval request emails", "Execution notifications", "Daily digest reports", "One-click console links"],
-    icon: "📧",
+    icon: "",
   },
   {
     name: "Webhooks",
     status: "live" as const,
     desc: "Generic webhook endpoints for custom integrations and external monitoring.",
     features: ["Custom event handlers", "HMAC signature verification", "Retry with backoff", "Event filtering"],
-    icon: "🔗",
+    icon: "",
   },
   {
     name: "Stripe Billing",
     status: "live" as const,
     desc: "Usage-based metered billing for agent executions. Team $49/mo, Business $99/mo pricing tiers.",
     features: ["Metered billing by execution", "Multi-tier pricing", "Invoice automation", "Usage analytics"],
-    icon: "💳",
+    icon: "",
   },
   {
     name: "Sentry Monitoring",
     status: "live" as const,
     desc: "Error tracking and performance monitoring for the Vienna OS governance pipeline.",
     features: ["Real-time error tracking", "Performance monitoring", "Alert integration", "Debug context"],
-    icon: "🔍",
+    icon: "",
   },
   {
     name: "Google Analytics",
     status: "live" as const,
     desc: "GA4 analytics integration for console usage tracking and governance metrics.",
     features: ["Console usage tracking", "Governance metrics", "Custom events", "User journey analysis"],
-    icon: "📊",
+    icon: "",
   },
   {
     name: "Docker Self-hosting",
     status: "live" as const,
     desc: "Community tier supports self-hosted Docker deployments with full governance capabilities.",
     features: ["Docker container support", "Self-hosted deployment", "Community tier included", "Air-gapped capable"],
-    icon: "🐳",
+    icon: "",
   },
 ];
 
@@ -401,12 +401,12 @@ if (result.status === 'pending_approval') {
   const approval = await vienna.approvals.wait(result.approvalId, {
     timeoutMs: 300_000 // 5 minutes
   });
-  console.log(\`✅ Approved by \${approval.approver}\`);
+  console.log(\` Approved by \${approval.approver}\`);
 }
 
 // Check execution result
-console.log(\`🔒 Warrant: \${result.warrant.warrantId}\`);
-console.log(\`✨ Result: \${result.executionResult}\`);`}
+console.log(\` Warrant: \${result.warrant.warrantId}\`);
+console.log(\` Result: \${result.executionResult}\`);`}
               </CodeBlock>
             </div>
           </ScrollReveal>

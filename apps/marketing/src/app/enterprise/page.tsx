@@ -180,7 +180,7 @@ const comparisonData = [
   },
   {
     feature: "Professional services",
-    business: "❌",
+    business: "",
     enterprise: "Included"
   }
 ];

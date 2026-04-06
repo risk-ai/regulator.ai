@@ -401,7 +401,7 @@ export default function PricingPage() {
         <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-b border-purple-500/30">
           <div className="max-w-7xl mx-auto px-6 py-3 text-center">
             <p className="text-sm text-purple-300">
-              👋 Welcome back! We noticed your interest in Vienna OS. 
+              Welcome back! We noticed your interest in Vienna OS. 
               <button
                 onClick={() => {
                   setLeadCaptureTrigger('returning_visitor');

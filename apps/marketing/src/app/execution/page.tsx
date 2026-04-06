@@ -222,13 +222,13 @@ export default function ExecutionPage() {
             {/* Pipeline Steps */}
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-12">
               {[
-                { icon: "🤖", label: "Intent", desc: "Agent submits action request" },
-                { icon: "📋", label: "Policy", desc: "Rules engine evaluates" },
-                { icon: "🎯", label: "Risk Tier", desc: "T0/T1/T2/T3 classification" },
-                { icon: "✅", label: "Approval", desc: "Multi-party if T2/T3" },
-                { icon: "📜", label: "Warrant", desc: "Cryptographic authorization" },
-                { icon: "⚡", label: "Execute", desc: "Vienna or Agent" },
-                { icon: "🔍", label: "Verify", desc: "Post-execution audit" }
+                { icon: "", label: "Intent", desc: "Agent submits action request" },
+                { icon: "", label: "Policy", desc: "Rules engine evaluates" },
+                { icon: "", label: "Risk Tier", desc: "T0/T1/T2/T3 classification" },
+                { icon: "", label: "Approval", desc: "Multi-party if T2/T3" },
+                { icon: "", label: "Warrant", desc: "Cryptographic authorization" },
+                { icon: "", label: "Execute", desc: "Vienna or Agent" },
+                { icon: "", label: "Verify", desc: "Post-execution audit" }
               ].map((step, i) => (
                 <div key={step.label} className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-700 rounded-xl flex items-center justify-center text-2xl">

@@ -34,7 +34,7 @@ export default async function Image() {
               fontSize: "24px",
             }}
           >
-            🛡️
+            
           </div>
           <span style={{ color: "#A78BFA", fontSize: "20px", fontWeight: 600 }}>
             Vienna OS

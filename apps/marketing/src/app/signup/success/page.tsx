@@ -73,7 +73,7 @@ function SuccessContent() {
 
         {/* Headline */}
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-          🎉 Welcome to Vienna OS!
+           Welcome to Vienna OS!
         </h1>
         
         <p className="text-xl text-slate-400 mb-8 leading-relaxed">
@@ -84,7 +84,7 @@ function SuccessContent() {
         {/* What's Next Section */}
         <div className="bg-navy-800 border border-navy-700 rounded-2xl p-8 mb-8 text-left">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">
-            🚀 What&apos;s Next?
+             What&apos;s Next?
           </h2>
           
           <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -180,7 +180,7 @@ function SuccessContent() {
         {/* Email Confirmation */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-white mb-3">
-            📧 Check Your Email
+             Check Your Email
           </h3>
           <p className="text-sm text-slate-400 leading-relaxed">
             We&apos;ve sent you a welcome email with personalized next steps, 
@@ -198,7 +198,7 @@ function SuccessContent() {
         {/* Follow-Up Sequence Preview */}
         <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-800/30 rounded-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-white mb-4">
-            📚 Your Learning Journey
+            Your Learning Journey
           </h3>
           <div className="grid sm:grid-cols-3 gap-4 text-sm">
             <div className="text-center">

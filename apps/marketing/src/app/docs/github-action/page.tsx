@@ -122,13 +122,13 @@ jobs:
 
         <p>The Vienna OS GitHub Action can return different governance modes:</p>
 
-        <h3>✅ Allowed</h3>
+        <h3> Allowed</h3>
         <p>The action is approved and the workflow continues normally.</p>
 
         <h3>⏳ Approval Required</h3>
         <p>The action requires manual approval. The workflow will fail with a warning message containing an approval ID. Check your Vienna OS console or Slack for approval options.</p>
 
-        <h3>🚨 Blocked</h3>
+        <h3> Blocked</h3>
         <p>The action is blocked by governance policies. The workflow fails with an error message.</p>
 
         <h2>Advanced Examples</h2>

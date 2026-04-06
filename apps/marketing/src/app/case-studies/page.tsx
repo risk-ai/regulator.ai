@@ -84,7 +84,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["FIX Protocol", "Bloomberg Terminal", "Risk Management Systems", "Trade Surveillance"],
       timeline: "6-8 weeks implementation + regulatory review"
     },
-    icon: "🏦",
+    icon: "",
     color: "blue",
     featured: true
   },
@@ -139,7 +139,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["Epic EHR", "Cerner", "HL7 FHIR", "Medical Imaging", "Insurance Systems"],
       timeline: "8-10 weeks implementation + HIPAA audit"
     },
-    icon: "🏥",
+    icon: "",
     color: "green"
   },
   {
@@ -193,7 +193,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["iManage", "NetDocuments", "Westlaw", "LexisNexis", "Court Filing Systems"],
       timeline: "10-12 weeks implementation + bar association review"
     },
-    icon: "⚖️",
+    icon: "",
     color: "purple"
   },
   {
@@ -247,7 +247,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["Kubernetes", "Jenkins", "GitLab CI", "Monitoring Tools", "Incident Management"],
       timeline: "4-6 weeks implementation + performance testing"
     },
-    icon: "🚀",
+    icon: "",
     color: "orange",
     featured: true
   }
@@ -331,10 +331,10 @@ export default function UseCasesPage() {
                     : "text-warm-500 hover:text-warm-300"
                 }`}
               >
-                {tab === "overview" && "📋 "}
-                {tab === "implementation" && "⚙️ "}
-                {tab === "workflow" && "🔄 "}
-                {tab === "technical" && "🔧 "}
+                {tab === "overview" && "Overview "}
+                {tab === "implementation" && "Implementation "}
+                {tab === "workflow" && "Workflow "}
+                {tab === "technical" && "Technical "}
                 {tab}
               </button>
             ))}

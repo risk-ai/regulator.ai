@@ -81,7 +81,7 @@ function MarkdownContent({ content }: { content: string }) {
         }
 
         // Lists (bullet)
-        if (/^[-*✅❌⚠️]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
+        if (/^[-*!]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
           const items = trimmed.split("\n").filter((l) => l.trim());
           return (
             <ul key={i} className="space-y-2 my-4 text-slate-300">

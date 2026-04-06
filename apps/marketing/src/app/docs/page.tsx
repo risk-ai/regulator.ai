@@ -780,13 +780,13 @@ headers = {
   }
 
   if (data.data.status === "executed") {
-    console.log(\`✅ Executed: \${data.data.execution_id}\`);
-    console.log(\`🔒 Warrant: \${data.data.warrant.warrant_id}\`);
+    console.log(\` Executed: \${data.data.execution_id}\`);
+    console.log(\` Warrant: \${data.data.warrant.warrant_id}\`);
     return data.data;
   }
 
   if (data.data.status === "denied") {
-    console.log(\`❌ Denied by policy: \${data.data.reason}\`);
+    console.log(\` Denied by policy: \${data.data.reason}\`);
     throw new Error(data.data.reason);
   }
 }
@@ -815,12 +815,12 @@ def submit_intent(action: str, parameters: dict) -> dict:
 
     match data["data"]["status"]:
         case "executed":
-            print(f"✅ Executed: {data['data']['execution_id']}")
-            print(f"🔒 Warrant: {data['data']['warrant']['warrant_id']}")
+            print(f" Executed: {data['data']['execution_id']}")
+            print(f" Warrant: {data['data']['warrant']['warrant_id']}")
         case "pending_approval":
             print(f"⏳ Awaiting approval: {data['data']['approval']['approval_id']}")
         case "denied":
-            raise RuntimeError(f"❌ Denied: {data['data']['reason']}")
+            raise RuntimeError(f" Denied: {data['data']['reason']}")
 
     return data["data"]
 
@@ -2478,7 +2478,7 @@ async function governedAction(
 
   switch (intent.status) {
     case "executed":
-      console.log(\`✅ \${action} executed (warrant: \${intent.warrant.warrant_id})\`);
+      console.log(\` \${action} executed (warrant: \${intent.warrant.warrant_id})\`);
       return intent.result;
 
     case "pending_approval":
@@ -2490,7 +2490,7 @@ async function governedAction(
       });
 
     case "denied":
-      throw new Error(\`❌ \${action} denied: \${intent.reason}\`);
+      throw new Error(\` \${action} denied: \${intent.reason}\`);
 
     default:
       throw new Error(\`Unexpected status: \${intent.status}\`);
@@ -3049,10 +3049,10 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
           <H3 id="wdd-industry">Industry Use Cases</H3>
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {[
-              { icon: "🏦", title: "Financial Services", desc: "Wire transfer warrants constrain amount, recipient, currency. Multi-party T2 approval for high-value. 60-second TTL on execution. Post-verification confirms exact amount transferred." },
-              { icon: "🏥", title: "Healthcare", desc: "PHI access warrants scope to specific patient ID and data fields. HIPAA-compliant audit trail. 30-second TTL. Verification confirms only authorized fields were accessed." },
-              { icon: "⚖️", title: "Legal", desc: "Court filing warrants constrain to specific case number, document type, and filing deadline. Dual attorney-supervisor approval. Verification confirms correct court and case." },
-              { icon: "🚀", title: "DevOps", desc: "Deploy warrants scope to specific service, environment, and version. Rollback constraints enabled. After-hours escalation. Verification confirms deployment target matched." },
+              { icon: "", title: "Financial Services", desc: "Wire transfer warrants constrain amount, recipient, currency. Multi-party T2 approval for high-value. 60-second TTL on execution. Post-verification confirms exact amount transferred." },
+              { icon: "", title: "Healthcare", desc: "PHI access warrants scope to specific patient ID and data fields. HIPAA-compliant audit trail. 30-second TTL. Verification confirms only authorized fields were accessed." },
+              { icon: "", title: "Legal", desc: "Court filing warrants constrain to specific case number, document type, and filing deadline. Dual attorney-supervisor approval. Verification confirms correct court and case." },
+              { icon: "", title: "DevOps", desc: "Deploy warrants scope to specific service, environment, and version. Rollback constraints enabled. After-hours escalation. Verification confirms deployment target matched." },
             ].map((uc) => (
               <div key={uc.title} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
                 <div className="text-2xl mb-2">{uc.icon}</div>

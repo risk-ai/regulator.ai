@@ -1279,7 +1279,7 @@ export default function Home() {
                 
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                    <span className="text-2xl">🏢</span>
+                    <span className="text-2xl text-slate-400 font-bold">Co</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">Vienna Direct</h3>
@@ -1494,7 +1494,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-6">
             <ScrollReveal>
               <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-8">
-                <div className="text-xs text-red-400 font-bold uppercase tracking-wider mb-4">❌ Without Vienna OS</div>
+                <div className="text-xs text-red-400 font-bold uppercase tracking-wider mb-4">Without Vienna OS</div>
                 <div className="space-y-4 font-mono text-sm">
                   <div className="flex items-center gap-3 text-slate-400">
                     <span className="text-red-400">→</span>
@@ -1819,7 +1819,7 @@ export default function Home() {
                   © 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.
                 </span>
                 <div className="flex items-center gap-6 text-sm text-slate-500">
-                  <span>Built with ❤️ for AI governance</span>
+                  <span>Built for AI governance</span>
                   <span className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     All systems operational
@@ -1865,7 +1865,7 @@ function HowItWorksDemo() {
       code: `// Policy evaluation
 risk_tier: T2 (production deploy)
 compliance: SOX, SOC2 ✓
-time_window: after_hours ❌
+time_window: after_hours 
 → requires human approval`,
       color: "purple"
     },
@@ -1874,7 +1874,7 @@ time_window: after_hours ❌
       title: "Operator approves",
       description: "T2 requires human approval",
       detail: "Multi-party approval workflow triggered for high-risk production deployment",
-      icon: "👤",
+      icon: "",
       code: `// Approval workflow
 approver_1: jane@company.com ✓
 approver_2: mike@company.com ✓

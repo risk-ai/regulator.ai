@@ -80,7 +80,7 @@ interface PipelineResult {
 const scenarios = [
   {
     id: "wire_transfer",
-    icon: "💸",
+    icon: "",
     label: "Wire Transfer ($75K)",
     desc: "Financial agent requests $75,000 wire transfer. Multi-party T2 approval required.",
     tier: "T2",
@@ -91,7 +91,7 @@ const scenarios = [
   },
   {
     id: "production_deploy",
-    icon: "🚀",
+    icon: "",
     label: "Production Deploy",
     desc: "DevOps agent deploys to production. After-hours check + rollback constraint.",
     tier: "T1",
@@ -102,7 +102,7 @@ const scenarios = [
   },
   {
     id: "patient_record",
-    icon: "🏥",
+    icon: "",
     label: "Patient Record Update",
     desc: "Healthcare agent updates PHI. HIPAA scoping with 60-second TTL warrant.",
     tier: "T1",
@@ -113,7 +113,7 @@ const scenarios = [
   },
   {
     id: "denied_scope_creep",
-    icon: "🚫",
+    icon: "",
     label: "Denied — Scope Creep",
     desc: "Agent tries to access resources outside its scope. Policy engine blocks it.",
     tier: "DENY",
@@ -124,7 +124,7 @@ const scenarios = [
   },
   {
     id: "auto_approved_read",
-    icon: "⚡",
+    icon: "",
     label: "Auto-Approved Read",
     desc: "Read-only data query. Full pipeline in <50ms with T0 auto-approval.",
     tier: "T0",
@@ -135,7 +135,7 @@ const scenarios = [
   },
   {
     id: "ai_model_training",
-    icon: "🧠",
+    icon: "",
     label: "AI Model Training",
     desc: "ML agent trains new model on customer data. Privacy constraints + resource limits.",
     tier: "T2",
@@ -168,7 +168,7 @@ const scenarios = [
   },
   {
     id: "custom",
-    icon: "🔄",
+    icon: "",
     label: "Custom Action",
     desc: "Define your own action and see how the governance engine evaluates it.",
     tier: "?",
@@ -190,14 +190,14 @@ const tierColors: Record<string, { text: string; bg: string; border: string }> =
 };
 
 const stepIcons: Record<string, string> = {
-  intent_received: "📨",
-  policy_engine: "📋",
-  risk_assessment: "⚖️",
-  approval_gate: "🔐",
-  warrant_issued: "📜",
-  execution: "⚡",
-  verification: "✅",
-  audit_logged: "📒",
+  intent_received: "→",
+  policy_engine: "P",
+  risk_assessment: "R",
+  approval_gate: "A",
+  warrant_issued: "W",
+  execution: "E",
+  verification: "V",
+  audit_logged: "L",
 };
 
 /* ─── Component ─── */
@@ -428,20 +428,20 @@ export default function TryPage() {
           
           <div className="flex items-center gap-6 text-xs text-warm-600">
             <div className="flex items-center gap-2">
-              <span className="font-mono">⚡</span>
+              <span className="v-status-dot v-status-warning"></span>
               <span>Real-time simulation</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono">🔒</span>
+              <span className="v-status-dot v-status-success"></span>
               <span>Production-grade logic</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono">📋</span>
+              <span className="v-status-dot v-status-info"></span>
               <span>Full audit trail</span>
             </div>
             {result && (
               <div className="flex items-center gap-2">
-                <span className="font-mono">⏱️</span>
+                <span className="v-status-dot v-status-warning"></span>
                 <span>{result.total_duration_ms}ms total</span>
               </div>
             )}
@@ -456,9 +456,9 @@ export default function TryPage() {
               <h4 className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">Demo Mode</h4>
               <div className="grid grid-cols-1 gap-1.5">
                 {[
-                  { id: 'scenarios', label: '🎬 Scenarios', desc: 'Pre-built examples' },
-                  { id: 'tier_picker', label: '⚖️ Risk Tiers', desc: 'Pick T0/T1/T2/T3' },
-                  { id: 'warrant_builder', label: '📜 Warrant Flow', desc: 'Interactive creation' },
+                  { id: 'scenarios', label: 'Scenarios', desc: 'Pre-built examples' },
+                  { id: 'tier_picker', label: 'Risk Tiers', desc: 'Pick T0/T1/T2/T3' },
+                  { id: 'warrant_builder', label: 'Warrant Flow', desc: 'Interactive creation' },
                 ].map((mode) => (
                   <button
                     key={mode.id}
@@ -602,7 +602,7 @@ export default function TryPage() {
                     }}
                     className="w-full mt-3 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                   >
-                    {showWarrantBuilder ? '🔄 Reset Flow' : '▶️ Start Warrant Flow'}
+                    {showWarrantBuilder ? 'Reset Flow' : 'Start Warrant Flow'}
                   </button>
                 </div>
               </div>
@@ -790,7 +790,7 @@ export default function TryPage() {
                   </>
                 ) : (
                   <>
-                    🎬 Run All Scenarios
+                    Run All Scenarios
                   </>
                 )}
               </button>
@@ -818,13 +818,13 @@ export default function TryPage() {
                     } ${tab === "warrant" && !result.warrant ? "opacity-40 cursor-not-allowed" : ""}`}
                     disabled={tab === "warrant" && !result.warrant}
                   >
-                    {tab === "pipeline" && "🔗 "}
-                    {tab === "warrant" && "📜 "}
-                    {tab === "chain" && "⛓️ "}
-                    {tab === "trust" && "🛡️ "}
-                    {tab === "ows" && "🔑 "}
-                    {tab === "audit" && "📒 "}
-                    {tab === "policies" && "📋 "}
+                    {tab === "pipeline" && "Pipeline "}
+                    {tab === "warrant" && "Warrant "}
+                    {tab === "chain" && "Chain "}
+                    {tab === "trust" && "Trust "}
+                    {tab === "ows" && "OWS "}
+                    {tab === "audit" && "Audit "}
+                    {tab === "policies" && "Policies "}
                     {tab}
                   </button>
                 ))}
@@ -872,7 +872,7 @@ export default function TryPage() {
                             <div key={step} className="flex items-center">
                               <div className="bg-navy-900/50 border border-navy-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300 min-w-[100px]">
                                 <div className="text-xl mb-1">
-                                  {["📨", "📋", "⚖️", "🔐", "📜", "⚡", "✅", "📒"][i]}
+                                  {['I','P','R','A','W','E','V','L'][i]}
                                 </div>
                                 <div className="text-xs text-warm-400 font-medium leading-tight">{step}</div>
                                 <div className="text-[10px] text-warm-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -889,14 +889,14 @@ export default function TryPage() {
                       
                       <div className="bg-navy-900/30 border border-navy-700/30 rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
-                          <span className="text-sm text-gold-400 font-medium">💡 Try these scenarios:</span>
+                          <span className="text-sm text-gold-400 font-medium">Try these scenarios:</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {[
-                            "🚀 Production deployment (T1 approval needed)",
-                            "💸 Large wire transfer (T2 multi-party approval)",
-                            "🏥 Patient record update (HIPAA compliant)", 
-                            "⚡ Read-only query (T0 auto-approved)"
+                            "Production deployment (T1 approval needed)",
+                            "Large wire transfer (T2 multi-party approval)",
+                            "Patient record update (HIPAA compliant)", 
+                            "Read-only query (T0 auto-approved)"
                           ].map((suggestion) => (
                             <div key={suggestion} className="text-xs text-warm-500 bg-navy-800/50 rounded px-3 py-2 border border-navy-700/30">
                               {suggestion}
@@ -920,7 +920,7 @@ export default function TryPage() {
                             tier: 'T0',
                             label: 'Auto-Approved',
                             color: 'emerald',
-                            icon: '⚡',
+                            icon: '',
                             description: 'Read-only operations with no external impact',
                             examples: ['Database queries', 'Log analysis', 'Web search'],
                             timing: '< 50ms',
@@ -930,7 +930,7 @@ export default function TryPage() {
                             tier: 'T1', 
                             label: 'Policy Approved',
                             color: 'blue',
-                            icon: '📋',
+                            icon: '',
                             description: 'Low-risk operations governed by policies',
                             examples: ['Internal notifications', 'Report generation', 'Config updates'],
                             timing: '100-500ms',
@@ -1031,8 +1031,8 @@ export default function TryPage() {
 
                           <div className="border-t border-navy-700/30 pt-4">
                             <div className="text-xs text-warm-600 space-y-1">
-                              <div>🔐 Warrant ID: warrant_2024{Date.now().toString().slice(-6)}</div>
-                              <div>⚖️ Risk Tier: {selectedScenario.tier}</div>
+                              <div>Warrant ID: warrant_2024{Date.now().toString().slice(-6)}</div>
+                              <div>Risk Tier: {selectedScenario.tier}</div>
                               <div>👤 Approver: {selectedScenario.tier === 'T0' ? 'Auto-system' : selectedScenario.tier === 'T1' ? 'Policy Engine' : 'Human Required'}</div>
                             </div>
                           </div>
@@ -1104,7 +1104,7 @@ export default function TryPage() {
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">
-                        {result.outcome === "denied" ? "🛑" : result.outcome === "auto-approved" ? "⚡" : "✅"}
+                        {result.outcome === "denied" ? "✗" : result.outcome === "auto-approved" ? "→" : "✓"}
                       </span>
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -1122,7 +1122,7 @@ export default function TryPage() {
                                 ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
                                 : "bg-purple-400/10 text-purple-400 border border-purple-400/20"
                             }`}>
-                              {result.execution_mode === "vienna_direct" ? "⚡ Vienna Direct" : "🔄 Agent Passback"}
+                              {result.execution_mode === "vienna_direct" ? "Vienna Direct" : "Agent Passback"}
                             </span>
                           )}
                         </div>
@@ -1283,7 +1283,7 @@ export default function TryPage() {
                 {/* Warrant header */}
                 <div className="bg-gold-400/5 border-b border-gold-400/10 px-5 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">📜</span>
+                    <span className="text-xl font-mono text-gold-400">W</span>
                     <div>
                       <h3 className="text-white font-semibold text-sm">Cryptographic Warrant</h3>
                       <p className="text-[11px] font-mono text-warm-500">{result.warrant.warrant_id}</p>
@@ -1358,7 +1358,7 @@ export default function TryPage() {
               <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
                 <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span>📒</span>
+                    <span className="v-status-dot v-status-success" />
                     <h3 className="text-white font-semibold text-sm">Immutable Audit Trail</h3>
                   </div>
                   <span className="text-[10px] font-mono text-warm-600 bg-navy-900 px-2 py-1 rounded">
@@ -1383,7 +1383,7 @@ export default function TryPage() {
                         </span>
                       </div>
                       <p className="text-xs text-warm-400 flex-1">{entry.detail}</p>
-                      <span className="text-[9px] text-warm-700 flex-shrink-0" title="Immutable entry">🔒</span>
+                      <span className="text-[9px] text-warm-700 flex-shrink-0" title="Immutable entry">●</span>
                     </div>
                   ))}
                 </div>
@@ -1396,7 +1396,7 @@ export default function TryPage() {
                 <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
                   <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>📋</span>
+                      <span className="v-status-dot v-status-info" />
                       <h3 className="text-white font-semibold text-sm">Policy Rules Evaluated</h3>
                     </div>
                     <span className="text-[10px] font-mono text-warm-600">
@@ -1407,7 +1407,7 @@ export default function TryPage() {
                     {result.policy_rules.map((rule) => (
                       <div key={rule.rule_id} className={`px-5 py-3 flex items-start gap-3 ${rule.matched ? "" : "opacity-50"}`}>
                         <span className="mt-0.5 text-sm flex-shrink-0">
-                          {rule.matched ? (rule.result?.startsWith("DENIED") || rule.result?.startsWith("VIOLATION") ? "🔴" : "🟢") : "⚪"}
+                          {rule.matched ? (rule.result?.startsWith('DENIED') || rule.result?.startsWith('VIOLATION') ? '✗' : '✓') : '—'}
                         </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
@@ -1448,7 +1448,7 @@ export default function TryPage() {
                 <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
                   <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>⛓️</span>
+                      <span className="v-status-dot v-status-success" />
                       <h3 className="text-white font-semibold text-sm">Merkle Warrant Chain</h3>
                     </div>
                     <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain.chain_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -1497,7 +1497,7 @@ export default function TryPage() {
                     </div>
 
                     <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
-                      <div className="text-xs text-purple-300 font-medium mb-1">💡 Why this matters</div>
+                      <div className="text-xs text-purple-300 font-medium mb-1">Why this matters</div>
                       <p className="text-[11px] text-warm-400 leading-relaxed">
                         A SOC 2 auditor can verify this entire governance chain without accessing your Vienna OS instance. 
                         They only need the Merkle proof — the math proves integrity. No trust required.
@@ -1514,7 +1514,7 @@ export default function TryPage() {
                 <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
                   <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>🛡️</span>
+                      <span className="v-status-dot v-status-info" />
                       <h3 className="text-white font-semibold text-sm">Agent Trust Score</h3>
                     </div>
                     <span className="text-sm font-mono text-warm-400">{result.trust_score.agent_id}</span>
@@ -1552,7 +1552,7 @@ export default function TryPage() {
 
                     {/* Recommendation */}
                     <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
-                      <div className="text-xs text-blue-300 font-medium mb-1">📊 Governance Recommendation</div>
+                      <div className="text-xs text-blue-300 font-medium mb-1">Governance Recommendation</div>
                       <p className="text-xs text-warm-400">{result.trust_score.recommendation}</p>
                     </div>
                   </div>
@@ -1566,7 +1566,7 @@ export default function TryPage() {
                 <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
                   <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span>🔑</span>
+                      <span className="v-status-dot v-status-warning" />
                       <h3 className="text-white font-semibold text-sm">Open Warrant Standard Token</h3>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300">OWS v1.0</span>
@@ -1618,7 +1618,7 @@ export default function TryPage() {
                     })()}
 
                     <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
-                      <div className="text-xs text-violet-300 font-medium mb-1">🌐 Interoperable</div>
+                      <div className="text-xs text-violet-300 font-medium mb-1">Interoperable</div>
                       <p className="text-[11px] text-warm-400 leading-relaxed">
                         Share this token with any system that implements the Open Warrant Standard. 
                         They can verify the agent&apos;s authorization without calling Vienna OS.
@@ -1634,7 +1634,7 @@ export default function TryPage() {
             {result && activeTab === "warrant" && result.delegation && (
               <div className="mt-3 bg-purple-500/5 border border-purple-500/20 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span>🔀</span>
+                  <span className="v-status-dot v-status-info" />
                   <h4 className="text-sm font-semibold text-purple-300">Warrant Delegation</h4>
                 </div>
                 <p className="text-xs text-warm-400 mb-3">
@@ -1668,10 +1668,10 @@ export default function TryPage() {
                   <div>
                     <p className={`text-sm font-medium mb-1 ${result.outcome === "denied" ? "text-red-400" : "text-gold-400"}`}>
                       {result.outcome === "denied"
-                        ? "🛑 That action was blocked by the governance pipeline"
+                        ? "That action was blocked by the governance pipeline"
                         : result.outcome === "auto-approved"
-                        ? "⚡ Full pipeline in " + result.total_duration_ms + "ms — zero human latency"
-                        : "✅ Full governance pipeline completed in " + result.total_duration_ms + "ms"
+                        ? "Full pipeline in " + result.total_duration_ms + "ms — zero human latency"
+                        : "Full governance pipeline completed in " + result.total_duration_ms + "ms"
                       }
                     </p>
                     <p className="text-xs text-warm-500">

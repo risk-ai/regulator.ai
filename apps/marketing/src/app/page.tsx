@@ -982,20 +982,11 @@ export default function Home() {
               <h3 className="text-2xl font-bold text-white mb-8">Integrate everywhere</h3>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 {[
-                  { label: "Node.js SDK", icon: "📦" },
-                  { label: "Python SDK", icon: "🐍" },
-                  { label: "GitHub Action", icon: "⚡" },
-                  { label: "Terraform", icon: "🏗️" },
-                  { label: "LangChain", icon: "🦜" },
-                  { label: "CrewAI", icon: "🤖" },
-                  { label: "AutoGen", icon: "🔄" },
-                  { label: "Slack", icon: "💬" },
-                  { label: "REST API", icon: "🔗" },
-                  { label: "Docker", icon: "🐳" },
-                ].map((int) => (
-                  <div key={int.label} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-sm text-slate-300">
-                    <span>{int.icon}</span>
-                    <span>{int.label}</span>
+                  "Node.js SDK", "Python SDK", "GitHub Action", "Terraform",
+                  "LangChain", "CrewAI", "AutoGen", "Slack", "REST API", "Docker",
+                ].map((label) => (
+                  <div key={label} className="bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-sm text-slate-300 font-medium">
+                    {label}
                   </div>
                 ))}
               </div>
@@ -1034,10 +1025,10 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: "🏦", title: "Financial Services", desc: "Wire transfers, trading, underwriting. SEC compliance, SOX audit trails. T2 multi-party approval for high-value transactions.", reg: "SEC · SOX · FINRA", gradient: "from-blue-500/10 to-blue-600/5", border: "border-blue-500/20", accentBar: "bg-gradient-to-r from-blue-500 to-blue-400" },
-              { icon: "🏥", title: "Healthcare", desc: "Patient record updates, clinical decisions, billing. HIPAA-scoped warrants with PHI constraints and 7-year retention.", reg: "HIPAA · HITECH", gradient: "from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20", accentBar: "bg-gradient-to-r from-emerald-500 to-emerald-400" },
-              { icon: "⚖️", title: "Legal", desc: "Court filings, document review, client communications. Attorney-supervisor dual approval for external submissions.", reg: "ABA Rules · Court reqs", gradient: "from-purple-500/10 to-purple-600/5", border: "border-purple-500/20", accentBar: "bg-gradient-to-r from-purple-500 to-purple-400" },
-              { icon: "🏛️", title: "Government", desc: "Federal AI mandates, classified system governance. Air-gapped deployment option. FedRAMP path.", reg: "NIST AI RMF · FedRAMP", gradient: "from-amber-500/10 to-amber-600/5", border: "border-amber-500/20", accentBar: "bg-gradient-to-r from-amber-500 to-amber-400" },
+              { icon: "", title: "Financial Services", desc: "Wire transfers, trading, underwriting. SEC compliance, SOX audit trails. T2 multi-party approval for high-value transactions.", reg: "SEC · SOX · FINRA", gradient: "from-blue-500/10 to-blue-600/5", border: "border-blue-500/20", accentBar: "bg-gradient-to-r from-blue-500 to-blue-400" },
+              { icon: "", title: "Healthcare", desc: "Patient record updates, clinical decisions, billing. HIPAA-scoped warrants with PHI constraints and 7-year retention.", reg: "HIPAA · HITECH", gradient: "from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20", accentBar: "bg-gradient-to-r from-emerald-500 to-emerald-400" },
+              { icon: "", title: "Legal", desc: "Court filings, document review, client communications. Attorney-supervisor dual approval for external submissions.", reg: "ABA Rules · Court reqs", gradient: "from-purple-500/10 to-purple-600/5", border: "border-purple-500/20", accentBar: "bg-gradient-to-r from-purple-500 to-purple-400" },
+              { icon: "", title: "Government", desc: "Federal AI mandates, classified system governance. Air-gapped deployment option. FedRAMP path.", reg: "NIST AI RMF · FedRAMP", gradient: "from-amber-500/10 to-amber-600/5", border: "border-amber-500/20", accentBar: "bg-gradient-to-r from-amber-500 to-amber-400" },
             ].map((ind, i) => (
               <ScrollReveal key={ind.title} delay={i * 0.1}>
                 <div className={`bg-gradient-to-br ${ind.gradient} border ${ind.border} rounded-xl p-6 card-hover relative overflow-hidden backdrop-blur-sm group hover:scale-105 hover:shadow-2xl transition-all duration-300`}>
@@ -1095,7 +1086,7 @@ export default function Home() {
           {[
             {
               industry: "Financial Services",
-              icon: "🏦",
+              icon: "",
               title: "Trading & Risk Management",
               details: "Algorithmic trading agents operating under strict regulatory oversight. Multi-party approval workflows for high-value transactions, complete SOX audit trails, and automated risk tier classification based on trade size and market conditions.",
               capabilities: [
@@ -1113,7 +1104,7 @@ export default function Home() {
             },
             {
               industry: "Healthcare",
-              icon: "🏥",
+              icon: "",
               title: "Patient Care & Records",
               details: "HIPAA-compliant AI agent operations for patient record updates, insurance processing, and clinical decision support. PHI-scoped warrants ensure data access is limited and auditable for 7-year retention requirements.",
               capabilities: [
@@ -1131,7 +1122,7 @@ export default function Home() {
             },
             {
               industry: "Legal",
-              icon: "⚖️",
+              icon: "",
               title: "Document Review & Filing",
               details: "Attorney-supervised AI paralegal operations for document review, legal research, and client communications. Bar association compliance through mandatory attorney oversight for all external communications and filings.",
               capabilities: [
@@ -1149,7 +1140,7 @@ export default function Home() {
             },
             {
               industry: "DevOps",
-              icon: "🚀",
+              icon: "",
               title: "Deployment & Infrastructure",
               details: "Zero-trust deployment pipeline with warrant-based releases. Environment-tiered approvals ensure production safety while maintaining deployment velocity. Automatic rollback capabilities and canary deployment controls.",
               capabilities: [
@@ -1344,7 +1335,7 @@ export default function Home() {
                 
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                    <span className="text-2xl">🤖</span>
+                    <span className="text-2xl text-purple-400">AI</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white">Agent Passback</h3>
@@ -1431,7 +1422,7 @@ export default function Home() {
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-px h-4 bg-slate-500" />
                   <div className="bg-purple-500/15 border border-purple-500/30 rounded-lg px-4 py-2.5 text-center">
-                    <div className="text-purple-400 font-medium text-xs">⚡ Vienna Direct</div>
+                    <div className="text-purple-400 font-medium text-xs">Vienna Direct</div>
                     <div className="text-xs text-slate-500 mt-0.5">T0/T1</div>
                   </div>
                 </div>
@@ -1439,7 +1430,7 @@ export default function Home() {
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-px h-4 bg-slate-500" />
                   <div className="bg-blue-500/15 border border-blue-500/30 rounded-lg px-4 py-2.5 text-center">
-                    <div className="text-blue-400 font-medium text-xs">🔄 Agent Passback</div>
+                    <div className="text-blue-400 font-medium text-xs">Agent Passback</div>
                     <div className="text-xs text-slate-500 mt-0.5">T2/T3</div>
                   </div>
                 </div>
@@ -1459,17 +1450,17 @@ export default function Home() {
             <div className="mt-16 grid md:grid-cols-3 gap-6">
               {[
                 {
-                  icon: "🔐",
+                  icon: "",
                   title: "Zero Trust",
                   desc: "Every action requires cryptographic authorization, regardless of execution mode."
                 },
                 {
-                  icon: "⚡",
+                  icon: "",
                   title: "Operational Flexibility", 
                   desc: "Use Vienna's handlers for speed or agent infrastructure for complex integrations."
                 },
                 {
-                  icon: "📊",
+                  icon: "",
                   title: "Complete Audit Trail",
                   desc: "Immutable record of every intent, approval, warrant, and execution result."
                 }
@@ -1856,7 +1847,7 @@ function HowItWorksDemo() {
       title: "Agent submits intent",
       description: "Deploy API v2.3",
       detail: "AI agent requests to deploy new API version to production environment",
-      icon: "🤖",
+      icon: "",
       code: `POST /api/v1/intent
 {
   "action": "deploy_api",
@@ -1870,7 +1861,7 @@ function HowItWorksDemo() {
       title: "Policy engine evaluates",
       description: "Risk tier & compliance check",
       detail: "Vienna OS checks deployment policies, compliance rules, and risk assessment",
-      icon: "📋",
+      icon: "",
       code: `// Policy evaluation
 risk_tier: T2 (production deploy)
 compliance: SOX, SOC2 ✓
@@ -1896,7 +1887,7 @@ approval_threshold: 2/2 met
       title: "Warrant issued",
       description: "Cryptographic, time-limited",
       detail: "Signed execution warrant with specific scope and constraints",
-      icon: "📜",
+      icon: "",
       code: `// Execution warrant
 warrant_id: wrt-7f3a2b1c
 scope: deploy_api v2.3 prod
@@ -1910,7 +1901,7 @@ signature: 0x7f3a...b2c1`,
       title: "Execution (Direct/Passback)",
       description: "Vienna Direct or Agent Passback",
       detail: "T0/T1 actions: Vienna executes directly. T2/T3 actions: Agent executes with warrant proof using its own infrastructure and integrations",
-      icon: "⚡",
+      icon: "",
       code: `// T2/T3: Agent Passback mode
 warrant: wrt-7f3a2b1c
 runtime: agent's own infra
@@ -1926,7 +1917,7 @@ authorization: verified ✓
       title: "Verification confirms",
       description: "Matches warrant scope",
       detail: "Post-execution verification ensures action stayed within warrant boundaries",
-      icon: "✅",
+      icon: "",
       code: `// Verification check
 executed: deploy_api v2.3
 authorized: deploy_api v2.3 ✓
@@ -1939,13 +1930,13 @@ rollback_ready: true ✓`,
       title: "Audit logged",
       description: "Immutable ledger",
       detail: "Complete audit trail recorded in tamper-evident, immutable ledger",
-      icon: "📒",
+      icon: "",
       code: `// Audit entry
 timestamp: 2024-03-26T14:30:00Z
 action: deploy_api_v2.3
 warrant: wrt-7f3a2b1c
 result: success
-immutable: true 🔒`,
+immutable: true`,
       color: "slate"
     }
   ];
@@ -2046,7 +2037,7 @@ immutable: true 🔒`,
                       w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 transition-all duration-500
                       ${isActive ? "bg-white/10 scale-110" : "bg-navy-700/50"}
                     `}>
-                      {isPast ? "✅" : step.icon}
+                      {isPast ? "✓" : step.icon}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

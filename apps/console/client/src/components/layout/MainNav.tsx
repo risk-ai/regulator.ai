@@ -1,141 +1,160 @@
 /**
  * Main Navigation — Vienna OS
  * 
- * Premier tabbed navigation with icons, clean active states, and tooltips.
+ * A+ Revision: Consolidated 19 items → 5 groups with flyout sub-navigation.
+ * Uses React Router for navigation instead of hash-based routing.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
-export type NavSection = 'now' | 'runtime' | 'fleet' | 'workspace' | 'approvals' | 'policies' | 'policy-templates' | 'agent-templates' | 'activity' | 'intent' | 'action-types' | 'integrations' | 'compliance' | 'history' | 'services' | 'api-keys' | 'settings' | 'execution' | 'executions' | 'connect' | 'analytics';
-
-interface MainNavProps {
-  currentSection: NavSection;
-  onNavigate: (section: NavSection) => void;
-}
+/* ── Navigation structure: 5 groups ── */
 
 interface NavItem {
-  id: NavSection;
+  path: string;
   label: string;
   description: string;
   icon: string;
 }
 
-/* ── Primary nav: always visible in top bar ── */
-const PRIMARY_NAV: NavItem[] = [
-  { id: 'now', label: 'Dashboard', description: 'System posture & action center', icon: '⚡' },
-  { id: 'fleet', label: 'Agents', description: 'Agent fleet management', icon: '🤖' },
-  { id: 'intent', label: 'Intent', description: 'Submit governed intents', icon: '🎯' },
-  { id: 'execution', label: 'Execution', description: 'Live execution pipeline', icon: '▶️' },
-  { id: 'approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
-  { id: 'policies', label: 'Policies', description: 'Governance rules', icon: '🛡️' },
-  { id: 'activity', label: 'Activity', description: 'Real-time activity feed', icon: '📊' },
-  { id: 'analytics', label: 'Analytics', description: 'Metrics, leaderboard & costs', icon: '📊' },
-  { id: 'history', label: 'Audit', description: 'Execution ledger & audit trail', icon: '📋' },
-  { id: 'compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
-  { id: 'api-keys', label: 'API Keys', description: 'Programmatic access', icon: '🔑' },
-  { id: 'settings', label: 'Settings', description: 'Configuration', icon: '⚙️' },
+interface NavGroup {
+  id: string;
+  label: string;
+  icon: string;
+  items: NavItem[];
+  /** If set, clicking the group label navigates here directly */
+  defaultPath?: string;
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: '⚡',
+    defaultPath: '/',
+    items: [
+      { path: '/', label: 'Overview', description: 'System posture & action center', icon: '⚡' },
+      { path: '/activity', label: 'Activity Feed', description: 'Real-time event stream', icon: '📊' },
+      { path: '/analytics', label: 'Analytics', description: 'Metrics, leaderboard & costs', icon: '📈' },
+    ],
+  },
+  {
+    id: 'governance',
+    label: 'Governance',
+    icon: '🛡️',
+    defaultPath: '/approvals',
+    items: [
+      { path: '/intent', label: 'Submit Intent', description: 'Request governed action', icon: '🎯' },
+      { path: '/approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
+      { path: '/execution', label: 'Execution', description: 'Live execution pipeline', icon: '▶️' },
+      { path: '/executions', label: 'Execution Log', description: 'Past execution records', icon: '📋' },
+      { path: '/policies', label: 'Policy Builder', description: 'Create governance rules', icon: '🛡️' },
+      { path: '/policy-templates', label: 'Policy Templates', description: 'Pre-built policies', icon: '📋' },
+      { path: '/compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
+      { path: '/history', label: 'Audit Trail', description: 'Execution ledger', icon: '🔍' },
+    ],
+  },
+  {
+    id: 'fleet',
+    label: 'Fleet',
+    icon: '🤖',
+    defaultPath: '/fleet',
+    items: [
+      { path: '/fleet', label: 'Agent Dashboard', description: 'Fleet overview & status', icon: '🤖' },
+      { path: '/connect', label: 'Connect Agent', description: 'Register a new agent', icon: '🔗' },
+      { path: '/agent-templates', label: 'Agent Templates', description: 'Integration templates', icon: '📦' },
+      { path: '/action-types', label: 'Action Registry', description: 'Action type definitions', icon: '⚡' },
+    ],
+  },
+  {
+    id: 'infra',
+    label: 'Infrastructure',
+    icon: '🔧',
+    defaultPath: '/api-keys',
+    items: [
+      { path: '/api-keys', label: 'API Keys', description: 'Programmatic access', icon: '🔑' },
+      { path: '/integrations', label: 'Integrations', description: 'External services', icon: '🔌' },
+      { path: '/runtime', label: 'Runtime', description: 'Pipeline & reconciliation', icon: '⚙️' },
+      { path: '/workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
+      { path: '/services', label: 'Services', description: 'Infrastructure health', icon: '🔧' },
+    ],
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: '⚙️',
+    defaultPath: '/settings',
+    items: [],
+  },
 ];
 
-/* ── Secondary nav: visible in mobile menu & "More" dropdown ── */
-const SECONDARY_NAV: NavItem[] = [
-  { id: 'runtime', label: 'Runtime', description: 'Execution pipeline & reconciliation', icon: '⚙️' },
-  { id: 'action-types', label: 'Actions', description: 'Action type registry', icon: '⚡' },
-  { id: 'integrations', label: 'Integrations', description: 'External service adapters', icon: '🔌' },
-  { id: 'workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
-  { id: 'policy-templates', label: 'Policy Templates', description: 'Pre-built policy templates', icon: '📋' },
-  { id: 'agent-templates', label: 'Agent Templates', description: 'Agent integration templates', icon: '🤖' },
-  { id: 'services', label: 'Services', description: 'Infrastructure health', icon: '🔧' },
-];
+/** All navigable paths for matching */
+const ALL_PATHS = NAV_GROUPS.flatMap(g => g.items.map(i => i.path));
 
-/* ── All items combined (for mobile menu / hash validation) ── */
-const ALL_NAV_ITEMS: NavItem[] = [...PRIMARY_NAV, ...SECONDARY_NAV];
+function pathMatchesGroup(pathname: string, group: NavGroup): boolean {
+  if (group.id === 'dashboard' && (pathname === '/' || pathname === '/now')) return true;
+  return group.items.some(item => pathname === item.path);
+}
 
-export function MainNav({ currentSection, onNavigate }: MainNavProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export function MainNav() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isMobile } = useResponsive();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (isMobile) {
     return (
       <>
-        <nav style={{
-          background: 'var(--bg-app)',
-          borderBottom: '1px solid var(--border-subtle)',
-          padding: '0 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '56px',
-          fontFamily: 'var(--font-sans)',
-        }}>
-          <span style={{ 
-            fontSize: '16px', 
-            fontWeight: 600, 
-            color: 'var(--text-primary)' 
+        {/* Mobile top bar */}
+        <nav className="flex items-center justify-between h-14 px-4"
+          style={{
+            background: 'var(--bg-app)',
+            borderBottom: '1px solid var(--border-subtle)',
+            fontFamily: 'var(--font-sans)',
           }}>
-            Vienna<span style={{ color: '#7c3aed' }}>OS</span>
+          <span className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+            Vienna<span style={{ color: 'var(--accent-primary)' }}>OS</span>
           </span>
-          
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              cursor: 'pointer',
-              padding: '8px'
-            }}
+            className="p-2"
+            style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </nav>
 
-        {/* P1: Mobile Bottom Navigation — Quick access to key actions */}
+        {/* Mobile bottom nav */}
         {!mobileMenuOpen && (
-          <div style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'var(--bg-primary)',
-            borderTop: '1px solid var(--border-subtle)',
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            padding: '6px 0 env(safe-area-inset-bottom, 6px)',
-            zIndex: 999,
-          }}>
+          <div className="fixed bottom-0 left-0 right-0 flex justify-around items-center z-50"
+            style={{
+              background: 'var(--bg-primary)',
+              borderTop: '1px solid var(--border-subtle)',
+              padding: '6px 0 env(safe-area-inset-bottom, 6px)',
+            }}>
             {[
-              { id: 'now' as NavSection, icon: '⚡', label: 'Home' },
-              { id: 'fleet' as NavSection, icon: '🤖', label: 'Agents' },
-              { id: 'approvals' as NavSection, icon: '✅', label: 'Approve' },
-              { id: 'executions' as NavSection, icon: '▶️', label: 'Exec' },
-              { id: 'analytics' as NavSection, icon: '📊', label: 'Stats' },
+              { path: '/', icon: '⚡', label: 'Home' },
+              { path: '/fleet', icon: '🤖', label: 'Fleet' },
+              { path: '/approvals', icon: '✅', label: 'Approve' },
+              { path: '/executions', icon: '▶️', label: 'Exec' },
+              { path: '/analytics', icon: '📊', label: 'Stats' },
             ].map(item => {
-              const isActive = currentSection === item.id;
+              const isActive = location.pathname === item.path || 
+                (item.path === '/' && location.pathname === '/now');
               return (
                 <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '2px',
-                    padding: '4px 12px',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    minWidth: '56px',
-                    minHeight: '44px',
-                  }}
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className="flex flex-col items-center gap-0.5 min-w-[56px] min-h-[44px] px-3 py-1"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
                 >
-                  <span style={{ fontSize: '18px' }}>{item.icon}</span>
+                  <span className="text-lg">{item.icon}</span>
                   <span style={{
                     fontSize: '10px',
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#a78bfa' : 'var(--text-tertiary)',
+                    color: isActive ? 'var(--accent-secondary)' : 'var(--text-tertiary)',
                   }}>
                     {item.label}
                   </span>
@@ -145,66 +164,58 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
           </div>
         )}
 
-        {/* Mobile Menu Overlay */}
+        {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div style={{
-            position: 'fixed',
-            top: '56px',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'var(--bg-primary)',
-            zIndex: 1000,
-            padding: '16px',
-            overflowY: 'auto'
-          }}>
-            {[
-              { heading: null, items: PRIMARY_NAV },
-              { heading: 'More', items: SECONDARY_NAV },
-            ].map((group, gi) => (
-              <div key={gi} style={{ marginBottom: '16px' }}>
-                {group.heading && (
-                  <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '8px 4px 6px', marginTop: '8px' }}>
-                    {group.heading}
-                  </div>
-                )}
-                <div style={{ display: 'grid', gap: '6px' }}>
-                  {group.items.map((item) => {
-                    const isActive = currentSection === item.id;
+          <div className="fixed inset-0 z-50 overflow-y-auto"
+            style={{ top: '56px', background: 'var(--bg-primary)', padding: '16px' }}>
+            {NAV_GROUPS.map(group => (
+              <div key={group.id} className="mb-4">
+                <div className="text-xs font-semibold uppercase mb-2 px-1"
+                  style={{ color: 'var(--text-tertiary)', letterSpacing: '0.05em' }}>
+                  {group.icon} {group.label}
+                </div>
+                <div className="grid gap-1.5">
+                  {group.items.length > 0 ? group.items.map(item => {
+                    const isActive = location.pathname === item.path;
                     return (
                       <button
-                        key={item.id}
-                        onClick={() => {
-                          onNavigate(item.id);
-                          setMobileMenuOpen(false);
-                        }}
+                        key={item.path}
+                        onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
+                        className="flex items-center gap-3 w-full text-left rounded-lg px-4 py-3.5 transition-colors"
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          padding: '14px 16px',
-                          fontSize: '15px',
                           fontWeight: isActive ? 600 : 400,
-                          color: isActive ? '#a78bfa' : 'var(--text-primary)',
+                          color: isActive ? 'var(--accent-secondary)' : 'var(--text-primary)',
                           background: isActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
                           border: isActive ? '1px solid rgba(124, 58, 237, 0.2)' : '1px solid var(--border-subtle)',
-                          borderRadius: '8px',
                           cursor: 'pointer',
-                          transition: 'all 150ms ease',
-                          textAlign: 'left',
-                          width: '100%'
+                          fontSize: '15px',
+                          fontFamily: 'var(--font-sans)',
                         }}
                       >
-                        <span style={{ fontSize: '18px' }}>{item.icon}</span>
+                        <span className="text-lg">{item.icon}</span>
                         <div>
                           <div>{item.label}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
-                            {item.description}
-                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{item.description}</div>
                         </div>
                       </button>
                     );
-                  })}
+                  }) : (
+                    <button
+                      onClick={() => { navigate(group.defaultPath || '/'); setMobileMenuOpen(false); }}
+                      className="flex items-center gap-3 w-full text-left rounded-lg px-4 py-3.5 transition-colors"
+                      style={{
+                        color: 'var(--text-primary)',
+                        background: 'transparent',
+                        border: '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        fontSize: '15px',
+                        fontFamily: 'var(--font-sans)',
+                      }}
+                    >
+                      <span className="text-lg">{group.icon}</span>
+                      <div>{group.label}</div>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -214,156 +225,160 @@ export function MainNav({ currentSection, onNavigate }: MainNavProps) {
     );
   }
 
-  const [moreOpen, setMoreOpen] = useState(false);
-  const isSecondaryActive = SECONDARY_NAV.some(i => i.id === currentSection);
+  // Desktop navigation
+  return (
+    <nav className="flex items-end h-11 px-6 relative"
+      style={{
+        background: 'var(--bg-app)',
+        borderBottom: '1px solid var(--border-subtle)',
+        fontFamily: 'var(--font-sans)',
+        gap: '2px',
+      }}>
+      {/* Logo */}
+      <button
+        onClick={() => navigate('/')}
+        className="flex items-center mr-4 pb-2"
+        style={{ 
+          background: 'none', border: 'none', cursor: 'pointer', 
+          color: 'var(--text-primary)', fontWeight: 700, fontSize: '14px',
+          fontFamily: 'var(--font-sans)',
+        }}
+      >
+        Vienna<span style={{ color: 'var(--accent-primary)' }}>OS</span>
+      </button>
+
+      {NAV_GROUPS.map(group => (
+        <NavGroupButton key={group.id} group={group} />
+      ))}
+    </nav>
+  );
+}
+
+/** Desktop nav group with flyout */
+function NavGroupButton({ group }: { group: NavGroup }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const isActive = pathMatchesGroup(location.pathname, group);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutRef.current);
+    if (group.items.length > 0) setOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
+  };
+
+  const handleClick = () => {
+    if (group.items.length === 0 && group.defaultPath) {
+      navigate(group.defaultPath);
+    } else if (group.defaultPath) {
+      navigate(group.defaultPath);
+      setOpen(false);
+    }
+  };
 
   return (
-    <nav style={{
-      background: 'var(--bg-app)',
-      borderBottom: '1px solid var(--border-subtle)',
-      padding: '0 24px',
-      display: 'flex',
-      alignItems: 'end',
-      gap: '2px',
-      height: '44px',
-      fontFamily: 'var(--font-sans)',
-      position: 'relative',
-    }}>
-      {PRIMARY_NAV.map((item) => {
-        const isActive = currentSection === item.id;
-        
-        return (
-          <button
-            key={item.id}
-            onClick={() => onNavigate(item.id)}
-            title={item.description}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              fontSize: '13px',
-              fontWeight: isActive ? 600 : 400,
-              color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-              background: 'transparent',
-              border: 'none',
-              borderBottom: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
-              borderRadius: 0,
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-              whiteSpace: 'nowrap',
-              fontFamily: 'inherit',
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.color = 'var(--text-secondary)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.color = 'var(--text-tertiary)';
-              }
-            }}
-          >
-            <span style={{ fontSize: '14px' }}>{item.icon}</span>
-            {item.label}
-          </button>
-        );
-      })}
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button
+        onClick={handleClick}
+        className="flex items-center gap-1.5 whitespace-nowrap transition-colors"
+        style={{
+          padding: '8px 14px',
+          fontSize: '13px',
+          fontWeight: isActive ? 600 : 400,
+          color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+          background: 'transparent',
+          border: 'none',
+          borderBottom: isActive ? '2px solid var(--text-primary)' : '2px solid transparent',
+          borderRadius: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        <span style={{ fontSize: '13px' }}>{group.icon}</span>
+        {group.label}
+        {group.items.length > 0 && (
+          <span style={{ fontSize: '10px', opacity: 0.5, marginLeft: '2px' }}>▾</span>
+        )}
+      </button>
 
-      {/* More dropdown for secondary items */}
-      <div style={{ position: 'relative' }}>
-        <button
-          onClick={() => setMoreOpen(!moreOpen)}
+      {/* Flyout submenu */}
+      {open && group.items.length > 0 && (
+        <div
+          className="absolute left-0 mt-0 z-50"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: isSecondaryActive ? 600 : 400,
-            color: isSecondaryActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: isSecondaryActive ? '2px solid var(--text-primary)' : '2px solid transparent',
-            borderRadius: 0,
-            cursor: 'pointer',
-            transition: 'all 150ms ease',
-            whiteSpace: 'nowrap',
-            fontFamily: 'inherit',
-          }}
-          onMouseEnter={(e) => {
-            if (!isSecondaryActive) {
-              e.currentTarget.style.color = 'var(--text-secondary)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isSecondaryActive) {
-              e.currentTarget.style.color = 'var(--text-tertiary)';
-            }
+            top: '100%',
+            paddingTop: '4px',
           }}
         >
-          More ▾
-        </button>
-
-        {moreOpen && (
-          <>
-            {/* Backdrop to close on click-away */}
-            <div 
-              onClick={() => setMoreOpen(false)} 
-              style={{ position: 'fixed', inset: 0, zIndex: 999 }} 
-            />
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              marginTop: '4px',
-              background: 'var(--bg-primary, #1a1a2e)',
+          <div
+            style={{
+              background: 'var(--bg-primary)',
               border: '1px solid var(--border-subtle)',
               borderRadius: '10px',
               padding: '6px',
-              minWidth: '220px',
-              zIndex: 1000,
+              minWidth: '260px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-            }}>
-              {SECONDARY_NAV.map((item) => {
-                const isActive = currentSection === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => { onNavigate(item.id); setMoreOpen(false); }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      width: '100%',
-                      padding: '10px 12px',
-                      fontSize: '13px',
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive ? '#a78bfa' : 'var(--text-primary)',
-                      background: isActive ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'background 100ms',
-                      textAlign: 'left',
-                      fontFamily: 'inherit',
-                    }}
-                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = 'var(--bg-secondary, rgba(255,255,255,0.05))'; }}
-                    onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <span style={{ fontSize: '14px' }}>{item.icon}</span>
-                    <div>
-                      <div>{item.label}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>{item.description}</div>
+            }}
+          >
+            {group.items.map(item => {
+              const isItemActive = location.pathname === item.path;
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => { navigate(item.path); setOpen(false); }}
+                  className="flex items-center gap-2.5 w-full text-left rounded-md transition-colors"
+                  style={{
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    fontWeight: isItemActive ? 600 : 400,
+                    color: isItemActive ? 'var(--accent-secondary)' : 'var(--text-primary)',
+                    background: isItemActive ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isItemActive) e.currentTarget.style.background = 'var(--bg-secondary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isItemActive) e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <span style={{ fontSize: '14px', width: '20px', textAlign: 'center' }}>{item.icon}</span>
+                  <div>
+                    <div>{item.label}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>
+                      {item.description}
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
-    </nav>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

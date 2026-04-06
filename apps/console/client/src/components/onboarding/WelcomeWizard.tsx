@@ -129,7 +129,7 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
                 Try the governance pipeline with a test request
               </p>
               <button
-                onClick={() => window.location.hash = 'intent'}
+                onClick={() => window.location.href = '/intent'}
                 className="text-sm px-3 py-1.5 border border-[var(--border-default)] text-[var(--text-secondary)] rounded-md hover:bg-[var(--bg-hover)] transition-colors"
               >
                 Go to Intent →
@@ -145,7 +145,7 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
                 Set up governance rules for your agents
               </p>
               <button
-                onClick={() => window.location.hash = 'policies'}
+                onClick={() => window.location.href = '/policies'}
                 className="text-sm px-3 py-1.5 border border-[var(--border-default)] text-[var(--text-secondary)] rounded-md hover:bg-[var(--bg-hover)] transition-colors"
               >
                 Policy Builder →
@@ -179,7 +179,7 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
                   <p className="text-sm text-[var(--text-secondary)]">{item.desc}</p>
                 </div>
                 <button
-                  onClick={() => window.location.hash = item.hash}
+                  onClick={() => window.location.href = '/' + item.hash}
                   className="text-sm px-3 py-1.5 text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 rounded-md transition-colors"
                 >
                   Visit →

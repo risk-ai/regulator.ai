@@ -52,7 +52,7 @@ export function FeedbackWidget() {
     try {
       const feedback: FeedbackData = {
         message: message.trim(),
-        page: window.location.hash || '/',
+        page: window.location.pathname,
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
         screenshot: screenshot || undefined,
@@ -269,7 +269,7 @@ export function FeedbackWidget() {
                 gap: '12px',
               }}
             >
-              <span>Page: {window.location.hash || '/'}</span>
+              <span>Page: {window.location.pathname}</span>
               <span>•</span>
               <span>{new Date().toLocaleTimeString()}</span>
             </div>

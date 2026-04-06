@@ -90,6 +90,8 @@ import { createDemoRouter } from './routes/demo.js';
 import { createWarrantChainRouter } from './routes/warrant-chain.js';
 import { createOWSRouter } from './routes/ows.js';
 import { createPolicySimulationRouter } from './routes/policy-simulation.js';
+import { createComplianceReportRouter } from './routes/compliance-reports.js';
+import { createTrustScoreRouter } from './routes/trust-scores.js';
 import { createHealthRouter } from './routes/health.js';
 import { createActivityFeedRouter } from './routes/activity-feed.js';
 import { createSlackRouter } from './routes/slack.js';
@@ -471,6 +473,12 @@ export function createApp(
 
   // Policy Simulation Engine
   app.use(`${apiPrefix}/simulate`, requireAuth, createPolicySimulationRouter());
+
+  // Compliance Report Generator
+  app.use(`${apiPrefix}/reports`, requireAuth, createComplianceReportRouter());
+
+  // Agent Trust Scoring
+  app.use(`${apiPrefix}/trust-scores`, requireAuth, createTrustScoreRouter());
 
   // Open Warrant Standard (OWS) — public spec + token verification
   app.use(`${apiPrefix}/ows`, createOWSRouter());

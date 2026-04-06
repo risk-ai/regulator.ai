@@ -589,9 +589,10 @@ export default function Home() {
                 </span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed mb-12 max-w-2xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-                Agents propose. Vienna decides. Execute with proof. 
-                Dual execution model: <span className="text-purple-400 font-medium">Vienna Direct</span> for low-risk,
-                <span className="text-blue-400 font-medium"> Agent Passback</span> for high-risk with cryptographic <span className="text-amber-400 font-medium">warrants</span>.
+                The first governance kernel with two execution paths.{" "}
+                <span className="text-purple-400 font-medium">Vienna Direct</span> — the runtime executes low-risk actions instantly.{" "}
+                <span className="text-blue-400 font-medium">Agent Passback</span> — high-risk actions return a cryptographic{" "}
+                <span className="text-amber-400 font-medium">warrant</span> the agent must present to proceed. Every action scoped, signed, and audited.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap animate-fade-up mb-8" style={{ animationDelay: "0.3s" }}>
                 <a 

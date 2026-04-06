@@ -88,6 +88,7 @@ import { createSimulationRouter } from './routes/simulation.js';
 import { createActionsRouter } from './routes/actions.js';
 import { createDemoRouter } from './routes/demo.js';
 import { createWarrantChainRouter } from './routes/warrant-chain.js';
+import { createOWSRouter } from './routes/ows.js';
 import { createHealthRouter } from './routes/health.js';
 import { createActivityFeedRouter } from './routes/activity-feed.js';
 import { createSlackRouter } from './routes/slack.js';
@@ -466,6 +467,11 @@ export function createApp(
   app.use(`${apiPrefix}/warrant-chain`, requireAuth, createWarrantChainRouter());
   // Public proof verification (no auth — third-party auditors)
   app.post(`${apiPrefix}/warrant-chain/verify-proof`, createWarrantChainRouter());
+
+  // Open Warrant Standard (OWS) — public spec + token verification
+  app.use(`${apiPrefix}/ows`, createOWSRouter());
+  // Issue endpoint requires auth
+  app.post(`${apiPrefix}/ows/issue`, requireAuth, createOWSRouter());
   
   // Settings (tenant configuration)
   app.use(`${apiPrefix}/settings`, requireAuth, createSettingsRouter());

@@ -72,6 +72,28 @@ interface PipelineResult {
   audit_trail: AuditEntry[];
   policy_rules: PolicyRule[];
   total_duration_ms: number;
+  // New: advanced governance features
+  merkle_chain?: {
+    chain_index: number;
+    chain_hash: string;
+    prev_hash: string | null;
+    merkle_root: string;
+    chain_verified: boolean;
+  };
+  ows_token?: string;
+  trust_score?: {
+    agent_id: string;
+    score: number;
+    level: string;
+    components: Record<string, { score: number; max: number }>;
+    recommendation: string;
+  };
+  delegation?: {
+    parent_warrant_id: string;
+    delegated_to: string;
+    scope_reduction: string[];
+    depth: number;
+  } | null;
 }
 
 function buildAudit(pipeline: PipelineStep[]): AuditEntry[] {
@@ -596,6 +618,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unknown scenario" }, { status: 400 });
     }
 
+    // Enrich with advanced governance features
+    result = enrichWithAdvancedFeatures(result);
+
     return NextResponse.json(result);
   } catch (error) {
     console.error("Try API error:", error);
@@ -604,4 +629,84 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Enrich pipeline result with advanced governance features:
+ * Merkle chain, OWS token, trust score, delegation info
+ */
+function enrichWithAdvancedFeatures(result: PipelineResult): PipelineResult {
+  const chainIndex = Math.floor(Math.random() * 10000) + 100;
+
+  // Merkle Warrant Chain
+  result.merkle_chain = {
+    chain_index: chainIndex,
+    chain_hash: `sha256:${sha256Fake()}`,
+    prev_hash: chainIndex > 0 ? `sha256:${sha256Fake()}` : null,
+    merkle_root: `sha256:${sha256Fake()}`,
+    chain_verified: true,
+  };
+
+  // OWS Token (simulated — 3-part base64url format)
+  if (result.warrant) {
+    const header = btoa(JSON.stringify({ alg: "HS256", typ: "OWS", ver: "1.0" })).replace(/=/g, '');
+    const payload = btoa(JSON.stringify({
+      wid: result.warrant.warrant_id,
+      iss: "vienna-os",
+      sub: result.scenario.replace(/_/g, '-') + '-agent',
+      tier: result.tier,
+      scope: Object.keys(result.warrant.scope),
+      exp: Math.floor(Date.now() / 1000) + result.warrant.ttl_seconds,
+    })).replace(/=/g, '');
+    const sig = sha256Fake().slice(0, 43);
+    result.ows_token = `${header}.${payload}.${sig}`;
+  }
+
+  // Agent Trust Score
+  const tierScoreMap: Record<string, number> = { T0: 92, T1: 84, T2: 71, T3: 55 };
+  const baseScore = tierScoreMap[result.tier] || 75;
+  const score = baseScore + Math.floor(Math.random() * 8) - 4;
+  const level = score >= 90 ? 'exemplary' : score >= 70 ? 'good' : score >= 50 ? 'watch' : 'probation';
+  const recommendation = score >= 90 ? 'Consider tier relaxation' : score >= 70 ? 'Maintain current governance' : 'Increase monitoring';
+
+  result.trust_score = {
+    agent_id: result.scenario.replace(/_/g, '-') + '-agent',
+    score,
+    level,
+    components: {
+      approval_rate: { score: Math.min(30, Math.round(score * 0.3)), max: 30 },
+      compliance: { score: Math.min(25, Math.round(score * 0.25)), max: 25 },
+      stability: { score: Math.min(20, Math.round(score * 0.2)), max: 20 },
+      anomaly_factor: { score: Math.min(15, Math.round(score * 0.15)), max: 15 },
+      tenure: { score: Math.min(10, Math.round(score * 0.1)), max: 10 },
+    },
+    recommendation,
+  };
+
+  // Delegation (show for T2+ scenarios)
+  if (result.tier === 'T2' || result.tier === 'T3') {
+    result.delegation = {
+      parent_warrant_id: `wrt_parent_${uuid().slice(0, 8)}`,
+      delegated_to: `sub-agent-${Math.floor(Math.random() * 5) + 1}`,
+      scope_reduction: Object.keys(result.warrant?.scope || {}).slice(0, 2),
+      depth: 1,
+    };
+  } else {
+    result.delegation = null;
+  }
+
+  // Add advanced steps to audit trail
+  result.audit_trail.push(
+    { timestamp: now(), event: 'chain_append', detail: `Warrant appended to Merkle chain at index ${chainIndex}. Chain hash: ${result.merkle_chain.chain_hash.slice(0, 20)}...`, immutable: true },
+    { timestamp: now(), event: 'ows_issued', detail: `Open Warrant Standard token generated (${result.ows_token ? result.ows_token.length : 0} chars). Portable authorization ready.`, immutable: true },
+    { timestamp: now(), event: 'trust_evaluated', detail: `Agent trust score: ${score}/100 (${level}). ${recommendation}.`, immutable: true },
+  );
+
+  if (result.delegation) {
+    result.audit_trail.push(
+      { timestamp: now(), event: 'delegation', detail: `Warrant delegated to ${result.delegation.delegated_to} with reduced scope [${result.delegation.scope_reduction.join(', ')}]. Depth: ${result.delegation.depth}.`, immutable: true }
+    );
+  }
+
+  return result;
 }

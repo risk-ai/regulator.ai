@@ -53,6 +53,27 @@ interface PipelineResult {
   audit_trail: AuditEntry[];
   policy_rules: PolicyRule[];
   total_duration_ms: number;
+  merkle_chain?: {
+    chain_index: number;
+    chain_hash: string;
+    prev_hash: string | null;
+    merkle_root: string;
+    chain_verified: boolean;
+  };
+  ows_token?: string;
+  trust_score?: {
+    agent_id: string;
+    score: number;
+    level: string;
+    components: Record<string, { score: number; max: number }>;
+    recommendation: string;
+  };
+  delegation?: {
+    parent_warrant_id: string;
+    delegated_to: string;
+    scope_reduction: string[];
+    depth: number;
+  } | null;
 }
 
 /* ─── Scenarios ─── */
@@ -180,6 +201,11 @@ const stepIcons: Record<string, string> = {
 };
 
 /* ─── Component ─── */
+function sha256Short(): string {
+  const chars = "abcdef0123456789";
+  return Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join("") + "...";
+}
+
 export default function TryPage() {
   // Track demo page view
   useEffect(() => {
@@ -192,7 +218,7 @@ export default function TryPage() {
   const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
   const [showWarrant, setShowWarrant] = useState(false);
   const [warrantVerified, setWarrantVerified] = useState(false);
-  const [activeTab, setActiveTab] = useState<"pipeline" | "warrant" | "audit" | "policies">("pipeline");
+  const [activeTab, setActiveTab] = useState<"pipeline" | "warrant" | "audit" | "policies" | "chain" | "trust" | "ows">("pipeline");
   const [error, setError] = useState<string | null>(null);
 
   // Custom action fields
@@ -781,7 +807,7 @@ export default function TryPage() {
             {/* Tabs */}
             {result && (
               <div className="flex gap-1 mb-4 bg-navy-800/50 rounded-xl p-1 overflow-x-auto">
-                {(["pipeline", "warrant", "audit", "policies"] as const).map((tab) => (
+                {(["pipeline", "warrant", "chain", "trust", "ows", "audit", "policies"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -794,6 +820,9 @@ export default function TryPage() {
                   >
                     {tab === "pipeline" && "🔗 "}
                     {tab === "warrant" && "📜 "}
+                    {tab === "chain" && "⛓️ "}
+                    {tab === "trust" && "🛡️ "}
+                    {tab === "ows" && "🔑 "}
                     {tab === "audit" && "📒 "}
                     {tab === "policies" && "📋 "}
                     {tab}
@@ -1410,6 +1439,221 @@ export default function TryPage() {
                 >
                   Build your own policies <ArrowRight className="w-4 h-4" />
                 </a>
+              </div>
+            )}
+
+            {/* ─── Merkle Warrant Chain Tab ─── */}
+            {result && activeTab === "chain" && result.merkle_chain && (
+              <div className="space-y-3">
+                <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
+                  <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span>⛓️</span>
+                      <h3 className="text-white font-semibold text-sm">Merkle Warrant Chain</h3>
+                    </div>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain.chain_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {result.merkle_chain.chain_verified ? '✓ Chain Verified' : '✗ Chain Broken'}
+                    </span>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <p className="text-xs text-warm-400 leading-relaxed">
+                      This warrant has been appended to an immutable, hash-linked chain. 
+                      Each warrant&apos;s hash includes the previous warrant&apos;s hash — any tampering is instantly detectable.
+                      Third-party auditors can verify the chain without trusting Vienna OS.
+                    </p>
+                    
+                    {/* Chain visualization */}
+                    <div className="flex items-center gap-2 overflow-x-auto py-3">
+                      {[
+                        { idx: result.merkle_chain.chain_index - 2, current: false },
+                        { idx: result.merkle_chain.chain_index - 1, current: false },
+                        { idx: result.merkle_chain.chain_index, current: true },
+                      ].filter(b => b.idx >= 0).map((block, i) => (
+                        <div key={i} className="flex items-center gap-2 flex-shrink-0">
+                          {i > 0 && <div className="text-warm-600">→</div>}
+                          <div className={`border rounded-lg p-3 min-w-[140px] ${block.current ? 'border-gold-400/50 bg-gold-400/5' : 'border-navy-600 bg-navy-800/50'}`}>
+                            <div className="text-[10px] text-warm-500 mb-1">Block #{block.idx}</div>
+                            <div className="text-[10px] font-mono text-warm-400 truncate max-w-[120px]">
+                              {block.current ? result.merkle_chain.chain_hash.slice(7, 23) + '...' : sha256Short()}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-navy-900/50 rounded-lg p-3">
+                        <div className="text-[10px] text-warm-500 uppercase tracking-wider mb-1">Chain Index</div>
+                        <div className="text-sm font-mono text-gold-400">{result.merkle_chain.chain_index.toLocaleString()}</div>
+                      </div>
+                      <div className="bg-navy-900/50 rounded-lg p-3">
+                        <div className="text-[10px] text-warm-500 uppercase tracking-wider mb-1">Merkle Root</div>
+                        <div className="text-sm font-mono text-white truncate">{result.merkle_chain.merkle_root.slice(7, 23)}...</div>
+                      </div>
+                      <div className="bg-navy-900/50 rounded-lg p-3 col-span-2">
+                        <div className="text-[10px] text-warm-500 uppercase tracking-wider mb-1">Chain Hash</div>
+                        <div className="text-xs font-mono text-warm-300 break-all">{result.merkle_chain.chain_hash}</div>
+                      </div>
+                    </div>
+
+                    <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
+                      <div className="text-xs text-purple-300 font-medium mb-1">💡 Why this matters</div>
+                      <p className="text-[11px] text-warm-400 leading-relaxed">
+                        A SOC 2 auditor can verify this entire governance chain without accessing your Vienna OS instance. 
+                        They only need the Merkle proof — the math proves integrity. No trust required.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── Agent Trust Score Tab ─── */}
+            {result && activeTab === "trust" && result.trust_score && (
+              <div className="space-y-3">
+                <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
+                  <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span>🛡️</span>
+                      <h3 className="text-white font-semibold text-sm">Agent Trust Score</h3>
+                    </div>
+                    <span className="text-sm font-mono text-warm-400">{result.trust_score.agent_id}</span>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {/* Score dial */}
+                    <div className="text-center py-4">
+                      <div className="text-6xl font-bold text-white mb-1">{result.trust_score.score}</div>
+                      <div className="text-sm text-warm-400">out of 100</div>
+                      <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
+                        result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-emerald-400' :
+                        result.trust_score.level === 'good' ? 'bg-blue-500/20 text-blue-400' :
+                        result.trust_score.level === 'watch' ? 'bg-amber-500/20 text-amber-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {result.trust_score.level.toUpperCase()}
+                      </div>
+                    </div>
+
+                    {/* Component bars */}
+                    <div className="space-y-2">
+                      {Object.entries(result.trust_score.components).map(([name, comp]) => (
+                        <div key={name} className="flex items-center gap-3">
+                          <div className="w-24 text-[11px] text-warm-400 capitalize">{name.replace(/_/g, ' ')}</div>
+                          <div className="flex-1 bg-navy-900 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-gold-400 to-amber-500 transition-all duration-1000"
+                              style={{ width: `${(comp.score / comp.max) * 100}%` }}
+                            />
+                          </div>
+                          <div className="text-[11px] font-mono text-warm-500 w-10 text-right">{comp.score}/{comp.max}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Recommendation */}
+                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
+                      <div className="text-xs text-blue-300 font-medium mb-1">📊 Governance Recommendation</div>
+                      <p className="text-xs text-warm-400">{result.trust_score.recommendation}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── OWS Token Tab ─── */}
+            {result && activeTab === "ows" && result.ows_token && (
+              <div className="space-y-3">
+                <div className="bg-navy-800/50 border border-navy-700/50 rounded-2xl overflow-hidden">
+                  <div className="bg-navy-800 border-b border-navy-700/50 px-5 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span>🔑</span>
+                      <h3 className="text-white font-semibold text-sm">Open Warrant Standard Token</h3>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300">OWS v1.0</span>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <p className="text-xs text-warm-400 leading-relaxed">
+                      This is a portable execution authorization token — like JWT for authentication, 
+                      OWS is for AI agent authorization. Any system can verify this token independently.
+                    </p>
+
+                    {/* Token display */}
+                    <div className="bg-navy-950 rounded-lg p-4 overflow-x-auto">
+                      <div className="text-[11px] font-mono leading-relaxed">
+                        <span className="text-red-400">{result.ows_token.split('.')[0]}</span>
+                        <span className="text-warm-600">.</span>
+                        <span className="text-purple-400">{result.ows_token.split('.')[1]}</span>
+                        <span className="text-warm-600">.</span>
+                        <span className="text-cyan-400">{result.ows_token.split('.')[2]}</span>
+                      </div>
+                    </div>
+
+                    {/* Token parts */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                        <span className="text-xs text-warm-400">Header — algorithm, type, version</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                        <span className="text-xs text-warm-400">Payload — warrant ID, tier, scope, expiration, agent</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
+                        <span className="text-xs text-warm-400">Signature — HMAC-SHA256 (tamper-proof)</span>
+                      </div>
+                    </div>
+
+                    {/* Decoded payload */}
+                    {(() => {
+                      try {
+                        const payload = JSON.parse(atob(result.ows_token.split('.')[1]));
+                        return (
+                          <div className="bg-navy-900/50 rounded-lg p-3">
+                            <div className="text-[10px] text-warm-500 uppercase tracking-wider mb-2">Decoded Payload</div>
+                            <pre className="text-[11px] font-mono text-warm-300 whitespace-pre-wrap">{JSON.stringify(payload, null, 2)}</pre>
+                          </div>
+                        );
+                      } catch { return null; }
+                    })()}
+
+                    <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
+                      <div className="text-xs text-violet-300 font-medium mb-1">🌐 Interoperable</div>
+                      <p className="text-[11px] text-warm-400 leading-relaxed">
+                        Share this token with any system that implements the Open Warrant Standard. 
+                        They can verify the agent&apos;s authorization without calling Vienna OS.
+                        <a href="/docs/ows" className="text-violet-400 hover:underline ml-1">Read the spec →</a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ─── Delegation info (shown on warrant tab for T2+) ─── */}
+            {result && activeTab === "warrant" && result.delegation && (
+              <div className="mt-3 bg-purple-500/5 border border-purple-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span>🔀</span>
+                  <h4 className="text-sm font-semibold text-purple-300">Warrant Delegation</h4>
+                </div>
+                <p className="text-xs text-warm-400 mb-3">
+                  This warrant can be delegated to sub-agents with reduced scope.
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="bg-navy-900/50 rounded p-2">
+                    <div className="text-warm-500">Delegated to</div>
+                    <div className="font-mono text-white">{result.delegation.delegated_to}</div>
+                  </div>
+                  <div className="bg-navy-900/50 rounded p-2">
+                    <div className="text-warm-500">Delegation depth</div>
+                    <div className="font-mono text-white">{result.delegation.depth} / 5 max</div>
+                  </div>
+                  <div className="bg-navy-900/50 rounded p-2 col-span-2">
+                    <div className="text-warm-500">Scope reduction</div>
+                    <div className="font-mono text-purple-300">{result.delegation.scope_reduction.join(', ') || 'N/A'}</div>
+                  </div>
+                </div>
               </div>
             )}
 

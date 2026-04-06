@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useEventStream, type PipelineEvent } from '../hooks/useEventStream.js';
 
 interface SystemSnapshot {
@@ -111,7 +112,8 @@ export function NowPage() {
   useEffect(() => { loadSnapshot(); const i = setInterval(loadSnapshot, 30000); return () => clearInterval(i); }, [loadSnapshot]);
   useEffect(() => { if (liveEvents.length > 0) loadSnapshot(); }, [liveEvents.length]);
 
-  const nav = (s: string) => { window.location.hash = s; };
+  const navigate = useNavigate();
+  const nav = (s: string) => { navigate(`/${s}`); };
 
   if (!snapshot && loading) {
     return (
@@ -429,21 +431,9 @@ function GettingStartedPanel() {
           Quick Start
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-          <QuickActionButton 
-            icon="🤖" 
-            label="Connect Your Agent"
-            onClick={() => window.location.hash = 'connect'}
-          />
-          <QuickActionButton 
-            icon="📋" 
-            label="Explore Policy Templates"
-            onClick={() => window.location.hash = 'policy-templates'}
-          />
-          <QuickActionButton 
-            icon="🔑" 
-            label="Create API Key"
-            onClick={() => window.location.hash = 'api-keys'}
-          />
+          <QuickActionLink icon="🤖" label="Connect Your Agent" href="/connect" />
+          <QuickActionLink icon="📋" label="Explore Policy Templates" href="/policy-templates" />
+          <QuickActionLink icon="🔑" label="Create API Key" href="/api-keys" />
           <QuickActionButton 
             icon="🎮" 
             label="Try Interactive Demo"
@@ -455,7 +445,51 @@ function GettingStartedPanel() {
   );
 }
 
-/* ─── Quick Action Button ─── */
+/* ─── Quick Action Link (uses React Router) ─── */
+function QuickActionLink({ icon, label, href }: { 
+  icon: string; 
+  label: string; 
+  href: string; 
+}) {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate(href)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 12px',
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
+        transition: 'all var(--transition-fast)',
+        fontSize: 'var(--text-body)',
+        color: 'var(--text-secondary)',
+        fontWeight: 500,
+        width: '100%',
+        textAlign: 'left' as const,
+        fontFamily: 'var(--font-sans)',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background = 'var(--bg-tertiary)';
+        e.currentTarget.style.borderColor = 'var(--border-strong)';
+        e.currentTarget.style.color = 'var(--text-primary)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = 'var(--bg-primary)';
+        e.currentTarget.style.borderColor = 'var(--border-subtle)';
+        e.currentTarget.style.color = 'var(--text-secondary)';
+      }}
+    >
+      <span style={{ fontSize: 14 }}>{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+/* ─── Quick Action Button (for external links) ─── */
 function QuickActionButton({ icon, label, onClick }: { 
   icon: string; 
   label: string; 
@@ -471,16 +505,19 @@ function QuickActionButton({ icon, label, onClick }: {
         padding: '8px 12px',
         background: 'var(--bg-primary)',
         border: '1px solid var(--border-subtle)',
-        borderRadius: 6,
+        borderRadius: 'var(--radius-md)',
         cursor: 'pointer',
-        transition: 'all 150ms',
-        fontSize: 12,
+        transition: 'all var(--transition-fast)',
+        fontSize: 'var(--text-body)',
         color: 'var(--text-secondary)',
-        fontWeight: 500
+        fontWeight: 500,
+        width: '100%',
+        textAlign: 'left' as const,
+        fontFamily: 'var(--font-sans)',
       }}
       onMouseEnter={e => {
         e.currentTarget.style.background = 'var(--bg-tertiary)';
-        e.currentTarget.style.borderColor = 'var(--border-primary)';
+        e.currentTarget.style.borderColor = 'var(--border-strong)';
         e.currentTarget.style.color = 'var(--text-primary)';
       }}
       onMouseLeave={e => {
@@ -504,13 +541,13 @@ function ValueDeliveredWidget({ snapshot }: { snapshot: SystemSnapshot }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Use actual data if available, otherwise show demo data
+  // Use actual data — show zeros if no real data yet (not fake demo numbers)
   const valueSummary = snapshot.valueSummary || {
-    actions_governed: 247,
-    violations_caught: 12,
-    approvals_processed: 38,
-    estimated_risk_avoided: 142500,
-    audit_events: 1247,
+    actions_governed: 0,
+    violations_caught: 0,
+    approvals_processed: 0,
+    estimated_risk_avoided: 0,
+    audit_events: 0,
     demo: true
   };
 

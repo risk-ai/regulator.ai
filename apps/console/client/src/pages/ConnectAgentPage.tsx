@@ -742,7 +742,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
 
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
         <button
-          onClick={() => window.location.hash = 'fleet'}
+          onClick={() => window.location.href = '/fleet'}
           style={{
             padding: '10px 16px',
             background: 'var(--bg-primary)',
@@ -757,7 +757,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
         </button>
         
         <button
-          onClick={() => window.location.hash = 'now'}
+          onClick={() => window.location.href = '/'}
           style={{
             padding: '10px 20px',
             background: '#7c3aed',

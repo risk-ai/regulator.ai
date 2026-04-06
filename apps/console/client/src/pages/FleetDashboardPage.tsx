@@ -18,21 +18,27 @@ import {
 // Constants
 // ============================================================================
 
+/** 
+ * Semantic color map — uses CSS custom properties from variables.css.
+ * For inline style use (e.g. sparkline SVG stroke), we keep literal values
+ * that mirror the design tokens. In future, migrate remaining inline styles
+ * to Tailwind/CSS classes referencing var(--*) directly.
+ */
 const COLORS = {
-  bg: '#0a0a0f',
-  card: '#12131a',
-  cardHover: '#1a1b26',
-  border: 'rgba(255,255,255,0.06)',
-  borderActive: 'rgba(255,255,255,0.10)',
-  green: '#10b981',
-  yellow: '#f59e0b',
-  red: '#ef4444',
-  blue: '#3b82f6',
-  purple: '#7c3aed',
+  bg: 'var(--bg-app)',
+  card: 'var(--bg-primary)',
+  cardHover: 'var(--bg-secondary)',
+  border: 'var(--border-subtle)',
+  borderActive: 'var(--border-default)',
+  green: 'var(--success-text)',
+  yellow: 'var(--warning-text)',
+  red: 'var(--error-text)',
+  blue: 'var(--info-text)',
+  purple: 'var(--accent-primary)',
   cyan: '#06b6d4',
-  textPrimary: '#ffffff',
-  textSecondary: 'rgba(255,255,255,0.7)',
-  textMuted: 'rgba(255,255,255,0.5)',
+  textPrimary: 'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
+  textMuted: 'var(--text-tertiary)',
 };
 
 const STATUS_COLORS: Record<string, string> = {

@@ -111,7 +111,7 @@ export function ErrorFallback({ error, onRetry, showDetails = false }: ErrorFall
           )}
           
           <button
-            onClick={() => window.location.hash = 'now'}
+            onClick={() => window.location.href = '/'}
             className="flex items-center gap-2 px-4 py-2 border border-[var(--border-default)] text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
           >
             <Home className="w-4 h-4" />

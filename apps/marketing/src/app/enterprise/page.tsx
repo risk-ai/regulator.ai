@@ -308,8 +308,8 @@ export default function EnterprisePage() {
               </h1>
               
               <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-                Govern AI at scale in regulated industries. Unlimited agents, on-premise deployment, 
-                SOC 2 compliance, and dedicated support for Fortune 500 enterprises.
+                Govern AI at scale with verifiable Merkle warrant chains, policy simulation,
+                cross-agent delegation, compliance reports, and trust scoring. Built for regulated industries.
               </p>
               
               <div className="flex items-center justify-center gap-4">
@@ -505,10 +505,12 @@ export default function EnterprisePage() {
             <div className="bg-navy-800/50 border border-navy-700 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Why Enterprise?</h3>
               <ul className="space-y-3 text-slate-300">
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Govern unlimited AI agents across your organization</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Deploy on-premise or in your VPC for maximum control</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Immutable audit trails for compliance and regulatory reporting</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Warrant-based execution authority with cryptographic verification</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Merkle warrant chain — third-party verifiable governance history</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Policy simulation — predict the impact of changes before deploying</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> SOC 2 compliance reports with one-click export (CC6.1–CC8.1)</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Cross-agent warrant delegation with cascading revocation</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Dynamic agent trust scoring with governance recommendations</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Open Warrant Standard — portable authorization across systems</li>
               </ul>
             </div>
           </ScrollReveal>

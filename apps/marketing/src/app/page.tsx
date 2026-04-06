@@ -420,7 +420,7 @@ export default function Home() {
         "@id": "https://regulator.ai/#software",
         "name": "Vienna OS",
         "alternateName": "Vienna Operating System",
-        "description": "The governance and authorization layer for autonomous AI systems. Provides cryptographic warrants, policy enforcement, risk tiering, and immutable audit trails for AI agent governance.",
+        "description": "The governance and authorization layer for autonomous AI systems. Cryptographic warrants, Merkle-linked audit chains, open warrant standard, policy simulation, and compliance reporting for AI agent governance.",
         "url": "https://regulator.ai",
         "downloadUrl": "https://github.com/risk-ai/regulator.ai",
         "operatingSystem": "Cross-platform",
@@ -817,9 +817,9 @@ export default function Home() {
         
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            <AnimatedStat value={80} suffix="+" label="Database Tables" sub="Full persistence layer" />
-            <AnimatedStat value={64} label="API Routes" sub="Complete REST coverage" />
-            <AnimatedStat value={28} label="Execution Modules" sub="Comprehensive runtime" />
+            <AnimatedStat value={85} suffix="+" label="Database Tables" sub="Full persistence layer" />
+            <AnimatedStat value={70} suffix="+" label="API Routes" sub="Complete REST coverage" />
+            <AnimatedStat value={12} label="Governance Primitives" sub="Novel capabilities" />
             <AnimatedStat value={4} label="Risk Tiers" sub="T0 auto → T3 multi-party" />
           </div>
         </div>
@@ -842,23 +842,23 @@ export default function Home() {
                 Governance <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">Control</span> Infrastructure
               </h2>
               <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                System primitives for authorizing what AI agents can do.
-                Not monitoring. Not documentation. Enforcement.
+                Cryptographic execution warrants, verifiable governance chains, and an open
+                authorization standard. Not monitoring. Not documentation. Enforcement.
               </p>
             </div>
           </ScrollReveal>
 
-          {/* Enhanced platform feature grid with better visual hierarchy */}
+          {/* Platform feature grid */}
           <div className="grid md:grid-cols-2 gap-6 mb-16">
             {[
               { icon: Workflow, title: "Intent Normalization Layer", desc: "Single entry point for all agent requests. Every proposal is normalized, validated, and routed into the enforcement pipeline.", color: "text-blue-400", bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5", border: "border-blue-500/20" },
-              { icon: FileCheck, title: "Deterministic Policy Engine", desc: "Policy-as-code rule evaluation. Rules execute deterministically — no ambiguity, no exceptions, no manual review for low-risk.", color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20" },
-              { icon: Lock, title: "Cryptographic Warrants", desc: "HMAC-SHA256 signed, time-limited, scope-constrained execution authorization. Tamper with any field and it invalidates. No warrant, no execution.", color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5", border: "border-amber-500/20" },
-              { icon: Eye, title: "Post-Execution Verification", desc: "Did the agent do exactly what the warrant authorized? Scope drift detection, timing verification, constraint enforcement. Mismatches trigger alerts.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
-              { icon: BookOpen, title: "Immutable Audit Ledger", desc: "Append-only, tamper-evident record. Every intent, policy decision, warrant, execution, and verification — permanently and cryptographically recorded.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
-              { icon: BarChart3, title: "Blast Radius Classification", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. T3 needs justification + rollback plan. Actions classified by impact.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
-              { icon: Zap, title: "Dual Execution Engine", desc: "Vienna Direct for T0/T1 actions executed by Vienna's runtime. Agent Passback for T2/T3 actions with warrant authorization to agent's infrastructure.", color: "text-violet-400", bg: "bg-gradient-to-br from-violet-500/10 to-violet-600/5", border: "border-violet-500/20" },
-              { icon: Server, title: "SDK Integration", desc: "Node.js and Python SDKs on npm and PyPI. 5 lines to integrate with any agent framework — OpenClaw, LangChain, CrewAI, AutoGen, or custom REST.", color: "text-cyan-400", bg: "bg-gradient-to-br from-cyan-500/10 to-cyan-600/5", border: "border-cyan-500/20" },
+              { icon: FileCheck, title: "Deterministic Policy Engine", desc: "Policy-as-code rule evaluation with conflict resolution, caching, and ledger constraints. Simulate policy changes before deploying them.", color: "text-emerald-400", bg: "bg-gradient-to-br from-emerald-500/10 to-emerald-600/5", border: "border-emerald-500/20" },
+              { icon: Lock, title: "Cryptographic Warrants", desc: "HMAC-SHA256 signed, time-limited, scope-constrained execution authorization. Agents can delegate subsets of their authority to other agents.", color: "text-amber-400", bg: "bg-gradient-to-br from-amber-500/10 to-amber-600/5", border: "border-amber-500/20" },
+              { icon: Eye, title: "Post-Execution Verification", desc: "Scope drift detection, timing verification, output schema validation, and stability windows. Mismatches trigger alerts and revoke warrants.", color: "text-rose-400", bg: "bg-gradient-to-br from-rose-500/10 to-rose-600/5", border: "border-rose-500/20" },
+              { icon: BookOpen, title: "Merkle Warrant Chain", desc: "Append-only, hash-linked chain of warrants. Third-party auditors can independently verify your entire governance history using Merkle proofs — no trust in Vienna OS required.", color: "text-orange-400", bg: "bg-gradient-to-br from-orange-500/10 to-orange-600/5", border: "border-orange-500/20" },
+              { icon: BarChart3, title: "Risk Tier Classification", desc: "T0 auto-approves. T1 needs one operator. T2 needs multi-party. T3 needs justification + rollback plan. Dynamic trust scoring adjusts recommendations over time.", color: "text-purple-400", bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5", border: "border-purple-500/20" },
+              { icon: Zap, title: "Open Warrant Standard", desc: "Portable execution authorization tokens — like JWT for authentication, OWS is for AI agent authorization. Issue, verify, and share warrants across systems.", color: "text-violet-400", bg: "bg-gradient-to-br from-violet-500/10 to-violet-600/5", border: "border-violet-500/20" },
+              { icon: Server, title: "Universal Integration", desc: "Node.js and Python SDKs, GitHub Action for CI/CD governance, Terraform provider for infrastructure-as-code, plus Slack and email approval workflows.", color: "text-cyan-400", bg: "bg-gradient-to-br from-cyan-500/10 to-cyan-600/5", border: "border-cyan-500/20" },
             ].map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.08}>
                 <div className={`${f.bg} border ${f.border} rounded-xl p-6 card-hover flex gap-5 backdrop-blur-sm hover:scale-[1.02] transition-all duration-300`}>
@@ -882,6 +882,125 @@ export default function Home() {
 
           {/* Warrant specimen — paper-unfold effect */}
           <WarrantSpecimen />
+        </div>
+      </section>
+
+      {/* ============================================
+          ADVANCED CAPABILITIES — What makes Vienna OS different
+          ============================================ */}
+      <section id="capabilities" aria-label="Advanced capabilities" className="relative bg-gradient-to-b from-navy-900 via-purple-950/20 to-navy-900 py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.08),transparent)]" />
+        
+        <div className="relative max-w-6xl mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-violet-500/15 border border-violet-500/30 rounded-full px-5 py-2.5 mb-6 backdrop-blur-sm">
+                <span className="text-sm text-violet-300 font-bold uppercase tracking-wider">Advanced</span>
+              </div>
+              <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+                Capabilities <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400 bg-clip-text text-transparent">no one else has</span>
+              </h2>
+              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Six novel primitives that make Vienna OS the most advanced AI governance platform ever built.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Merkle Warrant Chain",
+                subtitle: "Third-party verifiable governance",
+                desc: "Every warrant is hash-linked to its predecessor, creating an append-only chain. Auditors can independently verify your entire governance history using Merkle proofs — no trust in Vienna OS required. Tamper with any warrant and the entire chain detects it.",
+                badge: "Patent Pending",
+                badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+                gradient: "from-amber-500/10 to-orange-500/5",
+                border: "border-amber-500/20",
+              },
+              {
+                title: "Open Warrant Standard",
+                subtitle: "Like JWT, but for execution authority",
+                desc: "A portable, interoperable token format for AI agent authorization. header.payload.signature — any system can issue, verify, and share execution warrants. Risk-tiered, scope-constrained, time-limited, and cryptographically signed.",
+                badge: "Open Protocol",
+                badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+                gradient: "from-blue-500/10 to-indigo-500/5",
+                border: "border-blue-500/20",
+              },
+              {
+                title: "Policy Simulation",
+                subtitle: "Predict before you deploy",
+                desc: "Replay your entire governance history against proposed policy changes. See exactly which actions would be blocked, allowed, or changed — before the policy goes live. Risk-scored with deploy/review/reject recommendations.",
+                badge: "Enterprise",
+                badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+                gradient: "from-emerald-500/10 to-green-500/5",
+                border: "border-emerald-500/20",
+              },
+              {
+                title: "Warrant Delegation",
+                subtitle: "Cross-agent authority composition",
+                desc: "Agent A delegates a scoped subset of its warrant to Agent B. Scope can only narrow, TTL can only shorten, constraints can only tighten. Revoke the parent and all children cascade. Up to 5 levels deep.",
+                badge: "Novel",
+                badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+                gradient: "from-purple-500/10 to-violet-500/5",
+                border: "border-purple-500/20",
+              },
+              {
+                title: "Agent Trust Scoring",
+                subtitle: "Governance that learns",
+                desc: "Dynamic per-agent trust scores based on approval rate, compliance, stability, anomaly history, and tenure. High-trust agents get recommended for tier relaxation. Low-trust agents get flagged for tighter governance.",
+                badge: "Intelligence",
+                badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+                gradient: "from-cyan-500/10 to-teal-500/5",
+                border: "border-cyan-500/20",
+              },
+              {
+                title: "Compliance Reports",
+                subtitle: "SOC 2 in one click",
+                desc: "Generate audit-ready compliance reports mapped to SOC 2 controls (CC6.1–CC8.1). Warrant audit, approval audit, policy evaluation log, anomaly report, agent activity — in JSON, CSV, or Markdown.",
+                badge: "SOC 2 Ready",
+                badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+                gradient: "from-rose-500/10 to-pink-500/5",
+                border: "border-rose-500/20",
+              },
+            ].map((cap, i) => (
+              <ScrollReveal key={cap.title} delay={i * 0.1}>
+                <div className={`bg-gradient-to-br ${cap.gradient} border ${cap.border} rounded-xl p-6 h-full hover:scale-[1.02] transition-all duration-300`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-white font-bold text-lg">{cap.title}</h3>
+                    <span className={`text-xs px-2 py-1 rounded-full border ${cap.badgeColor}`}>{cap.badge}</span>
+                  </div>
+                  <p className="text-sm text-purple-300 font-medium mb-3">{cap.subtitle}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">{cap.desc}</p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          {/* Integration ecosystem */}
+          <ScrollReveal delay={0.3}>
+            <div className="mt-16 text-center">
+              <h3 className="text-2xl font-bold text-white mb-8">Integrate everywhere</h3>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                {[
+                  { label: "Node.js SDK", icon: "📦" },
+                  { label: "Python SDK", icon: "🐍" },
+                  { label: "GitHub Action", icon: "⚡" },
+                  { label: "Terraform", icon: "🏗️" },
+                  { label: "LangChain", icon: "🦜" },
+                  { label: "CrewAI", icon: "🤖" },
+                  { label: "AutoGen", icon: "🔄" },
+                  { label: "Slack", icon: "💬" },
+                  { label: "REST API", icon: "🔗" },
+                  { label: "Docker", icon: "🐳" },
+                ].map((int) => (
+                  <div key={int.label} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-lg px-4 py-2 text-sm text-slate-300">
+                    <span>{int.icon}</span>
+                    <span>{int.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 

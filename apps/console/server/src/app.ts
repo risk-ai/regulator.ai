@@ -89,6 +89,7 @@ import { createActionsRouter } from './routes/actions.js';
 import { createDemoRouter } from './routes/demo.js';
 import { createWarrantChainRouter } from './routes/warrant-chain.js';
 import { createOWSRouter } from './routes/ows.js';
+import { createPolicySimulationRouter } from './routes/policy-simulation.js';
 import { createHealthRouter } from './routes/health.js';
 import { createActivityFeedRouter } from './routes/activity-feed.js';
 import { createSlackRouter } from './routes/slack.js';
@@ -467,6 +468,9 @@ export function createApp(
   app.use(`${apiPrefix}/warrant-chain`, requireAuth, createWarrantChainRouter());
   // Public proof verification (no auth — third-party auditors)
   app.post(`${apiPrefix}/warrant-chain/verify-proof`, createWarrantChainRouter());
+
+  // Policy Simulation Engine
+  app.use(`${apiPrefix}/simulate`, requireAuth, createPolicySimulationRouter());
 
   // Open Warrant Standard (OWS) — public spec + token verification
   app.use(`${apiPrefix}/ows`, createOWSRouter());

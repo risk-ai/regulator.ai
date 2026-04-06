@@ -189,6 +189,25 @@ async function start() {
     // Initialize Agent Intent Bridge (with StateGraph dependency)
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log('Agent Intent Bridge initialized');
+
+    // Initialize Learning Coordinator (Phase 15)
+    let learningCoordinator: any = null;
+    try {
+      const { LearningCoordinator } = ViennaLib;
+      if (LearningCoordinator) {
+        const LCClass = (LearningCoordinator as any).LearningCoordinator || LearningCoordinator;
+        learningCoordinator = new LCClass({
+          stateGraph,
+          feedbackEnabled: true,
+          patternDetectionEnabled: true,
+          policyRecommendationEnabled: true,
+        });
+        await learningCoordinator.initialize?.();
+        console.log('Learning Coordinator initialized');
+      }
+    } catch (err) {
+      console.warn('[Server] Learning Coordinator not available (non-critical):', (err as Error).message);
+    }
     
     // Create Express app
     const app = createApp(
@@ -205,10 +224,13 @@ async function start() {
       chatHistory
     );
     
-    // Expose State Graph, Workspace Manager, and Vienna Core to routes (Phase 13)
+    // Expose State Graph, Workspace Manager, Learning, and Vienna Core to routes (Phase 13)
     app.locals.stateGraph = stateGraph;
     app.locals.workspaceManager = workspaceManager;
     app.locals.viennaCore = viennaCore;
+    if (learningCoordinator) {
+      app.locals.learningCoordinator = learningCoordinator;
+    }
     
     // Start event stream
     eventStream.start();

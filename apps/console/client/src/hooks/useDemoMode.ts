@@ -1,9 +1,15 @@
 /**
  * useDemoMode — Demo/Live Data Mode Detection
  * 
- * Detects whether the user has real agents connected.
- * When no agents exist, the console shows demo/sample data with clear labeling.
- * Auto-transitions to live mode when the first agent connects.
+ * Users start with a clean workspace (no demo data).
+ * Demo data is opt-in via the onboarding wizard (POST /api/v1/demo/seed).
+ * 
+ * This hook detects whether:
+ * - The user has real (non-demo) agents connected
+ * - Demo data has been seeded
+ * - The user has force-enabled demo mode from Settings
+ * 
+ * Auto-transitions to live mode when the first real agent connects.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -13,11 +19,11 @@ const DEMO_DISMISSED_KEY = 'vienna_demo_dismissed';
 const DEMO_FORCE_KEY = 'vienna_demo_force';
 
 interface DemoModeState {
-  /** True when user has no real agents and hasn't force-enabled live mode */
+  /** True when user has no real agents and demo data exists, or force-enabled */
   isDemoMode: boolean;
-  /** True when user has at least 1 connected agent */
+  /** True when user has at least 1 non-demo agent */
   hasRealAgents: boolean;
-  /** Number of real agents */
+  /** Number of real (non-demo) agents */
   agentCount: number;
   /** Whether the user dismissed the demo banner */
   bannerDismissed: boolean;
@@ -25,6 +31,8 @@ interface DemoModeState {
   forcedDemo: boolean;
   /** Loading state while checking agent count */
   loading: boolean;
+  /** True when workspace is completely empty (no agents, no demo data) */
+  isEmptyWorkspace: boolean;
   /** Dismiss the demo banner (hides it, keeps demo data) */
   dismissBanner: () => void;
   /** Force demo mode on/off from Settings */
@@ -33,6 +41,7 @@ interface DemoModeState {
 
 export function useDemoMode(): DemoModeState {
   const [agentCount, setAgentCount] = useState<number>(0);
+  const [hasDemoAgents, setHasDemoAgents] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [bannerDismissed, setBannerDismissed] = useState(() => {
     return localStorage.getItem(DEMO_DISMISSED_KEY) === 'true';
@@ -41,22 +50,31 @@ export function useDemoMode(): DemoModeState {
     return localStorage.getItem(DEMO_FORCE_KEY) === 'true';
   });
 
-  // Check real agent count
+  // Check agent count, distinguishing real from demo agents
   const checkAgents = useCallback(async () => {
     try {
       const response = await apiClient.get<any[]>('/agents').catch(() => ({ data: [] }));
       const agents = (response as any)?.data || response || [];
-      const realAgents = Array.isArray(agents) ? agents.length : 0;
+      const agentList = Array.isArray(agents) ? agents : [];
       
-      // If we transition from 0 → 1+ agents, clear the dismissed state
-      if (realAgents > 0 && agentCount === 0 && !loading) {
+      const realAgents = agentList.filter((a: any) => 
+        !a.name?.startsWith('[Demo]')
+      );
+      const demoAgents = agentList.filter((a: any) => 
+        a.name?.startsWith('[Demo]')
+      );
+      
+      // If we transition from 0 → 1+ real agents, clear the dismissed state
+      if (realAgents.length > 0 && agentCount === 0 && !loading) {
         setBannerDismissed(false);
         localStorage.removeItem(DEMO_DISMISSED_KEY);
       }
       
-      setAgentCount(realAgents);
+      setAgentCount(realAgents.length);
+      setHasDemoAgents(demoAgents.length > 0);
     } catch {
       setAgentCount(0);
+      setHasDemoAgents(false);
     } finally {
       setLoading(false);
     }
@@ -70,9 +88,10 @@ export function useDemoMode(): DemoModeState {
   }, [checkAgents]);
 
   const hasRealAgents = agentCount > 0;
+  const isEmptyWorkspace = !hasRealAgents && !hasDemoAgents && !loading;
   
-  // Demo mode is active when: no real agents OR user forced demo mode
-  const isDemoMode = forcedDemo || (!hasRealAgents && !loading);
+  // Demo mode is active when: force-enabled OR (has demo agents but no real agents)
+  const isDemoMode = forcedDemo || (hasDemoAgents && !hasRealAgents && !loading);
 
   const dismissBanner = useCallback(() => {
     setBannerDismissed(true);
@@ -95,6 +114,7 @@ export function useDemoMode(): DemoModeState {
     bannerDismissed,
     forcedDemo,
     loading,
+    isEmptyWorkspace,
     dismissBanner,
     setForcedDemo,
   };

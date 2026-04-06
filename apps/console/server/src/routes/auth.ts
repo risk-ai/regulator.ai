@@ -173,23 +173,8 @@ router.post('/register', async (req: Request, res: Response) => {
       // Don't fail registration if API key creation fails
     }
 
-    // Also seed a default policy so the pipeline isn't empty
-    try {
-      await query(
-        `INSERT INTO policies (id, tenant_id, name, description, enabled, priority, created_by)
-         VALUES ($1, $2, $3, $4, true, 1, $5)
-         ON CONFLICT DO NOTHING`,
-        [
-          uuidv4(),
-          result.tenantId,
-          'Default Governance Policy',
-          'Auto-created starter policy. Low-risk actions (T0) auto-approve. Higher tiers require review.',
-          result.userId,
-        ]
-      );
-    } catch (seedErr) {
-      console.error('[Auth] Failed to seed default policy:', seedErr);
-    }
+    // Note: No demo data is auto-seeded. Users start with a clean workspace
+    // and can opt in to demo data via the onboarding wizard or POST /api/v1/demo/seed
 
     res.status(201).json({
       success: true,

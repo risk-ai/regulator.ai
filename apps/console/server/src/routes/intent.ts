@@ -11,6 +11,7 @@
 import { Router, Request, Response } from 'express';
 import { IntentGateway, getStateGraph } from '@vienna/lib';
 import { queryOne, execute } from '../db/postgres.js';
+import { metrics } from '../services/metricsService.js';
 
 export function createIntentRouter(): Router {
   const router = Router();
@@ -39,6 +40,7 @@ export function createIntentRouter(): Router {
    * }
    */
   router.post('/', async (req: Request, res: Response) => {
+    const startTime = Date.now();
     try {
       const { intent_type, payload, simulation = false } = req.body;
 
@@ -139,6 +141,19 @@ export function createIntentRouter(): Router {
       }
 
       const response = await intentGateway.submitIntent(intent, context);
+
+      // Record metrics
+      const processingTime = (Date.now() - startTime) / 1000;
+      const riskTier = defaultRiskTier || context.risk_tier || 'T0';
+      
+      metrics.recordIntentSubmission(riskTier, intent_type, tenant_id);
+      metrics.observeIntentProcessingTime(processingTime, riskTier, intent_type);
+      
+      if (response.accepted) {
+        metrics.recordIntentApproval(riskTier, intent_type);
+      } else {
+        metrics.recordIntentDenial(riskTier, response.reason || 'unknown');
+      }
 
       // Update usage status based on result
       if (actionType) {

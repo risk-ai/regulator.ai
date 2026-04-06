@@ -7,6 +7,7 @@
 
 import { Router, Request, Response } from 'express';
 import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
+import { metrics } from '../services/metricsService.js';
 
 export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
   const router = Router();
@@ -220,6 +221,7 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
    * - decision_reason: optional explanation
    */
   router.post('/:approval_id/approve', async (req: Request, res: Response) => {
+    const startTime = Date.now();
     try {
       const ApprovalManagerModule = await import('../../../../../services/vienna-lib/core/approval-manager.js');
       const ApprovalManager = ApprovalManagerModule.default || ApprovalManagerModule.ApprovalManager || ApprovalManagerModule;
@@ -248,6 +250,13 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
         reviewed_by,
         decision_reason || null
       );
+
+      // Record metrics
+      const approvalLatency = (Date.now() - startTime) / 1000;
+      const riskTier = approval.required_tier || 'T0';
+      
+      metrics.recordApprovalDecision('approved', riskTier, reviewed_by);
+      metrics.observeApprovalLatency(approvalLatency);
 
       // Issue warrant for the approved action
       let warrant = null;
@@ -323,6 +332,7 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
    * - decision_reason: denial reason (required)
    */
   router.post('/:approval_id/deny', async (req: Request, res: Response) => {
+    const startTime = Date.now();
     try {
       const ApprovalManagerModule = await import('../../../../../services/vienna-lib/core/approval-manager.js');
       const ApprovalManager = ApprovalManagerModule.default || ApprovalManagerModule.ApprovalManager || ApprovalManagerModule;
@@ -361,6 +371,13 @@ export function createApprovalsRouter(vienna: ViennaRuntimeService): Router {
         reviewed_by,
         decision_reason
       );
+
+      // Record metrics
+      const approvalLatency = (Date.now() - startTime) / 1000;
+      const riskTier = approval.required_tier || 'T0';
+      
+      metrics.recordApprovalDecision('denied', riskTier, reviewed_by);
+      metrics.observeApprovalLatency(approvalLatency);
       
       res.json({
         success: true,

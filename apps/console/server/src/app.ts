@@ -31,6 +31,7 @@ import { createHybridAuthMiddleware } from './middleware/hybridAuth.js';
 import { jwtAuthMiddleware } from './middleware/jwtAuth.js';
 import { apiLimiter, authLimiter, agentLimiter } from './middleware/rateLimiter.js';
 import { metricsMiddleware, metricsEndpoint } from './middleware/metrics.js';
+import { createViennaMetricsRouter } from './services/metricsService.js';
 import { createCacheMiddleware } from './middleware/cache.js';
 import { requestLoggingMiddleware, errorLoggingMiddleware } from './middleware/logging.js';
 
@@ -201,10 +202,11 @@ export function createApp(
   });
 
   // ============================================================================
-  // Metrics Endpoint (Prometheus)
+  // Metrics Endpoints (Prometheus)
   // ============================================================================
   
   app.get('/metrics', metricsEndpoint());
+  app.use('/api/v1/metrics', createViennaMetricsRouter());
 
   // ============================================================================
   // Health Check (Separated Runtime + Provider Health)

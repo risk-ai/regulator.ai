@@ -12,6 +12,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { eventBus } from '../services/eventBus.js';
 import { query, queryOne, execute } from '../db/postgres.js';
+import { viennaMetrics } from '../services/metricsService.js';
 
 const router = express.Router();
 
@@ -119,6 +120,10 @@ router.post('/intents', async (req, res) => {
     // Extract tenant_id from authenticated API key (set by apiKeyAuth middleware)
     const tenantId = (req as any).tenantId || 'default';
 
+    // Track metrics
+    const intentStart = Date.now();
+    viennaMetrics.intentsSubmitted.inc({ risk_tier: 'pending' });
+
     // Emit intent submitted event
     eventBus.emitIntentSubmitted({
       intent_id: intentId,
@@ -164,6 +169,11 @@ router.post('/intents', async (req, res) => {
         const expiresAt = warrant.expires_at;
 
         console.log(`[framework-api] Real warrant issued: ${warrantId} for intent ${intentId} (${riskTier})`);
+
+        // Track metrics
+        viennaMetrics.intentsApproved.inc({ risk_tier: riskTier });
+        viennaMetrics.warrantsIssued.inc({ risk_tier: riskTier });
+        viennaMetrics.intentProcessingDuration.observe((Date.now() - intentStart) / 1000);
 
         // Emit intent approved event
         eventBus.emitIntentApproved({
@@ -234,6 +244,10 @@ router.post('/intents', async (req, res) => {
     const approvalId = `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const approvalExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h expiry
     
+    // Track pending approval metric
+    viennaMetrics.approvalsPending.inc();
+    viennaMetrics.intentProcessingDuration.observe((Date.now() - intentStart) / 1000);
+
     // Emit approval required event
     eventBus.emitApprovalRequired({
       approval_id: approvalId,

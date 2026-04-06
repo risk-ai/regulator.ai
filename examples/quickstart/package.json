@@ -1,0 +1,12 @@
+{
+  "name": "vienna-os-quickstart",
+  "version": "1.0.0",
+  "description": "Vienna OS quickstart - from zero to governed AI agent in 5 minutes",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@vienna-os/sdk": "^0.1.0"
+  }
+}

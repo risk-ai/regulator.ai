@@ -87,6 +87,7 @@ import { createFleetRouter } from './routes/fleet.js';
 import { createSimulationRouter } from './routes/simulation.js';
 import { createActionsRouter } from './routes/actions.js';
 import { createDemoRouter } from './routes/demo.js';
+import { createWarrantChainRouter } from './routes/warrant-chain.js';
 import { createHealthRouter } from './routes/health.js';
 import { createActivityFeedRouter } from './routes/activity-feed.js';
 import { createSlackRouter } from './routes/slack.js';
@@ -460,6 +461,11 @@ export function createApp(
   
   // Demo data seeding (onboarding)
   app.use(`${apiPrefix}/demo`, requireAuth, createDemoRouter(viennaRuntime));
+
+  // Merkle Warrant Chain (cryptographic governance proof)
+  app.use(`${apiPrefix}/warrant-chain`, requireAuth, createWarrantChainRouter());
+  // Public proof verification (no auth — third-party auditors)
+  app.post(`${apiPrefix}/warrant-chain/verify-proof`, createWarrantChainRouter());
   
   // Settings (tenant configuration)
   app.use(`${apiPrefix}/settings`, requireAuth, createSettingsRouter());

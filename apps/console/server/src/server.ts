@@ -190,6 +190,21 @@ async function start() {
     const agentIntentBridge = new AgentIntentBridge(intentGateway);
     console.log('Agent Intent Bridge initialized');
 
+    // Initialize Merkle Warrant Chain (cryptographic governance proof)
+    let warrantChain: any = null;
+    try {
+      const { MerkleWarrantChain } = await import('../../services/vienna-lib/governance/warrant-chain.js');
+      const { PostgresWarrantChainStore } = await import('../../services/vienna-lib/governance/warrant-chain-store.js');
+      const { query: dbQuery, execute: dbExecute } = await import('./db/postgres.js');
+
+      const chainStore = new PostgresWarrantChainStore({ query: dbQuery, execute: dbExecute });
+      await chainStore.initialize(); // Creates tables if needed
+      warrantChain = new MerkleWarrantChain(chainStore);
+      console.log('Merkle Warrant Chain initialized');
+    } catch (err) {
+      console.warn('[Server] Merkle Warrant Chain not available (non-critical):', (err as Error).message);
+    }
+
     // Initialize Learning Coordinator (Phase 15)
     let learningCoordinator: any = null;
     try {
@@ -224,12 +239,15 @@ async function start() {
       chatHistory
     );
     
-    // Expose State Graph, Workspace Manager, Learning, and Vienna Core to routes (Phase 13)
+    // Expose State Graph, Workspace Manager, Learning, Chain, and Vienna Core to routes
     app.locals.stateGraph = stateGraph;
     app.locals.workspaceManager = workspaceManager;
     app.locals.viennaCore = viennaCore;
     if (learningCoordinator) {
       app.locals.learningCoordinator = learningCoordinator;
+    }
+    if (warrantChain) {
+      app.locals.warrantChain = warrantChain;
     }
     
     // Start event stream

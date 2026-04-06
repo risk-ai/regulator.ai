@@ -818,7 +818,7 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             <AnimatedStat value={80} suffix="+" label="Database Tables" sub="Full persistence layer" />
-            <AnimatedStat value={62} label="API Endpoints" sub="Complete REST coverage" />
+            <AnimatedStat value={64} label="API Routes" sub="Complete REST coverage" />
             <AnimatedStat value={28} label="Execution Modules" sub="Comprehensive runtime" />
             <AnimatedStat value={4} label="Risk Tiers" sub="T0 auto → T3 multi-party" />
           </div>

@@ -173,39 +173,6 @@ const posts = [
     categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Team",
   },
-  {
-    slug: "execution-gap-warrants-not-guardrails",
-    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
-    excerpt:
-      "Current AI safety focuses on model outputs, not agent actions. The DIR framework — Deliberate scope, Intentional authorization, Responsible audit — closes the execution gap that guardrails leave wide open.",
-    date: "March 30, 2026",
-    readTime: "11 min",
-    category: "Thought Leadership",
-    categoryColor: "text-violet-400 bg-violet-500/10",
-    author: "Max Anderson",
-  },
-  {
-    slug: "rbac-to-warrants-access-control-evolution",
-    title: "From RBAC to Warrants: Rethinking Access Control for Autonomous Agents",
-    excerpt:
-      "RBAC and ABAC were built for humans clicking buttons, not agents planning multi-step operations. Here's why warrant-based governance is the natural evolution — with concrete failure modes and fixes.",
-    date: "March 30, 2026",
-    readTime: "10 min",
-    category: "Architecture",
-    categoryColor: "text-blue-400 bg-blue-500/10",
-    author: "Max Anderson",
-  },
-  {
-    slug: "immutable-audit-trail-financial-compliance",
-    title: "Building an Immutable Audit Trail for AI: Lessons from Financial Compliance",
-    excerpt:
-      "SOX, Basel III, and MiFID II demand provable records. AI governance needs the same rigor. Learn how Vienna OS's cryptographic logging meets financial-grade compliance requirements.",
-    date: "March 30, 2026",
-    readTime: "12 min",
-    category: "Compliance",
-    categoryColor: "text-emerald-400 bg-emerald-500/10",
-    author: "Max Anderson",
-  },
 ];
 
 export default function BlogPage() {

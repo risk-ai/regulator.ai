@@ -1,0 +1,52 @@
+name: 'Vienna OS Govern'
+description: 'Submit a governance intent to Vienna OS and obtain an execution warrant before proceeding. If governance denies, the step fails.'
+branding:
+  icon: 'shield'
+  color: 'purple'
+
+inputs:
+  vienna-url:
+    description: 'Vienna OS API URL'
+    required: true
+    default: 'https://console.regulator.ai'
+  api-key:
+    description: 'Vienna OS API key (vos_xxx)'
+    required: true
+  action:
+    description: 'Action being performed (e.g., deploy.production, release.publish)'
+    required: true
+  agent-id:
+    description: 'Agent identifier (defaults to github-actions)'
+    required: false
+    default: 'github-actions'
+  risk-tier:
+    description: 'Risk tier override (T0, T1, T2, T3). If not set, auto-classified.'
+    required: false
+  context:
+    description: 'JSON string of additional context (e.g., {"environment": "production", "branch": "main"})'
+    required: false
+    default: '{}'
+  timeout:
+    description: 'Timeout in seconds for approval (default: 300 for T2+)'
+    required: false
+    default: '300'
+  fail-on-deny:
+    description: 'Fail the step if governance denies (default: true)'
+    required: false
+    default: 'true'
+
+outputs:
+  warrant-id:
+    description: 'Warrant ID if approved'
+  ows-token:
+    description: 'Open Warrant Standard token (portable authorization proof)'
+  status:
+    description: 'Governance decision: approved, denied, pending, timeout'
+  risk-tier:
+    description: 'Classified risk tier'
+  intent-id:
+    description: 'Intent ID for tracking'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

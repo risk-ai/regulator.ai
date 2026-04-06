@@ -1,21 +1,103 @@
 # Vienna OS Terraform Provider
 
-> ⚠️ **Status: Schema Reference Only** — This directory contains a schema reference (`schema.tf`) that documents the planned Terraform provider resources and data sources. The actual provider binary is not yet implemented.
+Manage Vienna OS governance resources via Terraform.
 
-## Planned Resources
+## Requirements
 
-- `vienna_policy` — Governance policy management
-- `vienna_action_type` — Custom action type definitions
-- `vienna_agent` — Agent registration and configuration
-- `vienna_integration` — External system integrations (Slack, email, Datadog)
+- Terraform >= 1.0
+- Go >= 1.21 (for building)
+- Vienna OS API key
 
-## Planned Data Sources
+## Usage
 
-- `vienna_fleet_status` — Fleet-wide agent status
-- `vienna_audit_log` — Audit log queries
-- `vienna_policy_evaluation` — Policy dry-run testing
-- `vienna_usage_metrics` — Tenant usage statistics
+```hcl
+terraform {
+  required_providers {
+    vienna = {
+      source  = "registry.terraform.io/vienna-os/vienna"
+      version = "~> 1.0"
+    }
+  }
+}
 
-## Contributing
+provider "vienna" {
+  url     = "https://console.regulator.ai"
+  api_key = var.vienna_api_key
+}
 
-If you'd like to help build the Terraform provider, see [CONTRIBUTING.md](../../CONTRIBUTING.md) and open an issue to discuss implementation.
+# Create a governance policy
+resource "vienna_policy" "block_prod_deploys" {
+  name        = "Block unreviewed production deploys"
+  description = "All production deployments require approval"
+  decision    = "require_approval"
+  priority    = 100
+  enabled     = true
+
+  scope_objectives   = ["deploy.production"]
+  scope_environments = ["production"]
+  approval_required  = true
+}
+
+# Register an agent
+resource "vienna_agent" "deploy_bot" {
+  name         = "deploy-bot"
+  description  = "Automated deployment agent"
+  capabilities = ["deploy.staging", "deploy.production"]
+}
+
+# Configure Slack integration
+resource "vienna_integration" "slack_approvals" {
+  name    = "Slack Approvals"
+  type    = "slack"
+  enabled = true
+
+  config = {
+    webhook_url = var.slack_webhook_url
+    channel     = "#governance"
+  }
+
+  events = [
+    "approval_required",
+    "approval_resolved",
+    "action_executed",
+  ]
+}
+
+# Data sources
+data "vienna_chain" "status" {}
+
+output "chain_length" {
+  value = data.vienna_chain.status.chain_length
+}
+```
+
+## Resources
+
+| Resource | Description |
+|----------|-------------|
+| `vienna_policy` | Governance policies (CRUD) |
+| `vienna_agent` | Agent registrations |
+| `vienna_integration` | External integrations (Slack, email, webhook) |
+
+## Data Sources
+
+| Data Source | Description |
+|-------------|-------------|
+| `vienna_policy` | Read a policy by ID |
+| `vienna_agent` | Read an agent by ID |
+| `vienna_fleet` | Fleet-wide status (agent counts) |
+| `vienna_chain` | Warrant chain status (length, root hash) |
+
+## Building
+
+```bash
+cd packages/terraform-provider-vienna
+go build -o terraform-provider-vienna
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `VIENNA_URL` | API URL (default: https://console.regulator.ai) |
+| `VIENNA_API_KEY` | API key (vos_xxx) |

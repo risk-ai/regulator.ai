@@ -193,8 +193,8 @@ async function start() {
     // Initialize Merkle Warrant Chain (cryptographic governance proof)
     let warrantChain: any = null;
     try {
-      const { MerkleWarrantChain } = await import('../../services/vienna-lib/governance/warrant-chain.js');
-      const { PostgresWarrantChainStore } = await import('../../services/vienna-lib/governance/warrant-chain-store.js');
+      const { MerkleWarrantChain } = await import('../../../../services/vienna-lib/governance/warrant-chain.js');
+      const { PostgresWarrantChainStore } = await import('../../../../services/vienna-lib/governance/warrant-chain-store.js');
       const { query: dbQuery, execute: dbExecute } = await import('./db/postgres.js');
 
       const chainStore = new PostgresWarrantChainStore({ query: dbQuery, execute: dbExecute });

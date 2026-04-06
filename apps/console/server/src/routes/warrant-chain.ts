@@ -150,7 +150,7 @@ export function createWarrantChainRouter(): Router {
 
       // Dynamic import to avoid circular deps
       const { MerkleWarrantChain } = await import(
-        '../../../../services/vienna-lib/governance/warrant-chain.js'
+        '../../../../../services/vienna-lib/governance/warrant-chain.js'
       );
       
       const valid = MerkleWarrantChain.verifyMerkleProof(proof);

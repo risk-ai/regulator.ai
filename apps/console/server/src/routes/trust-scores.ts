@@ -46,7 +46,7 @@ export function createTrustScoreRouter(): Router {
       }).filter((e: any) => e.agent_id);
 
       const { AgentTrustEngine } = await import(
-        '../../../../services/vienna-lib/governance/agent-trust-score.js'
+        '../../../../../services/vienna-lib/governance/agent-trust-score.js'
       );
 
       const engine = new AgentTrustEngine();
@@ -64,7 +64,7 @@ export function createTrustScoreRouter(): Router {
           fleet_average: scores.length > 0
             ? Math.round(scores.reduce((a: number, b: any) => a + b.score, 0) / scores.length)
             : 0,
-          fleet_health: this._classifyFleetHealth(scores),
+          fleet_health: _classifyFleetHealth(scores),
         },
       });
     } catch (error) {
@@ -114,7 +114,7 @@ export function createTrustScoreRouter(): Router {
       });
 
       const { AgentTrustEngine } = await import(
-        '../../../../services/vienna-lib/governance/agent-trust-score.js'
+        '../../../../../services/vienna-lib/governance/agent-trust-score.js'
       );
 
       const engine = new AgentTrustEngine();

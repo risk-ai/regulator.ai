@@ -123,7 +123,7 @@ export function createPolicySimulationRouter(): Router {
 
       // Run simulation
       const { PolicySimulator } = await import(
-        '../../../../services/vienna-lib/governance/policy-simulator.js'
+        '../../../../../services/vienna-lib/governance/policy-simulator.js'
       );
       const simulator = new PolicySimulator();
       const result = simulator.simulate({
@@ -203,7 +203,7 @@ export function createPolicySimulationRouter(): Router {
       const intents = Array.from(intentMap.values()).slice(0, 1000);
 
       const { PolicySimulator } = await import(
-        '../../../../services/vienna-lib/governance/policy-simulator.js'
+        '../../../../../services/vienna-lib/governance/policy-simulator.js'
       );
       const simulator = new PolicySimulator();
 

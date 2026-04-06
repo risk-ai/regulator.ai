@@ -183,12 +183,13 @@ export class PolicySimulator {
     const matched = policies.filter(p => p.enabled && this._policyMatchesIntent(p, intent));
 
     if (matched.length === 0) {
-      // No policy matches → default deny (secure posture)
+      // No policy matches → preserve actual decision (simulation shows no policy coverage)
+      // This avoids false "would_block" for actions that have no policy at all
       return {
-        decision: 'deny',
-        approval_required: false,
+        decision: intent.actual_decision === 'denied' ? 'denied' : 'approved',
+        approval_required: intent.actual_approval_required,
         matched_policy_id: null,
-        reason: 'No matching policy found — default deny',
+        reason: 'No matching policy found — preserving actual decision (no policy coverage)',
       };
     }
 

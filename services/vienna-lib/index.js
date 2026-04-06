@@ -54,6 +54,29 @@ module.exports = {
   // Federation
   Federation: require('./federation/federation'),
   
+  // Merkle Warrant Chain
+  MerkleWarrantChain: require('./governance/warrant-chain'),
+  InMemoryWarrantChainStore: require('./governance/warrant-chain-store').InMemoryWarrantChainStore,
+  PostgresWarrantChainStore: require('./governance/warrant-chain-store').PostgresWarrantChainStore,
+  
+  // Open Warrant Standard
+  OpenWarrantStandard: require('./governance/open-warrant-standard'),
+  
+  // Policy Simulation
+  PolicySimulator: require('./governance/policy-simulator'),
+  
+  // Warrant Delegation
+  WarrantDelegation: require('./governance/warrant-delegation'),
+  
+  // Agent Trust Scoring
+  AgentTrustEngine: require('./governance/agent-trust-score'),
+  
+  // Natural Language Policy Builder
+  NaturalLanguagePolicyBuilder: require('./governance/natural-language-policy-builder'),
+  
+  // Compliance Reports
+  ComplianceReportGenerator: require('./compliance/report-generator'),
+  
   // Runtime stub for console compatibility
   default: require('./runtime-stub')
   

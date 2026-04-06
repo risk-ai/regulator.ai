@@ -227,11 +227,12 @@ export class NaturalLanguagePolicyBuilder {
       for (const t of timeFragment.split(/\s+/)) unmatchedTokens.delete(t);
     }
 
-    // 8. Handle "without approval" pattern (special case)
+    // 8. Handle "without [X] approval" pattern (special case)
     let finalDecision = decision;
-    if (normalized.includes('without approval') && decision === 'deny') {
+    const withoutApprovalMatch = normalized.match(/without\s+(?:\w+\s+)?approval/);
+    if (withoutApprovalMatch && (decision === 'deny' || decision === 'allow')) {
       finalDecision = 'require_approval';
-      matchedFragments.push('Interpreted "block/deny ... without approval" as "require approval"');
+      matchedFragments.push(`Interpreted "${withoutApprovalMatch[0]}" as "require approval"`);
     }
 
     // Determine if approval is required

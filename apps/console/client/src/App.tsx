@@ -42,6 +42,8 @@ const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => 
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
 const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m => ({ default: m.AnalyticsPage })));
+const GovernanceChainPage = React.lazy(() => import('./pages/GovernanceChainPage.js').then(m => ({ default: m.GovernanceChainPage })));
+const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.js').then(m => ({ default: m.GovernanceLivePage })));
 
 function PageLoadingSpinner() {
   return (
@@ -232,6 +234,8 @@ export function App() {
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />
                   <Route path="/compliance" element={<CompliancePage />} />
+                  <Route path="/governance-chain" element={<GovernanceChainPage />} />
+                  <Route path="/governance-live" element={<GovernanceLivePage />} />
                   <Route path="/activity" element={<ActivityFeedPage />} />
                   <Route path="/analytics" element={<AnalyticsPage />} />
                   <Route path="/history" element={<HistoryPage />} />

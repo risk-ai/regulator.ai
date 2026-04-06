@@ -8,9 +8,9 @@
 
 "Your AI agents are out of scope for this SOC 2 audit."
 
-That's what our auditor told us six months ago when we first attempted SOC 2 certification for our autonomous AI deployment platform. The problem? Traditional SOC 2 frameworks weren't designed for systems that make real-time decisions and take autonomous actions without human oversight.
+That's a common challenge teams face when attempting SOC 2 certification for autonomous AI deployment platforms. The problem? Traditional SOC 2 frameworks weren't designed for systems that make real-time decisions and take autonomous actions without human oversight.
 
-Fast-forward to today: Vienna OS has become the first AI agent governance platform to achieve SOC 2 Type I compliance, and we've open-sourced both the platform and the compliance playbook. Here's what we learned about bridging the gap between traditional IT controls and autonomous AI systems.
+Fast-forward to today: Vienna OS has been designed from the ground up to support SOC 2 compliance, and we've open-sourced both the platform and the compliance playbook. Here's what we learned about bridging the gap between traditional IT controls and autonomous AI systems.
 
 ## The AI Compliance Gap
 
@@ -304,7 +304,7 @@ Vienna OS is open source and available on GitHub. We've included:
 - Audit trail templates and compliance reports
 - Integration guides for major AI frameworks
 
-The governance platform that helped us achieve SOC 2 compliance is now available to help you build trustworthy AI systems.
+The governance platform designed for SOC 2 compliance is now available to help you build trustworthy AI systems.
 
 **Ready to secure your AI agents? Get started:**
 - 📚 **Documentation:** [docs.vienna-os.dev](https://docs.vienna-os.dev)

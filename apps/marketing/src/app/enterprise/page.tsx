@@ -19,9 +19,7 @@ import {
   Settings,
   Zap,
   TrendingUp,
-  Quote,
-  ArrowRight,
-  Calculator
+  ArrowRight
 } from "lucide-react";
 import { analytics } from "@/lib/analytics";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
@@ -81,22 +79,22 @@ const enterpriseCapabilities = [
   },
   {
     icon: Award,
-    title: "SOC 2 Type II",
+    title: "SOC 2 Type II (Roadmap)",
     description: "Comprehensive security controls audit with continuous monitoring and reporting"
   },
   {
     icon: Shield,
-    title: "HIPAA BAA",
+    title: "HIPAA BAA (Roadmap)",
     description: "Business Associate Agreement available for healthcare and regulated data governance"
   },
   {
     icon: Scale,
-    title: "Custom SLA (99.9%+)",
+    title: "Custom SLA (Coming Soon)",
     description: "Guaranteed uptime with custom service level agreements tailored to your requirements"
   },
   {
     icon: HeadphonesIcon,
-    title: "Dedicated CSM",
+    title: "Dedicated CSM (Coming Soon)",
     description: "Dedicated Customer Success Manager for onboarding, training, and ongoing support"
   },
   {
@@ -106,7 +104,7 @@ const enterpriseCapabilities = [
   },
   {
     icon: Settings,
-    title: "Professional Services",
+    title: "Professional Services (Coming Soon)",
     description: "Custom integration, policy development, and deployment assistance from our experts"
   },
   {
@@ -116,7 +114,7 @@ const enterpriseCapabilities = [
   },
   {
     icon: TrendingUp,
-    title: "Anomaly Detection",
+    title: "Anomaly Detection (Coming Soon)",
     description: "AI-powered detection of unusual agent behavior patterns and governance violations"
   }
 ];
@@ -140,7 +138,7 @@ const complianceFeatures = [
   {
     icon: Building2,
     title: "FedRAMP Pathway",
-    description: "Federal cloud security compliance pathway for government deployments"
+    description: "Federal cloud security compliance pathway for government deployments (roadmap)"
   }
 ];
 
@@ -200,62 +198,7 @@ const trustLogos = [
    ROI CALCULATOR COMPONENT
    ============================================================ */
 
-function ROICalculator() {
-  const [agents, setAgents] = useState(50);
-  const [complianceCosts, setComplianceCosts] = useState(500000);
-  
-  const annualSavings = Math.min(agents * 1000 + complianceCosts * 0.4, 5000000);
-  const viennaOSCost = Math.max(agents * 1200, 50000); // Rough enterprise pricing
-  const netSavings = annualSavings - viennaOSCost;
-  const roi = Math.round(((netSavings / viennaOSCost) * 100));
-
-  return (
-    <div className="bg-navy-800/50 border border-navy-700 rounded-xl p-6">
-      <h3 className="text-xl font-semibold text-white mb-4">ROI Calculator</h3>
-      
-      <div className="space-y-4 mb-6">
-        <div>
-          <label className="block text-sm text-slate-300 mb-2">Number of AI agents</label>
-          <input
-            type="range"
-            min="10"
-            max="500"
-            value={agents}
-            onChange={(e) => setAgents(parseInt(e.target.value))}
-            className="w-full"
-          />
-          <div className="text-sm text-purple-400 mt-1">{agents} agents</div>
-        </div>
-        
-        <div>
-          <label className="block text-sm text-slate-300 mb-2">Current annual compliance costs</label>
-          <input
-            type="range"
-            min="100000"
-            max="2000000"
-            step="50000"
-            value={complianceCosts}
-            onChange={(e) => setComplianceCosts(parseInt(e.target.value))}
-            className="w-full"
-          />
-          <div className="text-sm text-purple-400 mt-1">${complianceCosts.toLocaleString()}</div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-lg p-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-white mb-1">
-            ${netSavings.toLocaleString()}
-          </div>
-          <div className="text-sm text-purple-300 mb-2">Annual net savings</div>
-          <div className="text-lg font-semibold text-green-400">
-            {roi}% ROI
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+/* ROI Calculator removed — no real customer data to back claims */
 
 export default function EnterprisePage() {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
@@ -269,11 +212,11 @@ export default function EnterprisePage() {
     // Set meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Enterprise AI governance at scale. Unlimited agents, on-premise deployment, SOC 2 Type II, HIPAA BAA, custom SLA, dedicated support for Fortune 500 companies.');
+      metaDescription.setAttribute('content', 'Enterprise AI governance at scale. Unlimited agents, on-premise deployment, compliance-ready architecture, dedicated support. Built for Fortune 500 and regulated industries.');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'Enterprise AI governance at scale. Unlimited agents, on-premise deployment, SOC 2 Type II, HIPAA BAA, custom SLA, dedicated support for Fortune 500 companies.';
+      meta.content = 'Enterprise AI governance at scale. Unlimited agents, on-premise deployment, compliance-ready architecture, dedicated support. Built for Fortune 500 and regulated industries.';
       document.head.appendChild(meta);
     }
   }, []);
@@ -298,7 +241,7 @@ export default function EnterprisePage() {
             "@type": "Product",
             "@id": "https://regulator.ai/enterprise#product",
             "name": "Vienna OS Enterprise - AI Governance Platform",
-            "description": "Enterprise AI governance at scale. Unlimited agents, on-premise deployment, SOC 2 Type II, HIPAA BAA, custom SLA, dedicated support.",
+            "description": "Enterprise AI governance at scale. Unlimited agents, on-premise deployment, compliance-ready architecture, dedicated support. Built for Fortune 500 and regulated industries.",
             "brand": {
               "@type": "Brand",
               "name": "Vienna OS"
@@ -320,7 +263,7 @@ export default function EnterprisePage() {
             "audience": {
               "@type": "Audience",
               "audienceType": "Enterprise",
-              "name": "Fortune 500, Regulated Industries"
+              "name": "Enterprise, Regulated Industries"
             }
           })
         }}
@@ -346,35 +289,6 @@ export default function EnterprisePage() {
           </div>
         </div>
       </nav>
-
-      {/* Urgent Enterprise Contact Banner */}
-      <div className="bg-gradient-to-r from-red-600/20 to-orange-600/20 border-b border-red-500/30">
-        <div className="max-w-7xl mx-auto px-6 py-4 text-center">
-          <p className="text-sm text-red-300 mb-2">
-            🚨 <strong>Enterprise Demo Request?</strong> We're online now and can demo Vienna OS within the hour.
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <button
-              onClick={() => {
-                setLeadCaptureTrigger('enterprise_urgent_banner');
-                setShowLeadCapture(true);
-              }}
-              className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2 rounded-lg transition shadow-lg hover:shadow-red-500/25"
-            >
-              Schedule Demo Now →
-            </button>
-            <a
-              href="mailto:admin@ai.ventures?subject=Enterprise%20Demo%20Request"
-              className="inline-flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition"
-            >
-              Email Us Directly
-            </a>
-          </div>
-          <p className="text-xs text-red-400 mt-2">
-            Available 24/7 • Response within 4 hours • Dedicated CSM assigned
-          </p>
-        </div>
-      </div>
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">
@@ -424,7 +338,7 @@ export default function EnterprisePage() {
         <div className="border-t border-navy-700/50 py-16">
           <div className="max-w-6xl mx-auto px-6 text-center">
             <p className="text-slate-400 text-sm mb-8 uppercase tracking-wider font-medium">
-              Trusted by Fortune 500 &amp; Regulated Industries
+              Built for Fortune 500 &amp; Regulated Industries
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
               {trustLogos.map((logo, i) => (
@@ -588,29 +502,38 @@ export default function EnterprisePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            <ROICalculator />
+            <div className="bg-navy-800/50 border border-navy-700 rounded-xl p-6">
+              <h3 className="text-xl font-semibold text-white mb-4">Why Enterprise?</h3>
+              <ul className="space-y-3 text-slate-300">
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Govern unlimited AI agents across your organization</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Deploy on-premise or in your VPC for maximum control</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Immutable audit trails for compliance and regulatory reporting</li>
+                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Warrant-based execution authority with cryptographic verification</li>
+              </ul>
+            </div>
           </ScrollReveal>
         </div>
       </div>
 
-      {/* Customer Quote */}
+      {/* Early Access CTA */}
       <ScrollReveal>
         <div className="border-t border-navy-700/50 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <div className="bg-gradient-to-br from-slate-800/50 to-navy-800/50 border border-slate-700/50 rounded-2xl p-12">
-              <Quote className="w-12 h-12 text-purple-400 mx-auto mb-6" />
-              <blockquote className="text-2xl text-slate-200 font-medium mb-6 italic leading-relaxed">
-                "Vienna OS transformed how we govern our 200+ AI agents. The compliance reporting 
-                alone saves us months of work during audits, and the real-time governance gives 
-                our executives confidence in our AI deployment."
-              </blockquote>
-              <div className="flex items-center justify-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500"></div>
-                <div className="text-left">
-                  <div className="font-semibold text-white">Sarah Chen</div>
-                  <div className="text-slate-400 text-sm">Chief AI Officer, Fortune 100 Financial Services</div>
-                </div>
-              </div>
+              <Shield className="w-12 h-12 text-purple-400 mx-auto mb-6" />
+              <h3 className="text-2xl text-slate-200 font-medium mb-6 leading-relaxed">
+                Vienna OS is in early access for enterprise teams governing autonomous AI agents.
+              </h3>
+              <p className="text-slate-400 mb-8">
+                Be among the first to deploy warrant-based governance at scale.
+              </p>
+              <a 
+                href="/contact?subject=enterprise"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30"
+              >
+                Request Early Access
+                <ArrowRight className="w-5 h-5" />
+              </a>
             </div>
           </div>
         </div>
@@ -624,7 +547,7 @@ export default function EnterprisePage() {
               Ready to Scale AI Governance?
             </h2>
             <p className="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
-              Join Fortune 500 companies already governing their AI agents with Vienna OS. 
+              Built for Fortune 500 companies ready to govern their AI agents at scale. 
               Schedule a demo to see enterprise features in action.
             </p>
             

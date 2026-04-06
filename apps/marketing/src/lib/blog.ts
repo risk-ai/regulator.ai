@@ -125,7 +125,7 @@ const POST_META: Record<string, Omit<BlogPost, "content">> = {
     category: "Compliance",
     categoryColor: "text-emerald-400 bg-emerald-500/10",
     author: "Max Anderson",
-    excerpt: "Vienna OS became the first AI agent governance platform to achieve SOC 2 Type I compliance.",
+    excerpt: "Vienna OS was designed from the ground up to support SOC 2 compliance.",
   },
   "soc2-audit-ai-agents": {
     slug: "soc2-audit-ai-agents",

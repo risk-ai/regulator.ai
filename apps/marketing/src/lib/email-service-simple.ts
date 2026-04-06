@@ -322,8 +322,8 @@ export class EmailService {
       </div>
       
       <div style="background-color:rgba(255,255,255,0.7);border-radius:8px;padding:16px;font-style:italic;">
-        <p style="margin:0;font-size:14px;color:#276749;">"Vienna OS transformed our AI risk management from reactive to proactive. We now have complete visibility and control."</p>
-        <p style="margin:8px 0 0;font-size:12px;color:#38a169;font-weight:600;">— Sarah Chen, Chief Risk Officer</p>
+        <p style="margin:0;font-size:14px;color:#276749;">"Warrant-based governance gives teams complete visibility and control over autonomous AI agents."</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#38a169;font-weight:600;">— The Vienna OS Team</p>
       </div>
     </div>
 

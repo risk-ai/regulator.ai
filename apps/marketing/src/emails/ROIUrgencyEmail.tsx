@@ -76,10 +76,10 @@ export const ROIUrgencyEmail: React.FC<ROIUrgencyEmailProps> = ({ firstName, ema
               
               <div style={{ backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: '8px', padding: '16px', fontStyle: 'italic' }}>
                 <p style={{ margin: '0', fontSize: '14px', color: '#276749' }}>
-                  "Vienna OS transformed our AI risk management from reactive to proactive. We now have complete visibility and control."
+                  "Warrant-based governance gives teams complete visibility and control over autonomous AI agents."
                 </p>
                 <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#38a169', fontWeight: 600 }}>
-                  — Sarah Chen, Chief Risk Officer
+                  — The Vienna OS Team
                 </p>
               </div>
             </div>

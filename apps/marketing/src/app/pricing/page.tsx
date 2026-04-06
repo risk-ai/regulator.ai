@@ -394,26 +394,7 @@ export default function PricingPage() {
         </div>
       </nav>
 
-      {/* International Visitor Priority Banner */}
-      <div className="bg-gradient-to-r from-emerald-600/20 to-blue-600/20 border-b border-emerald-500/30">
-        <div className="max-w-7xl mx-auto px-6 py-4 text-center">
-          <p className="text-sm text-emerald-300 mb-2">
-            🌍 <strong>International Enterprise Visitor?</strong> We're seeing high demand from your region.
-          </p>
-          <button
-            onClick={() => {
-              setLeadCaptureTrigger('international_priority');
-              setShowLeadCapture(true);
-            }}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2 rounded-lg transition shadow-lg hover:shadow-emerald-500/25"
-          >
-            Get Priority Access →
-          </button>
-          <p className="text-xs text-emerald-400 mt-1">
-            Skip the wait • Talk to our team in 4 hours • Available 24/7
-          </p>
-        </div>
-      </div>
+      {/* Removed geo-targeted urgency banner */}
 
       {/* Returning Visitor Banner */}
       {typeof window !== 'undefined' && localStorage.getItem('regulator_lead_capture') && (

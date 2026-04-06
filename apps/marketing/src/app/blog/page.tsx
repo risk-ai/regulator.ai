@@ -133,7 +133,7 @@ const posts = [
     slug: "soc2-for-ai-systems",
     title: "SOC 2 Compliance for AI Agent Systems: What Auditors Want to See",
     excerpt:
-      "Vienna OS became the first AI agent governance platform to achieve SOC 2 Type I compliance. Here's what we learned about bridging traditional IT controls and autonomous AI systems.",
+      "Vienna OS was designed from the ground up to support SOC 2 compliance. Here's what we learned about bridging traditional IT controls and autonomous AI systems.",
     date: "March 27, 2026",
     readTime: "12 min",
     category: "Compliance",

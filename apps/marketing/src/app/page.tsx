@@ -95,7 +95,7 @@ export default function Home() {
 
             {/* Right Column: Warrant Card */}
             <div className="relative lg:block flex justify-center">
-              <div className="w-full max-w-[520px] bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-1 overflow-hidden animate-float">
+              <div className="w-full max-w-[520px] animate-float bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-1 overflow-hidden animate-float">
                 <div 
                   className="bg-zinc-900/50 rounded-xl p-8 relative overflow-hidden"
                   style={{
@@ -176,7 +176,7 @@ export default function Home() {
         {/* HOW IT WORKS */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 How It Works
               </h2>
@@ -187,7 +187,7 @@ export default function Home() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {/* Step 1 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
                   Step 1
                 </div>
@@ -203,7 +203,7 @@ export default function Home() {
               </div>
 
               {/* Step 2 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
                   Step 2
                 </div>
@@ -218,7 +218,7 @@ export default function Home() {
               </div>
 
               {/* Step 3 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
                   Step 3
                 </div>
@@ -237,7 +237,7 @@ export default function Home() {
         {/* TIERED RISK GOVERNANCE */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Tiered Risk Governance
               </h2>
@@ -309,58 +309,126 @@ export default function Home() {
         {/* CORE CAPABILITIES */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
+              <div className="text-[10px] font-mono text-violet-400 uppercase tracking-widest mb-4">Capabilities no one else has</div>
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Core Capabilities
               </h2>
               <p className="text-zinc-400">
-                Production-ready features for governing autonomous systems at scale.
+                Seven production-ready features that make Vienna OS the only real governance layer for autonomous AI.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Capability 1 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6 animate-pulse-glow">
                   <FileText className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Natural Language Policies</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Write governance rules in plain English. Vienna compiles natural language into formal policy logic — no code, no YAML, no deployment pipeline. "Require CFO approval for wire transfers over $50K" just works.
+                <h3 className="text-lg font-bold mb-3">Natural Language Policies</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Write governance rules in plain English. Vienna compiles to formal policy logic — no code, no YAML.
                 </p>
+                <div className="bg-black/40 p-3 rounded-lg font-mono text-xs text-zinc-500 border border-white/5">
+                  &ldquo;Require CFO approval for wire transfers over $50K&rdquo;
+                </div>
               </div>
 
-              {/* Capability 2 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-200">
                 <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
                   <Shield className="w-6 h-6 text-amber-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Merkle Warrant Chain</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Every warrant is chained using Merkle trees, creating a tamper-proof governance history. If any record is altered, the entire chain breaks. Compliant with SOC 2, HIPAA, and EU AI Act audit requirements.
+                <h3 className="text-lg font-bold mb-3">Merkle Warrant Chain</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Every warrant is chained using Merkle trees. If any record is altered, the entire chain breaks. Tamper-proof by math, not policy.
                 </p>
+                <div className="flex items-center gap-2 text-xs font-mono text-amber-500/60">
+                  <span className="w-2 h-2 rounded-full bg-amber-500/40"></span>
+                  Block #4,271 → SHA-256 → verified
+                </div>
               </div>
 
-              {/* Capability 3 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
                 <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
                   <Users className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cross-Agent Delegation</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Agents can delegate execution authority to other agents with cryptographic constraints — scope-limited, time-bound, revocable. Enables complex multi-agent workflows without losing governance control.
+                <h3 className="text-lg font-bold mb-3">Cross-Agent Delegation</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Agents delegate execution authority to other agents with cryptographic constraints — scope-limited, time-bound, revocable.
                 </p>
+                <div className="flex items-center gap-1 text-xs font-mono text-green-500/60">
+                  agent_a → <span className="text-zinc-600">delegate</span> → agent_b <span className="text-green-500">✓</span>
+                </div>
               </div>
 
-              {/* Capability 4 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <Activity className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Policy Simulation</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Dry-run policy changes against historical data before deploying. See exactly which past actions would have been blocked, approved, or escalated under the new rules. Zero production risk.
+                <h3 className="text-lg font-bold mb-3">Policy Simulation</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Dry-run policy changes against historical data. See exactly which past actions would have been blocked or escalated. Zero production risk.
                 </p>
+                <div className="flex gap-2 text-xs font-mono">
+                  <span className="text-green-500">142 approved</span>
+                  <span className="text-zinc-600">·</span>
+                  <span className="text-amber-500">3 escalated</span>
+                  <span className="text-zinc-600">·</span>
+                  <span className="text-red-500">1 blocked</span>
+                </div>
+              </div>
+
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-500">
+                <div className="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-6">
+                  <Zap className="w-6 h-6 text-cyan-500" />
+                </div>
+                <h3 className="text-lg font-bold mb-3">Agent Trust Scoring</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Dynamic trust scores from behavior history. High-trust agents get faster approvals. Low-trust agents get additional scrutiny. Trust is earned, not configured.
+                </p>
+                <div className="w-full bg-zinc-800 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-red-500 via-amber-500 to-green-500 h-2 rounded-full" style={{width: '78%'}}></div>
+                </div>
+                <div className="text-xs font-mono text-zinc-600 mt-2">Trust: 0.78 — auto-approve T0/T1</div>
+              </div>
+
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-600">
+                <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
+                  <BadgeCheck className="w-6 h-6 text-amber-500" />
+                </div>
+                <h3 className="text-lg font-bold mb-3">Compliance Reports</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  Auto-generate SOC 2, HIPAA, EU AI Act compliance reports from your warrant chain. One API call exports the full audit evidence package.
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="px-2 py-1 rounded text-[10px] font-mono bg-violet-500/10 text-violet-400 border border-violet-500/20">SOC 2</span>
+                  <span className="px-2 py-1 rounded text-[10px] font-mono bg-violet-500/10 text-violet-400 border border-violet-500/20">HIPAA</span>
+                  <span className="px-2 py-1 rounded text-[10px] font-mono bg-violet-500/10 text-violet-400 border border-violet-500/20">EU AI Act</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dual Execution Model — full-width feature card */}
+            <div className="mt-8 p-8 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-900/50 border border-white/5 card-hover animate-fade-up">
+              <div className="grid lg:grid-cols-2 gap-8 items-center">
+                <div>
+                  <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">Unique to Vienna</div>
+                  <h3 className="text-2xl font-bold mb-3">Dual Execution Model</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">
+                    Two execution paths in one system. <span className="text-violet-400 font-medium">Vienna Direct</span> — the runtime executes low-risk actions instantly. <span className="text-amber-400 font-medium">Agent Passback</span> — high-risk actions return a signed warrant for the agent to execute with proof of authorization.
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20 text-center">
+                    <div className="text-sm font-bold text-violet-400 mb-1">Vienna Direct</div>
+                    <div className="text-xs text-zinc-500">T0/T1 → Auto-execute</div>
+                    <div className="text-xs font-mono text-zinc-600 mt-2">&lt;100ms latency</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-center">
+                    <div className="text-sm font-bold text-amber-400 mb-1">Agent Passback</div>
+                    <div className="text-xs text-zinc-500">T2/T3 → Warrant issued</div>
+                    <div className="text-xs font-mono text-zinc-600 mt-2">Agent executes w/ proof</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -369,7 +437,7 @@ export default function Home() {
         {/* INTEGRATION */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Integration
               </h2>
@@ -429,7 +497,7 @@ export default function Home() {
         {/* OPEN WARRANT STANDARD */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl mx-auto text-center">
+            <div className="mb-16 max-w-2xl mx-auto text-center animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Open Warrant Standard
               </h2>
@@ -472,7 +540,7 @@ export default function Home() {
         {/* BEFORE/AFTER SCENARIO */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 What Happens Without Governance
               </h2>
@@ -532,7 +600,7 @@ export default function Home() {
         {/* QUICKSTART */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Running in 5 Minutes
               </h2>
@@ -595,7 +663,7 @@ export default function Home() {
         {/* COMPLIANCE AS BUYING TRIGGER */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Audit-Ready from Day One
               </h2>
@@ -605,21 +673,21 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <Scale className="w-8 h-8 text-violet-500 mb-4" />
                 <h3 className="text-lg font-bold mb-2">EU AI Act</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
                   Article 14 requires human oversight of high-risk AI. Vienna&apos;s tiered approval system with cryptographic audit trails satisfies this by design.
                 </p>
               </div>
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <BadgeCheck className="w-8 h-8 text-violet-500 mb-4" />
                 <h3 className="text-lg font-bold mb-2">SOC 2 Type II</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
                   Every action produces a signed, timestamped record in the Merkle chain. Export your audit trail as compliance evidence with one API call.
                 </p>
               </div>
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <Shield className="w-8 h-8 text-violet-500 mb-4" />
                 <h3 className="text-lg font-bold mb-2">SEC / FINRA</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
@@ -633,7 +701,7 @@ export default function Home() {
         {/* WHO USES THIS — USE CASE PERSONAS */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl animate-fade-up">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Built for Your Role
               </h2>
@@ -666,6 +734,120 @@ export default function Home() {
                   &ldquo;I need to give agents more autonomy without more risk. Scale the fleet, not the oversight team.&rdquo;
                 </p>
                 <span className="text-xs text-violet-400 font-mono">View use cases →</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* INDUSTRY VERTICALS */}
+        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="mb-16 max-w-2xl animate-fade-up">
+              <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">Industry Solutions</div>
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Without Governance, AI Cannot Operate
+              </h2>
+              <p className="text-zinc-400">
+                Every regulated industry needs verifiable control over autonomous systems. Vienna provides it.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+                <div className="text-2xl mb-4">🏦</div>
+                <h3 className="text-lg font-bold mb-2">Financial Services</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-3">
+                  Pre-trade authorization, transaction limits, multi-sig for high-value operations. SEC/FINRA compliant audit trails.
+                </p>
+                <div className="text-xs font-mono text-violet-400">T2: wire_transfer {'>'}$50K → CFO approval</div>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-200">
+                <div className="text-2xl mb-4">🏥</div>
+                <h3 className="text-lg font-bold mb-2">Healthcare</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-3">
+                  PHI access controls, treatment recommendation governance, HIPAA-compliant execution records with cryptographic proof.
+                </p>
+                <div className="text-xs font-mono text-violet-400">T3: access_phi → privacy_officer + attending</div>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
+                <div className="text-2xl mb-4">⚖️</div>
+                <h3 className="text-lg font-bold mb-2">Legal</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-3">
+                  Document filing controls, privilege enforcement, matter-scoped agent authorization with complete chain of custody.
+                </p>
+                <div className="text-xs font-mono text-violet-400">T2: file_motion → partner approval</div>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
+                <div className="text-2xl mb-4">🏗️</div>
+                <h3 className="text-lg font-bold mb-2">DevOps</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-3">
+                  Deployment authorization, infrastructure changes, CI/CD gate control. Agents deploy with warrants, not just credentials.
+                </p>
+                <div className="text-xs font-mono text-violet-400">T1: deploy_staging → auto | T2: deploy_prod → lead</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PRICING PREVIEW */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl mx-auto text-center animate-fade-up">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Start Free. Scale as Your Fleet Grows.
+              </h2>
+              <p className="text-zinc-400">
+                No credit card required. Upgrade when you need fleet management and enterprise controls.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+                <h3 className="text-lg font-bold mb-1">Community</h3>
+                <div className="text-3xl font-display font-bold mb-4">Free</div>
+                <ul className="space-y-2 text-sm text-zinc-500">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> 5 agents</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> 1,000 evaluations/mo</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Full governance pipeline</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Community support</li>
+                </ul>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-violet-500/20 card-hover animate-fade-up delay-200 relative overflow-hidden">
+                <div className="absolute top-0 right-0 px-3 py-1 bg-violet-500 text-[10px] font-mono font-bold rounded-bl-lg">POPULAR</div>
+                <h3 className="text-lg font-bold mb-1">Team</h3>
+                <div className="text-3xl font-display font-bold mb-4">$49<span className="text-lg text-zinc-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-zinc-500">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> 25 agents</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> 10,000 evaluations/mo</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Policy simulation</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Priority support</li>
+                </ul>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
+                <h3 className="text-lg font-bold mb-1">Business</h3>
+                <div className="text-3xl font-display font-bold mb-4">$99<span className="text-lg text-zinc-500">/mo</span></div>
+                <ul className="space-y-2 text-sm text-zinc-500">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> 100 agents</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Unlimited evaluations</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Compliance reports</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> SSO + RBAC</li>
+                </ul>
+              </div>
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
+                <h3 className="text-lg font-bold mb-1">Enterprise</h3>
+                <div className="text-3xl font-display font-bold mb-4">Custom</div>
+                <ul className="space-y-2 text-sm text-zinc-500">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Unlimited agents</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Dedicated infrastructure</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Custom policies</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> SLA + on-call support</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link href="/pricing" className="text-sm text-violet-400 hover:text-violet-300 transition-colors font-mono">
+                View full pricing details →
               </Link>
             </div>
           </div>

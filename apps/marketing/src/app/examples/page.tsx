@@ -217,7 +217,7 @@ export default function ExamplesPage() {
       <div className="border-b border-navy-700">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-white font-bold text-lg">
-            <Shield className="w-5 h-5 text-purple-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             Vienna OS
           </a>
           <div className="flex items-center gap-6">
@@ -225,7 +225,7 @@ export default function ExamplesPage() {
             <a href="/pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition"
+              className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 rounded-lg transition"
             >
               Console
             </a>
@@ -236,7 +236,7 @@ export default function ExamplesPage() {
       {/* Hero */}
       <div className="max-w-6xl mx-auto px-6 pt-16 pb-12">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 text-purple-400 text-sm font-medium mb-4 bg-purple-500/10 px-4 py-2 rounded-full">
+          <div className="inline-flex items-center gap-2 text-amber-500 text-sm font-medium mb-4 bg-amber-500/10 px-4 py-2 rounded-full">
             <Code className="w-4 h-4" />
             Production-ready examples
           </div>
@@ -254,13 +254,13 @@ export default function ExamplesPage() {
           {examples.map((example, i) => (
             <div
               key={i}
-              className="bg-navy-800 border border-navy-700 rounded-2xl overflow-hidden hover:border-purple-500/30 transition"
+              className="bg-navy-800 border border-navy-700 rounded-2xl overflow-hidden hover:border-amber-500/30 transition"
             >
               <div className="p-8">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-600/20 rounded-xl flex items-center justify-center">
-                      <example.icon className="w-5 h-5 text-purple-400" />
+                    <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                      <example.icon className="w-5 h-5 text-amber-500" />
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-white">{example.title}</h2>
@@ -279,7 +279,7 @@ export default function ExamplesPage() {
                     href={example.href}
                     target={example.href.startsWith("http") ? "_blank" : undefined}
                     rel={example.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition"
+                    className="inline-flex items-center gap-2 text-sm text-amber-500 hover:text-amber-400 transition"
                   >
                     View full example
                     <ArrowRight className="w-4 h-4" />
@@ -291,7 +291,7 @@ export default function ExamplesPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 text-center bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-800/30 rounded-2xl p-12">
+        <div className="mt-16 text-center bg-gradient-to-r from-amber-900/30 to-blue-900/30 border border-amber-800/30 rounded-2xl p-12">
           <h2 className="text-2xl font-bold text-white mb-4">Ready to add governance to your AI?</h2>
           <p className="text-slate-400 mb-8 max-w-lg mx-auto">
             Get started in under 5 minutes with our free Community tier. No credit card required.
@@ -299,7 +299,7 @@ export default function ExamplesPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/signup?plan=community"
-              className="inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 rounded-xl transition font-semibold"
             >
               <Zap className="w-5 h-5" />
               Get Started Free
@@ -322,7 +322,7 @@ export default function ExamplesPage() {
         <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
           <span className="text-sm text-slate-500">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           <div className="flex items-center gap-1">
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Shield className="w-4 h-4 text-amber-500" />
             <span className="text-sm text-slate-500">Vienna OS</span>
           </div>
         </div>

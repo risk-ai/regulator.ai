@@ -244,7 +244,7 @@ export default function ComparePage() {
               key={l.layer}
               className={`rounded-xl p-5 border transition-all ${
                 l.active
-                  ? "bg-amber-500/10 border-amber-500/40 shadow-lg shadow-purple-500/10 scale-105"
+                  ? "bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/10 scale-105"
                   : "bg-zinc-900/50 border-navy-700/50"
               }`}
             >
@@ -328,23 +328,23 @@ export default function ComparePage() {
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Detailed Comparisons</h2>
           <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Guardrails AI</h3>
               <p className="text-sm text-slate-400">Execution control vs prompt validation — feature-by-feature breakdown</p>
             </a>
-            <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Arthur AI</h3>
               <p className="text-sm text-slate-400">When you need more than monitoring — control vs observability</p>
             </a>
-            <a href="/compare/credo-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <a href="/compare/credo-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Credo AI</h3>
               <p className="text-sm text-slate-400">Execution control vs compliance documentation — prevent vs document</p>
             </a>
-            <a href="/compare/calypso-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <a href="/compare/calypso-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Calypso AI</h3>
               <p className="text-sm text-slate-400">Runtime enforcement vs pre-deployment testing — enforce vs test</p>
             </a>
-            <a href="/compare/holistic-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <a href="/compare/holistic-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Holistic AI</h3>
               <p className="text-sm text-slate-400">Continuous control vs periodic auditing — enforce vs audit</p>
             </a>
@@ -352,7 +352,7 @@ export default function ComparePage() {
         </div>
 
         {/* Key insight */}
-        <div className="mt-16 bg-gradient-to-br from-purple-900/20 to-navy-800/50 border border-amber-500/20 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-gradient-to-br from-amber-900/20 to-navy-800/50 border border-amber-500/20 rounded-2xl p-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-3">They&apos;re complementary — but only one is mandatory.</h2>
           <p className="text-slate-300 max-w-2xl mx-auto mb-6">
             You can deploy AI agents without prompt filtering. You can deploy without model monitoring.

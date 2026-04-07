@@ -50,9 +50,9 @@ const useCases = [
     icon: Code,
     title: "DevOps & Platform Engineering",
     subtitle: "SOC 2, Change Management",
-    color: "text-violet-400",
-    bgColor: "bg-violet-500/10",
-    borderColor: "border-violet-500/20",
+    color: "text-amber-500",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/20",
     description: "AI agents deploying code, scaling infrastructure, and managing configurations can cause catastrophic damage without proper controls. Vienna OS prevents runaway deployments and unauthorized changes.",
     features: [
       "T1 auto-approval for staging deploys, T2 human approval for production",
@@ -181,7 +181,7 @@ export default function UseCasesPage() {
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/try"
-              className="px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition"
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-500 rounded-lg font-medium transition"
             >
               Try Interactive Demo
             </Link>

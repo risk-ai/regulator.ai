@@ -11,7 +11,7 @@ const releases = [
     version: "0.9.0",
     date: "March 27, 2026",
     tag: "Launch Candidate",
-    tagColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+    tagColor: "bg-amber-500/20 text-amber-500 border-amber-500/30",
     changes: [
       { type: "feat", text: "Interactive /try demo with warrant simulator" },
       { type: "feat", text: "3 framework integration examples (LangChain, CrewAI, AutoGen)" },
@@ -99,7 +99,7 @@ const typeColors: Record<string, { bg: string; text: string; label: string }> = 
   feat: { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "NEW" },
   fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIXED" },
   docs: { bg: "bg-amber-500/10", text: "text-amber-400", label: "DOCS" },
-  improved: { bg: "bg-purple-500/10", text: "text-purple-400", label: "IMPROVED" },
+  improved: { bg: "bg-amber-500/10", text: "text-amber-500", label: "IMPROVED" },
   breaking: { bg: "bg-red-500/10", text: "text-red-400", label: "BREAKING" },
 };
 
@@ -110,10 +110,10 @@ export default function ChangelogPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-amber-500" />
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-amber-500 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+          <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 rounded-lg transition font-medium">
             Get Started
           </a>
         </div>

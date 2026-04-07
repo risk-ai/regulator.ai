@@ -136,7 +136,7 @@ export default function GettingStartedPage() {
             <div key={step.number} className="relative">
               {/* Step header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-600 text-white font-bold text-lg">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white font-bold text-lg">
                   {step.number}
                 </div>
                 <h2 className="text-2xl font-bold">{step.title}</h2>
@@ -173,11 +173,11 @@ export default function GettingStartedPage() {
         <div className="mt-16 bg-slate-900/50 border border-slate-700/50 rounded-xl p-8">
           <h2 className="text-xl font-bold mb-4">What happens under the hood</h2>
           <div className="font-mono text-sm text-slate-300 space-y-2">
-            <p><span className="text-slate-500">1.</span> <span className="text-violet-400">Intent received</span> — Gateway validates structure and agent identity</p>
+            <p><span className="text-slate-500">1.</span> <span className="text-amber-500">Intent received</span> — Gateway validates structure and agent identity</p>
             <p><span className="text-slate-500">2.</span> <span className="text-cyan-400">Policy evaluated</span> — Rules engine checks against configured policies</p>
             <p><span className="text-slate-500">3.</span> <span className="text-amber-400">Risk assessed</span> — Classifier assigns T0-T3 tier based on action type and scope</p>
             <p><span className="text-slate-500">4.</span> <span className="text-emerald-400">Approval obtained</span> — Auto (T0), policy (T1), human (T2), multi-party (T3)</p>
-            <p><span className="text-slate-500">5.</span> <span className="text-violet-400">Warrant issued</span> — HMAC-SHA256 signed, time-limited, scope-constrained</p>
+            <p><span className="text-slate-500">5.</span> <span className="text-amber-500">Warrant issued</span> — HMAC-SHA256 signed, time-limited, scope-constrained</p>
             <p><span className="text-slate-500">6.</span> <span className="text-cyan-400">Execution controlled</span> — Action runs within warrant constraints</p>
             <p><span className="text-slate-500">7.</span> <span className="text-emerald-400">Verified</span> — Post-execution state compared to truth snapshot</p>
             <p><span className="text-slate-500">8.</span> <span className="text-slate-400">Audit logged</span> — Immutable record with full warrant chain</p>
@@ -185,17 +185,17 @@ export default function GettingStartedPage() {
         </div>
 
         {/* Integrations section */}
-        <div className="mt-12 bg-gradient-to-r from-slate-900/50 to-violet-900/20 border border-slate-700/50 rounded-xl p-8">
+        <div className="mt-12 bg-gradient-to-r from-slate-900/50 to-amber-900/20 border border-slate-700/50 rounded-xl p-8">
           <h2 className="text-xl font-bold mb-4">Integrations</h2>
           <p className="text-slate-300 mb-6">Connect Vienna OS to your existing tools for seamless governance:</p>
           
           <div className="grid md:grid-cols-2 gap-4 mb-6">
             <div className="space-y-2">
-              <h3 className="font-semibold text-violet-400"> Slack Approval Bot</h3>
+              <h3 className="font-semibold text-amber-500"> Slack Approval Bot</h3>
               <p className="text-sm text-slate-400">Approve/deny T1+ actions directly from Slack with interactive buttons</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-violet-400">GitHub Action</h3>
+              <h3 className="font-semibold text-amber-500">GitHub Action</h3>
               <p className="text-sm text-slate-400">Govern CI/CD deployments and releases in your workflows</p>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function GettingStartedPage() {
             <Link href="/docs/github-action" className="text-cyan-400 hover:text-cyan-300 transition">
               GitHub Action →
             </Link>
-            <Link href="/docs/integration-guide" className="text-violet-400 hover:text-violet-300 transition">
+            <Link href="/docs/integration-guide" className="text-amber-500 hover:text-amber-400 transition">
               All Integrations →
             </Link>
           </div>
@@ -214,19 +214,19 @@ export default function GettingStartedPage() {
         <div className="mt-12">
           <h2 className="text-xl font-bold mb-6">Next Steps</h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Link href="/try" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
-              <Play className="w-5 h-5 text-violet-400 mb-3" />
-              <h3 className="font-bold group-hover:text-violet-400 transition mb-1">Interactive Demo</h3>
+            <Link href="/try" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
+              <Play className="w-5 h-5 text-amber-500 mb-3" />
+              <h3 className="font-bold group-hover:text-amber-500 transition mb-1">Interactive Demo</h3>
               <p className="text-sm text-slate-400">See the pipeline in action without installing anything</p>
             </Link>
-            <Link href="/docs/api-reference" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <Link href="/docs/api-reference" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <Terminal className="w-5 h-5 text-cyan-400 mb-3" />
-              <h3 className="font-bold group-hover:text-violet-400 transition mb-1">API Reference</h3>
+              <h3 className="font-bold group-hover:text-amber-500 transition mb-1">API Reference</h3>
               <p className="text-sm text-slate-400">Full documentation for all SDK modules</p>
             </Link>
-            <Link href="/docs/integration-guide" className="bg-slate-900/50 border border-slate-700/50 hover:border-violet-500/30 rounded-xl p-6 transition group">
+            <Link href="/docs/integration-guide" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
               <Shield className="w-5 h-5 text-emerald-400 mb-3" />
-              <h3 className="font-bold group-hover:text-violet-400 transition mb-1">Integration Guide</h3>
+              <h3 className="font-bold group-hover:text-amber-500 transition mb-1">Integration Guide</h3>
               <p className="text-sm text-slate-400">LangChain, CrewAI, AutoGen, and custom agents</p>
             </Link>
           </div>

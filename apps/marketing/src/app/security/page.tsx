@@ -57,8 +57,8 @@ const securityFeatures = [
   {
     icon: Shield,
     title: "Governance Pipeline",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
     items: [
       "Zero-trust agent model — agents never have direct execution authority",
       "Risk-tiered approval workflows (T0 auto-approve → T2 multi-party approval)",
@@ -145,9 +145,9 @@ export default function SecurityPage() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">
-              Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
+              Vienna<span className="bg-gradient-to-r from-amber-500 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
           <a
@@ -240,7 +240,7 @@ export default function SecurityPage() {
           </p>
           <a
             href="mailto:security@ai.ventures?subject=Vienna%20OS%20Security%20Report"
-            className="inline-flex items-center gap-2 bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition text-sm font-medium"
+            className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 rounded-lg transition text-sm font-medium"
           >
             <Shield className="w-4 h-4" />
             security@ai.ventures
@@ -251,7 +251,7 @@ export default function SecurityPage() {
       <footer className="border-t border-navy-700 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Shield className="w-4 h-4 text-amber-500" />
             <span className="text-sm text-slate-500">
               Vienna OS — Governed AI Authorization Layer
             </span>

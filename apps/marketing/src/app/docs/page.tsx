@@ -233,7 +233,7 @@ function Endpoint({
     POST: "bg-emerald-500/20 text-emerald-400",
     PUT: "bg-amber-500/20 text-amber-400",
     DELETE: "bg-red-500/20 text-red-400",
-    PATCH: "bg-purple-500/20 text-amber-500",
+    PATCH: "bg-amber-500/20 text-amber-500",
   };
 
   return (
@@ -443,7 +443,7 @@ export default function DocsPage() {
                     onClick={() => toggleSection(s.id)}
                     className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 rounded-lg transition ${
                       isActive(s.id)
-                        ? "bg-purple-500/10 text-amber-500"
+                        ? "bg-amber-500/10 text-amber-500"
                         : "text-slate-400 hover:text-white hover:bg-zinc-900"
                     }`}
                   >
@@ -466,7 +466,7 @@ export default function DocsPage() {
                           onClick={() => setMobileNavOpen(false)}
                           className={`block text-xs py-1.5 px-3 rounded transition ${
                             isActive(c.id)
-                              ? "text-amber-500 bg-purple-500/5"
+                              ? "text-amber-500 bg-amber-500/5"
                               : "text-slate-500 hover:text-slate-300"
                           }`}
                         >
@@ -530,9 +530,9 @@ export default function DocsPage() {
                 <p className="text-xs font-mono text-zinc-400">Add governance to your CI/CD pipeline</p>
               </a>
 
-              < 
+              <a 
                 href="/docs/api-reference" 
-                className="bg-zinc-900 border border-amber-500/30 rounded-xl p-6 hover:border-purple-500/30 transition group"
+                className="bg-zinc-900 border border-amber-500/30 rounded-xl p-6 hover:border-amber-500/30 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <Zap className="w-5 h-5 text-amber-400" />
@@ -543,7 +543,7 @@ export default function DocsPage() {
 
               <a 
                 href="/docs/integration-guide" 
-                className="bg-zinc-900 border border-amber-500/30 rounded-xl p-6 hover:border-purple-500/30 transition group"
+                className="bg-zinc-900 border border-amber-500/30 rounded-xl p-6 hover:border-amber-500/30 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <Settings className="w-5 h-5 text-cyan-400" />
@@ -1323,35 +1323,35 @@ Intent → Policy Engine → T2 → Approval Queue
 
           <div className="space-y-3 mb-6">
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">1</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">1</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Ingress.</strong> Agent sends HTTP POST to <InlineCode>/api/v1/agent/intent</InlineCode>. Gateway parses, validates auth token, normalizes payload.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">2</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">2</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Enrichment.</strong> Gateway loads agent profile (trust score, history), attaches organizational context, timestamps.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">3</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">3</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Policy evaluation.</strong> Engine loads active rules sorted by priority. Evaluates conditions sequentially. First match determines outcome (allow + tier, deny, or escalate).</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">4</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">4</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Approval routing.</strong> T0 bypasses queue. T1/T2 enters approval workflow with configured timeout and escalation.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">5</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">5</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Warrant issuance.</strong> Authority constructs warrant with scope, constraints, and TTL. Signs with HMAC-SHA256. Stores in state graph.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">6</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">6</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Execution.</strong> Router validates warrant (not expired, not revoked), routes to appropriate handler, captures result.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">7</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">7</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Verification.</strong> Engine compares execution result against warrant scope. Records compliance status.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-amber-500 font-mono text-xs bg-purple-500/10 px-2 py-1 rounded shrink-0">8</span>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">8</span>
               <div className="text-sm text-slate-400"><strong className="text-white">Audit.</strong> Full pipeline trace written to append-only log with hash chain. Response returned to agent.</div>
             </div>
           </div>

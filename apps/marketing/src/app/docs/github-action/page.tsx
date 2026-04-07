@@ -94,25 +94,25 @@ jobs:
 
         <div className="grid grid-cols-1 gap-4 my-8">
           <div className="border border-gray-700 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-400">api-key</h4>
+            <h4 className="font-semibold text-amber-500">api-key</h4>
             <p className="text-sm text-gray-400 mt-1">Required</p>
             <p>Your Vienna OS API key. Store this as a GitHub secret.</p>
           </div>
 
           <div className="border border-gray-700 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-400">action</h4>
+            <h4 className="font-semibold text-amber-500">action</h4>
             <p className="text-sm text-gray-400 mt-1">Required (default: "deploy")</p>
             <p>The action type being governed. Examples: <code>deploy</code>, <code>release</code>, <code>migrate</code>, <code>rollback</code></p>
           </div>
 
           <div className="border border-gray-700 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-400">environment</h4>
+            <h4 className="font-semibold text-amber-500">environment</h4>
             <p className="text-sm text-gray-400 mt-1">Optional (default: "production")</p>
             <p>Target environment. Examples: <code>production</code>, <code>staging</code>, <code>development</code></p>
           </div>
 
           <div className="border border-gray-700 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-400">agent-id</h4>
+            <h4 className="font-semibold text-amber-500">agent-id</h4>
             <p className="text-sm text-gray-400 mt-1">Optional (default: "github-actions")</p>
             <p>Identifier for the agent performing the action. Used for governance policies and audit trails.</p>
           </div>
@@ -254,8 +254,8 @@ jobs:
 
         <div className="border-t border-gray-700 mt-12 pt-8">
           <p className="text-sm text-gray-400">
-            Need help? Contact support at <a href="mailto:support@regulator.ai" className="text-purple-400">support@regulator.ai</a> or 
-            join our <a href="https://github.com/risk-ai/vienna-os/discussions" className="text-purple-400">developer community</a>.
+            Need help? Contact support at <a href="mailto:support@regulator.ai" className="text-amber-500">support@regulator.ai</a> or 
+            join our <a href="https://github.com/risk-ai/vienna-os/discussions" className="text-amber-500">developer community</a>.
           </p>
         </div>
       </div>

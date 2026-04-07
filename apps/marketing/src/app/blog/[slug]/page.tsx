@@ -40,7 +40,7 @@ function MarkdownContent({ content }: { content: string }) {
   const blocks = content.split(/\n\n+/);
 
   return (
-    <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-purple-400 prose-strong:text-white prose-code:text-purple-300 prose-code:bg-slate-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700">
+    <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-amber-500 prose-strong:text-white prose-code:text-amber-400 prose-code:bg-slate-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700">
       {blocks.map((block, i) => {
         const trimmed = block.trim();
         if (!trimmed) return null;
@@ -74,7 +74,7 @@ function MarkdownContent({ content }: { content: string }) {
         if (trimmed.startsWith("> ")) {
           const text = trimmed.replace(/^>\s?/gm, "");
           return (
-            <blockquote key={i} className="border-l-4 border-purple-500 pl-4 my-6 text-slate-400 italic">
+            <blockquote key={i} className="border-l-4 border-amber-500 pl-4 my-6 text-slate-400 italic">
               {text}
             </blockquote>
           );
@@ -128,8 +128,8 @@ function MarkdownContent({ content }: { content: string }) {
               __html: trimmed
                 .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
-                .replace(/`(.+?)`/g, '<code class="text-purple-300 bg-slate-800/50 px-1.5 py-0.5 rounded text-sm">$1</code>')
-                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-purple-400 hover:text-purple-300 underline">$1</a>')
+                .replace(/`(.+?)`/g, '<code class="text-amber-400 bg-slate-800/50 px-1.5 py-0.5 rounded text-sm">$1</code>')
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-amber-500 hover:text-amber-400 underline">$1</a>')
                 .replace(/\n/g, '<br />')
             }}
           />
@@ -161,9 +161,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             Back to Blog
           </a>
           <a href="/" className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-violet-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             <span className="font-bold text-white text-sm">
-              Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
+              Vienna<span className="bg-gradient-to-r from-amber-500 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
         </nav>
@@ -189,7 +189,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
           {/* CTA */}
           <div className="mt-12 pt-8 border-t border-slate-700">
-            <div className="bg-gradient-to-r from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-xl p-6 text-center">
+            <div className="bg-gradient-to-r from-amber-500/10 to-blue-600/10 border border-amber-500/20 rounded-xl p-6 text-center">
               <h3 className="text-xl font-bold text-white mb-2">
                 Ready to govern your AI agents?
               </h3>
@@ -199,7 +199,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               <div className="flex justify-center gap-4">
                 <a
                   href="/pricing"
-                  className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-lg font-medium transition"
+                  className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 rounded-lg font-medium transition"
                 >
                   View Pricing
                 </a>

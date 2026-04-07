@@ -24,13 +24,13 @@ export default function Error({
         </p>
         <button
           onClick={() => reset()}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm transition-colors mr-4"
+          className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-sm transition-colors mr-4"
         >
           Try again
         </button>
         <a
           href="/"
-          className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
+          className="text-amber-500 hover:text-amber-400 text-sm transition-colors"
         >
           Go home
         </a>

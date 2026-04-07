@@ -292,11 +292,11 @@ export default function EnterprisePage() {
             <div className="max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 mb-8">
                 <Shield className="w-4 h-4 text-amber-500" />
-                <span className="text-sm text-purple-300 font-semibold uppercase tracking-wider">Enterprise</span>
+                <span className="text-sm text-amber-400 font-semibold uppercase tracking-wider">Enterprise</span>
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                <span className="text-transparent bg-clip-text bg-black from-white via-purple-200 to-blue-200">
+                <span className="text-transparent bg-clip-text bg-black from-white via-amber-200 to-blue-200">
                   Enterprise AI Governance
                 </span>
               </h1>
@@ -310,7 +310,7 @@ export default function EnterprisePage() {
                 <a 
                   href="/contact?subject=enterprise"
                   onClick={() => analytics.ctaClick('hero', 'schedule_demo')}
-                  className="bg-black from-amber-600 to-purple-500 hover:from-amber-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30 flex items-center gap-2"
+                  className="bg-black from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-500 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-amber-500/30 flex items-center gap-2"
                 >
                   Schedule a Demo
                   <ArrowRight className="w-5 h-5" />
@@ -365,7 +365,7 @@ export default function EnterprisePage() {
             <ScrollReveal key={i} delay={i * 0.1}>
               <div className="bg-gradient-to-br from-navy-800/50 to-slate-900/50 border border-navy-700/50 rounded-xl p-6 hover:bg-gradient-to-br hover:from-navy-700/50 hover:to-slate-800/50 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-purple-500/20 border border-amber-500/30 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
                     <capability.icon className="w-6 h-6 text-amber-500" />
                   </div>
                   <div>
@@ -401,8 +401,8 @@ export default function EnterprisePage() {
               <div className="p-4 bg-navy-700/30">
                 <h3 className="font-semibold text-amber-500">Business</h3>
               </div>
-              <div className="p-4 bg-black from-amber-600/20 to-purple-500/20">
-                <h3 className="font-semibold text-purple-300">Enterprise</h3>
+              <div className="p-4 bg-black from-amber-600/20 to-amber-500/20">
+                <h3 className="font-semibold text-amber-400">Enterprise</h3>
               </div>
             </div>
             
@@ -410,7 +410,7 @@ export default function EnterprisePage() {
               <div key={i} className="grid grid-cols-3 gap-0 border-b border-navy-700/30 last:border-b-0">
                 <div className="p-4 text-slate-300 font-medium">{row.feature}</div>
                 <div className="p-4 text-slate-400">{row.business}</div>
-                <div className="p-4 text-purple-300 font-medium">{row.enterprise}</div>
+                <div className="p-4 text-amber-400 font-medium">{row.enterprise}</div>
               </div>
             ))}
           </div>
@@ -525,7 +525,7 @@ export default function EnterprisePage() {
               </p>
               <a 
                 href="/contact?subject=enterprise"
-                className="inline-flex items-center gap-2 bg-black from-amber-600 to-purple-500 hover:from-amber-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30"
+                className="inline-flex items-center gap-2 bg-black from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-500 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-amber-500/30"
               >
                 Request Early Access
                 <ArrowRight className="w-5 h-5" />
@@ -551,14 +551,14 @@ export default function EnterprisePage() {
               <a 
                 href="/contact?subject=enterprise"
                 onClick={() => analytics.ctaClick('final_cta', 'schedule_demo')}
-                className="bg-black from-amber-600 to-purple-500 hover:from-amber-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30 text-lg"
+                className="bg-black from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-500 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-amber-500/30 text-lg"
               >
                 Schedule a Demo
               </a>
               <a 
                 href="/docs"
                 onClick={() => analytics.ctaClick('final_cta', 'view_docs')}
-                className="text-amber-500 hover:text-purple-300 font-medium transition text-lg flex items-center gap-2"
+                className="text-amber-500 hover:text-amber-400 font-medium transition text-lg flex items-center gap-2"
               >
                 View Documentation
                 <ArrowRight className="w-5 h-5" />

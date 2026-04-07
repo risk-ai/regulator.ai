@@ -63,7 +63,7 @@ export default function ManifestoPage() {
         <p className="text-xl text-slate-300 italic mb-2">
           Principles for governed AI execution
         </p>
-        <div className="w-16 h-1 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-full mb-12" />
+        <div className="w-16 h-1 bg-gradient-to-r from-amber-500 to-cyan-400 rounded-full mb-12" />
         
         <div className="prose prose-lg prose-invert max-w-none mb-12">
           <p className="text-slate-300 leading-relaxed text-lg">
@@ -81,8 +81,8 @@ export default function ManifestoPage() {
       <div className="max-w-3xl mx-auto px-6 pb-24">
         <div className="space-y-12">
           {principles.map((p, i) => (
-            <div key={i} className="border-l-2 border-violet-500/30 pl-8">
-              <div className="text-sm text-violet-400 font-medium mb-2">Principle {p.number}</div>
+            <div key={i} className="border-l-2 border-amber-500/30 pl-8">
+              <div className="text-sm text-amber-500 font-medium mb-2">Principle {p.number}</div>
               <h2 className="text-2xl font-bold mb-4">{p.title}</h2>
               <p className="text-slate-300 leading-relaxed">{p.body}</p>
             </div>
@@ -97,7 +97,7 @@ export default function ManifestoPage() {
             governed&rdquo; must be closed with infrastructure, not intentions.
           </p>
           <p className="text-slate-300 leading-relaxed text-lg mt-4">
-            If you believe the same, <Link href="/signup" className="text-violet-400 hover:underline">join us</Link>.
+            If you believe the same, <Link href="/signup" className="text-amber-500 hover:underline">join us</Link>.
           </p>
           <div className="mt-8 text-sm text-slate-500">
             — The Vienna OS Team, March 2026

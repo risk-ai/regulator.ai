@@ -322,7 +322,7 @@ export default function WarrantDemo() {
         <div className="flex items-center gap-4">
           <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Multi-Agent Demo</a>
           <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Try API</a>
-          <a href="/signup" className="text-xs bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg transition font-medium">
+          <a href="/signup" className="text-xs bg-amber-500 hover:bg-amber-400 text-white px-3 py-1.5 rounded-lg transition font-medium">
             Get Started
           </a>
         </div>
@@ -740,7 +740,7 @@ export default function WarrantDemo() {
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <a
               href="/signup"
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-7 py-3 rounded-xl transition font-semibold text-sm"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-7 py-3 rounded-xl transition font-semibold text-sm"
             >
               Start Governing <ArrowRight className="w-4 h-4" />
             </a>

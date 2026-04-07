@@ -10,7 +10,7 @@ import {
   Activity,
   Users,
   Lock,
-  Code2,
+
   AlertTriangle,
   Terminal,
   BadgeCheck,
@@ -64,7 +64,7 @@ export default function Home() {
               <div className="flex flex-wrap gap-4">
                 <a 
                   href="https://console.regulator.ai/signup" 
-                  className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all group"
+                  className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all group" aria-label="Start free trial"
                 >
                   Start Free — No Credit Card
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -95,7 +95,7 @@ export default function Home() {
 
             {/* Right Column: Warrant Card */}
             <div className="relative lg:block flex justify-center">
-              <div className="w-full max-w-[520px] animate-float bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-1 overflow-hidden animate-float">
+              <div className="w-full max-w-[520px] animate-float bg-zinc-950 border border-zinc-800 animate-pulse-glow rounded-2xl shadow-2xl p-1 overflow-hidden animate-float">
                 <div 
                   className="bg-zinc-900/50 rounded-xl p-8 relative overflow-hidden"
                   style={{
@@ -502,7 +502,7 @@ export default function Home() {
                 Open Warrant Standard
               </h2>
               <p className="text-zinc-400">
-                Vienna OS implements OWS v1.0 — a portable execution authorization protocol. Warrants are cross-platform, framework-agnostic, and cryptographically verifiable.
+                Vienna OS implements OWS v1.0 — a portable execution authorization protocol. Warrants are cross-platform, framework-agnostic, and cryptographically verifiable. Developed at Cornell Law × ai.ventures.
               </p>
             </div>
 
@@ -618,7 +618,7 @@ export default function Home() {
                 <div className="bg-black/40 p-6 rounded-lg font-mono text-sm text-zinc-300 space-y-2">
                   <div><span className="text-zinc-500">$</span> git clone https://github.com/risk-ai/regulator.ai</div>
                   <div><span className="text-zinc-500">$</span> cd regulator.ai/examples/quickstart</div>
-                  <div><span className="text-zinc-500">$</span> VIENNA_API_KEY=vos_xxx node index.js</div>
+                  <div><span className="text-zinc-500">$</span> VIENNA_API_KEY=vos_pk_live_7f3a2b1c node index.js</div>
                   <div className="pt-4 border-t border-white/5 text-green-400 text-xs">
                     <div>✓ Policy evaluated: T1 (auto-approved)</div>
                     <div>✓ Warrant issued: wrt_7f3a...82b1</div>
@@ -846,7 +846,7 @@ export default function Home() {
             </div>
 
             <div className="mt-8 text-center">
-              <Link href="/pricing" className="text-sm text-violet-400 hover:text-violet-300 transition-colors font-mono">
+              <Link href="/pricing" className="inline-flex items-center gap-2 text-sm text-violet-400 hover:text-violet-300 transition-colors font-mono px-6 py-3 border border-violet-500/20 rounded-xl hover:border-violet-500/40">
                 View full pricing details →
               </Link>
             </div>
@@ -857,7 +857,7 @@ export default function Home() {
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-violet-600 to-amber-500 mb-8">
-              <Code2 className="w-10 h-10 text-white" />
+              <Shield className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight mb-8">
               Built for the <span className="text-zinc-500">Autonomous Era.</span>

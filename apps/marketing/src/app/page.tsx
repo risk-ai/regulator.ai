@@ -360,7 +360,7 @@ export default function Home() {
                 Core Capabilities
               </h2>
               <p className="text-zinc-400">
-                Enterprise-grade features for governing autonomous systems at scale.
+                Production-ready features for governing autonomous systems at scale.
               </p>
             </div>
 
@@ -370,9 +370,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <FileText className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Natural Language Policies</h3>
+                <h3 className="text-xl font-bold mb-3">Visual Policy Builder</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Define governance rules in plain English. Vienna OS automatically translates policies into enforceable code with cryptographic verification.
+                  Define governance rules with point-and-click conditions. No code deployment needed. 11 operators for complex logic without engineering overhead.
                 </p>
               </div>
 
@@ -381,9 +381,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
                   <Shield className="w-6 h-6 text-amber-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Merkle Warrant Chain</h3>
+                <h3 className="text-xl font-bold mb-3">Cryptographic Audit Trail</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Every authorization creates an immutable audit trail. SHA-256 hashing ensures tamper-proof lineage from policy to execution.
+                  Every authorization creates an HMAC-SHA256 signed audit record. Tamper-proof lineage from policy evaluation to execution completion.
                 </p>
               </div>
 
@@ -392,9 +392,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
                   <Users className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cross-Agent Delegation</h3>
+                <h3 className="text-xl font-bold mb-3">Multi-Party Approvals</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Agents can request warrants on behalf of other agents. Full delegation chain tracked with cryptographic proof of authority.
+                  High-risk actions require quorum-based human approval. Track who authorized what, when, and why with full audit context.
                 </p>
               </div>
 
@@ -403,9 +403,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <Activity className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Policy Simulation</h3>
+                <h3 className="text-xl font-bold mb-3">Real-Time Monitoring</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Test governance rules against historical actions before deployment. Validate policy correctness without production risk.
+                  Live event streams for all agent activities, policy evaluations, and approval workflows. Server-sent events with sub-second latency.
                 </p>
               </div>
             </div>

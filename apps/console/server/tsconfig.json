@@ -14,7 +14,11 @@
     "declarationMap": true,
     "sourceMap": true,
     "allowJs": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "baseUrl": "./src",
+    "paths": {
+      "@vienna-lib/*": ["../../../../services/vienna-lib/*"]
+    }
   },
   "include": [
     "src/**/*",

@@ -84,7 +84,7 @@ export function createComplianceReportRouter(): Router {
       };
 
       const { ComplianceReportGenerator } = await import(
-        '../../../../../services/vienna-lib/compliance/report-generator.js'
+        '@vienna-lib/compliance/report-generator.js'
       );
 
       const generator = new ComplianceReportGenerator(dataSource);

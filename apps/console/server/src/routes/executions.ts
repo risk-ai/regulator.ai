@@ -30,7 +30,7 @@ export function createExecutionsRouter(vienna: ViennaRuntimeService): Router {
       const limitNum = Math.min(parseInt(limit as string, 10), 200); // Max 200
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
+      const { getStateGraph } = await import('@vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Build query
@@ -143,7 +143,7 @@ export function createExecutionsRouter(vienna: ViennaRuntimeService): Router {
       const { id } = req.params;
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
+      const { getStateGraph } = await import('@vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Get execution summary
@@ -266,7 +266,7 @@ export function createExecutionsRouter(vienna: ViennaRuntimeService): Router {
       const { stage } = req.query;
       
       // Get State Graph
-      const { getStateGraph } = await import('../../../../../services/vienna-lib/state/state-graph.js');
+      const { getStateGraph } = await import('@vienna-lib/state/state-graph.js');
       const stateGraph = getStateGraph();
       
       // Build query

@@ -1,36 +1,126 @@
 {
   "version": 2,
-  "regions": ["iad1"],
+  "regions": [
+    "iad1"
+  ],
   "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "public/**", "use": "@vercel/static" }
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
   ],
   "routes": [
-    { "src": "/api/v1/health", "dest": "api/v1/health.js" },
-    { "src": "/api/v1/docs(.*)", "dest": "api/v1/docs.js" },
-    { "src": "/api/v1/billing(.*)", "dest": "api/v1/billing.js" },
-    { "src": "/api/v1/auth/refresh(.*)", "dest": "api/v1/refresh.js" },
-    { "src": "/api/v1/auth/google(.*)", "dest": "api/v1/auth-oauth.js" },
-    { "src": "/api/v1/auth/github(.*)", "dest": "api/v1/auth-oauth.js" },
-    { "src": "/api/v1/onboarding(.*)", "dest": "api/v1/onboarding.js" },
-    { "src": "/api/v1/agents(.*)", "dest": "api/v1/agents.js" },
-    { "src": "/api/v1/policies(.*)", "dest": "api/v1/policies.js" },
-    { "src": "/api/v1/warrants(.*)", "dest": "api/v1/warrants.js" },
-    { "src": "/api/v1/api-keys(.*)", "dest": "api/v1/api-keys.js" },
-    { "src": "/api/v1/webhooks(.*)", "dest": "api/v1/webhooks.js" },
-    { "src": "/api/v1/approvals(.*)", "dest": "api/v1/approvals.js" },
-    { "src": "/api/v1/notifications(.*)", "dest": "api/v1/notifications.js" },
-    { "src": "/api/v1/batch(.*)", "dest": "api/v1/batch.js" },
-    { "src": "/api/v1/executions(.*)", "dest": "api/v1/executions.js" },
-    { "src": "/api/v1/execution-records(.*)", "dest": "api/v1/execution-records.js" },
-    { "src": "/api/v1/events(.*)", "dest": "api/v1/events.js" },
-    { "src": "/api/v1/audit(.*)", "dest": "api/v1/audit.js" },
-    { "src": "/api/v1/usage(.*)", "dest": "api/v1/usage.js" },
-    { "src": "/api/v1/auth(.*)", "dest": "api/v1/auth.js" },
-    { "src": "/api/v1/rbac(.*)", "dest": "api/v1/rbac.js" },
-    { "src": "/api/v1/refresh(.*)", "dest": "api/v1/refresh.js" },
-    { "src": "/api/(.*)", "dest": "api/server.js" },
-    { "src": "/assets/(.*)", "dest": "public/assets/$1" },
-    { "src": "/((?!api|assets).*)", "dest": "public/index.html" }
+    {
+      "src": "/api/v1/health",
+      "dest": "api/v1/health.js"
+    },
+    {
+      "src": "/api/v1/docs(.*)",
+      "dest": "api/v1/docs.js"
+    },
+    {
+      "src": "/api/v1/billing(.*)",
+      "dest": "api/v1/billing.js"
+    },
+    {
+      "src": "/api/v1/auth/refresh(.*)",
+      "dest": "api/v1/refresh.js"
+    },
+    {
+      "src": "/api/v1/auth/google(.*)",
+      "dest": "api/v1/auth-oauth.js"
+    },
+    {
+      "src": "/api/v1/auth/github(.*)",
+      "dest": "api/v1/auth-oauth.js"
+    },
+    {
+      "src": "/api/v1/onboarding(.*)",
+      "dest": "api/v1/onboarding.js"
+    },
+    {
+      "src": "/api/v1/agents(.*)",
+      "dest": "api/v1/agents.js"
+    },
+    {
+      "src": "/api/v1/policies(.*)",
+      "dest": "api/v1/policies.js"
+    },
+    {
+      "src": "/api/v1/warrants(.*)",
+      "dest": "api/v1/warrants.js"
+    },
+    {
+      "src": "/api/v1/api-keys(.*)",
+      "dest": "api/v1/api-keys.js"
+    },
+    {
+      "src": "/api/v1/webhooks(.*)",
+      "dest": "api/v1/webhooks.js"
+    },
+    {
+      "src": "/api/v1/approvals(.*)",
+      "dest": "api/v1/approvals.js"
+    },
+    {
+      "src": "/api/v1/notifications(.*)",
+      "dest": "api/v1/notifications.js"
+    },
+    {
+      "src": "/api/v1/batch(.*)",
+      "dest": "api/v1/batch.js"
+    },
+    {
+      "src": "/api/v1/executions(.*)",
+      "dest": "api/v1/executions.js"
+    },
+    {
+      "src": "/api/v1/execution-records(.*)",
+      "dest": "api/v1/execution-records.js"
+    },
+    {
+      "src": "/api/v1/events(.*)",
+      "dest": "api/v1/events.js"
+    },
+    {
+      "src": "/api/v1/audit(.*)",
+      "dest": "api/v1/audit.js"
+    },
+    {
+      "src": "/api/v1/usage(.*)",
+      "dest": "api/v1/usage.js"
+    },
+    {
+      "src": "/api/v1/auth(.*)",
+      "dest": "api/v1/auth.js"
+    },
+    {
+      "src": "/api/v1/rbac(.*)",
+      "dest": "api/v1/rbac.js"
+    },
+    {
+      "src": "/api/v1/refresh(.*)",
+      "dest": "api/v1/refresh.js"
+    },
+    {
+      "src": "/api/v1/execution-submit(.*)",
+      "dest": "api/v1/execution-submit.js"
+    },
+    {
+      "src": "/api/v1/intents-batch(.*)",
+      "dest": "api/v1/intents-batch.js"
+    },
+    {
+      "src": "/api/v1/feedback(.*)",
+      "dest": "api/v1/feedback.js"
+    },
+    {
+      "src": "/api/v1/retention(.*)",
+      "dest": "api/v1/retention.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "api/server.js"
+    }
   ]
 }

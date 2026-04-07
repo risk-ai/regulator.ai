@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import {
@@ -39,6 +40,7 @@ export default function Home() {
       ></div>
 
 
+      <ScrollAnimator />
       <SiteNav />
       <main className="flex-1">
         {/* HERO SECTION */}
@@ -176,7 +178,7 @@ export default function Home() {
         {/* HOW IT WORKS */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 How It Works
               </h2>
@@ -237,7 +239,7 @@ export default function Home() {
         {/* TIERED RISK GOVERNANCE */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Tiered Risk Governance
               </h2>
@@ -309,7 +311,7 @@ export default function Home() {
         {/* CORE CAPABILITIES */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <div className="text-[10px] font-mono text-violet-400 uppercase tracking-widest mb-4">Capabilities no one else has</div>
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Core Capabilities
@@ -319,8 +321,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-reveal">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6 animate-pulse-glow">
                   <FileText className="w-6 h-6 text-violet-500" />
                 </div>
@@ -333,7 +335,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-200">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
                   <Shield className="w-6 h-6 text-amber-500" />
                 </div>
@@ -347,7 +349,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
                   <Users className="w-6 h-6 text-green-500" />
                 </div>
@@ -360,7 +362,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <Activity className="w-6 h-6 text-violet-500" />
                 </div>
@@ -377,7 +379,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-500">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-6">
                   <Zap className="w-6 h-6 text-cyan-500" />
                 </div>
@@ -391,7 +393,7 @@ export default function Home() {
                 <div className="text-xs font-mono text-zinc-600 mt-2">Trust: 0.78 — auto-approve T0/T1</div>
               </div>
 
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-600">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
                   <BadgeCheck className="w-6 h-6 text-amber-500" />
                 </div>
@@ -408,7 +410,7 @@ export default function Home() {
             </div>
 
             {/* Dual Execution Model — full-width feature card */}
-            <div className="mt-8 p-8 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-900/50 border border-white/5 card-hover animate-fade-up">
+            <div className="mt-8 p-8 rounded-2xl bg-gradient-to-r from-zinc-900 to-zinc-900/50 border border-white/5 card-hover">
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div>
                   <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">Unique to Vienna</div>
@@ -437,7 +439,7 @@ export default function Home() {
         {/* INTEGRATION */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Integration
               </h2>
@@ -497,7 +499,7 @@ export default function Home() {
         {/* OPEN WARRANT STANDARD */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl mx-auto text-center animate-fade-up">
+            <div className="mb-16 max-w-2xl mx-auto text-center scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Open Warrant Standard
               </h2>
@@ -540,7 +542,7 @@ export default function Home() {
         {/* BEFORE/AFTER SCENARIO */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 What Happens Without Governance
               </h2>
@@ -549,7 +551,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-8 scroll-reveal">
               {/* Without */}
               <div className="p-8 rounded-2xl bg-red-500/5 border border-red-500/20">
                 <div className="flex items-center gap-3 mb-6">
@@ -600,7 +602,7 @@ export default function Home() {
         {/* QUICKSTART */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Running in 5 Minutes
               </h2>
@@ -663,7 +665,7 @@ export default function Home() {
         {/* COMPLIANCE AS BUYING TRIGGER */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Audit-Ready from Day One
               </h2>
@@ -701,7 +703,7 @@ export default function Home() {
         {/* WHO USES THIS — USE CASE PERSONAS */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Built for Your Role
               </h2>
@@ -710,7 +712,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8 scroll-reveal">
               <Link href="/use-cases" className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-violet-500/30 transition-all group">
                 <Wrench className="w-8 h-8 text-amber-500 mb-4" />
                 <h3 className="text-lg font-bold mb-2 group-hover:text-violet-400 transition-colors">DevOps Lead</h3>
@@ -742,7 +744,7 @@ export default function Home() {
         {/* INDUSTRY VERTICALS */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl animate-fade-up">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">Industry Solutions</div>
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Without Governance, AI Cannot Operate
@@ -752,8 +754,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 scroll-reveal">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover delay-100">
                 <div className="text-2xl mb-4">🏦</div>
                 <h3 className="text-lg font-bold mb-2">Financial Services</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed mb-3">
@@ -761,7 +763,7 @@ export default function Home() {
                 </p>
                 <div className="text-xs font-mono text-violet-400">T2: wire_transfer {'>'}$50K → CFO approval</div>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-200">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-2xl mb-4">🏥</div>
                 <h3 className="text-lg font-bold mb-2">Healthcare</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed mb-3">
@@ -769,7 +771,7 @@ export default function Home() {
                 </p>
                 <div className="text-xs font-mono text-violet-400">T3: access_phi → privacy_officer + attending</div>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-2xl mb-4">⚖️</div>
                 <h3 className="text-lg font-bold mb-2">Legal</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed mb-3">
@@ -777,7 +779,7 @@ export default function Home() {
                 </p>
                 <div className="text-xs font-mono text-violet-400">T2: file_motion → partner approval</div>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <div className="text-2xl mb-4">🏗️</div>
                 <h3 className="text-lg font-bold mb-2">DevOps</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed mb-3">
@@ -792,7 +794,7 @@ export default function Home() {
         {/* PRICING PREVIEW */}
         <section className="py-24 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl mx-auto text-center animate-fade-up">
+            <div className="mb-16 max-w-2xl mx-auto text-center scroll-reveal">
               <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
                 Start Free. Scale as Your Fleet Grows.
               </h2>
@@ -801,8 +803,8 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-100">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 scroll-reveal">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover delay-100">
                 <h3 className="text-lg font-bold mb-1">Community</h3>
                 <div className="text-3xl font-display font-bold mb-4">Free</div>
                 <ul className="space-y-2 text-sm text-zinc-500">
@@ -812,7 +814,7 @@ export default function Home() {
                   <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Community support</li>
                 </ul>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-violet-500/20 card-hover animate-fade-up delay-200 relative overflow-hidden">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-violet-500/20 card-hover relative overflow-hidden">
                 <div className="absolute top-0 right-0 px-3 py-1 bg-violet-500 text-[10px] font-mono font-bold rounded-bl-lg">POPULAR</div>
                 <h3 className="text-lg font-bold mb-1">Team</h3>
                 <div className="text-3xl font-display font-bold mb-4">$49<span className="text-lg text-zinc-500">/mo</span></div>
@@ -823,7 +825,7 @@ export default function Home() {
                   <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> Priority support</li>
                 </ul>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-300">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <h3 className="text-lg font-bold mb-1">Business</h3>
                 <div className="text-3xl font-display font-bold mb-4">$99<span className="text-lg text-zinc-500">/mo</span></div>
                 <ul className="space-y-2 text-sm text-zinc-500">
@@ -833,7 +835,7 @@ export default function Home() {
                   <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" /> SSO + RBAC</li>
                 </ul>
               </div>
-              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover animate-fade-up delay-400">
+              <div className="p-6 rounded-2xl bg-zinc-900 border border-white/5 card-hover">
                 <h3 className="text-lg font-bold mb-1">Enterprise</h3>
                 <div className="text-3xl font-display font-bold mb-4">Custom</div>
                 <ul className="space-y-2 text-sm text-zinc-500">

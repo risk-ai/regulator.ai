@@ -523,3 +523,56 @@ input:focus, textarea:focus, select:focus {
   border-color: rgba(139, 92, 246, 0.3);
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
 }
+
+/* === SCROLL-TRIGGERED ANIMATIONS === */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal.scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-left.scroll-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-right.scroll-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-scale.scroll-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered children */
+.scroll-reveal .stagger-1 { transition-delay: 0.1s; }
+.scroll-reveal .stagger-2 { transition-delay: 0.2s; }
+.scroll-reveal .stagger-3 { transition-delay: 0.3s; }
+.scroll-reveal .stagger-4 { transition-delay: 0.4s; }
+.scroll-reveal .stagger-5 { transition-delay: 0.5s; }
+.scroll-reveal .stagger-6 { transition-delay: 0.6s; }

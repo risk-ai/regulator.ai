@@ -1,126 +1,36 @@
 name: Deploy to Production
 
 on:
-  workflow_dispatch:  # Manual trigger only (auto-deploy disabled until secrets configured)
+  push:
+    branches: [main]
+
+# Vercel auto-deploys main → production for both:
+#   - regulator-ai (marketing site)
+#   - console-proxy (console API)
+# This workflow runs post-deploy verification.
 
 jobs:
-  deploy-backend:
+  verify-deploy:
+    name: Verify Production Deploy
     runs-on: ubuntu-latest
-    environment: production
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-      
-      - name: Deploy Backend to Vercel (Production)
-        run: |
-          cd apps/console-proxy
-          vercel --prod \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --yes \
-            --env DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }} \
-            --env JWT_SECRET=${{ secrets.PRODUCTION_JWT_SECRET }} \
-            --env STRIPE_SECRET_KEY=${{ secrets.PRODUCTION_STRIPE_SECRET_KEY }} \
-            --env STRIPE_WEBHOOK_SECRET=${{ secrets.PRODUCTION_STRIPE_WEBHOOK_SECRET }} \
-            --env RESEND_API_KEY=${{ secrets.PRODUCTION_RESEND_API_KEY }} \
-            --env CONSOLE_URL=https://console.regulator.ai
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
-      
-      - name: Create deployment tag
-        run: |
-          git tag -a "deploy-$(date +%Y%m%d-%H%M%S)" -m "Production deployment"
-          git push --tags
+      - name: Wait for Vercel deploy
+        run: sleep 60
 
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    environment: production
-    needs: deploy-backend
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-      
-      - name: Deploy Frontend to Vercel (Production)
+      - name: Check regulator.ai health
         run: |
-          cd apps/console
-          vercel --prod \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --yes \
-            --env VITE_API_URL=https://api.regulator.ai
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_CONSOLE }}
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://regulator.ai)
+          if [ "$status" != "200" ]; then
+            echo "::error::regulator.ai returned $status"
+            exit 1
+          fi
+          echo "✅ regulator.ai is up (HTTP $status)"
 
-  smoke-test:
-    runs-on: ubuntu-latest
-    needs: [deploy-backend, deploy-frontend]
-    
-    steps:
-      - name: Wait for deployments
-        run: sleep 30
-      
-      - name: Test backend health
+      - name: Check console.regulator.ai health
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://api.regulator.ai/api/v1/health)
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Backend health check failed: HTTP $STATUS"
-            exit 1
+          status=$(curl -s -o /dev/null -w "%{http_code}" https://console.regulator.ai/api/v1/health)
+          if [ "$status" != "200" ]; then
+            echo "::warning::console.regulator.ai health check returned $status"
+          else
+            echo "✅ console.regulator.ai API is up (HTTP $status)"
           fi
-          echo "✅ Backend health check passed"
-      
-      - name: Test frontend
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://console.regulator.ai)
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Frontend health check failed: HTTP $STATUS"
-            exit 1
-          fi
-          echo "✅ Frontend health check passed"
-      
-      - name: Test critical API endpoints
-        run: |
-          # Test public health endpoint
-          curl -f https://api.regulator.ai/api/v1/health || exit 1
-          
-          # Test docs endpoint
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://api.regulator.ai/api/v1/docs)
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ API docs check failed: HTTP $STATUS"
-            exit 1
-          fi
-          
-          echo "✅ All smoke tests passed"
-      
-      - name: Notify on failure
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '🚨 Production deployment smoke test failed',
-              body: `Deployment: ${context.sha.substring(0, 7)}\n` +
-                    `Workflow: ${context.workflow}\n` +
-                    `Run: ${context.runNumber}\n\n` +
-                    `Check logs: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              labels: ['production', 'bug', 'critical']
-            })

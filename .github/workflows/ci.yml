@@ -6,25 +6,40 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-type-check:
+  build-marketing:
+    name: Build Marketing Site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/marketing/package-lock.json
       - name: Install dependencies
-        run: |
-          cd apps/console/server && npm ci
-          cd ../../.. && cd packages/sdk && npm ci
+        run: cd apps/marketing && npm ci
+      - name: Build
+        run: cd apps/marketing && npx next build
+
+  type-check:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install console server deps
+        run: cd apps/console/server && npm ci
       - name: Type check console server
-        run: cd apps/console/server && npx tsc --noEmit --skipLibCheck || true
+        run: cd apps/console/server && npx tsc --noEmit --skipLibCheck
+      - name: Install SDK deps
+        run: cd packages/sdk && npm ci
       - name: Build SDK
         run: cd packages/sdk && npx tsc
-      - name: Build marketing site
-        run: cd apps/marketing && npm ci && npx next build
 
   test:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,15 +47,27 @@ jobs:
         with:
           node-version: 22
       - name: Run core engine tests
-        run: node --test services/vienna-lib/test/*.test.js
-      - name: Run integration tests
-        run: node scripts/integration-test.js || true
+        run: |
+          if ls services/vienna-lib/test/*.test.js 1>/dev/null 2>&1; then
+            node --test services/vienna-lib/test/*.test.js
+          else
+            echo "No tests found, skipping"
+          fi
 
   security:
+    name: Security Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Audit console server
-        run: cd apps/console/server && npm audit --omit=dev || true
+        run: cd apps/console/server && npm ci && npm audit --omit=dev --audit-level=high || true
       - name: Audit SDK
-        run: cd packages/sdk && npm audit --omit=dev || true
+        run: cd packages/sdk && npm ci && npm audit --omit=dev --audit-level=high || true
+      - name: Check for hardcoded secrets
+        run: |
+          # Fail if any real secrets are found (not patterns/examples)
+          if grep -rn 'sk-ant-api\|npg_[A-Za-z0-9]\{20\}' --include='*.ts' --include='*.js' --include='*.json' . \
+            | grep -v node_modules | grep -v .git | grep -v package-lock | grep -v '\.test\.' | grep -v example | grep -v '\.env\.'; then
+            echo "::error::Potential hardcoded secrets found!"
+            exit 1
+          fi

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Shield,
   FileText,
@@ -18,22 +18,46 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
+  const [currentTime, setCurrentTime] = useState(new Date().toISOString().split('.')[0] + 'Z');
+
   useEffect(() => {
     analytics.page("Homepage");
+    
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toISOString().split('.')[0] + 'Z');
+    }, 1000);
+    
+    return () => clearInterval(timer);
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white">
-      {/* Terminal Grid Background */}
+      {/* Terminal Grid Background - More Visible */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.02]"
+        className="absolute inset-0 pointer-events-none opacity-[0.08]"
         style={{
-          backgroundImage: 'linear-gradient(rgba(251, 191, 36, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.3) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(rgba(251, 191, 36, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.5) 1px, transparent 1px)',
           backgroundSize: '32px 32px'
         }}
       ></div>
 
       <SiteNav />
+
+      {/* Coordinate/UTC Bar - Scrolls with page */}
+      <div className="relative z-10 bg-black/50 border-b border-amber-500/20 px-6 py-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono text-zinc-600">
+          <div className="flex items-center gap-6">
+            <span>lat: 40.7128°N</span>
+            <span>lon: -74.0060°W</span>
+            <span>grid: 32x32px</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <span>utc: {currentTime}</span>
+            <span className="text-amber-500">● LIVE</span>
+          </div>
+        </div>
+      </div>
 
       <main className="flex-1">
         {/* HERO SECTION */}

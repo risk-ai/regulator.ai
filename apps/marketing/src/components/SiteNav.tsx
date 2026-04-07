@@ -7,7 +7,7 @@ export default function SiteNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-md border-b border-white/5">
+    <nav className="relative z-10 bg-[#09090b]/80 backdrop-blur-md border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="text-xl font-bold flex items-center gap-2 text-white">

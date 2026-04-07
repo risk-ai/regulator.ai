@@ -364,7 +364,7 @@ export default function Home() {
                 <div className="space-y-3 text-xs font-mono">
                   <div><span className="text-zinc-600">receipts/day:</span> <span className="text-amber-500">2.1M</span></div>
                   <div><span className="text-zinc-600">eval_latency_p99:</span> <span className="text-green-500">43ms</span></div>
-                  <div><span className="text-zinc-600">operators:</span> <span className="text-zinc-400">11 (==, !=, >, <, ...)</span></div>
+                  <div><span className="text-zinc-600">operators:</span> <span className="text-zinc-400">11 (==, !=, &gt;, &lt;, ...)</span></div>
                   <div><span className="text-zinc-600">deployment:</span> <span className="text-zinc-400">zero_downtime</span></div>
                 </div>
               </div>

@@ -1492,7 +1492,7 @@ export default function TryPage() {
                       </div>
                       <div className="bg-slate-900/50 rounded-lg p-3 col-span-2">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Hash</div>
-                        <div className="text-xs font-mono text-slate-300 break-all">{result.merkle_chain.chain_hash}</div>
+                        <div className="text-xs font-mono text-slate-300 break-all">{result.merkle_chain!.chain_hash}</div>
                       </div>
                     </div>
 

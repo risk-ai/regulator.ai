@@ -171,3 +171,4 @@ apps/console/server/public/
 services/vienna-runtime/console/
 *.whl
 *.egg-info/
+.superdesign/

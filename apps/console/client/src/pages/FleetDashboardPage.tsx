@@ -14,6 +14,7 @@ import {
   type FleetAgent,
 } from '../api/fleet.js';
 import { AgentCard, FleetStatsRow } from '../components/fleet/index.js';
+import { RISK_TIER_COLORS, type RiskTier } from '../constants/riskTiers.js';
 
 // ============================================================================
 // Constants
@@ -69,16 +70,7 @@ const TYPE_COLORS: Record<string, string> = {
   supervised: COLORS.cyan,
 };
 
-/**
- * Risk Tier Colors (from marketing TieredRisk.tsx)
- * Exactly matched to marketing site tier cards
- */
-const RISK_TIER_COLORS: Record<'T0' | 'T1' | 'T2' | 'T3', string> = {
-  T0: '#10b981',  // Green - AUTO_APPROVE
-  T1: '#10b981',  // Green - POLICY_GATE
-  T2: '#fbbf24',  // Amber - HUMAN_GATE
-  T3: '#ef4444',  // Red - STRICT_HALT
-};
+// Risk tier colors now imported from shared constants
 
 const MONO: React.CSSProperties = { fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace" };
 const REFRESH_MS = 15000;
@@ -126,10 +118,12 @@ function assignRiskTier(trustScore: number): 'T0' | 'T1' | 'T2' | 'T3' {
 
 /**
  * Get warrant status (mock for now; would come from API)
+ * 
+ * TODO: wire to real warrant API - currently returns random data for visual polish
  */
 function getWarrantStatus(): 'Active Warrant' | 'No Warrant' | 'Expired' {
   const statuses = ['Active Warrant', 'No Warrant', 'Expired'] as const;
-  // In production, would query actual warrant state
+  // In production, would query actual warrant state from /api/v1/warrants
   return statuses[Math.floor(Math.random() * statuses.length)];
 }
 

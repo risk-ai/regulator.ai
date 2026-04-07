@@ -7,24 +7,7 @@
 
 import React from 'react';
 import type { FleetAgent } from '../../api/fleet.js';
-
-// ============================================================================
-// Risk Tier Color Constants (from marketing TieredRisk.tsx)
-// ============================================================================
-
-const RISK_TIER_COLORS = {
-  T0: '#10b981',      // Green - Auto-pass
-  T1: '#10b981',      // Green - Policy gate
-  T2: '#fbbf24',      // Amber - Human gate
-  T3: '#ef4444',      // Red - Strict halt
-} as const;
-
-const RISK_TIER_LABELS = {
-  T0: 'AUTO_APPROVE',
-  T1: 'POLICY_GATE',
-  T2: 'HUMAN_GATE',
-  T3: 'STRICT_HALT',
-} as const;
+import { RISK_TIER_COLORS, RISK_TIER_LABELS } from '../../constants/riskTiers.js';
 
 // ============================================================================
 // CSS Tokens (from variables.css)

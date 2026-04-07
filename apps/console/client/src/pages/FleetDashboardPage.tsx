@@ -13,6 +13,8 @@ import {
   type AgentDetail,
   type FleetAgent,
 } from '../api/fleet.js';
+import { AgentCard, FleetStatsRow } from '../components/fleet/index.js';
+import { RISK_TIER_COLORS, type RiskTier } from '../constants/riskTiers.js';
 
 // ============================================================================
 // Constants
@@ -68,6 +70,8 @@ const TYPE_COLORS: Record<string, string> = {
   supervised: COLORS.cyan,
 };
 
+// Risk tier colors now imported from shared constants
+
 const MONO: React.CSSProperties = { fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace" };
 const REFRESH_MS = 15000;
 
@@ -98,6 +102,29 @@ function trustColor(score: number): string {
   if (score > 70) return COLORS.green;
   if (score >= 40) return COLORS.yellow;
   return COLORS.red;
+}
+
+/**
+ * Assign risk tier based on trust score and agent type
+ * @param trustScore 0-100
+ * @returns Risk tier T0-T3
+ */
+function assignRiskTier(trustScore: number): 'T0' | 'T1' | 'T2' | 'T3' {
+  if (trustScore > 85) return 'T0';
+  if (trustScore > 65) return 'T1';
+  if (trustScore > 40) return 'T2';
+  return 'T3';
+}
+
+/**
+ * Get warrant status (mock for now; would come from API)
+ * 
+ * TODO: wire to real warrant API - currently returns random data for visual polish
+ */
+function getWarrantStatus(): 'Active Warrant' | 'No Warrant' | 'Expired' {
+  const statuses = ['Active Warrant', 'No Warrant', 'Expired'] as const;
+  // In production, would query actual warrant state from /api/v1/warrants
+  return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
 // ============================================================================
@@ -580,6 +607,8 @@ export function FleetDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedAgents, setSelectedAgents] = useState<Set<string>>(new Set());
+  // View mode: 'cards' or 'table'
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
 
   const fetchData = useCallback(async () => {
     try {
@@ -708,7 +737,39 @@ export function FleetDashboardPage() {
             Governance Dashboard — {summary.totalAgents} agents registered
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.03)', borderRadius: 4, padding: 2 }}>
+            <button
+              onClick={() => setViewMode('cards')}
+              style={{
+                padding: '4px 10px',
+                fontSize: 11,
+                borderRadius: 3,
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: viewMode === 'cards' ? 600 : 400,
+                background: viewMode === 'cards' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                color: viewMode === 'cards' ? COLORS.textPrimary : COLORS.textMuted,
+              }}
+            >
+              ⊞ Cards
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              style={{
+                padding: '4px 10px',
+                fontSize: 11,
+                borderRadius: 3,
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: viewMode === 'table' ? 600 : 400,
+                background: viewMode === 'table' ? 'rgba(255,255,255,0.08)' : 'transparent',
+                color: viewMode === 'table' ? COLORS.textPrimary : COLORS.textMuted,
+              }}
+            >
+              ▦ Table
+            </button>
+          </div>
           <div style={{ ...MONO, fontSize: 10, color: COLORS.textMuted }}>
             Updated {lastRefresh.toLocaleTimeString()}
           </div>
@@ -731,37 +792,22 @@ export function FleetDashboardPage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-        <SummaryCard
-          label="Active Agents"
-          value={summary.activeAgents}
-          sub={`${summary.totalAgents} total`}
-          color={COLORS.green}
-        />
-        <SummaryCard
-          label="Actions Today"
-          value={summary.actionsToday}
-          sub={`${summary.actionsThisHour}/hr`}
-          color={COLORS.blue}
-          sparkData={trendCounts}
-        />
-        <SummaryCard
-          label="Avg Latency"
-          value={`${summary.avgLatencyMs}ms`}
-          color={summary.avgLatencyMs > 1000 ? COLORS.yellow : COLORS.textPrimary}
-        />
-        <SummaryCard
-          label="Violations"
-          value={summary.violationsCount}
-          color={summary.violationsCount > 0 ? COLORS.red : COLORS.green}
-        />
-        <SummaryCard
-          label="Alerts"
-          value={summary.unresolvedAlerts}
-          color={summary.unresolvedAlerts > 0 ? COLORS.yellow : COLORS.green}
-        />
-      </div>
+      {/* Enhanced Fleet Stats Row */}
+      <FleetStatsRow
+        totalAgents={summary.totalAgents}
+        activeAgents={summary.activeAgents}
+        idleAgents={allAgents.filter(a => a.status === 'idle').length}
+        suspendedAgents={allAgents.filter(a => a.status === 'suspended').length}
+        avgTrustScore={allAgents.length > 0 ? allAgents.reduce((sum, a) => sum + a.trust_score, 0) / allAgents.length : 0}
+        t0Count={allAgents.filter(a => assignRiskTier(a.trust_score) === 'T0').length}
+        t1Count={allAgents.filter(a => assignRiskTier(a.trust_score) === 'T1').length}
+        t2Count={allAgents.filter(a => assignRiskTier(a.trust_score) === 'T2').length}
+        t3Count={allAgents.filter(a => assignRiskTier(a.trust_score) === 'T3').length}
+        pendingApprovals={0}
+        actionsToday={summary.actionsToday}
+        avgLatencyMs={summary.avgLatencyMs}
+        unresolvedAlerts={summary.unresolvedAlerts}
+      />
 
       {/* P1: Search + Filter Bar */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -835,12 +881,63 @@ export function FleetDashboardPage() {
         </div>
       )}
 
-      {/* Main Grid: Agent Table + Alerts */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: window.innerWidth > 768 ? '1fr 340px' : '1fr', 
-        gap: 16 
-      }}>
+      {/* Main View: Cards or Table + Alerts */}
+      {viewMode === 'cards' ? (
+        // Card Grid View with side alerts panel
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: window.innerWidth > 768 ? '1fr 340px' : '1fr', 
+          gap: 16 
+        }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 16,
+          }}>
+            {agents.length === 0 ? (
+              <div
+                style={{
+                  gridColumn: '1 / -1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: 300,
+                  color: COLORS.textMuted,
+                  flexDirection: 'column',
+                  gap: 12,
+                }}
+              >
+                <div style={{ fontSize: 16 }}>📭</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>No agents registered yet</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>
+                  Connect your first agent to get started. Click "Connect Agent" in settings.
+                </div>
+              </div>
+            ) : (
+              agents.map(agent => (
+                <AgentCard
+                  key={agent.agent_id}
+                  agent={agent}
+                  riskTier={assignRiskTier(agent.trust_score)}
+                  warrantStatus={getWarrantStatus()}
+                  onClick={() => setExpandedAgent(agent.agent_id === expandedAgent ? null : agent.agent_id)}
+                  onAdjustTrust={() => setTrustModal({ agentId: agent.agent_id, score: agent.trust_score })}
+                  onSuspend={() => handleSuspend(agent.agent_id)}
+                  onActivate={() => handleActivate(agent.agent_id)}
+                />
+              ))
+            )}
+          </div>
+          {/* Alerts Panel (side) */}
+          <AlertsPanel alerts={alerts} onResolve={handleResolveAlert} />
+        </div>
+      ) : (
+        // Table View (original)
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: window.innerWidth > 768 ? '1fr 340px' : '1fr', 
+          gap: 16 
+        }}>
         {/* Agent Table */}
         <div style={{
           background: COLORS.card,
@@ -983,7 +1080,8 @@ export function FleetDashboardPage() {
 
         {/* Alerts Panel */}
         <AlertsPanel alerts={alerts} onResolve={handleResolveAlert} />
-      </div>
+        </div>
+      )}
 
       {/* Agents Needing Attention */}
       {summary.agentsNeedingAttention.length > 0 && (

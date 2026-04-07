@@ -20,11 +20,7 @@ import {
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 
-/* Import SuperDesign approved fonts */
-const fontImports = `
-  @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@700,500,400&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-`;
+/* Fonts imported in globals.css - no need to inject here */
 
 /* ============================================================
    NETWORK BACKGROUND (from SuperDesign - approved style)
@@ -144,19 +140,10 @@ export default function Home() {
 
   useEffect(() => {
     analytics.page("Homepage");
-    
-    // Inject font imports
-    const style = document.createElement('style');
-    style.textContent = fontImports;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-gray-100" style={{ fontFamily: "'Satoshi', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#09090b] text-gray-100">
       {/* ============================================================
           NAVIGATION (Consistent header)
           ============================================================ */}
@@ -244,7 +231,7 @@ export default function Home() {
               <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">V1.2.0 GOVERNANCE PROTOCOL ACTIVE</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold leading-[0.95] tracking-tighter mb-6" style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+            <h1 className="font-display text-5xl md:text-7xl font-bold leading-[0.95] tracking-tighter mb-6">
               Authorization at the{" "}
               <span className="text-zinc-500">Speed of Intelligence.</span>
             </h1>
@@ -358,7 +345,7 @@ export default function Home() {
           ============================================================ */}
       <section className="py-20 bg-gradient-to-b from-transparent to-purple-950/10">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">How It Works</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">How It Works</h2>
           <p className="text-center text-gray-400 max-w-2xl mx-auto mb-16">
             Three steps from agent intent to verified execution
           </p>
@@ -425,7 +412,7 @@ export default function Home() {
           ============================================================ */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Risk-Based Governance</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">Risk-Based Governance</h2>
           <p className="text-center text-gray-400 max-w-2xl mx-auto mb-16">
             Four risk tiers determine approval requirements, from auto-approved reads to multi-party sign-off
           </p>
@@ -479,7 +466,7 @@ export default function Home() {
           ============================================================ */}
       <section className="py-20 bg-gradient-to-b from-purple-950/10 to-transparent">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Core Capabilities</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">Core Capabilities</h2>
           <p className="text-center text-gray-400 max-w-2xl mx-auto mb-16">
             Advanced features for production AI governance
           </p>
@@ -541,7 +528,7 @@ export default function Home() {
           ============================================================ */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Easy Integration</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">Easy Integration</h2>
           <p className="text-center text-gray-400 max-w-2xl mx-auto mb-16">
             Production-ready SDKs and framework integrations
           </p>
@@ -610,7 +597,7 @@ await vienna.submitIntent({
           ============================================================ */}
       <section className="py-20 bg-gradient-to-b from-transparent to-purple-950/10">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Open Warrant Standard</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">Open Warrant Standard</h2>
           <p className="text-gray-400 max-w-2xl mx-auto mb-12">
             Vienna OS implements the Open Warrant Standard (OWS) v1.0 — a portable execution authorization protocol for AI systems
           </p>
@@ -653,7 +640,7 @@ await vienna.submitIntent({
           ============================================================ */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+          <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-6">
             Start Governing Your AI Agents
           </h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">

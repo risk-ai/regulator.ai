@@ -12,9 +12,23 @@
 }
 
 body {
-  background: #0D0F14;
-  color: #B0AAA0;
+  background: #09090b;
+  color: #fafafa;
+  font-family: 'Satoshi', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Typography system */
+.font-display {
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+.font-body {
+  font-family: 'Satoshi', system-ui, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
 /* ============================

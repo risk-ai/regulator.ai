@@ -23,6 +23,11 @@ const comparison = [
   { category: "Compliance", vienna: "SOC 2, HIPAA, SOX, EU AI Act reports", arthur: "Fairness and bias reporting" },
   { category: "Deployment", vienna: "Self-hosted or cloud", arthur: "Cloud platform" },
   { category: "Pricing", vienna: "Free tier + $49-99/mo", arthur: "Enterprise pricing (custom)" },
+  { category: "Natural Language Policies", vienna: "Write policies in plain English", arthur: "Code or configuration required" },
+  { category: "Merkle Warrant Chain", vienna: "Tamper-proof cryptographic audit history", arthur: "Standard logging" },
+  { category: "Policy Simulation", vienna: "Dry-run policy changes before deploying", arthur: "No simulation capability" },
+  { category: "Agent Trust Scoring", vienna: "Dynamic trust scores from behavior history", arthur: "Model performance monitoring" },
+  { category: "Cross-Agent Delegation", vienna: "Agents delegate authority with constraints", arthur: "No delegation model" },
 ];
 
 export default function CompareArthurPage() {

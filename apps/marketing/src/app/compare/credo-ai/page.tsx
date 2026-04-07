@@ -24,6 +24,11 @@ const comparison = [
   { category: "Real-time Enforcement", vienna: "Yes — blocks unauthorized actions", credo: "No — documents after deployment" },
   { category: "Deployment", vienna: "Self-hosted or cloud", credo: "Enterprise platform" },
   { category: "Pricing", vienna: "Free tier + $49-99/mo", credo: "Enterprise pricing (custom)" },
+  { category: "Natural Language Policies", vienna: "Write policies in plain English", credo: "Code or configuration required" },
+  { category: "Merkle Warrant Chain", vienna: "Tamper-proof cryptographic audit history", credo: "Standard logging" },
+  { category: "Policy Simulation", vienna: "Dry-run policy changes before deploying", credo: "No simulation capability" },
+  { category: "Agent Trust Scoring", vienna: "Dynamic trust scores from behavior history", credo: "No agent trust metrics" },
+  { category: "Cross-Agent Delegation", vienna: "Agents delegate authority with constraints", credo: "No delegation model" },
 ];
 
 export default function CredoAiPage() {

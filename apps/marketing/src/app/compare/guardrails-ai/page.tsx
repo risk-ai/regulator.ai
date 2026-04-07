@@ -27,6 +27,11 @@ const features = [
   { feature: "Enterprise support", vienna: "Available (Business tier)", guardrails: "Guardrails Hub (paid)", advantage: "tie" },
   { feature: "Rollback plans", vienna: "Required for T3 actions, built into warrant", guardrails: "Not available", advantage: "vienna" },
   { feature: "Policy-as-code", vienna: "JSON/YAML policies with conditions, scopes, and escalation", guardrails: "RAIL XML spec", advantage: "tie" },
+  { feature: "Natural language policies", vienna: "Write policies in plain English, compiled to rules", guardrails: "RAIL spec (XML-based)", advantage: "vienna" },
+  { feature: "Merkle warrant chain", vienna: "Tamper-proof cryptographic audit history", guardrails: "Standard logging", advantage: "vienna" },
+  { feature: "Policy simulation", vienna: "Dry-run policy changes before deploying", guardrails: "Not available", advantage: "vienna" },
+  { feature: "Agent trust scoring", vienna: "Dynamic trust scores from behavior history", guardrails: "Not available", advantage: "vienna" },
+  { feature: "Cross-agent delegation", vienna: "Agents delegate authority with constraints", guardrails: "Not available", advantage: "vienna" },
 ];
 
 export default function CompareGuardrailsPage() {

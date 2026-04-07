@@ -24,6 +24,11 @@ const comparison = [
   { category: "Real-time Enforcement", vienna: "Yes — blocks unauthorized actions", holistic: "No — periodic audits, no runtime governance" },
   { category: "Deployment", vienna: "Self-hosted or cloud", holistic: "Enterprise platform" },
   { category: "Pricing", vienna: "Free tier + $49-99/mo", holistic: "Enterprise pricing (custom)" },
+  { category: "Natural Language Policies", vienna: "Write policies in plain English", holistic: "Code or configuration required" },
+  { category: "Merkle Warrant Chain", vienna: "Tamper-proof cryptographic audit history", holistic: "Standard logging" },
+  { category: "Policy Simulation", vienna: "Dry-run policy changes before deploying", holistic: "Bias simulation testing" },
+  { category: "Agent Trust Scoring", vienna: "Dynamic trust scores from behavior history", holistic: "No agent trust metrics" },
+  { category: "Cross-Agent Delegation", vienna: "Agents delegate authority with constraints", holistic: "No delegation model" },
 ];
 
 export default function HolisticAiPage() {

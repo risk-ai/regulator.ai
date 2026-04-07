@@ -24,6 +24,11 @@ const comparison = [
   { category: "Runtime Enforcement", vienna: "Yes — blocks unauthorized actions", calypso: "No — testing only, no runtime control" },
   { category: "Deployment", vienna: "Self-hosted or cloud", calypso: "Enterprise platform" },
   { category: "Pricing", vienna: "Free tier + $49-99/mo", calypso: "Enterprise pricing (custom)" },
+  { category: "Natural Language Policies", vienna: "Write policies in plain English", calypso: "Code or configuration required" },
+  { category: "Merkle Warrant Chain", vienna: "Tamper-proof cryptographic audit history", calypso: "Standard logging" },
+  { category: "Policy Simulation", vienna: "Dry-run policy changes before deploying", calypso: "No simulation capability" },
+  { category: "Agent Trust Scoring", vienna: "Dynamic trust scores from behavior history", calypso: "No agent trust metrics" },
+  { category: "Cross-Agent Delegation", vienna: "Agents delegate authority with constraints", calypso: "No delegation model" },
 ];
 
 export default function CalypsoAiPage() {

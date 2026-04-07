@@ -20,6 +20,12 @@ import {
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 
+/* Import SuperDesign approved fonts */
+const fontImports = `
+  @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@700,500,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+`;
+
 /* ============================================================
    NETWORK BACKGROUND (from SuperDesign - approved style)
    ============================================================ */
@@ -138,10 +144,19 @@ export default function Home() {
 
   useEffect(() => {
     analytics.page("Homepage");
+    
+    // Inject font imports
+    const style = document.createElement('style');
+    style.textContent = fontImports;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-gray-100">
+    <div className="min-h-screen bg-[#09090b] text-gray-100" style={{ fontFamily: "'Satoshi', system-ui, sans-serif" }}>
       {/* ============================================================
           NAVIGATION (Consistent header)
           ============================================================ */}
@@ -224,16 +239,18 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 md:py-32">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-              Open Governance Standard for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-amber-400">
-                Autonomous AI
-              </span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 mb-6">
+              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-400">V1.2.0 GOVERNANCE PROTOCOL ACTIVE</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold leading-[0.95] tracking-tighter mb-6" style={{ fontFamily: "'Cabinet Grotesk', sans-serif" }}>
+              Authorization at the{" "}
+              <span className="text-zinc-500">Speed of Intelligence.</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-              Cryptographic warrants + Merkle audit chain for safe, verifiable AI operations.
-              The first open standard for AI governance.
+            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+              The governance operating system for autonomous AI agents. Issue tamper-proof cryptographic warrants to authorize high-stakes operations in real-time.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
@@ -265,68 +282,71 @@ export default function Home() {
           </div>
 
           {/* Warrant Card (SuperDesign approved visual) */}
-          <div className="mt-16 max-w-4xl mx-auto">
+          <div className="mt-16 max-w-[520px] mx-auto">
             <div className="relative">
-              <div className="bg-[#0D0F14] border border-amber-500/20 rounded-xl p-8 shadow-2xl hover:border-amber-500/40 transition-all">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex items-center gap-2">
-                    <FileCheck className="w-5 h-5 text-amber-500" />
-                    <span className="font-mono text-sm font-semibold">Execution Warrant</span>
-                  </div>
-                  <span className="px-3 py-1 rounded text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                    ✓ Verified
-                  </span>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Scope</p>
-                    <div className="space-y-1 font-mono text-sm">
-                      <div><span className="text-gray-500">action:</span> restart_service</div>
-                      <div><span className="text-gray-500">target:</span> api-gateway</div>
-                      <div><span className="text-gray-500">strategy:</span> rolling</div>
+              {/* Glow effects */}
+              <div className="absolute -bottom-6 -left-6 w-full h-full bg-violet-500/10 -z-10 rounded-2xl blur-2xl"></div>
+              <div className="absolute top-1/2 -right-12 w-24 h-24 bg-amber-500/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+              
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-1 overflow-hidden" style={{ animation: 'float 6s ease-in-out infinite' }}>
+                <div className="bg-zinc-900/50 rounded-xl p-8 relative overflow-hidden" style={{ 
+                  backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)',
+                  backgroundSize: '24px 24px'
+                }}>
+                  {/* Decorative glow */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl"></div>
+                  
+                  <div className="flex items-start justify-between mb-12">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileCheck className="w-6 h-6 text-amber-500" />
+                        <span className="font-mono text-sm font-bold tracking-tighter">EXECUTION_WARRANT</span>
+                      </div>
+                      <div className="text-[10px] font-mono text-zinc-500">SERIAL: WRT-7F3A-82B1-4D9E</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded flex items-center gap-1.5">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span className="text-[10px] font-mono font-bold text-green-500">VERIFIED AUTH</span>
+                      </div>
+                      <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded">
+                        <span className="text-[10px] font-mono font-bold text-amber-500">TIER: T2</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Authority</p>
-                    <div className="space-y-1 font-mono text-sm">
-                      <div><span className="text-gray-500">issuer:</span> operator:jane</div>
-                      <div><span className="text-gray-500">risk_tier:</span> <span className="text-amber-400">T1</span></div>
-                      <div><span className="text-gray-500">policy:</span> svc-restart-v2</div>
+                  <div className="grid grid-cols-2 gap-8 mb-12">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase mb-1">Principal Agent</div>
+                        <div className="font-mono text-sm text-zinc-200">AGENT_SIGMA_V4</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase mb-1">Action Scope</div>
+                        <div className="font-mono text-sm text-zinc-200">DB_SCHEMA_MIGRATION</div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase mb-1">Authorized By</div>
+                        <div className="font-mono text-sm text-zinc-200">S. CHEN (VP ENG)</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] text-zinc-500 font-mono uppercase mb-1">Target Env</div>
+                        <div className="font-mono text-sm text-amber-500 underline underline-offset-4 decoration-amber-500/30">PRODUCTION_CLUSTER_01</div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mb-6">
-                  <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">Constraints</p>
-                  <div className="grid grid-cols-3 gap-4 font-mono text-sm">
-                    <div><span className="text-gray-500">ttl:</span> 300s</div>
-                    <div><span className="text-gray-500">max_retries:</span> 1</div>
-                    <div><span className="text-gray-500">rollback:</span> enabled</div>
-                  </div>
-                </div>
-
-                <div className="border-t border-white/10 pt-4">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <div>
-                      <span className="text-gray-500">sig:</span>{" "}
-                      <span className="text-amber-400">0x7f3a2b1c...b2c1</span>
+                  <div className="pt-8 border-t border-dashed border-zinc-800">
+                    <div className="text-[10px] text-zinc-500 font-mono uppercase mb-3">Cryptographic Signature (SHA-256)</div>
+                    <div className="bg-black/40 p-4 rounded-lg font-mono text-[11px] leading-relaxed text-zinc-400 break-all border border-white/5">
+                      0x7f3a2b1c00918e77a2d1f4e5c8b9a0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3a4b5c6d7e8f90
                     </div>
-                    <div className="text-gray-600">sha256 · tamper-evident</div>
-                  </div>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      issued 14:00:00Z
-                    </div>
-                    <div>•</div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      expires 14:05:00Z
+                    <div className="mt-4 flex justify-between items-center">
+                      <div className="text-[9px] text-zinc-600 font-mono">ISSUED: 14:02:44 GMT • EXPIRES: +300S</div>
                     </div>
                   </div>
-                </div>
               </div>
             </div>
           </div>

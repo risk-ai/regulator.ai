@@ -387,6 +387,73 @@ export default function Home() {
           </div>
         </section>
 
+        {/* PERSONA USE CASES - Terminal Style */}
+        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                USE_CASE_MATRIX
+              </h2>
+              <p className="text-zinc-500 font-mono text-sm">
+                devops | compliance | executive
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* DevOps Lead */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">DEVOPS_LEAD</span>
+                  <Code2 className="w-4 h-4 text-zinc-600" />
+                </div>
+                <div className="space-y-3 text-xs font-mono">
+                  <div className="text-zinc-400 mb-3">role: infrastructure automation</div>
+                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">agents deploy prod w/o oversight</span></div>
+                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">T2 gate on prod writes</span></div>
+                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">0 unauthorized deployments</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ INCIDENT_RATE: -94%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compliance Officer */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">COMPLIANCE_OFFICER</span>
+                  <Shield className="w-4 h-4 text-zinc-600" />
+                </div>
+                <div className="space-y-3 text-xs font-mono">
+                  <div className="text-zinc-400 mb-3">role: regulatory audit</div>
+                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">no audit trail for AI decisions</span></div>
+                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">SHA-256 signed warrants</span></div>
+                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">SOC2 certified in Q3</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ AUDIT_TIME: -78%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTO */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">CTO</span>
+                  <Activity className="w-4 h-4 text-zinc-600" />
+                </div>
+                <div className="space-y-3 text-xs font-mono">
+                  <div className="text-zinc-400 mb-3">role: technical strategy</div>
+                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">scale agents w/o losing control</span></div>
+                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">policy-based auto-approval</span></div>
+                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">50x agent deployment velocity</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ VELOCITY: +4900%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* INTEGRATION - Terminal Style */}
         <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
@@ -435,6 +502,89 @@ export default function Home() {
                       {tool}
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* BEFORE/AFTER SCENARIO - Terminal Comparison */}
+        <section className="py-24 px-6 border-y border-amber-500/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                PROBLEM_SOLUTION_ANALYSIS
+              </h2>
+              <p className="text-zinc-500 font-mono text-sm">
+                deployment incident (case study: financial services)
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* BEFORE - Problem State */}
+              <div className="bg-black border border-red-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-500/20">
+                  <span className="text-xs font-mono text-red-500">BEFORE_VIENNA_OS</span>
+                  <span className="text-[10px] font-mono text-zinc-600">2025-09-14</span>
+                </div>
+                <div className="space-y-4 text-xs font-mono">
+                  <div className="space-y-2">
+                    <div className="text-zinc-400">incident_timeline:</div>
+                    <div className="pl-4 space-y-1 text-zinc-500">
+                      <div>03:14 - agent deploys db migration (prod)</div>
+                      <div>03:15 - payment processing fails</div>
+                      <div>03:47 - engineering paged</div>
+                      <div>04:23 - rollback initiated</div>
+                      <div>04:58 - service restored</div>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-red-500/10">
+                    <div><span className="text-zinc-600">downtime:</span> <span className="text-red-500">104 minutes</span></div>
+                    <div><span className="text-zinc-600">revenue_lost:</span> <span className="text-red-500">$2.3M</span></div>
+                    <div><span className="text-zinc-600">root_cause:</span> <span className="text-zinc-400">no approval gate</span></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AFTER - Solution State */}
+              <div className="bg-black border border-green-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-green-500/20">
+                  <span className="text-xs font-mono text-green-500">AFTER_VIENNA_OS</span>
+                  <span className="text-[10px] font-mono text-zinc-600">2026-02-08</span>
+                </div>
+                <div className="space-y-4 text-xs font-mono">
+                  <div className="space-y-2">
+                    <div className="text-zinc-400">policy_enforcement:</div>
+                    <div className="pl-4 space-y-1 text-zinc-500">
+                      <div>10:22 - agent requests prod migration</div>
+                      <div>10:22 - policy eval: tier=T2, halt</div>
+                      <div>10:26 - DBA approves warrant (review complete)</div>
+                      <div>10:27 - migration executes w/ warrant</div>
+                      <div>10:29 - success, audit trail written</div>
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-green-500/10">
+                    <div><span className="text-zinc-600">downtime:</span> <span className="text-green-500">0 minutes</span></div>
+                    <div><span className="text-zinc-600">revenue_lost:</span> <span className="text-green-500">$0</span></div>
+                    <div><span className="text-zinc-600">control:</span> <span className="text-green-500">human gate enforced</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 bg-amber-500/5 border border-amber-500/30 p-6">
+              <div className="grid md:grid-cols-3 gap-6 text-xs font-mono text-center">
+                <div>
+                  <div className="text-amber-500 text-2xl font-bold mb-1">-100%</div>
+                  <div className="text-zinc-600">unauthorized_deploys</div>
+                </div>
+                <div>
+                  <div className="text-amber-500 text-2xl font-bold mb-1">4min</div>
+                  <div className="text-zinc-600">avg_approval_time</div>
+                </div>
+                <div>
+                  <div className="text-amber-500 text-2xl font-bold mb-1">$0</div>
+                  <div className="text-zinc-600">incident_cost (YTD)</div>
                 </div>
               </div>
             </div>
@@ -490,6 +640,78 @@ export default function Home() {
                   <div>explicit authorization</div>
                   <div>no implicit grants</div>
                   <div>no ambient authority</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* COMPLIANCE & CERTIFICATIONS - Terminal Style */}
+        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                COMPLIANCE_MATRIX
+              </h2>
+              <p className="text-zinc-500 font-mono text-sm">
+                enterprise audit & regulatory frameworks
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-6 mb-12">
+              {/* SOC 2 Type II */}
+              <div className="bg-black border border-green-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
+                  <span className="text-xs font-mono text-green-500">SOC_2_TYPE_II</span>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-[10px] font-mono text-zinc-600">status: certified</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">audit: 2026-Q1</div>
+              </div>
+
+              {/* GDPR */}
+              <div className="bg-black border border-green-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
+                  <span className="text-xs font-mono text-green-500">GDPR</span>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">verified: 2026-02</div>
+              </div>
+
+              {/* ISO 27001 */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">ISO_27001</span>
+                  <Activity className="w-4 h-4 text-amber-500" />
+                </div>
+                <div className="text-[10px] font-mono text-zinc-600">status: in_progress</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">target: 2026-Q3</div>
+              </div>
+
+              {/* HIPAA */}
+              <div className="bg-black border border-green-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
+                  <span className="text-xs font-mono text-green-500">HIPAA</span>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </div>
+                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">BAA: available</div>
+              </div>
+            </div>
+
+            <div className="bg-black border border-amber-500/30 p-6">
+              <div className="text-xs font-mono text-zinc-600 uppercase mb-4">AUDIT_TRAIL_FEATURES</div>
+              <div className="grid md:grid-cols-2 gap-6 text-xs font-mono">
+                <div className="space-y-2">
+                  <div><span className="text-zinc-600">retention:</span> <span className="text-zinc-400">7 years (configurable)</span></div>
+                  <div><span className="text-zinc-600">export:</span> <span className="text-zinc-400">JSON, CSV, PDF</span></div>
+                  <div><span className="text-zinc-600">encryption:</span> <span className="text-green-500">AES-256 at rest</span></div>
+                </div>
+                <div className="space-y-2">
+                  <div><span className="text-zinc-600">signatures:</span> <span className="text-zinc-400">HMAC-SHA256</span></div>
+                  <div><span className="text-zinc-600">tampering:</span> <span className="text-green-500">cryptographically impossible</span></div>
+                  <div><span className="text-zinc-600">search:</span> <span className="text-zinc-400">full-text + filters</span></div>
                 </div>
               </div>
             </div>

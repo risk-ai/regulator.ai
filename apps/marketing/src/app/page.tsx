@@ -176,61 +176,67 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOW IT WORKS */}
-        <section className="py-24 px-6">
+        {/* HOW IT WORKS - Terminal Style */}
+        <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
-              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
-                How It Works
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                EXECUTION_PIPELINE
               </h2>
-              <p className="text-zinc-400">
-                Three steps to govern autonomous AI operations with cryptographic integrity.
+              <p className="text-zinc-500 font-mono text-sm">
+                request → evaluate → authorize → execute → verify
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Step 1 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
-                  Step 1
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Step 1 - Terminal Card */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-[10px] font-mono text-amber-500 uppercase">POLICY_DEFINITION</span>
+                  <span className="text-[10px] font-mono text-zinc-600">[1/3]</span>
                 </div>
-                <h3 className="text-2xl font-display font-bold mb-6">Define Policy</h3>
-                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
-                  <pre className="whitespace-pre-wrap">{`vienna.policy({
-  action: 'db:migration',
-  tier: 2,
-  quorum: 2,
-  approvers: ['eng-lead', 'cto']
-})`}</pre>
+                <div className="space-y-3 text-xs font-mono text-zinc-400">
+                  <div><span className="text-zinc-600">action:</span> <span className="text-amber-500">db:migration</span></div>
+                  <div><span className="text-zinc-600">tier:</span> <span className="text-amber-500">T2</span></div>
+                  <div><span className="text-zinc-600">quorum:</span> <span className="text-amber-500">2</span></div>
+                  <div><span className="text-zinc-600">approvers:</span> <span className="text-zinc-400">['eng-lead', 'cto']</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ POLICY_REGISTERED</span>
+                  </div>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
-                  Step 2
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-[10px] font-mono text-amber-500 uppercase">WARRANT_ISSUANCE</span>
+                  <span className="text-[10px] font-mono text-zinc-600">[2/3]</span>
                 </div>
-                <h3 className="text-2xl font-display font-bold mb-6">Issue Warrant</h3>
-                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
-                  <pre className="whitespace-pre-wrap">{`const warrant = await vienna
-  .requestWarrant({
-    action: 'db:migration',
-    context: { env: 'production' }
-  })`}</pre>
+                <div className="space-y-3 text-xs font-mono text-zinc-400">
+                  <div><span className="text-zinc-600">warrant_id:</span> <span className="text-amber-500">WRT-A3F9</span></div>
+                  <div><span className="text-zinc-600">approvals:</span> <span className="text-green-500">2/2 ✓</span></div>
+                  <div><span className="text-zinc-600">signature:</span> <span className="text-amber-500 break-all">0x7f3a2b...</span></div>
+                  <div><span className="text-zinc-600">ttl:</span> <span className="text-zinc-400">300s</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ WARRANT_ACTIVE</span>
+                  </div>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
-                  Step 3
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-[10px] font-mono text-amber-500 uppercase">EXECUTION_VERIFY</span>
+                  <span className="text-[10px] font-mono text-zinc-600">[3/3]</span>
                 </div>
-                <h3 className="text-2xl font-display font-bold mb-6">Verify Execution</h3>
-                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
-                  <pre className="whitespace-pre-wrap">{`await vienna.verify(warrant)
-// ✓ Approved by 2/2 signers
-// ✓ SHA-256 audit trail  
-// → Execute with confidence`}</pre>
+                <div className="space-y-3 text-xs font-mono text-zinc-400">
+                  <div><span className="text-zinc-600">verification:</span> <span className="text-green-500">PASS</span></div>
+                  <div><span className="text-zinc-600">audit_hash:</span> <span className="text-amber-500 break-all">SHA-256</span></div>
+                  <div><span className="text-zinc-600">ledger_root:</span> <span className="text-zinc-400 break-all">0x7e3c...</span></div>
+                  <div><span className="text-zinc-600">status:</span> <span className="text-green-500">EXECUTED</span></div>
+                  <div className="pt-3 border-t border-amber-500/10">
+                    <span className="text-[10px] text-green-500">✓ EXECUTION_COMPLETE</span>
+                  </div>
                 </div>
               </div>
             </div>

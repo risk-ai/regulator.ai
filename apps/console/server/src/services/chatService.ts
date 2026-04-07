@@ -10,13 +10,13 @@
  * - ChatResponse envelope for all responses
  */
 
-import { LayeredClassifier } from '../../../../../services/vienna-lib/commands/classifier.js';
-import { ProviderManager } from '../../../../../services/vienna-lib/providers/manager.js';
+import { LayeredClassifier } from '@vienna-lib/commands/classifier.js';
+import { ProviderManager } from '@vienna-lib/providers/manager.js';
 import type { 
   ChatResponse, 
   MessageContext,
   CommandResult,
-} from '../../../../../services/vienna-lib/commands/types.js';
+} from '@vienna-lib/commands/types.js';
 import type { ViennaRuntimeService } from './viennaRuntime.js';
 
 export interface ChatMessageRequest {

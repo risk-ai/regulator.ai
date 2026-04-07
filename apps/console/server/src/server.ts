@@ -191,10 +191,10 @@ async function start() {
     console.log('Agent Intent Bridge initialized');
 
     // Initialize Merkle Warrant Chain (cryptographic governance proof)
-    let warrantChain: any = null;
+    let warrantChain: InstanceType<typeof import('@vienna-lib/governance/warrant-chain.js').MerkleWarrantChain> | null = null;
     try {
-      const { MerkleWarrantChain } = await import('../../../../services/vienna-lib/governance/warrant-chain.js');
-      const { PostgresWarrantChainStore } = await import('../../../../services/vienna-lib/governance/warrant-chain-store.js');
+      const { MerkleWarrantChain } = await import('@vienna-lib/governance/warrant-chain.js');
+      const { PostgresWarrantChainStore } = await import('@vienna-lib/governance/warrant-chain-store.js');
       const { query: dbQuery, execute: dbExecute } = await import('./db/postgres.js');
 
       const chainStore = new PostgresWarrantChainStore({ query: dbQuery, execute: dbExecute });
@@ -206,12 +206,12 @@ async function start() {
     }
 
     // Initialize Learning Coordinator (Phase 15)
-    let learningCoordinator: any = null;
+    let learningCoordinator: Record<string, unknown> | null = null;
     try {
       const { LearningCoordinator } = ViennaLib;
       if (LearningCoordinator) {
-        const LCClass = (LearningCoordinator as any).LearningCoordinator || LearningCoordinator;
-        learningCoordinator = new LCClass({
+        const LCClass = (LearningCoordinator as Record<string, unknown>).LearningCoordinator || LearningCoordinator;
+        learningCoordinator = new (LCClass as new (opts: Record<string, unknown>) => Record<string, unknown>)({
           stateGraph,
           feedbackEnabled: true,
           patternDetectionEnabled: true,

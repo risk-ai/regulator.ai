@@ -55,27 +55,27 @@ module.exports = {
   Federation: require('./federation/federation'),
   
   // Merkle Warrant Chain
-  MerkleWarrantChain: require('./governance/warrant-chain'),
-  InMemoryWarrantChainStore: require('./governance/warrant-chain-store').InMemoryWarrantChainStore,
-  PostgresWarrantChainStore: require('./governance/warrant-chain-store').PostgresWarrantChainStore,
+  MerkleWarrantChain: require('./governance/warrant-chain.ts'),
+  InMemoryWarrantChainStore: require('./governance/warrant-chain-store.ts').InMemoryWarrantChainStore,
+  PostgresWarrantChainStore: require('./governance/warrant-chain-store.ts').PostgresWarrantChainStore,
   
   // Open Warrant Standard
-  OpenWarrantStandard: require('./governance/open-warrant-standard'),
+  OpenWarrantStandard: require('./governance/open-warrant-standard.ts'),
   
   // Policy Simulation
-  PolicySimulator: require('./governance/policy-simulator'),
+  PolicySimulator: require('./governance/policy-simulator.ts'),
   
   // Warrant Delegation
-  WarrantDelegation: require('./governance/warrant-delegation'),
+  WarrantDelegation: require('./governance/warrant-delegation.ts'),
   
   // Agent Trust Scoring
-  AgentTrustEngine: require('./governance/agent-trust-score'),
+  AgentTrustEngine: require('./governance/agent-trust-score.ts'),
   
   // Natural Language Policy Builder
-  NaturalLanguagePolicyBuilder: require('./governance/natural-language-policy-builder'),
+  NaturalLanguagePolicyBuilder: require('./governance/natural-language-policy-builder.ts'),
   
   // Compliance Reports
-  ComplianceReportGenerator: require('./compliance/report-generator'),
+  ComplianceReportGenerator: require('./compliance/report-generator.ts'),
   
   // Runtime stub for console compatibility
   default: require('./runtime-stub')

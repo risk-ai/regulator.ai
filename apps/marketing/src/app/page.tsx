@@ -387,56 +387,50 @@ export default function Home() {
           </div>
         </section>
 
-        {/* INTEGRATION */}
-        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+        {/* INTEGRATION - Terminal Style */}
+        <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl">
-              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
-                Integration
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                SDK_INSTALLATION
               </h2>
-              <p className="text-zinc-400">
-                Native SDKs for Python, Node.js, and popular agentic frameworks.
+              <p className="text-zinc-500 font-mono text-sm">
+                npm | pip | github-actions | terraform
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Left: Code Examples */}
-              <div className="space-y-6">
-                <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="ml-auto text-xs font-mono text-zinc-500">Python</span>
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Left: Terminal Commands */}
+              <div className="space-y-4">
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-[10px] font-mono text-amber-500">PYTHON</span>
+                    <span className="text-[10px] font-mono text-zinc-600">$ pip</span>
                   </div>
-                  <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400">
-                    <pre className="whitespace-pre-wrap">{`pip install vienna-os`}</pre>
+                  <div className="font-mono text-sm text-zinc-400">
+                    <span className="text-green-500">$</span> pip install vienna-os
                   </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="ml-auto text-xs font-mono text-zinc-500">Node.js</span>
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-[10px] font-mono text-amber-500">NODE.JS</span>
+                    <span className="text-[10px] font-mono text-zinc-600">$ npm</span>
                   </div>
-                  <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400">
-                    <pre className="whitespace-pre-wrap">{`npm install @vienna-os/sdk`}</pre>
+                  <div className="font-mono text-sm text-zinc-400">
+                    <span className="text-green-500">$</span> npm install @vienna-os/sdk
                   </div>
                 </div>
               </div>
 
-              {/* Right: Integration Logos */}
-              <div className="space-y-4">
-                <p className="text-sm text-zinc-500 uppercase font-mono tracking-wider mb-6">
-                  Works With
-                </p>
-                <div className="grid grid-cols-2 gap-4">
+              {/* Right: Framework Support */}
+              <div>
+                <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4">FRAMEWORK_SUPPORT</div>
+                <div className="grid grid-cols-2 gap-3">
                   {['GitHub Actions', 'Terraform', 'LangChain', 'AutoGPT'].map((tool) => (
                     <div 
                       key={tool}
-                      className="px-6 py-4 bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center font-display font-bold text-sm text-zinc-400 hover:text-white hover:border-zinc-700 transition-all"
+                      className="px-4 py-3 bg-black border border-zinc-700 flex items-center justify-center font-mono text-xs text-zinc-400 hover:text-amber-500 hover:border-amber-500/30 transition-all"
                     >
                       {tool}
                     </div>
@@ -447,74 +441,97 @@ export default function Home() {
           </div>
         </section>
 
-        {/* OPEN WARRANT STANDARD */}
-        <section className="py-24 px-6">
+        {/* OPEN WARRANT STANDARD - Terminal Stats */}
+        <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl mx-auto text-center">
-              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
-                Open Warrant Standard
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                PROTOCOL_SPEC
               </h2>
-              <p className="text-zinc-400">
-                Built on cryptographic primitives designed for autonomous systems at scale.
+              <p className="text-zinc-500 font-mono text-sm">
+                open_warrant_standard v1.0 (RFC-9421 compliant)
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Stat 1 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
-                <div className="text-4xl font-display font-bold mb-2 text-white">100ms</div>
-                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Policy Evaluation</div>
-                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
-                  Sub-second policy checks ensure governance never becomes a bottleneck for agent operations.
-                </p>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Stat 1 - Terminal Card */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">43ms</div>
+                  <div className="text-[10px] font-mono text-zinc-600 uppercase">latency_p99</div>
+                </div>
+                <div className="space-y-2 text-xs font-mono text-zinc-500">
+                  <div>sub-second policy eval</div>
+                  <div>no governance bottleneck</div>
+                  <div>production tested @ scale</div>
+                </div>
               </div>
 
               {/* Stat 2 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
-                <div className="text-4xl font-display font-bold mb-2 text-white">SHA-256</div>
-                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Audit Integrity</div>
-                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
-                  Cryptographic hashing creates tamper-evident audit trails for every authorization decision.
-                </p>
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">SHA-256</div>
+                  <div className="text-[10px] font-mono text-zinc-600 uppercase">audit_hash</div>
+                </div>
+                <div className="space-y-2 text-xs font-mono text-zinc-500">
+                  <div>cryptographic signatures</div>
+                  <div>tamper-evident trail</div>
+                  <div>merkle root integrity</div>
+                </div>
               </div>
 
               {/* Stat 3 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
-                <div className="text-4xl font-display font-bold mb-2 text-white">Zero-Trust</div>
-                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Agent Architecture</div>
-                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
-                  Every agent action requires explicit authorization. No implicit trust, no ambient authority.
-                </p>
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">0-Trust</div>
+                  <div className="text-[10px] font-mono text-zinc-600 uppercase">arch_model</div>
+                </div>
+                <div className="space-y-2 text-xs font-mono text-zinc-500">
+                  <div>explicit authorization</div>
+                  <div>no implicit grants</div>
+                  <div>no ambient authority</div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA SECTION */}
-        <section className="py-32">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-violet-600 to-amber-500 mb-8">
-              <Code2 className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight mb-8">
-              Built for the <span className="text-zinc-500">Autonomous Era.</span>
-            </h2>
-            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
-              Integrate Vienna OS into your agentic stack in minutes with our native SDKs for Python, Node.js, and Rust.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a 
-                href="https://console.regulator.ai/signup" 
-                className="w-full sm:w-auto px-10 py-5 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all"
-              >
-                Get Started Now
-              </a>
-              <Link 
-                href="/try"
-                className="w-full sm:w-auto px-10 py-5 bg-zinc-900 border border-white/10 text-white font-bold rounded-2xl hover:bg-zinc-800 transition-all"
-              >
-                Watch Demo
-              </Link>
+        {/* CTA SECTION - Terminal Style */}
+        <section className="py-32 border-t border-amber-500/10">
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="bg-black border border-amber-500/30 p-8">
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-amber-500/20">
+                <Code2 className="w-6 h-6 text-amber-500" />
+                <span className="text-xs font-mono text-amber-500 uppercase">DEPLOY_GOVERNANCE</span>
+              </div>
+              
+              <h2 className="text-3xl font-mono font-bold tracking-tight mb-4 text-white">
+                <span className="text-amber-500">$</span> vienna-os init --tier production
+              </h2>
+              
+              <p className="text-sm font-mono text-zinc-500 mb-8">
+                integrate warrant protocol into agentic infrastructure (python | node | rust)
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a 
+                  href="https://console.regulator.ai/signup" 
+                  className="flex-1 px-8 py-4 bg-amber-500 text-black font-mono font-bold hover:bg-amber-400 transition-all text-center uppercase text-sm"
+                >
+                  GENERATE_WARRANT →
+                </a>
+                <Link 
+                  href="/try"
+                  className="flex-1 px-8 py-4 bg-black border border-amber-500/30 text-amber-500 font-mono font-bold hover:border-amber-500 transition-all text-center uppercase text-sm"
+                >
+                  VIEW_DEMO
+                </Link>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-amber-500/10 flex items-center justify-between text-xs font-mono text-zinc-600">
+                <span>free_tier: 10k executions/mo</span>
+                <span>setup_time: &lt;5min</span>
+              </div>
             </div>
           </div>
         </section>

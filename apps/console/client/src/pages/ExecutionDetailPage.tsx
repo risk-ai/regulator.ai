@@ -7,6 +7,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
+import { WarrantTimeline } from '../components/executions/WarrantTimeline.js';
 
 // ============================================================================
 // Types
@@ -281,12 +283,16 @@ export default function ExecutionDetailPage() {
 
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 600, ...MONO }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 600, ...MONO, margin: 0 }}>
             {execution.execution_id}
           </h1>
-          <StateBadge state={execution.state} />
-          <RiskBadge tier={execution.risk_tier} />
+          <ExecutionStatusBadge 
+            status={execution.state as any} 
+            riskTier={execution.risk_tier as any}
+            size="md"
+            showIcon={true}
+          />
         </div>
         <p style={{ color: COLORS.textMuted, fontSize: '14px', marginBottom: '12px' }}>
           {execution.objective}
@@ -305,8 +311,31 @@ export default function ExecutionDetailPage() {
         </div>
       </div>
 
+      {/* Warrant Lifecycle Timeline */}
+      {execution.warrant_id && (
+        <div style={{ marginBottom: '32px' }}>
+          <WarrantTimeline
+            stages={[
+              { stage: 'requested', status: 'complete', timestamp: execution.created_at },
+              { stage: 'evaluated', status: 'complete', timestamp: execution.created_at },
+              {
+                stage: execution.state === 'complete' || execution.state === 'executed' ? 'approved' : 'denied',
+                status: execution.state === 'complete' || execution.state === 'executed' ? 'complete' : 'failed',
+                timestamp: execution.updated_at,
+              },
+              {
+                stage: execution.state === 'complete' || execution.state === 'executed' ? 'executed' : 'blocked',
+                status: execution.state === 'complete' || execution.state === 'executed' ? 'complete' : 'failed',
+                timestamp: execution.completed_at || execution.updated_at,
+              },
+            ]}
+            warrantsId={execution.warrant_id}
+          />
+        </div>
+      )}
+
       {/* Timeline */}
-      <Section title="Timeline">
+      <Section title="Execution Timeline">
         <Timeline entries={execution.timeline} />
       </Section>
 
@@ -419,9 +448,10 @@ function Timeline({ entries }: { entries: TimelineEntry[] }) {
             border: `1px solid ${COLORS.border}`,
             borderRadius: '8px',
             padding: '12px',
+            borderLeft: `3px solid ${STATE_COLORS[entry.state] || COLORS.gray}`,
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <StateBadge state={entry.state} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <ExecutionStatusBadge status={entry.state as any} size="sm" />
               <span style={{ fontSize: '11px', color: COLORS.textMuted, ...MONO }}>
                 {formatTimestamp(entry.timestamp)}
               </span>
@@ -607,25 +637,6 @@ function LedgerEvents({ events }: { events: LedgerEvent[] }) {
   );
 }
 
-function StateBadge({ state }: { state: string }) {
-  const color = STATE_COLORS[state] || COLORS.gray;
-  return (
-    <span style={{
-      padding: '4px 8px',
-      backgroundColor: `${color}22`,
-      border: `1px solid ${color}`,
-      borderRadius: '4px',
-      fontSize: '11px',
-      fontWeight: 600,
-      color: color,
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-    }}>
-      {state}
-    </span>
-  );
-}
-
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     complete: COLORS.green,
@@ -648,31 +659,6 @@ function StatusBadge({ status }: { status: string }) {
       textTransform: 'uppercase',
     }}>
       {status}
-    </span>
-  );
-}
-
-function RiskBadge({ tier }: { tier: string }) {
-  const colors: Record<string, string> = {
-    'T0': COLORS.green,
-    'T1': COLORS.blue,
-    'T2': COLORS.yellow,
-    'T3': COLORS.red,
-  };
-  const color = colors[tier] || COLORS.gray;
-  
-  return (
-    <span style={{
-      padding: '4px 8px',
-      backgroundColor: `${color}22`,
-      border: `1px solid ${color}`,
-      borderRadius: '4px',
-      fontSize: '11px',
-      fontWeight: 600,
-      color: color,
-      ...MONO,
-    }}>
-      {tier}
     </span>
   );
 }

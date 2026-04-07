@@ -7,6 +7,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ExecutionPipelineStatus } from '../components/reconciliation/ExecutionPipelineStatus.js';
+import { WarrantTimeline } from '../components/executions/WarrantTimeline.js';
+import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
 import { executionApi } from '../api/execution.js';
 import { useResponsive } from '../hooks/useResponsive.js';
 import type { EnvelopeExecution, QueueSnapshot, ExecutionMetrics } from '../api/types.js';
@@ -425,6 +427,21 @@ export function ExecutionPage() {
           fontSize: '14px',
         }}>
           Error: {error}
+        </div>
+      )}
+
+      {/* Warrant Timeline (sample from active executions) */}
+      {activeExecutions.length > 0 && activeExecutions[0] && (
+        <div style={{ marginBottom: '24px' }}>
+          <WarrantTimeline
+            stages={[
+              { stage: 'requested', status: 'complete', timestamp: activeExecutions[0].started_at },
+              { stage: 'evaluated', status: 'complete', timestamp: activeExecutions[0].started_at },
+              { stage: 'approved', status: activeExecutions[0].state === 'executing' ? 'complete' : 'pending', timestamp: activeExecutions[0].started_at },
+              { stage: 'executed', status: activeExecutions[0].state === 'completed' ? 'complete' : 'pending', timestamp: activeExecutions[0].started_at },
+            ]}
+            warrantsId={activeExecutions[0].envelope_id}
+          />
         </div>
       )}
 

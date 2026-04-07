@@ -11,6 +11,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { addToast } from '../store/toastStore.js';
+import { ExecutionStatsRow } from '../components/executions/ExecutionStatsRow.js';
+import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
 
 // ---- Types ----
 
@@ -108,6 +110,29 @@ function StateBadge({ state }: { state: string }) {
   );
 }
 
+// Map to ExecutionStatusBadge
+function StateStatusBadge({ state, tier }: { state: string; tier?: string }) {
+  const stateMap: Record<string, any> = {
+    'planned': 'pending',
+    'approved': 'pending',
+    'executing': 'executing',
+    'awaiting_callback': 'executing',
+    'verifying': 'executing',
+    'complete': 'executed',
+    'failed': 'failed',
+    'cancelled': 'denied',
+    'pending': 'pending',
+  };
+  const mappedState = stateMap[state] || state;
+  return (
+    <ExecutionStatusBadge 
+      status={mappedState} 
+      riskTier={tier as any}
+      size="sm"
+    />
+  );
+}
+
 function TierBadge({ tier }: { tier: string }) {
   const color = TIER_COLORS[tier] || '#94a3b8';
   return (
@@ -120,26 +145,7 @@ function TierBadge({ tier }: { tier: string }) {
   );
 }
 
-function StatCard({ value, label, color, icon }: { value: string | number; label: string; color: string; icon: string }) {
-  return (
-    <div style={{
-      background: 'var(--bg-primary)', borderRadius: '10px', padding: '18px 20px',
-      borderLeft: `3px solid ${color}`, flex: '1 1 0', minWidth: 0,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: '26px', fontWeight: 700, color, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
-            {value}
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {label}
-          </div>
-        </div>
-        <span style={{ fontSize: '22px', opacity: 0.5 }}>{icon}</span>
-      </div>
-    </div>
-  );
-}
+
 
 // ---- Advanced Filter Bar ----
 
@@ -763,15 +769,7 @@ export function ExecutionsPage() {
       </div>
 
       {/* Stats */}
-      {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
-          <StatCard value={Number(stats.total_executions)} label="Total" color="#818cf8" icon="📊" />
-          <StatCard value={Number(stats.completed)} label="Completed" color="#10b981" icon="✅" />
-          <StatCard value={Number(stats.failed)} label="Failed" color="#ef4444" icon="❌" />
-          <StatCard value={Number(stats.executing)} label="In Progress" color="#f59e0b" icon="⏳" />
-          <StatCard value={formatDuration(stats.avg_latency_ms)} label="Avg Duration" color="#06b6d4" icon="⚡" />
-        </div>
-      )}
+      <ExecutionStatsRow stats={stats} loading={loading} />
 
       {/* Advanced Filters */}
       <FilterBar
@@ -853,7 +851,7 @@ export function ExecutionsPage() {
                     <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-primary)', fontWeight: 500 }}>
                       {exec.execution_id.slice(0, 16)}…
                     </td>
-                    <td style={{ padding: '11px 14px' }}><StateBadge state={exec.state} /></td>
+                    <td style={{ padding: '11px 14px' }}><StateStatusBadge state={exec.state} tier={exec.risk_tier} /></td>
                     <td style={{ padding: '11px 14px' }}><TierBadge tier={exec.risk_tier} /></td>
                     <td style={{ padding: '11px 14px', maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>
                       {exec.objective}

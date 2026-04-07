@@ -48,6 +48,7 @@ export default function Home() {
             <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
+            <Link href="/enterprise" className="hover:text-white transition-colors">Enterprise</Link>
             <Link href="/try" className="hover:text-white transition-colors">Try</Link>
             <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
               GitHub
@@ -55,8 +56,11 @@ export default function Home() {
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
-            <a href="https://console.regulator.ai" className="text-sm font-medium text-zinc-300 px-4 py-2 hover:text-white transition-colors">
+            <a href="https://console.regulator.ai" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
               Sign In
+            </a>
+            <a href="https://console.regulator.ai/signup" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
+              Sign Up
             </a>
             <a href="https://console.regulator.ai/signup" className="bg-white text-black text-sm font-bold px-5 py-2 rounded-full hover:bg-zinc-200 transition-all">
               Start Free Trial
@@ -76,9 +80,11 @@ export default function Home() {
             <Link href="/docs" className="block text-sm text-zinc-400">Docs</Link>
             <Link href="/pricing" className="block text-sm text-zinc-400">Pricing</Link>
             <Link href="/compare" className="block text-sm text-zinc-400">Compare</Link>
+            <Link href="/enterprise" className="block text-sm text-zinc-400">Enterprise</Link>
             <Link href="/try" className="block text-sm text-zinc-400">Try</Link>
             <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="block text-sm text-zinc-400">GitHub</a>
             <a href="https://console.regulator.ai" className="block text-sm text-zinc-400">Sign In</a>
+            <a href="https://console.regulator.ai/signup" className="block text-sm text-zinc-400">Sign Up</a>
             <a href="https://console.regulator.ai/signup" className="block px-5 py-2 bg-white text-black text-sm font-bold rounded-full text-center">
               Start Free Trial
             </a>
@@ -467,6 +473,49 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* OPEN WARRANT STANDARD */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl mx-auto text-center">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Open Warrant Standard
+              </h2>
+              <p className="text-zinc-400">
+                Built on cryptographic primitives designed for autonomous systems at scale.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Stat 1 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
+                <div className="text-4xl font-display font-bold mb-2 text-white">100ms</div>
+                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Policy Evaluation</div>
+                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
+                  Sub-second policy checks ensure governance never becomes a bottleneck for agent operations.
+                </p>
+              </div>
+
+              {/* Stat 2 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
+                <div className="text-4xl font-display font-bold mb-2 text-white">SHA-256</div>
+                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Audit Integrity</div>
+                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
+                  Cryptographic hashing creates tamper-evident audit trails for every authorization decision.
+                </p>
+              </div>
+
+              {/* Stat 3 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 text-center">
+                <div className="text-4xl font-display font-bold mb-2 text-white">Zero-Trust</div>
+                <div className="text-xs text-zinc-500 uppercase font-mono tracking-wider">Agent Architecture</div>
+                <p className="text-sm text-zinc-500 mt-4 leading-relaxed">
+                  Every agent action requires explicit authorization. No implicit trust, no ambient authority.
+                </p>
               </div>
             </div>
           </div>

@@ -100,7 +100,7 @@ export default function RootLayout({
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "priceValidUntil": "2025-12-31",
+      "priceValidUntil": "2027-12-31",
       "availability": "https://schema.org/InStock",
       "name": "Community Edition",
       "description": "Free tier with 5 agents and full pipeline"
@@ -150,7 +150,7 @@ export default function RootLayout({
           "name": "How does risk tiering work?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Vienna OS classifies actions into T0 (auto-approved), T1 (single approval), and T2 (multi-party approval) based on risk assessment policies you define."
+            "text": "Vienna OS classifies actions into T0 (auto-approved), T1 (heuristic log), T2 (human gate), and T3 (strict halt requiring multi-sig) based on risk assessment policies you define."
           }
         },
         {

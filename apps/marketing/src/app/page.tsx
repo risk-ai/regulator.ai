@@ -44,19 +44,22 @@ export default function Home() {
             <span className="font-display text-xl font-bold tracking-tight">VIENNA OS</span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <Link href="/docs" className="hover:text-white transition-colors">Documentation</Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
+            <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
             <Link href="/try" className="hover:text-white transition-colors">Try</Link>
+            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+              GitHub
+            </a>
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
             <a href="https://console.regulator.ai" className="text-sm font-medium text-zinc-300 px-4 py-2 hover:text-white transition-colors">
-              Login
+              Sign In
             </a>
             <a href="https://console.regulator.ai/signup" className="bg-white text-black text-sm font-bold px-5 py-2 rounded-full hover:bg-zinc-200 transition-all">
-              Request Access
+              Start Free Trial
             </a>
           </div>
 
@@ -70,13 +73,14 @@ export default function Home() {
 
         {mobileMenuOpen && (
           <div className="md:hidden bg-black border-t border-white/5 px-6 py-4 space-y-3">
-            <Link href="/docs" className="block text-sm text-zinc-400">Documentation</Link>
+            <Link href="/docs" className="block text-sm text-zinc-400">Docs</Link>
             <Link href="/pricing" className="block text-sm text-zinc-400">Pricing</Link>
             <Link href="/compare" className="block text-sm text-zinc-400">Compare</Link>
             <Link href="/try" className="block text-sm text-zinc-400">Try</Link>
-            <a href="https://console.regulator.ai" className="block text-sm text-zinc-400">Login</a>
+            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="block text-sm text-zinc-400">GitHub</a>
+            <a href="https://console.regulator.ai" className="block text-sm text-zinc-400">Sign In</a>
             <a href="https://console.regulator.ai/signup" className="block px-5 py-2 bg-white text-black text-sm font-bold rounded-full text-center">
-              Request Access
+              Start Free Trial
             </a>
           </div>
         )}
@@ -215,6 +219,67 @@ export default function Home() {
           </div>
         </section>
 
+        {/* HOW IT WORKS */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                How It Works
+              </h2>
+              <p className="text-zinc-400">
+                Three steps to govern autonomous AI operations with cryptographic integrity.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Step 1 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
+                  Step 1
+                </div>
+                <h3 className="text-2xl font-display font-bold mb-6">Define Policy</h3>
+                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
+                  <pre className="whitespace-pre-wrap">{`vienna.policy({
+  action: 'db:migration',
+  tier: 2,
+  quorum: 2,
+  approvers: ['eng-lead', 'cto']
+})`}</pre>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
+                  Step 2
+                </div>
+                <h3 className="text-2xl font-display font-bold mb-6">Issue Warrant</h3>
+                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
+                  <pre className="whitespace-pre-wrap">{`const warrant = await vienna
+  .requestWarrant({
+    action: 'db:migration',
+    context: { env: 'production' }
+  })`}</pre>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="text-[10px] font-mono text-amber-500 mb-4 uppercase tracking-wider">
+                  Step 3
+                </div>
+                <h3 className="text-2xl font-display font-bold mb-6">Verify Execution</h3>
+                <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400 border border-white/5">
+                  <pre className="whitespace-pre-wrap">{`await vienna.verify(warrant)
+// ✓ Approved by 2/2 signers
+// ✓ SHA-256 audit trail  
+// → Execute with confidence`}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* TIERED RISK GOVERNANCE */}
         <section className="py-24 bg-zinc-950/50 border-y border-white/5">
           <div className="max-w-7xl mx-auto px-6">
@@ -287,6 +352,126 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CORE CAPABILITIES */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Core Capabilities
+              </h2>
+              <p className="text-zinc-400">
+                Enterprise-grade features for governing autonomous systems at scale.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Capability 1 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
+                  <FileText className="w-6 h-6 text-violet-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Natural Language Policies</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Define governance rules in plain English. Vienna OS automatically translates policies into enforceable code with cryptographic verification.
+                </p>
+              </div>
+
+              {/* Capability 2 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
+                  <Shield className="w-6 h-6 text-amber-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Merkle Warrant Chain</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Every authorization creates an immutable audit trail. SHA-256 hashing ensures tamper-proof lineage from policy to execution.
+                </p>
+              </div>
+
+              {/* Capability 3 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
+                  <Users className="w-6 h-6 text-green-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Cross-Agent Delegation</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Agents can request warrants on behalf of other agents. Full delegation chain tracked with cryptographic proof of authority.
+                </p>
+              </div>
+
+              {/* Capability 4 */}
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
+                  <Activity className="w-6 h-6 text-violet-500" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">Policy Simulation</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Test governance rules against historical actions before deployment. Validate policy correctness without production risk.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* INTEGRATION */}
+        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Integration
+              </h2>
+              <p className="text-zinc-400">
+                Native SDKs for Python, Node.js, and popular agentic frameworks.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Code Examples */}
+              <div className="space-y-6">
+                <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="ml-auto text-xs font-mono text-zinc-500">Python</span>
+                  </div>
+                  <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400">
+                    <pre className="whitespace-pre-wrap">{`pip install vienna-os`}</pre>
+                  </div>
+                </div>
+
+                <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="ml-auto text-xs font-mono text-zinc-500">Node.js</span>
+                  </div>
+                  <div className="bg-black/40 p-4 rounded-lg font-mono text-xs text-zinc-400">
+                    <pre className="whitespace-pre-wrap">{`npm install @vienna-os/sdk`}</pre>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Integration Logos */}
+              <div className="space-y-4">
+                <p className="text-sm text-zinc-500 uppercase font-mono tracking-wider mb-6">
+                  Works With
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {['GitHub Actions', 'Terraform', 'LangChain', 'AutoGPT'].map((tool) => (
+                    <div 
+                      key={tool}
+                      className="px-6 py-4 bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center font-display font-bold text-sm text-zinc-400 hover:text-white hover:border-zinc-700 transition-all"
+                    >
+                      {tool}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA SECTION */}
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 text-center">
@@ -318,25 +503,80 @@ export default function Home() {
       </main>
 
       {/* FOOTER */}
-      <footer className="py-12 border-t border-white/5 bg-zinc-950">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-white/10 flex items-center justify-center rounded">
-              <Shield className="w-4 h-4 text-white" />
+      <footer className="py-16 border-t border-white/5 bg-zinc-950">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
+            {/* Product Column */}
+            <div>
+              <h4 className="font-display font-bold text-sm mb-4 text-white">Product</h4>
+              <ul className="space-y-3 text-sm text-zinc-500">
+                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/sdk" className="hover:text-white transition-colors">SDK</Link></li>
+                <li><Link href="/try" className="hover:text-white transition-colors">Try Demo</Link></li>
+                <li><Link href="/examples" className="hover:text-white transition-colors">Examples</Link></li>
+                <li><Link href="/integrations" className="hover:text-white transition-colors">Integrations</Link></li>
+              </ul>
             </div>
-            <span className="font-display font-bold text-lg">VIENNA OS</span>
+
+            {/* Company Column */}
+            <div>
+              <h4 className="font-display font-bold text-sm mb-4 text-white">Company</h4>
+              <ul className="space-y-3 text-sm text-zinc-500">
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+                <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
+                <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
+              </ul>
+            </div>
+
+            {/* Compare Column */}
+            <div>
+              <h4 className="font-display font-bold text-sm mb-4 text-white">Compare</h4>
+              <ul className="space-y-3 text-sm text-zinc-500">
+                <li><Link href="/compare" className="hover:text-white transition-colors">Overview</Link></li>
+                <li><Link href="/compare/guardrails-ai" className="hover:text-white transition-colors">vs Guardrails AI</Link></li>
+                <li><Link href="/compare/credo-ai" className="hover:text-white transition-colors">vs Credo AI</Link></li>
+                <li><Link href="/compare/arthur-ai" className="hover:text-white transition-colors">vs Arthur AI</Link></li>
+                <li><Link href="/compare/holistic-ai" className="hover:text-white transition-colors">vs Holistic AI</Link></li>
+                <li><Link href="/compare/calypso-ai" className="hover:text-white transition-colors">vs Calypso AI</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal Column */}
+            <div>
+              <h4 className="font-display font-bold text-sm mb-4 text-white">Legal</h4>
+              <ul className="space-y-3 text-sm text-zinc-500">
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
+                <li>
+                  <a 
+                    href="https://github.com/risk-ai/vienna-os" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-white transition-colors"
+                  >
+                    GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="flex gap-8 text-sm text-zinc-500">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-              GitHub
-            </a>
-            <Link href="/status" className="hover:text-white transition-colors">Status</Link>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-white/10 flex items-center justify-center rounded">
+                <Shield className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-display font-bold text-lg">VIENNA OS</span>
+            </div>
+            <p className="text-xs text-zinc-600 font-mono">
+              © 2026 Vienna Technologies Inc. Cryptographically Audited.
+            </p>
           </div>
-          <p className="text-xs text-zinc-600 font-mono">
-            © 2026 Vienna Technologies Inc. Cryptographically Audited.
-          </p>
         </div>
       </footer>
     </div>

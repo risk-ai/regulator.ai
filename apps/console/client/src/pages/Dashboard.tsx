@@ -22,6 +22,11 @@ import { CircuitBreakersPanel } from '../components/reconciliation/CircuitBreake
 import { ReconciliationTimeline } from '../components/reconciliation/ReconciliationTimeline.js';
 import { ExecutionPipelineStatus } from '../components/reconciliation/ExecutionPipelineStatus.js';
 
+// Phase 11: Visual enhancements - Summary Metrics, Activity Timeline, System Health
+import { SummaryMetricsRow } from '../components/dashboard/SummaryMetricsRow.js';
+import { ActivityTimeline } from '../components/dashboard/ActivityTimeline.js';
+import { SystemHealthGrid } from '../components/dashboard/SystemHealthGrid.js';
+
 export function Dashboard() {
   const systemStatus = useDashboardStore((state) => state.systemStatus);
   const setSystemStatus = useDashboardStore((state) => state.setSystemStatus);
@@ -148,6 +153,11 @@ export function Dashboard() {
         </div>
       )}
 
+      {/* Phase 11: Summary Metrics Row (KPI Cards with Sparklines) */}
+      <PanelErrorBoundary panelName="Summary Metrics Row">
+        <SummaryMetricsRow />
+      </PanelErrorBoundary>
+
       {/* Row 1: Runtime Control State + Execution Control + Infrastructure Services */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <PanelErrorBoundary panelName="Runtime Control Panel">
@@ -196,9 +206,14 @@ export function Dashboard() {
         </PanelErrorBoundary>
       </div>
 
-      {/* Row 2: Reconciliation Activity (Full Width) */}
-      <PanelErrorBoundary panelName="Reconciliation Activity Panel">
-        <ReconciliationActivityPanel />
+      {/* Row 2: Activity Timeline (Full Width, Enhanced) */}
+      <PanelErrorBoundary panelName="Activity Timeline">
+        <ActivityTimeline />
+      </PanelErrorBoundary>
+
+      {/* Phase 11: System Health Status Grid (2x3 Layout) */}
+      <PanelErrorBoundary panelName="System Health Grid">
+        <SystemHealthGrid />
       </PanelErrorBoundary>
 
       {/* Row 3: Execution Leases + Circuit Breakers */}

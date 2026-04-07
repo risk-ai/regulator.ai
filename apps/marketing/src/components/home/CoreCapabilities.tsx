@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, BadgeCheck, Building2, Lock, Scale, Shield, Terminal, Wrench, Zap } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, BadgeCheck, Building2, FileText, Lock, Scale, Shield, Terminal, Users, Wrench, Zap } from "lucide-react";
 import Link from "next/link";
 
 export default function CoreCapabilities() {

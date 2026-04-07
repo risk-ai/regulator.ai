@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle, Shield } from "lucide-react";
+import { AlertTriangle, CheckCircle, Shield, Terminal } from "lucide-react";
 
 export default function BeforeAfter() {
   return (

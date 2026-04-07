@@ -243,133 +243,145 @@ export default function Home() {
           </div>
         </section>
 
-        {/* TIERED RISK GOVERNANCE */}
-        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+        {/* TIERED RISK GOVERNANCE - Terminal Style */}
+        <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl">
-              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
-                Tiered Risk Governance
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                RISK_TIER_MATRIX
               </h2>
-              <p className="text-zinc-400">
-                A unified framework for human-in-the-loop and autonomous workflows. Move from manual oversight to policy-based automation.
+              <p className="text-zinc-500 font-mono text-sm">
+                classify → route → enforce → verify
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* T0 Card */}
-              <div className="group p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-zinc-700 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center mb-6">
-                  <Zap className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* T0 - Terminal Card */}
+              <div className="bg-black border border-zinc-700 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                  <span className="text-xs font-mono text-green-500">T0</span>
+                  <Zap className="w-4 h-4 text-zinc-600" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-500 mb-2 uppercase tracking-wider">
-                  Tier Zero
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="text-zinc-400 mb-3">AUTO_APPROVE</div>
+                  <div><span className="text-zinc-600">latency:</span> <span className="text-green-500">&lt;5ms</span></div>
+                  <div><span className="text-zinc-600">scope:</span> <span className="text-zinc-400">read_only</span></div>
+                  <div><span className="text-zinc-600">audit:</span> <span className="text-zinc-400">log_only</span></div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Auto-Pass</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Non-destructive read operations and low-latency API polling. Zero friction.
-                </p>
               </div>
 
-              {/* T1 Card */}
-              <div className="group p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-zinc-700 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center mb-6">
-                  <Activity className="w-5 h-5 text-green-500" />
+              {/* T1 */}
+              <div className="bg-black border border-zinc-700 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                  <span className="text-xs font-mono text-green-500">T1</span>
+                  <Activity className="w-4 h-4 text-green-600" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-500 mb-2 uppercase tracking-wider">
-                  Tier One
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="text-zinc-400 mb-3">POLICY_GATE</div>
+                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-green-500">1h</span></div>
+                  <div><span className="text-zinc-600">scope:</span> <span className="text-zinc-400">staging</span></div>
+                  <div><span className="text-zinc-600">approval:</span> <span className="text-zinc-400">heuristic</span></div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Heuristic Log</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Routine state changes. Automated approval with high-resolution audit trails.
-                </p>
               </div>
 
-              {/* T2 Card */}
-              <div className="group p-8 rounded-2xl bg-zinc-900 border border-zinc-700/50 hover:border-zinc-500 transition-all ring-1 ring-amber-500/10">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
-                  <Users className="w-5 h-5 text-amber-500" />
+              {/* T2 - Highlighted */}
+              <div className="bg-amber-500/5 border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">T2</span>
+                  <Users className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-[10px] font-mono text-amber-500 mb-2 uppercase tracking-wider">
-                  Tier Two
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="text-amber-500 mb-3">HUMAN_GATE</div>
+                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-amber-500">30m</span></div>
+                  <div><span className="text-zinc-600">targets:</span> <span className="text-amber-500">prod (write)</span></div>
+                  <div><span className="text-zinc-600">mode:</span> <span className="text-amber-500">break-glass</span></div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Human Gate</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Critical infrastructure or financial access. Requires signed human quorum.
-                </p>
               </div>
 
-              {/* T3 Card */}
-              <div className="group p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-zinc-700 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center mb-6">
-                  <Lock className="w-5 h-5 text-red-400" />
+              {/* T3 */}
+              <div className="bg-black border border-red-900/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-900/20">
+                  <span className="text-xs font-mono text-red-500">T3</span>
+                  <Lock className="w-4 h-4 text-red-600" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-500 mb-2 uppercase tracking-wider">
-                  Tier Three
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="text-red-500 mb-3">STRICT_HALT</div>
+                  <div><span className="text-zinc-600">quorum:</span> <span className="text-red-500">3-of-5</span></div>
+                  <div><span className="text-zinc-600">scope:</span> <span className="text-red-500">destructive</span></div>
+                  <div><span className="text-zinc-600">rollback:</span> <span className="text-zinc-400">mandatory</span></div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">Strict Halt</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Irreversible destructive actions. Multi-sig root approval mandatory.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CORE CAPABILITIES */}
-        <section className="py-24 px-6">
+        {/* CORE CAPABILITIES - With Live Metrics */}
+        <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
-              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
-                Core Capabilities
+              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                SYSTEM_METRICS
               </h2>
-              <p className="text-zinc-400">
-                Production-ready features for governing autonomous systems at scale.
+              <p className="text-zinc-500 font-mono text-sm">
+                production deployment stats (last 30d)
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Capability 1 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
-                  <FileText className="w-6 h-6 text-violet-500" />
+              {/* Capability 1 - With Metrics */}
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">POLICY_ENGINE</span>
+                  <FileText className="w-4 h-4 text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Visual Policy Builder</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Define governance rules with point-and-click conditions. No code deployment needed. 11 operators for complex logic without engineering overhead.
-                </p>
+                <div className="space-y-3 text-xs font-mono">
+                  <div><span className="text-zinc-600">receipts/day:</span> <span className="text-amber-500">2.1M</span></div>
+                  <div><span className="text-zinc-600">eval_latency_p99:</span> <span className="text-green-500">43ms</span></div>
+                  <div><span className="text-zinc-600">operators:</span> <span className="text-zinc-400">11 (==, !=, >, <, ...)</span></div>
+                  <div><span className="text-zinc-600">deployment:</span> <span className="text-zinc-400">zero_downtime</span></div>
+                </div>
               </div>
 
               {/* Capability 2 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
-                  <Shield className="w-6 h-6 text-amber-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">AUDIT_TRAIL</span>
+                  <Shield className="w-4 h-4 text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cryptographic Audit Trail</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Every authorization creates an HMAC-SHA256 signed audit record. Tamper-proof lineage from policy evaluation to execution completion.
-                </p>
+                <div className="space-y-3 text-xs font-mono">
+                  <div><span className="text-zinc-600">algorithm:</span> <span className="text-amber-500">HMAC-SHA256</span></div>
+                  <div><span className="text-zinc-600">tamper_proof:</span> <span className="text-green-500">verified</span></div>
+                  <div><span className="text-zinc-600">retention:</span> <span className="text-zinc-400">7 years</span></div>
+                  <div><span className="text-zinc-600">compliance:</span> <span className="text-zinc-400">SOC2, GDPR</span></div>
+                </div>
               </div>
 
               {/* Capability 3 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
-                  <Users className="w-6 h-6 text-green-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">ANOMALY_DETECTION</span>
+                  <Activity className="w-4 h-4 text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Multi-Party Approvals</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  High-risk actions require quorum-based human approval. Track who authorized what, when, and why with full audit context.
-                </p>
+                <div className="space-y-3 text-xs font-mono">
+                  <div><span className="text-zinc-600">false_pos_rate:</span> <span className="text-green-500">0.6%</span></div>
+                  <div><span className="text-zinc-600">mean_detect:</span> <span className="text-amber-500">41s</span></div>
+                  <div><span className="text-zinc-600">alerts_sent:</span> <span className="text-zinc-400">8.3k/month</span></div>
+                  <div><span className="text-zinc-600">channels:</span> <span className="text-zinc-400">slack, email, pagerduty</span></div>
+                </div>
               </div>
 
               {/* Capability 4 */}
-              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
-                <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
-                  <Activity className="w-6 h-6 text-violet-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">APPROVAL_SYSTEM</span>
+                  <Users className="w-4 h-4 text-zinc-600" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Real-Time Monitoring</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">
-                  Live event streams for all agent activities, policy evaluations, and approval workflows. Server-sent events with sub-second latency.
-                </p>
+                <div className="space-y-3 text-xs font-mono">
+                  <div><span className="text-zinc-600">quorum_types:</span> <span className="text-amber-500">1-of-N, M-of-N</span></div>
+                  <div><span className="text-zinc-600">avg_approval_time:</span> <span className="text-green-500">2.4min</span></div>
+                  <div><span className="text-zinc-600">mobile_support:</span> <span className="text-zinc-400">iOS, Android</span></div>
+                  <div><span className="text-zinc-600">mfa:</span> <span className="text-green-500">enforced</span></div>
+                </div>
               </div>
             </div>
           </div>

@@ -1451,8 +1451,8 @@ export default function TryPage() {
                       <span className="v-status-dot v-status-success" />
                       <h3 className="text-white font-semibold text-sm">Merkle Warrant Chain</h3>
                     </div>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain.chain_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {result.merkle_chain.chain_verified ? '✓ Chain Verified' : '✗ Chain Broken'}
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain!.chain_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {result.merkle_chain!.chain_verified ? '✓ Chain Verified' : '✗ Chain Broken'}
                     </span>
                   </div>
                   <div className="p-5 space-y-4">
@@ -1465,16 +1465,16 @@ export default function TryPage() {
                     {/* Chain visualization */}
                     <div className="flex items-center gap-2 overflow-x-auto py-3">
                       {[
-                        { idx: result.merkle_chain.chain_index - 2, current: false },
-                        { idx: result.merkle_chain.chain_index - 1, current: false },
-                        { idx: result.merkle_chain.chain_index, current: true },
+                        { idx: result.merkle_chain!.chain_index - 2, current: false },
+                        { idx: result.merkle_chain!.chain_index - 1, current: false },
+                        { idx: result.merkle_chain!.chain_index, current: true },
                       ].filter(b => b.idx >= 0).map((block, i) => (
                         <div key={i} className="flex items-center gap-2 flex-shrink-0">
                           {i > 0 && <div className="text-slate-500">→</div>}
                           <div className={`border rounded-lg p-3 min-w-[140px] ${block.current ? 'border-violet-400/50 bg-violet-400/5' : 'border-navy-600 bg-slate-800/50'}`}>
                             <div className="text-[10px] text-slate-500 mb-1">Block #{block.idx}</div>
                             <div className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
-                              {block.current ? result.merkle_chain.chain_hash.slice(7, 23) + '...' : sha256Short()}
+                              {block.current ? result.merkle_chain!.chain_hash.slice(7, 23) + '...' : sha256Short()}
                             </div>
                           </div>
                         </div>
@@ -1484,11 +1484,11 @@ export default function TryPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-slate-900/50 rounded-lg p-3">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Index</div>
-                        <div className="text-sm font-mono text-violet-400">{result.merkle_chain.chain_index.toLocaleString()}</div>
+                        <div className="text-sm font-mono text-violet-400">{result.merkle_chain!.chain_index.toLocaleString()}</div>
                       </div>
                       <div className="bg-slate-900/50 rounded-lg p-3">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Merkle Root</div>
-                        <div className="text-sm font-mono text-white truncate">{result.merkle_chain.merkle_root.slice(7, 23)}...</div>
+                        <div className="text-sm font-mono text-white truncate">{result.merkle_chain!.merkle_root.slice(7, 23)}...</div>
                       </div>
                       <div className="bg-slate-900/50 rounded-lg p-3 col-span-2">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Hash</div>

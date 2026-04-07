@@ -42,19 +42,22 @@ export default function Home() {
         }}
       ></div>
 
-      <SiteNav />
-
-      {/* Coordinate/UTC Bar - Scrolls with page */}
-      <div className="relative z-10 bg-black/50 border-b border-amber-500/20 px-6 py-2">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono text-zinc-600">
-          <div className="flex items-center gap-6">
-            <span>lat: 40.7128°N</span>
-            <span>lon: -74.0060°W</span>
-            <span>grid: 32x32px</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <span>utc: {currentTime}</span>
-            <span className="text-amber-500">● LIVE</span>
+      {/* Sticky Header Container */}
+      <div className="sticky top-0 z-50">
+        <SiteNav />
+        
+        {/* Coordinate/UTC Bar */}
+        <div className="bg-black/90 backdrop-blur-sm border-b border-amber-500/20 px-6 py-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono text-zinc-600">
+            <div className="flex items-center gap-6">
+              <span>lat: 40.7128°N</span>
+              <span>lon: -74.0060°W</span>
+              <span>grid: 32x32px</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <span>utc: {currentTime}</span>
+              <span className="text-amber-500">● LIVE</span>
+            </div>
           </div>
         </div>
       </div>

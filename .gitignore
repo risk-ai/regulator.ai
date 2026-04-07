@@ -159,3 +159,15 @@ docs/devto/
 BUSINESS-PLAN.md
 patent/
 .env.prod
+
+# Build artifacts (never commit)
+**/dist/
+**/build/
+**/*.map
+**/*.d.ts
+!**/*.test.d.ts
+apps/console/client/assets/
+apps/console/server/public/
+services/vienna-runtime/console/
+*.whl
+*.egg-info/

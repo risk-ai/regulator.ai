@@ -43,7 +43,7 @@ export default function CompareGuardrailsPage() {
         </Link>
         
         <div className="flex items-center gap-3 mb-4">
-          <Shield className="w-8 h-8 text-amber-500" />
+          <Shield className="w-8 h-8 text-gold-400" />
           <h1 className="text-3xl md:text-4xl font-bold">Vienna OS vs Guardrails AI</h1>
         </div>
         
@@ -51,8 +51,8 @@ export default function CompareGuardrailsPage() {
           Execution control vs prompt validation — different tools for different problems.
         </p>
         
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-8">
-          <p className="text-sm text-amber-300">
+        <div className="bg-gold-400/10 border border-gold-400/20 rounded-lg p-4 mb-8">
+          <p className="text-sm text-gold-300">
             <strong>Key insight:</strong> Guardrails AI validates LLM inputs/outputs. Vienna OS controls agent execution. 
             They solve different layers of the AI safety stack — and work well together.
           </p>
@@ -97,8 +97,8 @@ export default function CompareGuardrailsPage() {
         <h2 className="text-2xl font-bold mb-6">When to Use Each</h2>
         
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-6">
-            <h3 className="text-lg font-bold text-amber-500 mb-4">Choose Vienna OS when:</h3>
+          <div className="bg-gold-400/5 border border-gold-400/20 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-gold-400 mb-4">Choose Vienna OS when:</h3>
             <ul className="space-y-3">
               {[
                 "Your AI agents take real-world actions (deploy code, move money, update records)",
@@ -109,7 +109,7 @@ export default function CompareGuardrailsPage() {
                 "Regulators might ask \"who approved this?\"",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 text-gold-400 mt-0.5 flex-shrink-0" />
                   {item}
                 </li>
               ))}
@@ -152,7 +152,7 @@ export default function CompareGuardrailsPage() {
           See the governance pipeline in action. No setup required.
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Link href="/try" className="px-6 py-3 bg-amber-500 hover:bg-amber-500 rounded-lg font-medium transition">
+          <Link href="/try" className="px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition">
             Try Interactive Demo
           </Link>
           <Link href="/blog/vienna-os-vs-guardrails-ai" className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition">

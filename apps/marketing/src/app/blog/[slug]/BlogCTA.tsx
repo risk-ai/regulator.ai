@@ -8,7 +8,7 @@ export default function BlogCTA({ slug }: { slug: string }) {
   };
 
   return (
-    <div className="mt-12 bg-gradient-to-br from-amber-900/30 to-navy-800/50 border border-amber-500/20 rounded-xl p-8 text-center">
+    <div className="mt-12 bg-gradient-to-br from-gold-900/30 to-navy-800/50 border border-gold-400/20 rounded-xl p-8 text-center">
       <h3 className="text-xl font-bold text-white mb-3">
         Ready to govern your agents?
       </h3>
@@ -18,7 +18,7 @@ export default function BlogCTA({ slug }: { slug: string }) {
       <a
         href="/signup"
         onClick={handleClick}
-        className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm"
+        className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-xl transition font-medium text-sm"
       >
         Get Started Free
       </a>

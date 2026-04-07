@@ -111,7 +111,7 @@ const featureRows = [
 function FeatureIcon({ value }: { value: boolean | string }) {
   if (value === true) return <Check className="w-4 h-4 text-emerald-400" />;
   if (value === false) return <X className="w-4 h-4 text-slate-600" />;
-  if (value === "partial") return <Minus className="w-4 h-4 text-amber-400" />;
+  if (value === "partial") return <Minus className="w-4 h-4 text-gold-300" />;
   return <span className="text-xs text-slate-400">{value}</span>;
 }
 
@@ -218,12 +218,12 @@ export default function ComparePage() {
         {/* Hero */}
         <section className="max-w-7xl mx-auto px-6 py-20">
           <div className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500">COMPARE</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-400/10 border border-gold-400/20 mb-8">
+              <span className="flex h-2 w-2 rounded-full bg-gold-400 animate-pulse"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-gold-400">COMPARE</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-mono font-bold tracking-tight leading-tight mb-6">
-              <span className="text-amber-500">FOUR_LAYERS</span>
+              <span className="text-gold-400">FOUR_LAYERS</span>
               <br />
               <span className="text-zinc-500">/ ONE_CONTROLS_EXECUTION</span>
             </h1>
@@ -237,18 +237,18 @@ export default function ComparePage() {
           {[
             { layer: "Documentation", tool: "Credo AI", desc: "Generates compliance reports after the fact", color: "slate", active: false },
             { layer: "Observability", tool: "Arthur AI", desc: "Monitors model performance and drift", color: "blue", active: false },
-            { layer: "Prompt Filtering", tool: "Guardrails AI", desc: "Validates LLM inputs and outputs", color: "amber", active: false },
-            { layer: "Execution Control", tool: "Vienna OS", desc: "Enforces authorization before any action", color: "amber", active: true },
+            { layer: "Prompt Filtering", tool: "Guardrails AI", desc: "Validates LLM inputs and outputs", color: "gold", active: false },
+            { layer: "Execution Control", tool: "Vienna OS", desc: "Enforces authorization before any action", color: "gold", active: true },
           ].map((l) => (
             <div
               key={l.layer}
               className={`rounded-xl p-5 border transition-all ${
                 l.active
-                  ? "bg-amber-500/10 border-amber-500/40 shadow-lg shadow-amber-500/10 scale-105"
+                  ? "bg-gold-400/10 border-gold-400/40 shadow-lg shadow-gold-400/10 scale-105"
                   : "bg-zinc-900/50 border-navy-700/50"
               }`}
             >
-              <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${l.active ? "text-amber-400" : "text-slate-500"}`}>
+              <div className={`text-xs font-bold uppercase tracking-wider mb-2 ${l.active ? "text-gold-300" : "text-slate-500"}`}>
                 {l.layer}
               </div>
               <div className={`text-sm font-semibold mb-1 ${l.active ? "text-white" : "text-slate-300"}`}>{l.tool}</div>
@@ -264,8 +264,8 @@ export default function ComparePage() {
               <tr className="border-b border-navy-700">
                 <th className="text-left py-4 px-4 text-sm text-slate-500 font-medium w-1/3">Feature</th>
                 {competitors.map((c) => (
-                  <th key={c.name} className={`text-center py-4 px-3 ${c.highlight ? "bg-amber-500/5" : ""}`}>
-                    <div className={`text-sm font-bold ${c.highlight ? "text-amber-400" : "text-slate-300"}`}>{c.name}</div>
+                  <th key={c.name} className={`text-center py-4 px-3 ${c.highlight ? "bg-gold-400/5" : ""}`}>
+                    <div className={`text-sm font-bold ${c.highlight ? "text-gold-300" : "text-slate-300"}`}>{c.name}</div>
                     <div className="text-xs text-slate-500 mt-1">{c.layer}</div>
                   </th>
                 ))}
@@ -288,7 +288,7 @@ export default function ComparePage() {
                     <tr key={row.key} className="border-b border-navy-800/50 hover:bg-zinc-900/30 transition">
                       <td className="py-3 px-4 text-sm text-slate-300">{row.label}</td>
                       {competitors.map((c) => (
-                        <td key={c.name} className={`text-center py-3 px-3 ${c.highlight ? "bg-amber-500/5" : ""}`}>
+                        <td key={c.name} className={`text-center py-3 px-3 ${c.highlight ? "bg-gold-400/5" : ""}`}>
                           <div className="flex justify-center">
                             <FeatureIcon value={(c.features as any)[row.key]} />
                           </div>
@@ -307,7 +307,7 @@ export default function ComparePage() {
               <tr className="border-b border-navy-800/50">
                 <td className="py-3 px-4 text-sm text-slate-300">License</td>
                 {competitors.map((c) => (
-                  <td key={c.name} className={`text-center py-3 px-3 text-xs text-slate-400 ${c.highlight ? "bg-amber-500/5" : ""}`}>
+                  <td key={c.name} className={`text-center py-3 px-3 text-xs text-slate-400 ${c.highlight ? "bg-gold-400/5" : ""}`}>
                     {c.features.openSource}
                   </td>
                 ))}
@@ -315,7 +315,7 @@ export default function ComparePage() {
               <tr className="border-b border-navy-800/50">
                 <td className="py-3 px-4 text-sm text-slate-300">Pricing</td>
                 {competitors.map((c) => (
-                  <td key={c.name} className={`text-center py-3 px-3 text-xs text-slate-400 ${c.highlight ? "bg-amber-500/5" : ""}`}>
+                  <td key={c.name} className={`text-center py-3 px-3 text-xs text-slate-400 ${c.highlight ? "bg-gold-400/5" : ""}`}>
                     {c.features.pricing}
                   </td>
                 ))}
@@ -328,31 +328,31 @@ export default function ComparePage() {
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-white mb-6 text-center">Detailed Comparisons</h2>
           <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
-              <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Guardrails AI</h3>
+            <a href="/compare/guardrails-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-gold-400/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-gold-400 transition mb-2">Vienna OS vs Guardrails AI</h3>
               <p className="text-sm text-slate-400">Execution control vs prompt validation — feature-by-feature breakdown</p>
             </a>
-            <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
-              <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Arthur AI</h3>
+            <a href="/compare/arthur-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-gold-400/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-gold-400 transition mb-2">Vienna OS vs Arthur AI</h3>
               <p className="text-sm text-slate-400">When you need more than monitoring — control vs observability</p>
             </a>
-            <a href="/compare/credo-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
-              <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Credo AI</h3>
+            <a href="/compare/credo-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-gold-400/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-gold-400 transition mb-2">Vienna OS vs Credo AI</h3>
               <p className="text-sm text-slate-400">Execution control vs compliance documentation — prevent vs document</p>
             </a>
-            <a href="/compare/calypso-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
-              <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Calypso AI</h3>
+            <a href="/compare/calypso-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-gold-400/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-gold-400 transition mb-2">Vienna OS vs Calypso AI</h3>
               <p className="text-sm text-slate-400">Runtime enforcement vs pre-deployment testing — enforce vs test</p>
             </a>
-            <a href="/compare/holistic-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-amber-500/30 rounded-xl p-6 transition group">
-              <h3 className="font-bold text-white group-hover:text-amber-500 transition mb-2">Vienna OS vs Holistic AI</h3>
+            <a href="/compare/holistic-ai" className="bg-slate-900/50 border border-slate-700/50 hover:border-gold-400/30 rounded-xl p-6 transition group">
+              <h3 className="font-bold text-white group-hover:text-gold-400 transition mb-2">Vienna OS vs Holistic AI</h3>
               <p className="text-sm text-slate-400">Continuous control vs periodic auditing — enforce vs audit</p>
             </a>
           </div>
         </div>
 
         {/* Key insight */}
-        <div className="mt-16 bg-gradient-to-br from-amber-900/20 to-navy-800/50 border border-amber-500/20 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-gradient-to-br from-gold-900/20 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-3">They&apos;re complementary — but only one is mandatory.</h2>
           <p className="text-slate-300 max-w-2xl mx-auto mb-6">
             You can deploy AI agents without prompt filtering. You can deploy without model monitoring.
@@ -363,14 +363,14 @@ export default function ComparePage() {
             <a
               href="/signup"
               onClick={() => analytics.ctaClick("compare_cta", "start_free")}
-              className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-xl transition font-semibold text-sm inline-flex items-center gap-2"
+              className="bg-gold-500 hover:bg-gold-400 text-white px-8 py-3 rounded-xl transition font-semibold text-sm inline-flex items-center gap-2"
             >
               Start Free <ArrowRight className="w-4 h-4" />
             </a>
             <a
               href="/try"
               onClick={() => analytics.ctaClick("compare_cta", "try_playground")}
-              className="bg-zinc-900 hover:bg-amber-500/30 text-white px-8 py-3 rounded-xl transition text-sm border border-navy-700"
+              className="bg-zinc-900 hover:bg-gold-400/30 text-white px-8 py-3 rounded-xl transition text-sm border border-navy-700"
             >
               Try the Playground
             </a>

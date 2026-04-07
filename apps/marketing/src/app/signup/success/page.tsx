@@ -57,7 +57,7 @@ function SuccessContent() {
     return (
       <div className="min-h-screen bg-navy-900 flex items-center justify-center p-6">
         <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-400 mx-auto mb-4"></div>
           <p>Verifying your purchase...</p>
         </div>
       </div>
@@ -90,8 +90,8 @@ function SuccessContent() {
           <div className="grid md:grid-cols-3 gap-6 mb-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-amber-500" />
+              <div className="w-16 h-16 bg-gold-400/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-8 h-8 text-gold-400" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
                 1. Explore Live Demo
@@ -131,7 +131,7 @@ function SuccessContent() {
           {/* Console Access */}
           <div className="bg-navy-900 border border-navy-600 rounded-xl p-6 mb-6">
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-amber-500" />
+              <Shield className="w-5 h-5 text-gold-400" />
               Your Console is Ready
             </h3>
             <p className="text-sm text-slate-400 mb-4">
@@ -142,7 +142,7 @@ function SuccessContent() {
                 <span className="text-slate-500 w-20">URL:</span>
                 <a
                   href="https://console.regulator.ai"
-                  className="text-amber-500 hover:text-amber-400 transition break-all"
+                  className="text-gold-400 hover:text-gold-300 transition break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -161,7 +161,7 @@ function SuccessContent() {
               href="https://console.regulator.ai"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-4 rounded-xl transition font-semibold text-lg"
+              className="inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-4 rounded-xl transition font-semibold text-lg"
             >
               <Zap className="w-5 h-5" />
               Open Console
@@ -188,7 +188,7 @@ function SuccessContent() {
           </p>
           <p className="text-xs text-slate-500 mt-3">
             Don&apos;t see it? Check your spam folder or{' '}
-            <a href="mailto:hello@ai.ventures" className="text-amber-500 hover:text-amber-400">
+            <a href="mailto:hello@ai.ventures" className="text-gold-400 hover:text-gold-300">
               contact us
             </a>{' '}
             for help.
@@ -196,27 +196,27 @@ function SuccessContent() {
         </div>
 
         {/* Follow-Up Sequence Preview */}
-        <div className="bg-gradient-to-r from-amber-900/30 to-blue-900/30 border border-amber-800/30 rounded-xl p-6 mb-8">
+        <div className="bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 rounded-xl p-6 mb-8">
           <h3 className="text-lg font-semibold text-white mb-4">
             Your Learning Journey
           </h3>
           <div className="grid sm:grid-cols-3 gap-4 text-sm">
             <div className="text-center">
-              <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-amber-500 font-semibold">
+              <div className="w-8 h-8 bg-gold-400/20 rounded-full flex items-center justify-center mx-auto mb-2 text-gold-400 font-semibold">
                 1
               </div>
               <p className="text-slate-300 font-medium">Tomorrow</p>
               <p className="text-slate-500">Create your first policy</p>
             </div>
             <div className="text-center">
-              <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-amber-500 font-semibold">
+              <div className="w-8 h-8 bg-gold-400/20 rounded-full flex items-center justify-center mx-auto mb-2 text-gold-400 font-semibold">
                 2
               </div>
               <p className="text-slate-300 font-medium">Week 1</p>
               <p className="text-slate-500">Production tips & scaling</p>
             </div>
             <div className="text-center">
-              <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-2 text-amber-500 font-semibold">
+              <div className="w-8 h-8 bg-gold-400/20 rounded-full flex items-center justify-center mx-auto mb-2 text-gold-400 font-semibold">
                 3
               </div>
               <p className="text-slate-300 font-medium">Week 2</p>
@@ -254,7 +254,7 @@ function SuccessContent() {
 
         {/* Footer */}
         <div className="mt-12 flex items-center justify-center gap-2">
-          <Shield className="w-4 h-4 text-amber-500" />
+          <Shield className="w-4 h-4 text-gold-400" />
           <span className="text-sm text-slate-600">
             Vienna OS — Governed AI Authorization Layer
           </span>

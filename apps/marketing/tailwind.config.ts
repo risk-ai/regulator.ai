@@ -49,6 +49,20 @@ const config: Config = {
           900: '#78350f',
           950: '#451a03',
         },
+        // Terminal gold — desaturated, premium governance feel
+        gold: {
+          50: '#fdf8ed',
+          100: '#f9edcf',
+          200: '#f2d99e',
+          300: '#e8c06a',
+          400: '#D4A853',  // Primary — matches design-system.css --v-gold
+          500: '#C09440',
+          600: '#A07830',
+          700: '#7D5D25',
+          800: '#5C4420',
+          900: '#3D2D16',
+          950: '#1F170B',
+        },
         // Keep existing Vienna palette for backwards compat
         navy: {
           950: '#08090C',

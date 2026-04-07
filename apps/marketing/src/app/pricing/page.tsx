@@ -399,15 +399,15 @@ export default function PricingPage() {
         {/* Header Section */}
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16">
           <ScrollReveal>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-400/10 border border-gold-400/20 mb-8">
+              <span className="flex h-2 w-2 rounded-full bg-gold-400 animate-pulse"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-gold-400">
                 PRICING_CALCULATOR
               </span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-mono font-bold tracking-tight leading-tight mb-6">
-              <span className="text-amber-500">AGENT_GOVERNANCE</span>
+              <span className="text-gold-400">AGENT_GOVERNANCE</span>
               <br />
               <span className="text-zinc-500">/ PRICING_TIERS</span>
             </h1>
@@ -422,14 +422,14 @@ export default function PricingPage() {
                   setLeadCaptureTrigger('header_priority_access');
                   setShowLeadCapture(true);
                 }}
-                className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold flex items-center gap-2 transition-all uppercase text-sm"
+                className="bg-gold-400 hover:bg-gold-300 text-black px-8 py-4 font-mono font-bold flex items-center gap-2 transition-all uppercase text-sm"
               >
                 <Zap className="w-4 h-4" />
                 GET_PRIORITY_ACCESS
               </button>
               <Link 
                 href="/docs"
-                className="bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold transition-all uppercase text-sm"
+                className="bg-zinc-900 border border-gold-400/30 hover:border-gold-400 text-gold-400 px-8 py-4 font-mono font-bold transition-all uppercase text-sm"
               >
                 VIEW_DOCS
               </Link>
@@ -442,22 +442,22 @@ export default function PricingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {tiers.map((tier, i) => (
             <ScrollReveal key={tier.name} delay={i * 0.1}>
-              <div className="bg-black border border-amber-500/30 p-0 overflow-hidden font-mono flex flex-col relative transition-all duration-300 hover:border-amber-500/60">
+              <div className="bg-black border border-gold-400/30 p-0 overflow-hidden font-mono flex flex-col relative transition-all duration-300 hover:border-gold-400/60">
                 {/* Header Bar */}
-                <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
+                <div className="bg-gold-400/10 border-b border-gold-400/30 px-4 py-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <tier.icon className="w-4 h-4 text-amber-500" />
-                    <span className="text-xs font-bold text-amber-500 uppercase">{tier.name}_TIER</span>
+                    <tier.icon className="w-4 h-4 text-gold-400" />
+                    <span className="text-xs font-bold text-gold-400 uppercase">{tier.name}_TIER</span>
                   </div>
-                  {tier.popular && <Star className="w-3 h-3 text-amber-500" />}
-                  {tier.premium && <Shield className="w-3 h-3 text-amber-500" />}
+                  {tier.popular && <Star className="w-3 h-3 text-gold-400" />}
+                  {tier.premium && <Shield className="w-3 h-3 text-gold-400" />}
                 </div>
 
                 <div className="p-6 space-y-6 flex-1 flex flex-col">
                   <div>
                     <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-1">Price</div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-mono font-bold text-amber-500">{tier.price}</span>
+                      <span className="text-3xl font-mono font-bold text-gold-400">{tier.price}</span>
                       {tier.period && <span className="text-xs font-mono text-zinc-500">{tier.period}</span>}
                     </div>
                   </div>
@@ -469,11 +469,11 @@ export default function PricingPage() {
 
                   <p className="text-xs font-mono text-zinc-400 leading-relaxed">{tier.description}</p>
 
-                  <div className="space-y-2 pt-2 border-t border-amber-500/10">
+                  <div className="space-y-2 pt-2 border-t border-gold-400/10">
                     <a
                       href={tier.ctaHref}
                       onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
-                      className="block text-center py-3 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs uppercase transition"
+                      className="block text-center py-3 bg-gold-400 hover:bg-gold-300 text-black font-mono font-bold text-xs uppercase transition"
                     >
                       {tier.cta}
                     </a>
@@ -486,18 +486,18 @@ export default function PricingPage() {
                           setSelectedPlan(tier.name);
                           setShowLeadCapture(true);
                         }}
-                        className="w-full text-center py-2 bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 font-mono font-bold text-xs uppercase transition"
+                        className="w-full text-center py-2 bg-zinc-900 border border-gold-400/30 hover:border-gold-400 text-gold-400 font-mono font-bold text-xs uppercase transition"
                       >
                         QUOTE_REQUEST
                       </button>
                     )}
                   </div>
 
-                  <div className="space-y-2 pt-4 border-t border-amber-500/10">
+                  <div className="space-y-2 pt-4 border-t border-gold-400/10">
                     {tier.features.map((feature) => (
                       <div key={feature.name} className="flex items-start gap-2 text-xs">
                         {feature.included ? (
-                          <span className="text-amber-500 font-bold">✓</span>
+                          <span className="text-gold-400 font-bold">✓</span>
                         ) : (
                           <span className="text-zinc-600">✗</span>
                         )}
@@ -517,9 +517,9 @@ export default function PricingPage() {
       {/* Volume Discount Section */}
       <ScrollReveal>
         <div className="max-w-4xl mx-auto px-6 pb-20">
-          <div className="bg-black border border-amber-500/30 p-8">
+          <div className="bg-black border border-gold-400/30 p-8">
             <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-3">ENTERPRISE</div>
-            <h2 className="text-2xl font-mono font-bold text-amber-500 mb-3">
+            <h2 className="text-2xl font-mono font-bold text-gold-400 mb-3">
               GOVERNING_100+_AGENTS
             </h2>
             <p className="text-zinc-400 font-mono text-sm mb-6 leading-relaxed">
@@ -529,7 +529,7 @@ export default function PricingPage() {
             <a
               href="/contact?subject=enterprise"
               onClick={() => analytics.ctaClick('volume_discount', 'talk_to_sales')}
-              className="inline-block bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 font-mono font-bold text-xs uppercase transition"
+              className="inline-block bg-gold-400 hover:bg-gold-300 text-black px-6 py-3 font-mono font-bold text-xs uppercase transition"
             >
               TALK_TO_SALES →
             </a>
@@ -541,7 +541,7 @@ export default function PricingPage() {
       <div className="max-w-3xl mx-auto px-6 pb-20">
         <ScrollReveal>
           <h2 className="text-3xl font-mono font-bold mb-12">
-            <span className="text-amber-500">FAQ</span>
+            <span className="text-gold-400">FAQ</span>
             <span className="text-zinc-500"> / PRICING_QUESTIONS</span>
           </h2>
         </ScrollReveal>
@@ -549,8 +549,8 @@ export default function PricingPage() {
         <div className="space-y-3">
           {faqs.map((faq, i) => (
             <ScrollReveal key={i} delay={i * 0.05}>
-              <div className="bg-black border border-amber-500/30 p-6">
-                <h3 className="font-mono font-bold mb-3 text-amber-500 text-sm">{faq.q}</h3>
+              <div className="bg-black border border-gold-400/30 p-6">
+                <h3 className="font-mono font-bold mb-3 text-gold-400 text-sm">{faq.q}</h3>
                 <p className="text-zinc-400 text-xs font-mono leading-relaxed">{faq.a}</p>
               </div>
             </ScrollReveal>
@@ -559,10 +559,10 @@ export default function PricingPage() {
 
         {/* Bottom CTA */}
         <ScrollReveal>
-        <div className="border-t border-amber-500/20 py-16">
+        <div className="border-t border-gold-400/20 py-16">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-3">Ready?</div>
-            <h2 className="text-3xl font-mono font-bold text-amber-500 mb-3">
+            <h2 className="text-3xl font-mono font-bold text-gold-400 mb-3">
               READY_TO_GOVERN_YOUR_AI_AGENTS
             </h2>
             <p className="text-zinc-400 font-mono text-sm mb-8 leading-relaxed">
@@ -572,14 +572,14 @@ export default function PricingPage() {
               <a 
                 href="/signup" 
                 onClick={() => analytics.ctaClick('pricing_bottom', 'start_free_trial')}
-                className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold text-xs uppercase transition"
+                className="bg-gold-400 hover:bg-gold-300 text-black px-8 py-4 font-mono font-bold text-xs uppercase transition"
               >
                 START_FREE_TRIAL →
               </a>
               <a 
                 href="/docs" 
                 onClick={() => analytics.ctaClick('pricing_bottom', 'read_docs')}
-                className="bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold text-xs uppercase transition"
+                className="bg-zinc-900 border border-gold-400/30 hover:border-gold-400 text-gold-400 px-8 py-4 font-mono font-bold text-xs uppercase transition"
               >
                 READ_DOCS
               </a>

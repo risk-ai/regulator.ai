@@ -168,7 +168,7 @@ const notificationAdapters = [
 const statusLabels = {
   live: { label: "Live", color: "emerald", bg: "emerald-500/10", border: "emerald-500/30" },
   compatible: { label: "Compatible", color: "blue", bg: "blue-500/10", border: "blue-500/30" },
-  coming: { label: "Coming Soon", color: "amber", bg: "amber-500/10", border: "amber-500/30" },
+  coming: { label: "Coming Soon", color: "gold", bg: "gold-400/10", border: "gold-400/30" },
 } as const;
 
 /* ============================================================
@@ -253,12 +253,12 @@ export default function IntegrationsPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-amber-500 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
               Get Started
             </a>
           </div>
@@ -285,7 +285,7 @@ export default function IntegrationsPage() {
         <section className="mb-20">
           <ScrollReveal delay={0.2}>
             <div className="flex items-center gap-3 mb-8">
-              <Code className="w-6 h-6 text-amber-500" />
+              <Code className="w-6 h-6 text-gold-400" />
               <h2 className="text-2xl font-bold text-white">Agent Frameworks</h2>
             </div>
           </ScrollReveal>
@@ -361,13 +361,13 @@ export default function IntegrationsPage() {
         {/* TypeScript SDK */}
         <section className="mb-20">
           <ScrollReveal delay={1.2}>
-            <div className="bg-gradient-to-br from-amber-900/20 to-navy-800 border border-amber-500/30 rounded-2xl p-8">
+            <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/30 rounded-2xl p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <Github className="w-8 h-8 text-amber-500" />
+                  <Github className="w-8 h-8 text-gold-400" />
                   <div>
                     <h3 className="text-2xl font-bold text-white">TypeScript SDK</h3>
-                    <p className="text-amber-500 font-mono text-sm">@vienna-os/sdk</p>
+                    <p className="text-gold-400 font-mono text-sm">@vienna-os/sdk</p>
                   </div>
                 </div>
                 <div className="px-4 py-2 rounded-full text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
@@ -423,7 +423,7 @@ console.log(\` Result: \${result.executionResult}\`);`}
               Check out our interactive API explorer to get started.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/try" className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-amber-500/25">
+              <a href="/try" className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25">
                 Try API Live <ArrowRight className="w-5 h-5" />
               </a>
               <a href="/docs" className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">

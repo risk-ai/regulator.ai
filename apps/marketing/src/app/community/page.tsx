@@ -88,7 +88,7 @@ export default function CommunityPage() {
       <div className="border-b border-navy-700">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-white font-bold text-lg">
-            <Shield className="w-5 h-5 text-amber-500" />
+            <Shield className="w-5 h-5 text-gold-400" />
             Vienna OS
           </a>
           <div className="flex items-center gap-6">
@@ -96,7 +96,7 @@ export default function CommunityPage() {
             <a href="/examples" className="text-sm text-slate-400 hover:text-white transition">Examples</a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 rounded-lg transition"
+              className="text-sm bg-gold-400 hover:bg-gold-300 text-white px-4 py-2 rounded-lg transition"
             >
               Console
             </a>
@@ -107,7 +107,7 @@ export default function CommunityPage() {
       {/* Hero */}
       <div className="max-w-6xl mx-auto px-6 pt-16 pb-12">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 text-amber-500 text-sm font-medium mb-4 bg-amber-500/10 px-4 py-2 rounded-full">
+          <div className="inline-flex items-center gap-2 text-gold-400 text-sm font-medium mb-4 bg-gold-400/10 px-4 py-2 rounded-full">
             <Users className="w-4 h-4" />
             Open Source Community
           </div>
@@ -128,14 +128,14 @@ export default function CommunityPage() {
               href={channel.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-navy-800 border border-navy-700 rounded-2xl p-8 hover:border-amber-500/30 transition group"
+              className="bg-navy-800 border border-navy-700 rounded-2xl p-8 hover:border-gold-400/30 transition group"
             >
               <div className={`w-14 h-14 ${channel.color} rounded-xl flex items-center justify-center mb-6`}>
                 <channel.icon className={`w-7 h-7 ${channel.textColor}`} />
               </div>
               <h2 className="text-xl font-bold text-white mb-2">{channel.name}</h2>
               <p className="text-slate-400 text-sm mb-6 leading-relaxed">{channel.description}</p>
-              <span className="inline-flex items-center gap-2 text-amber-500 text-sm font-medium group-hover:text-amber-400 transition">
+              <span className="inline-flex items-center gap-2 text-gold-400 text-sm font-medium group-hover:text-gold-300 transition">
                 {channel.cta}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
@@ -161,7 +161,7 @@ export default function CommunityPage() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-navy-800/50 border border-navy-700 rounded-xl p-6 hover:border-amber-500/20 transition"
+                className="bg-navy-800/50 border border-navy-700 rounded-xl p-6 hover:border-gold-400/20 transition"
               >
                 <span className="text-2xl mb-3 block">{item.icon}</span>
                 <h3 className="text-white font-semibold mb-1">{item.title}</h3>
@@ -172,7 +172,7 @@ export default function CommunityPage() {
         </div>
 
         {/* Open Source Stats */}
-        <div className="bg-gradient-to-r from-amber-900/30 to-blue-900/30 border border-amber-800/30 rounded-2xl p-12 text-center mb-16">
+        <div className="bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 rounded-2xl p-12 text-center mb-16">
           <h2 className="text-2xl font-bold text-white mb-3">Open Source at Heart</h2>
           <p className="text-slate-400 mb-8 max-w-lg mx-auto">
             Vienna OS core is open source. Inspect every line of the governance engine that controls your AI agents.
@@ -208,7 +208,7 @@ export default function CommunityPage() {
               href="https://github.com/risk-ai/vienna-os/blob/main/CODE_OF_CONDUCT.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-amber-500 hover:text-amber-400 transition"
+              className="text-gold-400 hover:text-gold-300 transition"
             >
               Code of Conduct
             </a>{" "}
@@ -222,7 +222,7 @@ export default function CommunityPage() {
         <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
           <span className="text-sm text-slate-500">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           <div className="flex items-center gap-1">
-            <Shield className="w-4 h-4 text-amber-500" />
+            <Shield className="w-4 h-4 text-gold-400" />
             <span className="text-sm text-slate-500">Vienna OS</span>
           </div>
         </div>

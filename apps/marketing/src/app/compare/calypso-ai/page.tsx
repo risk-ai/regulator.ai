@@ -48,9 +48,9 @@ export default function CalypsoAiPage() {
       {/* Key Difference */}
       <div className="max-w-5xl mx-auto px-6 pb-12">
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-6 text-center">
-            <Lock className="w-8 h-8 text-amber-500 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-amber-500 mb-2">Vienna OS</h3>
+          <div className="bg-gold-400/5 border border-gold-400/20 rounded-xl p-6 text-center">
+            <Lock className="w-8 h-8 text-gold-400 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-gold-400 mb-2">Vienna OS</h3>
             <p className="text-sm text-slate-300 mb-4">Runtime Execution Control</p>
             <p className="text-slate-400 text-sm">
               Agent wants to delete production data → Vienna checks risk tier → requires SRE approval → 
@@ -67,7 +67,7 @@ export default function CalypsoAiPage() {
               Model built → Calypso runs adversarial attacks → tests for prompt injection → 
               finds vulnerabilities → generates security report → recommends fixes
             </p>
-            <p className="mt-4 text-amber-400 text-sm font-medium">Vulnerabilities found before deploy, but no runtime control</p>
+            <p className="mt-4 text-gold-300 text-sm font-medium">Vulnerabilities found before deploy, but no runtime control</p>
           </div>
         </div>
         
@@ -93,7 +93,7 @@ export default function CalypsoAiPage() {
             do in production. Testing + control = complete AI security.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/try" className="px-6 py-3 bg-amber-500 hover:bg-amber-500 rounded-lg font-medium transition">
+            <Link href="/try" className="px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition">
               Try Vienna OS Demo
             </Link>
             <Link href="/use-cases" className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition">

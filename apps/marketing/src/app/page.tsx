@@ -318,9 +318,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <FileText className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Visual Policy Builder</h3>
+                <h3 className="text-xl font-bold mb-3">Natural Language Policies</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Define governance rules with point-and-click conditions. No code deployment needed. 11 operators for complex logic without engineering overhead.
+                  Write governance rules in plain English. Vienna compiles natural language into formal policy logic — no code, no YAML, no deployment pipeline. "Require CFO approval for wire transfers over $50K" just works.
                 </p>
               </div>
 
@@ -329,9 +329,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
                   <Shield className="w-6 h-6 text-amber-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cryptographic Audit Trail</h3>
+                <h3 className="text-xl font-bold mb-3">Merkle Warrant Chain</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Every authorization creates an HMAC-SHA256 signed audit record. Tamper-proof lineage from policy evaluation to execution completion.
+                  Every warrant is chained using Merkle trees, creating a tamper-proof governance history. If any record is altered, the entire chain breaks. Compliant with SOC 2, HIPAA, and EU AI Act audit requirements.
                 </p>
               </div>
 
@@ -340,9 +340,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6">
                   <Users className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Multi-Party Approvals</h3>
+                <h3 className="text-xl font-bold mb-3">Cross-Agent Delegation</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  High-risk actions require quorum-based human approval. Track who authorized what, when, and why with full audit context.
+                  Agents can delegate execution authority to other agents with cryptographic constraints — scope-limited, time-bound, revocable. Enables complex multi-agent workflows without losing governance control.
                 </p>
               </div>
 
@@ -351,9 +351,9 @@ export default function Home() {
                 <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center mb-6">
                   <Activity className="w-6 h-6 text-violet-500" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Real-Time Monitoring</h3>
+                <h3 className="text-xl font-bold mb-3">Policy Simulation</h3>
                 <p className="text-sm text-zinc-500 leading-relaxed">
-                  Live event streams for all agent activities, policy evaluations, and approval workflows. Server-sent events with sub-second latency.
+                  Dry-run policy changes against historical data before deploying. See exactly which past actions would have been blocked, approved, or escalated under the new rules. Zero production risk.
                 </p>
               </div>
             </div>
@@ -368,7 +368,7 @@ export default function Home() {
                 Integration
               </h2>
               <p className="text-zinc-400">
-                Native SDKs for Python, Node.js, and popular agentic frameworks.
+                Production-ready SDKs with full type safety. Submit intents, manage policies, and govern your fleet from any language.
               </p>
             </div>
 
@@ -406,7 +406,7 @@ export default function Home() {
                   Works With
                 </p>
                 <div className="grid grid-cols-2 gap-4">
-                  {['GitHub Actions', 'Terraform', 'LangChain', 'AutoGPT'].map((tool) => (
+                  {['GitHub Actions', 'Terraform', 'LangChain', 'CrewAI'].map((tool) => (
                     <div 
                       key={tool}
                       className="px-6 py-4 bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center font-display font-bold text-sm text-zinc-400 hover:text-white hover:border-zinc-700 transition-all"
@@ -428,7 +428,7 @@ export default function Home() {
                 Open Warrant Standard
               </h2>
               <p className="text-zinc-400">
-                Built on cryptographic primitives designed for autonomous systems at scale.
+                Vienna OS implements OWS v1.0 — a portable execution authorization protocol. Warrants are cross-platform, framework-agnostic, and cryptographically verifiable.
               </p>
             </div>
 
@@ -473,7 +473,7 @@ export default function Home() {
               Built for the <span className="text-zinc-500">Autonomous Era.</span>
             </h2>
             <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
-              Integrate Vienna OS into your agentic stack in minutes with our native SDKs for Python, Node.js, and Rust.
+              Integrate Vienna OS into your agentic stack in minutes. Native SDKs for Python and Node.js, plus GitHub Actions and Terraform integrations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a 

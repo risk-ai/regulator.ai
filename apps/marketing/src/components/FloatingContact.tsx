@@ -10,7 +10,7 @@ export default function FloatingContact() {
   return (
     <div className="fixed bottom-6 right-6 z-40">
       {isOpen ? (
-        <div className="bg-gradient-to-br from-navy-800 to-navy-900 border border-purple-500/30 rounded-2xl p-4 shadow-2xl min-w-[280px]">
+        <div className="bg-gradient-to-br from-navy-800 to-navy-900 border border-amber-500/30 rounded-2xl p-4 shadow-2xl min-w-[280px]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
@@ -35,7 +35,7 @@ export default function FloatingContact() {
                 analytics.ctaClick('floating_widget', 'schedule_demo');
                 setIsOpen(false);
               }}
-              className="flex items-center gap-2 w-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition"
+              className="flex items-center gap-2 w-full bg-amber-500 hover:bg-amber-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition"
             >
               <MessageCircle className="w-4 h-4" />
               Schedule Demo
@@ -64,7 +64,7 @@ export default function FloatingContact() {
             setIsOpen(true);
             analytics.ctaClick('floating_widget', 'open');
           }}
-          className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 animate-bounce"
+          className="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 animate-bounce"
         >
           <MessageCircle className="w-6 h-6" />
         </button>

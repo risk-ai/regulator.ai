@@ -60,7 +60,7 @@ export default function AboutPage() {
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
             <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-amber-500 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-amber-500 to-amber-400 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
@@ -161,7 +161,7 @@ export default function AboutPage() {
                   icon: Users,
                   title: "Agent Explosion",
                   desc: "Every major AI lab shipped agent frameworks in 2025-2026. 60%+ of Fortune 500 are experimenting. The governance gap is visible at scale.",
-                  color: "purple",
+                  color: "amber",
                 },
                 {
                   icon: Scale,
@@ -246,7 +246,7 @@ export default function AboutPage() {
                 { name: "law.ai", role: "First vertical customer (legal AI)", color: "amber" },
                 { name: "corporate.ai", role: "Distribution channel (vendor marketplace)", color: "blue" },
                 { name: "agents.net", role: "Agent certification marketplace", color: "emerald" },
-                { name: "risk.ai", role: "Complementary risk assessment", color: "purple" },
+                { name: "risk.ai", role: "Complementary risk assessment", color: "amber" },
               ].map((s) => (
                 <div key={s.name} className="bg-navy-800/70 border border-navy-600 rounded-xl p-4 text-center hover:bg-navy-700/70 transition-colors">
                   <div className={`text-lg font-bold text-${s.color}-400 mb-2`}>{s.name}</div>

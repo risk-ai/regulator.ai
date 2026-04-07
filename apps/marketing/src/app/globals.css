@@ -41,7 +41,7 @@ body {
    Design language: Regulatory Authority
    Not a tech startup. A governance institution.
    
-   Palette: Dark charcoal + purple governance + emerald verified + amber warrants
+   Palette: Dark charcoal + amber governance + emerald verified + amber warrants
    Typography: Inter (body) + JetBrains Mono (data) + Georgia (editorial)
    Textures: Subtle paper grain, seal stamps, document borders
    ============================ */
@@ -108,7 +108,7 @@ body {
   pointer-events: none;
 }
 
-/* Section divider — thin purple line */
+/* Section divider — thin amber line */
 .section-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.15), transparent);
@@ -144,7 +144,7 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(180, 170, 160, 0.12); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(180, 170, 160, 0.2); }
 
-/* Focus: purple authority */
+/* Focus: amber authority */
 input:focus, textarea:focus, select:focus {
   border-color: rgba(124, 58, 237, 0.4) !important;
   box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.08);
@@ -292,7 +292,7 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* Selection: purple highlight */
+/* Selection: amber highlight */
 ::selection { background: rgba(124, 58, 237, 0.2); color: #fff; }
 
 /* Data row */

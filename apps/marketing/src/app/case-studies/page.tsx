@@ -194,7 +194,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       timeline: "10-12 weeks implementation + bar association review"
     },
     icon: "",
-    color: "purple"
+    color: "amber"
   },
   {
     id: "devops-deployment",
@@ -262,7 +262,7 @@ export default function UseCasesPage() {
   const colorClasses = {
     blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
     green: "border-green-500/30 bg-green-500/5 text-green-400",
-    purple: "border-amber-500/30 bg-amber-500/5 text-amber-500",
+    amber: "border-amber-500/30 bg-amber-500/5 text-amber-500",
     orange: "border-orange-500/30 bg-orange-500/5 text-orange-400",
     red: "border-red-500/30 bg-red-500/5 text-red-400",
   };

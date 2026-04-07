@@ -79,7 +79,7 @@ export default function LeadCaptureModal({ isOpen, onClose, trigger, plan }: Lea
       />
       
       {/* Modal */}
-      <div className="relative bg-gradient-to-br from-navy-800 to-navy-900 border border-purple-500/30 rounded-2xl p-6 max-w-md w-full shadow-xl">
+      <div className="relative bg-gradient-to-br from-navy-800 to-navy-900 border border-amber-500/30 rounded-2xl p-6 max-w-md w-full shadow-xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-white transition"
@@ -90,7 +90,7 @@ export default function LeadCaptureModal({ isOpen, onClose, trigger, plan }: Lea
         {!isSubmitted ? (
           <>
             <div className="flex items-center gap-3 mb-4">
-              <Zap className="w-6 h-6 text-purple-400" />
+              <Zap className="w-6 h-6 text-amber-500" />
               <h3 className="text-xl font-semibold text-white">
                 {plan ? `Interested in ${plan}?` : "Get Early Access"}
               </h3>
@@ -113,7 +113,7 @@ export default function LeadCaptureModal({ isOpen, onClose, trigger, plan }: Lea
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-navy-700/50 border border-navy-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-navy-700/50 border border-navy-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="you@company.com"
                   required
                 />
@@ -127,7 +127,7 @@ export default function LeadCaptureModal({ isOpen, onClose, trigger, plan }: Lea
                   id="interest"
                   value={interest}
                   onChange={(e) => setInterest(e.target.value)}
-                  className="w-full px-4 py-3 bg-navy-700/50 border border-navy-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-navy-700/50 border border-navy-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="e.g., Governing LangChain agents in production, SOC 2 compliance..."
                   rows={3}
                 />
@@ -136,7 +136,7 @@ export default function LeadCaptureModal({ isOpen, onClose, trigger, plan }: Lea
               <button
                 type="submit"
                 disabled={isSubmitting || !email}
-                className="w-full bg-purple-600 hover:bg-purple-500 disabled:bg-purple-800 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2"
+                className="w-full bg-amber-500 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   "Submitting..."

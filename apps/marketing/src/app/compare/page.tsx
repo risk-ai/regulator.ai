@@ -238,7 +238,7 @@ export default function ComparePage() {
             { layer: "Documentation", tool: "Credo AI", desc: "Generates compliance reports after the fact", color: "slate", active: false },
             { layer: "Observability", tool: "Arthur AI", desc: "Monitors model performance and drift", color: "blue", active: false },
             { layer: "Prompt Filtering", tool: "Guardrails AI", desc: "Validates LLM inputs and outputs", color: "amber", active: false },
-            { layer: "Execution Control", tool: "Vienna OS", desc: "Enforces authorization before any action", color: "purple", active: true },
+            { layer: "Execution Control", tool: "Vienna OS", desc: "Enforces authorization before any action", color: "amber", active: true },
           ].map((l) => (
             <div
               key={l.layer}

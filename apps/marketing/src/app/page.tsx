@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import {
   Shield,
   FileText,
@@ -11,15 +11,13 @@ import {
   Users,
   Lock,
   Code2,
-  Menu,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   useEffect(() => {
     analytics.page("Homepage");
   }, []);
@@ -34,63 +32,7 @@ export default function Home() {
         }}
       ></div>
 
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-black/50 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white flex items-center justify-center rounded-lg">
-              <Shield className="w-5 h-5 text-black" />
-            </div>
-            <span className="font-display text-xl font-bold tracking-tight">VIENNA OS</span>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-            <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
-            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-            <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
-            <Link href="/enterprise" className="hover:text-white transition-colors">Enterprise</Link>
-            <Link href="/try" className="hover:text-white transition-colors">Try</Link>
-            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-              GitHub
-            </a>
-          </nav>
-
-          <div className="hidden md:flex items-center gap-4">
-            <a href="https://console.regulator.ai" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
-              Sign In
-            </a>
-            <a href="https://console.regulator.ai/signup" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors">
-              Sign Up
-            </a>
-            <a href="https://console.regulator.ai/signup" className="bg-white text-black text-sm font-bold px-5 py-2 rounded-full hover:bg-zinc-200 transition-all">
-              Start Free Trial
-            </a>
-          </div>
-
-          <button 
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-black border-t border-white/5 px-6 py-4 space-y-3">
-            <Link href="/docs" className="block text-sm text-zinc-400">Docs</Link>
-            <Link href="/pricing" className="block text-sm text-zinc-400">Pricing</Link>
-            <Link href="/compare" className="block text-sm text-zinc-400">Compare</Link>
-            <Link href="/enterprise" className="block text-sm text-zinc-400">Enterprise</Link>
-            <Link href="/try" className="block text-sm text-zinc-400">Try</Link>
-            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="block text-sm text-zinc-400">GitHub</a>
-            <a href="https://console.regulator.ai" className="block text-sm text-zinc-400">Sign In</a>
-            <a href="https://console.regulator.ai/signup" className="block text-sm text-zinc-400">Sign Up</a>
-            <a href="https://console.regulator.ai/signup" className="block px-5 py-2 bg-white text-black text-sm font-bold rounded-full text-center">
-              Start Free Trial
-            </a>
-          </div>
-        )}
-      </header>
+      <SiteNav />
 
       <main className="flex-1">
         {/* HERO SECTION */}
@@ -551,83 +493,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="py-16 border-t border-white/5 bg-zinc-950">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
-            {/* Product Column */}
-            <div>
-              <h4 className="font-display font-bold text-sm mb-4 text-white">Product</h4>
-              <ul className="space-y-3 text-sm text-zinc-500">
-                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="/sdk" className="hover:text-white transition-colors">SDK</Link></li>
-                <li><Link href="/try" className="hover:text-white transition-colors">Try Demo</Link></li>
-                <li><Link href="/examples" className="hover:text-white transition-colors">Examples</Link></li>
-                <li><Link href="/integrations" className="hover:text-white transition-colors">Integrations</Link></li>
-              </ul>
-            </div>
-
-            {/* Company Column */}
-            <div>
-              <h4 className="font-display font-bold text-sm mb-4 text-white">Company</h4>
-              <ul className="space-y-3 text-sm text-zinc-500">
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
-                <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
-                <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
-              </ul>
-            </div>
-
-            {/* Compare Column */}
-            <div>
-              <h4 className="font-display font-bold text-sm mb-4 text-white">Compare</h4>
-              <ul className="space-y-3 text-sm text-zinc-500">
-                <li><Link href="/compare" className="hover:text-white transition-colors">Overview</Link></li>
-                <li><Link href="/compare/guardrails-ai" className="hover:text-white transition-colors">vs Guardrails AI</Link></li>
-                <li><Link href="/compare/credo-ai" className="hover:text-white transition-colors">vs Credo AI</Link></li>
-                <li><Link href="/compare/arthur-ai" className="hover:text-white transition-colors">vs Arthur AI</Link></li>
-                <li><Link href="/compare/holistic-ai" className="hover:text-white transition-colors">vs Holistic AI</Link></li>
-                <li><Link href="/compare/calypso-ai" className="hover:text-white transition-colors">vs Calypso AI</Link></li>
-              </ul>
-            </div>
-
-            {/* Legal Column */}
-            <div>
-              <h4 className="font-display font-bold text-sm mb-4 text-white">Legal</h4>
-              <ul className="space-y-3 text-sm text-zinc-500">
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
-                <li>
-                  <a 
-                    href="https://github.com/risk-ai/vienna-os" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="hover:text-white transition-colors"
-                  >
-                    GitHub
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-white/10 flex items-center justify-center rounded">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-display font-bold text-lg">VIENNA OS</span>
-            </div>
-            <p className="text-xs text-zinc-600 font-mono">
-              © 2026 Vienna Technologies Inc. Cryptographically Audited.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -4,7 +4,7 @@
 export interface ViennaConfig {
   /** API key for authentication (starts with `vna_`). */
   apiKey: string;
-  /** Base URL of the Vienna OS API. Defaults to `https://vienna-os.fly.dev`. */
+  /** Base URL of the Vienna OS API. Defaults to `https://console.regulator.ai`. */
   baseUrl?: string;
   /** Request timeout in milliseconds. Defaults to `30000`. */
   timeout?: number;

@@ -13,7 +13,7 @@ import {
 export const SDK_VERSION = '0.1.0';
 
 /** Default base URL for the Vienna OS API. */
-export const DEFAULT_BASE_URL = 'https://vienna-os.fly.dev';
+export const DEFAULT_BASE_URL = 'https://console.regulator.ai';
 
 /** Default request timeout in milliseconds. */
 export const DEFAULT_TIMEOUT = 30_000;

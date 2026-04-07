@@ -54,7 +54,7 @@ const releases = [
       { type: "feat", text: "TypeScript SDK (@vienna-os/sdk)" },
       { type: "feat", text: "Python SDK (vienna-os)" },
       { type: "docs", text: "OpenAPI 3.1 specification" },
-      { type: "feat", text: "NUC deployment + Cloudflare Tunnel" },
+      { type: "feat", text: "Vercel serverless deployment" },
       { type: "feat", text: "Visual Policy Builder with IF/THEN conditions" },
       { type: "feat", text: "Agent Fleet Dashboard with real-time monitoring" },
       { type: "feat", text: "Multi-tenant auth with operator registration" },

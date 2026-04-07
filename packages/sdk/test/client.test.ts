@@ -126,7 +126,7 @@ describe('Vienna SDK Client', () => {
       assert.strictEqual(mockFetch.mock.callCount(), 1);
       
       const [url, options] = mockFetch.mock.calls[0].arguments;
-      assert.strictEqual(url, 'https://vienna-os.fly.dev/api/v1/test');
+      assert.strictEqual(url, 'https://console.regulator.ai/api/v1/test');
       assert.strictEqual(options.method, 'GET');
       assert.strictEqual(options.headers['X-Vienna-Api-Key'], 'vna_test_key_123');
       assert.strictEqual(options.headers['X-Vienna-SDK-Version'], '0.1.0');

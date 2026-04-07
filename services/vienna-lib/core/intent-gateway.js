@@ -868,7 +868,7 @@ class IntentGateway {
         const http = require('http');
 
         const endpoint = target === 'vienna_backend' 
-          ? 'https://vienna-os.fly.dev/health'
+          ? 'https://console.regulator.ai/health'
           : intent.payload.endpoint;
 
         if (!endpoint) {

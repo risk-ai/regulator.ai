@@ -11,7 +11,7 @@ async function main() {
   // Initialize the Vienna client
   const vienna = new ViennaClient({
     apiKey: process.env.VIENNA_API_KEY!,
-    baseUrl: 'https://vienna-os.fly.dev', // Optional, defaults to production
+    baseUrl: 'https://console.regulator.ai', // Optional, defaults to production
   });
 
   try {

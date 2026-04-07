@@ -29,7 +29,7 @@ export const viewLogsHandler: ExecutionHandler = {
       const allowedServices = [
         'vienna-console-server',
         'vienna-console-client',
-        'cloudflared-console',
+        
       ];
       
       if (!allowedServices.includes(service)) {

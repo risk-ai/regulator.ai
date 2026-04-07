@@ -80,17 +80,6 @@ export function createSystemHealthRouter() {
         started_at: new Date(Date.now() - process.uptime() * 1000).toISOString(),
       };
 
-      // Tunnel check (if configured)
-      try {
-        const { stdout } = await execAsync('systemctl is-active cloudflared-vienna 2>&1');
-        health.checks.tunnel = {
-          status: stdout.trim() === 'active' ? 'healthy' : 'inactive',
-        };
-      } catch (error) {
-        health.checks.tunnel = {
-          status: 'unknown',
-        };
-      }
 
       res.json({
         success: true,

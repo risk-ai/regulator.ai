@@ -7,7 +7,7 @@ export const config = {
   path: '/api/*',
 };
 
-const BACKEND_URL = 'https://conservation-vital-membrane-ssl.trycloudflare.com';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://console.regulator.ai';
 
 export default async function handler(req: Request) {
   const url = new URL(req.url);

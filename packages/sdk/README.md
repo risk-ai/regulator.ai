@@ -226,7 +226,7 @@ const stats = await vienna.compliance.quickStats({ days: 30 });
 ```typescript
 const vienna = new ViennaClient({
   apiKey: 'vna_your_api_key',           // Required
-  baseUrl: 'https://vienna-os.fly.dev', // Optional
+  baseUrl: 'https://console.regulator.ai', // Optional
   timeout: 30000,                       // Optional, default 30s
   retries: 3,                          // Optional, default 3
   onError: (error) => {                // Optional global error handler

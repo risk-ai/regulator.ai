@@ -9,10 +9,10 @@ description = "Official Python SDK for Vienna OS - AI Agent Governance Platform"
 readme = "README.md"
 license = "MIT"
 authors = [
-    { name = "Vienna OS", email = "sdk@vienna-os.dev" }
+    { name = "Vienna OS", email = "sdk@regulator.ai" }
 ]
 maintainers = [
-    { name = "Vienna OS", email = "sdk@vienna-os.dev" }
+    { name = "Vienna OS", email = "sdk@regulator.ai" }
 ]
 keywords = ["ai", "governance", "agents", "compliance", "policy"]
 classifiers = [
@@ -53,8 +53,8 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://vienna-os.dev"
-Documentation = "https://docs.vienna-os.dev"
+Homepage = "https://regulator.ai"
+Documentation = "https://regulator.ai/docs"
 Repository = "https://github.com/vienna-os/python-sdk"
 "Bug Tracker" = "https://github.com/vienna-os/python-sdk/issues"
 

@@ -11,7 +11,7 @@ class ViennaConfig(BaseModel):
     
     api_key: str = Field(..., description="API key for authentication (starts with 'vna_')")
     base_url: str = Field(
-        default="https://vienna-os.fly.dev", 
+        default="https://console.regulator.ai", 
         description="Base URL of the Vienna OS API"
     )
     timeout: int = Field(default=30000, description="Request timeout in milliseconds")

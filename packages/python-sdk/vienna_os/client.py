@@ -398,14 +398,14 @@ class ViennaClientLegacy(ViennaClient):
         """Initialize with legacy config format."""
         if config is not None:
             super().__init__(
-                base_url=config.get('base_url', 'https://vienna-os.fly.dev'),
+                base_url=config.get('base_url', 'https://console.regulator.ai'),
                 agent_id=config.get('agent_id', ''),
                 api_key=config.get('api_key'),
                 timeout=config.get('timeout', DEFAULT_TIMEOUT),
             )
         elif api_key is not None:
             super().__init__(
-                base_url=kwargs.get('base_url', 'https://vienna-os.fly.dev'),
+                base_url=kwargs.get('base_url', 'https://console.regulator.ai'),
                 agent_id=kwargs.get('agent_id', ''),
                 api_key=api_key,
                 timeout=kwargs.get('timeout', DEFAULT_TIMEOUT),

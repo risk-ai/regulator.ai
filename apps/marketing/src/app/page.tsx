@@ -11,6 +11,12 @@ import {
   Users,
   Lock,
   Code2,
+  AlertTriangle,
+  Terminal,
+  BadgeCheck,
+  Building2,
+  Wrench,
+  Scale,
 } from "lucide-react";
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
@@ -60,7 +66,7 @@ export default function Home() {
                   href="https://console.regulator.ai/signup" 
                   className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all group"
                 >
-                  Deploy Your Policy
+                  Start Free — No Credit Card
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
                 <Link 
@@ -463,7 +469,209 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA SECTION */}
+        {/* BEFORE/AFTER SCENARIO */}
+        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                What Happens Without Governance
+              </h2>
+              <p className="text-zinc-400">
+                The difference between a governed agent and an ungoverned one is the difference between confidence and liability.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Without */}
+              <div className="p-8 rounded-2xl bg-red-500/5 border border-red-500/20">
+                <div className="flex items-center gap-3 mb-6">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
+                  <span className="text-sm font-mono text-red-400 uppercase tracking-wider">Without Vienna</span>
+                </div>
+                <div className="space-y-4 text-sm text-zinc-400">
+                  <div className="flex gap-3">
+                    <span className="text-red-500 font-mono text-xs mt-1">03:14 AM</span>
+                    <p>Billing agent processes $200K refund. No approval required.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-red-500 font-mono text-xs mt-1">03:14 AM</span>
+                    <p>Funds transferred. No audit trail. No rollback.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-red-500 font-mono text-xs mt-1">09:00 AM</span>
+                    <p className="text-red-400 font-medium">CFO finds out Monday morning.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* With */}
+              <div className="p-8 rounded-2xl bg-green-500/5 border border-green-500/20">
+                <div className="flex items-center gap-3 mb-6">
+                  <Shield className="w-6 h-6 text-green-500" />
+                  <span className="text-sm font-mono text-green-400 uppercase tracking-wider">With Vienna</span>
+                </div>
+                <div className="space-y-4 text-sm text-zinc-400">
+                  <div className="flex gap-3">
+                    <span className="text-green-500 font-mono text-xs mt-1">03:14 AM</span>
+                    <p>Agent submits refund intent. Vienna classifies as <span className="text-amber-400">T2</span>.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-green-500 font-mono text-xs mt-1">03:14 AM</span>
+                    <p>Policy requires CFO approval for transactions {'>'}$50K. Warrant held.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <span className="text-green-500 font-mono text-xs mt-1">09:15 AM</span>
+                    <p className="text-green-400 font-medium">CFO reviews, approves. Warrant issued. Refund processed with full audit chain.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* QUICKSTART */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Running in 5 Minutes
+              </h2>
+              <p className="text-zinc-400">
+                Three commands. No infrastructure. See governance in action immediately.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <Terminal className="w-5 h-5 text-amber-500" />
+                  <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Terminal</span>
+                </div>
+                <div className="bg-black/40 p-6 rounded-lg font-mono text-sm text-zinc-300 space-y-2">
+                  <div><span className="text-zinc-500">$</span> git clone https://github.com/risk-ai/regulator.ai</div>
+                  <div><span className="text-zinc-500">$</span> cd regulator.ai/examples/quickstart</div>
+                  <div><span className="text-zinc-500">$</span> VIENNA_API_KEY=vos_xxx node index.js</div>
+                  <div className="pt-4 border-t border-white/5 text-green-400 text-xs">
+                    <div>✓ Policy evaluated: T1 (auto-approved)</div>
+                    <div>✓ Warrant issued: wrt_7f3a...82b1</div>
+                    <div>✓ Execution verified, audit logged</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-violet-400 font-bold font-mono">1</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-1">Sign up for free</h3>
+                    <p className="text-sm text-zinc-500">Get an API key at console.regulator.ai. No credit card required.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-violet-400 font-bold font-mono">2</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-1">Define your first policy</h3>
+                    <p className="text-sm text-zinc-500">Write it in plain English or use the visual builder. Vienna handles the rest.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-violet-400 font-bold font-mono">3</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold mb-1">Submit your first intent</h3>
+                    <p className="text-sm text-zinc-500">Watch it flow through the governance pipeline in real-time.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* COMPLIANCE AS BUYING TRIGGER */}
+        <section className="py-24 bg-zinc-950/50 border-y border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Audit-Ready from Day One
+              </h2>
+              <p className="text-zinc-400">
+                When your auditor asks "how do you control what your AI agents can do?" — Vienna is the answer.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <Scale className="w-8 h-8 text-violet-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2">EU AI Act</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Article 14 requires human oversight of high-risk AI. Vienna&apos;s tiered approval system with cryptographic audit trails satisfies this by design.
+                </p>
+              </div>
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <BadgeCheck className="w-8 h-8 text-violet-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2">SOC 2 Type II</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Every action produces a signed, timestamped record in the Merkle chain. Export your audit trail as compliance evidence with one API call.
+                </p>
+              </div>
+              <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5">
+                <Shield className="w-8 h-8 text-violet-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2">SEC / FINRA</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Financial agents require pre-trade authorization and post-trade reporting. Vienna&apos;s warrant system provides cryptographic proof of both.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* WHO USES THIS — USE CASE PERSONAS */}
+        <section className="py-24 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-16 max-w-2xl">
+              <h2 className="text-4xl font-display font-bold mb-4 tracking-tight">
+                Built for Your Role
+              </h2>
+              <p className="text-zinc-400">
+                Different teams, same governance platform.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <Link href="/use-cases" className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-violet-500/30 transition-all group">
+                <Wrench className="w-8 h-8 text-amber-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2 group-hover:text-violet-400 transition-colors">DevOps Lead</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  &ldquo;I need deployment agents that can&apos;t push to prod without CI passing and team lead approval.&rdquo;
+                </p>
+                <span className="text-xs text-violet-400 font-mono">View use cases →</span>
+              </Link>
+              <Link href="/use-cases" className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-violet-500/30 transition-all group">
+                <Scale className="w-8 h-8 text-amber-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2 group-hover:text-violet-400 transition-colors">Compliance Officer</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  &ldquo;I need an audit trail that proves our AI systems follow policy — exportable, signed, tamper-proof.&rdquo;
+                </p>
+                <span className="text-xs text-violet-400 font-mono">View use cases →</span>
+              </Link>
+              <Link href="/use-cases" className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-violet-500/30 transition-all group">
+                <Building2 className="w-8 h-8 text-amber-500 mb-4" />
+                <h3 className="text-lg font-bold mb-2 group-hover:text-violet-400 transition-colors">CTO</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed mb-4">
+                  &ldquo;I need to give agents more autonomy without more risk. Scale the fleet, not the oversight team.&rdquo;
+                </p>
+                <span className="text-xs text-violet-400 font-mono">View use cases →</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA SECTION — UPDATED */}
         <section className="py-32">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <div className="inline-block p-4 rounded-2xl bg-gradient-to-br from-violet-600 to-amber-500 mb-8">
@@ -472,23 +680,29 @@ export default function Home() {
             <h2 className="text-5xl md:text-6xl font-display font-bold tracking-tight mb-8">
               Built for the <span className="text-zinc-500">Autonomous Era.</span>
             </h2>
-            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
-              Integrate Vienna OS into your agentic stack in minutes. Native SDKs for Python and Node.js, plus GitHub Actions and Terraform integrations.
+            <p className="text-xl text-zinc-400 max-w-2xl mx-auto mb-4">
+              Start governing your AI agents today. Free forever for small teams.
+            </p>
+            <p className="text-sm text-zinc-500 mb-12">
+              Free tier: 5 agents, 1,000 evaluations/month, full governance pipeline. No credit card.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a 
                 href="https://console.regulator.ai/signup" 
                 className="w-full sm:w-auto px-10 py-5 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all"
               >
-                Get Started Now
+                Start Free — No Credit Card
               </a>
               <Link 
                 href="/try"
                 className="w-full sm:w-auto px-10 py-5 bg-zinc-900 border border-white/10 text-white font-bold rounded-2xl hover:bg-zinc-800 transition-all"
               >
-                Watch Demo
+                Try Interactive Demo
               </Link>
             </div>
+            <p className="mt-8 text-xs text-zinc-600">
+              The only AI governance platform with a patented cryptographic warrant system. USPTO #64/018,152.
+            </p>
           </div>
         </section>
       </main>

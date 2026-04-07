@@ -576,3 +576,45 @@ input:focus, textarea:focus, select:focus {
 .scroll-reveal .stagger-4 { transition-delay: 0.4s; }
 .scroll-reveal .stagger-5 { transition-delay: 0.5s; }
 .scroll-reveal .stagger-6 { transition-delay: 0.6s; }
+
+/* === ENHANCED VISUAL DEPTH === */
+
+/* Gradient line connector */
+.pipeline-connector {
+  position: relative;
+}
+.pipeline-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -1.5rem;
+  width: 3rem;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.4), rgba(245, 158, 11, 0.4));
+}
+
+/* Card glow on hover */
+.card-glow:hover {
+  box-shadow: 0 0 40px -12px rgba(139, 92, 246, 0.15);
+}
+
+/* Animated gradient border */
+@keyframes border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.border-gradient-animated {
+  background: linear-gradient(90deg, rgba(139,92,246,0.3), rgba(245,158,11,0.3), rgba(139,92,246,0.3));
+  background-size: 200% auto;
+  animation: border-flow 4s ease infinite;
+}
+
+/* Subtle grid background for depth */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

@@ -67,7 +67,7 @@ export default function Home() {
         <section className="pt-20 pb-32 px-6 relative z-10">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Column: Text */}
-            <div className="space-y-8">
+            <div className="space-y-8 overflow-hidden">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20">
                 <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500">
@@ -75,7 +75,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-5xl md:text-6xl font-mono font-bold tracking-tight leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight leading-tight break-words">
                 <span className="text-amber-500">GOVERN_AUTONOMOUS_AI_OPERATIONS</span>
                 <br />
                 <span className="text-zinc-500">/ WITH_SIGNED_WARRANTS</span>

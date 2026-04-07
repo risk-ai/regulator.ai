@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import {
   Shield,
   FileText,
@@ -20,8 +22,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
-import SiteNav from "@/components/SiteNav";
-import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
   useEffect(() => {
@@ -38,8 +38,8 @@ export default function Home() {
         }}
       ></div>
 
-      <SiteNav />
 
+      <SiteNav />
       <main className="flex-1">
         {/* HERO SECTION */}
         <section className="pt-20 pb-32 px-6 relative z-10">

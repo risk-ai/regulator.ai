@@ -18,7 +18,7 @@
 
 ### Week of April 7
 - [x] Mon: "What happens when your AI agent makes a $50K mistake at 3 AM?" (hook → solution) ✅ Posted 2041158053395832893
-- [ ] Tue: Thread — "5 real AI agent disasters and how governance would have prevented each one"
+- [x] Tue: Thread — "5 real AI agent disasters and how governance would have prevented each one" ✅ Posted 2041520160209510887
 - [ ] Wed: Code snippet — minimal Vienna OS integration (before/after)
 - [ ] Thu: Thread — "Policy-as-code for AI agents: a practical guide"
 - [ ] Fri: "Every SOC 2 auditor will eventually ask: how do you govern your AI agents?"

@@ -19,7 +19,7 @@ export function createOWSRouter(): Router {
   router.get('/spec', async (_req: Request, res: Response) => {
     try {
       const { OpenWarrantStandard } = await import(
-        '../../../../../services/vienna-lib/governance/open-warrant-standard.js'
+        '@vienna-lib/governance/open-warrant-standard.js'
       );
       const spec = OpenWarrantStandard.getSpecification();
 
@@ -54,7 +54,7 @@ export function createOWSRouter(): Router {
 
       // Parse without verification first to show the claims
       const { OpenWarrantStandard } = await import(
-        '../../../../../services/vienna-lib/governance/open-warrant-standard.js'
+        '@vienna-lib/governance/open-warrant-standard.js'
       );
       const ows = new OpenWarrantStandard();
 
@@ -134,7 +134,7 @@ export function createOWSRouter(): Router {
 
       // Create OWS instance with server signing key
       const { OpenWarrantStandard } = await import(
-        '../../../../../services/vienna-lib/governance/open-warrant-standard.js'
+        '@vienna-lib/governance/open-warrant-standard.js'
       );
       const ows = new OpenWarrantStandard();
       

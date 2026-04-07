@@ -23,7 +23,7 @@ export function createNLPolicyRouter(): Router {
       }
 
       const { NaturalLanguagePolicyBuilder } = await import(
-        '../../../../../services/vienna-lib/governance/natural-language-policy-builder.js'
+        '@vienna-lib/governance/natural-language-policy-builder.js'
       );
 
       const builder = new NaturalLanguagePolicyBuilder();
@@ -56,7 +56,7 @@ export function createNLPolicyRouter(): Router {
       }
 
       const { NaturalLanguagePolicyBuilder } = await import(
-        '../../../../../services/vienna-lib/governance/natural-language-policy-builder.js'
+        '@vienna-lib/governance/natural-language-policy-builder.js'
       );
 
       const builder = new NaturalLanguagePolicyBuilder();

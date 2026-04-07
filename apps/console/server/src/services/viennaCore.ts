@@ -88,7 +88,7 @@ export async function initializeViennaCore(config?: {
   const warrantAdapter = new WarrantAdapter(process.env.VIENNA_TENANT_ID || 'default');
   
   // Import Warrant dynamically (CommonJS module)
-  const WarrantModule = await import('../../../../../services/vienna-lib/governance/warrant.js');
+  const WarrantModule = await import('@vienna-lib/governance/warrant.js');
   const WarrantClass = WarrantModule.default || WarrantModule;
   
   const warrant = new WarrantClass(warrantAdapter, {

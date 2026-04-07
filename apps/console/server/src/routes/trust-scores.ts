@@ -46,7 +46,7 @@ export function createTrustScoreRouter(): Router {
       }).filter((e: any) => e.agent_id);
 
       const { AgentTrustEngine } = await import(
-        '../../../../../services/vienna-lib/governance/agent-trust-score.js'
+        '@vienna-lib/governance/agent-trust-score.js'
       );
 
       const engine = new AgentTrustEngine();
@@ -114,7 +114,7 @@ export function createTrustScoreRouter(): Router {
       });
 
       const { AgentTrustEngine } = await import(
-        '../../../../../services/vienna-lib/governance/agent-trust-score.js'
+        '@vienna-lib/governance/agent-trust-score.js'
       );
 
       const engine = new AgentTrustEngine();

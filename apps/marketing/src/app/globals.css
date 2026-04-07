@@ -458,3 +458,163 @@ input:focus, textarea:focus, select:focus {
     transform: translateY(-2px);
   }
 }
+
+/* === HOMEPAGE ANIMATIONS === */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(139, 92, 246, 0.15); }
+}
+
+@keyframes draw-line {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-fade-up { animation: fadeInUp 0.6s ease-out both; }
+.animate-fade-left { animation: fadeInLeft 0.6s ease-out both; }
+.animate-fade-right { animation: fadeInRight 0.6s ease-out both; }
+.animate-shimmer { 
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite; 
+}
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* Staggered delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+}
+
+/* === SCROLL-TRIGGERED ANIMATIONS === */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal.scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-left.scroll-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-right.scroll-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal-scale.scroll-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered children */
+.scroll-reveal .stagger-1 { transition-delay: 0.1s; }
+.scroll-reveal .stagger-2 { transition-delay: 0.2s; }
+.scroll-reveal .stagger-3 { transition-delay: 0.3s; }
+.scroll-reveal .stagger-4 { transition-delay: 0.4s; }
+.scroll-reveal .stagger-5 { transition-delay: 0.5s; }
+.scroll-reveal .stagger-6 { transition-delay: 0.6s; }
+
+/* === ENHANCED VISUAL DEPTH === */
+
+/* Gradient line connector */
+.pipeline-connector {
+  position: relative;
+}
+.pipeline-connector::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -1.5rem;
+  width: 3rem;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.4), rgba(245, 158, 11, 0.4));
+}
+
+/* Card glow on hover */
+.card-glow:hover {
+  box-shadow: 0 0 40px -12px rgba(139, 92, 246, 0.15);
+}
+
+/* Animated gradient border */
+@keyframes border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.border-gradient-animated {
+  background: linear-gradient(90deg, rgba(139,92,246,0.3), rgba(245,158,11,0.3), rgba(139,92,246,0.3));
+  background-size: 200% auto;
+  animation: border-flow 4s ease infinite;
+}
+
+/* Subtle grid background for depth */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

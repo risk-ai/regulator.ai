@@ -78,11 +78,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={1} max={100} value={agents}
                 onChange={(e) => setAgents(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">1</span>
-                <span className="text-violet-400 font-medium">{agents} agents</span>
+                <span className="text-gold-400 font-medium">{agents} agents</span>
                 <span className="text-slate-500">100</span>
               </div>
             </div>
@@ -92,11 +92,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={50} max={10000} step={50} value={actionsPerDay}
                 onChange={(e) => setActionsPerDay(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">50</span>
-                <span className="text-violet-400 font-medium">{actionsPerDay.toLocaleString()}/day</span>
+                <span className="text-gold-400 font-medium">{actionsPerDay.toLocaleString()}/day</span>
                 <span className="text-slate-500">10K</span>
               </div>
             </div>
@@ -106,11 +106,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={5000} max={500000} step={5000} value={avgIncidentCost}
                 onChange={(e) => setAvgIncidentCost(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">$5K</span>
-                <span className="text-violet-400 font-medium">{fmt(avgIncidentCost)}</span>
+                <span className="text-gold-400 font-medium">{fmt(avgIncidentCost)}</span>
                 <span className="text-slate-500">$500K</span>
               </div>
             </div>
@@ -120,11 +120,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={1} max={24} value={incidentsPerYear}
                 onChange={(e) => setIncidentsPerYear(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">1</span>
-                <span className="text-violet-400 font-medium">{incidentsPerYear}/year</span>
+                <span className="text-gold-400 font-medium">{incidentsPerYear}/year</span>
                 <span className="text-slate-500">24</span>
               </div>
             </div>
@@ -134,11 +134,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={0} max={80} value={complianceHoursPerWeek}
                 onChange={(e) => setComplianceHoursPerWeek(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">0</span>
-                <span className="text-violet-400 font-medium">{complianceHoursPerWeek} hrs/week</span>
+                <span className="text-gold-400 font-medium">{complianceHoursPerWeek} hrs/week</span>
                 <span className="text-slate-500">80</span>
               </div>
             </div>
@@ -148,11 +148,11 @@ export default function ROICalculator() {
               <input
                 type="range" min={50} max={400} step={10} value={hourlyRate}
                 onChange={(e) => setHourlyRate(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-gold-400"
               />
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-500">$50</span>
-                <span className="text-violet-400 font-medium">{fmt(hourlyRate)}/hr</span>
+                <span className="text-gold-400 font-medium">{fmt(hourlyRate)}/hr</span>
                 <span className="text-slate-500">$400</span>
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function ROICalculator() {
             <h2 className="text-lg font-semibold text-slate-200">Estimated Annual Savings</h2>
 
             {/* Hero ROI number */}
-            <div className="bg-gradient-to-br from-violet-600/20 to-cyan-600/20 border border-violet-500/30 rounded-2xl p-8 text-center">
+            <div className="bg-gradient-to-br from-gold-400/20 to-cyan-600/20 border border-gold-400/30 rounded-2xl p-8 text-center">
               <p className="text-sm text-slate-400 uppercase tracking-wider mb-2">Net Annual Savings</p>
               <p className="text-5xl font-bold text-emerald-400">{fmt(roi.netSavings)}</p>
               {roi.viennaCost > 0 && (
@@ -191,7 +191,7 @@ export default function ROICalculator() {
 
               <div className="flex items-center justify-between bg-slate-900/50 border border-slate-700/50 rounded-lg p-4">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-amber-400" />
+                  <Clock className="w-5 h-5 text-gold-300" />
                   <div>
                     <p className="text-sm font-medium">Compliance Automation</p>
                     <p className="text-xs text-slate-400">70% reduction in manual audit work</p>
@@ -211,9 +211,9 @@ export default function ROICalculator() {
                 <p className="text-emerald-400 font-medium">{fmt(roi.downtimeSavings)}</p>
               </div>
 
-              <div className="flex items-center justify-between bg-slate-900/50 border border-violet-500/30 rounded-lg p-4">
+              <div className="flex items-center justify-between bg-slate-900/50 border border-gold-400/30 rounded-lg p-4">
                 <div className="flex items-center gap-3">
-                  <DollarSign className="w-5 h-5 text-violet-400" />
+                  <DollarSign className="w-5 h-5 text-gold-400" />
                   <div>
                     <p className="text-sm font-medium">Vienna OS Cost</p>
                     <p className="text-xs text-slate-400">
@@ -238,7 +238,7 @@ export default function ROICalculator() {
             <div className="flex gap-3 pt-4">
               <Link
                 href="/signup"
-                className="flex-1 text-center px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition"
+                className="flex-1 text-center px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition"
               >
                 Start Free
               </Link>
@@ -258,7 +258,7 @@ export default function ROICalculator() {
             Estimates based on industry averages. Incident prevention rate (85%) based on governance-controlled execution reducing unauthorized actions.
             Compliance automation rate (70%) based on automated audit trail generation replacing manual reporting.
             Actual results vary by organization. See{" "}
-            <Link href="/case-studies" className="text-violet-400 hover:underline">case studies</Link> for real-world examples.
+            <Link href="/case-studies" className="text-gold-400 hover:underline">case studies</Link> for real-world examples.
           </p>
         </div>
       </div>

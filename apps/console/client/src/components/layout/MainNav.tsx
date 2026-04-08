@@ -50,6 +50,8 @@ const NAV_GROUPS: NavGroup[] = [
       { path: '/approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
       { path: '/execution', label: 'Execution', description: 'Live execution pipeline', icon: '▶️' },
       { path: '/executions', label: 'Execution Log', description: 'Past execution records', icon: '📋' },
+      { path: '/governance-chain', label: 'Governance Chain', description: 'Warrant chain visualization', icon: '⛓️' },
+      { path: '/governance-live', label: 'Live Governance', description: 'Real-time governance flow', icon: '🎬' },
       { path: '/policies', label: 'Policy Builder', description: 'Create governance rules', icon: '🛡️' },
       { path: '/policy-templates', label: 'Policy Templates', description: 'Pre-built policies', icon: '📋' },
       { path: '/compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
@@ -86,7 +88,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Settings',
     icon: '⚙️',
     defaultPath: '/settings',
-    items: [],
+    items: [
+      { path: '/settings', label: 'Organization', description: 'Team, security & billing', icon: '⚙️' },
+    ],
   },
 ];
 

@@ -173,7 +173,7 @@ const scenarios = [
     desc: "Define your own action and see how the governance engine evaluates it.",
     tier: "?",
     tierLabel: "Dynamic",
-    docs: "/docs/policies",
+    docs: "/docs#policies",
     category: "custom",
     riskFactors: [],
   },
@@ -181,7 +181,7 @@ const scenarios = [
 
 const tierColors: Record<string, { text: string; bg: string; border: string }> = {
   T0: { text: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-  T1: { text: "text-violet-400", bg: "bg-violet-400/10", border: "border-violet-400/20" },
+  T1: { text: "text-gold-400", bg: "bg-gold-400/10", border: "border-gold-400/20" },
   "T1+": { text: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
   T2: { text: "text-red-400", bg: "bg-red-400/10", border: "border-red-400/20" },
   DENY: { text: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
@@ -387,16 +387,16 @@ export default function TryPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-5 h-5 text-violet-400" />
+            <Shield className="w-5 h-5 text-gold-400" />
             <span className="font-bold text-white">
-              Vienna<span className="text-violet-400">OS</span>
+              Vienna<span className="text-gold-400">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-xs text-slate-500 font-mono">Interactive Playground</span>
             <a
               href="/signup"
-              className="text-sm bg-violet-400/10 text-violet-400 hover:bg-violet-400/20 border border-violet-400/20 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Get Started
             </a>
@@ -466,7 +466,7 @@ export default function TryPage() {
                     className={`
                       text-left px-3 py-2 rounded-lg border transition-all text-sm
                       ${interactiveMode === mode.id
-                        ? 'border-violet-400/30 bg-violet-400/5 text-white'
+                        ? 'border-gold-400/30 bg-gold-400/5 text-white'
                         : 'border-slate-700/30 bg-slate-800/30 text-slate-300 hover:border-navy-600 hover:bg-slate-700/30'
                       }
                     `}
@@ -573,14 +573,14 @@ export default function TryPage() {
                         className={`
                           flex items-center gap-3 p-2 rounded-lg border transition-all
                           ${s.status === 'completed' ? 'border-emerald-400/30 bg-emerald-400/5' : ''}
-                          ${s.status === 'active' ? 'border-violet-400/30 bg-violet-400/5' : ''}
+                          ${s.status === 'active' ? 'border-gold-400/30 bg-gold-400/5' : ''}
                           ${s.status === 'pending' ? 'border-slate-700/30 bg-slate-800/30' : ''}
                         `}
                       >
                         <div className={`
                           w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
                           ${s.status === 'completed' ? 'bg-emerald-400 text-slate-950' : ''}
-                          ${s.status === 'active' ? 'bg-violet-400 text-slate-950' : ''}
+                          ${s.status === 'active' ? 'bg-gold-400 text-slate-950' : ''}
                           ${s.status === 'pending' ? 'bg-slate-700 text-slate-500' : ''}
                         `}>
                           {s.status === 'completed' ? '✓' : s.step}
@@ -600,7 +600,7 @@ export default function TryPage() {
                         setSelected('wire_transfer'); // Auto-select a good example
                       }
                     }}
-                    className="w-full mt-3 flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                    className="w-full mt-3 flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
                   >
                     {showWarrantBuilder ? 'Reset Flow' : 'Start Warrant Flow'}
                   </button>
@@ -680,7 +680,7 @@ export default function TryPage() {
                   {customParams.map((p, i) => (
                     <div key={i} className="flex gap-1.5 mb-1.5">
                       <input
-                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-violet-400/40 focus:outline-none transition"
+                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
                         placeholder="key"
                         value={p.key}
                         onChange={(e) => {
@@ -690,7 +690,7 @@ export default function TryPage() {
                         }}
                       />
                       <input
-                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-violet-400/40 focus:outline-none transition"
+                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
                         placeholder="value"
                         value={p.value}
                         onChange={(e) => {
@@ -709,7 +709,7 @@ export default function TryPage() {
                   ))}
                   <button
                     onClick={() => setCustomParams([...customParams, { key: "", value: "" }])}
-                    className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition mt-1"
+                    className="flex items-center gap-1 text-xs text-gold-400 hover:text-gold-300 transition mt-1"
                   >
                     <Plus className="w-3 h-3" /> Add parameter
                   </button>
@@ -731,7 +731,7 @@ export default function TryPage() {
                   <span className="text-slate-300">Auto-approved (low risk)</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="w-6 h-4 rounded bg-violet-400/10 border border-violet-400/30 flex items-center justify-center text-violet-400 font-mono text-[10px] font-bold">T1</span>
+                  <span className="w-6 h-4 rounded bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-gold-400 font-mono text-[10px] font-bold">T1</span>
                   <span className="text-slate-300">Single approval required</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
@@ -754,7 +754,7 @@ export default function TryPage() {
               <button
                 onClick={execute}
                 disabled={loading || runningAllScenarios}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-violet-400 hover:from-violet-400 hover:to-violet-300 disabled:from-violet-400/50 disabled:to-violet-400/50 text-slate-950 font-bold px-6 py-4 rounded-xl transition text-sm shadow-lg shadow-violet-400/20"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-300 disabled:from-gold-400/50 disabled:to-gold-400/50 text-slate-950 font-bold px-6 py-4 rounded-xl transition text-sm shadow-lg shadow-gold-400/20"
               >
                 {loading ? (
                   <>
@@ -781,7 +781,7 @@ export default function TryPage() {
               <button
                 onClick={runAllScenarios}
                 disabled={loading || runningAllScenarios}
-                className="w-full flex items-center justify-center gap-2 bg-purple-600/90 hover:bg-purple-500 disabled:bg-purple-600/30 text-white font-medium px-4 py-3 rounded-lg transition text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-gold-400/90 hover:bg-gold-300 disabled:bg-gold-400/30 text-white font-medium px-4 py-3 rounded-lg transition text-sm"
               >
                 {runningAllScenarios ? (
                   <>
@@ -846,8 +846,8 @@ export default function TryPage() {
                 <div className="bg-slate-800 border-b border-slate-700/50 px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-violet-400/10 border border-violet-400/20 flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-violet-400" />
+                      <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-gold-400" />
                       </div>
                       <div>
                         <h3 className="text-white font-semibold">Interactive Governance Simulator</h3>
@@ -870,7 +870,7 @@ export default function TryPage() {
                         <div className="flex flex-wrap items-center gap-2 justify-center">
                           {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
                             <div key={step} className="flex items-center">
-                              <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 text-center group hover:border-violet-400/30 hover:bg-violet-400/5 transition-all duration-300 min-w-[100px]">
+                              <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300 min-w-[100px]">
                                 <div className="text-xl mb-1">
                                   {['I','P','R','A','W','E','V','L'][i]}
                                 </div>
@@ -889,7 +889,7 @@ export default function TryPage() {
                       
                       <div className="bg-slate-900/30 border border-slate-700/30 rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
-                          <span className="text-sm text-violet-400 font-medium">Try these scenarios:</span>
+                          <span className="text-sm text-gold-400 font-medium">Try these scenarios:</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {[
@@ -1001,8 +1001,8 @@ export default function TryPage() {
                               <div className="space-y-2">
                                 <div className="bg-slate-800/50 rounded-lg p-3">
                                   <div className="text-xs text-slate-500 mb-1">Scope</div>
-                                  <div className="font-mono text-xs text-violet-400">action: {selected}</div>
-                                  <div className="font-mono text-xs text-violet-400">resource: production.api</div>
+                                  <div className="font-mono text-xs text-gold-400">action: {selected}</div>
+                                  <div className="font-mono text-xs text-gold-400">resource: production.api</div>
                                 </div>
                                 <div className="bg-slate-800/50 rounded-lg p-3">
                                   <div className="text-xs text-slate-500 mb-1">TTL</div>
@@ -1055,11 +1055,11 @@ export default function TryPage() {
                         <span>Real-time simulation</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <div className="w-1.5 h-1.5 rounded-full bg-violet-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-gold-400"></div>
                         <span>Interactive controls</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-gold-400"></div>
                         <span>Full audit trail</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -1099,7 +1099,7 @@ export default function TryPage() {
                     ? "bg-red-500/5 border-red-500/20"
                     : result.outcome === "auto-approved"
                     ? "bg-emerald-500/5 border-emerald-500/20"
-                    : "bg-violet-400/5 border-violet-400/20"
+                    : "bg-gold-400/5 border-gold-400/20"
                 }`}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
@@ -1109,7 +1109,7 @@ export default function TryPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <p className={`font-semibold text-sm ${
-                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-violet-400"
+                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-gold-400"
                           }`}>
                             {result.outcome === "denied" ? "Action Denied" : result.outcome === "auto-approved" ? "Auto-Approved" : "Approved"}
                             {" — "}
@@ -1120,7 +1120,7 @@ export default function TryPage() {
                             <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
                               result.execution_mode === "vienna_direct" 
                                 ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
-                                : "bg-purple-400/10 text-purple-400 border border-purple-400/20"
+                                : "bg-gold-400/10 text-gold-400 border border-gold-400/20"
                             }`}>
                               {result.execution_mode === "vienna_direct" ? "Vienna Direct" : "Agent Passback"}
                             </span>
@@ -1133,14 +1133,14 @@ export default function TryPage() {
                             <span className="text-[10px] text-emerald-400">• Zero human latency</span>
                           )}
                           {result.execution_mode === "agent_passback" && (
-                            <span className="text-[10px] text-purple-400">• Human oversight required</span>
+                            <span className="text-[10px] text-gold-400">• Human oversight required</span>
                           )}
                         </div>
                       </div>
                     </div>
                     <a
                       href={selectedScenario.docs}
-                      className="text-xs text-violet-400 hover:text-violet-300 transition flex items-center gap-1"
+                      className="text-xs text-gold-400 hover:text-gold-300 transition flex items-center gap-1"
                     >
                       Learn more <ArrowRight className="w-3 h-3" />
                     </a>
@@ -1155,7 +1155,7 @@ export default function TryPage() {
                   </div>
                   <div className="w-full bg-slate-800/50 rounded-full h-1.5">
                     <div 
-                      className="bg-gradient-to-r from-violet-400 to-emerald-400 h-1.5 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-gold-400 to-emerald-400 h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${(visibleSteps.length / result.pipeline.length) * 100}%` }}
                     />
                   </div>
@@ -1181,7 +1181,7 @@ export default function TryPage() {
                       className={`
                         rounded-xl border p-3.5 transition-all duration-500 cursor-pointer group relative
                         ${!visible ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}
-                        ${active ? "border-violet-400/40 bg-violet-400/5 shadow-[0_0_20px_rgba(212,165,32,0.08)] animate-pulse" : ""}
+                        ${active ? "border-gold-400/40 bg-gold-400/5 shadow-[0_0_20px_rgba(212,165,32,0.08)] animate-pulse" : ""}
                         ${isDenied && visible && !active ? "border-red-500/30 bg-red-500/5" : ""}
                         ${isSkipped && visible && !active ? "border-slate-700/30 bg-slate-800/30 opacity-50" : ""}
                         ${isComplete && !isDenied && !isSkipped ? "border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40" : ""}
@@ -1190,13 +1190,13 @@ export default function TryPage() {
                     >
                       {/* Connecting line between steps */}
                       {i > 0 && visible && (
-                        <div className="absolute -top-3 left-7 w-0.5 h-6 bg-violet-400/30" />
+                        <div className="absolute -top-3 left-7 w-0.5 h-6 bg-gold-400/30" />
                       )}
 
                       <div className="flex items-start gap-3">
                         <div className={`
                           w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm transition-all duration-500 relative
-                          ${active ? "bg-violet-400/20 scale-110" : ""}
+                          ${active ? "bg-gold-400/20 scale-110" : ""}
                           ${isDenied && !active ? "bg-red-500/10 border-2 border-red-500/30" : ""}
                           ${isSkipped && !active ? "bg-slate-700/30" : ""}
                           ${isComplete && !isDenied && !isSkipped ? "bg-emerald-400/10 border-2 border-emerald-400/30" : ""}
@@ -1204,7 +1204,7 @@ export default function TryPage() {
                         `}>
                           {/* Pulse effect for active step */}
                           {active && (
-                            <div className="absolute inset-0 rounded-lg bg-violet-400/20 animate-ping" />
+                            <div className="absolute inset-0 rounded-lg bg-gold-400/20 animate-ping" />
                           )}
                           
                           {/* Status-based icon */}
@@ -1224,7 +1224,7 @@ export default function TryPage() {
                             <span className={`font-medium text-sm transition-colors ${
                               isSkipped ? "text-slate-500" : 
                               isDenied ? "text-red-400" : 
-                              active ? "text-violet-400" :
+                              active ? "text-gold-400" :
                               isComplete ? "text-emerald-400" : "text-white"
                             }`}>
                               {step.label}
@@ -1235,7 +1235,7 @@ export default function TryPage() {
                               <span className={`
                                 inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all
                                 ${isDenied ? "text-red-400 bg-red-400/10 border border-red-400/20" : 
-                                  active ? "text-violet-400 bg-violet-400/10 border border-violet-400/20 animate-pulse" :
+                                  active ? "text-gold-400 bg-gold-400/10 border border-gold-400/20 animate-pulse" :
                                   "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"}
                               `}>
                                 {isDenied ? "✗ denied" : active ? "⏳ running" : "✓ complete"}
@@ -1281,9 +1281,9 @@ export default function TryPage() {
             {result && activeTab === "warrant" && result.warrant && (
               <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
                 {/* Warrant header */}
-                <div className="bg-violet-400/5 border-b border-violet-400/10 px-5 py-4 flex items-center justify-between">
+                <div className="bg-gold-400/5 border-b border-gold-400/10 px-5 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-mono text-violet-400">W</span>
+                    <span className="text-xl font-mono text-gold-400">W</span>
                     <div>
                       <h3 className="text-white font-semibold text-sm">Cryptographic Warrant</h3>
                       <p className="text-[11px] font-mono text-slate-500">{result.warrant.warrant_id}</p>
@@ -1326,7 +1326,7 @@ export default function TryPage() {
                   <div>
                     <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Scope</h4>
                     <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-3">
-                      <pre className="text-xs font-mono text-violet-400 overflow-x-auto whitespace-pre-wrap">
+                      <pre className="text-xs font-mono text-gold-400 overflow-x-auto whitespace-pre-wrap">
                         {JSON.stringify(result.warrant.scope, null, 2)}
                       </pre>
                     </div>
@@ -1377,7 +1377,7 @@ export default function TryPage() {
                         <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                           entry.event.includes("denied") || entry.event.includes("ALERT")
                             ? "text-red-400 bg-red-400/10"
-                            : "text-violet-400 bg-violet-400/10"
+                            : "text-gold-400 bg-gold-400/10"
                         }`}>
                           {entry.event}
                         </span>
@@ -1419,13 +1419,13 @@ export default function TryPage() {
                             <p className={`text-xs mt-1 ${
                               rule.result.startsWith("DENIED") || rule.result.startsWith("VIOLATION")
                                 ? "text-red-400"
-                                : "text-violet-400"
+                                : "text-gold-400"
                             }`}>
                               → {rule.result}
                             </p>
                           )}
                         </div>
-                        <span className={`text-[10px] font-mono flex-shrink-0 ${rule.matched ? "text-violet-400" : "text-slate-600"}`}>
+                        <span className={`text-[10px] font-mono flex-shrink-0 ${rule.matched ? "text-gold-400" : "text-slate-600"}`}>
                           {rule.matched ? "matched" : "skipped"}
                         </span>
                       </div>
@@ -1434,8 +1434,8 @@ export default function TryPage() {
                 </div>
 
                 <a
-                  href="/docs/policies"
-                  className="flex items-center justify-center gap-2 bg-violet-400/10 border border-violet-400/20 text-violet-400 hover:bg-violet-400/15 rounded-xl px-4 py-3 transition text-sm font-medium"
+                  href="/docs#policies"
+                  className="flex items-center justify-center gap-2 bg-gold-400/10 border border-gold-400/20 text-gold-400 hover:bg-gold-400/15 rounded-xl px-4 py-3 transition text-sm font-medium"
                 >
                   Build your own policies <ArrowRight className="w-4 h-4" />
                 </a>
@@ -1471,7 +1471,7 @@ export default function TryPage() {
                       ].filter(b => b.idx >= 0).map((block, i) => (
                         <div key={i} className="flex items-center gap-2 flex-shrink-0">
                           {i > 0 && <div className="text-slate-500">→</div>}
-                          <div className={`border rounded-lg p-3 min-w-[140px] ${block.current ? 'border-violet-400/50 bg-violet-400/5' : 'border-navy-600 bg-slate-800/50'}`}>
+                          <div className={`border rounded-lg p-3 min-w-[140px] ${block.current ? 'border-gold-400/50 bg-gold-400/5' : 'border-navy-600 bg-slate-800/50'}`}>
                             <div className="text-[10px] text-slate-500 mb-1">Block #{block.idx}</div>
                             <div className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
                               {block.current ? result.merkle_chain!.chain_hash.slice(7, 23) + '...' : sha256Short()}
@@ -1484,7 +1484,7 @@ export default function TryPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-slate-900/50 rounded-lg p-3">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Index</div>
-                        <div className="text-sm font-mono text-violet-400">{result.merkle_chain!.chain_index.toLocaleString()}</div>
+                        <div className="text-sm font-mono text-gold-400">{result.merkle_chain!.chain_index.toLocaleString()}</div>
                       </div>
                       <div className="bg-slate-900/50 rounded-lg p-3">
                         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Merkle Root</div>
@@ -1496,8 +1496,8 @@ export default function TryPage() {
                       </div>
                     </div>
 
-                    <div className="bg-purple-500/5 border border-purple-500/20 rounded-lg p-3">
-                      <div className="text-xs text-purple-300 font-medium mb-1">Why this matters</div>
+                    <div className="bg-gold-400/5 border border-gold-400/20 rounded-lg p-3">
+                      <div className="text-xs text-gold-300 font-medium mb-1">Why this matters</div>
                       <p className="text-[11px] text-slate-400 leading-relaxed">
                         A SOC 2 auditor can verify this entire governance chain without accessing your Vienna OS instance. 
                         They only need the Merkle proof — the math proves integrity. No trust required.
@@ -1527,7 +1527,7 @@ export default function TryPage() {
                       <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
                         result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-emerald-400' :
                         result.trust_score.level === 'good' ? 'bg-blue-500/20 text-blue-400' :
-                        result.trust_score.level === 'watch' ? 'bg-amber-500/20 text-amber-400' :
+                        result.trust_score.level === 'watch' ? 'bg-gold-400/20 text-gold-300' :
                         'bg-red-500/20 text-red-400'
                       }`}>
                         {result.trust_score.level.toUpperCase()}
@@ -1541,7 +1541,7 @@ export default function TryPage() {
                           <div className="w-24 text-[11px] text-slate-400 capitalize">{name.replace(/_/g, ' ')}</div>
                           <div className="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-violet-400 to-amber-500 transition-all duration-1000"
+                              className="h-full rounded-full bg-gradient-to-r from-gold-400 to-gold-400 transition-all duration-1000"
                               style={{ width: `${(comp.score / comp.max) * 100}%` }}
                             />
                           </div>
@@ -1569,7 +1569,7 @@ export default function TryPage() {
                       <span className="v-status-dot v-status-warning" />
                       <h3 className="text-white font-semibold text-sm">Open Warrant Standard Token</h3>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-violet-500/20 text-violet-300">OWS v1.0</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gold-400/20 text-gold-300">OWS v1.0</span>
                   </div>
                   <div className="p-5 space-y-4">
                     <p className="text-xs text-slate-400 leading-relaxed">
@@ -1582,7 +1582,7 @@ export default function TryPage() {
                       <div className="text-[11px] font-mono leading-relaxed">
                         <span className="text-red-400">{result.ows_token.split('.')[0]}</span>
                         <span className="text-slate-500">.</span>
-                        <span className="text-purple-400">{result.ows_token.split('.')[1]}</span>
+                        <span className="text-gold-400">{result.ows_token.split('.')[1]}</span>
                         <span className="text-slate-500">.</span>
                         <span className="text-cyan-400">{result.ows_token.split('.')[2]}</span>
                       </div>
@@ -1595,7 +1595,7 @@ export default function TryPage() {
                         <span className="text-xs text-slate-400">Header — algorithm, type, version</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                        <div className="w-2 h-2 rounded-full bg-gold-400"></div>
                         <span className="text-xs text-slate-400">Payload — warrant ID, tier, scope, expiration, agent</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1617,12 +1617,12 @@ export default function TryPage() {
                       } catch { return null; }
                     })()}
 
-                    <div className="bg-violet-500/5 border border-violet-500/20 rounded-lg p-3">
-                      <div className="text-xs text-violet-300 font-medium mb-1">Interoperable</div>
+                    <div className="bg-gold-400/5 border border-gold-400/20 rounded-lg p-3">
+                      <div className="text-xs text-gold-300 font-medium mb-1">Interoperable</div>
                       <p className="text-[11px] text-slate-400 leading-relaxed">
                         Share this token with any system that implements the Open Warrant Standard. 
                         They can verify the agent&apos;s authorization without calling Vienna OS.
-                        <a href="/docs/ows" className="text-violet-400 hover:underline ml-1">Read the spec →</a>
+                        <a href="/docs#open-warrant-standard" className="text-gold-400 hover:underline ml-1">Read the spec →</a>
                       </p>
                     </div>
                   </div>
@@ -1632,10 +1632,10 @@ export default function TryPage() {
 
             {/* ─── Delegation info (shown on warrant tab for T2+) ─── */}
             {result && activeTab === "warrant" && result.delegation && (
-              <div className="mt-3 bg-purple-500/5 border border-purple-500/20 rounded-xl p-4">
+              <div className="mt-3 bg-gold-400/5 border border-gold-400/20 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="v-status-dot v-status-info" />
-                  <h4 className="text-sm font-semibold text-purple-300">Warrant Delegation</h4>
+                  <h4 className="text-sm font-semibold text-gold-300">Warrant Delegation</h4>
                 </div>
                 <p className="text-xs text-slate-400 mb-3">
                   This warrant can be delegated to sub-agents with reduced scope.
@@ -1651,7 +1651,7 @@ export default function TryPage() {
                   </div>
                   <div className="bg-slate-900/50 rounded p-2 col-span-2">
                     <div className="text-slate-500">Scope reduction</div>
-                    <div className="font-mono text-purple-300">{result.delegation.scope_reduction.join(', ') || 'N/A'}</div>
+                    <div className="font-mono text-gold-300">{result.delegation.scope_reduction.join(', ') || 'N/A'}</div>
                   </div>
                 </div>
               </div>
@@ -1662,11 +1662,11 @@ export default function TryPage() {
               <div className={`mt-4 rounded-xl p-4 border transition-all duration-500 ${
                 result.outcome === "denied"
                   ? "bg-red-500/5 border-red-500/20"
-                  : "bg-violet-400/5 border-violet-400/20"
+                  : "bg-gold-400/5 border-gold-400/20"
               }`}>
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
-                    <p className={`text-sm font-medium mb-1 ${result.outcome === "denied" ? "text-red-400" : "text-violet-400"}`}>
+                    <p className={`text-sm font-medium mb-1 ${result.outcome === "denied" ? "text-red-400" : "text-gold-400"}`}>
                       {result.outcome === "denied"
                         ? "That action was blocked by the governance pipeline"
                         : result.outcome === "auto-approved"
@@ -1683,7 +1683,7 @@ export default function TryPage() {
                   </div>
                   <a
                     href="/signup"
-                    className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-violet-400 hover:text-violet-300 transition"
+                    className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-gold-400 hover:text-gold-300 transition"
                   >
                     Get your own console <ArrowRight className="w-3.5 h-3.5" />
                   </a>
@@ -1716,7 +1716,7 @@ export default function TryPage() {
     "tenant_id": "your-org",
     "context": { "environment": "production" }
   }'`)}
-                className="text-xs text-violet-400 hover:text-violet-300 transition px-2 py-1 border border-violet-400/20 rounded"
+                className="text-xs text-gold-400 hover:text-gold-300 transition px-2 py-1 border border-gold-400/20 rounded"
               >
                 Copy cURL
               </button>
@@ -1737,7 +1737,7 @@ export default function TryPage() {
           </div>
 
           {/* Next Steps */}
-          <div className="bg-gradient-to-r from-purple-900/20 to-slate-800/50 border border-purple-500/20 rounded-2xl p-6">
+          <div className="bg-gradient-to-r from-gold-900/20 to-slate-800/50 border border-gold-400/20 rounded-2xl p-6">
             <h3 className="text-lg font-semibold text-white mb-3">Ready to govern your AI agents?</h3>
             <p className="text-slate-400 text-sm mb-4 max-w-2xl">
               This playground shows Vienna OS capabilities. Get started with your own governance infrastructure in minutes.
@@ -1746,7 +1746,7 @@ export default function TryPage() {
               <a 
                 href="/signup" 
                 onClick={() => analytics.ctaClick('try_demo', 'start_free_trial')}
-                className="bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+                className="bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
               >
                 Start Free Trial →
               </a>
@@ -1760,7 +1760,7 @@ export default function TryPage() {
               <a 
                 href="/contact" 
                 onClick={() => analytics.ctaClick('try_demo', 'schedule_demo')}
-                className="text-violet-400 hover:text-violet-300 border border-violet-400/30 hover:bg-violet-400/5 text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+                className="text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 text-sm font-medium px-4 py-3 rounded-xl transition text-center"
               >
                 Schedule Demo
               </a>
@@ -1773,7 +1773,7 @@ export default function TryPage() {
       <footer className="border-t border-slate-700/30 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-slate-500">
           <span>Vienna OS — The governance and authorization layer for AI systems</span>
-          <a href="/docs" className="text-violet-400 hover:text-violet-300 transition">Documentation →</a>
+          <a href="/docs" className="text-gold-400 hover:text-gold-300 transition">Documentation →</a>
         </div>
       </footer>
     </div>
@@ -1800,13 +1800,13 @@ function ScenarioButton({
       className={`
         w-full text-left rounded-xl p-3 transition-all duration-200 border group relative
         ${active
-          ? "border-violet-400/40 bg-violet-400/8 shadow-[0_0_20px_rgba(212,165,32,0.1)] ring-1 ring-violet-400/20"
+          ? "border-gold-400/40 bg-gold-400/8 shadow-[0_0_20px_rgba(212,165,32,0.1)] ring-1 ring-gold-400/20"
           : "border-slate-700/50 bg-slate-800/50 hover:border-navy-600 hover:bg-slate-800"
         }
       `}
     >
       {active && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-400 to-gold-600 rounded-l-xl"></div>
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold-400 to-gold-600 rounded-l-xl"></div>
       )}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
@@ -1880,7 +1880,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-slate-900 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-violet-400/40 focus:outline-none transition"
+        className="w-full bg-slate-900 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
       />
     </div>
   );

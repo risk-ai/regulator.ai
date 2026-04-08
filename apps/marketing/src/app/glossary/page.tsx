@@ -131,7 +131,7 @@ export default function GlossaryPage() {
         </Link>
         
         <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="w-8 h-8 text-violet-400" />
+          <BookOpen className="w-8 h-8 text-gold-400" />
           <h1 className="text-3xl md:text-4xl font-bold">AI Governance Glossary</h1>
         </div>
         <p className="text-xl text-slate-300 max-w-3xl">
@@ -153,7 +153,7 @@ export default function GlossaryPage() {
                 ))}
               </div>
               {t.link && (
-                <Link href={t.link} className="inline-flex items-center text-sm text-violet-400 hover:underline mt-3">
+                <Link href={t.link} className="inline-flex items-center text-sm text-gold-400 hover:underline mt-3">
                   Learn more &rarr;
                 </Link>
               )}

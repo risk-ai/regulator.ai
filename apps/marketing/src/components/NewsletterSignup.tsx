@@ -71,8 +71,8 @@ export default function NewsletterSignup({
       {variant === "default" && (
         <>
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-violet-400/20 border border-violet-400/30 rounded-full mb-4">
-              <Mail className="w-6 h-6 text-violet-400" />
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gold-400/20 border border-gold-400/30 rounded-full mb-4">
+              <Mail className="w-6 h-6 text-gold-400" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">
               Join the Vienna OS Waitlist
@@ -111,14 +111,14 @@ export default function NewsletterSignup({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
               disabled={isSubmitting}
-              className="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:border-violet-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Email address"
               required
             />
             <button
               type="submit"
               disabled={isSubmitting || !email.trim()}
-              className="bg-gradient-to-r from-violet-500 to-cyan-400 hover:from-violet-400 hover:to-cyan-300 disabled:from-violet-500/50 disabled:to-cyan-400/50 text-white font-semibold px-6 py-3 rounded-lg transition disabled:cursor-not-allowed flex-shrink-0"
+              className="bg-gradient-to-r from-gold-400 to-gold-300 hover:from-gold-300 hover:to-cyan-300 disabled:from-gold-400/50 disabled:to-gold-300/50 text-white font-semibold px-6 py-3 rounded-lg transition disabled:cursor-not-allowed flex-shrink-0"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">

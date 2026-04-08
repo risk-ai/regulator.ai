@@ -1,5 +1,3 @@
-import SiteNav from "@/components/SiteNav";
-import SiteFooter from "@/components/SiteFooter";
 import { Shield, Check, X, ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -38,23 +36,23 @@ const features = [
 
 export default function CompareGuardrailsPage() {
   return (
-    <main className="min-h-screen bg-[#0a0e14] text-white">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white">
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-12">
-        <Link href="/compare" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
+        <Link href="/compare" className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-8 transition">
           <ArrowLeft className="w-4 h-4 mr-2" /> All Comparisons
         </Link>
         
         <div className="flex items-center gap-3 mb-4">
-          <Shield className="w-8 h-8 text-amber-500" />
+          <Shield className="w-8 h-8 text-gold-400" />
           <h1 className="text-3xl md:text-4xl font-bold">Vienna OS vs Guardrails AI</h1>
         </div>
         
-        <p className="text-xl text-zinc-300 max-w-3xl mb-4">
+        <p className="text-xl text-slate-300 max-w-3xl mb-4">
           Execution control vs prompt validation — different tools for different problems.
         </p>
         
-        <div className="bg-amber-500/10 border border-amber-500/20 p-4 mb-8">
-          <p className="text-sm text-amber-300">
+        <div className="bg-gold-400/10 border border-gold-400/20 rounded-lg p-4 mb-8">
+          <p className="text-sm text-gold-300">
             <strong>Key insight:</strong> Guardrails AI validates LLM inputs/outputs. Vienna OS controls agent execution. 
             They solve different layers of the AI safety stack — and work well together.
           </p>
@@ -66,25 +64,25 @@ export default function CompareGuardrailsPage() {
         
         <div className="space-y-2">
           {/* Header */}
-          <div className="grid grid-cols-3 gap-4 p-4 text-sm font-medium text-zinc-400">
+          <div className="grid grid-cols-3 gap-4 p-4 text-sm font-medium text-slate-400">
             <div>Feature</div>
             <div className="text-center">Vienna OS</div>
             <div className="text-center">Guardrails AI</div>
           </div>
           
           {features.map((row, i) => (
-            <div key={i} className="grid grid-cols-3 gap-4 p-4 bg-black border border-zinc-800 text-sm">
-              <div className="font-medium text-zinc-200">{row.feature}</div>
-              <div className={`text-center ${row.advantage === "vienna" ? "text-emerald-400" : "text-zinc-300"}`}>
+            <div key={i} className="grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm">
+              <div className="font-medium text-slate-200">{row.feature}</div>
+              <div className={`text-center ${row.advantage === "vienna" ? "text-emerald-400" : "text-slate-300"}`}>
                 {row.vienna === "Not available" || row.vienna === "Not the focus (complementary)" ? (
-                  <span className="text-zinc-500">{row.vienna}</span>
+                  <span className="text-slate-500">{row.vienna}</span>
                 ) : (
                   <span>{row.vienna}</span>
                 )}
               </div>
-              <div className={`text-center ${row.advantage === "guardrails" ? "text-emerald-400" : "text-zinc-300"}`}>
+              <div className={`text-center ${row.advantage === "guardrails" ? "text-emerald-400" : "text-slate-300"}`}>
                 {row.guardrails === "Not available" || row.guardrails === "Logging only" ? (
-                  <span className="text-zinc-500">{row.guardrails}</span>
+                  <span className="text-slate-500">{row.guardrails}</span>
                 ) : (
                   <span>{row.guardrails}</span>
                 )}
@@ -99,8 +97,8 @@ export default function CompareGuardrailsPage() {
         <h2 className="text-2xl font-bold mb-6">When to Use Each</h2>
         
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-amber-400/5 border border-amber-500/20 p-6">
-            <h3 className="text-lg font-bold text-amber-500 mb-4">Choose Vienna OS when:</h3>
+          <div className="bg-gold-400/5 border border-gold-400/20 rounded-xl p-6">
+            <h3 className="text-lg font-bold text-gold-400 mb-4">Choose Vienna OS when:</h3>
             <ul className="space-y-3">
               {[
                 "Your AI agents take real-world actions (deploy code, move money, update records)",
@@ -110,15 +108,15 @@ export default function CompareGuardrailsPage() {
                 "You manage a fleet of agents across departments",
                 "Regulators might ask \"who approved this?\"",
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <Check className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                  <Check className="w-4 h-4 text-gold-400 mt-0.5 flex-shrink-0" />
                   {item}
                 </li>
               ))}
             </ul>
           </div>
           
-          <div className="bg-blue-500/5 border border-blue-500/20 p-6">
+          <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-6">
             <h3 className="text-lg font-bold text-blue-400 mb-4">Choose Guardrails AI when:</h3>
             <ul className="space-y-3">
               {[
@@ -129,7 +127,7 @@ export default function CompareGuardrailsPage() {
                 "You need prompt engineering tooling (RAIL spec)",
                 "You want a lighter-weight, Python-native solution",
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
                   <Check className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                   {item}
                 </li>
@@ -138,9 +136,9 @@ export default function CompareGuardrailsPage() {
           </div>
         </div>
         
-        <div className="mt-6 bg-black border border-zinc-800 p-6 text-center">
+        <div className="mt-6 bg-slate-900/50 border border-slate-700/50 rounded-xl p-6 text-center">
           <h3 className="text-lg font-bold mb-2">Use both together</h3>
-          <p className="text-sm text-zinc-300 max-w-2xl mx-auto">
+          <p className="text-sm text-slate-300 max-w-2xl mx-auto">
             Guardrails AI validates what your LLM says. Vienna OS controls what your agent does. 
             Together, they cover the full AI safety stack: content safety + execution safety.
           </p>
@@ -150,14 +148,14 @@ export default function CompareGuardrailsPage() {
       {/* CTA */}
       <div className="max-w-5xl mx-auto px-6 pb-24 text-center">
         <h2 className="text-3xl font-bold mb-4">Ready to add execution control?</h2>
-        <p className="text-zinc-300 mb-8 max-w-xl mx-auto">
+        <p className="text-slate-300 mb-8 max-w-xl mx-auto">
           See the governance pipeline in action. No setup required.
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
-          <Link href="/try" className="px-6 py-3 bg-amber-500 hover:bg-amber-400 font-medium transition">
+          <Link href="/try" className="px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition">
             Try Interactive Demo
           </Link>
-          <Link href="/blog/vienna-os-vs-guardrails-ai" className="px-6 py-3 border border-zinc-800 hover:border-amber-500/30 font-medium transition">
+          <Link href="/blog/vienna-os-vs-guardrails-ai" className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition">
             Read Full Comparison
           </Link>
         </div>

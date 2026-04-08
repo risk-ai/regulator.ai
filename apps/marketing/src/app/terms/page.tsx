@@ -13,8 +13,8 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
         </div>
       </nav>
@@ -76,7 +76,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">11. Contact</h2>
-            <p>Questions about these Terms? Contact us at <a href="mailto:admin@ai.ventures" className="text-purple-400 hover:text-purple-300">admin@ai.ventures</a>.</p>
+            <p>Questions about these Terms? Contact us at <a href="mailto:admin@ai.ventures" className="text-gold-400 hover:text-gold-300">admin@ai.ventures</a>.</p>
           </section>
         </div>
       </main>

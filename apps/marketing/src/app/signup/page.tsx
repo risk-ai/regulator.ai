@@ -142,9 +142,9 @@ export default function SignupPage() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
+            <Shield className="w-7 h-7 text-gold-400" />
             <span className="font-bold text-white">
-              Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
+              Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
         </div>
@@ -169,7 +169,7 @@ export default function SignupPage() {
                   onClick={() => setSelectedPlan(plan.id)}
                   className={`text-left rounded-xl p-5 transition border-2 ${
                     selectedPlan === plan.id
-                      ? "border-purple-500 bg-purple-500/10"
+                      ? "border-gold-400 bg-gold-400/10"
                       : "border-navy-700 bg-navy-800 hover:border-navy-600"
                   }`}
                 >
@@ -204,7 +204,7 @@ export default function SignupPage() {
 
             <button
               onClick={() => setStep("details")}
-              className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+              className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-medium"
             >
               Continue with {currentPlan.name}
               <ArrowRight className="w-4 h-4" />
@@ -228,7 +228,7 @@ export default function SignupPage() {
             </h1>
             <p className="text-slate-400 mb-8">
               Plan:{" "}
-              <span className="text-purple-400 font-medium">
+              <span className="text-gold-400 font-medium">
                 {currentPlan.name}{" "}
                 {currentPlan.price !== "Free" &&
                   currentPlan.price !== "Custom" &&
@@ -254,7 +254,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, email: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="jane@company.com"
                 />
               </div>
@@ -269,7 +269,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="Jane Smith"
                 />
               </div>
@@ -284,7 +284,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setForm({ ...form, company: e.target.value })
                   }
-                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-purple-500 focus:outline-none transition"
+                  className="w-full bg-navy-800 border border-navy-700 rounded-lg px-4 py-2.5 text-white text-sm focus:border-gold-400 focus:outline-none transition"
                   placeholder="Acme Corp"
                 />
               </div>
@@ -292,7 +292,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-medium disabled:opacity-50"
               >
                 {submitting ? "Setting up..." : "Create Account"}
                 <ArrowRight className="w-4 h-4" />
@@ -324,7 +324,7 @@ export default function SignupPage() {
                 {/* Step 1: Console access */}
                 <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
                   <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">1</span>
+                    <span className="w-6 h-6 rounded-full bg-gold-400/20 text-gold-400 text-xs font-bold flex items-center justify-center">1</span>
                     Log in to the Console
                   </h3>
                   <p className="text-sm text-slate-400 mb-3">
@@ -332,7 +332,7 @@ export default function SignupPage() {
                   </p>
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-lg transition font-medium text-sm"
+                    className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-lg transition font-medium text-sm"
                   >
                     Open Console <ArrowRight className="w-4 h-4" />
                   </a>
@@ -341,18 +341,18 @@ export default function SignupPage() {
                 {/* Step 2: Create API key */}
                 <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
                   <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">2</span>
+                    <span className="w-6 h-6 rounded-full bg-gold-400/20 text-gold-400 text-xs font-bold flex items-center justify-center">2</span>
                     Create an API Key
                   </h3>
                   <p className="text-sm text-slate-400">
-                    Go to <span className="text-purple-400 font-medium">API Keys</span> in the console sidebar and create your first key. You&apos;ll get a <code className="text-xs bg-navy-900 px-1.5 py-0.5 rounded text-emerald-400">vos_</code> prefixed token.
+                    Go to <span className="text-gold-400 font-medium">API Keys</span> in the console sidebar and create your first key. You&apos;ll get a <code className="text-xs bg-navy-900 px-1.5 py-0.5 rounded text-emerald-400">vos_</code> prefixed token.
                   </p>
                 </div>
 
                 {/* Step 3: Make your first call */}
                 <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
                   <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold flex items-center justify-center">3</span>
+                    <span className="w-6 h-6 rounded-full bg-gold-400/20 text-gold-400 text-xs font-bold flex items-center justify-center">3</span>
                     Make Your First API Call
                   </h3>
                   <pre className="font-mono text-xs text-slate-400 mt-2 overflow-x-auto bg-navy-900 rounded-lg p-4 border border-navy-700">
@@ -394,7 +394,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+                    className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />
@@ -419,7 +419,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-medium"
+                    className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />

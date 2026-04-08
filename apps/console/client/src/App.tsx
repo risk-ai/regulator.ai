@@ -40,6 +40,7 @@ const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.j
 const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'));
 const DashboardClean = React.lazy(() => import('./pages/DashboardClean.js').then(m => ({ default: m.DashboardClean })));
 const FleetDashboardNew = React.lazy(() => import('./pages/FleetDashboardNew.js').then(m => ({ default: m.FleetDashboardNew })));
+const ApprovalsNew = React.lazy(() => import('./pages/ApprovalsNew.js').then(m => ({ default: m.ApprovalsNew })));
 const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
@@ -234,6 +235,7 @@ export function App() {
                   <Route path="/execution" element={<ExecutionPage />} />
                   <Route path="/executions" element={<ExecutionsPage />} />
                   <Route path="/approvals" element={<ApprovalsPage />} />
+                  <Route path="/approvals-new" element={<ApprovalsNew />} />
                   <Route path="/policies" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />

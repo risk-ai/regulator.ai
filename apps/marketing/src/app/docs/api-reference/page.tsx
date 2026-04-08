@@ -1490,7 +1490,7 @@ console.log('Integration deleted');`}
                COMPLIANCE MODULE
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="compliance" icon={<FileText className="w-6 h-6 text-indigo-400" />}>
+          <H2 id="compliance" icon={<FileText className="w-6 h-6 text-amber-400" />}>
             Compliance Module
           </H2>
           <P>

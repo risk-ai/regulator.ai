@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { 
   Shield, 
-  ArrowLeft, 
   Check, 
   X, 
   Building2, 
@@ -24,6 +23,8 @@ import {
 import { analytics } from "@/lib/analytics";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import FloatingContact from "@/components/FloatingContact";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 /* ============================================================
    SCROLL REVEAL ANIMATION
@@ -69,52 +70,52 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 const enterpriseCapabilities = [
   {
     icon: Users,
-    title: "Unlimited Agents",
-    description: "Scale governance across your entire autonomous AI fleet without agent-based restrictions"
+    title: "UNLIMITED_AGENTS",
+    description: "scale governance across your entire autonomous AI fleet without agent-based restrictions"
   },
   {
     icon: Building2,
-    title: "On-premise/VPC Deployment",
-    description: "Deploy Vienna OS in your own infrastructure for maximum security and control"
+    title: "ON_PREMISE_VPC_DEPLOYMENT",
+    description: "deploy Vienna OS in your own infrastructure for maximum security and control"
   },
   {
     icon: Award,
-    title: "SOC 2 Type II (Roadmap)",
-    description: "Comprehensive security controls audit with continuous monitoring and reporting"
+    title: "SOC_2_TYPE_II_ROADMAP",
+    description: "comprehensive security controls audit with continuous monitoring and reporting"
   },
   {
     icon: Shield,
-    title: "HIPAA BAA (Roadmap)",
+    title: "HIPAA_BAA_ROADMAP",
     description: "Business Associate Agreement available for healthcare and regulated data governance"
   },
   {
     icon: Scale,
-    title: "Custom SLA (Coming Soon)",
-    description: "Guaranteed uptime with custom service level agreements tailored to your requirements"
+    title: "CUSTOM_SLA_COMING_SOON",
+    description: "guaranteed uptime with custom service level agreements tailored to your requirements"
   },
   {
     icon: HeadphonesIcon,
-    title: "Dedicated CSM (Coming Soon)",
-    description: "Dedicated Customer Success Manager for onboarding, training, and ongoing support"
+    title: "DEDICATED_CSM_COMING_SOON",
+    description: "dedicated Customer Success Manager for onboarding, training, and ongoing support"
   },
   {
     icon: Database,
-    title: "Unlimited Data Retention",
-    description: "Keep audit trails and governance data for as long as your compliance requires"
+    title: "UNLIMITED_DATA_RETENTION",
+    description: "keep audit trails and governance data for as long as your compliance requires"
   },
   {
     icon: Settings,
-    title: "Professional Services (Coming Soon)",
-    description: "Custom integration, policy development, and deployment assistance from our experts"
+    title: "PROFESSIONAL_SERVICES_COMING_SOON",
+    description: "custom integration, policy development, and deployment assistance from our experts"
   },
   {
     icon: Eye,
-    title: "Custom Policy Builder",
-    description: "Advanced policy creation tools with custom risk models and approval workflows"
+    title: "CUSTOM_POLICY_BUILDER",
+    description: "advanced policy creation tools with custom risk models and approval workflows"
   },
   {
     icon: TrendingUp,
-    title: "Anomaly Detection (Coming Soon)",
+    title: "ANOMALY_DETECTION_COMING_SOON",
     description: "AI-powered detection of unusual agent behavior patterns and governance violations"
   }
 ];
@@ -122,23 +123,23 @@ const enterpriseCapabilities = [
 const complianceFeatures = [
   {
     icon: Award,
-    title: "SOC 2 Type II",
-    description: "Comprehensive security controls with annual third-party audits"
+    title: "SOC_2_TYPE_II",
+    description: "comprehensive security controls with annual third-party audits"
   },
   {
     icon: Shield,
-    title: "HIPAA Ready",
-    description: "Healthcare data governance with Business Associate Agreements"
+    title: "HIPAA_READY",
+    description: "healthcare data governance with Business Associate Agreements"
   },
   {
     icon: Scale,
-    title: "ISO 27001 Ready",
-    description: "Information security management system aligned with international standards"
+    title: "ISO_27001_READY",
+    description: "information security management system aligned with international standards"
   },
   {
     icon: Building2,
-    title: "FedRAMP Pathway",
-    description: "Federal cloud security compliance pathway for government deployments (roadmap)"
+    title: "FEDRAMP_PATHWAY",
+    description: "federal cloud security compliance pathway for government deployments (roadmap)"
   }
 ];
 
@@ -222,7 +223,7 @@ export default function EnterprisePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-blue-950/20 to-slate-950 text-white">
+    <div className="min-h-screen bg-[#0a0e14] text-white font-mono">
       {/* Lead Capture Modal */}
       <LeadCaptureModal
         isOpen={showLeadCapture}
@@ -270,62 +271,43 @@ export default function EnterprisePage() {
       />
 
       {/* Navigation */}
-      <nav className="border-b border-zinc-800 backdrop-blur-xl bg-slate-950/90">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">Vienna<span className="text-amber-500">OS</span></span>
-          </a>
-          <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
-            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition">Pricing</a>
-            <a 
-              href="/contact?subject=enterprise" 
-              className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium"
-            >
-              Schedule Demo
-            </a>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gold-900/20 via-blue-900/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16">
           <ScrollReveal>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-4 py-2 mb-6 backdrop-blur-sm">
                 <Shield className="w-4 h-4 text-amber-500" />
-                <span className="text-sm text-gold-300 font-semibold uppercase tracking-wider">Enterprise</span>
+                <span className="text-sm text-amber-500 font-mono font-bold uppercase tracking-wider">ENTERPRISE_TIER</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              <h1 className="text-5xl md:text-6xl font-mono font-bold mb-6 leading-tight">
                 <span className="text-amber-500">
-                  Enterprise AI Governance
+                  ENTERPRISE_AI_GOVERNANCE
                 </span>
               </h1>
               
-              <p className="text-xl text-zinc-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-                Govern AI at scale with verifiable Merkle warrant chains, policy simulation,
-                cross-agent delegation, compliance reports, and trust scoring. Built for regulated industries.
+              <p className="text-xl text-zinc-400 font-mono mb-8 leading-relaxed max-w-3xl mx-auto">
+                govern AI at scale with verifiable Merkle warrant chains, policy simulation,
+                cross-agent delegation, compliance reports, and trust scoring. built for regulated industries.
               </p>
               
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-4 flex-wrap">
                 <a 
                   href="/contact?subject=enterprise"
                   onClick={() => analytics.ctaClick('hero', 'schedule_demo')}
-                  className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-8 py-4 transition uppercase flex items-center gap-2"
                 >
-                  Schedule a Demo
+                  SCHEDULE_DEMO
                   <ArrowRight className="w-5 h-5" />
                 </a>
                 <a 
                   href="/pricing"
-                  className="bg-slate-800/50 hover:bg-slate-700/50 text-white font-medium px-8 py-4 transition border border-zinc-800 hover:border-slate-500"
+                  className="border border-amber-500/30 hover:border-amber-500 text-amber-500 font-mono font-bold px-8 py-4 transition uppercase"
                 >
-                  Compare Plans
+                  COMPARE_PLANS
                 </a>
               </div>
             </div>
@@ -335,16 +317,19 @@ export default function EnterprisePage() {
 
       {/* Trust Logos Section */}
       <ScrollReveal delay={0.2}>
-        <div className="border-t border-zinc-800 py-16">
+        <div className="border-t border-amber-500/10 py-16">
           <div className="max-w-6xl mx-auto px-6 text-center">
-            <p className="text-zinc-400 text-sm mb-8 uppercase tracking-wider font-medium">
-              Built for Fortune 500 &amp; Regulated Industries
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+            <div className="flex items-center gap-3 mb-8 justify-center">
+              <span className="flex h-2 w-2 bg-amber-500 animate-pulse"></span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500 font-bold">
+                FORTUNE_500_REGULATED_INDUSTRIES
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {trustLogos.map((logo, i) => (
-                <div key={i} className="bg-black/30 border border-zinc-800 p-4 h-20 flex flex-col items-center justify-center">
-                  <div className="text-zinc-300 font-medium text-sm">{logo.name}</div>
-                  <div className="text-zinc-500 text-xs">{logo.industry}</div>
+                <div key={i} className="bg-black border border-amber-500/30 p-4 h-20 flex flex-col items-center justify-center">
+                  <div className="text-zinc-400 font-mono font-bold text-sm">{logo.name}</div>
+                  <div className="text-zinc-600 font-mono text-xs">{logo.industry}</div>
                 </div>
               ))}
             </div>
@@ -356,28 +341,26 @@ export default function EnterprisePage() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         <ScrollReveal>
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-6">
-              Enterprise-Grade Capabilities
+            <h2 className="text-4xl font-mono font-bold text-amber-500 mb-6">
+              ENTERPRISE_GRADE_CAPABILITIES
             </h2>
-            <p className="text-xl text-zinc-400 max-w-3xl mx-auto">
-              Everything your enterprise needs to govern autonomous AI systems at scale, 
+            <p className="text-xl text-zinc-400 font-mono max-w-3xl mx-auto">
+              everything your enterprise needs to govern autonomous AI systems at scale, 
               with the security and compliance that regulated industries require.
             </p>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {enterpriseCapabilities.map((capability, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
-              <div className="bg-black border border-zinc-800 p-6 hover:bg-zinc-900 transition-colors">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-                    <capability.icon className="w-6 h-6 text-amber-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">{capability.title}</h3>
-                    <p className="text-zinc-400 leading-relaxed">{capability.description}</p>
-                  </div>
+              <div className="bg-black border border-amber-500/30 p-6 hover:border-amber-500/50 transition-colors">
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-500/20">
+                  <capability.icon className="w-5 h-5 text-amber-500" />
+                  <span className="text-xs font-mono text-amber-500 uppercase font-bold">{capability.title}</span>
+                </div>
+                <div>
+                  <p className="text-zinc-400 font-mono text-sm leading-relaxed">{capability.description}</p>
                 </div>
               </div>
             </ScrollReveal>
@@ -389,34 +372,34 @@ export default function EnterprisePage() {
       <div className="max-w-6xl mx-auto px-6 py-20">
         <ScrollReveal>
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Enterprise vs Business
+            <h2 className="text-4xl font-mono font-bold text-amber-500 mb-4">
+              ENTERPRISE_VS_BUSINESS
             </h2>
-            <p className="text-lg text-zinc-400">
-              See what Enterprise adds to our Business tier
+            <p className="text-lg text-zinc-400 font-mono">
+              see what enterprise adds to our business tier
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="bg-black border border-zinc-800 overflow-hidden">
-            <div className="grid grid-cols-3 gap-0 text-center border-b border-zinc-800">
-              <div className="p-4 bg-black/30">
-                <h3 className="font-semibold text-zinc-300">Feature</h3>
+          <div className="bg-black border border-amber-500/30 overflow-hidden">
+            <div className="grid grid-cols-3 gap-0 text-center border-b border-amber-500/20">
+              <div className="p-4 bg-black">
+                <h3 className="font-mono font-bold text-amber-500 uppercase">FEATURE</h3>
               </div>
-              <div className="p-4 bg-zinc-900/30">
-                <h3 className="font-semibold text-blue-400">Business</h3>
+              <div className="p-4 bg-black">
+                <h3 className="font-mono font-bold text-zinc-400 uppercase">BUSINESS</h3>
               </div>
-              <div className="p-4 bg-gradient-to-r from-gold-500/20 to-gold-400/20">
-                <h3 className="font-semibold text-gold-300">Enterprise</h3>
+              <div className="p-4 bg-black">
+                <h3 className="font-mono font-bold text-amber-500 uppercase">ENTERPRISE</h3>
               </div>
             </div>
             
             {comparisonData.map((row, i) => (
-              <div key={i} className="grid grid-cols-3 gap-0 border-b border-zinc-800 last:border-b-0">
-                <div className="p-4 text-zinc-300 font-medium">{row.feature}</div>
-                <div className="p-4 text-zinc-400">{row.business}</div>
-                <div className="p-4 text-gold-300 font-medium">{row.enterprise}</div>
+              <div key={i} className="grid grid-cols-3 gap-0 border-b border-amber-500/10 last:border-b-0">
+                <div className="p-4 text-zinc-400 font-mono font-bold">{row.feature}</div>
+                <div className="p-4 text-zinc-600 font-mono">{row.business}</div>
+                <div className="p-4 text-amber-500 font-mono font-bold">{row.enterprise}</div>
               </div>
             ))}
           </div>
@@ -424,16 +407,16 @@ export default function EnterprisePage() {
       </div>
 
       {/* Security & Compliance */}
-      <div className="border-t border-zinc-800 py-20">
+      <div className="border-t border-amber-500/10 py-20">
         <div className="max-w-6xl mx-auto px-6">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-6">
-                Security &amp; Compliance
+              <h2 className="text-4xl font-mono font-bold text-amber-500 mb-6">
+                SECURITY_AND_COMPLIANCE
               </h2>
-              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
-                Built for regulated industries with enterprise-grade security controls 
-                and compliance certifications.
+              <p className="text-xl text-zinc-400 font-mono max-w-2xl mx-auto">
+                built for regulated industries with enterprise-grade security controls 
+                and compliance enablement.
               </p>
             </div>
           </ScrollReveal>
@@ -441,12 +424,12 @@ export default function EnterprisePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {complianceFeatures.map((feature, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="bg-gradient-to-br from-emerald-900/20 to-blue-900/20 border border-emerald-500/30 p-6 text-center">
-                  <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-                    <feature.icon className="w-6 h-6 text-emerald-400" />
+                <div className="bg-black border border-green-500/30 p-6 text-center">
+                  <div className="flex items-center gap-3 mb-4 pb-3 border-b border-green-500/20 justify-center">
+                    <feature.icon className="w-5 h-5 text-green-500" />
+                    <span className="text-xs font-mono text-green-500 uppercase font-bold">{feature.title}</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-zinc-400 text-sm">{feature.description}</p>
+                  <p className="text-zinc-400 font-mono text-sm">{feature.description}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -459,42 +442,42 @@ export default function EnterprisePage() {
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <ScrollReveal>
             <div>
-              <h2 className="text-4xl font-bold text-white mb-6">
-                Calculate Your ROI
+              <h2 className="text-4xl font-mono font-bold text-amber-500 mb-6">
+                CALCULATE_YOUR_ROI
               </h2>
-              <p className="text-xl text-zinc-400 mb-8 leading-relaxed">
-                On average, enterprises save $2M annually in compliance costs by implementing 
+              <p className="text-xl text-zinc-400 font-mono mb-8 leading-relaxed">
+                on average, enterprises save $2M annually in compliance costs by implementing 
                 Vienna OS governance across their AI agent fleet.
               </p>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
-                    <Check className="w-4 h-4 text-green-400" />
+                  <div className="w-8 h-8 bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
+                    <Check className="w-4 h-4 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Reduced Compliance Overhead</h3>
-                    <p className="text-zinc-400">Automated governance reduces manual compliance work by 60%</p>
+                    <h3 className="text-lg font-mono font-bold text-zinc-400 mb-2">REDUCED_COMPLIANCE_OVERHEAD</h3>
+                    <p className="text-zinc-600 font-mono text-sm">automated governance reduces manual compliance work by 60%</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
-                    <Check className="w-4 h-4 text-green-400" />
+                  <div className="w-8 h-8 bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
+                    <Check className="w-4 h-4 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Faster Agent Deployment</h3>
-                    <p className="text-zinc-400">Deploy new AI agents 4x faster with pre-approved governance policies</p>
+                    <h3 className="text-lg font-mono font-bold text-zinc-400 mb-2">FASTER_AGENT_DEPLOYMENT</h3>
+                    <p className="text-zinc-600 font-mono text-sm">deploy new AI agents 4x faster with pre-approved governance policies</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
-                    <Check className="w-4 h-4 text-green-400" />
+                  <div className="w-8 h-8 bg-green-500/20 border border-green-500/30 flex items-center justify-center mt-1">
+                    <Check className="w-4 h-4 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Risk Mitigation</h3>
-                    <p className="text-zinc-400">Prevent costly incidents with real-time governance enforcement</p>
+                    <h3 className="text-lg font-mono font-bold text-zinc-400 mb-2">RISK_MITIGATION</h3>
+                    <p className="text-zinc-600 font-mono text-sm">prevent costly incidents with real-time governance enforcement</p>
                   </div>
                 </div>
               </div>
@@ -502,15 +485,18 @@ export default function EnterprisePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            <div className="bg-black/50 border border-zinc-800 p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Why Enterprise?</h3>
-              <ul className="space-y-3 text-zinc-300">
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Merkle warrant chain — third-party verifiable governance history</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Policy simulation — predict the impact of changes before deploying</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> SOC 2 compliance reports with one-click export (CC6.1–CC8.1)</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Cross-agent warrant delegation with cascading revocation</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Dynamic agent trust scoring with governance recommendations</li>
-                <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Open Warrant Standard — portable authorization across systems</li>
+            <div className="bg-black border border-amber-500/30 p-6">
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-amber-500/20">
+                <Shield className="w-5 h-5 text-amber-500" />
+                <span className="text-sm font-mono text-amber-500 uppercase font-bold">WHY_ENTERPRISE</span>
+              </div>
+              <ul className="space-y-3 text-zinc-400 font-mono text-sm">
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> merkle warrant chain — third-party verifiable governance history</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> policy simulation — predict the impact of changes before deploying</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> SOC 2 compliance reports with one-click export (CC6.1–CC8.1)</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> cross-agent warrant delegation with cascading revocation</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> dynamic agent trust scoring with governance recommendations</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> open warrant standard — portable authorization across systems</li>
               </ul>
             </div>
           </ScrollReveal>
@@ -519,21 +505,24 @@ export default function EnterprisePage() {
 
       {/* Early Access CTA */}
       <ScrollReveal>
-        <div className="border-t border-zinc-800 py-20">
+        <div className="border-t border-amber-500/10 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="bg-black border border-zinc-800 p-12">
-              <Shield className="w-12 h-12 text-amber-500 mx-auto mb-6" />
-              <h3 className="text-2xl text-zinc-200 font-medium mb-6 leading-relaxed">
+            <div className="bg-black border border-amber-500/30 p-12">
+              <div className="flex items-center gap-3 mb-6 justify-center pb-4 border-b border-amber-500/20">
+                <Shield className="w-6 h-6 text-amber-500" />
+                <span className="text-sm font-mono text-amber-500 uppercase font-bold">EARLY_ACCESS_PROGRAM</span>
+              </div>
+              <h3 className="text-2xl text-zinc-400 font-mono font-bold mb-6 leading-relaxed">
                 Vienna OS is in early access for enterprise teams governing autonomous AI agents.
               </h3>
-              <p className="text-zinc-400 mb-8">
-                Be among the first to deploy warrant-based governance at scale.
+              <p className="text-zinc-600 font-mono mb-8">
+                be among the first to deploy warrant-based governance at scale.
               </p>
               <a 
                 href="/contact?subject=enterprise"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30"
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-8 py-4 transition uppercase"
               >
-                Request Early Access
+                REQUEST_EARLY_ACCESS
                 <ArrowRight className="w-5 h-5" />
               </a>
             </div>
@@ -543,36 +532,39 @@ export default function EnterprisePage() {
 
       {/* Final CTA */}
       <ScrollReveal>
-        <div className="border-t border-zinc-800 py-20">
+        <div className="border-t border-amber-500/10 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Scale AI Governance?
+            <h2 className="text-4xl font-mono font-bold text-amber-500 mb-6">
+              READY_TO_SCALE_AI_GOVERNANCE
             </h2>
-            <p className="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">
-              Built for Fortune 500 companies ready to govern their AI agents at scale. 
-              Schedule a demo to see enterprise features in action.
+            <p className="text-xl text-zinc-400 font-mono mb-8 max-w-2xl mx-auto">
+              built for Fortune 500 companies ready to govern their AI agents at scale. 
+              schedule a demo to see enterprise features in action.
             </p>
             
-            <div className="flex items-center justify-center gap-6">
+            <div className="flex items-center justify-center gap-6 flex-wrap">
               <a 
                 href="/contact?subject=enterprise"
                 onClick={() => analytics.ctaClick('final_cta', 'schedule_demo')}
-                className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30 text-lg"
+                className="bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-8 py-4 transition uppercase text-lg"
               >
-                Schedule a Demo
+                SCHEDULE_DEMO
               </a>
               <a 
                 href="/docs"
                 onClick={() => analytics.ctaClick('final_cta', 'view_docs')}
-                className="text-amber-500 hover:text-gold-300 font-medium transition text-lg flex items-center gap-2"
+                className="text-amber-500 hover:text-amber-400 font-mono font-bold transition text-lg flex items-center gap-2 uppercase"
               >
-                View Documentation
+                VIEW_DOCUMENTATION
                 <ArrowRight className="w-5 h-5" />
               </a>
             </div>
           </div>
         </div>
       </ScrollReveal>
-    </main>
+
+      {/* Footer */}
+      <SiteFooter />
+    </div>
   );
 }

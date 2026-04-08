@@ -347,10 +347,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                SYSTEM_METRICS
+                SYSTEM_CAPABILITIES
               </h2>
               <p className="text-zinc-500 font-mono text-sm">
-                production deployment stats (last 30d)
+                core governance infrastructure
               </p>
             </div>
 
@@ -362,8 +362,8 @@ export default function Home() {
                   <FileText className="w-4 h-4 text-zinc-600" />
                 </div>
                 <div className="space-y-3 text-xs font-mono">
-                  <div><span className="text-zinc-600">receipts/day:</span> <span className="text-amber-500">2.1M</span></div>
-                  <div><span className="text-zinc-600">eval_latency_p99:</span> <span className="text-green-500">43ms</span></div>
+                  <div><span className="text-zinc-600">throughput:</span> <span className="text-amber-500">millions of evals/day</span></div>
+                  <div><span className="text-zinc-600">eval_latency:</span> <span className="text-green-500">sub-50ms p99</span></div>
                   <div><span className="text-zinc-600">operators:</span> <span className="text-zinc-400">11 (==, !=, &gt;, &lt;, ...)</span></div>
                   <div><span className="text-zinc-600">deployment:</span> <span className="text-zinc-400">zero_downtime</span></div>
                 </div>
@@ -379,7 +379,7 @@ export default function Home() {
                   <div><span className="text-zinc-600">algorithm:</span> <span className="text-amber-500">HMAC-SHA256</span></div>
                   <div><span className="text-zinc-600">tamper_proof:</span> <span className="text-green-500">verified</span></div>
                   <div><span className="text-zinc-600">retention:</span> <span className="text-zinc-400">7 years</span></div>
-                  <div><span className="text-zinc-600">compliance:</span> <span className="text-zinc-400">SOC2, GDPR</span></div>
+                  <div><span className="text-zinc-600">supports:</span> <span className="text-zinc-400">SOC2, GDPR, HIPAA</span></div>
                 </div>
               </div>
 
@@ -390,9 +390,9 @@ export default function Home() {
                   <Activity className="w-4 h-4 text-zinc-600" />
                 </div>
                 <div className="space-y-3 text-xs font-mono">
-                  <div><span className="text-zinc-600">false_pos_rate:</span> <span className="text-green-500">0.6%</span></div>
-                  <div><span className="text-zinc-600">mean_detect:</span> <span className="text-amber-500">41s</span></div>
-                  <div><span className="text-zinc-600">alerts_sent:</span> <span className="text-zinc-400">8.3k/month</span></div>
+                  <div><span className="text-zinc-600">detection:</span> <span className="text-green-500">real-time pattern analysis</span></div>
+                  <div><span className="text-zinc-600">response:</span> <span className="text-amber-500">sub-minute alerting</span></div>
+                  <div><span className="text-zinc-600">signals:</span> <span className="text-zinc-400">frequency, scope, risk drift</span></div>
                   <div><span className="text-zinc-600">channels:</span> <span className="text-zinc-400">slack, email, pagerduty</span></div>
                 </div>
               </div>
@@ -405,7 +405,7 @@ export default function Home() {
                 </div>
                 <div className="space-y-3 text-xs font-mono">
                   <div><span className="text-zinc-600">quorum_types:</span> <span className="text-amber-500">1-of-N, M-of-N</span></div>
-                  <div><span className="text-zinc-600">avg_approval_time:</span> <span className="text-green-500">2.4min</span></div>
+                  <div><span className="text-zinc-600">avg_approval:</span> <span className="text-green-500">minutes, not days</span></div>
                   <div><span className="text-zinc-600">mobile_support:</span> <span className="text-zinc-400">iOS, Android</span></div>
                   <div><span className="text-zinc-600">mfa:</span> <span className="text-green-500">enforced</span></div>
                 </div>
@@ -439,7 +439,7 @@ export default function Home() {
                   <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">T2 gate on prod writes</span></div>
                   <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">0 unauthorized deployments</span></div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ INCIDENT_RATE: -94%</span>
+                    <span className="text-[10px] text-green-500">✓ ZERO_UNAUTHORIZED_DEPLOYS</span>
                   </div>
                 </div>
               </div>
@@ -454,9 +454,9 @@ export default function Home() {
                   <div className="text-zinc-400 mb-3">role: regulatory audit</div>
                   <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">no audit trail for AI decisions</span></div>
                   <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">SHA-256 signed warrants</span></div>
-                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">SOC2 certified in Q3</span></div>
+                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">audit-ready in weeks, not months</span></div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ AUDIT_TIME: -78%</span>
+                    <span className="text-[10px] text-green-500">✓ AUDIT_READY_IN_WEEKS</span>
                   </div>
                 </div>
               </div>
@@ -471,9 +471,9 @@ export default function Home() {
                   <div className="text-zinc-400 mb-3">role: technical strategy</div>
                   <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">scale agents w/o losing control</span></div>
                   <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">policy-based auto-approval</span></div>
-                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">50x agent deployment velocity</span></div>
+                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">scale agents without losing control</span></div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ VELOCITY: +4900%</span>
+                    <span className="text-[10px] text-green-500">✓ GOVERNED_AT_SCALE</span>
                   </div>
                 </div>
               </div>
@@ -543,7 +543,7 @@ export default function Home() {
                 PROBLEM_SOLUTION_ANALYSIS
               </h2>
               <p className="text-zinc-500 font-mono text-sm">
-                deployment incident (case study: financial services)
+                scenario: uncontrolled agent deployment vs. warrant-governed
               </p>
             </div>
 
@@ -673,71 +673,71 @@ export default function Home() {
           </div>
         </section>
 
-        {/* COMPLIANCE & CERTIFICATIONS - Terminal Style */}
+        {/* COMPLIANCE ENABLEMENT - Terminal Style */}
         <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                COMPLIANCE_MATRIX
+                COMPLIANCE_ENABLEMENT
               </h2>
               <p className="text-zinc-500 font-mono text-sm">
-                enterprise audit & regulatory frameworks
+                accelerate your path to regulatory compliance
               </p>
             </div>
 
             <div className="grid md:grid-cols-4 gap-6 mb-12">
               {/* SOC 2 Type II */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">SOC_2_TYPE_II</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">SOC_2_TYPE_II</span>
+                  <Shield className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: certified</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">audit: 2026-Q1</div>
+                <div className="text-[10px] font-mono text-zinc-600">provides: audit trail controls</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">maps_to: CC6.1–CC8.1</div>
               </div>
 
               {/* GDPR */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">GDPR</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">GDPR</span>
+                  <Shield className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">verified: 2026-02</div>
+                <div className="text-[10px] font-mono text-zinc-600">provides: data processing logs</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">maps_to: Art. 30 records</div>
               </div>
 
               {/* ISO 27001 */}
               <div className="bg-black border border-amber-500/30 p-6">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
                   <span className="text-xs font-mono text-amber-500">ISO_27001</span>
-                  <Activity className="w-4 h-4 text-amber-500" />
+                  <Shield className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: in_progress</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">target: 2026-Q3</div>
+                <div className="text-[10px] font-mono text-zinc-600">provides: access control evidence</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">maps_to: Annex A.9</div>
               </div>
 
               {/* HIPAA */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">HIPAA</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                  <span className="text-xs font-mono text-amber-500">HIPAA</span>
+                  <Shield className="w-4 h-4 text-amber-500" />
                 </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">BAA: available</div>
+                <div className="text-[10px] font-mono text-zinc-600">provides: authorization logging</div>
+                <div className="text-[10px] font-mono text-zinc-600 mt-1">maps_to: §164.312 safeguards</div>
               </div>
             </div>
 
             <div className="bg-black border border-amber-500/30 p-6">
-              <div className="text-xs font-mono text-zinc-600 uppercase mb-4">AUDIT_TRAIL_FEATURES</div>
+              <div className="text-xs font-mono text-zinc-600 uppercase mb-4">AUDIT_TRAIL_CAPABILITIES</div>
               <div className="grid md:grid-cols-2 gap-6 text-xs font-mono">
                 <div className="space-y-2">
                   <div><span className="text-zinc-600">retention:</span> <span className="text-zinc-400">7 years (configurable)</span></div>
                   <div><span className="text-zinc-600">export:</span> <span className="text-zinc-400">JSON, CSV, PDF</span></div>
-                  <div><span className="text-zinc-600">encryption:</span> <span className="text-green-500">AES-256 at rest</span></div>
+                  <div><span className="text-zinc-600">encryption:</span> <span className="text-amber-500">AES-256 at rest</span></div>
                 </div>
                 <div className="space-y-2">
                   <div><span className="text-zinc-600">signatures:</span> <span className="text-zinc-400">HMAC-SHA256</span></div>
-                  <div><span className="text-zinc-600">tampering:</span> <span className="text-green-500">cryptographically impossible</span></div>
+                  <div><span className="text-zinc-600">tampering:</span> <span className="text-amber-500">cryptographic verification</span></div>
                   <div><span className="text-zinc-600">search:</span> <span className="text-zinc-400">full-text + filters</span></div>
                 </div>
               </div>

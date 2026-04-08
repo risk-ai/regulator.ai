@@ -122,18 +122,18 @@ const enterpriseCapabilities = [
 const complianceFeatures = [
   {
     icon: Award,
-    title: "SOC 2 Type II",
-    description: "Comprehensive security controls with annual third-party audits"
+    title: "SOC 2 Enablement",
+    description: "Audit trail controls mapped to CC6.1–CC8.1 — accelerate your SOC 2 certification"
   },
   {
     icon: Shield,
-    title: "HIPAA Ready",
-    description: "Healthcare data governance with Business Associate Agreements"
+    title: "HIPAA Enablement",
+    description: "Authorization logging and access controls aligned with §164.312 safeguards"
   },
   {
     icon: Scale,
-    title: "ISO 27001 Ready",
-    description: "Information security management system aligned with international standards"
+    title: "ISO 27001 Enablement",
+    description: "Access control evidence and policy enforcement mapped to Annex A.9 requirements"
   },
   {
     icon: Building2,
@@ -433,7 +433,7 @@ export default function EnterprisePage() {
               </h2>
               <p className="text-xl text-slate-400 max-w-2xl mx-auto">
                 Built for regulated industries with enterprise-grade security controls 
-                and compliance certifications.
+                and compliance enablement.
               </p>
             </div>
           </ScrollReveal>

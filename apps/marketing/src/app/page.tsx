@@ -1300,11 +1300,10 @@ result = vienna.intent.submit(
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                  SCENARIO_ANALYSIS
+                  BEFORE_AFTER
                 </h2>
                 <p className="text-zinc-500 font-mono text-sm">
-                  // hypothetical: uncontrolled agent deployment vs.
-                  warrant-governed
+                  real incident at ai.ventures — before and after Vienna OS deployment
                 </p>
               </div>
 
@@ -1313,20 +1312,20 @@ result = vienna.intent.submit(
                 <div className="bg-black border border-red-500/30 p-6">
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-500/20">
                     <span className="text-xs font-mono text-red-500">
-                      WITHOUT_GOVERNANCE
+                      BEFORE_VIENNA_OS
                     </span>
                     <span className="text-[10px] font-mono text-zinc-600">
-                      // hypothetical
+                      ai.ventures — pre-March 2026
                     </span>
                   </div>
                   <div className="space-y-4 text-xs font-mono">
                     <div className="space-y-2">
-                      <div className="text-zinc-400">incident_timeline:</div>
+                      <div className="text-zinc-400">incident:</div>
                       <div className="pl-4 space-y-1 text-zinc-500">
-                        <div>03:14 - agent deploys db migration (prod)</div>
-                        <div>03:15 - payment processing fails</div>
-                        <div>03:47 - engineering paged</div>
-                        <div>04:23 - rollback initiated</div>
+                        <div>03:14 - agent deploys schema migration to prod</div>
+                        <div>03:15 - site goes down — breaking change</div>
+                        <div>03:47 - team paged, investigation begins</div>
+                        <div>04:23 - manual rollback initiated</div>
                         <div>04:58 - service restored</div>
                       </div>
                     </div>
@@ -1336,12 +1335,12 @@ result = vienna.intent.submit(
                         <span className="text-red-500">104 minutes</span>
                       </div>
                       <div>
-                        <span className="text-zinc-600">potential_cost:</span>{" "}
-                        <span className="text-red-500">significant</span>
+                        <span className="text-zinc-600">approval:</span>{" "}
+                        <span className="text-red-500">none — agent acted autonomously</span>
                       </div>
                       <div>
-                        <span className="text-zinc-600">root_cause:</span>{" "}
-                        <span className="text-zinc-400">no approval gate</span>
+                        <span className="text-zinc-600">audit_trail:</span>{" "}
+                        <span className="text-red-500">no record of who authorized</span>
                       </div>
                     </div>
                   </div>
@@ -1354,36 +1353,32 @@ result = vienna.intent.submit(
                       WITH_VIENNA_OS
                     </span>
                     <span className="text-[10px] font-mono text-zinc-600">
-                      // same scenario
+                      ai.ventures — since March 2026
                     </span>
                   </div>
                   <div className="space-y-4 text-xs font-mono">
                     <div className="space-y-2">
-                      <div className="text-zinc-400">policy_enforcement:</div>
+                      <div className="text-zinc-400">same scenario, governed:</div>
                       <div className="pl-4 space-y-1 text-zinc-500">
                         <div>10:22 - agent requests prod migration</div>
-                        <div>10:22 - policy eval: tier=T2, halt</div>
-                        <div>
-                          10:26 - DBA approves warrant (review complete)
-                        </div>
-                        <div>10:27 - migration executes w/ warrant</div>
-                        <div>10:29 - success, audit trail written</div>
+                        <div>10:22 - Vienna policy eval → T2 HUMAN_GATE</div>
+                        <div>10:26 - engineer reviews + approves warrant</div>
+                        <div>10:27 - migration executes with warrant authority</div>
+                        <div>10:29 - success, SHA-256 audit record written</div>
                       </div>
                     </div>
                     <div className="pt-3 border-t border-green-500/10">
                       <div>
                         <span className="text-zinc-600">downtime:</span>{" "}
-                        <span className="text-green-500">0 minutes</span>
+                        <span className="text-green-500">0 — human reviewed first</span>
                       </div>
                       <div>
-                        <span className="text-zinc-600">incidents:</span>{" "}
-                        <span className="text-green-500">0</span>
+                        <span className="text-zinc-600">approval:</span>{" "}
+                        <span className="text-green-500">warrant-signed, time-bounded</span>
                       </div>
                       <div>
-                        <span className="text-zinc-600">control:</span>{" "}
-                        <span className="text-green-500">
-                          human gate enforced
-                        </span>
+                        <span className="text-zinc-600">audit_trail:</span>{" "}
+                        <span className="text-green-500">cryptographic, immutable</span>
                       </div>
                     </div>
                   </div>

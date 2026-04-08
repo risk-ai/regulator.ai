@@ -15,6 +15,8 @@ import {
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 import SiteNav from "@/components/SiteNav";
+import AnimatedCounter from "@/components/AnimatedCounter";
+import TerminalTypewriter from "@/components/TerminalTypewriter";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
@@ -112,7 +114,7 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-6 pt-8 border-t border-amber-500/10">
                 <div className="space-y-1">
                   <div className="text-xs font-mono text-zinc-600 uppercase">latency_p99</div>
-                  <div className="text-2xl font-mono font-bold text-amber-500">43ms</div>
+                  <div className="text-2xl font-mono font-bold text-amber-500"><AnimatedCounter end={43} suffix="ms" /></div>
                 </div>
                 <div className="space-y-1">
                   <div className="text-xs font-mono text-zinc-600 uppercase">audit_algo</div>
@@ -483,7 +485,7 @@ export default function Home() {
                   <FileText className="w-4 h-4 text-zinc-600" />
                 </div>
                 <div className="space-y-3 text-xs font-mono">
-                  <div><span className="text-zinc-600">receipts/day:</span> <span className="text-amber-500">2.1M</span></div>
+                  <div><span className="text-zinc-600">receipts/day:</span> <span className="text-amber-500"><AnimatedCounter end={2.1} suffix="M" decimals={1} /></span></div>
                   <div><span className="text-zinc-600">eval_latency_p99:</span> <span className="text-green-500">43ms</span></div>
                   <div><span className="text-zinc-600">operators:</span> <span className="text-zinc-400">11 (==, !=, &gt;, &lt;, ...)</span></div>
                   <div><span className="text-zinc-600">deployment:</span> <span className="text-zinc-400">zero_downtime</span></div>
@@ -511,8 +513,8 @@ export default function Home() {
                   <Activity className="w-4 h-4 text-zinc-600" />
                 </div>
                 <div className="space-y-3 text-xs font-mono">
-                  <div><span className="text-zinc-600">false_pos_rate:</span> <span className="text-green-500">0.6%</span></div>
-                  <div><span className="text-zinc-600">mean_detect:</span> <span className="text-amber-500">41s</span></div>
+                  <div><span className="text-zinc-600">false_pos_rate:</span> <span className="text-green-500"><AnimatedCounter end={0.6} suffix="%" decimals={1} /></span></div>
+                  <div><span className="text-zinc-600">mean_detect:</span> <span className="text-amber-500"><AnimatedCounter end={41} suffix="s" /></span></div>
                   <div><span className="text-zinc-600">alerts_sent:</span> <span className="text-zinc-400">8.3k/month</span></div>
                   <div><span className="text-zinc-600">channels:</span> <span className="text-zinc-400">slack, email, pagerduty</span></div>
                 </div>
@@ -737,12 +739,17 @@ export default function Home() {
                 <div className="space-y-4 text-xs font-mono">
                   <div className="space-y-2">
                     <div className="text-zinc-400">incident_timeline:</div>
-                    <div className="pl-4 space-y-1 text-zinc-500">
-                      <div>03:14 - agent deploys db migration (prod)</div>
-                      <div>03:15 - payment processing fails</div>
-                      <div>03:47 - engineering paged</div>
-                      <div>04:23 - rollback initiated</div>
-                      <div>04:58 - service restored</div>
+                    <div className="pl-4">
+                      <TerminalTypewriter 
+                        lines={[
+                          { text: "03:14 - agent deploys db migration (prod)", className: "text-zinc-500 text-xs font-mono" },
+                          { text: "03:15 - payment processing fails", className: "text-red-400 text-xs font-mono" },
+                          { text: "03:47 - engineering paged", className: "text-amber-500 text-xs font-mono" },
+                          { text: "04:23 - rollback initiated", className: "text-zinc-500 text-xs font-mono" },
+                          { text: "04:58 - service restored", className: "text-zinc-500 text-xs font-mono" },
+                        ]}
+                        lineDelay={800}
+                      />
                     </div>
                   </div>
                   <div className="pt-3 border-t border-red-500/10">
@@ -762,12 +769,18 @@ export default function Home() {
                 <div className="space-y-4 text-xs font-mono">
                   <div className="space-y-2">
                     <div className="text-zinc-400">policy_enforcement:</div>
-                    <div className="pl-4 space-y-1 text-zinc-500">
-                      <div>10:22 - agent requests prod migration</div>
-                      <div>10:22 - policy eval: tier=T2, halt</div>
-                      <div>10:26 - DBA approves warrant (review complete)</div>
-                      <div>10:27 - migration executes w/ warrant</div>
-                      <div>10:29 - success, audit trail written</div>
+                    <div className="pl-4">
+                      <TerminalTypewriter 
+                        lines={[
+                          { text: "10:22 - agent requests prod migration", className: "text-zinc-500 text-xs font-mono" },
+                          { text: "10:22 - policy eval: tier=T2, halt", className: "text-amber-500 text-xs font-mono" },
+                          { text: "10:26 - DBA approves warrant (review complete)", className: "text-green-500 text-xs font-mono" },
+                          { text: "10:27 - migration executes w/ warrant", className: "text-green-500 text-xs font-mono" },
+                          { text: "10:29 - success, audit trail written ✓", className: "text-green-400 text-xs font-mono font-bold" },
+                        ]}
+                        baseDelay={500}
+                        lineDelay={700}
+                      />
                     </div>
                   </div>
                   <div className="pt-3 border-t border-green-500/10">
@@ -814,7 +827,7 @@ export default function Home() {
               {/* Stat 1 - Terminal Card */}
               <div className="bg-black border border-amber-500/30 p-6">
                 <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
-                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">43ms</div>
+                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2"><AnimatedCounter end={43} suffix="ms" /></div>
                   <div className="text-[10px] font-mono text-zinc-600 uppercase">latency_p99</div>
                 </div>
                 <div className="space-y-2 text-xs font-mono text-zinc-500">

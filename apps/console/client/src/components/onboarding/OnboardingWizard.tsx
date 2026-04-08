@@ -290,16 +290,16 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
         <React.Fragment key={step}>
           <div className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium ${
             step < currentStep
-              ? 'bg-purple-600 text-white'
+              ? 'bg-amber-600 text-white'
               : step === currentStep
-                ? 'bg-purple-600 text-white ring-4 ring-purple-200'
+                ? 'bg-amber-600 text-white ring-4 ring-amber-200'
                 : 'bg-gray-700 text-gray-400'
           }`}>
             {step < currentStep ? '✓' : step}
           </div>
           {step < 4 && (
             <div className={`flex-1 h-1 mx-4 ${
-              step < currentStep ? 'bg-purple-600' : 'bg-gray-700'
+              step < currentStep ? 'bg-amber-600' : 'bg-gray-700'
             }`} />
           )}
         </React.Fragment>
@@ -326,7 +326,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             type="text"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             placeholder="Your organization name"
           />
           <p className="text-gray-400 text-sm mt-2">
@@ -353,7 +353,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             onClick={() => setSelectedTemplate(template)}
             className={`p-6 rounded-lg border-2 text-left transition-all ${
               selectedTemplate?.id === template.id
-                ? 'border-purple-500 bg-purple-900/20'
+                ? 'border-amber-500 bg-amber-900/20'
                 : 'border-gray-600 bg-gray-800 hover:border-gray-500'
             }`}
           >
@@ -403,7 +403,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               type="text"
               value={agentName}
               onChange={(e) => setAgentName(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               placeholder="My AI Assistant"
               required
             />
@@ -416,7 +416,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             <textarea
               value={agentDescription}
               onChange={(e) => setAgentDescription(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               rows={3}
               placeholder="Brief description of what this agent does..."
             />
@@ -429,7 +429,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             <select
               value={agentTier}
               onChange={(e) => setAgentTier(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             >
               <option value="T0">T0 — Auto-approved</option>
               <option value="T1">T1 — Single approver</option>
@@ -583,7 +583,7 @@ if result.status == 'approved':
             <button
               onClick={runTest}
               disabled={loading}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg font-medium transition flex items-center"
+              className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-lg font-medium transition flex items-center"
             >
               {loading && (
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -702,7 +702,7 @@ if result.status == 'approved':
                         : handleNext
                   }
                   disabled={loading || (currentStep === 2 && !selectedTemplate) || (currentStep === 3 && !agentName.trim())}
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-lg font-medium transition flex items-center"
+                  className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-lg font-medium transition flex items-center"
                 >
                   {loading && (
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

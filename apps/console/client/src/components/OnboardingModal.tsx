@@ -64,8 +64,8 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
         {/* Header */}
         <div className="border-b border-navy-700 p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-              <Icon className="w-6 h-6 text-purple-400" />
+            <div className="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <Icon className="w-6 h-6 text-amber-400" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-white">{step.title}</h2>
@@ -100,8 +100,8 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
           )}
           
           {step.action && (
-            <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
-              <p className="text-sm text-purple-300 font-medium">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+              <p className="text-sm text-amber-300 font-medium">
                 {step.action}
               </p>
             </div>
@@ -116,9 +116,9 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
                 key={index}
                 className={`h-1.5 rounded-full transition-all ${
                   index === currentStep
-                    ? 'w-8 bg-purple-400'
+                    ? 'w-8 bg-amber-400'
                     : index < currentStep
-                    ? 'w-1.5 bg-purple-600'
+                    ? 'w-1.5 bg-amber-600'
                     : 'w-1.5 bg-navy-600'
                 }`}
               />
@@ -142,7 +142,7 @@ export function OnboardingModal({ onComplete, onSkip }: OnboardingModalProps) {
             </button>
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-medium transition flex items-center gap-2"
+              className="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition flex items-center gap-2"
             >
               {isLastStep ? (
                 <>

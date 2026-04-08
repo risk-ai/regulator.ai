@@ -280,8 +280,8 @@ function PipelineStage({ label, icon, active }: { label: string; icon: string; a
 function PipelineArrow() {
   return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="h-0.5 flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-50"></div>
-      <div className="text-purple-400 mx-2">→</div>
+      <div className="h-0.5 flex-1 bg-gradient-to-r from-amber-500 to-amber-500 opacity-50"></div>
+      <div className="text-amber-400 mx-2">→</div>
     </div>
   );
 }

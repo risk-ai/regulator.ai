@@ -61,9 +61,9 @@ const s = {
   } as React.CSSProperties,
   periodBtn: (active: boolean) => ({
     padding: '6px 14px', fontSize: '12px', fontWeight: active ? 600 : 400,
-    color: active ? '#a78bfa' : '#94a3b8',
-    background: active ? 'rgba(124,58,237,0.15)' : 'transparent',
-    border: '1px solid ' + (active ? 'rgba(124,58,237,0.3)' : 'rgba(255,255,255,0.08)'),
+    color: active ? '#f59e0b' : '#94a3b8',
+    background: active ? 'rgba(245,158,11,0.15)' : 'transparent',
+    border: '1px solid ' + (active ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'),
     borderRadius: '6px', cursor: 'pointer', marginLeft: '6px',
   }),
 
@@ -82,11 +82,11 @@ const s = {
   // Buttons
   primaryBtn: {
     padding: '10px 20px', fontSize: '13px', fontWeight: 600, color: '#fff',
-    background: '#7c3aed', border: 'none', borderRadius: '8px', cursor: 'pointer',
+    background: '#f59e0b', border: 'none', borderRadius: '8px', cursor: 'pointer',
   } as React.CSSProperties,
   secondaryBtn: {
-    padding: '8px 16px', fontSize: '12px', fontWeight: 500, color: '#a78bfa',
-    background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)',
+    padding: '8px 16px', fontSize: '12px', fontWeight: 500, color: '#f59e0b',
+    background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
     borderRadius: '6px', cursor: 'pointer',
   } as React.CSSProperties,
   dangerBtn: {
@@ -153,7 +153,7 @@ const s = {
   } as React.CSSProperties,
   viewerNavItem: (active: boolean) => ({
     padding: '8px 12px', fontSize: '12px', fontWeight: active ? 600 : 400,
-    color: active ? '#7c3aed' : '#64748b', background: active ? 'rgba(124,58,237,0.08)' : 'transparent',
+    color: active ? '#f59e0b' : '#64748b', background: active ? 'rgba(245,158,11,0.08)' : 'transparent',
     border: 'none', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' as const,
   }),
 
@@ -214,7 +214,7 @@ const s = {
   }),
 
   empty: { textAlign: 'center' as const, padding: '60px 20px', color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
-  spinner: { display: 'inline-block', width: '16px', height: '16px', border: '2px solid #7c3aed', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' } as React.CSSProperties,
+  spinner: { display: 'inline-block', width: '16px', height: '16px', border: '2px solid #f59e0b', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' } as React.CSSProperties,
 };
 
 // ─── Main Component ─────────────────────────────────────────────────────────
@@ -328,8 +328,8 @@ export function CompliancePage() {
           </div>
           {stats ? (
             <div style={s.statsGrid}>
-              <div style={s.statCard('#7c3aed')}>
-                <div style={s.statValue('#a78bfa')}>{stats.total_actions.toLocaleString()}</div>
+              <div style={s.statCard('#f59e0b')}>
+                <div style={s.statValue('#f59e0b')}>{stats.total_actions.toLocaleString()}</div>
                 <div style={s.statLabel}>Actions Governed</div>
               </div>
               <div style={s.statCard(stats.compliance_rate >= 95 ? '#22c55e' : '#ef4444')}>
@@ -373,7 +373,7 @@ export function CompliancePage() {
                 {reports.slice(0, 5).map(r => (
                   <tr key={r.id}>
                     <td style={s.td}>{r.title}</td>
-                    <td style={s.td}><span style={s.badge('#a78bfa', 'rgba(124,58,237,0.15)')}>{r.report_type}</span></td>
+                    <td style={s.td}><span style={s.badge('#f59e0b', 'rgba(245,158,11,0.15)')}>{r.report_type}</span></td>
                     <td style={s.td}><span style={s.statusBadge(r.status)}>{r.status}</span></td>
                     <td style={s.td}>{new Date(r.generated_at).toLocaleDateString()}</td>
                     <td style={s.td}>
@@ -404,7 +404,7 @@ export function CompliancePage() {
               {reports.map(r => (
                 <tr key={r.id}>
                   <td style={s.td}>{r.title}</td>
-                  <td style={s.td}><span style={s.badge('#a78bfa', 'rgba(124,58,237,0.15)')}>{r.report_type}</span></td>
+                  <td style={s.td}><span style={s.badge('#f59e0b', 'rgba(245,158,11,0.15)')}>{r.report_type}</span></td>
                   <td style={{ ...s.td, fontSize: '11px' }}>
                     {new Date(r.period_start).toLocaleDateString()} – {new Date(r.period_end).toLocaleDateString()}
                   </td>
@@ -448,7 +448,7 @@ export function CompliancePage() {
                 {reports.filter(r => r.schedule_cron).map(r => (
                   <tr key={r.id}>
                     <td style={s.td}>{r.report_type}</td>
-                    <td style={s.td}><code style={{ fontSize: '12px', color: '#a78bfa' }}>{r.schedule_cron}</code></td>
+                    <td style={s.td}><code style={{ fontSize: '12px', color: '#f59e0b' }}>{r.schedule_cron}</code></td>
                     <td style={s.td}>{(r.recipients || []).join(', ') || '—'}</td>
                   </tr>
                 ))}
@@ -635,11 +635,11 @@ function ReportViewer({ report, activeSection, onSectionChange, onBack }: {
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <a href={complianceApi.getPdfUrl(report.id)} target="_blank" rel="noreferrer"
-            style={{ ...s.primaryBtn, textDecoration: 'none', fontSize: '12px', padding: '8px 14px', background: '#7c3aed' }}>
+            style={{ ...s.primaryBtn, textDecoration: 'none', fontSize: '12px', padding: '8px 14px', background: '#f59e0b' }}>
             Download PDF
           </a>
           <a href={complianceApi.getCsvUrl(report.id)}
-            style={{ ...s.secondaryBtn, textDecoration: 'none', color: '#a78bfa', borderColor: 'rgba(124,58,237,0.2)' }}>
+            style={{ ...s.secondaryBtn, textDecoration: 'none', color: '#f59e0b', borderColor: 'rgba(245,158,11,0.2)' }}>
             Export CSV
           </a>
         </div>
@@ -658,8 +658,8 @@ function ReportViewer({ report, activeSection, onSectionChange, onBack }: {
         {/* Content */}
         <div style={s.viewerContent}>
           {/* Report Header */}
-          <div style={{ marginBottom: '32px', borderBottom: '3px solid #7c3aed', paddingBottom: '20px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', letterSpacing: '2px', marginBottom: '8px' }}>VIENNA OS</div>
+          <div style={{ marginBottom: '32px', borderBottom: '3px solid #f59e0b', paddingBottom: '20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#f59e0b', letterSpacing: '2px', marginBottom: '8px' }}>VIENNA OS</div>
             <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#e2e8f0', margin: '0 0 6px' }}>{report.title}</h1>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
               Period: <strong>{new Date(report.period_start).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong> — <strong>{new Date(report.period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>
@@ -874,7 +874,7 @@ function ApprovalMetricsSection({ data, index }: { data: any; index: number }) {
       {data.by_tier?.length > 0 && (
         <>
           <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>By Tier</h3>
-          <BarChart items={data.by_tier.map((t: any) => ({ label: t.tier, value: t.count, color: '#7c3aed' }))} />
+          <BarChart items={data.by_tier.map((t: any) => ({ label: t.tier, value: t.count, color: '#f59e0b' }))} />
         </>
       )}
     </div>
@@ -996,7 +996,7 @@ function BarChart({ items }: { items: Array<{ label: string; value: number; colo
 function InlineBar({ pct }: { pct: number }) {
   return (
     <span style={{ display: 'inline-block', width: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
-      <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#7c3aed', borderRadius: '3px' }} />
+      <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#f59e0b', borderRadius: '3px' }} />
     </span>
   );
 }
@@ -1007,7 +1007,7 @@ function MiniChart({ data }: { data: Array<{ date: string; count: number }> }) {
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
       {data.map((d, i) => (
         <div key={i} title={`${d.date}: ${d.count}`}
-          style={{ flex: 1, minWidth: '3px', background: '#7c3aed', borderRadius: '2px 2px 0 0', opacity: 0.8,
+          style={{ flex: 1, minWidth: '3px', background: '#f59e0b', borderRadius: '2px 2px 0 0', opacity: 0.8,
             height: `${Math.max(4, (d.count / max) * 56)}px` }} />
       ))}
     </div>

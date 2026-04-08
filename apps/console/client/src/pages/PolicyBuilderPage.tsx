@@ -1121,21 +1121,21 @@ function VersionHistoryModal({ rule, onRevert, onClose }: {
                 return (
                   <div key={v.version} style={{
                     padding: '12px 14px', borderRadius: '8px',
-                    background: isCurrent ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${isCurrent ? 'rgba(124,58,237,0.2)' : 'var(--border-subtle)'}`,
+                    background: isCurrent ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${isCurrent ? 'rgba(245,158,11,0.2)' : 'var(--border-subtle)'}`,
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{
                           fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)',
-                          color: isCurrent ? '#a78bfa' : 'var(--text-secondary)',
+                          color: isCurrent ? '#f59e0b' : 'var(--text-secondary)',
                         }}>
                           v{v.version}
                         </span>
                         {isCurrent && (
                           <span style={{
                             fontSize: '9px', fontWeight: 600, padding: '1px 6px', borderRadius: '3px',
-                            background: 'rgba(124,58,237,0.15)', color: '#a78bfa',
+                            background: 'rgba(245,158,11,0.15)', color: '#f59e0b',
                           }}>
                             CURRENT
                           </span>
@@ -1348,10 +1348,10 @@ export function PolicyBuilderPage() {
               padding: '8px 16px',
               fontSize: '13px',
               fontWeight: activeTab === tab.id ? 600 : 400,
-              color: activeTab === tab.id ? '#a78bfa' : '#9ca3af',
-              background: activeTab === tab.id ? 'rgba(124,58,237,0.08)' : 'transparent',
+              color: activeTab === tab.id ? '#f59e0b' : '#9ca3af',
+              background: activeTab === tab.id ? 'rgba(245,158,11,0.08)' : 'transparent',
               border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid #7c3aed' : '2px solid transparent',
+              borderBottom: activeTab === tab.id ? '2px solid #f59e0b' : '2px solid transparent',
               borderRadius: '8px 8px 0 0',
               cursor: 'pointer',
               fontFamily: 'var(--font-sans)',

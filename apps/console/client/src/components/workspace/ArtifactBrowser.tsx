@@ -397,7 +397,7 @@ export function ArtifactBrowser({ investigationId, selectedArtifactId, onSelectA
                   {selectedArtifact.intent_id && (
                     <div className="flex items-center gap-2">
                       <span className="text-gray-500">Intent:</span>
-                      <span className="px-2 py-0.5 bg-purple-900/50 text-purple-300 rounded font-mono text-xs">
+                      <span className="px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded font-mono text-xs">
                         {selectedArtifact.intent_id}
                       </span>
                     </div>

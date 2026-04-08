@@ -50,13 +50,13 @@ const EVENT_CONFIG: Record<string, {
   'intent.submitted': { icon: Zap, label: 'Intent Submitted', color: 'text-blue-400', bgColor: 'bg-blue-500/10' },
   'intent.approved': { icon: CheckCircle, label: 'Intent Approved', color: 'text-green-400', bgColor: 'bg-green-500/10' },
   'intent.denied': { icon: XCircle, label: 'Intent Denied', color: 'text-red-400', bgColor: 'bg-red-500/10' },
-  'warrant.issued': { icon: Lock, label: 'Warrant Issued', color: 'text-purple-400', bgColor: 'bg-purple-500/10' },
+  'warrant.issued': { icon: Lock, label: 'Warrant Issued', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   'warrant.expired': { icon: Clock, label: 'Warrant Expired', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   'warrant.tampered': { icon: AlertTriangle, label: 'TAMPER DETECTED', color: 'text-red-500', bgColor: 'bg-red-500/20' },
   'approval.required': { icon: Eye, label: 'Approval Required', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   'approval.resolved': { icon: CheckCircle, label: 'Approval Resolved', color: 'text-green-400', bgColor: 'bg-green-500/10' },
   'agent.registered': { icon: Users, label: 'Agent Registered', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
-  'execution.started': { icon: Activity, label: 'Execution Started', color: 'text-indigo-400', bgColor: 'bg-indigo-500/10' },
+  'execution.started': { icon: Activity, label: 'Execution Started', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   'execution.completed': { icon: CheckCircle, label: 'Execution Completed', color: 'text-green-400', bgColor: 'bg-green-500/10' },
   'execution.scope_drift': { icon: AlertTriangle, label: 'Scope Drift!', color: 'text-red-400', bgColor: 'bg-red-500/10' },
   'anomaly.detected': { icon: AlertTriangle, label: 'Anomaly Detected', color: 'text-orange-400', bgColor: 'bg-orange-500/10' },
@@ -66,7 +66,7 @@ const TIER_COLORS: Record<string, string> = {
   T0: 'bg-green-500/20 text-green-400 border-green-500/30',
   T1: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   T2: 'bg-red-500/20 text-red-400 border-red-500/30',
-  T3: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  T3: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
 };
 
 // ─── Stat Card ───
@@ -257,7 +257,7 @@ export function GovernanceLivePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-3">
-            <Activity className="w-7 h-7 text-purple-400" />
+            <Activity className="w-7 h-7 text-amber-400" />
             Governance Live
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
@@ -285,7 +285,7 @@ export function GovernanceLivePage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard icon={Zap} label="Intents / min" value={stats.intents_per_minute} color="text-blue-400" />
-        <StatCard icon={Lock} label="Active Warrants" value={stats.warrants_active} color="text-purple-400" />
+        <StatCard icon={Lock} label="Active Warrants" value={stats.warrants_active} color="text-amber-400" />
         <StatCard icon={Eye} label="Pending Approvals" value={stats.approvals_pending} color="text-amber-400" />
         <StatCard icon={Users} label="Active Agents" value={stats.agents_active} color="text-cyan-400" />
         <StatCard icon={Shield} label="Chain Length" value={stats.chain_length} color="text-green-400" />

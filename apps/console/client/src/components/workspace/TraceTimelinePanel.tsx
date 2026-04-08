@@ -380,7 +380,7 @@ export function TraceTimelinePanel({
                     {(event.intent_id || event.execution_id || event.objective_id || event.artifact_id) && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {event.intent_id && (
-                          <span className="px-2 py-0.5 text-xs bg-purple-900/50 text-purple-300 rounded font-mono">
+                          <span className="px-2 py-0.5 text-xs bg-amber-900/50 text-amber-300 rounded font-mono">
                             intent:{event.intent_id.substring(0, 8)}
                           </span>
                         )}

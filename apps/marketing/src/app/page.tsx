@@ -289,95 +289,131 @@ function AnimatedPipeline() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 4); // 0=idle, 1, 2, 3
-    }, 2500);
+      setActiveStep((prev) => (prev + 1) % 9); // 0=idle, 1-8 = steps
+    }, 2000);
     return () => clearInterval(timer);
   }, []);
 
   const steps = [
     {
-      label: "POLICY_DEFINITION",
-      num: "[1/3]",
-      lines: [
-        { k: "action:", v: "db:migration", vc: "text-amber-500" },
-        { k: "tier:", v: "T2", vc: "text-amber-500" },
-        { k: "quorum:", v: "2", vc: "text-amber-500" },
-        { k: "approvers:", v: "['eng-lead', 'cto']", vc: "text-zinc-400" },
-      ],
-      status: "✓ POLICY_REGISTERED",
+      label: "INTENT_SUBMIT",
+      num: "[1/8]",
+      desc: "Agent declares intended action",
+      detail: "agent → API",
+      color: "text-zinc-400",
     },
     {
-      label: "WARRANT_ISSUANCE",
-      num: "[2/3]",
-      lines: [
-        { k: "warrant_id:", v: "WRT-A3F9", vc: "text-amber-500" },
-        { k: "approvals:", v: "2/2 ✓", vc: "text-green-500" },
-        { k: "signature:", v: "0x7f3a2b...", vc: "text-amber-500" },
-        { k: "ttl:", v: "300s", vc: "text-zinc-400" },
-      ],
-      status: "✓ WARRANT_ACTIVE",
+      label: "POLICY_EVAL",
+      num: "[2/8]",
+      desc: "Engine evaluates against policies",
+      detail: "11 operators",
+      color: "text-amber-500",
     },
     {
-      label: "EXECUTION_VERIFY",
-      num: "[3/3]",
-      lines: [
-        { k: "verification:", v: "PASS", vc: "text-green-500" },
-        { k: "audit_hash:", v: "SHA-256", vc: "text-amber-500" },
-        { k: "ledger_root:", v: "0x7e3c...", vc: "text-zinc-400" },
-        { k: "status:", v: "EXECUTED", vc: "text-green-500" },
-      ],
-      status: "✓ EXECUTION_COMPLETE",
+      label: "RISK_TIER_ROUTE",
+      num: "[3/8]",
+      desc: "Classify T0-T3, route accordingly",
+      detail: "auto | gate | halt",
+      color: "text-amber-500",
+    },
+    {
+      label: "PROPOSAL_CREATE",
+      num: "[4/8]",
+      desc: "Generate proposal for approvers",
+      detail: "quorum defined",
+      color: "text-zinc-400",
+    },
+    {
+      label: "APPROVAL_GATE",
+      num: "[5/8]",
+      desc: "Human or policy approves / denies",
+      detail: "M-of-N quorum",
+      color: "text-amber-500",
+    },
+    {
+      label: "WARRANT_ISSUE",
+      num: "[6/8]",
+      desc: "Cryptographic warrant signed",
+      detail: "SHA-256 + TTL",
+      color: "text-green-500",
+    },
+    {
+      label: "EXECUTION",
+      num: "[7/8]",
+      desc: "Agent executes with warrant authority",
+      detail: "scoped + bounded",
+      color: "text-green-500",
+    },
+    {
+      label: "AUDIT_CHAIN",
+      num: "[8/8]",
+      desc: "Immutable record written to ledger",
+      detail: "merkle root",
+      color: "text-green-500",
     },
   ];
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      {steps.map((step, i) => {
-        const isActive = activeStep === i + 1;
-        const isDone = activeStep > i + 1 || (activeStep === 0 && i < 3);
-        return (
-          <div
-            key={step.label}
-            className={`bg-black border p-6 transition-all duration-500 ${
-              isActive
-                ? "border-amber-500 shadow-lg shadow-amber-500/10"
-                : "border-amber-500/30"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-              <span
-                className={`text-[10px] font-mono uppercase transition-colors ${
-                  isActive ? "text-amber-400" : "text-amber-500"
-                }`}
-              >
-                {step.label}
-              </span>
-              <span className="text-[10px] font-mono text-zinc-600">
-                {step.num}
-              </span>
-            </div>
-            <div className="space-y-3 text-xs font-mono text-zinc-400">
-              {step.lines.map((line) => (
-                <div key={line.k}>
-                  <span className="text-zinc-600">{line.k}</span>{" "}
-                  <span className={line.vc}>{line.v}</span>
-                </div>
-              ))}
-              <div className="pt-3 border-t border-amber-500/10">
+    <div>
+      {/* Full pipeline flow */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {steps.map((step, i) => {
+          const isActive = activeStep === i + 1;
+          const isDone = activeStep > i + 1 || (activeStep === 0);
+          return (
+            <div
+              key={step.label}
+              className={`bg-black border p-4 transition-all duration-500 ${
+                isActive
+                  ? "border-amber-500 shadow-lg shadow-amber-500/10"
+                  : isDone
+                  ? "border-amber-500/30"
+                  : "border-zinc-800"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2 pb-2 border-b border-amber-500/10">
                 <span
-                  className={`text-[10px] transition-colors ${
-                    isActive
-                      ? "text-amber-500 animate-pulse"
-                      : "text-green-500"
+                  className={`text-[9px] font-mono uppercase transition-colors font-bold ${
+                    isActive ? "text-amber-400" : "text-amber-500/70"
                   }`}
                 >
-                  {isActive ? "⟳ PROCESSING..." : step.status}
+                  {step.label}
+                </span>
+                <span className="text-[9px] font-mono text-zinc-700">
+                  {step.num}
+                </span>
+              </div>
+              <div className="text-[10px] font-mono text-zinc-500 mb-1">
+                {step.desc}
+              </div>
+              <div className={`text-[10px] font-mono ${step.color}`}>
+                {step.detail}
+              </div>
+              <div className="mt-2 pt-1 border-t border-amber-500/5">
+                <span
+                  className={`text-[9px] font-mono transition-colors ${
+                    isActive
+                      ? "text-amber-500 animate-pulse"
+                      : isDone
+                      ? "text-green-500/60"
+                      : "text-zinc-700"
+                  }`}
+                >
+                  {isActive ? "⟳ ACTIVE" : isDone ? "✓ DONE" : "○ PENDING"}
                 </span>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
+      {/* Architecture flow line */}
+      <div className="mt-6 bg-black border border-amber-500/20 p-4">
+        <div className="text-[10px] font-mono text-zinc-600 mb-2">FULL_PIPELINE_FLOW</div>
+        <div className="text-[10px] font-mono text-amber-500/80 break-all leading-relaxed">
+          Intent → Policy Eval → Risk Tier → Proposal → Approval → Warrant → Execution → Audit Chain
+        </div>
+      </div>
     </div>
   );
 }
@@ -617,19 +653,46 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Testimonial */}
-              <div className="mt-10 max-w-2xl mx-auto">
-                <div className="bg-black border border-amber-500/20 p-6">
-                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-amber-500/10">
+              {/* Primary Testimonial — ai.ventures / law.ai (real deployment) */}
+              <div className="mt-10 max-w-3xl mx-auto">
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
                     <span className="text-[10px] font-mono text-amber-500 uppercase">
-                      OPERATOR_TESTIMONY
+                      DEPLOYMENT_CASE_STUDY
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      production since 2026-03
                     </span>
                   </div>
+
+                  {/* Deployment stats */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 pb-6 border-b border-amber-500/10">
+                    <div>
+                      <div className="text-[10px] font-mono text-zinc-600">org</div>
+                      <div className="text-xs font-mono text-amber-500 font-bold">ai.ventures</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono text-zinc-600">governed_agents</div>
+                      <div className="text-xs font-mono text-amber-500 font-bold">20+</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono text-zinc-600">products</div>
+                      <div className="text-xs font-mono text-amber-500 font-bold">30+ AI sites</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono text-zinc-600">key_deployment</div>
+                      <div className="text-xs font-mono text-amber-500 font-bold">law.ai</div>
+                    </div>
+                  </div>
+
                   <blockquote className="text-sm font-mono text-zinc-300 leading-relaxed mb-4">
-                    &quot;We govern 20+ autonomous agents across 30 AI products with Vienna OS.
-                    Before warrants, an agent once deployed a breaking schema migration to production at 3 AM
-                    with no approval. That can&apos;t happen anymore — every prod write requires a T2 warrant
-                    with human sign-off. The audit trail alone saved us weeks during compliance review.&quot;
+                    &quot;We run 20+ autonomous agents across our portfolio — law.ai, biography.ai,
+                    corporate.ai, and dozens more. Before Vienna OS, an agent deployed a breaking
+                    schema migration to production at 3 AM with zero approval. That can&apos;t happen
+                    anymore. Every prod write requires a T2 warrant with human sign-off. At law.ai,
+                    our agents handle legal research, document analysis, and client workflows — all
+                    governed by warrant-based execution. The audit trail alone made us compliance-ready
+                    in weeks instead of months.&quot;
                   </blockquote>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
@@ -640,8 +703,24 @@ export default function Home() {
                         Whit Anderson
                       </div>
                       <div className="text-[10px] font-mono text-zinc-600">
-                        CEO, ai.ventures — 30+ AI products, 20+ governed agents
+                        CEO, ai.ventures — 30+ AI products governed by Vienna OS
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Use case breakdown */}
+                  <div className="mt-6 pt-4 border-t border-amber-500/10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-[10px] font-mono">
+                    <div className="space-y-1">
+                      <div className="text-amber-500 font-bold">law.ai</div>
+                      <div className="text-zinc-600">legal research agents, doc analysis, client workflows</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-amber-500 font-bold">biography.ai</div>
+                      <div className="text-zinc-600">content generation, media processing, user data handling</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-amber-500 font-bold">corporate.ai</div>
+                      <div className="text-zinc-600">vendor scoring, data enrichment, marketplace ops</div>
                     </div>
                   </div>
                 </div>
@@ -659,7 +738,7 @@ export default function Home() {
                   EXECUTION_PIPELINE
                 </h2>
                 <p className="text-zinc-500 font-mono text-sm">
-                  request → evaluate → authorize → execute → verify
+                  intent → policy → risk tier → proposal → approval → warrant → execute → audit
                 </p>
               </div>
 
@@ -804,7 +883,7 @@ export default function Home() {
                     <div>
                       <span className="text-zinc-600">throughput:</span>{" "}
                       <span className="text-amber-500">
-                        millions of evals/day
+                        designed for high-throughput
                       </span>
                     </div>
                     <div>
@@ -843,7 +922,7 @@ export default function Home() {
                     </div>
                     <div>
                       <span className="text-zinc-600">retention:</span>{" "}
-                      <span className="text-zinc-400">7 years</span>
+                      <span className="text-zinc-400">configurable (up to 7yr)</span>
                     </div>
                     <div>
                       <span className="text-zinc-600">supports:</span>{" "}
@@ -1100,39 +1179,63 @@ export default function Home() {
               </div>
 
               <div className="grid lg:grid-cols-2 gap-8">
-                {/* Left: Terminal Commands */}
+                {/* Left: Install + Code Example */}
                 <div className="space-y-4">
                   <div className="bg-black border border-amber-500/30 p-6">
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
                       <span className="text-[10px] font-mono text-amber-500">
-                        PYTHON
+                        INSTALL
                       </span>
                       <span className="text-[10px] font-mono text-zinc-600">
-                        $ pip
+                        npm | pip
                       </span>
                     </div>
-                    <div className="font-mono text-sm text-zinc-400">
-                      <span className="text-green-500">$</span> pip install
-                      vienna-os
+                    <div className="space-y-2 font-mono text-sm text-zinc-400">
+                      <div>
+                        <span className="text-green-500">$</span> npm install @vienna-os/sdk
+                      </div>
+                      <div>
+                        <span className="text-green-500">$</span> pip install vienna-os
+                      </div>
                     </div>
                   </div>
 
+                  {/* Real code example */}
                   <div className="bg-black border border-amber-500/30 p-6">
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
                       <span className="text-[10px] font-mono text-amber-500">
-                        NODE.JS
+                        USAGE_EXAMPLE
                       </span>
                       <span className="text-[10px] font-mono text-zinc-600">
-                        $ npm
+                        node.js
                       </span>
                     </div>
-                    <div className="font-mono text-sm text-zinc-400">
-                      <span className="text-green-500">$</span> npm install
-                      @vienna-os/sdk
-                    </div>
+                    <pre className="font-mono text-[11px] text-zinc-400 leading-relaxed overflow-x-auto">
+{`import { ViennaClient } from '@vienna-os/sdk';
+
+const vienna = new ViennaClient({
+  apiKey: process.env.VIENNA_API_KEY
+});
+
+// Submit intent — Vienna evaluates policy,
+// routes by risk tier, gates if needed
+const result = await vienna.intent.submit({
+  action: 'deploy_production',
+  agent:  'deploy-bot-v3',
+  payload: { service: 'api-gateway' }
+});
+
+if (result.warrant) {
+  // Warrant issued — execute with authority
+  await deployService(result.warrant.id);
+  await vienna.execution.complete(
+    result.warrant.id,
+    { status: 'success' }
+  );
+}`}
+                    </pre>
                   </div>
 
-                  {/* Docs link */}
                   <Link
                     href="/docs/getting-started"
                     className="flex items-center gap-2 text-xs font-mono text-amber-500 hover:text-amber-400 transition-all pl-1"
@@ -1152,7 +1255,7 @@ export default function Home() {
                       "GitHub Actions",
                       "Terraform",
                       "LangChain",
-                      "AutoGPT",
+                      "CrewAI",
                     ].map((tool) => (
                       <div
                         key={tool}
@@ -1161,6 +1264,29 @@ export default function Home() {
                         {tool}
                       </div>
                     ))}
+                  </div>
+
+                  {/* Python example too */}
+                  <div className="mt-4 bg-black border border-amber-500/30 p-6">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                      <span className="text-[10px] font-mono text-amber-500">
+                        PYTHON
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-600">
+                        3 lines to govern
+                      </span>
+                    </div>
+                    <pre className="font-mono text-[11px] text-zinc-400 leading-relaxed overflow-x-auto">
+{`from vienna_os import ViennaClient
+
+vienna = ViennaClient(api_key=os.environ["VIENNA_API_KEY"])
+
+result = vienna.intent.submit(
+    action="db_migration",
+    agent="migration-bot",
+    payload={"target": "production"}
+)`}
+                    </pre>
                   </div>
                 </div>
               </div>

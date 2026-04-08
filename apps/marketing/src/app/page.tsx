@@ -17,6 +17,7 @@ import { analytics } from "@/lib/analytics";
 import SiteNav from "@/components/SiteNav";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import TerminalTypewriter from "@/components/TerminalTypewriter";
+import ScrollAnimator from "@/components/ScrollAnimator";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
@@ -56,6 +57,7 @@ export default function Home() {
       {/* Sticky Header Container */}
       <div className="sticky top-0 z-50">
         <SiteNav />
+      <ScrollAnimator />
         
         {/* Coordinate/UTC Bar */}
         <div className="bg-black/90 backdrop-blur-sm border-b border-amber-500/20 px-6 py-2">
@@ -217,7 +219,7 @@ export default function Home() {
         {/* HOW IT WORKS - Interactive Pipeline Demo */}
         <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 EXECUTION_PIPELINE
               </h2>
@@ -347,7 +349,7 @@ export default function Home() {
         {/* TIERED RISK - Interactive Selector */}
         <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 RISK_TIER_MATRIX
               </h2>
@@ -467,7 +469,7 @@ export default function Home() {
         {/* SYSTEM_METRICS */}
         <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
 
                 SYSTEM_METRICS
@@ -540,7 +542,7 @@ export default function Home() {
         {/* PERSONA USE CASES - Terminal Style */}
         <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 USE_CASE_MATRIX
               </h2>
@@ -607,7 +609,7 @@ export default function Home() {
         {/* INTEGRATION - Interactive Terminal */}
         <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 SDK_INSTALLATION
               </h2>
@@ -720,7 +722,7 @@ export default function Home() {
         {/* BEFORE/AFTER SCENARIO - Terminal Comparison */}
         <section className="py-24 px-6 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 PROBLEM_SOLUTION_ANALYSIS
               </h2>
@@ -814,7 +816,7 @@ export default function Home() {
         {/* OPEN WARRANT STANDARD - Terminal Stats */}
         <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 PROTOCOL_SPEC
               </h2>
@@ -869,7 +871,7 @@ export default function Home() {
         {/* COMPLIANCE & CERTIFICATIONS - Terminal Style */}
         <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl">
+            <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
                 COMPLIANCE_MATRIX
               </h2>
@@ -975,6 +977,9 @@ export default function Home() {
                 <span>setup_time: &lt;5min</span>
               </div>
             </div>
+              <p className="mt-8 text-[10px] font-mono text-zinc-700">
+                The only AI governance platform with a patented cryptographic warrant system. USPTO #64/018,152. Cornell Law × ai.ventures.
+              </p>
           </div>
         </section>
       </main>

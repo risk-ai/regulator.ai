@@ -439,7 +439,7 @@ const vienna = new Vienna({
               },
               {
                 icon: Users,
-                color: "text-indigo-400",
+                color: "text-amber-400",
                 title: "Multi-Party Approvals",
                 desc: "High-risk actions require multiple operator signatures. Compliance-ready approval workflows."
               }

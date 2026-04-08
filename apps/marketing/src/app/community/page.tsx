@@ -28,8 +28,8 @@ const channels = [
     icon: MessageCircle,
     href: "https://discord.gg/VpQUjSTw",
     cta: "Join Discord",
-    color: "bg-indigo-500/20",
-    textColor: "text-indigo-400",
+    color: "bg-amber-500/20",
+    textColor: "text-amber-400",
   },
   {
     name: "Twitter / X",

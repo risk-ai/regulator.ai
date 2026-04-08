@@ -19,6 +19,10 @@ import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date().toISOString().split('.')[0] + 'Z');
+  const [pipelineStep, setPipelineStep] = useState(0);
+  const [activeTier, setActiveTier] = useState(2);
+  const [sdkTab, setSdkTab] = useState<'node' | 'python'>('node');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     analytics.page("Homepage");
@@ -27,8 +31,13 @@ export default function Home() {
     const timer = setInterval(() => {
       setCurrentTime(new Date().toISOString().split('.')[0] + 'Z');
     }, 1000);
+
+    // Auto-advance pipeline demo
+    const pipelineTimer = setInterval(() => {
+      setPipelineStep(prev => (prev + 1) % 4); // 0=idle, 1=define, 2=warrant, 3=verify
+    }, 3000);
     
-    return () => clearInterval(timer);
+    return () => { clearInterval(timer); clearInterval(pipelineTimer); };
   }, []);
 
   return (
@@ -203,7 +212,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOW IT WORKS - Terminal Style */}
+        {/* HOW IT WORKS - Interactive Pipeline Demo */}
         <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
@@ -215,54 +224,117 @@ export default function Home() {
               </p>
             </div>
 
+            {/* Interactive step indicator */}
+            <div className="flex items-center gap-2 mb-8 font-mono text-xs">
+              {['IDLE', 'DEFINE_POLICY', 'ISSUE_WARRANT', 'VERIFY_EXEC'].map((label, i) => (
+                <button
+                  key={label}
+                  onClick={() => setPipelineStep(i)}
+                  className={`px-3 py-1.5 border transition-all ${
+                    pipelineStep === i 
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-500' 
+                      : 'border-zinc-700 text-zinc-600 hover:border-zinc-500 hover:text-zinc-400'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+              <span className="ml-auto text-zinc-600">
+                cycle: {pipelineStep}/3 
+                <span className={`ml-2 inline-block w-2 h-2 rounded-full ${pipelineStep > 0 ? 'bg-amber-500 animate-pulse' : 'bg-zinc-700'}`}></span>
+              </span>
+            </div>
+
             <div className="grid md:grid-cols-3 gap-6">
-              {/* Step 1 - Terminal Card */}
-              <div className="bg-black border border-amber-500/30 p-6">
+              {/* Step 1 */}
+              <div className={`bg-black border p-6 transition-all duration-500 ${
+                pipelineStep === 1 ? 'border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]' : 'border-amber-500/30'
+              }`}>
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
                   <span className="text-[10px] font-mono text-amber-500 uppercase">POLICY_DEFINITION</span>
-                  <span className="text-[10px] font-mono text-zinc-600">[1/3]</span>
+                  <span className={`text-[10px] font-mono ${pipelineStep >= 1 ? 'text-green-500' : 'text-zinc-600'}`}>
+                    {pipelineStep >= 1 ? '● ACTIVE' : '○ WAITING'}
+                  </span>
                 </div>
                 <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div><span className="text-zinc-600">action:</span> <span className="text-amber-500">db:migration</span></div>
-                  <div><span className="text-zinc-600">tier:</span> <span className="text-amber-500">T2</span></div>
-                  <div><span className="text-zinc-600">quorum:</span> <span className="text-amber-500">2</span></div>
-                  <div><span className="text-zinc-600">approvers:</span> <span className="text-zinc-400">['eng-lead', 'cto']</span></div>
+                  <div className={`transition-opacity duration-500 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">action:</span> <span className="text-amber-500">db:migration</span>
+                  </div>
+                  <div className={`transition-opacity duration-700 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">tier:</span> <span className="text-amber-500">T2</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">quorum:</span> <span className="text-amber-500">2</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">approvers:</span> <span className="text-zinc-400">[&apos;eng-lead&apos;, &apos;cto&apos;]</span>
+                  </div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ POLICY_REGISTERED</span>
+                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 1 ? 'text-green-500' : 'text-zinc-700'}`}>
+                      {pipelineStep >= 1 ? '✓ POLICY_REGISTERED' : '_ AWAITING_INPUT'}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="bg-black border border-amber-500/30 p-6">
+              <div className={`bg-black border p-6 transition-all duration-500 ${
+                pipelineStep === 2 ? 'border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]' : 'border-amber-500/30'
+              }`}>
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
                   <span className="text-[10px] font-mono text-amber-500 uppercase">WARRANT_ISSUANCE</span>
-                  <span className="text-[10px] font-mono text-zinc-600">[2/3]</span>
+                  <span className={`text-[10px] font-mono ${pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-600'}`}>
+                    {pipelineStep >= 2 ? '● ACTIVE' : '○ WAITING'}
+                  </span>
                 </div>
                 <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div><span className="text-zinc-600">warrant_id:</span> <span className="text-amber-500">WRT-A3F9</span></div>
-                  <div><span className="text-zinc-600">approvals:</span> <span className="text-green-500">2/2 ✓</span></div>
-                  <div><span className="text-zinc-600">signature:</span> <span className="text-amber-500 break-all">0x7f3a2b...</span></div>
-                  <div><span className="text-zinc-600">ttl:</span> <span className="text-zinc-400">300s</span></div>
+                  <div className={`transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">warrant_id:</span> <span className="text-amber-500">WRT-A3F9</span>
+                  </div>
+                  <div className={`transition-opacity duration-700 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">approvals:</span> <span className={pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-600'}>{pipelineStep >= 2 ? '2/2 ✓' : '0/2'}</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">signature:</span> <span className="text-amber-500 break-all">0x7f3a2b...</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">ttl:</span> <span className="text-zinc-400">300s</span>
+                  </div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ WARRANT_ACTIVE</span>
+                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-700'}`}>
+                      {pipelineStep >= 2 ? '✓ WARRANT_ACTIVE' : '_ PENDING_APPROVAL'}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="bg-black border border-amber-500/30 p-6">
+              <div className={`bg-black border p-6 transition-all duration-500 ${
+                pipelineStep === 3 ? 'border-green-500 shadow-lg shadow-green-500/10 scale-[1.02]' : 'border-amber-500/30'
+              }`}>
                 <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
                   <span className="text-[10px] font-mono text-amber-500 uppercase">EXECUTION_VERIFY</span>
-                  <span className="text-[10px] font-mono text-zinc-600">[3/3]</span>
+                  <span className={`text-[10px] font-mono ${pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-600'}`}>
+                    {pipelineStep >= 3 ? '● COMPLETE' : '○ WAITING'}
+                  </span>
                 </div>
                 <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div><span className="text-zinc-600">verification:</span> <span className="text-green-500">PASS</span></div>
-                  <div><span className="text-zinc-600">audit_hash:</span> <span className="text-amber-500 break-all">SHA-256</span></div>
-                  <div><span className="text-zinc-600">ledger_root:</span> <span className="text-zinc-400 break-all">0x7e3c...</span></div>
-                  <div><span className="text-zinc-600">status:</span> <span className="text-green-500">EXECUTED</span></div>
+                  <div className={`transition-opacity duration-500 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">verification:</span> <span className={pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-600'}>{pipelineStep >= 3 ? 'PASS' : '...'}</span>
+                  </div>
+                  <div className={`transition-opacity duration-700 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">audit_hash:</span> <span className="text-amber-500">SHA-256</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">merkle_block:</span> <span className="text-zinc-400">#4,272</span>
+                  </div>
+                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
+                    <span className="text-zinc-600">status:</span> <span className={pipelineStep >= 3 ? 'text-green-500 font-bold' : 'text-zinc-600'}>{pipelineStep >= 3 ? 'EXECUTED ✓' : 'PENDING'}</span>
+                  </div>
                   <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ EXECUTION_COMPLETE</span>
+                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-700'}`}>
+                      {pipelineStep >= 3 ? '✓ EXECUTION_COMPLETE — AUDIT_SEALED' : '_ AWAITING_WARRANT'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -270,7 +342,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* TIERED RISK GOVERNANCE - Terminal Style */}
+        {/* TIERED RISK - Interactive Selector */}
         <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl">
@@ -278,75 +350,124 @@ export default function Home() {
                 RISK_TIER_MATRIX
               </h2>
               <p className="text-zinc-500 font-mono text-sm">
-                classify → route → enforce → verify
+                default_deny: true | policy_set: GOV-CORE-2026.04
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* T0 - Terminal Card */}
-              <div className="bg-black border border-zinc-700 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
-                  <span className="text-xs font-mono text-green-500">T0</span>
-                  <Zap className="w-4 h-4 text-zinc-600" />
-                </div>
-                <div className="space-y-2 text-[11px] font-mono">
-                  <div className="text-zinc-400 mb-3">AUTO_APPROVE</div>
-                  <div><span className="text-zinc-600">latency:</span> <span className="text-green-500">&lt;5ms</span></div>
-                  <div><span className="text-zinc-600">scope:</span> <span className="text-zinc-400">read_only</span></div>
-                  <div><span className="text-zinc-600">audit:</span> <span className="text-zinc-400">log_only</span></div>
-                </div>
-              </div>
+            {/* Tier selector buttons */}
+            <div className="grid grid-cols-4 gap-0 mb-8">
+              {[
+                { tier: 0, label: 'T0', sublabel: 'ROUTINE', color: 'zinc' },
+                { tier: 1, label: 'T1', sublabel: 'ELEVATED', color: 'green' },
+                { tier: 2, label: 'T2', sublabel: 'HIGH_RISK', color: 'amber' },
+                { tier: 3, label: 'T3', sublabel: 'CRITICAL', color: 'red' },
+              ].map(({ tier, label, sublabel, color }) => (
+                <button
+                  key={tier}
+                  onClick={() => setActiveTier(tier)}
+                  className={`p-4 font-mono text-center border transition-all ${
+                    activeTier === tier
+                      ? `bg-${color}-500/10 border-${color}-500/50 text-${color === 'zinc' ? 'white' : color + '-500'}`
+                      : 'bg-black border-zinc-800 text-zinc-600 hover:border-zinc-600 hover:text-zinc-400'
+                  }`}
+                >
+                  <div className="text-2xl font-bold">{label}</div>
+                  <div className="text-[10px] mt-1">{sublabel}</div>
+                </button>
+              ))}
+            </div>
 
-              {/* T1 */}
-              <div className="bg-black border border-zinc-700 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
-                  <span className="text-xs font-mono text-green-500">T1</span>
-                  <Activity className="w-4 h-4 text-green-600" />
+            {/* Expanded tier detail */}
+            <div className={`bg-black border p-8 transition-all duration-500 ${
+              activeTier === 0 ? 'border-zinc-600' :
+              activeTier === 1 ? 'border-green-500/50' :
+              activeTier === 2 ? 'border-amber-500/50' :
+              'border-red-500/50'
+            }`}>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4 text-xs font-mono">
+                  <div className="text-amber-500 text-sm font-bold mb-4">
+                    {activeTier === 0 && 'T0 / ROUTINE — Auto-approve, zero friction'}
+                    {activeTier === 1 && 'T1 / ELEVATED — Automated approval + audit trail'}
+                    {activeTier === 2 && 'T2 / HIGH_RISK — Human gate required'}
+                    {activeTier === 3 && 'T3 / CRITICAL — Multi-sig, break-glass protocol'}
+                  </div>
+                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-zinc-400">
+                    {activeTier === 0 && '8h'}
+                    {activeTier === 1 && '2h'}
+                    {activeTier === 2 && '30m'}
+                    {activeTier === 3 && '10m'}
+                  </span></div>
+                  <div><span className="text-zinc-600">approvals:</span> <span className="text-zinc-400">
+                    {activeTier === 0 && '0 (auto-pass)'}
+                    {activeTier === 1 && '1 (on-call lead)'}
+                    {activeTier === 2 && '2 (engineering + security)'}
+                    {activeTier === 3 && 'exec sponsor + CISO'}
+                  </span></div>
+                  <div><span className="text-zinc-600">targets:</span> <span className="text-zinc-400">
+                    {activeTier === 0 && 'staging + prod (read-only)'}
+                    {activeTier === 1 && 'staging + prod (scoped write)'}
+                    {activeTier === 2 && 'prod (write) w/ blast radius bounds'}
+                    {activeTier === 3 && 'all environments (break-glass)'}
+                  </span></div>
+                  <div><span className="text-zinc-600">evidence:</span> <span className="text-zinc-400">
+                    {activeTier === 0 && 'auto-logged'}
+                    {activeTier === 1 && 'change_plan required'}
+                    {activeTier === 2 && 'change_plan + rollback_plan'}
+                    {activeTier === 3 && 'incident_brief + board_notification'}
+                  </span></div>
                 </div>
-                <div className="space-y-2 text-[11px] font-mono">
-                  <div className="text-zinc-400 mb-3">POLICY_GATE</div>
-                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-green-500">1h</span></div>
-                  <div><span className="text-zinc-600">scope:</span> <span className="text-zinc-400">staging</span></div>
-                  <div><span className="text-zinc-600">approval:</span> <span className="text-zinc-400">heuristic</span></div>
-                </div>
-              </div>
-
-              {/* T2 - Highlighted */}
-              <div className="bg-amber-500/5 border border-amber-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-xs font-mono text-amber-500">T2</span>
-                  <Users className="w-4 h-4 text-amber-500" />
-                </div>
-                <div className="space-y-2 text-[11px] font-mono">
-                  <div className="text-amber-500 mb-3">HUMAN_GATE</div>
-                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-amber-500">30m</span></div>
-                  <div><span className="text-zinc-600">targets:</span> <span className="text-amber-500">prod (write)</span></div>
-                  <div><span className="text-zinc-600">mode:</span> <span className="text-amber-500">break-glass</span></div>
-                </div>
-              </div>
-
-              {/* T3 */}
-              <div className="bg-black border border-red-900/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-900/20">
-                  <span className="text-xs font-mono text-red-500">T3</span>
-                  <Lock className="w-4 h-4 text-red-600" />
-                </div>
-                <div className="space-y-2 text-[11px] font-mono">
-                  <div className="text-red-500 mb-3">STRICT_HALT</div>
-                  <div><span className="text-zinc-600">quorum:</span> <span className="text-red-500">3-of-5</span></div>
-                  <div><span className="text-zinc-600">scope:</span> <span className="text-red-500">destructive</span></div>
-                  <div><span className="text-zinc-600">rollback:</span> <span className="text-zinc-400">mandatory</span></div>
+                <div className="bg-zinc-950 border border-zinc-800 p-4">
+                  <div className="text-[10px] font-mono text-zinc-600 mb-3">EXAMPLE_ACTIONS</div>
+                  <div className="space-y-2 text-xs font-mono">
+                    {activeTier === 0 && (
+                      <>
+                        <div className="text-zinc-400">→ list_users</div>
+                        <div className="text-zinc-400">→ get_config</div>
+                        <div className="text-zinc-400">→ read_audit_logs</div>
+                        <div className="text-zinc-400">→ check_health</div>
+                        <div className="mt-3 text-green-500 text-[10px]">✓ AUTO_APPROVED — 0ms</div>
+                      </>
+                    )}
+                    {activeTier === 1 && (
+                      <>
+                        <div className="text-zinc-400">→ update_feature_flag</div>
+                        <div className="text-zinc-400">→ restart_service</div>
+                        <div className="text-zinc-400">→ send_notification</div>
+                        <div className="text-zinc-400">→ update_dns_record</div>
+                        <div className="mt-3 text-green-500 text-[10px]">✓ AUTO_LOGGED — warrant issued in 43ms</div>
+                      </>
+                    )}
+                    {activeTier === 2 && (
+                      <>
+                        <div className="text-amber-500">→ deploy_production</div>
+                        <div className="text-amber-500">→ wire_transfer</div>
+                        <div className="text-amber-500">→ schema_migration</div>
+                        <div className="text-amber-500">→ access_customer_pii</div>
+                        <div className="mt-3 text-amber-500 text-[10px]">● HUMAN_GATE — awaiting 2/2 approvals</div>
+                      </>
+                    )}
+                    {activeTier === 3 && (
+                      <>
+                        <div className="text-red-400">→ drop_database</div>
+                        <div className="text-red-400">→ rotate_root_keys</div>
+                        <div className="text-red-400">→ fleet_kill_switch</div>
+                        <div className="text-red-400">→ delete_all_backups</div>
+                        <div className="mt-3 text-red-400 text-[10px]">■ STRICT_HALT — multi-sig required, break-glass</div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
-
-        {/* CORE CAPABILITIES - With Live Metrics */}
+        {/* SYSTEM_METRICS */}
         <section className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+
                 SYSTEM_METRICS
               </h2>
               <p className="text-zinc-500 font-mono text-sm">
@@ -481,7 +602,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* INTEGRATION - Terminal Style */}
+        {/* INTEGRATION - Interactive Terminal */}
         <section className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl">
@@ -494,26 +615,76 @@ export default function Home() {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left: Terminal Commands */}
-              <div className="space-y-4">
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500">PYTHON</span>
-                    <span className="text-[10px] font-mono text-zinc-600">$ pip</span>
-                  </div>
-                  <div className="font-mono text-sm text-zinc-400">
-                    <span className="text-green-500">$</span> pip install vienna-os
-                  </div>
+              {/* Left: Tabbed Terminal */}
+              <div>
+                <div className="flex gap-0 mb-0">
+                  <button 
+                    onClick={() => setSdkTab('node')}
+                    className={`px-4 py-2 font-mono text-xs border-t border-l border-r transition-all ${
+                      sdkTab === 'node' 
+                        ? 'bg-black border-amber-500/30 text-amber-500 -mb-px z-10' 
+                        : 'bg-zinc-900/50 border-zinc-700 text-zinc-600 hover:text-zinc-400'
+                    }`}
+                  >
+                    NODE.JS
+                  </button>
+                  <button 
+                    onClick={() => setSdkTab('python')}
+                    className={`px-4 py-2 font-mono text-xs border-t border-l border-r transition-all ${
+                      sdkTab === 'python' 
+                        ? 'bg-black border-amber-500/30 text-amber-500 -mb-px z-10' 
+                        : 'bg-zinc-900/50 border-zinc-700 text-zinc-600 hover:text-zinc-400'
+                    }`}
+                  >
+                    PYTHON
+                  </button>
                 </div>
-
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500">NODE.JS</span>
-                    <span className="text-[10px] font-mono text-zinc-600">$ npm</span>
-                  </div>
-                  <div className="font-mono text-sm text-zinc-400">
-                    <span className="text-green-500">$</span> npm install @vienna-os/sdk
-                  </div>
+                <div className="bg-black border border-amber-500/30 p-6 relative">
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        sdkTab === 'node' 
+                          ? 'npm install @vienna-os/sdk' 
+                          : 'pip install vienna-os'
+                      );
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    className="absolute top-3 right-3 px-2 py-1 text-[10px] font-mono border border-zinc-700 text-zinc-600 hover:text-amber-500 hover:border-amber-500/30 transition-all"
+                  >
+                    {copied ? '✓ COPIED' : 'COPY'}
+                  </button>
+                  {sdkTab === 'node' ? (
+                    <div className="font-mono text-sm space-y-3">
+                      <div><span className="text-green-500">$</span> <span className="text-zinc-400">npm install @vienna-os/sdk</span></div>
+                      <div className="pt-3 border-t border-amber-500/10 text-xs text-zinc-500">
+                        <div className="text-amber-500/60 mb-2">// Quick start</div>
+                        <div><span className="text-violet-400">import</span> {'{'} ViennaClient {'}'} <span className="text-violet-400">from</span> <span className="text-green-400">&apos;@vienna-os/sdk&apos;</span>;</div>
+                        <div className="mt-1"><span className="text-violet-400">const</span> vienna = <span className="text-violet-400">new</span> <span className="text-amber-400">ViennaClient</span>({'{'}</div>
+                        <div className="pl-4">apiKey: process.env.<span className="text-amber-400">VIENNA_API_KEY</span></div>
+                        <div>{'}'});</div>
+                        <div className="mt-2"><span className="text-violet-400">const</span> result = <span className="text-violet-400">await</span> vienna.intent.<span className="text-amber-400">submit</span>({'{'}</div>
+                        <div className="pl-4">action: <span className="text-green-400">&apos;deploy_prod&apos;</span>,</div>
+                        <div className="pl-4">payload: {'{'} service: <span className="text-green-400">&apos;api-gw&apos;</span> {'}'}</div>
+                        <div>{'}'});</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="font-mono text-sm space-y-3">
+                      <div><span className="text-green-500">$</span> <span className="text-zinc-400">pip install vienna-os</span></div>
+                      <div className="pt-3 border-t border-amber-500/10 text-xs text-zinc-500">
+                        <div className="text-amber-500/60 mb-2"># Quick start</div>
+                        <div><span className="text-violet-400">from</span> vienna_os <span className="text-violet-400">import</span> ViennaClient</div>
+                        <div className="mt-1">client = <span className="text-amber-400">ViennaClient</span>(</div>
+                        <div className="pl-4">api_key=os.environ[<span className="text-green-400">&apos;VIENNA_API_KEY&apos;</span>]</div>
+                        <div>)</div>
+                        <div className="mt-2">result = client.<span className="text-amber-400">submit_intent</span>(</div>
+                        <div className="pl-4">action=<span className="text-green-400">&apos;deploy_prod&apos;</span>,</div>
+                        <div className="pl-4">params={'{'}<span className="text-green-400">&apos;service&apos;</span>: <span className="text-green-400">&apos;api-gw&apos;</span>{'}'}</div>
+                        <div>)</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -521,14 +692,23 @@ export default function Home() {
               <div>
                 <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4">FRAMEWORK_SUPPORT</div>
                 <div className="grid grid-cols-2 gap-3">
-                  {['GitHub Actions', 'Terraform', 'LangChain', 'AutoGPT'].map((tool) => (
+                  {['GitHub Actions', 'Terraform', 'LangChain', 'CrewAI'].map((tool) => (
                     <div 
                       key={tool}
-                      className="px-4 py-3 bg-black border border-zinc-700 flex items-center justify-center font-mono text-xs text-zinc-400 hover:text-amber-500 hover:border-amber-500/30 transition-all"
+                      className="px-4 py-3 bg-black border border-zinc-700 flex items-center justify-center font-mono text-xs text-zinc-400 hover:text-amber-500 hover:border-amber-500/30 transition-all cursor-pointer group"
                     >
-                      {tool}
+                      <span className="group-hover:translate-x-1 transition-transform">{tool}</span>
                     </div>
                   ))}
+                </div>
+                <div className="mt-6 bg-black border border-amber-500/20 p-4">
+                  <div className="text-[10px] font-mono text-zinc-600 uppercase mb-3">SLOs</div>
+                  <div className="space-y-2 text-xs font-mono">
+                    <div><span className="text-zinc-600">verify_p99:</span> <span className="text-amber-500">43ms</span></div>
+                    <div><span className="text-zinc-600">issue_p99:</span> <span className="text-amber-500">71ms</span></div>
+                    <div><span className="text-zinc-600">availability:</span> <span className="text-green-500">99.99%</span></div>
+                    <div><span className="text-zinc-600">regions:</span> <span className="text-zinc-400">3</span></div>
+                  </div>
                 </div>
               </div>
             </div>

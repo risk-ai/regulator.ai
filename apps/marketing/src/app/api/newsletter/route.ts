@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { Pool } from "pg";
 
 interface NewsletterEntry {
   email: string;
@@ -9,20 +8,45 @@ interface NewsletterEntry {
   userAgent?: string;
 }
 
-const NEWSLETTER_FILE = "/tmp/newsletter-signups.json";
+// Database connection pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined,
+});
 
-async function readSignups(): Promise<NewsletterEntry[]> {
+// Ensure schema is set on every connection
+pool.on("connect", (client) => {
+  client.query("SET search_path TO regulator, public");
+});
+
+async function getSignupCount(): Promise<number> {
+  const client = await pool.connect();
   try {
-    const data = await fs.readFile(NEWSLETTER_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    // File doesn't exist yet, return empty array
-    return [];
+    const result = await client.query("SELECT COUNT(*) as count FROM newsletter_signups");
+    return parseInt(result.rows[0].count, 10);
+  } finally {
+    client.release();
   }
 }
 
-async function writeSignups(signups: NewsletterEntry[]): Promise<void> {
-  await fs.writeFile(NEWSLETTER_FILE, JSON.stringify(signups, null, 2));
+async function addSignup(email: string, ip?: string, userAgent?: string): Promise<{ success: boolean; duplicate?: boolean }> {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      `INSERT INTO newsletter_signups (email, ip, user_agent, timestamp)
+       VALUES ($1, $2, $3, NOW())`,
+      [email, ip, userAgent]
+    );
+    return { success: true };
+  } catch (error: any) {
+    // Postgres unique constraint violation (duplicate email)
+    if (error.code === "23505") {
+      return { success: false, duplicate: true };
+    }
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 async function sendWelcomeEmail(email: string): Promise<boolean> {
@@ -129,27 +153,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Read existing signups
-    const signups = await readSignups();
+    // Try to add signup to database
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined;
+    const userAgent = request.headers.get("user-agent") || undefined;
+    
+    const result = await addSignup(trimmedEmail, ip, userAgent);
 
-    // Check for duplicates
-    if (signups.some(signup => signup.email === trimmedEmail)) {
+    if (result.duplicate) {
       return NextResponse.json(
         { error: "This email is already on our waitlist" },
         { status: 409 }
       );
     }
-
-    // Add new signup
-    const newSignup: NewsletterEntry = {
-      email: trimmedEmail,
-      timestamp: new Date().toISOString(),
-      ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
-      userAgent: request.headers.get("user-agent") || undefined,
-    };
-
-    signups.push(newSignup);
-    await writeSignups(signups);
 
     // Try to send welcome email
     const emailSent = await sendWelcomeEmail(trimmedEmail);
@@ -172,8 +187,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const signups = await readSignups();
-    const count = signups.length;
+    const count = await getSignupCount();
     
     // Return only count for privacy
     return NextResponse.json({ 

@@ -143,7 +143,7 @@ function CodeBlock({
           className="absolute top-3 right-3 p-1.5 rounded-md bg-black text-zinc-500 hover:text-white hover:bg-zinc-900 transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
           <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
@@ -196,7 +196,7 @@ function Method({
                 <div className="flex items-center gap-2 mb-1">
                   <code className="text-amber-500 font-mono text-sm">{param.name}</code>
                   <span className="text-zinc-500 text-xs">—</span>
-                  <code className="text-emerald-400 font-mono text-xs">{param.type}</code>
+                  <code className="text-green-500 font-mono text-xs">{param.type}</code>
                   {!param.required && <span className="text-zinc-600 text-xs">(optional)</span>}
                 </div>
                 <p className="text-zinc-400 text-sm">{param.description}</p>
@@ -208,7 +208,7 @@ function Method({
 
       <div className="mb-6">
         <h4 className="text-sm font-semibold text-white mb-2 uppercase tracking-wider">Returns</h4>
-        <code className="text-emerald-400 font-mono text-sm">{returns}</code>
+        <code className="text-green-500 font-mono text-sm">{returns}</code>
       </div>
 
       <div>
@@ -407,7 +407,7 @@ export default function ApiReferencePage() {
                               : "text-zinc-500 hover:text-zinc-300"
                           }`}
                         >
-                          <span className="text-emerald-400 font-mono mr-1">{m.method}</span>
+                          <span className="text-green-500 font-mono mr-1">{m.method}</span>
                           {m.label}
                         </a>
                       ))}
@@ -478,7 +478,7 @@ console.log('Intent status:', result.status);`}
                AUTHENTICATION
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="authentication" icon={<Shield className="w-6 h-6 text-emerald-400" />}>
+          <H2 id="authentication" icon={<Shield className="w-6 h-6 text-green-500" />}>
             Authentication
           </H2>
           <P>

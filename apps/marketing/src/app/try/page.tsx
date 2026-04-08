@@ -180,7 +180,7 @@ const scenarios = [
 ];
 
 const tierColors: Record<string, { text: string; bg: string; border: string }> = {
-  T0: { text: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
+  T0: { text: "text-green-500", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
   T1: { text: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20" },
   "T1+": { text: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
   T2: { text: "text-red-400", bg: "bg-red-400/10", border: "border-red-400/20" },
@@ -410,7 +410,7 @@ export default function TryPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Live Playground</span>
+              <span className="text-xs text-green-500 font-medium uppercase tracking-wider">Live Playground</span>
             </div>
             <div className="h-4 w-px bg-slate-700"></div>
             <span className="text-xs text-zinc-500 font-mono">
@@ -727,7 +727,7 @@ export default function TryPage() {
               <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Risk Tier Legend</h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="w-6 h-4 rounded bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 font-mono text-[10px] font-bold">T0</span>
+                  <span className="w-6 h-4 rounded bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center text-green-500 font-mono text-[10px] font-bold">T0</span>
                   <span className="text-zinc-300">Auto-approved (low risk)</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
@@ -856,7 +856,7 @@ export default function TryPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                      <span className="text-xs text-emerald-400 font-medium">Live Simulation</span>
+                      <span className="text-xs text-green-500 font-medium">Live Simulation</span>
                     </div>
                   </div>
                 </div>
@@ -1006,23 +1006,23 @@ export default function TryPage() {
                                 </div>
                                 <div className="bg-slate-800/50 p-3">
                                   <div className="text-xs text-zinc-500 mb-1">TTL</div>
-                                  <div className="font-mono text-xs text-emerald-400">60 seconds</div>
+                                  <div className="font-mono text-xs text-green-500">60 seconds</div>
                                 </div>
                               </div>
                             </div>
                             <div className="space-y-3">
                               <h4 className="text-sm font-semibold text-zinc-400">Security Features</h4>
                               <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                <div className="flex items-center gap-2 text-xs text-green-500">
                                   <span>✓</span> HMAC-SHA256 signature
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                <div className="flex items-center gap-2 text-xs text-green-500">
                                   <span>✓</span> Time-bounded execution
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                <div className="flex items-center gap-2 text-xs text-green-500">
                                   <span>✓</span> Scope-limited permissions
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-emerald-400">
+                                <div className="flex items-center gap-2 text-xs text-green-500">
                                   <span>✓</span> Non-transferable
                                 </div>
                               </div>
@@ -1109,7 +1109,7 @@ export default function TryPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <p className={`font-semibold text-sm ${
-                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-amber-500"
+                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-green-500" : "text-amber-500"
                           }`}>
                             {result.outcome === "denied" ? "Action Denied" : result.outcome === "auto-approved" ? "Auto-Approved" : "Approved"}
                             {" — "}
@@ -1119,7 +1119,7 @@ export default function TryPage() {
                           {result.execution_mode && result.outcome !== "denied" && (
                             <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
                               result.execution_mode === "vienna_direct" 
-                                ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
+                                ? "bg-emerald-400/10 text-green-500 border border-emerald-400/20"
                                 : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                             }`}>
                               {result.execution_mode === "vienna_direct" ? "Vienna Direct" : "Agent Passback"}
@@ -1130,7 +1130,7 @@ export default function TryPage() {
                           <span>Execution {result.execution_id.slice(0, 8)}… · {result.total_duration_ms}ms total</span>
                           {/* Execution Mode Explanation */}
                           {result.execution_mode === "vienna_direct" && result.outcome !== "denied" && (
-                            <span className="text-[10px] text-emerald-400">• Zero human latency</span>
+                            <span className="text-[10px] text-green-500">• Zero human latency</span>
                           )}
                           {result.execution_mode === "agent_passback" && (
                             <span className="text-[10px] text-amber-500">• Human oversight required</span>
@@ -1213,7 +1213,7 @@ export default function TryPage() {
                           ) : isDenied ? (
                             <span className="text-red-400 font-bold">✗</span>
                           ) : isComplete ? (
-                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span className="text-green-500 font-bold">✓</span>
                           ) : (
                             stepIcons[step.step] || "•"
                           )}
@@ -1225,7 +1225,7 @@ export default function TryPage() {
                               isSkipped ? "text-zinc-500" : 
                               isDenied ? "text-red-400" : 
                               active ? "text-amber-500" :
-                              isComplete ? "text-emerald-400" : "text-white"
+                              isComplete ? "text-green-500" : "text-white"
                             }`}>
                               {step.label}
                             </span>
@@ -1236,7 +1236,7 @@ export default function TryPage() {
                                 inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all
                                 ${isDenied ? "text-red-400 bg-red-400/10 border border-red-400/20" : 
                                   active ? "text-amber-500 bg-amber-500/10 border border-amber-500/20 animate-pulse" :
-                                  "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"}
+                                  "text-green-500 bg-emerald-400/10 border border-emerald-400/20"}
                               `}>
                                 {isDenied ? "✗ denied" : active ? "⏳ running" : "✓ complete"}
                               </span>
@@ -1304,10 +1304,10 @@ export default function TryPage() {
                       <div className="absolute inset-0 border-2 border-emerald-400/50 animate-ping" />
                     )}
                     
-                    <span className={`text-sm transition-all duration-500 ${warrantVerified ? "text-emerald-400" : "text-zinc-500"}`}>
+                    <span className={`text-sm transition-all duration-500 ${warrantVerified ? "text-green-500" : "text-zinc-500"}`}>
                       {warrantVerified ? "✓" : "…"}
                     </span>
-                    <span className={`text-xs font-semibold transition-all duration-300 ${warrantVerified ? "text-emerald-400" : "text-zinc-500"}`}>
+                    <span className={`text-xs font-semibold transition-all duration-300 ${warrantVerified ? "text-green-500" : "text-zinc-500"}`}>
                       {warrantVerified ? "VERIFIED" : "Verifying"}
                     </span>
                   </div>
@@ -1451,7 +1451,7 @@ export default function TryPage() {
                       <span className="v-status-dot v-status-success" />
                       <h3 className="text-white font-semibold text-sm">Merkle Warrant Chain</h3>
                     </div>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain!.chain_verified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${result.merkle_chain!.chain_verified ? 'bg-emerald-500/20 text-green-500' : 'bg-red-500/20 text-red-400'}`}>
                       {result.merkle_chain!.chain_verified ? '✓ Chain Verified' : '✗ Chain Broken'}
                     </span>
                   </div>
@@ -1525,7 +1525,7 @@ export default function TryPage() {
                       <div className="text-6xl font-bold text-white mb-1">{result.trust_score.score}</div>
                       <div className="text-sm text-zinc-400">out of 100</div>
                       <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
-                        result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-emerald-400' :
+                        result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-green-500' :
                         result.trust_score.level === 'good' ? 'bg-blue-500/20 text-blue-400' :
                         result.trust_score.level === 'watch' ? 'bg-amber-500/20 text-gold-300' :
                         'bg-red-500/20 text-red-400'

@@ -30,7 +30,7 @@ const releases = [
     version: "0.8.0",
     date: "March 26, 2026",
     tag: "Production Hardening",
-    tagColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    tagColor: "bg-emerald-500/20 text-green-500 border-emerald-500/30",
     changes: [
       { type: "feat", text: "Postgres migration (multi-tenant, row-level security)" },
       { type: "feat", text: "JWT auth + refresh tokens (15min/7day TTL)" },
@@ -96,7 +96,7 @@ const releases = [
 ];
 
 const typeColors: Record<string, { bg: string; text: string; label: string }> = {
-  feat: { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "NEW" },
+  feat: { bg: "bg-emerald-500/10", text: "text-green-500", label: "NEW" },
   fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIXED" },
   docs: { bg: "bg-amber-500/10", text: "text-gold-300", label: "DOCS" },
   improved: { bg: "bg-amber-500/10", text: "text-amber-500", label: "IMPROVED" },

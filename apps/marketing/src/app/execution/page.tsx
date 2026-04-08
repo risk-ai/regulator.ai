@@ -146,7 +146,7 @@ export default function ExecutionPage() {
               <div className="bg-gray-900/50 p-4 border border-amber-500/20">
                 <div className="text-xs text-amber-500 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-mono font-semibold">T0</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-green-500 border border-emerald-500/20 font-mono font-semibold">T0</span>
                   <span className="text-xs px-3 py-1.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 font-mono font-semibold">T1</span>
                   <span className="text-xs text-gray-500">Auto-approved execution</span>
                 </div>
@@ -296,7 +296,7 @@ export default function ExecutionPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              SDK <span className="text-emerald-400">Integration</span>
+              SDK <span className="text-green-500">Integration</span>
             </h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
               Simple API integration works with any agent framework. 
@@ -415,7 +415,7 @@ const vienna = new Vienna({
               },
               {
                 icon: Zap,
-                color: "text-emerald-400", 
+                color: "text-green-500", 
                 title: "Operational Flexibility",
                 desc: "Use Vienna's handlers for speed or agent infrastructure for complex integrations. Choose what works best."
               },

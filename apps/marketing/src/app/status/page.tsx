@@ -138,7 +138,7 @@ export default function StatusPage() {
                   <span className="text-xs text-zinc-600 font-mono">{svc.latencyMs}ms</span>
                 )}
                 <div className={`w-2 h-2 rounded-full ${svc.operational ? "bg-emerald-400" : "bg-red-400"}`} />
-                <span className={`text-xs font-medium ${svc.operational ? "text-emerald-400" : "text-red-400"}`}>
+                <span className={`text-xs font-medium ${svc.operational ? "text-green-500" : "text-red-400"}`}>
                   {svc.operational ? "Operational" : "Down"}
                 </span>
               </div>

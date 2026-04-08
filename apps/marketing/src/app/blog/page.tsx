@@ -38,7 +38,7 @@ const posts = [
     date: "March 30, 2026",
     readTime: "10 min",
     category: "Compliance",
-    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    categoryColor: "text-green-500 bg-emerald-500/10",
     author: "Max Anderson",
   },
   {
@@ -137,7 +137,7 @@ const posts = [
     date: "March 27, 2026",
     readTime: "12 min",
     category: "Compliance",
-    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    categoryColor: "text-green-500 bg-emerald-500/10",
     author: "Max Anderson",
   },
   {
@@ -159,7 +159,7 @@ const posts = [
     date: "March 25, 2026",
     readTime: "6 min",
     category: "Compliance",
-    categoryColor: "text-emerald-400 bg-emerald-500/10",
+    categoryColor: "text-green-500 bg-emerald-500/10",
     author: "Team",
   },
   {

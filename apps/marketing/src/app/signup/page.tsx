@@ -193,7 +193,7 @@ export default function SignupPage() {
                         key={f}
                         className="flex items-start gap-1.5 text-xs text-zinc-400"
                       >
-                        <Check className="w-3 h-3 text-emerald-400 mt-0.5 shrink-0" />
+                        <Check className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />
                         {f}
                       </li>
                     ))}
@@ -235,7 +235,7 @@ export default function SignupPage() {
                   `(${currentPlan.price}${currentPlan.period})`}
               </span>
               {selectedPlan === "community" && (
-                <span className="text-emerald-400 text-sm ml-2">
+                <span className="text-green-500 text-sm ml-2">
                   — No credit card required
                 </span>
               )}
@@ -309,7 +309,7 @@ export default function SignupPage() {
         {step === "done" && (
           <div className="max-w-lg">
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6">
-              <Zap className="w-8 h-8 text-emerald-400" />
+              <Zap className="w-8 h-8 text-green-500" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-3">
               You&apos;re in!
@@ -345,7 +345,7 @@ export default function SignupPage() {
                     Create an API Key
                   </h3>
                   <p className="text-sm text-zinc-400">
-                    Go to <span className="text-amber-500 font-medium">API Keys</span> in the console sidebar and create your first key. You&apos;ll get a <code className="text-xs bg-[#0a0e14] px-1.5 py-0.5 rounded text-emerald-400">vos_</code> prefixed token.
+                    Go to <span className="text-amber-500 font-medium">API Keys</span> in the console sidebar and create your first key. You&apos;ll get a <code className="text-xs bg-[#0a0e14] px-1.5 py-0.5 rounded text-green-500">vos_</code> prefixed token.
                   </p>
                 </div>
 

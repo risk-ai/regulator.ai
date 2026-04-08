@@ -56,7 +56,7 @@ export default function ROICalculator() {
   const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-12">
         <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <Shield className="w-4 h-4 mr-2" /> Back to Home
@@ -165,14 +165,14 @@ export default function ROICalculator() {
             {/* Hero ROI number */}
             <div className="bg-gradient-to-br from-gold-400/20 to-cyan-600/20 border border-amber-500/30 p-8 text-center">
               <p className="text-sm text-zinc-400 uppercase tracking-wider mb-2">Net Annual Savings</p>
-              <p className="text-5xl font-bold text-emerald-400">{fmt(roi.netSavings)}</p>
+              <p className="text-5xl font-bold text-green-500">{fmt(roi.netSavings)}</p>
               {roi.viennaCost > 0 && (
                 <p className="text-sm text-zinc-400 mt-2">
                   {roi.roiPercent === Infinity ? "∞" : Math.round(roi.roiPercent).toLocaleString()}% ROI &middot; Payback in {roi.paybackDays} days
                 </p>
               )}
               {roi.viennaCost === 0 && (
-                <p className="text-sm text-emerald-400 mt-2">Free tier — no cost!</p>
+                <p className="text-sm text-green-500 mt-2">Free tier — no cost!</p>
               )}
             </div>
 
@@ -186,7 +186,7 @@ export default function ROICalculator() {
                     <p className="text-xs text-zinc-400">85% reduction in AI agent incidents</p>
                   </div>
                 </div>
-                <p className="text-emerald-400 font-medium">{fmt(roi.incidentSavings)}</p>
+                <p className="text-green-500 font-medium">{fmt(roi.incidentSavings)}</p>
               </div>
 
               <div className="flex items-center justify-between bg-black border border-zinc-800 p-4">
@@ -197,7 +197,7 @@ export default function ROICalculator() {
                     <p className="text-xs text-zinc-400">70% reduction in manual audit work</p>
                   </div>
                 </div>
-                <p className="text-emerald-400 font-medium">{fmt(roi.complianceSavings)}</p>
+                <p className="text-green-500 font-medium">{fmt(roi.complianceSavings)}</p>
               </div>
 
               <div className="flex items-center justify-between bg-black border border-zinc-800 p-4">
@@ -208,7 +208,7 @@ export default function ROICalculator() {
                     <p className="text-xs text-zinc-400">Fewer outages from runaway agents</p>
                   </div>
                 </div>
-                <p className="text-emerald-400 font-medium">{fmt(roi.downtimeSavings)}</p>
+                <p className="text-green-500 font-medium">{fmt(roi.downtimeSavings)}</p>
               </div>
 
               <div className="flex items-center justify-between bg-black border border-amber-500/30 p-4">

@@ -16,7 +16,7 @@ const useCases = [
     icon: DollarSign,
     title: "Financial Services",
     subtitle: "SOX, FINRA, PCI-DSS Compliance",
-    color: "text-emerald-400",
+    color: "text-green-500",
     bgColor: "bg-emerald-500/10",
     borderColor: "border-emerald-500/20",
     description: "AI agents handling trades, wire transfers, and portfolio management need governance that satisfies regulators. Vienna OS provides cryptographic proof that every financial action was authorized within approved parameters.",
@@ -118,7 +118,7 @@ const useCases = [
 
 export default function UseCasesPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       {/* Header */}
       <div className="max-w-6xl mx-auto px-6 pt-24 pb-12">
         <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">

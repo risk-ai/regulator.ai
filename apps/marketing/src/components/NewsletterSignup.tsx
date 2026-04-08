@@ -54,9 +54,9 @@ export default function NewsletterSignup({
 
   if (isSuccess) {
     return (
-      <div className={`bg-navy-800/50 border border-navy-700/50 rounded-xl p-6 text-center ${className}`}>
+      <div className={`bg-black/50 border border-amber-500/10/50 rounded-xl p-6 text-center ${className}`}>
         <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-400/20 border border-emerald-400/30 rounded-full mb-4 animate-pulse">
-          <Check className="w-6 h-6 text-emerald-400" />
+          <Check className="w-6 h-6 text-green-500" />
         </div>
         <h3 className="text-lg font-semibold text-white mb-2">You're on the waitlist!</h3>
         <p className="text-sm text-slate-400">
@@ -67,7 +67,7 @@ export default function NewsletterSignup({
   }
 
   return (
-    <div className={`bg-navy-900 border border-navy-700/50 rounded-xl p-6 ${className}`}>
+    <div className={`bg-[#0a0e14] border border-amber-500/10/50 rounded-xl p-6 ${className}`}>
       {variant === "default" && (
         <>
           <div className="text-center mb-6">
@@ -83,7 +83,7 @@ export default function NewsletterSignup({
           </div>
 
           {showSocialProof && (
-            <div className="flex items-center justify-center gap-2 mb-6 p-3 bg-navy-800/50 border border-navy-700/30 rounded-lg">
+            <div className="flex items-center justify-center gap-2 mb-6 p-3 bg-black/50 border border-amber-500/10/30 rounded-lg">
               <Users className="w-4 h-4 text-slate-400" />
               <span className="text-sm text-slate-300">
                 Join 200+ developers governing AI agents
@@ -111,7 +111,7 @@ export default function NewsletterSignup({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
               disabled={isSubmitting}
-              className="flex-1 bg-navy-800 border border-navy-600 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-black border border-amber-500/20 rounded-lg px-4 py-3 text-white placeholder:text-slate-500 focus:border-gold-400 focus:outline-none transition disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Email address"
               required
             />

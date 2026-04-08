@@ -47,7 +47,7 @@ function CodeBlock({
           className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
           <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
@@ -331,19 +331,19 @@ except ViennaError as e:
             </div>
             <div className="space-y-2 text-sm text-zinc-400">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-green-500" />
                 <span>Real-time governance events and decisions</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-green-500" />
                 <span>Complete audit trail for compliance</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-green-500" />
                 <span>Agent fleet management and trust scoring</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                <CheckCircle className="w-4 h-4 text-green-500" />
                 <span>Policy configuration and testing</span>
               </div>
             </div>
@@ -353,7 +353,7 @@ except ViennaError as e:
         {/* Framework Integrations */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-            <Zap className="w-7 h-7 text-emerald-400" />
+            <Zap className="w-7 h-7 text-green-500" />
             Framework Integrations
           </h2>
           <p className="text-zinc-400 mb-6">

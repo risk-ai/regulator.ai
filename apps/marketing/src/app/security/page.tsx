@@ -1,8 +1,5 @@
 import {
-import SiteNav from "@/components/SiteNav";
-import SiteFooter from "@/components/SiteFooter";
   Shield,
-  ArrowLeft,
   Lock,
   Eye,
   FileCheck,
@@ -12,6 +9,8 @@ import SiteFooter from "@/components/SiteFooter";
   AlertTriangle,
 } from "lucide-react";
 import type { Metadata } from "next";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -139,33 +138,14 @@ const complianceRoadmap = [
 
 export default function SecurityPage() {
   return (
-    <div className="min-h-screen bg-[#0a0e14]">
-      <nav className="border-b border-amber-500/30">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a
-            href="/"
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">
-              Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
-            </span>
-          </a>
-          <a
-            href="/docs"
-            className="text-sm text-gray-400 hover:text-white transition"
-          >
-            Docs
-          </a>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white">
+      <SiteNav />
 
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-white mb-2">Security</h1>
-        <p className="text-gray-400 mb-12 max-w-2xl">
+      <main className="font-mono flex-1 max-w-6xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-mono font-bold text-amber-500 mb-2">SECURITY_ARCHITECTURE</h1>
+        <p className="text-gray-400 mb-12 max-w-2xl font-mono">
           Vienna OS is built for enterprises that need provable AI governance.
-          Security isn&apos;t a feature — it&apos;s the architecture.
+          Security isn't a feature — it's the architecture.
         </p>
 
         {/* Security features grid */}
@@ -177,7 +157,7 @@ export default function SecurityPage() {
             >
               <div className="flex items-center gap-3 mb-4">
                 <feature.icon className={`w-6 h-6 ${feature.color}`} />
-                <h3 className="text-white font-semibold text-lg">
+                <h3 className="text-white font-mono font-bold text-lg">
                   {feature.title}
                 </h3>
               </div>
@@ -283,6 +263,8 @@ export default function SecurityPage() {
           </div>
         </div>
       </footer>
+      
+      <SiteFooter />
     </div>
   );
 }

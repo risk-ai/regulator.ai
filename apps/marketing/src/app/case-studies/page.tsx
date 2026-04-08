@@ -271,9 +271,10 @@ export default function UseCasesPage() {
 
   if (selectedUseCase) {
     return (
-      <div className="min-h-screen bg-navy-950">
+      <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white">
+        <SiteNav />
         {/* Navigation */}
-        <nav className="border-b border-amber-500/30/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
+        <nav className="border-b border-amber-500/10 backdrop-blur-sm bg-black/80 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button 
@@ -531,9 +532,10 @@ export default function UseCasesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-950">
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white">
+      <SiteNav />
       {/* Navigation */}
-      <nav className="border-b border-amber-500/30/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
+      <nav className="border-b border-amber-500/10 backdrop-blur-sm bg-black/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-warm-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
@@ -691,6 +693,8 @@ export default function UseCasesPage() {
           </div>
         </div>
       </main>
+      
+      <SiteFooter />
     </div>
   );
 }

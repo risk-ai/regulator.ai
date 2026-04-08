@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, X, Zap, Building2, Shield, Rocket, Star } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { analytics } from "@/lib/analytics";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import FloatingContact from "@/components/FloatingContact";
@@ -139,48 +139,28 @@ const faqs = [
   },
 ];
 
-/* ============================================================
-   ANIMATION COMPONENTS
-   ============================================================ */
-
-function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) return;
-
-    el.style.opacity = "0";
-    el.style.transform = "translateY(20px)";
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-            el.style.opacity = "1";
-            el.style.transform = "translateY(0)";
-          }, delay * 1000);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [delay]);
-
-  return <div ref={ref}>{children}</div>;
-}
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function PricingPage() {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadCaptureTrigger, setLeadCaptureTrigger] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("");
   const [engagementActions, setEngagementActions] = useState<string[]>([]);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+
+  const getPrice = (monthlyPrice: string) => {
+    if (monthlyPrice === "Free" || monthlyPrice === "Custom") return monthlyPrice;
+    const num = parseInt(monthlyPrice.replace("$", ""));
+    if (billingCycle === "annual") {
+      return `$${Math.round(num * 0.8)}`;
+    }
+    return monthlyPrice;
+  };
+
+  const getPeriod = (period: string) => {
+    if (!period) return "";
+    return billingCycle === "annual" ? "/agent/mo (billed annually)" : period;
+  };
 
   useEffect(() => {
     analytics.pricingView();
@@ -345,6 +325,33 @@ export default function PricingPage() {
                 SSO, compliance enablement, and dedicated support.
               </p>
 
+              {/* Billing Cycle Toggle */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <button
+                  onClick={() => setBillingCycle("monthly")}
+                  className={`text-xs font-mono font-bold px-4 py-2 transition uppercase ${
+                    billingCycle === "monthly"
+                      ? "bg-amber-500 text-black"
+                      : "border border-zinc-700 text-zinc-500 hover:border-amber-500/30"
+                  }`}
+                >
+                  MONTHLY
+                </button>
+                <button
+                  onClick={() => setBillingCycle("annual")}
+                  className={`text-xs font-mono font-bold px-4 py-2 transition uppercase relative ${
+                    billingCycle === "annual"
+                      ? "bg-amber-500 text-black"
+                      : "border border-zinc-700 text-zinc-500 hover:border-amber-500/30"
+                  }`}
+                >
+                  ANNUAL
+                  <span className="absolute -top-2 -right-2 bg-green-500 text-black text-[8px] font-bold px-1.5 py-0.5">
+                    -20%
+                  </span>
+                </button>
+              </div>
+
               <button
                 onClick={() => {
                   setLeadCaptureTrigger('header_priority_access');
@@ -412,9 +419,9 @@ export default function PricingPage() {
                     <div className="p-6 flex flex-col flex-1">
                       {/* Price */}
                       <div className="mb-4 pb-4 border-b border-zinc-800">
-                        <span className="text-3xl font-mono font-bold text-white">{tier.price}</span>
+                        <span className="text-3xl font-mono font-bold text-white">{getPrice(tier.price)}</span>
                         {tier.period && (
-                          <span className="text-zinc-600 text-xs ml-1">{tier.period}</span>
+                          <span className="text-zinc-600 text-xs ml-1">{getPeriod(tier.period)}</span>
                         )}
                         <div className="text-[10px] font-mono text-amber-500 mt-1">{tier.agents}</div>
                       </div>

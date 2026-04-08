@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Shield,
   FileText,
@@ -13,11 +13,15 @@ import {
   Github,
   Star,
   ExternalLink,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import ScrollReveal from "@/components/ScrollReveal";
+import FloatingContact from "@/components/FloatingContact";
+import BackToTop from "@/components/BackToTop";
 
 /* ── Isolated Clock Component (avoids full-page re-render every second) ── */
 function LiveClock() {
@@ -35,92 +39,89 @@ function LiveClock() {
   return <span>utc: {currentTime}</span>;
 }
 
-/* ── Scroll Reveal Hook ── */
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+/* ── Warrant TTL Countdown (isolated to prevent parent re-renders) ── */
+function WarrantTTL() {
+  const [ttl, setTtl] = useState(298);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const timer = setInterval(() => {
+      setTtl((prev) => {
+        if (prev <= 1) return 300; // loop back
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  return { ref, isVisible };
-}
-
-function RevealSection({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  const { ref, isVisible } = useScrollReveal();
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${
-        isVisible
-          ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-8"
-      } ${className}`}
-    >
-      {children}
+    <div className="flex items-center justify-between text-[10px] text-zinc-600">
+      <span>ttl_remaining: {ttl}s</span>
+      <span className={ttl > 30 ? "text-green-500" : "text-amber-500"}>
+        ● {ttl > 30 ? "ACTIVE" : "EXPIRING"}
+      </span>
     </div>
   );
 }
 
-/* ── Animated Counter ── */
-function AnimatedCounter({
-  end,
-  suffix = "",
-  prefix = "",
-  duration = 1500,
-}: {
-  end: number;
-  suffix?: string;
-  prefix?: string;
-  duration?: number;
-}) {
-  const [count, setCount] = useState(0);
-  const { ref, isVisible } = useScrollReveal();
+/* ── Newsletter Inline Signup ── */
+function NewsletterInline() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
 
-  useEffect(() => {
-    if (!isVisible) return;
-    const steps = 40;
-    const increment = end / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= end) {
-        setCount(end);
-        clearInterval(timer);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.ok || res.status === 409) {
+        setStatus("done");
+        analytics.ctaClick("homepage_newsletter", "subscribe");
       } else {
-        setCount(Math.floor(current));
+        setStatus("error");
       }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [isVisible, end, duration]);
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "done") {
+    return (
+      <div className="flex items-center gap-2 text-green-500 text-xs font-mono">
+        <CheckCircle className="w-4 h-4" />
+        <span>SUBSCRIBED — you&apos;re on the list</span>
+      </div>
+    );
+  }
 
   return (
-    <span ref={ref}>
-      {prefix}
-      {count}
-      {suffix}
-    </span>
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@company.com"
+        required
+        className="flex-1 bg-zinc-900 border border-amber-500/20 px-3 py-2 text-xs font-mono text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-amber-500/50 transition"
+        aria-label="Email for newsletter"
+      />
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 text-xs font-mono font-bold uppercase transition disabled:opacity-50"
+      >
+        {status === "sending" ? "..." : "SUBSCRIBE"}
+      </button>
+    </form>
   );
 }
+
+/* ── Alias for compatibility ── */
+const RevealSection = ScrollReveal;
 
 export default function Home() {
   useEffect(() => {
@@ -337,11 +338,8 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Expiry Timer */}
-                  <div className="flex items-center justify-between text-[10px] text-zinc-600">
-                    <span>ttl_remaining: 298s</span>
-                    <span className="text-green-500">● ACTIVE</span>
-                  </div>
+                  {/* Expiry Timer — live countdown */}
+                  <WarrantTTL />
                 </div>
               </div>
             </div>
@@ -1464,8 +1462,30 @@ export default function Home() {
             </div>
           </section>
         </RevealSection>
+        {/* ═══════════════════ NEWSLETTER ═══════════════════ */}
+        <RevealSection>
+          <section className="py-16 px-6 border-t border-amber-500/10 bg-black/50">
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Mail className="w-4 h-4 text-amber-500" />
+                <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest">
+                  DISPATCH_SUBSCRIBE
+                </span>
+              </div>
+              <p className="text-sm font-mono text-zinc-400 mb-6">
+                AI governance updates, release notes, and compliance insights.
+                No spam.
+              </p>
+              <div className="flex justify-center">
+                <NewsletterInline />
+              </div>
+            </div>
+          </section>
+        </RevealSection>
       </main>
 
+      <FloatingContact />
+      <BackToTop />
       <SiteFooter />
     </div>
   );

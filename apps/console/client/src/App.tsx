@@ -38,6 +38,7 @@ const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m
 const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js'));
 const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js'));
 const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'));
+const DashboardClean = React.lazy(() => import('./pages/DashboardClean.js').then(m => ({ default: m.DashboardClean })));
 const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
@@ -223,6 +224,7 @@ export function App() {
                 <Routes>
                   <Route path="/" element={<NowPage />} />
                   <Route path="/now" element={<Navigate to="/" replace />} />
+                  <Route path="/dashboard" element={<DashboardClean />} />
                   <Route path="/fleet" element={<FleetDashboardPage />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />

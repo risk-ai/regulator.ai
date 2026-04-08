@@ -1,3 +1,5 @@
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import { Shield, Check, ArrowLeft, Activity, FileText, Lock } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -33,14 +35,14 @@ const comparison = [
 
 export default function CredoAiPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-12">
-        <Link href="/compare" className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-8 transition">
+        <Link href="/compare" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <ArrowLeft className="w-4 h-4 mr-2" /> All Comparisons
         </Link>
         
         <h1 className="text-3xl md:text-4xl font-bold mb-4">Vienna OS vs Credo AI</h1>
-        <p className="text-xl text-slate-300 max-w-3xl mb-8">
+        <p className="text-xl text-zinc-300 max-w-3xl mb-8">
           Documentation tells you what happened. Execution control prevents bad things from happening.
         </p>
       </div>
@@ -48,22 +50,22 @@ export default function CredoAiPage() {
       {/* Key Difference */}
       <div className="max-w-5xl mx-auto px-6 pb-12">
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-6 text-center">
-            <Lock className="w-8 h-8 text-violet-400 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-violet-400 mb-2">Vienna OS</h3>
-            <p className="text-sm text-slate-300 mb-4">Execution Control</p>
-            <p className="text-slate-400 text-sm">
+          <div className="bg-amber-400/5 border border-amber-500/20 p-6 text-center">
+            <Lock className="w-8 h-8 text-amber-500 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-amber-500 mb-2">Vienna OS</h3>
+            <p className="text-sm text-zinc-300 mb-4">Execution Control</p>
+            <p className="text-zinc-400 text-sm">
               Agent wants to access customer data → Vienna checks risk tier → requires privacy officer approval → 
               issues cryptographic warrant → allows execution → logs audit trail
             </p>
             <p className="mt-4 text-emerald-400 text-sm font-medium">Bad action never happens</p>
           </div>
           
-          <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-6 text-center">
+          <div className="bg-blue-500/5 border border-blue-500/20 p-6 text-center">
             <FileText className="w-8 h-8 text-blue-400 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-blue-400 mb-2">Credo AI</h3>
-            <p className="text-sm text-slate-300 mb-4">Compliance Documentation</p>
-            <p className="text-slate-400 text-sm">
+            <p className="text-sm text-zinc-300 mb-4">Compliance Documentation</p>
+            <p className="text-zinc-400 text-sm">
               AI system deployed → Credo analyzes system documentation → generates compliance reports → 
               creates risk assessments → produces regulatory paperwork
             </p>
@@ -74,10 +76,10 @@ export default function CredoAiPage() {
         {/* Comparison Table */}
         <div className="space-y-2">
           {comparison.map((row, i) => (
-            <div key={i} className="grid grid-cols-3 gap-4 p-4 bg-slate-900/50 border border-slate-800/50 rounded-lg text-sm">
-              <div className="font-medium text-slate-400">{row.category}</div>
-              <div className="text-slate-200">{row.vienna}</div>
-              <div className="text-slate-200">{row.credo}</div>
+            <div key={i} className="grid grid-cols-3 gap-4 p-4 bg-black border border-zinc-800 text-sm">
+              <div className="font-medium text-zinc-400">{row.category}</div>
+              <div className="text-zinc-200">{row.vienna}</div>
+              <div className="text-zinc-200">{row.credo}</div>
             </div>
           ))}
         </div>
@@ -85,18 +87,18 @@ export default function CredoAiPage() {
 
       {/* Use both */}
       <div className="max-w-5xl mx-auto px-6 pb-12">
-        <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-8 text-center">
-          <Activity className="w-8 h-8 text-cyan-400 mx-auto mb-4" />
+        <div className="bg-black border border-zinc-800 p-8 text-center">
+          <Activity className="w-8 h-8 text-amber-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-3">Better together</h2>
-          <p className="text-slate-300 max-w-2xl mx-auto mb-6">
+          <p className="text-zinc-300 max-w-2xl mx-auto mb-6">
             Use Credo AI to generate compliance documentation and risk assessments. Use Vienna OS to control what agents 
             actually do in production. Documentation + control = complete AI governance.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/try" className="px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition">
+            <Link href="/try" className="px-6 py-3 bg-amber-500 hover:bg-amber-400 font-medium transition">
               Try Vienna OS Demo
             </Link>
-            <Link href="/use-cases" className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition">
+            <Link href="/use-cases" className="px-6 py-3 border border-zinc-800 hover:border-amber-500/30 font-medium transition">
               See Use Cases
             </Link>
           </div>

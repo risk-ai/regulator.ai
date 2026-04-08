@@ -40,11 +40,11 @@ const faqs = [
         a: (
           <>
             Sign up for the free Community plan at{" "}
-            <a href="https://regulator.ai/signup" className="text-gold-400 hover:text-gold-300">
+            <a href="https://regulator.ai/signup" className="text-amber-500 hover:text-gold-300">
               regulator.ai/signup
             </a>
             . You'll get instant access to the sandbox console at{" "}
-            <a href="https://console.regulator.ai" className="text-gold-400 hover:text-gold-300">
+            <a href="https://console.regulator.ai" className="text-amber-500 hover:text-gold-300">
               console.regulator.ai
             </a>
             . You can submit your first governed intent in under 60 seconds.
@@ -94,7 +94,7 @@ const faqs = [
         a: (
           <>
             Absolutely. Visit{" "}
-            <a href="https://regulator.ai/try" className="text-gold-400 hover:text-gold-300">
+            <a href="https://regulator.ai/try" className="text-amber-500 hover:text-gold-300">
               regulator.ai/try
             </a>
             {" "}to test the governance API live — no signup required. The Community tier gives you full sandbox console access for free.
@@ -203,20 +203,20 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <nav className="border-b border-navy-700">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
+          <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
             Get Started
           </a>
         </div>
@@ -224,21 +224,21 @@ export default function FAQPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-white mb-2">FAQ</h1>
-        <p className="text-slate-400 mb-12">
+        <p className="text-zinc-400 mb-12">
           Everything you need to know about Vienna OS.
         </p>
 
         <div className="space-y-12">
           {faqs.map((section) => (
             <div key={section.category}>
-              <h2 className="text-sm font-semibold text-gold-400 uppercase tracking-wider mb-4">
+              <h2 className="text-sm font-semibold text-amber-500 uppercase tracking-wider mb-4">
                 {section.category}
               </h2>
               <div className="space-y-4">
                 {section.questions.map((faq) => (
-                  <div key={faq.q} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+                  <div key={faq.q} className="bg-black border border-zinc-800 p-5">
                     <h3 className="text-white font-semibold text-sm mb-2">{faq.q}</h3>
-                    <div className="text-slate-400 text-sm leading-relaxed">{faq.a}</div>
+                    <div className="text-zinc-400 text-sm leading-relaxed">{faq.a}</div>
                   </div>
                 ))}
               </div>
@@ -247,8 +247,8 @@ export default function FAQPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-slate-500 text-sm mb-4">Still have questions?</p>
-          <a href="/contact" className="text-sm text-gold-400 hover:text-gold-300 font-medium">
+          <p className="text-zinc-500 text-sm mb-4">Still have questions?</p>
+          <a href="/contact" className="text-sm text-amber-500 hover:text-gold-300 font-medium">
             Contact us →
           </a>
         </div>

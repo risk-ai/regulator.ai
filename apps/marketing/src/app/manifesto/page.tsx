@@ -51,27 +51,27 @@ const principles = [
 
 export default function ManifestoPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
       <div className="max-w-3xl mx-auto px-6 pt-24 pb-12">
-        <Link href="/" className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-12 transition">
+        <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-12 transition">
           <Shield className="w-4 h-4 mr-2" /> Back to Home
         </Link>
         
         <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
           The Vienna Manifesto
         </h1>
-        <p className="text-xl text-slate-300 italic mb-2">
+        <p className="text-xl text-zinc-300 italic mb-2">
           Principles for governed AI execution
         </p>
         <div className="w-16 h-1 bg-gradient-to-r from-gold-400 to-cyan-400 rounded-full mb-12" />
         
         <div className="prose prose-lg prose-invert max-w-none mb-12">
-          <p className="text-slate-300 leading-relaxed text-lg">
+          <p className="text-zinc-300 leading-relaxed text-lg">
             We are building a world where AI agents act autonomously on behalf of humans and organizations. 
             They will deploy code, move money, manage infrastructure, make business decisions, and interact 
             with the physical world. This is not a future scenario — it is happening now.
           </p>
-          <p className="text-slate-300 leading-relaxed text-lg mt-4">
+          <p className="text-zinc-300 leading-relaxed text-lg mt-4">
             The question is not whether AI agents will be autonomous. The question is whether 
             that autonomy will be governed. These are our beliefs about what governed means.
           </p>
@@ -81,25 +81,25 @@ export default function ManifestoPage() {
       <div className="max-w-3xl mx-auto px-6 pb-24">
         <div className="space-y-12">
           {principles.map((p, i) => (
-            <div key={i} className="border-l-2 border-gold-400/30 pl-8">
-              <div className="text-sm text-gold-400 font-medium mb-2">Principle {p.number}</div>
+            <div key={i} className="border-l-2 border-amber-500/30 pl-8">
+              <div className="text-sm text-amber-500 font-medium mb-2">Principle {p.number}</div>
               <h2 className="text-2xl font-bold mb-4">{p.title}</h2>
-              <p className="text-slate-300 leading-relaxed">{p.body}</p>
+              <p className="text-zinc-300 leading-relaxed">{p.body}</p>
             </div>
           ))}
         </div>
 
         {/* Closing */}
         <div className="mt-16 border-t border-slate-800 pt-12">
-          <p className="text-slate-300 leading-relaxed text-lg">
+          <p className="text-zinc-300 leading-relaxed text-lg">
             These principles are not aspirational. They are implemented in code. Vienna OS exists because 
             we believe the gap between &ldquo;AI agents should be governed&rdquo; and &ldquo;AI agents are 
             governed&rdquo; must be closed with infrastructure, not intentions.
           </p>
-          <p className="text-slate-300 leading-relaxed text-lg mt-4">
-            If you believe the same, <Link href="/signup" className="text-gold-400 hover:underline">join us</Link>.
+          <p className="text-zinc-300 leading-relaxed text-lg mt-4">
+            If you believe the same, <Link href="/signup" className="text-amber-500 hover:underline">join us</Link>.
           </p>
-          <div className="mt-8 text-sm text-slate-500">
+          <div className="mt-8 text-sm text-zinc-500">
             — The Vienna OS Team, March 2026
           </div>
         </div>

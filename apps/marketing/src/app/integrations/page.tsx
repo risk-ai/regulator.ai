@@ -185,23 +185,23 @@ function CodeBlock({ children, language, title }: { children: string; language?:
   }, [children]);
 
   return (
-    <div className="bg-navy-900 border border-navy-700 rounded-xl overflow-hidden">
+    <div className="bg-[#0a0e14] border border-zinc-800 overflow-hidden">
       {title && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-navy-700 bg-navy-800/50">
-          <span className="text-xs font-mono text-slate-400">{title}</span>
-          <span className="text-xs font-mono text-slate-500">{language}</span>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-black/50">
+          <span className="text-xs font-mono text-zinc-400">{title}</span>
+          <span className="text-xs font-mono text-zinc-500">{language}</span>
         </div>
       )}
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-2 rounded-lg bg-navy-800/50 hover:bg-navy-700 text-slate-400 hover:text-white transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-zinc-900 text-zinc-400 hover:text-white transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
         </button>
         <pre className="p-4 overflow-x-auto group">
-          <code className="font-mono text-sm text-slate-300 leading-relaxed">{children}</code>
+          <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
         </pre>
       </div>
     </div>
@@ -247,18 +247,18 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 
 export default function IntegrationsPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* Navigation */}
-      <nav className="border-b border-navy-700">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
               Get Started
             </a>
           </div>
@@ -274,9 +274,9 @@ export default function IntegrationsPage() {
                 Framework Integrations
               </span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed">
               Vienna OS connects to your agent frameworks, notification channels, and deployment pipelines.
-              <strong className="text-slate-300"> Any system that makes HTTP requests can integrate.</strong>
+              <strong className="text-zinc-300"> Any system that makes HTTP requests can integrate.</strong>
             </p>
           </div>
         </ScrollReveal>
@@ -285,7 +285,7 @@ export default function IntegrationsPage() {
         <section className="mb-20">
           <ScrollReveal delay={0.2}>
             <div className="flex items-center gap-3 mb-8">
-              <Code className="w-6 h-6 text-gold-400" />
+              <Code className="w-6 h-6 text-amber-500" />
               <h2 className="text-2xl font-bold text-white">Agent Frameworks</h2>
             </div>
           </ScrollReveal>
@@ -295,7 +295,7 @@ export default function IntegrationsPage() {
               const status = statusLabels[intg.status];
               return (
                 <ScrollReveal key={intg.name} delay={0.3 + i * 0.1}>
-                  <div className="bg-navy-800 border border-navy-700 rounded-2xl overflow-hidden hover:border-navy-600 transition-colors">
+                  <div className="bg-black border border-zinc-800 overflow-hidden hover:border-amber-500/20 transition-colors">
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
@@ -306,7 +306,7 @@ export default function IntegrationsPage() {
                         </div>
                         <Terminal className={`w-5 h-5 text-${status.color}-400`} />
                       </div>
-                      <p className="text-slate-400 mb-6 leading-relaxed">{intg.desc}</p>
+                      <p className="text-zinc-400 mb-6 leading-relaxed">{intg.desc}</p>
                     </div>
                     <CodeBlock language={intg.language} title={`${intg.name} Integration`}>
                       {intg.example}
@@ -332,7 +332,7 @@ export default function IntegrationsPage() {
               const status = statusLabels[adapter.status];
               return (
                 <ScrollReveal key={adapter.name} delay={0.8 + i * 0.1}>
-                  <div className="bg-navy-800 border border-navy-700 rounded-2xl p-6 hover:border-navy-600 transition-colors h-full">
+                  <div className="bg-black border border-zinc-800 p-6 hover:border-amber-500/20 transition-colors h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{adapter.icon}</span>
@@ -342,10 +342,10 @@ export default function IntegrationsPage() {
                         {status.label}
                       </div>
                     </div>
-                    <p className="text-slate-400 mb-4 leading-relaxed">{adapter.desc}</p>
+                    <p className="text-zinc-400 mb-4 leading-relaxed">{adapter.desc}</p>
                     <div className="space-y-2">
                       {adapter.features.map((f) => (
-                        <div key={f} className="flex items-center gap-3 text-sm text-slate-300">
+                        <div key={f} className="flex items-center gap-3 text-sm text-zinc-300">
                           <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                           <span>{f}</span>
                         </div>
@@ -361,20 +361,20 @@ export default function IntegrationsPage() {
         {/* TypeScript SDK */}
         <section className="mb-20">
           <ScrollReveal delay={1.2}>
-            <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/30 rounded-2xl p-8">
+            <div className="bg-black border border-amber-500/30 p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
-                  <Github className="w-8 h-8 text-gold-400" />
+                  <Github className="w-8 h-8 text-amber-500" />
                   <div>
                     <h3 className="text-2xl font-bold text-white">TypeScript SDK</h3>
-                    <p className="text-gold-400 font-mono text-sm">@vienna-os/sdk</p>
+                    <p className="text-amber-500 font-mono text-sm">@vienna-os/sdk</p>
                   </div>
                 </div>
                 <div className="px-4 py-2 rounded-full text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
                   Available
                 </div>
               </div>
-              <p className="text-slate-300 mb-6 leading-relaxed">
+              <p className="text-zinc-300 mb-6 leading-relaxed">
                 Full TypeScript SDK with typed client, intent submission, policy management, 
                 fleet monitoring, compliance reporting, and approval workflows.
               </p>
@@ -418,15 +418,15 @@ console.log(\` Result: \${result.executionResult}\`);`}
             <h2 className="text-2xl font-bold text-white mb-4">
               Need a custom integration?
             </h2>
-            <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto">
               Vienna OS exposes a full REST API. Any system that makes HTTP requests can integrate.
               Check out our interactive API explorer to get started.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/try" className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25">
+              <a href="/try" className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold shadow-lg hover:shadow-gold-400/25">
                 Try API Live <ArrowRight className="w-5 h-5" />
               </a>
-              <a href="/docs" className="inline-flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">
+              <a href="/docs" className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-3 transition font-semibold border border-amber-500/20 hover:border-amber-500/30">
                 <Code className="w-5 h-5" />
                 View Docs
               </a>

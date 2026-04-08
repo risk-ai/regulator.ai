@@ -38,7 +38,7 @@ export default function ExecutionPage() {
           {/* Nav */}
           <nav className="flex items-center justify-between mb-16">
             <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-gold-400" />
+              <Shield className="w-8 h-8 text-amber-500" />
               <span className="text-lg font-bold text-white">
                 Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
               </span>
@@ -47,7 +47,7 @@ export default function ExecutionPage() {
               <a href="/" className="text-sm text-gray-400 hover:text-white transition">Home</a>
               <a href="/docs" className="text-sm text-gray-400 hover:text-white transition">Docs</a>
               <a href="/pricing" className="text-sm text-gray-400 hover:text-white transition">Pricing</a>
-              <a href="/signup" className="text-sm bg-gold-400 hover:bg-gold-300 text-white px-5 py-2.5 rounded-lg transition font-semibold">
+              <a href="/signup" className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-5 py-2.5 transition font-semibold">
                 Get Started
               </a>
             </div>
@@ -55,7 +55,7 @@ export default function ExecutionPage() {
 
           {/* Hero Content */}
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-gold-400/15 border border-gold-400/30 rounded-full px-5 py-2.5 mb-8">
+            <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-5 py-2.5 mb-8">
               <span className="text-sm text-gold-300 font-bold uppercase tracking-wider">Execution Model</span>
             </div>
             
@@ -74,13 +74,13 @@ export default function ExecutionPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
                 href="/try"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-gold-400/25"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white px-8 py-4 transition-all duration-300 font-semibold shadow-lg hover:shadow-gold-400/25"
               >
                 Try Interactive Demo <ArrowRight className="w-4 h-4" />
               </a>
               <a 
                 href="/docs#execution"
-                className="inline-flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium border border-gray-600/50"
+                className="inline-flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/80 text-white px-8 py-4 transition-all duration-300 font-medium border border-gray-600/50"
               >
                 <Code className="w-4 h-4" />
                 View Code Examples
@@ -97,7 +97,7 @@ export default function ExecutionPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Choose Your <span className="text-gold-400">Execution Mode</span>
+              Choose Your <span className="text-amber-500">Execution Mode</span>
             </h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
               Vienna OS automatically routes actions based on risk tier, 
@@ -107,16 +107,16 @@ export default function ExecutionPage() {
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Vienna Direct */}
-            <div className="bg-gradient-to-br from-gold-400/10 to-gold-400/5 border border-gold-400/20 rounded-2xl p-8 relative overflow-hidden">
+            <div className="bg-gradient-to-br from-gold-400/10 to-gold-400/5 border border-amber-500/20 p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-400 to-gold-400" />
               
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gold-400/20 flex items-center justify-center">
-                  <Server className="w-8 h-8 text-gold-400" />
+                <div className="w-16 h-16 bg-amber-500/20 flex items-center justify-center">
+                  <Server className="w-8 h-8 text-amber-500" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-white">Vienna Direct</h3>
-                  <p className="text-gold-400 font-medium">Vienna executes the action</p>
+                  <p className="text-amber-500 font-medium">Vienna executes the action</p>
                 </div>
               </div>
 
@@ -133,8 +133,8 @@ export default function ExecutionPage() {
                   { icon: BookOpen, text: "Complete audit trail", desc: "Every action logged and verifiable" },
                   { icon: Lock, text: "Constraint enforcement", desc: "Scope and time limits enforced automatically" }
                 ].map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-gray-900/30 rounded-lg p-4">
-                    <feature.icon className="w-5 h-5 text-gold-400 shrink-0 mt-0.5" />
+                  <div key={i} className="flex items-start gap-3 bg-gray-900/30 p-4">
+                    <feature.icon className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-white">{feature.text}</div>
                       <div className="text-xs text-gray-400">{feature.desc}</div>
@@ -143,8 +143,8 @@ export default function ExecutionPage() {
                 ))}
               </div>
 
-              <div className="bg-gray-900/50 rounded-lg p-4 border border-gold-400/20">
-                <div className="text-xs text-gold-400 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
+              <div className="bg-gray-900/50 p-4 border border-amber-500/20">
+                <div className="text-xs text-amber-500 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-mono font-semibold">T0</span>
                   <span className="text-xs px-3 py-1.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 font-mono font-semibold">T1</span>
@@ -154,11 +154,11 @@ export default function ExecutionPage() {
             </div>
 
             {/* Agent Passback */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-8 relative overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-400" />
               
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center">
+                <div className="w-16 h-16 bg-blue-500/20 flex items-center justify-center">
                   <Shield className="w-8 h-8 text-blue-400" />
                 </div>
                 <div>
@@ -180,7 +180,7 @@ export default function ExecutionPage() {
                   { icon: Code, text: "Agent infrastructure", desc: "Use existing tools and integrations" },
                   { icon: Eye, text: "Post-execution verification", desc: "Vienna verifies warrant compliance" }
                 ].map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-gray-900/30 rounded-lg p-4">
+                  <div key={i} className="flex items-start gap-3 bg-gray-900/30 p-4">
                     <feature.icon className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-white">{feature.text}</div>
@@ -190,10 +190,10 @@ export default function ExecutionPage() {
                 ))}
               </div>
 
-              <div className="bg-gray-900/50 rounded-lg p-4 border border-blue-500/20">
+              <div className="bg-gray-900/50 p-4 border border-blue-500/20">
                 <div className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-gold-400/15 text-gold-300 border border-gold-400/20 font-mono font-semibold">T2</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-gold-300 border border-amber-500/20 font-mono font-semibold">T2</span>
                   <span className="text-xs px-3 py-1.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-mono font-semibold">T3</span>
                   <span className="text-xs text-gray-500">Multi-party approval required</span>
                 </div>
@@ -218,7 +218,7 @@ export default function ExecutionPage() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 border border-gray-700/60 rounded-2xl p-8 lg:p-12">
+          <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 border border-gray-700/60 p-8 lg:p-12">
             {/* Pipeline Steps */}
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-12">
               {[
@@ -231,7 +231,7 @@ export default function ExecutionPage() {
                 { icon: "", label: "Verify", desc: "Post-execution audit" }
               ].map((step, i) => (
                 <div key={step.label} className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-700 rounded-xl flex items-center justify-center text-2xl">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-700 flex items-center justify-center text-2xl">
                     {step.icon}
                   </div>
                   <h3 className="text-white font-semibold mb-2">{step.label}</h3>
@@ -258,27 +258,27 @@ export default function ExecutionPage() {
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-gold-400/5 border border-gold-400/20 rounded-xl p-6">
+                <div className="bg-amber-500/5 border border-amber-500/20 p-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-gold-400/20 rounded-lg flex items-center justify-center">
-                      <Server className="w-6 h-6 text-gold-400" />
+                    <div className="w-12 h-12 mx-auto mb-4 bg-amber-500/20 flex items-center justify-center">
+                      <Server className="w-6 h-6 text-amber-500" />
                     </div>
                     <h4 className="text-white font-semibold mb-2">Vienna Direct</h4>
                     <p className="text-sm text-gray-400 mb-4">T0/T1 → Immediate execution</p>
-                    <div className="bg-gray-900/50 rounded-lg p-3 text-xs font-mono text-gray-300">
+                    <div className="bg-gray-900/50 p-3 text-xs font-mono text-gray-300">
                       Vienna executes via built-in handlers
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-6">
+                <div className="bg-blue-500/5 border border-blue-500/20 p-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 mx-auto mb-4 bg-blue-500/20 flex items-center justify-center">
                       <Shield className="w-6 h-6 text-blue-400" />
                     </div>
                     <h4 className="text-white font-semibold mb-2">Agent Passback</h4>
                     <p className="text-sm text-gray-400 mb-4">T2/T3 → Warrant + Agent execution</p>
-                    <div className="bg-gray-900/50 rounded-lg p-3 text-xs font-mono text-gray-300">
+                    <div className="bg-gray-900/50 p-3 text-xs font-mono text-gray-300">
                       Agent executes with warrant proof
                     </div>
                   </div>
@@ -306,7 +306,7 @@ export default function ExecutionPage() {
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Vienna Direct Example */}
-            <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+            <div className="bg-gray-800 border border-gray-700 overflow-hidden">
               <div className="bg-gray-900 px-6 py-4 border-b border-gray-700">
                 <h3 className="text-white font-semibold">Vienna Direct Mode</h3>
                 <p className="text-sm text-gray-400 mt-1">Low-risk actions execute immediately</p>
@@ -330,7 +330,7 @@ if (response.mode === "direct") {
             </div>
 
             {/* Agent Passback Example */}
-            <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+            <div className="bg-gray-800 border border-gray-700 overflow-hidden">
               <div className="bg-gray-900 px-6 py-4 border-b border-gray-700">
                 <h3 className="text-white font-semibold">Agent Passback Mode</h3>
                 <p className="text-sm text-gray-400 mt-1">High-risk actions return warrants</p>
@@ -357,7 +357,7 @@ if (response.mode === "passback") {
           </div>
 
           {/* SDK Installation */}
-          <div className="mt-12 bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+          <div className="mt-12 bg-gray-800 border border-gray-700 overflow-hidden">
             <div className="bg-gray-900 px-6 py-4 border-b border-gray-700">
               <h3 className="text-white font-semibold">Installation & Setup</h3>
             </div>
@@ -398,7 +398,7 @@ const vienna = new Vienna({
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Why Dual <span className="text-gold-400">Execution</span> Matters
+              Why Dual <span className="text-amber-500">Execution</span> Matters
             </h2>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
               Get the best of both worlds: operational flexibility with complete governance.
@@ -409,7 +409,7 @@ const vienna = new Vienna({
             {[
               {
                 icon: Lock,
-                color: "text-gold-400",
+                color: "text-amber-500",
                 title: "Zero Trust Architecture",
                 desc: "Every action requires cryptographic authorization, regardless of execution mode. No exceptions, no backdoors."
               },
@@ -444,8 +444,8 @@ const vienna = new Vienna({
                 desc: "High-risk actions require multiple operator signatures. Compliance-ready approval workflows."
               }
             ].map((benefit, i) => (
-              <div key={benefit.title} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-8 text-center hover:bg-gray-800/70 transition-all duration-300">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gray-700/50 rounded-xl flex items-center justify-center">
+              <div key={benefit.title} className="bg-gray-800/50 border border-gray-700/50 p-8 text-center hover:bg-gray-800/70 transition-all duration-300">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gray-700/50 flex items-center justify-center">
                   <benefit.icon className={`w-8 h-8 ${benefit.color}`} />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-4">{benefit.title}</h3>
@@ -472,13 +472,13 @@ const vienna = new Vienna({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
               href="/signup"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white px-8 py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-gold-400/25"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white px-8 py-4 transition-all duration-300 font-semibold shadow-lg hover:shadow-gold-400/25"
             >
               Start Free Trial <ArrowRight className="w-4 h-4" />
             </a>
             <a 
               href="/try"
-              className="inline-flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium border border-gray-600/50"
+              className="inline-flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/80 text-white px-8 py-4 transition-all duration-300 font-medium border border-gray-600/50"
             >
               <Play className="w-4 h-4" />
               Try Interactive Demo
@@ -501,7 +501,7 @@ const vienna = new Vienna({
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <Shield className="w-6 h-6 text-gold-400" />
+                <Shield className="w-6 h-6 text-amber-500" />
                 <span className="font-bold text-white">
                   Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
                 </span>

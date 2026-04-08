@@ -212,20 +212,20 @@ console.log(\`Report: \${report.url}\`);`,
 
 export default function ExamplesPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* Header */}
-      <div className="border-b border-navy-700">
+      <div className="border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-white font-bold text-lg">
-            <Shield className="w-5 h-5 text-gold-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             Vienna OS
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
+            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition">Pricing</a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-gold-400 hover:bg-gold-300 text-white px-4 py-2 rounded-lg transition"
+              className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 transition"
             >
               Console
             </a>
@@ -236,14 +236,14 @@ export default function ExamplesPage() {
       {/* Hero */}
       <div className="max-w-6xl mx-auto px-6 pt-16 pb-12">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 text-gold-400 text-sm font-medium mb-4 bg-gold-400/10 px-4 py-2 rounded-full">
+          <div className="inline-flex items-center gap-2 text-amber-500 text-sm font-medium mb-4 bg-amber-500/10 px-4 py-2 rounded-full">
             <Code className="w-4 h-4" />
             Production-ready examples
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Learn by Example
           </h1>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
             Copy-paste examples to integrate AI governance into your applications.
             From quick starts to production patterns.
           </p>
@@ -254,32 +254,32 @@ export default function ExamplesPage() {
           {examples.map((example, i) => (
             <div
               key={i}
-              className="bg-navy-800 border border-navy-700 rounded-2xl overflow-hidden hover:border-gold-400/30 transition"
+              className="bg-black border border-zinc-800 overflow-hidden hover:border-amber-500/30 transition"
             >
               <div className="p-8">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gold-400/20 rounded-xl flex items-center justify-center">
-                      <example.icon className="w-5 h-5 text-gold-400" />
+                    <div className="w-10 h-10 bg-amber-500/20 flex items-center justify-center">
+                      <example.icon className="w-5 h-5 text-amber-500" />
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-white">{example.title}</h2>
-                      <p className="text-sm text-slate-400 mt-1">{example.description}</p>
+                      <p className="text-sm text-zinc-400 mt-1">{example.description}</p>
                     </div>
                   </div>
-                  <span className="text-xs font-mono bg-slate-700/50 text-slate-300 px-3 py-1 rounded-full">
+                  <span className="text-xs font-mono bg-slate-700/50 text-zinc-300 px-3 py-1 rounded-full">
                     {example.language}
                   </span>
                 </div>
-                <pre className="bg-navy-900 border border-navy-600 rounded-xl p-6 overflow-x-auto text-sm">
-                  <code className="text-slate-300 font-mono whitespace-pre">{example.code}</code>
+                <pre className="bg-[#0a0e14] border border-amber-500/20 p-6 overflow-x-auto text-sm">
+                  <code className="text-zinc-300 font-mono whitespace-pre">{example.code}</code>
                 </pre>
                 <div className="mt-4 flex items-center justify-end">
                   <a
                     href={example.href}
                     target={example.href.startsWith("http") ? "_blank" : undefined}
                     rel={example.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center gap-2 text-sm text-gold-400 hover:text-gold-300 transition"
+                    className="inline-flex items-center gap-2 text-sm text-amber-500 hover:text-gold-300 transition"
                   >
                     View full example
                     <ArrowRight className="w-4 h-4" />
@@ -291,15 +291,15 @@ export default function ExamplesPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 text-center bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 rounded-2xl p-12">
+        <div className="mt-16 text-center bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 p-12">
           <h2 className="text-2xl font-bold text-white mb-4">Ready to add governance to your AI?</h2>
-          <p className="text-slate-400 mb-8 max-w-lg mx-auto">
+          <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
             Get started in under 5 minutes with our free Community tier. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/signup?plan=community"
-              className="inline-flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold"
             >
               <Zap className="w-5 h-5" />
               Get Started Free
@@ -308,7 +308,7 @@ export default function ExamplesPage() {
               href="https://github.com/risk-ai/vienna-os"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 text-slate-300 hover:text-white border border-slate-600 hover:border-slate-500 px-8 py-3 rounded-xl transition font-semibold"
+              className="inline-flex items-center justify-center gap-2 text-zinc-300 hover:text-white border border-zinc-800 hover:border-slate-500 px-8 py-3 transition font-semibold"
             >
               View on GitHub
               <ArrowRight className="w-5 h-5" />
@@ -318,12 +318,12 @@ export default function ExamplesPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-navy-700 mt-16">
+      <footer className="border-t border-zinc-800 mt-16">
         <div className="max-w-6xl mx-auto px-6 py-8 flex items-center justify-between">
-          <span className="text-sm text-slate-500">© 2026 Technetwork 2 LLC dba ai.ventures</span>
+          <span className="text-sm text-zinc-500">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           <div className="flex items-center gap-1">
-            <Shield className="w-4 h-4 text-gold-400" />
-            <span className="text-sm text-slate-500">Vienna OS</span>
+            <Shield className="w-4 h-4 text-amber-500" />
+            <span className="text-sm text-zinc-500">Vienna OS</span>
           </div>
         </div>
       </footer>

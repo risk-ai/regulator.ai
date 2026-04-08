@@ -50,9 +50,9 @@ const useCases = [
     icon: Code,
     title: "DevOps & Platform Engineering",
     subtitle: "SOC 2, Change Management",
-    color: "text-gold-400",
-    bgColor: "bg-gold-400/10",
-    borderColor: "border-gold-400/20",
+    color: "text-amber-500",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/20",
     description: "AI agents deploying code, scaling infrastructure, and managing configurations can cause catastrophic damage without proper controls. Vienna OS prevents runaway deployments and unauthorized changes.",
     features: [
       "T1 auto-approval for staging deploys, T2 human approval for production",
@@ -67,7 +67,7 @@ const useCases = [
     icon: Building2,
     title: "Enterprise AI Platforms",
     subtitle: "ISO 27001, EU AI Act",
-    color: "text-cyan-400",
+    color: "text-amber-400",
     bgColor: "bg-cyan-500/10",
     borderColor: "border-cyan-500/20",
     description: "Organizations deploying multiple AI agents across departments need centralized governance. Vienna OS provides a single control plane for fleet management, policy enforcement, and compliance reporting.",
@@ -85,8 +85,8 @@ const useCases = [
     title: "Supply Chain & Logistics",
     subtitle: "Operational Safety",
     color: "text-gold-300",
-    bgColor: "bg-gold-400/10",
-    borderColor: "border-gold-400/20",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/20",
     description: "AI agents optimizing routes, managing inventory, and coordinating shipments operate in high-stakes environments where errors have physical consequences. Vienna OS ensures human oversight for critical decisions.",
     features: [
       "T2 approval for route changes affecting delivery SLAs",
@@ -118,16 +118,16 @@ const useCases = [
 
 export default function UseCasesPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
       {/* Header */}
       <div className="max-w-6xl mx-auto px-6 pt-24 pb-12">
-        <Link href="/" className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-8 transition">
+        <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <Shield className="w-4 h-4 mr-2" /> Back to Home
         </Link>
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Use Cases
         </h1>
-        <p className="text-xl text-slate-300 max-w-3xl">
+        <p className="text-xl text-zinc-300 max-w-3xl">
           Vienna OS governs AI agents across every industry where autonomous actions need oversight, 
           compliance, and accountability.
         </p>
@@ -136,32 +136,32 @@ export default function UseCasesPage() {
       {/* Use Cases */}
       <div className="max-w-6xl mx-auto px-6 pb-24 space-y-12">
         {useCases.map((uc, i) => (
-          <div key={i} className={`border ${uc.borderColor} rounded-2xl bg-slate-900/50 p-8 md:p-10`}>
+          <div key={i} className={`border ${uc.borderColor} bg-black p-8 md:p-10`}>
             <div className="flex items-start gap-4 mb-6">
-              <div className={`p-3 rounded-xl ${uc.bgColor}`}>
+              <div className={`p-3 ${uc.bgColor}`}>
                 <uc.icon className={`w-6 h-6 ${uc.color}`} />
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{uc.title}</h2>
-                <p className="text-sm text-slate-400 mt-1">{uc.subtitle}</p>
+                <p className="text-sm text-zinc-400 mt-1">{uc.subtitle}</p>
               </div>
             </div>
 
-            <p className="text-slate-300 mb-6 leading-relaxed">{uc.description}</p>
+            <p className="text-zinc-300 mb-6 leading-relaxed">{uc.description}</p>
 
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               {uc.features.map((feature, j) => (
                 <div key={j} className="flex items-start gap-2">
                   <span className={`mt-1 ${uc.color}`}>&#x2713;</span>
-                  <span className="text-sm text-slate-300">{feature}</span>
+                  <span className="text-sm text-zinc-300">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* Example Warrant Flow */}
-            <div className="bg-slate-950/50 border border-slate-700/50 rounded-lg p-4 mb-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2 font-medium">Example Warrant Flow</p>
-              <p className="text-sm text-slate-300 font-mono">{uc.warrant}</p>
+            <div className="bg-slate-950/50 border border-zinc-800 p-4 mb-4">
+              <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2 font-medium">Example Warrant Flow</p>
+              <p className="text-sm text-zinc-300 font-mono">{uc.warrant}</p>
             </div>
 
             {uc.blog && (
@@ -175,19 +175,19 @@ export default function UseCasesPage() {
         {/* CTA */}
         <div className="text-center py-12">
           <h2 className="text-3xl font-bold mb-4">Ready to govern your AI agents?</h2>
-          <p className="text-slate-300 mb-8 max-w-xl mx-auto">
+          <p className="text-zinc-300 mb-8 max-w-xl mx-auto">
             Start with 5 agents free. See the governance pipeline in action with your own use case.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/try"
-              className="px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition"
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-500 font-medium transition"
             >
               Try Interactive Demo
             </Link>
             <Link
               href="/signup"
-              className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition"
+              className="px-6 py-3 border border-zinc-800 hover:border-amber-500/30 font-medium transition"
             >
               Start Free
             </Link>

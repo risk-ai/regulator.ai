@@ -34,23 +34,23 @@ function CodeBlock({
   }, [children]);
 
   return (
-    <div className="group relative bg-[#0D0F14] border border-[#1C222E] rounded-xl overflow-hidden mb-6">
+    <div className="group relative bg-[#0D0F14] border border-[#1C222E] overflow-hidden mb-6">
       {title && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-[#1C222E] bg-[#141820]">
-          <span className="text-xs font-mono text-slate-500">{title}</span>
-          <span className="text-xs font-mono text-slate-600">{language}</span>
+          <span className="text-xs font-mono text-zinc-500">{title}</span>
+          <span className="text-xs font-mono text-zinc-600">{language}</span>
         </div>
       )}
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-slate-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
-          <code className="font-mono text-sm text-slate-300 leading-relaxed">{children}</code>
+          <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
         </pre>
       </div>
     </div>
@@ -62,7 +62,7 @@ function CodeBlock({
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
     info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
-    warning: "border-gold-400/30 bg-gold-400/5 text-gold-300",
+    warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
   const icons = {
@@ -71,7 +71,7 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
     tip: <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />,
   };
   return (
-    <div className={`border rounded-xl p-4 mb-6 flex gap-3 ${styles[type]}`}>
+    <div className={`border p-4 mb-6 flex gap-3 ${styles[type]}`}>
       {icons[type]}
       <div className="text-sm leading-relaxed">{children}</div>
     </div>
@@ -79,7 +79,7 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
 }
 
 function InlineCode({ children }: { children: React.ReactNode }) {
-  return <code className="text-gold-400 bg-[#141820] px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
+  return <code className="text-amber-500 bg-[#141820] px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
 }
 
 export default function QuickstartPage() {
@@ -89,20 +89,20 @@ export default function QuickstartPage() {
       <nav className="border-b border-[#1C222E] sticky top-0 bg-[#0D0F14]/95 backdrop-blur-xl z-50">
         <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <a href="/docs" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+            <a href="/docs" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm">Back to Docs</span>
             </a>
-            <span className="text-slate-700 hidden sm:inline">|</span>
+            <span className="text-zinc-600 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-gold-400" />
+              <Shield className="w-6 h-6 text-amber-500" />
               <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-1.5 transition font-medium"
             >
               Console
             </a>
@@ -118,7 +118,7 @@ export default function QuickstartPage() {
             <Terminal className="w-8 h-8 text-blue-400" />
             Govern Your Agent in 5 Minutes
           </h1>
-          <p className="text-slate-400 text-lg leading-relaxed">
+          <p className="text-zinc-400 text-lg leading-relaxed">
             Get from zero to a governed agent intent in under five minutes. This quickstart walks you through 
             installation, initialization, and your first governed action with Vienna OS.
           </p>
@@ -132,10 +132,10 @@ export default function QuickstartPage() {
         {/* Step 1: Install */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
+            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
             Install
           </h2>
-          <p className="text-slate-400 mb-4">
+          <p className="text-zinc-400 mb-4">
             Install the Vienna OS SDK for your language. Choose JavaScript/Node.js or Python:
           </p>
           
@@ -151,11 +151,11 @@ pip install vienna-os
         {/* Step 2: Initialize */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
+            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
             Initialize
           </h2>
-          <p className="text-slate-400 mb-4">
-            Get your API key from <a href="https://console.regulator.ai" className="text-gold-400 hover:text-gold-300 underline" target="_blank" rel="noopener noreferrer">console.regulator.ai → API Keys</a> and initialize the Vienna client:
+          <p className="text-zinc-400 mb-4">
+            Get your API key from <a href="https://console.regulator.ai" className="text-amber-500 hover:text-gold-300 underline" target="_blank" rel="noopener noreferrer">console.regulator.ai → API Keys</a> and initialize the Vienna client:
           </p>
 
           <CodeBlock language="javascript" title="JavaScript / TypeScript">
@@ -179,10 +179,10 @@ vienna = ViennaClient(
         {/* Step 3: Govern an Action */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
+            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
             Govern an Action
           </h2>
-          <p className="text-slate-400 mb-4">
+          <p className="text-zinc-400 mb-4">
             Before your agent acts, check with Vienna. The governance pipeline will evaluate policies, 
             handle approvals if needed, and issue execution warrants:
           </p>
@@ -238,10 +238,10 @@ elif result.pipeline == 'denied':
         {/* Step 4: Handle Errors */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
+            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
             Handle Errors
           </h2>
-          <p className="text-slate-400 mb-4">
+          <p className="text-zinc-400 mb-4">
             Always wrap Vienna calls in error handling. Common errors include authentication failures, rate limits, and network issues:
           </p>
 
@@ -310,26 +310,26 @@ except ViennaError as e:
         {/* Step 5: See It Live */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
+            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
             See It Live
           </h2>
-          <p className="text-slate-400 mb-4">
+          <p className="text-zinc-400 mb-4">
             Check the Vienna OS console to see your governance events, audit trail, and agent activity:
           </p>
           
-          <div className="bg-[#141820] border border-[#1C222E] rounded-xl p-6">
+          <div className="bg-[#141820] border border-[#1C222E] p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Console Dashboard</h3>
               <a 
                 href="https://console.regulator.ai" 
-                className="text-gold-400 hover:text-gold-300 text-sm flex items-center gap-1"
+                className="text-amber-500 hover:text-gold-300 text-sm flex items-center gap-1"
                 target="_blank" 
                 rel="noopener noreferrer"
               >
                 Open Console <ExternalLink className="w-3 h-3" />
               </a>
             </div>
-            <div className="space-y-2 text-sm text-slate-400">
+            <div className="space-y-2 text-sm text-zinc-400">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
                 <span>Real-time governance events and decisions</span>
@@ -356,14 +356,14 @@ except ViennaError as e:
             <Zap className="w-7 h-7 text-emerald-400" />
             Framework Integrations
           </h2>
-          <p className="text-slate-400 mb-6">
+          <p className="text-zinc-400 mb-6">
             Vienna OS integrates seamlessly with popular AI frameworks. Here's how to add governance to your existing agents:
           </p>
 
           {/* LangChain */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-white mb-3">LangChain</h3>
-            <p className="text-slate-400 mb-4 text-sm">
+            <p className="text-zinc-400 mb-4 text-sm">
               Add Vienna governance as a callback handler to automatically govern every LLM call:
             </p>
             <CodeBlock language="python" title="LangChain Integration">
@@ -381,7 +381,7 @@ chain = LLMChain(
           {/* CrewAI */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-white mb-3">CrewAI</h3>
-            <p className="text-slate-400 mb-4 text-sm">
+            <p className="text-zinc-400 mb-4 text-sm">
               Govern CrewAI agent actions automatically:
             </p>
             <CodeBlock language="python" title="CrewAI Integration">
@@ -398,7 +398,7 @@ crew = Crew(
           {/* OpenAI Function Calling */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-white mb-3">OpenAI Function Calling</h3>
-            <p className="text-slate-400 mb-4 text-sm">
+            <p className="text-zinc-400 mb-4 text-sm">
               Wrap your function calls with Vienna governance:
             </p>
             <CodeBlock language="javascript" title="OpenAI Function Calling">
@@ -426,40 +426,40 @@ const result = await vienna.submitIntent({
         </Callout>
 
         {/* Next Steps */}
-        <div className="bg-gradient-to-br from-gold-900/20 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8">
+        <div className="bg-black border border-amber-500/20 p-8">
           <h2 className="text-xl font-bold text-white mb-4">Next Steps</h2>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <a 
               href="/docs/github-action" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] p-4 hover:border-amber-500/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">GitHub Action</div>
-              <div className="text-slate-400">Add Vienna to your CI/CD pipeline</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-amber-500 transition">GitHub Action</div>
+              <div className="text-zinc-400">Add Vienna to your CI/CD pipeline</div>
             </a>
             <a 
               href="/docs/api-reference" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] p-4 hover:border-amber-500/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">API Reference</div>
-              <div className="text-slate-400">Complete API documentation</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-amber-500 transition">API Reference</div>
+              <div className="text-zinc-400">Complete API documentation</div>
             </a>
             <a 
               href="/docs/integration-guide" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] p-4 hover:border-amber-500/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">Integration Guide</div>
-              <div className="text-slate-400">Deep dive into framework integrations</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-amber-500 transition">Integration Guide</div>
+              <div className="text-zinc-400">Deep dive into framework integrations</div>
             </a>
             <a 
               href="https://console.regulator.ai" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] p-4 hover:border-amber-500/30 transition group"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition flex items-center gap-1">
+              <div className="font-semibold text-white mb-2 group-hover:text-amber-500 transition flex items-center gap-1">
                 Vienna Console <ExternalLink className="w-3 h-3" />
               </div>
-              <div className="text-slate-400">Configure policies and monitor agents</div>
+              <div className="text-zinc-400">Configure policies and monitor agents</div>
             </a>
           </div>
         </div>

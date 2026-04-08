@@ -40,26 +40,188 @@ function LiveClock() {
   return <span>utc: {currentTime}</span>;
 }
 
-/* ── Warrant TTL Countdown (isolated to prevent parent re-renders) ── */
-function WarrantTTL() {
+/* ── Interactive Warrant Card (hero demo) ── */
+function InteractiveWarrantCard() {
   const [ttl, setTtl] = useState(298);
+  const [phase, setPhase] = useState<"active" | "approving" | "approved" | "denied">("active");
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTtl((prev) => {
-        if (prev <= 1) return 300; // loop back
+        if (prev <= 1) {
+          setPhase("active");
+          setShowDetails(false);
+          return 300;
+        }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const handleApprove = () => {
+    setPhase("approving");
+    setTimeout(() => setPhase("approved"), 800);
+  };
+
+  const handleDeny = () => {
+    setPhase("denied");
+    setTimeout(() => {
+      setPhase("active");
+      setTtl(300);
+    }, 2000);
+  };
+
   return (
-    <div className="flex items-center justify-between text-[10px] text-zinc-600">
-      <span>ttl_remaining: {ttl}s</span>
-      <span className={ttl > 30 ? "text-green-500" : "text-amber-500"}>
-        ● {ttl > 30 ? "ACTIVE" : "EXPIRING"}
-      </span>
+    <div className="w-full max-w-[520px] bg-black border border-amber-500/30 p-0 overflow-hidden font-mono group hover:border-amber-500/50 transition-all">
+      {/* Header Bar */}
+      <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-amber-500" />
+          <span className="text-xs font-bold text-amber-500">
+            EXECUTION_WARRANT
+          </span>
+        </div>
+        <div className="text-[10px] text-zinc-600">ep_id: EP-OPS-3C19</div>
+      </div>
+
+      <div className="p-4 sm:p-6 space-y-6">
+        {/* Warrant Metadata */}
+        <div className="grid grid-cols-2 gap-4 text-xs">
+          <div>
+            <div className="text-zinc-600 mb-1">warrant_serial</div>
+            <div className="text-amber-500">WRT-7F3A-82B1-4D9E</div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">auth_status</div>
+            <div className="flex items-center gap-2">
+              {phase === "approved" ? (
+                <>
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  <span className="text-green-500">EXECUTED</span>
+                </>
+              ) : phase === "denied" ? (
+                <span className="text-red-500">✗ DENIED</span>
+              ) : phase === "approving" ? (
+                <span className="text-amber-500 animate-pulse">SIGNING...</span>
+              ) : (
+                <>
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                  <span className="text-green-500">VERIFIED</span>
+                </>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">risk_tier</div>
+            <div className="text-amber-500">T2 (HUMAN_GATE)</div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">issued_at</div>
+            <div className="text-zinc-400">2026-04-07T14:02:44Z</div>
+          </div>
+        </div>
+
+        {/* Execution Context */}
+        <div className="border-t border-amber-500/10 pt-4 space-y-3 text-xs">
+          <div>
+            <div className="text-zinc-600 mb-1">principal_agent</div>
+            <div className="text-zinc-200">AGENT_SIGMA_V4</div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">action_scope</div>
+            <div className="text-zinc-200">DB_SCHEMA_MIGRATION</div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">authorized_by</div>
+            <div className="text-zinc-200">S. CHEN (VP ENG)</div>
+          </div>
+          <div>
+            <div className="text-zinc-600 mb-1">target_env</div>
+            <div className="text-amber-500">PRODUCTION_CLUSTER_01</div>
+          </div>
+        </div>
+
+        {/* Expandable Details */}
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="w-full text-left border-t border-amber-500/10 pt-3"
+        >
+          <div className="text-[10px] text-amber-500 hover:text-amber-400 transition flex items-center gap-1">
+            {showDetails ? "▼" : "▶"} {showDetails ? "HIDE" : "SHOW"}_SIGNATURE_DETAILS
+          </div>
+        </button>
+
+        {showDetails && (
+          <div className="space-y-3">
+            <div>
+              <div className="text-[10px] text-zinc-600 mb-2">
+                ledger_root (SHA-256)
+              </div>
+              <div className="bg-zinc-900 border border-amber-500/20 p-3 text-[10px] text-amber-500 break-all leading-relaxed">
+                0x7e3c2b1a00918e77a2d1f4e5c8b9a0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b19a
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-[10px]">
+              <div>
+                <span className="text-zinc-600">hash_algo:</span>{" "}
+                <span className="text-zinc-400">HMAC-SHA256</span>
+              </div>
+              <div>
+                <span className="text-zinc-600">chain_depth:</span>{" "}
+                <span className="text-zinc-400">847</span>
+              </div>
+              <div>
+                <span className="text-zinc-600">prev_hash:</span>{" "}
+                <span className="text-zinc-400">0x3a1f...9e2b</span>
+              </div>
+              <div>
+                <span className="text-zinc-600">merkle_root:</span>{" "}
+                <span className="text-zinc-400">verified ✓</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Approve / Deny Buttons */}
+        {phase === "active" && (
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={handleApprove}
+              className="flex-1 bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 text-green-500 py-2 text-[10px] font-bold uppercase transition"
+            >
+              ✓ APPROVE_WARRANT
+            </button>
+            <button
+              onClick={handleDeny}
+              className="flex-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-500 py-2 text-[10px] font-bold uppercase transition"
+            >
+              ✗ DENY_WARRANT
+            </button>
+          </div>
+        )}
+
+        {phase === "approved" && (
+          <div className="bg-green-500/10 border border-green-500/30 p-3 text-center">
+            <div className="text-[10px] text-green-500 font-bold">✓ WARRANT_EXECUTED — AUDIT_TRAIL_WRITTEN</div>
+          </div>
+        )}
+
+        {phase === "denied" && (
+          <div className="bg-red-500/10 border border-red-500/30 p-3 text-center">
+            <div className="text-[10px] text-red-500 font-bold">✗ WARRANT_DENIED — ACTION_BLOCKED</div>
+          </div>
+        )}
+
+        {/* TTL */}
+        <div className="flex items-center justify-between text-[10px] text-zinc-600">
+          <span>ttl_remaining: {ttl}s</span>
+          <span className={ttl > 30 ? "text-green-500" : "text-amber-500"}>
+            ● {ttl > 30 ? "ACTIVE" : "EXPIRING"}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -118,6 +280,105 @@ function NewsletterInline() {
         {status === "sending" ? "..." : "SUBSCRIBE"}
       </button>
     </form>
+  );
+}
+
+/* ── Animated Pipeline Demo ── */
+function AnimatedPipeline() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % 4); // 0=idle, 1, 2, 3
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const steps = [
+    {
+      label: "POLICY_DEFINITION",
+      num: "[1/3]",
+      lines: [
+        { k: "action:", v: "db:migration", vc: "text-amber-500" },
+        { k: "tier:", v: "T2", vc: "text-amber-500" },
+        { k: "quorum:", v: "2", vc: "text-amber-500" },
+        { k: "approvers:", v: "['eng-lead', 'cto']", vc: "text-zinc-400" },
+      ],
+      status: "✓ POLICY_REGISTERED",
+    },
+    {
+      label: "WARRANT_ISSUANCE",
+      num: "[2/3]",
+      lines: [
+        { k: "warrant_id:", v: "WRT-A3F9", vc: "text-amber-500" },
+        { k: "approvals:", v: "2/2 ✓", vc: "text-green-500" },
+        { k: "signature:", v: "0x7f3a2b...", vc: "text-amber-500" },
+        { k: "ttl:", v: "300s", vc: "text-zinc-400" },
+      ],
+      status: "✓ WARRANT_ACTIVE",
+    },
+    {
+      label: "EXECUTION_VERIFY",
+      num: "[3/3]",
+      lines: [
+        { k: "verification:", v: "PASS", vc: "text-green-500" },
+        { k: "audit_hash:", v: "SHA-256", vc: "text-amber-500" },
+        { k: "ledger_root:", v: "0x7e3c...", vc: "text-zinc-400" },
+        { k: "status:", v: "EXECUTED", vc: "text-green-500" },
+      ],
+      status: "✓ EXECUTION_COMPLETE",
+    },
+  ];
+
+  return (
+    <div className="grid md:grid-cols-3 gap-6">
+      {steps.map((step, i) => {
+        const isActive = activeStep === i + 1;
+        const isDone = activeStep > i + 1 || (activeStep === 0 && i < 3);
+        return (
+          <div
+            key={step.label}
+            className={`bg-black border p-6 transition-all duration-500 ${
+              isActive
+                ? "border-amber-500 shadow-lg shadow-amber-500/10"
+                : "border-amber-500/30"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+              <span
+                className={`text-[10px] font-mono uppercase transition-colors ${
+                  isActive ? "text-amber-400" : "text-amber-500"
+                }`}
+              >
+                {step.label}
+              </span>
+              <span className="text-[10px] font-mono text-zinc-600">
+                {step.num}
+              </span>
+            </div>
+            <div className="space-y-3 text-xs font-mono text-zinc-400">
+              {step.lines.map((line) => (
+                <div key={line.k}>
+                  <span className="text-zinc-600">{line.k}</span>{" "}
+                  <span className={line.vc}>{line.v}</span>
+                </div>
+              ))}
+              <div className="pt-3 border-t border-amber-500/10">
+                <span
+                  className={`text-[10px] transition-colors ${
+                    isActive
+                      ? "text-amber-500 animate-pulse"
+                      : "text-green-500"
+                  }`}
+                >
+                  {isActive ? "⟳ PROCESSING..." : step.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -267,82 +528,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Warrant Card */}
+            {/* Right Column: Interactive Warrant Card */}
             <div className="relative lg:block flex justify-center">
-              <div className="w-full max-w-[520px] bg-black border border-amber-500/30 p-0 overflow-hidden font-mono">
-                {/* Header Bar */}
-                <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-amber-500" />
-                    <span className="text-xs font-bold text-amber-500">
-                      EXECUTION_WARRANT
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-zinc-600">
-                    ep_id: EP-OPS-3C19
-                  </div>
-                </div>
-
-                <div className="p-4 sm:p-6 space-y-6">
-                  {/* Warrant Metadata */}
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <div className="text-zinc-600 mb-1">warrant_serial</div>
-                      <div className="text-amber-500">WRT-7F3A-82B1-4D9E</div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">auth_status</div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span className="text-green-500">VERIFIED</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">risk_tier</div>
-                      <div className="text-amber-500">T2 (HUMAN_GATE)</div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">issued_at</div>
-                      <div className="text-zinc-400">2026-04-07T14:02:44Z</div>
-                    </div>
-                  </div>
-
-                  {/* Execution Context */}
-                  <div className="border-t border-amber-500/10 pt-4 space-y-3 text-xs">
-                    <div>
-                      <div className="text-zinc-600 mb-1">principal_agent</div>
-                      <div className="text-zinc-200">AGENT_SIGMA_V4</div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">action_scope</div>
-                      <div className="text-zinc-200">DB_SCHEMA_MIGRATION</div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">authorized_by</div>
-                      <div className="text-zinc-200">S. CHEN (VP ENG)</div>
-                    </div>
-                    <div>
-                      <div className="text-zinc-600 mb-1">target_env</div>
-                      <div className="text-amber-500">
-                        PRODUCTION_CLUSTER_01
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Cryptographic Signature */}
-                  <div className="border-t border-amber-500/10 pt-4">
-                    <div className="text-[10px] text-zinc-600 mb-2">
-                      ledger_root (SHA-256)
-                    </div>
-                    <div className="bg-zinc-900 border border-amber-500/20 p-3 text-[10px] text-amber-500 break-all leading-relaxed">
-                      0x7e3c2b1a00918e77a2d1f4e5c8b9a0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b19a
-                    </div>
-                  </div>
-
-                  {/* Expiry Timer — live countdown */}
-                  <WarrantTTL />
-                </div>
-              </div>
+              <InteractiveWarrantCard />
             </div>
           </div>
         </section>
@@ -428,6 +616,36 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+
+              {/* Testimonial */}
+              <div className="mt-10 max-w-2xl mx-auto">
+                <div className="bg-black border border-amber-500/20 p-6">
+                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-amber-500/10">
+                    <span className="text-[10px] font-mono text-amber-500 uppercase">
+                      OPERATOR_TESTIMONY
+                    </span>
+                  </div>
+                  <blockquote className="text-sm font-mono text-zinc-300 leading-relaxed mb-4">
+                    &quot;We govern 20+ autonomous agents across 30 AI products with Vienna OS.
+                    Before warrants, an agent once deployed a breaking schema migration to production at 3 AM
+                    with no approval. That can&apos;t happen anymore — every prod write requires a T2 warrant
+                    with human sign-off. The audit trail alone saved us weeks during compliance review.&quot;
+                  </blockquote>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                      <span className="text-xs font-mono text-amber-500 font-bold">WA</span>
+                    </div>
+                    <div>
+                      <div className="text-xs font-mono text-zinc-300 font-bold">
+                        Whit Anderson
+                      </div>
+                      <div className="text-[10px] font-mono text-zinc-600">
+                        CEO, ai.ventures — 30+ AI products, 20+ governed agents
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </RevealSection>
@@ -445,118 +663,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Step 1 */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500 uppercase">
-                      POLICY_DEFINITION
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-600">
-                      [1/3]
-                    </span>
-                  </div>
-                  <div className="space-y-3 text-xs font-mono text-zinc-400">
-                    <div>
-                      <span className="text-zinc-600">action:</span>{" "}
-                      <span className="text-amber-500">db:migration</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">tier:</span>{" "}
-                      <span className="text-amber-500">T2</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">quorum:</span>{" "}
-                      <span className="text-amber-500">2</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">approvers:</span>{" "}
-                      <span className="text-zinc-400">
-                        {`['eng-lead', 'cto']`}
-                      </span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ POLICY_REGISTERED
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 2 */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500 uppercase">
-                      WARRANT_ISSUANCE
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-600">
-                      [2/3]
-                    </span>
-                  </div>
-                  <div className="space-y-3 text-xs font-mono text-zinc-400">
-                    <div>
-                      <span className="text-zinc-600">warrant_id:</span>{" "}
-                      <span className="text-amber-500">WRT-A3F9</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">approvals:</span>{" "}
-                      <span className="text-green-500">2/2 ✓</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">signature:</span>{" "}
-                      <span className="text-amber-500 break-all">
-                        0x7f3a2b...
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">ttl:</span>{" "}
-                      <span className="text-zinc-400">300s</span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ WARRANT_ACTIVE
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500 uppercase">
-                      EXECUTION_VERIFY
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-600">
-                      [3/3]
-                    </span>
-                  </div>
-                  <div className="space-y-3 text-xs font-mono text-zinc-400">
-                    <div>
-                      <span className="text-zinc-600">verification:</span>{" "}
-                      <span className="text-green-500">PASS</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">audit_hash:</span>{" "}
-                      <span className="text-amber-500 break-all">SHA-256</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">ledger_root:</span>{" "}
-                      <span className="text-zinc-400 break-all">
-                        0x7e3c...
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">status:</span>{" "}
-                      <span className="text-green-500">EXECUTED</span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ EXECUTION_COMPLETE
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <AnimatedPipeline />
             </div>
           </section>
         </RevealSection>

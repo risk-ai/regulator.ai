@@ -17,7 +17,7 @@ export default function IntegrationGuidePage() {
 
         {/* Quick Start */}
         <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6 text-gold-400">
+          <h2 className="text-2xl font-semibold mb-6 text-amber-500">
             Quick Start
           </h2>
 
@@ -79,7 +79,7 @@ if (result.status === 'approved') {
 
         {/* Framework Examples */}
         <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6 text-gold-400">
+          <h2 className="text-2xl font-semibold mb-6 text-amber-500">
             Framework Examples
           </h2>
 
@@ -181,7 +181,7 @@ result = vienna.submit_intent(
 
         {/* API Reference */}
         <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6 text-gold-400">
+          <h2 className="text-2xl font-semibold mb-6 text-amber-500">
             API Reference
           </h2>
 
@@ -249,7 +249,7 @@ result = vienna.submit_intent(
 
         {/* Risk Tiers */}
         <section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6 text-gold-400">
+          <h2 className="text-2xl font-semibold mb-6 text-amber-500">
             Risk Tiers
           </h2>
           <div className="overflow-x-auto">
@@ -303,7 +303,7 @@ result = vienna.submit_intent(
           <p className="text-gray-400 mb-6">Start with the free Community tier. No credit card required.</p>
           <a
             href="/signup"
-            className="inline-block bg-gold-400 hover:bg-gold-500 text-white font-semibold px-8 py-3 rounded-lg transition"
+            className="inline-block bg-amber-500 hover:bg-gold-500 text-white font-semibold px-8 py-3 transition"
           >
             Get Started Free
           </a>
@@ -317,9 +317,9 @@ result = vienna.submit_intent(
 
 function Step({ number, title, code }: { number: number; title: string; code: string }) {
   return (
-    <div className="bg-[#111826] rounded-lg p-6 border border-gray-800">
+    <div className="bg-[#111826] p-6 border border-gray-800">
       <div className="flex items-center gap-3 mb-4">
-        <span className="w-8 h-8 rounded-full bg-gold-400 flex items-center justify-center text-sm font-bold">
+        <span className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold">
           {number}
         </span>
         <h3 className="text-lg font-semibold">{title}</h3>
@@ -341,7 +341,7 @@ function FrameworkExample({
   code: string;
 }) {
   return (
-    <div className="bg-[#111826] rounded-lg p-6 border border-gray-800">
+    <div className="bg-[#111826] p-6 border border-gray-800">
       <h3 className="text-lg font-semibold mb-1">{name}</h3>
       <p className="text-gray-400 text-sm mb-4">{description}</p>
       <pre className="bg-[#0B0F19] rounded p-4 overflow-x-auto text-sm text-gray-300 font-mono">
@@ -366,7 +366,7 @@ function ApiEndpoint({
 }) {
   const methodColor = method === "POST" ? "text-green-400" : "text-blue-400";
   return (
-    <div className="bg-[#111826] rounded-lg p-6 border border-gray-800">
+    <div className="bg-[#111826] p-6 border border-gray-800">
       <div className="flex items-center gap-3 mb-2">
         <span className={`font-mono font-bold ${methodColor}`}>{method}</span>
         <span className="font-mono text-gray-300">{path}</span>

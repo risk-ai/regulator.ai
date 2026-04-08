@@ -11,7 +11,7 @@ const releases = [
     version: "0.9.0",
     date: "March 27, 2026",
     tag: "Launch Candidate",
-    tagColor: "bg-gold-400/20 text-gold-400 border-gold-400/30",
+    tagColor: "bg-amber-500/20 text-amber-500 border-amber-500/30",
     changes: [
       { type: "feat", text: "Interactive /try demo with warrant simulator" },
       { type: "feat", text: "3 framework integration examples (LangChain, CrewAI, AutoGen)" },
@@ -98,22 +98,22 @@ const releases = [
 const typeColors: Record<string, { bg: string; text: string; label: string }> = {
   feat: { bg: "bg-emerald-500/10", text: "text-emerald-400", label: "NEW" },
   fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIXED" },
-  docs: { bg: "bg-gold-400/10", text: "text-gold-300", label: "DOCS" },
-  improved: { bg: "bg-gold-400/10", text: "text-gold-400", label: "IMPROVED" },
+  docs: { bg: "bg-amber-500/10", text: "text-gold-300", label: "DOCS" },
+  improved: { bg: "bg-amber-500/10", text: "text-amber-500", label: "IMPROVED" },
   breaking: { bg: "bg-red-500/10", text: "text-red-400", label: "BREAKING" },
 };
 
 export default function ChangelogPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
-      <nav className="border-b border-navy-700">
+    <div className="min-h-screen bg-[#0a0e14]">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
-          <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
+          <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
             Get Started
           </a>
         </div>
@@ -121,7 +121,7 @@ export default function ChangelogPage() {
 
       <main className="max-w-3xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-white mb-2">Changelog</h1>
-        <p className="text-slate-400 mb-12">
+        <p className="text-zinc-400 mb-12">
           Product updates, new features, and improvements to Vienna OS.
         </p>
 
@@ -138,11 +138,11 @@ export default function ChangelogPage() {
                     {release.tag}
                   </span>
                 )}
-                <span className="text-sm text-slate-600">{release.date}</span>
+                <span className="text-sm text-zinc-600">{release.date}</span>
               </div>
 
               {/* Changes */}
-              <div className="space-y-2 pl-4 border-l-2 border-navy-700">
+              <div className="space-y-2 pl-4 border-l-2 border-zinc-800">
                 {release.changes.map((change, i) => {
                   const style = typeColors[change.type] || typeColors.feat;
                   return (
@@ -150,7 +150,7 @@ export default function ChangelogPage() {
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.bg} ${style.text} shrink-0 mt-0.5`}>
                         {style.label}
                       </span>
-                      <span className="text-sm text-slate-300">{change.text}</span>
+                      <span className="text-sm text-zinc-300">{change.text}</span>
                     </div>
                   );
                 })}
@@ -160,9 +160,9 @@ export default function ChangelogPage() {
         </div>
       </main>
 
-      <footer className="border-t border-navy-700 py-8 mt-12">
+      <footer className="border-t border-zinc-800 py-8 mt-12">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
+          <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
         </div>
       </footer>
     </div>

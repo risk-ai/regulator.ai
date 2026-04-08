@@ -183,23 +183,23 @@ function CodeBlock({
   }, [children]);
 
   return (
-    <div className="group relative bg-[#0D0F14] border border-gold-400/30 rounded-xl overflow-hidden mb-6">
+    <div className="group relative bg-[#0D0F14] border border-amber-500/30 overflow-hidden mb-6">
       {title && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gold-400/30 bg-zinc-900">
-          <span className="text-xs font-mono text-slate-500">{title}</span>
-          <span className="text-xs font-mono text-slate-600">{language}</span>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-amber-500/30 bg-zinc-900">
+          <span className="text-xs font-mono text-zinc-500">{title}</span>
+          <span className="text-xs font-mono text-zinc-600">{language}</span>
         </div>
       )}
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-slate-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
-          <code className="font-mono text-sm text-slate-300 leading-relaxed">{children}</code>
+          <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
         </pre>
       </div>
     </div>
@@ -231,13 +231,13 @@ function Endpoint({
   const colors: Record<string, string> = {
     GET: "bg-blue-500/20 text-blue-400",
     POST: "bg-emerald-500/20 text-emerald-400",
-    PUT: "bg-gold-400/20 text-gold-300",
+    PUT: "bg-amber-500/20 text-gold-300",
     DELETE: "bg-red-500/20 text-red-400",
-    PATCH: "bg-gold-400/20 text-gold-400",
+    PATCH: "bg-amber-500/20 text-amber-500",
   };
 
   return (
-    <div className="border border-gold-400/30 rounded-xl mb-3 overflow-hidden">
+    <div className="border border-amber-500/30 mb-3 overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 p-4 hover:bg-zinc-900 transition text-left"
@@ -246,35 +246,35 @@ function Endpoint({
           {method}
         </span>
         <code className="text-white font-mono text-sm flex-1">{path}</code>
-        <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${expanded ? "rotate-90" : ""}`} />
+        <ChevronRight className={`w-4 h-4 text-zinc-500 transition-transform ${expanded ? "rotate-90" : ""}`} />
       </button>
       {expanded && (
-        <div className="border-t border-gold-400/30 p-4 bg-[#0D0F14]">
-          <p className="text-sm text-slate-400 mb-4">{description}</p>
-          <div className="text-xs font-mono text-slate-500 mb-4">
-            <span className="text-slate-600">Auth:</span> {auth}
+        <div className="border-t border-amber-500/30 p-4 bg-[#0D0F14]">
+          <p className="text-sm text-zinc-400 mb-4">{description}</p>
+          <div className="text-xs font-mono text-zinc-500 mb-4">
+            <span className="text-zinc-600">Auth:</span> {auth}
           </div>
           {body && (
             <div className="mb-4">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Request Body</div>
+              <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Request Body</div>
               <CodeBlock language="json" title="request.json">{body}</CodeBlock>
             </div>
           )}
           {curl && (
             <div className="mb-4">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Example</div>
+              <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Example</div>
               <CodeBlock language="bash" title="curl">{curl}</CodeBlock>
             </div>
           )}
           {responseJson && (
             <div className="mb-4">
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Response</div>
+              <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Response</div>
               <CodeBlock language="json" title="response.json">{responseJson}</CodeBlock>
             </div>
           )}
           {response && !responseJson && (
-            <div className="text-xs font-mono text-slate-500">
-              <span className="text-slate-600">Returns:</span> {response}
+            <div className="text-xs font-mono text-zinc-500">
+              <span className="text-zinc-600">Returns:</span> {response}
             </div>
           )}
         </div>
@@ -288,7 +288,7 @@ function Endpoint({
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
     info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
-    warning: "border-gold-400/30 bg-gold-400/5 text-gold-300",
+    warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
   const icons = {
@@ -297,7 +297,7 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
     tip: <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />,
   };
   return (
-    <div className={`border rounded-xl p-4 mb-6 flex gap-3 ${styles[type]}`}>
+    <div className={`border p-4 mb-6 flex gap-3 ${styles[type]}`}>
       {icons[type]}
       <div className="text-sm leading-relaxed">{children}</div>
     </div>
@@ -309,9 +309,9 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
 function H2({ id, icon, children }: { id: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div id={id} className="flex items-center gap-3 mb-6 pt-8 scroll-mt-24 group">
-      {icon && <span className="text-gold-400">{icon}</span>}
-      <h2 className="text-2xl font-mono font-bold text-gold-400 uppercase">{children}</h2>
-      <a href={`#${id}`} className="text-zinc-600 hover:text-gold-400 opacity-0 group-hover:opacity-100 transition">
+      {icon && <span className="text-amber-500">{icon}</span>}
+      <h2 className="text-2xl font-mono font-bold text-amber-500 uppercase">{children}</h2>
+      <a href={`#${id}`} className="text-zinc-600 hover:text-amber-500 opacity-0 group-hover:opacity-100 transition">
         #
       </a>
     </div>
@@ -320,9 +320,9 @@ function H2({ id, icon, children }: { id: string; icon: React.ReactNode; childre
 
 function H3({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h3 id={id} className="text-lg font-mono font-bold text-gold-400 uppercase mb-3 mt-8 scroll-mt-24 group">
+    <h3 id={id} className="text-lg font-mono font-bold text-amber-500 uppercase mb-3 mt-8 scroll-mt-24 group">
       {children}
-      <a href={`#${id}`} className="text-zinc-600 hover:text-gold-400 ml-2 opacity-0 group-hover:opacity-100 transition text-sm">
+      <a href={`#${id}`} className="text-zinc-600 hover:text-amber-500 ml-2 opacity-0 group-hover:opacity-100 transition text-sm">
         #
       </a>
     </h3>
@@ -330,15 +330,15 @@ function H3({ id, children }: { id: string; children: React.ReactNode }) {
 }
 
 function H4({ children }: { children: React.ReactNode }) {
-  return <h4 className="text-sm font-mono font-bold text-gold-400 uppercase mb-2 mt-6">{children}</h4>;
+  return <h4 className="text-sm font-mono font-bold text-amber-500 uppercase mb-2 mt-6">{children}</h4>;
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-slate-400 mb-4 leading-relaxed">{children}</p>;
+  return <p className="text-zinc-400 mb-4 leading-relaxed">{children}</p>;
 }
 
 function InlineCode({ children }: { children: React.ReactNode }) {
-  return <code className="text-gold-400 bg-zinc-900 px-1.5 py-0.5 text-sm font-mono">{children}</code>;
+  return <code className="text-amber-500 bg-zinc-900 px-1.5 py-0.5 text-sm font-mono">{children}</code>;
 }
 
 /* ─────────────────────── Main Docs Page ─────────────────────── */
@@ -427,13 +427,13 @@ export default function DocsPage() {
         <aside
           className={`
             fixed lg:sticky top-[53px] left-0 h-[calc(100vh-53px)] w-72 shrink-0
-            bg-black border-r border-gold-400/30 overflow-y-auto z-40
+            bg-black border-r border-amber-500/30 overflow-y-auto z-40
             transition-transform duration-200
             ${mobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           `}
         >
           <div className="py-6 px-4">
-            <div className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4 px-3">
+            <div className="text-xs font-semibold text-zinc-600 uppercase tracking-wider mb-4 px-3">
               On this page
             </div>
             <nav className="space-y-0.5">
@@ -441,24 +441,24 @@ export default function DocsPage() {
                 <div key={s.id}>
                   <button
                     onClick={() => toggleSection(s.id)}
-                    className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 rounded-lg transition ${
+                    className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 transition ${
                       isActive(s.id)
-                        ? "bg-gold-400/10 text-gold-400"
-                        : "text-slate-400 hover:text-white hover:bg-zinc-900"
+                        ? "bg-amber-500/10 text-amber-500"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-900"
                     }`}
                   >
                     {s.icon}
                     <span className="flex-1 text-left">{s.label}</span>
                     {s.children && (
                       <ChevronDown
-                        className={`w-3.5 h-3.5 text-slate-600 transition-transform ${
+                        className={`w-3.5 h-3.5 text-zinc-600 transition-transform ${
                           expandedSections[s.id] ? "" : "-rotate-90"
                         }`}
                       />
                     )}
                   </button>
                   {s.children && expandedSections[s.id] && (
-                    <div className="ml-4 pl-3 border-l border-gold-400/30 mt-1 mb-2 space-y-0.5">
+                    <div className="ml-4 pl-3 border-l border-amber-500/30 mt-1 mb-2 space-y-0.5">
                       {s.children.map((c) => (
                         <a
                           key={c.id}
@@ -466,8 +466,8 @@ export default function DocsPage() {
                           onClick={() => setMobileNavOpen(false)}
                           className={`block text-xs py-1.5 px-3 rounded transition ${
                             isActive(c.id)
-                              ? "text-gold-400 bg-gold-400/5"
-                              : "text-slate-500 hover:text-slate-300"
+                              ? "text-amber-500 bg-amber-500/5"
+                              : "text-zinc-500 hover:text-zinc-300"
                           }`}
                         >
                           {c.label}
@@ -498,7 +498,7 @@ export default function DocsPage() {
           
           <div className="mb-12">
             <h1 className="text-5xl font-mono font-bold tracking-tight mb-4">
-              <span className="text-gold-400">DOCUMENTATION</span>
+              <span className="text-amber-500">DOCUMENTATION</span>
               <br />
               <span className="text-zinc-500">/ VIENNA_OS_GOVERNANCE</span>
             </h1>
@@ -510,46 +510,46 @@ export default function DocsPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <a 
                 href="/docs/quickstart" 
-                className="bg-black border border-gold-400/30 p-6 hover:border-gold-400 transition group"
+                className="bg-black border border-amber-500/30 p-6 hover:border-amber-500 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <Terminal className="w-5 h-5 text-gold-400" />
-                  <h3 className="font-mono text-xs uppercase font-bold text-gold-400 group-hover:text-gold-300 transition">Quickstart</h3>
+                  <Terminal className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-mono text-xs uppercase font-bold text-amber-500 group-hover:text-gold-300 transition">Quickstart</h3>
                 </div>
                 <p className="text-xs font-mono text-zinc-400">Get from zero to your first governed agent in minutes</p>
               </a>
 
               <a 
                 href="/docs/github-action" 
-                className="bg-black border border-gold-400/30 p-6 hover:border-gold-400 transition group"
+                className="bg-black border border-amber-500/30 p-6 hover:border-amber-500 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <Code className="w-5 h-5 text-gold-400" />
-                  <h3 className="font-mono text-xs uppercase font-bold text-gold-400 group-hover:text-gold-300 transition">GitHub Action</h3>
+                  <Code className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-mono text-xs uppercase font-bold text-amber-500 group-hover:text-gold-300 transition">GitHub Action</h3>
                 </div>
                 <p className="text-xs font-mono text-zinc-400">Add governance to your CI/CD pipeline</p>
               </a>
 
               <a 
                 href="/docs/api-reference" 
-                className="bg-zinc-900 border border-gold-400/30 rounded-xl p-6 hover:border-gold-400/30 transition group"
+                className="bg-zinc-900 border border-amber-500/30 p-6 hover:border-amber-500/30 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <Zap className="w-5 h-5 text-gold-300" />
-                  <h3 className="font-semibold text-white group-hover:text-gold-400 transition">API Reference</h3>
+                  <h3 className="font-semibold text-white group-hover:text-amber-500 transition">API Reference</h3>
                 </div>
-                <p className="text-sm text-slate-400">Complete API documentation and examples</p>
+                <p className="text-sm text-zinc-400">Complete API documentation and examples</p>
               </a>
 
               <a 
                 href="/docs/integration-guide" 
-                className="bg-zinc-900 border border-gold-400/30 rounded-xl p-6 hover:border-gold-400/30 transition group"
+                className="bg-zinc-900 border border-amber-500/30 p-6 hover:border-amber-500/30 transition group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <Settings className="w-5 h-5 text-cyan-400" />
-                  <h3 className="font-semibold text-white group-hover:text-gold-400 transition">Integration Guide</h3>
+                  <Settings className="w-5 h-5 text-amber-400" />
+                  <h3 className="font-semibold text-white group-hover:text-amber-500 transition">Integration Guide</h3>
                 </div>
-                <p className="text-sm text-slate-400">Framework integrations (LangChain, CrewAI, OpenAI)</p>
+                <p className="text-sm text-zinc-400">Framework integrations (LangChain, CrewAI, OpenAI)</p>
               </a>
             </div>
           </div>
@@ -870,7 +870,7 @@ submit_intent("send_email", {
                SECTION 2: CORE CONCEPTS
              ════════════════════════════════════════════════════════════════ */}
 
-          <div className="border-t border-gold-400/30 my-16" />
+          <div className="border-t border-amber-500/30 my-16" />
 
           <H2 id="concepts" icon={<BookOpen className="w-6 h-6 text-emerald-400" />}>Core Concepts</H2>
           <P>
@@ -970,29 +970,29 @@ submit_intent("send_email", {
           <P>Vienna supports 14 condition operators for precise policy expression:</P>
 
           <div className="overflow-x-auto mb-6">
-            <table className="w-full text-sm border border-gold-400/30 rounded-xl overflow-hidden">
+            <table className="w-full text-sm border border-amber-500/30 overflow-hidden">
               <thead>
                 <tr className="bg-zinc-900">
-                  <th className="text-left px-4 py-3 text-slate-400 font-medium border-b border-gold-400/30">Operator</th>
-                  <th className="text-left px-4 py-3 text-slate-400 font-medium border-b border-gold-400/30">Description</th>
-                  <th className="text-left px-4 py-3 text-slate-400 font-medium border-b border-gold-400/30">Example Value</th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-medium border-b border-amber-500/30">Operator</th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-medium border-b border-amber-500/30">Description</th>
+                  <th className="text-left px-4 py-3 text-zinc-400 font-medium border-b border-amber-500/30">Example Value</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-300">
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">equals</td><td className="px-4 py-2 text-slate-400">Exact match</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`"transfer_funds"`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">not_equals</td><td className="px-4 py-2 text-slate-400">Negated exact match</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`"read_only"`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">contains</td><td className="px-4 py-2 text-slate-400">Substring / array inclusion</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`"admin"`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">gt</td><td className="px-4 py-2 text-slate-400">Greater than (numeric)</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`10000`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">lt</td><td className="px-4 py-2 text-slate-400">Less than (numeric)</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`100`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">gte</td><td className="px-4 py-2 text-slate-400">Greater than or equal</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`80`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">lte</td><td className="px-4 py-2 text-slate-400">Less than or equal</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`5`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">in</td><td className="px-4 py-2 text-slate-400">Value in set</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`["us","eu","uk"]`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">not_in</td><td className="px-4 py-2 text-slate-400">Value not in set</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`["sandbox","test"]`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">matches</td><td className="px-4 py-2 text-slate-400">Regex match</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`"^prod-.*"`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">between</td><td className="px-4 py-2 text-slate-400">Numeric range (inclusive)</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`[100, 5000]`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">time_between</td><td className="px-4 py-2 text-slate-400">Time-of-day range</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`["09:00","17:00"]`}</td></tr>
-                <tr className="border-b border-gold-400/30"><td className="px-4 py-2 font-mono text-gold-400">exists</td><td className="px-4 py-2 text-slate-400">Field is present and non-null</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`true`}</td></tr>
-                <tr><td className="px-4 py-2 font-mono text-gold-400">not_exists</td><td className="px-4 py-2 text-slate-400">Field is absent or null</td><td className="px-4 py-2 font-mono text-sm text-slate-500">{`true`}</td></tr>
+              <tbody className="text-zinc-300">
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">equals</td><td className="px-4 py-2 text-zinc-400">Exact match</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`"transfer_funds"`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">not_equals</td><td className="px-4 py-2 text-zinc-400">Negated exact match</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`"read_only"`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">contains</td><td className="px-4 py-2 text-zinc-400">Substring / array inclusion</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`"admin"`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">gt</td><td className="px-4 py-2 text-zinc-400">Greater than (numeric)</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`10000`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">lt</td><td className="px-4 py-2 text-zinc-400">Less than (numeric)</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`100`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">gte</td><td className="px-4 py-2 text-zinc-400">Greater than or equal</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`80`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">lte</td><td className="px-4 py-2 text-zinc-400">Less than or equal</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`5`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">in</td><td className="px-4 py-2 text-zinc-400">Value in set</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`["us","eu","uk"]`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">not_in</td><td className="px-4 py-2 text-zinc-400">Value not in set</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`["sandbox","test"]`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">matches</td><td className="px-4 py-2 text-zinc-400">Regex match</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`"^prod-.*"`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">between</td><td className="px-4 py-2 text-zinc-400">Numeric range (inclusive)</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`[100, 5000]`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">time_between</td><td className="px-4 py-2 text-zinc-400">Time-of-day range</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`["09:00","17:00"]`}</td></tr>
+                <tr className="border-b border-amber-500/30"><td className="px-4 py-2 font-mono text-amber-500">exists</td><td className="px-4 py-2 text-zinc-400">Field is present and non-null</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`true`}</td></tr>
+                <tr><td className="px-4 py-2 font-mono text-amber-500">not_exists</td><td className="px-4 py-2 text-zinc-400">Field is absent or null</td><td className="px-4 py-2 font-mono text-sm text-zinc-500">{`true`}</td></tr>
               </tbody>
             </table>
           </div>
@@ -1006,47 +1006,47 @@ submit_intent("send_email", {
           </P>
 
           <div className="space-y-3 mb-6">
-            <div className="bg-slate-500/10 border border-gold-400/30 rounded-xl p-5">
+            <div className="bg-slate-500/10 border border-amber-500/30 p-5">
               <div className="flex items-center gap-4 mb-2">
-                <span className="text-lg font-bold text-slate-400 font-mono w-10">T0</span>
+                <span className="text-lg font-bold text-zinc-400 font-mono w-10">T0</span>
                 <h4 className="text-white font-semibold">Auto-Approved — Reversible / Low-Stakes</h4>
               </div>
-              <p className="text-sm text-slate-400 ml-14 mb-3">
+              <p className="text-sm text-zinc-400 ml-14 mb-3">
                 No human intervention. Warrant is issued automatically, action executes immediately.
               </p>
-              <div className="ml-14 text-xs text-slate-500 space-y-1">
+              <div className="ml-14 text-xs text-zinc-500 space-y-1">
                 <div>• Read operations: log queries, status checks, health probes</div>
                 <div>• Internal queries: state graph reads, configuration lookups</div>
                 <div>• Non-destructive analytics: report generation, metric aggregation</div>
                 <div>• Low-value notifications: sending slack messages, logging events</div>
               </div>
             </div>
-            <div className="bg-gold-400/10 border border-gold-400/30 rounded-xl p-5">
+            <div className="bg-amber-500/10 border border-amber-500/30 p-5">
               <div className="flex items-center gap-4 mb-2">
                 <span className="text-lg font-bold text-gold-300 font-mono w-10">T1</span>
                 <h4 className="text-white font-semibold">Single Approval — Moderate Stakes</h4>
               </div>
-              <p className="text-sm text-slate-400 ml-14 mb-3">
+              <p className="text-sm text-zinc-400 ml-14 mb-3">
                 One operator must approve before execution. Approval timeout is configurable
                 (default: 1 hour). Escalation triggers if no response.
               </p>
-              <div className="ml-14 text-xs text-slate-500 space-y-1">
+              <div className="ml-14 text-xs text-zinc-500 space-y-1">
                 <div>• Configuration changes: environment variables, feature flags</div>
                 <div>• Service operations: restarts, scaling, deployments to staging</div>
                 <div>• Data writes: customer record updates, ticket modifications</div>
                 <div>• External communications: emails to customers, API calls to partners</div>
               </div>
             </div>
-            <div className="bg-red-500/10 border border-gold-400/30 rounded-xl p-5">
+            <div className="bg-red-500/10 border border-amber-500/30 p-5">
               <div className="flex items-center gap-4 mb-2">
                 <span className="text-lg font-bold text-red-400 font-mono w-10">T2</span>
                 <h4 className="text-white font-semibold">Multi-Party Approval — Irreversible / High-Impact</h4>
               </div>
-              <p className="text-sm text-slate-400 ml-14 mb-3">
+              <p className="text-sm text-zinc-400 ml-14 mb-3">
                 Requires approval from multiple operators (configurable: 2–5 approvers).
                 Warrants carry strict scope constraints and short TTLs (default: 5 min).
               </p>
-              <div className="ml-14 text-xs text-slate-500 space-y-1">
+              <div className="ml-14 text-xs text-zinc-500 space-y-1">
                 <div>• Production deployments: code releases, infrastructure changes</div>
                 <div>• Financial operations: wire transfers, payment processing over threshold</div>
                 <div>• Data destruction: database migrations, record deletion, PII purges</div>
@@ -1216,15 +1216,15 @@ Intent → Policy Engine → T2 → Approval Queue
           </P>
 
           <P><strong className="text-white">What gets logged:</strong></P>
-          <ul className="text-sm text-slate-400 space-y-2 mb-6 list-none">
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Intent submission (raw payload, source agent, timestamp)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Policy evaluation result (matched rule, tier assignment, deny reason)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Approval events (who approved/denied, when, with what context)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Warrant issuance (full warrant including scope, TTL, signature)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Execution start and completion (duration, result, errors)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Verification result (pass/fail, scope compliance details)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> Agent trust score changes (before/after, reason)</li>
-            <li className="flex gap-2"><span className="text-gold-400">•</span> System events (policy changes, agent registration, configuration updates)</li>
+          <ul className="text-sm text-zinc-400 space-y-2 mb-6 list-none">
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Intent submission (raw payload, source agent, timestamp)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Policy evaluation result (matched rule, tier assignment, deny reason)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Approval events (who approved/denied, when, with what context)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Warrant issuance (full warrant including scope, TTL, signature)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Execution start and completion (duration, result, errors)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Verification result (pass/fail, scope compliance details)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> Agent trust score changes (before/after, reason)</li>
+            <li className="flex gap-2"><span className="text-amber-500">•</span> System events (policy changes, agent registration, configuration updates)</li>
           </ul>
 
           <P>
@@ -1238,9 +1238,9 @@ Intent → Policy Engine → T2 → Approval Queue
                SECTION 3: ARCHITECTURE
              ════════════════════════════════════════════════════════════════ */}
 
-          <div className="border-t border-gold-400/30 my-16" />
+          <div className="border-t border-amber-500/30 my-16" />
 
-          <H2 id="architecture" icon={<Server className="w-6 h-6 text-gold-400" />}>Architecture</H2>
+          <H2 id="architecture" icon={<Server className="w-6 h-6 text-amber-500" />}>Architecture</H2>
           <P>
             Vienna OS is a monolithic governance engine deployed as a single binary.
             Internally, it is composed of nine distinct services communicating via
@@ -1323,36 +1323,36 @@ Intent → Policy Engine → T2 → Approval Queue
 
           <div className="space-y-3 mb-6">
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">1</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Ingress.</strong> Agent sends HTTP POST to <InlineCode>/api/v1/agent/intent</InlineCode>. Gateway parses, validates auth token, normalizes payload.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">1</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Ingress.</strong> Agent sends HTTP POST to <InlineCode>/api/v1/agent/intent</InlineCode>. Gateway parses, validates auth token, normalizes payload.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">2</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Enrichment.</strong> Gateway loads agent profile (trust score, history), attaches organizational context, timestamps.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">2</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Enrichment.</strong> Gateway loads agent profile (trust score, history), attaches organizational context, timestamps.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">3</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Policy evaluation.</strong> Engine loads active rules sorted by priority. Evaluates conditions sequentially. First match determines outcome (allow + tier, deny, or escalate).</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">3</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Policy evaluation.</strong> Engine loads active rules sorted by priority. Evaluates conditions sequentially. First match determines outcome (allow + tier, deny, or escalate).</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">4</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Approval routing.</strong> T0 bypasses queue. T1/T2 enters approval workflow with configured timeout and escalation.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">4</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Approval routing.</strong> T0 bypasses queue. T1/T2 enters approval workflow with configured timeout and escalation.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">5</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Warrant issuance.</strong> Authority constructs warrant with scope, constraints, and TTL. Signs with HMAC-SHA256. Stores in state graph.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">5</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Warrant issuance.</strong> Authority constructs warrant with scope, constraints, and TTL. Signs with HMAC-SHA256. Stores in state graph.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">6</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Execution.</strong> Router validates warrant (not expired, not revoked), routes to appropriate handler, captures result.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">6</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Execution.</strong> Router validates warrant (not expired, not revoked), routes to appropriate handler, captures result.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">7</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Verification.</strong> Engine compares execution result against warrant scope. Records compliance status.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">7</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Verification.</strong> Engine compares execution result against warrant scope. Records compliance status.</div>
             </div>
             <div className="flex gap-4 items-start">
-              <span className="text-gold-400 font-mono text-xs bg-gold-400/10 px-2 py-1 rounded shrink-0">8</span>
-              <div className="text-sm text-slate-400"><strong className="text-white">Audit.</strong> Full pipeline trace written to append-only log with hash chain. Response returned to agent.</div>
+              <span className="text-amber-500 font-mono text-xs bg-amber-500/10 px-2 py-1 rounded shrink-0">8</span>
+              <div className="text-sm text-zinc-400"><strong className="text-white">Audit.</strong> Full pipeline trace written to append-only log with hash chain. Response returned to agent.</div>
             </div>
           </div>
 
@@ -1418,9 +1418,9 @@ Intent → Policy Engine → T2 → Approval Queue
               { name: "Fleet Manager", desc: "Agent lifecycle management. Registration, trust scoring, suspension, activity tracking, and capability management." },
               { name: "State Graph", desc: "Persistence layer. SQLite (default) or Postgres. Manages all entity storage, relationships, and query optimization." },
             ].map((s) => (
-              <div key={s.name} className="bg-zinc-900 border border-gold-400/30 rounded-xl p-4">
+              <div key={s.name} className="bg-zinc-900 border border-amber-500/30 p-4">
                 <div className="text-white font-semibold text-sm mb-1">{s.name}</div>
-                <div className="text-xs text-slate-500">{s.desc}</div>
+                <div className="text-xs text-zinc-500">{s.desc}</div>
               </div>
             ))}
           </div>
@@ -1433,9 +1433,9 @@ Intent → Policy Engine → T2 → Approval Queue
           </P>
 
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-zinc-900 border border-gold-400/30 rounded-xl p-4">
+            <div className="bg-zinc-900 border border-amber-500/30 p-4">
               <div className="text-white font-semibold text-sm mb-2">Single Binary</div>
-              <div className="text-xs text-slate-500 space-y-1">
+              <div className="text-xs text-zinc-500 space-y-1">
                 <div>• All 9 services in one process</div>
                 <div>• SQLite embedded storage</div>
                 <div>• Zero external dependencies</div>
@@ -1443,9 +1443,9 @@ Intent → Policy Engine → T2 → Approval Queue
                 <div>• Deploy: Docker, Fly.io, bare metal</div>
               </div>
             </div>
-            <div className="bg-zinc-900 border border-gold-400/30 rounded-xl p-4">
+            <div className="bg-zinc-900 border border-amber-500/30 p-4">
               <div className="text-white font-semibold text-sm mb-2">Fly.io (Managed)</div>
-              <div className="text-xs text-slate-500 space-y-1">
+              <div className="text-xs text-zinc-500 space-y-1">
                 <div>• Single machine, auto-restart</div>
                 <div>• Managed Postgres (Neon, Supabase, etc.)</div>
                 <div>• TLS termination included</div>
@@ -1453,9 +1453,9 @@ Intent → Policy Engine → T2 → Approval Queue
                 <div>• Deploy: <InlineCode>docker compose up -d</InlineCode></div>
               </div>
             </div>
-            <div className="bg-zinc-900 border border-gold-400/30 rounded-xl p-4">
+            <div className="bg-zinc-900 border border-amber-500/30 p-4">
               <div className="text-white font-semibold text-sm mb-2">On-Premises</div>
-              <div className="text-xs text-slate-500 space-y-1">
+              <div className="text-xs text-zinc-500 space-y-1">
                 <div>• Docker Compose or Kubernetes</div>
                 <div>• External Postgres required</div>
                 <div>• Full network isolation</div>
@@ -1470,7 +1470,7 @@ Intent → Policy Engine → T2 → Approval Queue
                SECTION 4: API REFERENCE
              ════════════════════════════════════════════════════════════════ */}
 
-          <div className="border-t border-gold-400/30 my-16" />
+          <div className="border-t border-amber-500/30 my-16" />
 
           <H2 id="api-reference" icon={<Zap className="w-6 h-6 text-gold-300" />}>API Reference</H2>
           <P>
@@ -2411,9 +2411,9 @@ Intent → Policy Engine → T2 → Approval Queue
                SECTION 5: INTEGRATION GUIDES
              ════════════════════════════════════════════════════════════════ */}
 
-          <div className="border-t border-gold-400/30 my-16" />
+          <div className="border-t border-amber-500/30 my-16" />
 
-          <H2 id="integration-guides" icon={<Code className="w-6 h-6 text-cyan-400" />}>Integration Guides</H2>
+          <H2 id="integration-guides" icon={<Code className="w-6 h-6 text-amber-400" />}>Integration Guides</H2>
           <P>
             Vienna OS is runtime-agnostic. Any system that can make HTTP requests can
             integrate. These guides show how to wire governance into popular AI agent
@@ -2709,9 +2709,9 @@ app.listen(3001);`}</CodeBlock>
           {/* ================================================
               POLICY-AS-CODE GUIDE
               ================================================ */}
-          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+          <div className="h-px bg-amber-500/10 my-16" />
 
-          <H2 id="policy-guide" icon={<FileText className="w-6 h-6 text-gold-400" />}>Policy-as-Code Guide</H2>
+          <H2 id="policy-guide" icon={<FileText className="w-6 h-6 text-amber-500" />}>Policy-as-Code Guide</H2>
           <P>
             Vienna OS policies are rules that automatically evaluate every agent intent.
             Rules are evaluated top-down by priority (highest first). First matching rule wins,
@@ -2748,13 +2748,13 @@ app.listen(3001);`}</CodeBlock>
           <div className="overflow-x-auto mb-8">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-navy-700">
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Operator</th>
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Description</th>
-                  <th className="text-left py-2 text-slate-400 font-semibold">Example</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Operator</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Description</th>
+                  <th className="text-left py-2 text-zinc-400 font-semibold">Example</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-300 font-mono text-xs">
+              <tbody className="text-zinc-300 font-mono text-xs">
                 {[
                   ["equals", "Exact match", '{ field: "action_type", operator: "equals", value: "deploy" }'],
                   ["not_equals", "Not equal", '{ field: "environment", operator: "not_equals", value: "production" }'],
@@ -2771,10 +2771,10 @@ app.listen(3001);`}</CodeBlock>
                   ["exists", "Field is present", '{ field: "parameters.override", operator: "exists", value: true }'],
                   ["not_exists", "Field is absent", '{ field: "parameters.approval_bypass", operator: "not_exists", value: true }'],
                 ].map(([op, desc, ex], i) => (
-                  <tr key={op} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
-                    <td className="py-2 pr-4 text-gold-400">{op}</td>
-                    <td className="py-2 pr-4 text-slate-400 font-sans">{desc}</td>
-                    <td className="py-2 text-slate-500 text-[11px]">{ex}</td>
+                  <tr key={op} className={i % 2 === 0 ? "" : "bg-black/30"}>
+                    <td className="py-2 pr-4 text-amber-500">{op}</td>
+                    <td className="py-2 pr-4 text-zinc-400 font-sans">{desc}</td>
+                    <td className="py-2 text-zinc-500 text-[11px]">{ex}</td>
                   </tr>
                 ))}
               </tbody>
@@ -2876,7 +2876,7 @@ app.listen(3001);`}</CodeBlock>
           {/* ================================================
               WARRANT DEEP DIVE
               ================================================ */}
-          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+          <div className="h-px bg-amber-500/10 my-16" />
 
           <H2 id="warrant-deep-dive" icon={<Lock className="w-6 h-6 text-gold-300" />}>Warrant Deep Dive</H2>
           <P>
@@ -2946,13 +2946,13 @@ app.listen(3001);`}</CodeBlock>
           <div className="overflow-x-auto mb-8">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-navy-700">
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Property</th>
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">API Key / OAuth</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Property</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">API Key / OAuth</th>
                   <th className="text-left py-2 text-emerald-400 font-semibold">Vienna Warrant</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-300 text-xs">
+              <tbody className="text-zinc-300 text-xs">
                 {[
                   ["Authorizes", "Identity (who you are)", "Specific action (what you can do)"],
                   ["Scope", "Broad (all permitted actions)", "Narrow (one action, one time)"],
@@ -2963,9 +2963,9 @@ app.listen(3001);`}</CodeBlock>
                   ["Audit chain", "Who authenticated", "Full intent → policy → approval → execution chain"],
                   ["Tamper evidence", "None", "HMAC-SHA256 signature"],
                 ].map(([prop, trad, warrant], i) => (
-                  <tr key={prop} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
+                  <tr key={prop} className={i % 2 === 0 ? "" : "bg-black/30"}>
                     <td className="py-2 pr-4 text-white font-medium">{prop}</td>
-                    <td className="py-2 pr-4 text-slate-500">{trad}</td>
+                    <td className="py-2 pr-4 text-zinc-500">{trad}</td>
                     <td className="py-2 text-emerald-400">{warrant}</td>
                   </tr>
                 ))}
@@ -2993,7 +2993,7 @@ app.listen(3001);`}</CodeBlock>
 
           <H3 id="wdd-security">Security Properties</H3>
           <P>Vienna warrants provide five security guarantees:</P>
-          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+          <ul className="list-disc list-inside space-y-2 text-zinc-300 text-sm mb-8 ml-2">
             <li><strong className="text-white">Non-repudiation</strong> — Every warrant records who approved it and why. The chain of custody is immutable.</li>
             <li><strong className="text-white">Scope enforcement</strong> — A warrant for $75,000 to vendor-456 cannot be used to send $750,000 to vendor-789.</li>
             <li><strong className="text-white">Temporal constraint</strong> — Warrants expire. A 300-second TTL means the window for execution is minutes, not months.</li>
@@ -3034,10 +3034,10 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
               { icon: "", title: "Legal", desc: "Court filing warrants constrain to specific case number, document type, and filing deadline. Dual attorney-supervisor approval. Verification confirms correct court and case." },
               { icon: "", title: "DevOps", desc: "Deploy warrants scope to specific service, environment, and version. Rollback constraints enabled. After-hours escalation. Verification confirms deployment target matched." },
             ].map((uc) => (
-              <div key={uc.title} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+              <div key={uc.title} className="bg-black border border-zinc-800 p-5">
                 <div className="text-2xl mb-2">{uc.icon}</div>
                 <h4 className="text-white font-semibold text-sm mb-1">{uc.title}</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">{uc.desc}</p>
+                <p className="text-xs text-zinc-400 leading-relaxed">{uc.desc}</p>
               </div>
             ))}
           </div>
@@ -3045,13 +3045,13 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
           {/* ================================================
               SECURITY
               ================================================ */}
-          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+          <div className="h-px bg-amber-500/10 my-16" />
 
           <H2 id="security" icon={<Key className="w-6 h-6 text-red-400" />}>Security</H2>
 
           <H3 id="sec-authn">Authentication</H3>
           <P>Vienna OS supports three authentication mechanisms:</P>
-          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+          <ul className="list-disc list-inside space-y-2 text-zinc-300 text-sm mb-8 ml-2">
             <li><strong className="text-white">Session-based (operators)</strong> — Login with username/password, receive session cookie. Used by console UI.</li>
             <li><strong className="text-white">API key (agents)</strong> — Bearer token in Authorization header. Scoped per agent with configurable permissions.</li>
             <li><strong className="text-white">mTLS (enterprise)</strong> — Mutual TLS for agent identity verification. Certificate-based, no shared secrets.</li>
@@ -3066,7 +3066,7 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
           </P>
 
           <H3 id="sec-encryption">Encryption</H3>
-          <ul className="list-disc list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+          <ul className="list-disc list-inside space-y-2 text-zinc-300 text-sm mb-8 ml-2">
             <li><strong className="text-white">In transit</strong> — TLS 1.3 enforced on all connections</li>
             <li><strong className="text-white">At rest</strong> — Database encryption via provider (Neon/RDS). Sensitive config fields encrypted with AES-256-GCM.</li>
             <li><strong className="text-white">Warrant signatures</strong> — HMAC-SHA256 with rotating server-side keys</li>
@@ -3085,7 +3085,7 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
             When Vienna detects a security event (signature mismatch, scope violation,
             unauthorized access attempt):
           </P>
-          <ol className="list-decimal list-inside space-y-2 text-slate-300 text-sm mb-8 ml-2">
+          <ol className="list-decimal list-inside space-y-2 text-zinc-300 text-sm mb-8 ml-2">
             <li>Alert generated with severity level (info/warning/critical)</li>
             <li>Agent automatically suspended if critical</li>
             <li>Integration adapters notified (Slack, email, webhook)</li>
@@ -3101,9 +3101,9 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
               { label: "GDPR", status: "Compliant (EU deployment option)", color: "text-emerald-400" },
               { label: "EU AI Act", status: "Designed for compliance", color: "text-emerald-400" },
               { label: "NIST AI RMF", status: "Aligned", color: "text-emerald-400" },
-              { label: "FedRAMP", status: "Planned (2026 Q4)", color: "text-slate-400" },
+              { label: "FedRAMP", status: "Planned (2026 Q4)", color: "text-zinc-400" },
             ].map((c) => (
-              <div key={c.label} className="bg-navy-800 border border-navy-700 rounded-lg p-3 flex items-center justify-between">
+              <div key={c.label} className="bg-black border border-zinc-800 p-3 flex items-center justify-between">
                 <span className="text-white text-sm font-medium">{c.label}</span>
                 <span className={`text-xs font-medium ${c.color}`}>{c.status}</span>
               </div>
@@ -3113,9 +3113,9 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
           {/* ================================================
               SELF-HOSTING
               ================================================ */}
-          <div className="h-px bg-gradient-to-r from-transparent via-navy-700 to-transparent my-16" />
+          <div className="h-px bg-amber-500/10 my-16" />
 
-          <H2 id="self-hosting" icon={<Settings className="w-6 h-6 text-slate-400" />}>Self-Hosting</H2>
+          <H2 id="self-hosting" icon={<Settings className="w-6 h-6 text-zinc-400" />}>Self-Hosting</H2>
           <P>
             Vienna OS can be self-hosted for teams that need on-premise deployment,
             air-gapped environments, or custom infrastructure.
@@ -3143,14 +3143,14 @@ curl http://localhost:8080/health
           <div className="overflow-x-auto mb-8">
             <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-navy-700">
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Variable</th>
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Required</th>
-                  <th className="text-left py-2 pr-4 text-slate-400 font-semibold">Default</th>
-                  <th className="text-left py-2 text-slate-400 font-semibold">Description</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Variable</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Required</th>
+                  <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Default</th>
+                  <th className="text-left py-2 text-zinc-400 font-semibold">Description</th>
                 </tr>
               </thead>
-              <tbody className="text-slate-300 font-mono text-xs">
+              <tbody className="text-zinc-300 font-mono text-xs">
                 {[
                   ["VIENNA_SECRET_KEY", "Yes", "—", "Server signing key for warrants and sessions"],
                   ["POSTGRES_URL", "Yes", "—", "PostgreSQL connection string"],
@@ -3163,11 +3163,11 @@ curl http://localhost:8080/health
                   ["VIENNA_WARRANT_TTL", "No", "300", "Default warrant TTL in seconds (5min)"],
                   ["VIENNA_MAX_AGENTS", "No", "100", "Maximum registered agents"],
                 ].map(([name, req, def, desc], i) => (
-                  <tr key={name} className={i % 2 === 0 ? "" : "bg-navy-800/30"}>
-                    <td className="py-2 pr-4 text-gold-400">{name}</td>
+                  <tr key={name} className={i % 2 === 0 ? "" : "bg-black/30"}>
+                    <td className="py-2 pr-4 text-amber-500">{name}</td>
                     <td className="py-2 pr-4">{req}</td>
-                    <td className="py-2 pr-4 text-slate-500">{def}</td>
-                    <td className="py-2 text-slate-400 font-sans">{desc}</td>
+                    <td className="py-2 pr-4 text-zinc-500">{def}</td>
+                    <td className="py-2 text-zinc-400 font-sans">{desc}</td>
                   </tr>
                 ))}
               </tbody>
@@ -3269,17 +3269,17 @@ spec:
           {/* End of docs content */}
           <div className="h-px bg-gradient-to-r from-transparent via-gold-400/10 to-transparent my-16" />
 
-          <div className="bg-black border border-gold-400/30 p-8">
+          <div className="bg-black border border-amber-500/30 p-8">
             <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-3">Ready?</div>
-            <h2 className="text-2xl font-mono font-bold text-gold-400 uppercase mb-4">READY_TO_GOVERN_YOUR_AGENTS</h2>
+            <h2 className="text-2xl font-mono font-bold text-amber-500 uppercase mb-4">READY_TO_GOVERN_YOUR_AGENTS</h2>
             <p className="text-zinc-400 font-mono text-sm mb-6">
               Start with the free tier. No credit card required.
             </p>
             <div className="flex flex-wrap gap-3">
-              <a href="/signup" className="bg-gold-400 hover:bg-gold-300 text-black px-6 py-3 font-mono font-bold text-xs uppercase transition">
+              <a href="/signup" className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-3 font-mono font-bold text-xs uppercase transition">
                 GET_STARTED →
               </a>
-              <a href="/try" className="bg-zinc-900 border border-gold-400/30 hover:border-gold-400 text-gold-400 px-6 py-3 font-mono font-bold text-xs uppercase transition">
+              <a href="/try" className="bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 px-6 py-3 font-mono font-bold text-xs uppercase transition">
                 TRY_LIVE_API
               </a>
             </div>

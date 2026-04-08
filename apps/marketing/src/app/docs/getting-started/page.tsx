@@ -185,7 +185,7 @@ export default function GettingStartedPage() {
         </div>
 
         {/* Integrations section */}
-        <div className="mt-12 bg-gradient-to-r from-slate-900/50 to-gold-900/20 border border-zinc-800 p-8">
+        <div className="mt-12 bg-black border border-zinc-800 p-8">
           <h2 className="text-xl font-bold mb-4">Integrations</h2>
           <p className="text-zinc-300 mb-6">Connect Vienna OS to your existing tools for seamless governance:</p>
           

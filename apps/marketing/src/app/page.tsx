@@ -177,8 +177,12 @@ export default function Home() {
             </div>
 
             {/* Right Column: Warrant Card - Terminal Style */}
-            <div className="relative lg:block flex justify-center">
-              <div className={`w-full max-w-[520px] bg-black border p-0 overflow-hidden font-mono transition-all duration-1000 relative ${warrantPhase >= 3 ? "border-green-500/50 shadow-lg shadow-green-500/10" : "border-amber-500/30"}`}>
+            <div className="relative lg:block flex justify-center group">
+              <div className={`w-full max-w-[520px] bg-black border p-0 overflow-hidden font-mono transition-all duration-1000 relative cursor-pointer hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-500/20 ${warrantPhase >= 3 ? "border-green-500/50 shadow-lg shadow-green-500/10" : "border-amber-500/30"}`}
+                onClick={() => window.open('/try', '_blank')}
+                role="button"
+                aria-label="View interactive warrant demo"
+              >
                 {/* Header Bar */}
                 <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -244,6 +248,14 @@ export default function Home() {
                   <div className="flex items-center justify-between text-[10px] text-zinc-600">
                     <span>ttl_remaining: 298s</span>
                     <span className="text-green-500">● ACTIVE</span>
+                  </div>
+                </div>
+
+                {/* Hover hint */}
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <div className="text-center">
+                    <div className="text-amber-500 font-mono text-sm mb-2">CLICK_TO_EXPLORE</div>
+                    <div className="text-zinc-400 text-xs">Interactive warrant demo →</div>
                   </div>
                 </div>
               </div>

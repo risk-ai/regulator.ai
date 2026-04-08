@@ -24,6 +24,8 @@ export default function SiteFooter() {
               <li><Link href="/enterprise" className="hover:text-white transition-colors">Enterprise</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+              <li><Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link></li>
+              <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
             </ul>
           </div>
           <div>
@@ -37,12 +39,15 @@ export default function SiteFooter() {
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-white mb-4">Legal</h3>
+            <h3 className="font-semibold text-white mb-4">Resources</h3>
             <ul className="space-y-2 text-sm text-gray-400">
+              <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/use-cases" className="hover:text-white transition-colors">Use Cases</Link></li>
+              <li><Link href="/examples" className="hover:text-white transition-colors">Examples</Link></li>
+              <li><Link href="/roi" className="hover:text-white transition-colors">ROI Calculator</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
               <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
-              <li><a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a></li>
             </ul>
           </div>
         </div>

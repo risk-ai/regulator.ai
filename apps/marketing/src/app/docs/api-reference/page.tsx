@@ -176,7 +176,7 @@ function Method({
     <div id={id} className="mb-12 scroll-mt-24">
       <div className="flex items-baseline gap-4 mb-4 group">
         <h3 className="text-xl font-bold text-white">{name}</h3>
-        <a href={`#${id}`} className="text-slate-600 hover:text-purple-400 opacity-0 group-hover:opacity-100 transition text-sm">
+        <a href={`#${id}`} className="text-slate-600 hover:text-gold-400 opacity-0 group-hover:opacity-100 transition text-sm">
           #
         </a>
       </div>
@@ -194,7 +194,7 @@ function Method({
             {parameters.map((param) => (
               <div key={param.name} className="border border-navy-800 rounded-lg p-4 bg-navy-800/30">
                 <div className="flex items-center gap-2 mb-1">
-                  <code className="text-purple-400 font-mono text-sm">{param.name}</code>
+                  <code className="text-gold-400 font-mono text-sm">{param.name}</code>
                   <span className="text-slate-500 text-xs">—</span>
                   <code className="text-emerald-400 font-mono text-xs">{param.type}</code>
                   {!param.required && <span className="text-slate-600 text-xs">(optional)</span>}
@@ -224,7 +224,7 @@ function Method({
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
     info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
-    warning: "border-amber-500/30 bg-amber-500/5 text-amber-300",
+    warning: "border-gold-400/30 bg-gold-400/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
   const icons = {
@@ -247,7 +247,7 @@ function H2({ id, icon, children }: { id: string; icon: React.ReactNode; childre
     <div id={id} className="flex items-center gap-3 mb-6 pt-8 scroll-mt-24 group">
       {icon}
       <h2 className="text-2xl font-bold text-white">{children}</h2>
-      <a href={`#${id}`} className="text-slate-600 hover:text-purple-400 opacity-0 group-hover:opacity-100 transition">
+      <a href={`#${id}`} className="text-slate-600 hover:text-gold-400 opacity-0 group-hover:opacity-100 transition">
         #
       </a>
     </div>
@@ -259,7 +259,7 @@ function P({ children }: { children: React.ReactNode }) {
 }
 
 function InlineCode({ children }: { children: React.ReactNode }) {
-  return <code className="text-purple-400 bg-navy-800 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
+  return <code className="text-gold-400 bg-navy-800 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
 }
 
 /* ─────────────────────── Main API Reference Page ─────────────────────── */
@@ -338,8 +338,8 @@ export default function ApiReferencePage() {
             </a>
             <span className="text-slate-700 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-violet-400" />
-              <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+              <Shield className="w-6 h-6 text-gold-400" />
+              <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
             </div>
             <span className="text-slate-700 text-xs font-mono hidden sm:inline">API v1</span>
           </div>
@@ -352,7 +352,7 @@ export default function ApiReferencePage() {
             </a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Console
             </a>
@@ -381,7 +381,7 @@ export default function ApiReferencePage() {
                     onClick={() => toggleSection(s.id)}
                     className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 rounded-lg transition ${
                       isActive(s.id)
-                        ? "bg-purple-500/10 text-purple-400"
+                        ? "bg-gold-400/10 text-gold-400"
                         : "text-slate-400 hover:text-white hover:bg-navy-800"
                     }`}
                   >
@@ -403,7 +403,7 @@ export default function ApiReferencePage() {
                           onClick={() => setMobileNavOpen(false)}
                           className={`block text-xs py-1.5 px-3 rounded transition ${
                             isActive(m.id)
-                              ? "text-purple-400 bg-purple-500/5"
+                              ? "text-gold-400 bg-gold-400/5"
                               : "text-slate-500 hover:text-slate-300"
                           }`}
                         >
@@ -500,7 +500,7 @@ console.log('Intent status:', result.status);`}
                VIENNA CLIENT
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="client" icon={<Settings className="w-6 h-6 text-purple-400" />}>
+          <H2 id="client" icon={<Settings className="w-6 h-6 text-gold-400" />}>
             ViennaClient
           </H2>
           <P>
@@ -588,7 +588,7 @@ const vienna = new ViennaClient({
                INTENT MODULE
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="intent" icon={<Zap className="w-6 h-6 text-amber-400" />}>
+          <H2 id="intent" icon={<Zap className="w-6 h-6 text-gold-300" />}>
             Intent Module
           </H2>
           <P>
@@ -1621,13 +1621,13 @@ stats.topViolatingAgents.forEach(agent => {
           {/* End of content */}
           <div className="border-t border-navy-800 my-16" />
 
-          <div className="bg-gradient-to-br from-purple-900/20 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
+          <div className="bg-gradient-to-br from-gold-900/20 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Ready to start building?</h2>
             <p className="text-slate-400 text-sm mb-4">
               Install the SDK and start governing your agents in minutes.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-semibold text-sm">
+              <a href="/signup" className="bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-xl transition font-semibold text-sm">
                 Get API Key
               </a>
               <a href="/docs" className="bg-navy-800 hover:bg-navy-700 text-white px-6 py-2.5 rounded-xl transition text-sm border border-navy-700">
@@ -1643,7 +1643,7 @@ stats.topViolatingAgents.forEach(agent => {
       <footer className="border-t border-navy-800 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Shield className="w-4 h-4 text-gold-400" />
             <span className="text-sm text-slate-500">Vienna OS API Reference</span>
           </div>
           <div className="flex items-center gap-6">

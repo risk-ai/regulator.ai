@@ -274,15 +274,15 @@ export default function EnterprisePage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
             <a href="/pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
             <a 
               href="/contact?subject=enterprise" 
-              className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium"
+              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium"
             >
               Schedule Demo
             </a>
@@ -292,13 +292,13 @@ export default function EnterprisePage() {
 
       {/* Hero Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-900/20 via-blue-900/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16">
           <ScrollReveal>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-purple-500/15 border border-purple-500/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
-                <Shield className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-300 font-semibold uppercase tracking-wider">Enterprise</span>
+              <div className="inline-flex items-center gap-2 bg-gold-400/15 border border-gold-400/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
+                <Shield className="w-4 h-4 text-gold-400" />
+                <span className="text-sm text-gold-300 font-semibold uppercase tracking-wider">Enterprise</span>
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -316,7 +316,7 @@ export default function EnterprisePage() {
                 <a 
                   href="/contact?subject=enterprise"
                   onClick={() => analytics.ctaClick('hero', 'schedule_demo')}
-                  className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30 flex items-center gap-2"
+                  className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
                 >
                   Schedule a Demo
                   <ArrowRight className="w-5 h-5" />
@@ -371,8 +371,8 @@ export default function EnterprisePage() {
             <ScrollReveal key={i} delay={i * 0.1}>
               <div className="bg-gradient-to-br from-navy-800/50 to-slate-900/50 border border-navy-700/50 rounded-xl p-6 hover:bg-gradient-to-br hover:from-navy-700/50 hover:to-slate-800/50 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                    <capability.icon className="w-6 h-6 text-purple-400" />
+                  <div className="w-12 h-12 rounded-lg bg-gold-400/20 border border-gold-400/30 flex items-center justify-center">
+                    <capability.icon className="w-6 h-6 text-gold-400" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-2">{capability.title}</h3>
@@ -407,8 +407,8 @@ export default function EnterprisePage() {
               <div className="p-4 bg-navy-700/30">
                 <h3 className="font-semibold text-blue-400">Business</h3>
               </div>
-              <div className="p-4 bg-gradient-to-r from-purple-600/20 to-purple-500/20">
-                <h3 className="font-semibold text-purple-300">Enterprise</h3>
+              <div className="p-4 bg-gradient-to-r from-gold-500/20 to-gold-400/20">
+                <h3 className="font-semibold text-gold-300">Enterprise</h3>
               </div>
             </div>
             
@@ -416,7 +416,7 @@ export default function EnterprisePage() {
               <div key={i} className="grid grid-cols-3 gap-0 border-b border-navy-700/30 last:border-b-0">
                 <div className="p-4 text-slate-300 font-medium">{row.feature}</div>
                 <div className="p-4 text-slate-400">{row.business}</div>
-                <div className="p-4 text-purple-300 font-medium">{row.enterprise}</div>
+                <div className="p-4 text-gold-300 font-medium">{row.enterprise}</div>
               </div>
             ))}
           </div>
@@ -522,7 +522,7 @@ export default function EnterprisePage() {
         <div className="border-t border-navy-700/50 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <div className="bg-gradient-to-br from-slate-800/50 to-navy-800/50 border border-slate-700/50 rounded-2xl p-12">
-              <Shield className="w-12 h-12 text-purple-400 mx-auto mb-6" />
+              <Shield className="w-12 h-12 text-gold-400 mx-auto mb-6" />
               <h3 className="text-2xl text-slate-200 font-medium mb-6 leading-relaxed">
                 Vienna OS is in early access for enterprise teams governing autonomous AI agents.
               </h3>
@@ -531,7 +531,7 @@ export default function EnterprisePage() {
               </p>
               <a 
                 href="/contact?subject=enterprise"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30"
               >
                 Request Early Access
                 <ArrowRight className="w-5 h-5" />
@@ -557,14 +557,14 @@ export default function EnterprisePage() {
               <a 
                 href="/contact?subject=enterprise"
                 onClick={() => analytics.ctaClick('final_cta', 'schedule_demo')}
-                className="bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-purple-500/30 text-lg"
+                className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 text-lg"
               >
                 Schedule a Demo
               </a>
               <a 
                 href="/docs"
                 onClick={() => analytics.ctaClick('final_cta', 'view_docs')}
-                className="text-purple-400 hover:text-purple-300 font-medium transition text-lg flex items-center gap-2"
+                className="text-gold-400 hover:text-gold-300 font-medium transition text-lg flex items-center gap-2"
               >
                 View Documentation
                 <ArrowRight className="w-5 h-5" />

@@ -22,6 +22,7 @@ export default function SiteFooter() {
               <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
               <li><Link href="/enterprise" className="hover:text-white transition-colors">Enterprise</Link></li>
+              <li><Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
               <li><Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link></li>
@@ -45,6 +46,7 @@ export default function SiteFooter() {
               <li><Link href="/use-cases" className="hover:text-white transition-colors">Use Cases</Link></li>
               <li><Link href="/examples" className="hover:text-white transition-colors">Examples</Link></li>
               <li><Link href="/roi" className="hover:text-white transition-colors">ROI Calculator</Link></li>
+              <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
               <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
@@ -53,7 +55,7 @@ export default function SiteFooter() {
         </div>
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
-            <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-5 h-5 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
             </svg>
             <span>© 2026 Vienna OS. BSL 1.1 License.</span>

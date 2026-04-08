@@ -59,12 +59,12 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
               Get Started
             </a>
           </div>
@@ -79,7 +79,7 @@ export default function AboutPage() {
               <h1 className="text-5xl md:text-6xl font-bold mb-8 tracking-tight">
                 <span className="text-white">AI agents should be</span>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-500 to-blue-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-gold-400 to-blue-500">
                   governed, not guardrailed
                 </span>
               </h1>
@@ -96,22 +96,22 @@ export default function AboutPage() {
         {/* Core Thesis */}
         <ScrollReveal delay={0.2}>
           <section className="mb-24">
-            <div className="bg-gradient-to-br from-purple-900/20 to-navy-800 border border-purple-500/30 rounded-2xl p-8 md:p-10">
+            <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/30 rounded-2xl p-8 md:p-10">
               <div className="flex items-start gap-6 mb-8">
                 <Scale className="w-10 h-10 text-gold-400 shrink-0 mt-1 seal-glow" />
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-4">Our Thesis</h2>
                   <p className="text-lg text-slate-300 leading-relaxed mb-4">
-                    Content guardrails filter what AI <em className="text-purple-400">says</em>. Governance controls
-                    what AI <em className="text-purple-400">does</em>. As agents move from demos to production — executing
+                    Content guardrails filter what AI <em className="text-gold-400">says</em>. Governance controls
+                    what AI <em className="text-gold-400">does</em>. As agents move from demos to production — executing
                     real transactions, deploying real code, sending real communications —
                     the question shifts from <span className="text-slate-200">&quot;Is the output safe?&quot;</span> to{" "}
                     <span className="text-slate-200">&quot;Is the action authorized?&quot;</span>
                   </p>
                 </div>
               </div>
-              <div className="bg-navy-800/50 border border-purple-500/20 rounded-xl p-6">
-                <div className="font-mono text-lg text-purple-400 text-center">
+              <div className="bg-navy-800/50 border border-gold-400/20 rounded-xl p-6">
+                <div className="font-mono text-lg text-gold-400 text-center">
                   AI explains → Runtime executes → Operator approves
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function AboutPage() {
                   icon: Users,
                   title: "Agent Explosion",
                   desc: "Every major AI lab shipped agent frameworks in 2025-2026. 60%+ of Fortune 500 are experimenting. The governance gap is visible at scale.",
-                  color: "purple",
+                  color: "gold",
                 },
                 {
                   icon: Scale,
@@ -195,14 +195,14 @@ export default function AboutPage() {
               </span>
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-purple-500/30 transition-colors">
+              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-gold-400/30 transition-colors">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-purple-500/20 border border-purple-500/40 flex items-center justify-center">
-                    <GraduationCap className="w-8 h-8 text-purple-400" />
+                  <div className="w-16 h-16 rounded-full bg-gold-400/20 border border-gold-400/40 flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8 text-gold-400" />
                   </div>
                   <div>
                     <h3 className="text-white font-bold text-xl">Max Anderson</h3>
-                    <p className="text-purple-400 font-medium">Founder & Lead Developer</p>
+                    <p className="text-gold-400 font-medium">Founder & Lead Developer</p>
                     <p className="text-slate-500 text-sm">Cornell Law School 3L</p>
                   </div>
                 </div>
@@ -243,10 +243,10 @@ export default function AboutPage() {
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { name: "law.ai", role: "First vertical customer (legal AI)", color: "amber" },
+                { name: "law.ai", role: "First vertical customer (legal AI)", color: "gold" },
                 { name: "corporate.ai", role: "Distribution channel (vendor marketplace)", color: "blue" },
                 { name: "agents.net", role: "Agent certification marketplace", color: "emerald" },
-                { name: "risk.ai", role: "Complementary risk assessment", color: "purple" },
+                { name: "risk.ai", role: "Complementary risk assessment", color: "gold" },
               ].map((s) => (
                 <div key={s.name} className="bg-navy-800/70 border border-navy-600 rounded-xl p-4 text-center hover:bg-navy-700/70 transition-colors">
                   <div className={`text-lg font-bold text-${s.color}-400 mb-2`}>{s.name}</div>
@@ -260,15 +260,15 @@ export default function AboutPage() {
         {/* Contact CTA */}
         <ScrollReveal delay={0.7}>
           <section>
-            <div className="bg-gradient-to-br from-purple-900/30 to-navy-800 border border-purple-500/30 rounded-2xl p-10 text-center">
-              <Target className="w-12 h-12 text-purple-400 mx-auto mb-6" />
+            <div className="bg-gradient-to-br from-gold-900/30 to-navy-800 border border-gold-400/30 rounded-2xl p-10 text-center">
+              <Target className="w-12 h-12 text-gold-400 mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-white mb-4">Want to learn more?</h2>
               <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
                 Whether you&apos;re an enterprise evaluating governance solutions,
                 an investor interested in our patent portfolio, or a developer building agents — we&apos;d love to talk.
               </p>
               <div className="flex items-center justify-center gap-6">
-                <a href="/signup" className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-purple-500/25">
+                <a href="/signup" className="bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25">
                   Get Started Free
                 </a>
                 <a href="/contact" className="bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">

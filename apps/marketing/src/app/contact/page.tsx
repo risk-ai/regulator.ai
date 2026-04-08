@@ -75,12 +75,12 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
               Get Started
             </a>
           </div>
@@ -99,10 +99,10 @@ export default function ContactPage() {
                 Thank you for reaching out. We&apos;ll get back to you within 24 hours.
               </p>
               <div className="flex items-center justify-center gap-4">
-                <a href="/" className="text-purple-400 hover:text-purple-300 font-medium transition">
+                <a href="/" className="text-gold-400 hover:text-gold-300 font-medium transition">
                   ← Back to home
                 </a>
-                <a href="/docs" className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl transition font-medium">
+                <a href="/docs" className="bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-xl transition font-medium">
                   Explore Docs
                 </a>
               </div>
@@ -126,13 +126,13 @@ export default function ContactPage() {
                 {/* Contact Methods */}
                 <div className="space-y-4 mb-12">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-purple-400" />
+                    <div className="w-10 h-10 rounded-lg bg-gold-400/20 border border-gold-400/30 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-gold-400" />
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">General Inquiries</h3>
                       <p className="text-slate-400 text-sm mb-1">Questions, partnerships, media</p>
-                      <a href="mailto:admin@ai.ventures" className="text-purple-400 hover:text-purple-300 font-medium transition">
+                      <a href="mailto:admin@ai.ventures" className="text-gold-400 hover:text-gold-300 font-medium transition">
                         admin@ai.ventures
                       </a>
                     </div>
@@ -189,7 +189,7 @@ export default function ContactPage() {
             <ScrollReveal delay={0.2}>
               <div className="bg-gradient-to-br from-navy-800 to-navy-800/50 border border-navy-700 rounded-2xl p-8">
                 <div className="flex items-center gap-3 mb-6">
-                  <MessageCircle className="w-6 h-6 text-purple-400" />
+                  <MessageCircle className="w-6 h-6 text-gold-400" />
                   <h2 className="text-2xl font-bold text-white">Send us a message</h2>
                 </div>
 
@@ -202,7 +202,7 @@ export default function ContactPage() {
                         type="text" 
                         value={form.name} 
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                         placeholder="Jane Smith" 
                       />
                     </div>
@@ -213,7 +213,7 @@ export default function ContactPage() {
                         type="email" 
                         value={form.email} 
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                         placeholder="jane@company.com" 
                       />
                     </div>
@@ -225,7 +225,7 @@ export default function ContactPage() {
                       type="text" 
                       value={form.company} 
                       onChange={(e) => setForm({ ...form, company: e.target.value })}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors" 
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                       placeholder="Acme Corp" 
                     />
                   </div>
@@ -235,7 +235,7 @@ export default function ContactPage() {
                     <select 
                       value={form.type} 
                       onChange={(e) => setForm({ ...form, type: e.target.value })}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors"
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors"
                     >
                       <option value="general">General inquiry</option>
                       <option value="enterprise">Enterprise plan</option>
@@ -253,7 +253,7 @@ export default function ContactPage() {
                       value={form.message} 
                       onChange={(e) => setForm({ ...form, message: e.target.value })} 
                       rows={6}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-colors resize-none"
+                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors resize-none"
                       placeholder="Tell us about your use case, requirements, or question..."
                     />
                   </div>
@@ -261,7 +261,7 @@ export default function ContactPage() {
                   <button 
                     type="submit" 
                     disabled={sending}
-                    className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-purple-500/25"
+                    className="w-full flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25"
                   >
                     <Send className="w-5 h-5" />
                     {sending ? "Sending..." : "Send Message"}

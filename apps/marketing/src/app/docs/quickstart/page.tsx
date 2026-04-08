@@ -62,7 +62,7 @@ function CodeBlock({
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
     info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
-    warning: "border-amber-500/30 bg-amber-500/5 text-amber-300",
+    warning: "border-gold-400/30 bg-gold-400/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
   const icons = {
@@ -79,7 +79,7 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
 }
 
 function InlineCode({ children }: { children: React.ReactNode }) {
-  return <code className="text-purple-400 bg-[#141820] px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
+  return <code className="text-gold-400 bg-[#141820] px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
 }
 
 export default function QuickstartPage() {
@@ -95,14 +95,14 @@ export default function QuickstartPage() {
             </a>
             <span className="text-slate-700 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-violet-400" />
-              <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+              <Shield className="w-6 h-6 text-gold-400" />
+              <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Console
             </a>
@@ -132,7 +132,7 @@ export default function QuickstartPage() {
         {/* Step 1: Install */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
+            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
             Install
           </h2>
           <p className="text-slate-400 mb-4">
@@ -151,11 +151,11 @@ pip install vienna-os
         {/* Step 2: Initialize */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
+            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
             Initialize
           </h2>
           <p className="text-slate-400 mb-4">
-            Get your API key from <a href="https://console.regulator.ai" className="text-purple-400 hover:text-purple-300 underline" target="_blank" rel="noopener noreferrer">console.regulator.ai → API Keys</a> and initialize the Vienna client:
+            Get your API key from <a href="https://console.regulator.ai" className="text-gold-400 hover:text-gold-300 underline" target="_blank" rel="noopener noreferrer">console.regulator.ai → API Keys</a> and initialize the Vienna client:
           </p>
 
           <CodeBlock language="javascript" title="JavaScript / TypeScript">
@@ -179,7 +179,7 @@ vienna = ViennaClient(
         {/* Step 3: Govern an Action */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
+            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
             Govern an Action
           </h2>
           <p className="text-slate-400 mb-4">
@@ -238,7 +238,7 @@ elif result.pipeline == 'denied':
         {/* Step 4: Handle Errors */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
+            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
             Handle Errors
           </h2>
           <p className="text-slate-400 mb-4">
@@ -310,7 +310,7 @@ except ViennaError as e:
         {/* Step 5: See It Live */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-purple-600 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
+            <span className="bg-gold-400 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
             See It Live
           </h2>
           <p className="text-slate-400 mb-4">
@@ -322,7 +322,7 @@ except ViennaError as e:
               <h3 className="text-white font-semibold">Console Dashboard</h3>
               <a 
                 href="https://console.regulator.ai" 
-                className="text-purple-400 hover:text-purple-300 text-sm flex items-center gap-1"
+                className="text-gold-400 hover:text-gold-300 text-sm flex items-center gap-1"
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -426,37 +426,37 @@ const result = await vienna.submitIntent({
         </Callout>
 
         {/* Next Steps */}
-        <div className="bg-gradient-to-br from-purple-900/20 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8">
+        <div className="bg-gradient-to-br from-gold-900/20 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-white mb-4">Next Steps</h2>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <a 
               href="/docs/github-action" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-purple-500/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-purple-400 transition">GitHub Action</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">GitHub Action</div>
               <div className="text-slate-400">Add Vienna to your CI/CD pipeline</div>
             </a>
             <a 
               href="/docs/api-reference" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-purple-500/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-purple-400 transition">API Reference</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">API Reference</div>
               <div className="text-slate-400">Complete API documentation</div>
             </a>
             <a 
               href="/docs/integration-guide" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-purple-500/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-purple-400 transition">Integration Guide</div>
+              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition">Integration Guide</div>
               <div className="text-slate-400">Deep dive into framework integrations</div>
             </a>
             <a 
               href="https://console.regulator.ai" 
-              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-purple-500/30 transition group"
+              className="bg-[#141820] border border-[#1C222E] rounded-lg p-4 hover:border-gold-400/30 transition group"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div className="font-semibold text-white mb-2 group-hover:text-purple-400 transition flex items-center gap-1">
+              <div className="font-semibold text-white mb-2 group-hover:text-gold-400 transition flex items-center gap-1">
                 Vienna Console <ExternalLink className="w-3 h-3" />
               </div>
               <div className="text-slate-400">Configure policies and monitor agents</div>

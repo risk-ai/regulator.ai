@@ -382,12 +382,12 @@ export default function PricingPage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-violet-400" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
               Get Started
             </a>
           </div>
@@ -398,9 +398,9 @@ export default function PricingPage() {
 
       {/* Returning Visitor Banner */}
       {typeof window !== 'undefined' && localStorage.getItem('regulator_lead_capture') && (
-        <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-b border-purple-500/30">
+        <div className="bg-gradient-to-r from-gold-500/20 to-gold-500/20 border-b border-gold-400/30">
           <div className="max-w-7xl mx-auto px-6 py-3 text-center">
-            <p className="text-sm text-purple-300">
+            <p className="text-sm text-gold-300">
               Welcome back! We noticed your interest in Vienna OS. 
               <button
                 onClick={() => {
@@ -418,7 +418,7 @@ export default function PricingPage() {
 
       {/* Header with gradient background */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-gold-900/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center relative">
           <ScrollReveal>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -438,7 +438,7 @@ export default function PricingPage() {
                   setLeadCaptureTrigger('header_priority_access');
                   setShowLeadCapture(true);
                 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-500 hover:from-gold-400 hover:to-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
               >
                 <Zap className="w-4 h-4" />
                 Get Priority Access
@@ -459,7 +459,7 @@ export default function PricingPage() {
               <div
                 className={`rounded-2xl p-6 border flex flex-col relative transition-all duration-300 hover:scale-105 ${
                   tier.highlight
-                    ? "border-purple-500/50 bg-gradient-to-br from-purple-500/10 to-navy-800 ring-1 ring-purple-500/30 shadow-lg shadow-purple-500/10"
+                    ? "border-gold-400/50 bg-gradient-to-br from-gold-400/10 to-navy-800 ring-1 ring-gold-400/30 shadow-lg shadow-gold-400/10"
                     : tier.premium
                     ? "border-gold-400/50 bg-gradient-to-br from-gold-400/10 to-navy-800 ring-1 ring-gold-400/30 shadow-lg shadow-gold-400/10"
                     : "border-navy-700 bg-gradient-to-br from-navy-800 to-navy-800/50 hover:border-navy-600 hover:bg-gradient-to-br hover:from-navy-700 hover:to-navy-800"
@@ -467,7 +467,7 @@ export default function PricingPage() {
               >
                 {tier.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-purple-600 text-white px-3 py-1 rounded-full">
+                    <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-gold-400 text-white px-3 py-1 rounded-full">
                       <Star className="w-3 h-3" />
                       Most Popular
                     </div>
@@ -485,7 +485,7 @@ export default function PricingPage() {
 
                 <div className="flex items-center gap-3 mb-4">
                   <tier.icon className={`w-6 h-6 ${
-                    tier.highlight ? 'text-purple-400' : 
+                    tier.highlight ? 'text-gold-400' : 
                     tier.premium ? 'text-gold-400' : 'text-slate-400'
                   }`} />
                   <h3 className="text-xl font-semibold text-white">{tier.name}</h3>
@@ -507,7 +507,7 @@ export default function PricingPage() {
                     onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
                     className={`block text-center py-3 rounded-xl font-semibold text-sm transition ${
                       tier.highlight
-                        ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg hover:shadow-purple-500/25"
+                        ? "bg-gold-400 hover:bg-gold-400 text-white shadow-lg hover:shadow-gold-400/25"
                         : tier.premium
                         ? "bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-navy-900 font-bold shadow-lg hover:shadow-gold-400/25"
                         : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600 hover:border-navy-500"
@@ -561,7 +561,7 @@ export default function PricingPage() {
       {/* Volume Discount Section */}
       <ScrollReveal>
         <div className="max-w-4xl mx-auto px-6 pb-20">
-          <div className="bg-gradient-to-br from-purple-900/20 to-navy-800 border border-purple-500/20 rounded-2xl p-8 text-center">
+          <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/20 rounded-2xl p-8 text-center">
             <h2 className="text-2xl font-bold text-white mb-3">
               Governing 100+ agents?
             </h2>
@@ -572,7 +572,7 @@ export default function PricingPage() {
             <a
               href="/contact?subject=enterprise"
               onClick={() => analytics.ctaClick('volume_discount', 'talk_to_sales')}
-              className="inline-block bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
+              className="inline-block bg-gold-400 hover:bg-gold-400 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
             >
               Talk to Sales
             </a>
@@ -616,7 +616,7 @@ export default function PricingPage() {
               <a 
                 href="/signup" 
                 onClick={() => analytics.ctaClick('pricing_bottom', 'start_free_trial')}
-                className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-purple-500/25"
+                className="bg-gold-400 hover:bg-gold-400 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
               >
                 Start Free Trial
               </a>

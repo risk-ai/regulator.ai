@@ -194,7 +194,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       timeline: "10-12 weeks implementation + bar association review"
     },
     icon: "",
-    color: "purple"
+    color: "gold"
   },
   {
     id: "devops-deployment",
@@ -262,7 +262,7 @@ export default function UseCasesPage() {
   const colorClasses = {
     blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
     green: "border-green-500/30 bg-green-500/5 text-green-400",
-    purple: "border-purple-500/30 bg-purple-500/5 text-purple-400",
+    gold: "border-gold-400/30 bg-gold-400/5 text-gold-400",
     orange: "border-orange-500/30 bg-orange-500/5 text-orange-400",
     red: "border-red-500/30 bg-red-500/5 text-red-400",
   };
@@ -374,7 +374,7 @@ export default function UseCasesPage() {
                   <div className="space-y-3">
                     {selectedUseCase.implementation.map((step, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-6 h-6 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-gold-400 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {i + 1}
                         </div>
                         <p className="text-warm-300">{step}</p>
@@ -391,14 +391,14 @@ export default function UseCasesPage() {
                     {selectedUseCase.workflow.map((step, i) => (
                       <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-gold-400 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
                             {i + 1}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="text-white font-semibold">{step.step}</h4>
                               {step.tier && (
-                                <span className="text-xs px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full font-mono">
+                                <span className="text-xs px-2 py-0.5 bg-gold-400/10 text-gold-400 border border-gold-400/20 rounded-full font-mono">
                                   {step.tier}
                                 </span>
                               )}
@@ -435,7 +435,7 @@ export default function UseCasesPage() {
                     <h4 className="text-sm font-medium text-warm-400 mb-3">Compliance Policies</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedUseCase.technicalDetails.policies.map((policy) => (
-                        <span key={policy} className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-medium">
+                        <span key={policy} className="px-3 py-1 bg-gold-400/10 text-gold-400 border border-gold-400/20 rounded-full text-xs font-medium">
                           {policy}
                         </span>
                       ))}
@@ -478,7 +478,7 @@ export default function UseCasesPage() {
               </div>
 
               {/* CTA */}
-              <div className="bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-xl p-5">
+              <div className="bg-gradient-to-br from-gold-900/30 to-navy-800/50 border border-gold-400/20 rounded-xl p-5">
                 <h4 className="text-white font-semibold mb-2">Ready to implement?</h4>
                 <p className="text-warm-400 text-sm mb-4">
                   Deploy Vienna OS governance for your {selectedUseCase.industry.toLowerCase()} organization.
@@ -486,7 +486,7 @@ export default function UseCasesPage() {
                 <div className="space-y-2">
                   <a 
                     href="/signup" 
-                    className="block w-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition text-center"
+                    className="block w-full bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition text-center"
                   >
                     Start Free Trial
                   </a>
@@ -661,7 +661,7 @@ export default function UseCasesPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 bg-gradient-to-br from-purple-900/30 to-navy-800/50 border border-purple-500/20 rounded-2xl p-8 text-center">
+        <div className="mt-16 bg-gradient-to-br from-gold-900/30 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-3">Ready to Implement AI Governance?</h2>
           <p className="text-warm-400 mb-6 max-w-2xl mx-auto">
             Vienna OS provides the governance framework your regulated industry needs 
@@ -670,7 +670,7 @@ export default function UseCasesPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <a 
               href="/signup" 
-              className="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl transition font-semibold"
+              className="bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold"
             >
               Start Free Trial
             </a>

@@ -47,9 +47,9 @@ export default function CompareArthurPage() {
       {/* Key Difference */}
       <div className="max-w-5xl mx-auto px-6 pb-12">
         <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-6 text-center">
-            <Lock className="w-8 h-8 text-violet-400 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-violet-400 mb-2">Vienna OS</h3>
+          <div className="bg-gold-400/5 border border-gold-400/20 rounded-xl p-6 text-center">
+            <Lock className="w-8 h-8 text-gold-400 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-gold-400 mb-2">Vienna OS</h3>
             <p className="text-sm text-slate-300 mb-4">Execution Control</p>
             <p className="text-slate-400 text-sm">
               Agent wants to deploy to production → Vienna checks risk tier → requires SRE approval → 
@@ -66,7 +66,7 @@ export default function CompareArthurPage() {
               Model makes predictions → Arthur analyzes outputs → detects drift or bias → 
               sends alert to team → team investigates and remediates
             </p>
-            <p className="mt-4 text-amber-400 text-sm font-medium">Bad action detected after the fact</p>
+            <p className="mt-4 text-gold-300 text-sm font-medium">Bad action detected after the fact</p>
           </div>
         </div>
         
@@ -92,7 +92,7 @@ export default function CompareArthurPage() {
             do with those model outputs. Monitoring + control = complete AI governance.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/try" className="px-6 py-3 bg-violet-600 hover:bg-violet-500 rounded-lg font-medium transition">
+            <Link href="/try" className="px-6 py-3 bg-gold-400 hover:bg-gold-400 rounded-lg font-medium transition">
               Try Vienna OS Demo
             </Link>
             <Link href="/use-cases" className="px-6 py-3 border border-slate-600 hover:border-slate-400 rounded-lg font-medium transition">

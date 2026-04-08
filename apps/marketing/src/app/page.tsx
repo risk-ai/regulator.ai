@@ -5,73 +5,154 @@ import {
   Shield,
   FileText,
   CheckCircle,
-  ArrowRight,
   Zap,
   Activity,
   Users,
   Lock,
   Code2,
+  Github,
+  Star,
+  ExternalLink,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 import SiteNav from "@/components/SiteNav";
-import AnimatedCounter from "@/components/AnimatedCounter";
-import TerminalTypewriter from "@/components/TerminalTypewriter";
-import ScrollAnimator from "@/components/ScrollAnimator";
 import SiteFooter from "@/components/SiteFooter";
+import ScrollReveal from "@/components/ScrollReveal";
+import FloatingContact from "@/components/FloatingContact";
+import BackToTop from "@/components/BackToTop";
+import SectionNav from "@/components/SectionNav";
 
-export default function Home() {
-  const [currentTime, setCurrentTime] = useState(new Date().toISOString().split('.')[0] + 'Z');
-  const [pipelineStep, setPipelineStep] = useState(0);
-  const [activeTier, setActiveTier] = useState(2);
-  const [sdkTab, setSdkTab] = useState<'node' | 'python'>('node');
-  const [copied, setCopied] = useState(false);
-  const [warrantPhase, setWarrantPhase] = useState(0);
+/* ── Isolated Clock Component (avoids full-page re-render every second) ── */
+function LiveClock() {
+  const [currentTime, setCurrentTime] = useState(
+    new Date().toISOString().split(".")[0] + "Z"
+  );
 
   useEffect(() => {
-    analytics.page("Homepage");
-    
-    // Update time every second
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toISOString().split('.')[0] + 'Z');
+      setCurrentTime(new Date().toISOString().split(".")[0] + "Z");
     }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-    // Auto-advance pipeline demo
-    const pipelineTimer = setInterval(() => {
-      setPipelineStep(prev => (prev + 1) % 4); // 0=idle, 1=define, 2=warrant, 3=verify
-    }, 3000);
-    
-    // Warrant card animation loop
-    const warrantLoop = () => {
-      setWarrantPhase(0);
-      setTimeout(() => setWarrantPhase(1), 800);
-      setTimeout(() => setWarrantPhase(2), 3500);
-      setTimeout(() => setWarrantPhase(3), 5000);
-    };
-    warrantLoop();
-    const warrantTimer = setInterval(warrantLoop, 8000);
+  return <span>utc: {currentTime}</span>;
+}
 
-    return () => { clearInterval(timer); clearInterval(pipelineTimer); clearInterval(warrantTimer); };
+/* ── Warrant TTL Countdown (isolated to prevent parent re-renders) ── */
+function WarrantTTL() {
+  const [ttl, setTtl] = useState(298);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTtl((prev) => {
+        if (prev <= 1) return 300; // loop back
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-between text-[10px] text-zinc-600">
+      <span>ttl_remaining: {ttl}s</span>
+      <span className={ttl > 30 ? "text-green-500" : "text-amber-500"}>
+        ● {ttl > 30 ? "ACTIVE" : "EXPIRING"}
+      </span>
+    </div>
+  );
+}
+
+/* ── Newsletter Inline Signup ── */
+function NewsletterInline() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.ok || res.status === 409) {
+        setStatus("done");
+        analytics.ctaClick("homepage_newsletter", "subscribe");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "done") {
+    return (
+      <div className="flex items-center gap-2 text-green-500 text-xs font-mono">
+        <CheckCircle className="w-4 h-4" />
+        <span>SUBSCRIBED — you&apos;re on the list</span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@company.com"
+        required
+        className="flex-1 bg-zinc-900 border border-amber-500/20 px-3 py-2 text-xs font-mono text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-amber-500/50 transition"
+        aria-label="Email for newsletter"
+      />
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 text-xs font-mono font-bold uppercase transition disabled:opacity-50"
+      >
+        {status === "sending" ? "..." : "SUBSCRIBE"}
+      </button>
+    </form>
+  );
+}
+
+/* ── Alias for compatibility ── */
+const RevealSection = ScrollReveal;
+
+export default function Home() {
+  useEffect(() => {
+    analytics.page("Homepage");
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white">
-      {/* Terminal Grid Background - More Visible */}
-      <div 
+      {/* Accessible H1 for SEO */}
+      <h1 className="sr-only">
+        Vienna OS — Governance Kernel for Autonomous AI Operations with Signed
+        Warrants
+      </h1>
+
+      {/* Terminal Grid Background */}
+      <div
         className="absolute inset-0 pointer-events-none opacity-[0.08]"
         style={{
-          backgroundImage: 'linear-gradient(rgba(251, 191, 36, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.5) 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
+          backgroundImage:
+            "linear-gradient(rgba(251, 191, 36, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.5) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
         }}
       ></div>
 
-      {/* Sticky Header Container */}
+      {/* Sticky Header */}
       <div className="sticky top-0 z-50">
         <SiteNav />
-      <ScrollAnimator />
-        
-        {/* Coordinate/UTC Bar */}
-        <div className="bg-black/90 backdrop-blur-sm border-b border-amber-500/20 px-6 py-2">
+
+        {/* Coordinate/UTC Bar — hidden on mobile */}
+        <div className="hidden sm:block bg-black/90 backdrop-blur-sm border-b border-amber-500/20 px-6 py-2">
           <div className="max-w-7xl mx-auto flex items-center justify-between text-[10px] font-mono text-zinc-600">
             <div className="flex items-center gap-6">
               <span>lat: 40.7128°N</span>
@@ -79,19 +160,19 @@ export default function Home() {
               <span>grid: 32x32px</span>
             </div>
             <div className="flex items-center gap-6">
-              <span>utc: {currentTime}</span>
+              <LiveClock />
               <span className="text-amber-500">● LIVE</span>
             </div>
           </div>
         </div>
       </div>
 
-      <main className="flex-1">
-        {/* HERO SECTION */}
-        <section className="pt-20 pb-32 px-6 relative z-10">
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+      <main className="flex-1" id="main-content">
+        {/* ═══════════════════ HERO ═══════════════════ */}
+        <section id="hero" className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-6 relative z-10">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Text */}
-            <div className="space-y-8 overflow-hidden">
+            <div className="space-y-6 sm:space-y-8 overflow-hidden">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20">
                 <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500">
@@ -99,103 +180,121 @@ export default function Home() {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight leading-tight break-words">
-                <span className="text-amber-500">GOVERN_AUTONOMOUS_AI_OPERATIONS</span>
+              <div
+                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight leading-tight break-words"
+                aria-hidden="true"
+              >
+                <span className="text-amber-500">
+                  GOVERN_AUTONOMOUS
+                  <br className="hidden sm:block" />
+                  _AI_OPERATIONS
+                </span>
                 <br />
                 <span className="text-zinc-500">/ WITH_SIGNED_WARRANTS</span>
-              </h1>
+              </div>
 
-              <p className="text-lg text-zinc-400 max-w-xl leading-relaxed font-mono">
-                Infrastructure-grade execution control plane. Issue cryptographic warrants for AI agent operations. Immutable audit trails. Zero-trust authorization.
+              <p className="text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed font-mono">
+                Infrastructure-grade execution control plane. Issue
+                cryptographic warrants for AI agent operations. Immutable audit
+                trails. Zero-trust authorization.
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <a 
-                  href="https://console.regulator.ai/signup" 
-                  className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold flex items-center gap-2 transition-all group uppercase text-sm"
+                <a
+                  href="https://console.regulator.ai/signup"
+                  className="bg-amber-500 hover:bg-amber-400 text-black px-6 sm:px-8 py-3 sm:py-4 font-mono font-bold flex items-center gap-2 transition-all group uppercase text-sm"
                 >
                   GENERATE_WARRANT →
+                  <span className="text-[10px] font-normal opacity-70 hidden sm:inline">
+                    (free trial)
+                  </span>
                 </a>
-                <Link 
+                <Link
                   href="/docs"
-                  className="bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold transition-all uppercase text-sm"
+                  className="bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500 px-6 sm:px-8 py-3 sm:py-4 font-mono font-bold transition-all uppercase text-sm"
                 >
                   VIEW_SPEC
                 </Link>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-amber-500/10">
+              {/* Hero Stats — responsive grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 sm:pt-8 border-t border-amber-500/10">
                 <div className="space-y-1">
-                  <div className="text-xs font-mono text-zinc-600 uppercase">latency_p99</div>
-                  <div className="text-2xl font-mono font-bold text-amber-500"><AnimatedCounter end={43} suffix="ms" /></div>
+                  <div className="text-xs font-mono text-zinc-600 uppercase">
+                    target_p99
+                  </div>
+                  <div className="text-xl sm:text-2xl font-mono font-bold text-amber-500">
+                    &lt;50ms
+                  </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-xs font-mono text-zinc-600 uppercase">audit_algo</div>
-                  <div className="text-2xl font-mono font-bold text-amber-500">SHA-256</div>
+                  <div className="text-xs font-mono text-zinc-600 uppercase">
+                    audit_algo
+                  </div>
+                  <div className="text-xl sm:text-2xl font-mono font-bold text-amber-500">
+                    SHA-256
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-xs font-mono text-zinc-600 uppercase">arch_model</div>
-                  <div className="text-2xl font-mono font-bold text-amber-500">ZeroTrust</div>
+                <div className="space-y-1 col-span-2 sm:col-span-1">
+                  <div className="text-xs font-mono text-zinc-600 uppercase">
+                    arch_model
+                  </div>
+                  <div className="text-xl sm:text-2xl font-mono font-bold text-amber-500">
+                    ZeroTrust
+                  </div>
                 </div>
               </div>
 
               {/* Pricing Preview */}
               <div className="pt-6 border-t border-amber-500/10">
-                <div className="text-xs font-mono text-zinc-600 uppercase mb-3">Pricing Tier</div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-mono font-bold text-white">$0</span>
-                  <span className="text-sm font-mono text-zinc-500">/mo for first 10k executions</span>
+                <div className="text-xs font-mono text-zinc-600 uppercase mb-3">
+                  Pricing Tier
                 </div>
-                <Link href="/pricing" className="text-xs font-mono text-amber-500 hover:text-amber-400 underline mt-2 inline-block">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-mono font-bold text-white">
+                    $0
+                  </span>
+                  <span className="text-sm font-mono text-zinc-500">
+                    /mo — community edition (5 agents)
+                  </span>
+                </div>
+                <Link
+                  href="/pricing"
+                  className="text-xs font-mono text-amber-500 hover:text-amber-400 underline mt-2 inline-block"
+                >
                   view_full_pricing →
                 </Link>
               </div>
             </div>
 
-            {/* Live Governance Feed - mini ticker */}
-            <div className="lg:col-span-2 mb-8">
-              <div className="bg-black/50 border border-amber-500/10 px-4 py-2 flex items-center gap-4 overflow-hidden">
-                <span className="text-[10px] font-mono text-amber-500 flex-shrink-0">GOVERNANCE_FEED</span>
-                <div className="flex-1 overflow-hidden">
-                  <div className="flex gap-6 animate-marquee text-[10px] font-mono text-zinc-600 whitespace-nowrap">
-                    <span>✓ deploy_staging approved (T1) — 2s ago</span>
-                    <span>● wire_transfer pending approval (T2) — 14s ago</span>
-                    <span>✓ config_update auto-passed (T0) — 23s ago</span>
-                    <span>✓ restart_service warrant issued (T1) — 41s ago</span>
-                    <span>■ drop_database HALTED (T3) — 1m ago</span>
-                    <span>✓ schema_migration verified (T2) — 2m ago</span>
-                    <span>✓ deploy_staging approved (T1) — 2s ago</span>
-                    <span>● wire_transfer pending approval (T2) — 14s ago</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono text-green-500 flex-shrink-0">● LIVE</span>
-              </div>
-            </div>
-
-            {/* Right Column: Warrant Card - Terminal Style */}
+            {/* Right Column: Warrant Card */}
             <div className="relative lg:block flex justify-center">
-              <div className={`w-full max-w-[520px] bg-black border p-0 overflow-hidden font-mono transition-all duration-1000 relative ${warrantPhase >= 3 ? "border-green-500/50 shadow-lg shadow-green-500/10" : "border-amber-500/30"}`}>
+              <div className="w-full max-w-[520px] bg-black border border-amber-500/30 p-0 overflow-hidden font-mono">
                 {/* Header Bar */}
                 <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-amber-500" />
-                    <span className="text-xs font-bold text-amber-500">EXECUTION_WARRANT</span>
+                    <span className="text-xs font-bold text-amber-500">
+                      EXECUTION_WARRANT
+                    </span>
                   </div>
-                  <div className="text-[10px] text-zinc-600">ep_id: EP-OPS-3C19</div>
+                  <div className="text-[10px] text-zinc-600">
+                    ep_id: EP-OPS-3C19
+                  </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-6">
                   {/* Warrant Metadata */}
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
                       <div className="text-zinc-600 mb-1">warrant_serial</div>
-                      <div className={`transition-all duration-700 ${warrantPhase >= 1 ? "text-amber-500 opacity-100" : "text-amber-500/20 opacity-40"}`}>WRT-7F3A-82B1-4D9E</div>
+                      <div className="text-amber-500">WRT-7F3A-82B1-4D9E</div>
                     </div>
                     <div>
                       <div className="text-zinc-600 mb-1">auth_status</div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className={`w-3 h-3 transition-all duration-500 ${warrantPhase >= 3 ? "text-green-500" : "text-zinc-700"}`} />
-                        <span className={`transition-all duration-500 ${warrantPhase >= 3 ? "text-green-500" : "text-zinc-600"}`}>{warrantPhase >= 3 ? "VERIFIED" : "PENDING..."}</span>
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span className="text-green-500">VERIFIED</span>
                       </div>
                     </div>
                     <div>
@@ -212,966 +311,1257 @@ export default function Home() {
                   <div className="border-t border-amber-500/10 pt-4 space-y-3 text-xs">
                     <div>
                       <div className="text-zinc-600 mb-1">principal_agent</div>
-                      <div className={`transition-all duration-500 ${warrantPhase >= 1 ? "text-zinc-200" : "text-zinc-700"}`}>{warrantPhase >= 1 ? "AGENT_SIGMA_V4" : "..."}</div>
+                      <div className="text-zinc-200">AGENT_SIGMA_V4</div>
                     </div>
                     <div>
                       <div className="text-zinc-600 mb-1">action_scope</div>
-                      <div className={`transition-all duration-500 ${warrantPhase >= 1 ? "text-zinc-200" : "text-zinc-700"}`}>{warrantPhase >= 1 ? "DB_SCHEMA_MIGRATION" : "..."}</div>
+                      <div className="text-zinc-200">DB_SCHEMA_MIGRATION</div>
                     </div>
                     <div>
                       <div className="text-zinc-600 mb-1">authorized_by</div>
-                      <div className={`transition-all duration-500 ${warrantPhase >= 2 ? "text-zinc-200" : "text-zinc-700"}`}>{warrantPhase >= 2 ? "S. CHEN (VP ENG)" : "awaiting_approval..."}</div>
+                      <div className="text-zinc-200">S. CHEN (VP ENG)</div>
                     </div>
                     <div>
                       <div className="text-zinc-600 mb-1">target_env</div>
-                      <div className="text-amber-500">PRODUCTION_CLUSTER_01</div>
+                      <div className="text-amber-500">
+                        PRODUCTION_CLUSTER_01
+                      </div>
                     </div>
                   </div>
 
                   {/* Cryptographic Signature */}
                   <div className="border-t border-amber-500/10 pt-4">
-                    <div className="text-[10px] text-zinc-600 mb-2">ledger_root (SHA-256)</div>
+                    <div className="text-[10px] text-zinc-600 mb-2">
+                      ledger_root (SHA-256)
+                    </div>
                     <div className="bg-zinc-900 border border-amber-500/20 p-3 text-[10px] text-amber-500 break-all leading-relaxed">
                       0x7e3c2b1a00918e77a2d1f4e5c8b9a0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b19a
                     </div>
                   </div>
 
-                  {/* Expiry Timer */}
-                  <div className="flex items-center justify-between text-[10px] text-zinc-600">
-                    <span>ttl_remaining: 298s</span>
-                    <span className="text-green-500">● ACTIVE</span>
-                  </div>
+                  {/* Expiry Timer — live countdown */}
+                  <WarrantTTL />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* HOW IT WORKS - Interactive Pipeline Demo */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                EXECUTION_PIPELINE
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                request → evaluate → authorize → execute → verify
-              </p>
-            </div>
-
-            {/* Interactive step indicator */}
-            <div className="flex items-center gap-2 mb-8 font-mono text-xs">
-              {['IDLE', 'DEFINE_POLICY', 'ISSUE_WARRANT', 'VERIFY_EXEC'].map((label, i) => (
-                <button
-                  key={label}
-                  onClick={() => setPipelineStep(i)}
-                  className={`px-3 py-1.5 border transition-all ${
-                    pipelineStep === i 
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-500' 
-                      : 'border-zinc-700 text-zinc-600 hover:border-zinc-500 hover:text-zinc-400'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-              <span className="ml-auto text-zinc-600">
-                cycle: {pipelineStep}/3 
-                <span className={`ml-2 inline-block w-2 h-2 rounded-full ${pipelineStep > 0 ? 'bg-amber-500 animate-pulse' : 'bg-zinc-700'}`}></span>
-              </span>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 relative">
-              {/* Pipeline connector arrows */}
-              <div className="hidden md:flex absolute top-1/2 left-[33%] -translate-y-1/2 -translate-x-1/2 z-20">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                  pipelineStep >= 2 ? 'bg-amber-500 shadow-lg shadow-amber-500/30' : 'bg-zinc-800 border border-zinc-700'
-                }`}>
-                  <ArrowRight className={`w-4 h-4 ${pipelineStep >= 2 ? 'text-black' : 'text-zinc-600'}`} />
+        {/* ═══════════════════ SOCIAL PROOF ═══════════════════ */}
+        <RevealSection>
+          <section className="py-12 px-6 border-y border-amber-500/10 bg-black/50">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-8">
+                <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-4">
+                  TRUSTED_BY
                 </div>
               </div>
-              <div className="hidden md:flex absolute top-1/2 left-[67%] -translate-y-1/2 -translate-x-1/2 z-20">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                  pipelineStep >= 3 ? 'bg-green-500 shadow-lg shadow-green-500/30' : 'bg-zinc-800 border border-zinc-700'
-                }`}>
-                  <ArrowRight className={`w-4 h-4 ${pipelineStep >= 3 ? 'text-black' : 'text-zinc-600'}`} />
-                </div>
-              </div>
-              {/* Step 1 */}
-              <div className={`bg-black border p-6 transition-all duration-500 ${
-                pipelineStep === 1 ? 'border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]' : 'border-amber-500/30'
-              }`}>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-[10px] font-mono text-amber-500 uppercase">POLICY_DEFINITION</span>
-                  <span className={`text-[10px] font-mono ${pipelineStep >= 1 ? 'text-green-500' : 'text-zinc-600'}`}>
-                    {pipelineStep >= 1 ? '● ACTIVE' : '○ WAITING'}
+              <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+                {/* ai.ventures */}
+                <div className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50">
+                  <span className="text-sm font-mono text-amber-500 font-bold">
+                    ai.ventures
+                  </span>
+                  <span className="text-[10px] font-mono text-zinc-600">
+                    portfolio (30+ AI products)
                   </span>
                 </div>
-                <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div className={`transition-opacity duration-500 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">action:</span> <span className="text-amber-500">db:migration</span>
-                  </div>
-                  <div className={`transition-opacity duration-700 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">tier:</span> <span className="text-amber-500">T2</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">quorum:</span> <span className="text-amber-500">2</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">approvers:</span> <span className="text-zinc-400">[&apos;eng-lead&apos;, &apos;cto&apos;]</span>
-                  </div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 1 ? 'text-green-500' : 'text-zinc-700'}`}>
-                      {pipelineStep >= 1 ? '✓ POLICY_REGISTERED' : '_ AWAITING_INPUT'}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Step 2 */}
-              <div className={`bg-black border p-6 transition-all duration-500 ${
-                pipelineStep === 2 ? 'border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]' : 'border-amber-500/30'
-              }`}>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-[10px] font-mono text-amber-500 uppercase">WARRANT_ISSUANCE</span>
-                  <span className={`text-[10px] font-mono ${pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-600'}`}>
-                    {pipelineStep >= 2 ? '● ACTIVE' : '○ WAITING'}
-                  </span>
-                </div>
-                <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div className={`transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">warrant_id:</span> <span className="text-amber-500">WRT-A3F9</span>
-                  </div>
-                  <div className={`transition-opacity duration-700 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">approvals:</span> <span className={pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-600'}>{pipelineStep >= 2 ? '2/2 ✓' : '0/2'}</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">signature:</span> <span className="text-amber-500 break-all">0x7f3a2b...</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">ttl:</span> <span className="text-zinc-400">300s</span>
-                  </div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 2 ? 'text-green-500' : 'text-zinc-700'}`}>
-                      {pipelineStep >= 2 ? '✓ WARRANT_ACTIVE' : '_ PENDING_APPROVAL'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className={`bg-black border p-6 transition-all duration-500 ${
-                pipelineStep === 3 ? 'border-green-500 shadow-lg shadow-green-500/10 scale-[1.02]' : 'border-amber-500/30'
-              }`}>
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-[10px] font-mono text-amber-500 uppercase">EXECUTION_VERIFY</span>
-                  <span className={`text-[10px] font-mono ${pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-600'}`}>
-                    {pipelineStep >= 3 ? '● COMPLETE' : '○ WAITING'}
-                  </span>
-                </div>
-                <div className="space-y-3 text-xs font-mono text-zinc-400">
-                  <div className={`transition-opacity duration-500 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">verification:</span> <span className={pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-600'}>{pipelineStep >= 3 ? 'PASS' : '...'}</span>
-                  </div>
-                  <div className={`transition-opacity duration-700 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">audit_hash:</span> <span className="text-amber-500">SHA-256</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">merkle_block:</span> <span className="text-zinc-400">#4,272</span>
-                  </div>
-                  <div className={`transition-opacity duration-1000 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
-                    <span className="text-zinc-600">status:</span> <span className={pipelineStep >= 3 ? 'text-green-500 font-bold' : 'text-zinc-600'}>{pipelineStep >= 3 ? 'EXECUTED ✓' : 'PENDING'}</span>
-                  </div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className={`text-[10px] transition-all duration-500 ${pipelineStep >= 3 ? 'text-green-500' : 'text-zinc-700'}`}>
-                      {pipelineStep >= 3 ? '✓ EXECUTION_COMPLETE — AUDIT_SEALED' : '_ AWAITING_WARRANT'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* TIERED RISK - Interactive Selector */}
-        <section className="py-24 bg-black/30 border-y border-amber-500/10">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                RISK_TIER_MATRIX
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                default_deny: true | policy_set: GOV-CORE-2026.04
-              </p>
-            </div>
-
-            {/* Tier selector buttons */}
-            <div className="grid grid-cols-4 gap-0 mb-8">
-              {[
-                { tier: 0, label: 'T0', sublabel: 'ROUTINE', color: 'zinc' },
-                { tier: 1, label: 'T1', sublabel: 'ELEVATED', color: 'green' },
-                { tier: 2, label: 'T2', sublabel: 'HIGH_RISK', color: 'amber' },
-                { tier: 3, label: 'T3', sublabel: 'CRITICAL', color: 'red' },
-              ].map(({ tier, label, sublabel, color }) => (
-                <button
-                  key={tier}
-                  onClick={() => setActiveTier(tier)}
-                  className={`p-4 font-mono text-center border transition-all ${
-                    activeTier === tier
-                      ? `bg-${color}-500/10 border-${color}-500/50 text-${color === 'zinc' ? 'white' : color + '-500'}`
-                      : 'bg-black border-zinc-800 text-zinc-600 hover:border-zinc-600 hover:text-zinc-400'
-                  }`}
+                {/* Open Source */}
+                <a
+                  href="https://github.com/risk-ai/vienna-os"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50 hover:border-amber-500/30 transition-all"
                 >
-                  <div className="text-2xl font-bold">{label}</div>
-                  <div className="text-[10px] mt-1">{sublabel}</div>
-                </button>
-              ))}
-            </div>
-
-            {/* Expanded tier detail */}
-            <div className={`bg-black border p-8 transition-all duration-500 ${
-              activeTier === 0 ? 'border-zinc-600' :
-              activeTier === 1 ? 'border-green-500/50' :
-              activeTier === 2 ? 'border-amber-500/50' :
-              'border-red-500/50'
-            }`}>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4 text-xs font-mono">
-                  <div className="text-amber-500 text-sm font-bold mb-4">
-                    {activeTier === 0 && 'T0 / ROUTINE — Auto-approve, zero friction'}
-                    {activeTier === 1 && 'T1 / ELEVATED — Automated approval + audit trail'}
-                    {activeTier === 2 && 'T2 / HIGH_RISK — Human gate required'}
-                    {activeTier === 3 && 'T3 / CRITICAL — Multi-sig, break-glass protocol'}
-                  </div>
-                  <div><span className="text-zinc-600">max_ttl:</span> <span className="text-zinc-400">
-                    {activeTier === 0 && '8h'}
-                    {activeTier === 1 && '2h'}
-                    {activeTier === 2 && '30m'}
-                    {activeTier === 3 && '10m'}
-                  </span></div>
-                  <div><span className="text-zinc-600">approvals:</span> <span className="text-zinc-400">
-                    {activeTier === 0 && '0 (auto-pass)'}
-                    {activeTier === 1 && '1 (on-call lead)'}
-                    {activeTier === 2 && '2 (engineering + security)'}
-                    {activeTier === 3 && 'exec sponsor + CISO'}
-                  </span></div>
-                  <div><span className="text-zinc-600">targets:</span> <span className="text-zinc-400">
-                    {activeTier === 0 && 'staging + prod (read-only)'}
-                    {activeTier === 1 && 'staging + prod (scoped write)'}
-                    {activeTier === 2 && 'prod (write) w/ blast radius bounds'}
-                    {activeTier === 3 && 'all environments (break-glass)'}
-                  </span></div>
-                  <div><span className="text-zinc-600">evidence:</span> <span className="text-zinc-400">
-                    {activeTier === 0 && 'auto-logged'}
-                    {activeTier === 1 && 'change_plan required'}
-                    {activeTier === 2 && 'change_plan + rollback_plan'}
-                    {activeTier === 3 && 'incident_brief + board_notification'}
-                  </span></div>
-                </div>
-                <div className="bg-zinc-950 border border-zinc-800 p-4">
-                  <div className="text-[10px] font-mono text-zinc-600 mb-3">EXAMPLE_ACTIONS</div>
-                  <div className="space-y-2 text-xs font-mono">
-                    {activeTier === 0 && (
-                      <>
-                        <div className="text-zinc-400">→ list_users</div>
-                        <div className="text-zinc-400">→ get_config</div>
-                        <div className="text-zinc-400">→ read_audit_logs</div>
-                        <div className="text-zinc-400">→ check_health</div>
-                        <div className="mt-3 text-green-500 text-[10px]">✓ AUTO_APPROVED — 0ms</div>
-                      </>
-                    )}
-                    {activeTier === 1 && (
-                      <>
-                        <div className="text-zinc-400">→ update_feature_flag</div>
-                        <div className="text-zinc-400">→ restart_service</div>
-                        <div className="text-zinc-400">→ send_notification</div>
-                        <div className="text-zinc-400">→ update_dns_record</div>
-                        <div className="mt-3 text-green-500 text-[10px]">✓ AUTO_LOGGED — warrant issued in 43ms</div>
-                      </>
-                    )}
-                    {activeTier === 2 && (
-                      <>
-                        <div className="text-amber-500">→ deploy_production</div>
-                        <div className="text-amber-500">→ wire_transfer</div>
-                        <div className="text-amber-500">→ schema_migration</div>
-                        <div className="text-amber-500">→ access_customer_pii</div>
-                        <div className="mt-3 text-amber-500 text-[10px]">● HUMAN_GATE — awaiting 2/2 approvals</div>
-                      </>
-                    )}
-                    {activeTier === 3 && (
-                      <>
-                        <div className="text-red-400">→ drop_database</div>
-                        <div className="text-red-400">→ rotate_root_keys</div>
-                        <div className="text-red-400">→ fleet_kill_switch</div>
-                        <div className="text-red-400">→ delete_all_backups</div>
-                        <div className="mt-3 text-red-400 text-[10px]">■ STRICT_HALT — multi-sig required, break-glass</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        {/* UNIQUE CAPABILITIES — Interactive Feature Showcase */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">CAPABILITIES_NO_ONE_ELSE_HAS</div>
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                UNIQUE_FEATURES
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                what makes vienna os the only real governance layer for autonomous AI
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              {/* Feature 1: Natural Language Policies — with live demo */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">01</div>
-                      <span className="text-sm font-mono text-amber-500 font-bold">NATURAL_LANGUAGE_POLICIES</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-4">
-                      Write governance rules in plain English. Vienna compiles to deterministic policy logic. No code deployments. No YAML. No OPA bundles.
-                    </p>
-                    <div className="text-xs font-mono text-zinc-600">
-                      <div>competitors: require code/config deployment</div>
-                      <div>vienna: <span className="text-green-500">plain english → compiled rules</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-zinc-950 border border-zinc-800 p-4 group-hover:border-amber-500/20 transition-all">
-                    <div className="text-[10px] font-mono text-zinc-600 mb-3">INPUT (english)</div>
-                    <div className="text-sm font-mono text-amber-400 mb-4">&ldquo;Require CFO approval for wire transfers over $50K to external accounts&rdquo;</div>
-                    <div className="text-[10px] font-mono text-zinc-600 mb-2">OUTPUT (compiled)</div>
-                    <div className="text-xs font-mono text-zinc-400 space-y-1">
-                      <div>{'{'} action: &ldquo;wire_transfer&rdquo;,</div>
-                      <div>  condition: &ldquo;$.amount &gt; 50000 &amp;&amp; $.target == external&rdquo;,</div>
-                      <div>  tier: &ldquo;T2&rdquo;, quorum: 1,</div>
-                      <div>  approvers: [&ldquo;role:cfo&rdquo;] {'}'}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 2: Merkle Warrant Chain */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">02</div>
-                      <span className="text-sm font-mono text-amber-500 font-bold">MERKLE_WARRANT_CHAIN</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-4">
-                      Every warrant is chained using Merkle trees. If any record is altered, the entire chain invalidates. Tamper-proof by math, not policy.
-                    </p>
-                    <div className="text-xs font-mono text-zinc-600">
-                      <div>competitors: append-only logs (trust the database)</div>
-                      <div>vienna: <span className="text-green-500">cryptographic proof (trust the math)</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-zinc-950 border border-zinc-800 p-4 group-hover:border-amber-500/20 transition-all font-mono text-xs">
-                    <div className="text-[10px] text-zinc-600 mb-3">CHAIN_VISUALIZATION</div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-16 h-8 bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] text-zinc-500">#4,270</div>
-                      <div className="text-zinc-600">→</div>
-                      <div className="w-16 h-8 bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[10px] text-zinc-500">#4,271</div>
-                      <div className="text-zinc-600">→</div>
-                      <div className="w-16 h-8 bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-[10px] text-amber-500">#4,272</div>
-                      <div className="text-zinc-600">→</div>
-                      <div className="w-16 h-8 bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[10px] text-zinc-700 animate-pulse">next</div>
-                    </div>
-                    <div className="mt-3 space-y-1 text-zinc-500">
-                      <div>merkle_root: <span className="text-amber-500">0x7e3c...b19a</span></div>
-                      <div>chain_integrity: <span className="text-green-500">verified ✓</span></div>
-                      <div>total_blocks: <AnimatedCounter end={4272} className="text-zinc-400" /></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 3: Policy Simulation */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">03</div>
-                      <span className="text-sm font-mono text-amber-500 font-bold">POLICY_SIMULATION</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-4">
-                      Dry-run policy changes against historical data. See exactly which past actions would be blocked, approved, or escalated. Zero production risk.
-                    </p>
-                    <div className="text-xs font-mono text-zinc-600">
-                      <div>competitors: deploy and hope</div>
-                      <div>vienna: <span className="text-green-500">test before you ship</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-zinc-950 border border-zinc-800 p-4 group-hover:border-amber-500/20 transition-all font-mono text-xs">
-                    <div className="text-[10px] text-zinc-600 mb-3">SIMULATION_RESULTS (last 30d replay)</div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-500">approved (unchanged)</span>
-                        <span className="text-green-500"><AnimatedCounter end={142} /></span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500/60 rounded-full" style={{width: "92%"}}></div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-500">escalated (new T2)</span>
-                        <span className="text-amber-500"><AnimatedCounter end={8} /></span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-500/60 rounded-full" style={{width: "5%"}}></div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-500">blocked (new deny)</span>
-                        <span className="text-red-500"><AnimatedCounter end={3} /></span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-500/60 rounded-full" style={{width: "2%"}}></div>
-                      </div>
-                    </div>
-                    <div className="mt-3 pt-2 border-t border-zinc-800 text-zinc-600">
-                      verdict: <span className="text-green-500">safe to deploy</span> (3 new blocks expected)
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 4: Cross-Agent Delegation */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">04</div>
-                      <span className="text-sm font-mono text-amber-500 font-bold">CROSS_AGENT_DELEGATION</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-4">
-                      Agents delegate execution authority to other agents with cryptographic constraints. Scope-limited, time-bound, revocable. Multi-agent workflows without losing control.
-                    </p>
-                    <div className="text-xs font-mono text-zinc-600">
-                      <div>competitors: all-or-nothing agent permissions</div>
-                      <div>vienna: <span className="text-green-500">scoped delegation with audit trail</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-zinc-950 border border-zinc-800 p-4 group-hover:border-amber-500/20 transition-all font-mono text-xs">
-                    <div className="text-[10px] text-zinc-600 mb-3">DELEGATION_CHAIN</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="px-2 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-500">orchestrator_v2</div>
-                        <span className="text-zinc-600">→ delegates →</span>
-                        <div className="px-2 py-1 bg-zinc-800 border border-zinc-700 text-zinc-400">deploy_agent</div>
-                      </div>
-                      <div className="pl-4 space-y-1 text-zinc-500">
-                        <div>scope: <span className="text-amber-500">deploy:staging ONLY</span></div>
-                        <div>ttl: <span className="text-zinc-400">1h</span></div>
-                        <div>revocable: <span className="text-green-500">true</span></div>
-                        <div>parent_warrant: <span className="text-zinc-400">WRT-A3F9</span></div>
-                      </div>
-                      <div className="pt-2 border-t border-zinc-800 text-green-500">
-                        ✓ delegation_active — audit: DLG-0x9f3a
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Feature 5: Agent Trust Scoring */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
-                <div className="grid lg:grid-cols-2 gap-8">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">05</div>
-                      <span className="text-sm font-mono text-amber-500 font-bold">AGENT_TRUST_SCORING</span>
-                    </div>
-                    <p className="text-sm text-zinc-400 mb-4">
-                      Dynamic trust scores from behavior history. High-trust agents get expedited approvals. Low-trust agents get additional scrutiny. Trust is earned, not configured.
-                    </p>
-                    <div className="text-xs font-mono text-zinc-600">
-                      <div>competitors: static role-based permissions</div>
-                      <div>vienna: <span className="text-green-500">dynamic behavioral trust</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-zinc-950 border border-zinc-800 p-4 group-hover:border-amber-500/20 transition-all font-mono text-xs">
-                    <div className="text-[10px] text-zinc-600 mb-3">TRUST_DASHBOARD</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-400">billing_agent_v3</span>
-                        <span className="text-green-500">0.94</span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-1.5 rounded-full"><div className="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full" style={{width: "94%"}}></div></div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-400">deploy_bot_v2</span>
-                        <span className="text-amber-500">0.71</span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-1.5 rounded-full"><div className="h-full bg-gradient-to-r from-red-500 via-amber-500 to-amber-500 rounded-full" style={{width: "71%"}}></div></div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-zinc-400">new_agent_alpha</span>
-                        <span className="text-red-400">0.23</span>
-                      </div>
-                      <div className="w-full bg-zinc-800 h-1.5 rounded-full"><div className="h-full bg-red-500/60 rounded-full" style={{width: "23%"}}></div></div>
-                      
-                      <div className="pt-2 border-t border-zinc-800 text-zinc-600">
-                        threshold: 0.70 → auto_approve T0/T1
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        {/* PERSONA USE CASES - Terminal Style */}
-        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                USE_CASE_MATRIX
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                devops | compliance | executive
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* DevOps Lead */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-xs font-mono text-amber-500">DEVOPS_LEAD</span>
-                  <Code2 className="w-4 h-4 text-zinc-600" />
-                </div>
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="text-zinc-400 mb-3">role: infrastructure automation</div>
-                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">agents deploy prod w/o oversight</span></div>
-                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">T2 gate on prod writes</span></div>
-                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">0 unauthorized deployments</span></div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ INCIDENT_RATE: -94%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Compliance Officer */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-xs font-mono text-amber-500">COMPLIANCE_OFFICER</span>
-                  <Shield className="w-4 h-4 text-zinc-600" />
-                </div>
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="text-zinc-400 mb-3">role: regulatory audit</div>
-                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">no audit trail for AI decisions</span></div>
-                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">SHA-256 signed warrants</span></div>
-                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">SOC2 certified in Q3</span></div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ AUDIT_TIME: -78%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* CTO */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                  <span className="text-xs font-mono text-amber-500">CTO</span>
-                  <Activity className="w-4 h-4 text-zinc-600" />
-                </div>
-                <div className="space-y-3 text-xs font-mono">
-                  <div className="text-zinc-400 mb-3">role: technical strategy</div>
-                  <div><span className="text-zinc-600">challenge:</span> <span className="text-red-500">scale agents w/o losing control</span></div>
-                  <div><span className="text-zinc-600">solution:</span> <span className="text-green-500">policy-based auto-approval</span></div>
-                  <div><span className="text-zinc-600">result:</span> <span className="text-zinc-400">50x agent deployment velocity</span></div>
-                  <div className="pt-3 border-t border-amber-500/10">
-                    <span className="text-[10px] text-green-500">✓ VELOCITY: +4900%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* INTEGRATION - Interactive Terminal */}
-        <section className="py-24 bg-black/30 border-y border-amber-500/10">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                SDK_INSTALLATION
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                npm | pip | github-actions | terraform
-              </p>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left: Tabbed Terminal */}
-              <div>
-                <div className="flex gap-0 mb-0">
-                  <button 
-                    onClick={() => setSdkTab('node')}
-                    className={`px-4 py-2 font-mono text-xs border-t border-l border-r transition-all ${
-                      sdkTab === 'node' 
-                        ? 'bg-black border-amber-500/30 text-amber-500 -mb-px z-10' 
-                        : 'bg-zinc-900/50 border-zinc-700 text-zinc-600 hover:text-zinc-400'
-                    }`}
-                  >
-                    NODE.JS
-                  </button>
-                  <button 
-                    onClick={() => setSdkTab('python')}
-                    className={`px-4 py-2 font-mono text-xs border-t border-l border-r transition-all ${
-                      sdkTab === 'python' 
-                        ? 'bg-black border-amber-500/30 text-amber-500 -mb-px z-10' 
-                        : 'bg-zinc-900/50 border-zinc-700 text-zinc-600 hover:text-zinc-400'
-                    }`}
-                  >
-                    PYTHON
-                  </button>
-                </div>
-                <div className="bg-black border border-amber-500/30 p-6 relative">
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        sdkTab === 'node' 
-                          ? 'npm install @vienna-os/sdk' 
-                          : 'pip install vienna-os'
-                      );
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                    className="absolute top-3 right-3 px-2 py-1 text-[10px] font-mono border border-zinc-700 text-zinc-600 hover:text-amber-500 hover:border-amber-500/30 transition-all"
-                  >
-                    {copied ? '✓ COPIED' : 'COPY'}
-                  </button>
-                  {sdkTab === 'node' ? (
-                    <div className="font-mono text-sm space-y-3">
-                      <div><span className="text-green-500">$</span> <span className="text-zinc-400">npm install @vienna-os/sdk</span></div>
-                      <div className="pt-3 border-t border-amber-500/10 text-xs text-zinc-500">
-                        <div className="text-amber-500/60 mb-2">// Quick start</div>
-                        <div><span className="text-violet-400">import</span> {'{'} ViennaClient {'}'} <span className="text-violet-400">from</span> <span className="text-green-400">&apos;@vienna-os/sdk&apos;</span>;</div>
-                        <div className="mt-1"><span className="text-violet-400">const</span> vienna = <span className="text-violet-400">new</span> <span className="text-amber-400">ViennaClient</span>({'{'}</div>
-                        <div className="pl-4">apiKey: process.env.<span className="text-amber-400">VIENNA_API_KEY</span></div>
-                        <div>{'}'});</div>
-                        <div className="mt-2"><span className="text-violet-400">const</span> result = <span className="text-violet-400">await</span> vienna.intent.<span className="text-amber-400">submit</span>({'{'}</div>
-                        <div className="pl-4">action: <span className="text-green-400">&apos;deploy_prod&apos;</span>,</div>
-                        <div className="pl-4">payload: {'{'} service: <span className="text-green-400">&apos;api-gw&apos;</span> {'}'}</div>
-                        <div>{'}'});</div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="font-mono text-sm space-y-3">
-                      <div><span className="text-green-500">$</span> <span className="text-zinc-400">pip install vienna-os</span></div>
-                      <div className="pt-3 border-t border-amber-500/10 text-xs text-zinc-500">
-                        <div className="text-amber-500/60 mb-2"># Quick start</div>
-                        <div><span className="text-violet-400">from</span> vienna_os <span className="text-violet-400">import</span> ViennaClient</div>
-                        <div className="mt-1">client = <span className="text-amber-400">ViennaClient</span>(</div>
-                        <div className="pl-4">api_key=os.environ[<span className="text-green-400">&apos;VIENNA_API_KEY&apos;</span>]</div>
-                        <div>)</div>
-                        <div className="mt-2">result = client.<span className="text-amber-400">submit_intent</span>(</div>
-                        <div className="pl-4">action=<span className="text-green-400">&apos;deploy_prod&apos;</span>,</div>
-                        <div className="pl-4">params={'{'}<span className="text-green-400">&apos;service&apos;</span>: <span className="text-green-400">&apos;api-gw&apos;</span>{'}'}</div>
-                        <div>)</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right: Framework Support */}
-              <div>
-                <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4">FRAMEWORK_SUPPORT</div>
-                <div className="grid grid-cols-2 gap-3">
-                  {['GitHub Actions', 'Terraform', 'LangChain', 'CrewAI'].map((tool) => (
-                    <div 
-                      key={tool}
-                      className="px-4 py-3 bg-black border border-zinc-700 flex items-center justify-center font-mono text-xs text-zinc-400 hover:text-amber-500 hover:border-amber-500/30 transition-all cursor-pointer group"
-                    >
-                      <span className="group-hover:translate-x-1 transition-transform">{tool}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 bg-black border border-amber-500/20 p-4">
-                  <div className="text-[10px] font-mono text-zinc-600 uppercase mb-3">SLOs</div>
-                  <div className="space-y-2 text-xs font-mono">
-                    <div><span className="text-zinc-600">verify_p99:</span> <span className="text-amber-500">43ms</span></div>
-                    <div><span className="text-zinc-600">issue_p99:</span> <span className="text-amber-500">71ms</span></div>
-                    <div><span className="text-zinc-600">availability:</span> <span className="text-green-500">99.99%</span></div>
-                    <div><span className="text-zinc-600">regions:</span> <span className="text-zinc-400">3</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* BEFORE/AFTER SCENARIO - Terminal Comparison */}
-        <section className="py-24 px-6 border-y border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                PROBLEM_SOLUTION_ANALYSIS
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                deployment incident (case study: financial services)
-              </p>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* BEFORE - Problem State */}
-              <div className="bg-black border border-red-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-500/20">
-                  <span className="text-xs font-mono text-red-500">BEFORE_VIENNA_OS</span>
-                  <span className="text-[10px] font-mono text-zinc-600">2025-09-14</span>
-                </div>
-                <div className="space-y-4 text-xs font-mono">
-                  <div className="space-y-2">
-                    <div className="text-zinc-400">incident_timeline:</div>
-                    <div className="pl-4">
-                      <TerminalTypewriter 
-                        lines={[
-                          { text: "03:14 - agent deploys db migration (prod)", className: "text-zinc-500 text-xs font-mono" },
-                          { text: "03:15 - payment processing fails", className: "text-red-400 text-xs font-mono" },
-                          { text: "03:47 - engineering paged", className: "text-amber-500 text-xs font-mono" },
-                          { text: "04:23 - rollback initiated", className: "text-zinc-500 text-xs font-mono" },
-                          { text: "04:58 - service restored", className: "text-zinc-500 text-xs font-mono" },
-                        ]}
-                        lineDelay={800}
-                      />
-                    </div>
-                  </div>
-                  <div className="pt-3 border-t border-red-500/10">
-                    <div><span className="text-zinc-600">downtime:</span> <span className="text-red-500">104 minutes</span></div>
-                    <div><span className="text-zinc-600">revenue_lost:</span> <span className="text-red-500">$2.3M</span></div>
-                    <div><span className="text-zinc-600">root_cause:</span> <span className="text-zinc-400">no approval gate</span></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* AFTER - Solution State */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">AFTER_VIENNA_OS</span>
-                  <span className="text-[10px] font-mono text-zinc-600">2026-02-08</span>
-                </div>
-                <div className="space-y-4 text-xs font-mono">
-                  <div className="space-y-2">
-                    <div className="text-zinc-400">policy_enforcement:</div>
-                    <div className="pl-4">
-                      <TerminalTypewriter 
-                        lines={[
-                          { text: "10:22 - agent requests prod migration", className: "text-zinc-500 text-xs font-mono" },
-                          { text: "10:22 - policy eval: tier=T2, halt", className: "text-amber-500 text-xs font-mono" },
-                          { text: "10:26 - DBA approves warrant (review complete)", className: "text-green-500 text-xs font-mono" },
-                          { text: "10:27 - migration executes w/ warrant", className: "text-green-500 text-xs font-mono" },
-                          { text: "10:29 - success, audit trail written ✓", className: "text-green-400 text-xs font-mono font-bold" },
-                        ]}
-                        baseDelay={500}
-                        lineDelay={700}
-                      />
-                    </div>
-                  </div>
-                  <div className="pt-3 border-t border-green-500/10">
-                    <div><span className="text-zinc-600">downtime:</span> <span className="text-green-500">0 minutes</span></div>
-                    <div><span className="text-zinc-600">revenue_lost:</span> <span className="text-green-500">$0</span></div>
-                    <div><span className="text-zinc-600">control:</span> <span className="text-green-500">human gate enforced</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 bg-amber-500/5 border border-amber-500/30 p-6">
-              <div className="grid md:grid-cols-3 gap-6 text-xs font-mono text-center">
-                <div>
-                  <div className="text-amber-500 text-2xl font-bold mb-1">-100%</div>
-                  <div className="text-zinc-600">unauthorized_deploys</div>
-                </div>
-                <div>
-                  <div className="text-amber-500 text-2xl font-bold mb-1">4min</div>
-                  <div className="text-zinc-600">avg_approval_time</div>
-                </div>
-                <div>
-                  <div className="text-amber-500 text-2xl font-bold mb-1">$0</div>
-                  <div className="text-zinc-600">incident_cost (YTD)</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* OPEN WARRANT STANDARD - Terminal Stats */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                PROTOCOL_SPEC
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                open_warrant_standard v1.0 (RFC-9421 compliant)
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Stat 1 - Terminal Card */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
-                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2"><AnimatedCounter end={43} suffix="ms" /></div>
-                  <div className="text-[10px] font-mono text-zinc-600 uppercase">latency_p99</div>
-                </div>
-                <div className="space-y-2 text-xs font-mono text-zinc-500">
-                  <div>sub-second policy eval</div>
-                  <div>no governance bottleneck</div>
-                  <div>production tested @ scale</div>
-                </div>
-              </div>
-
-              {/* Stat 2 */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
-                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">SHA-256</div>
-                  <div className="text-[10px] font-mono text-zinc-600 uppercase">audit_hash</div>
-                </div>
-                <div className="space-y-2 text-xs font-mono text-zinc-500">
-                  <div>cryptographic signatures</div>
-                  <div>tamper-evident trail</div>
-                  <div>merkle root integrity</div>
-                </div>
-              </div>
-
-              {/* Stat 3 */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
-                  <div className="text-4xl font-mono font-bold text-amber-500 mb-2">0-Trust</div>
-                  <div className="text-[10px] font-mono text-zinc-600 uppercase">arch_model</div>
-                </div>
-                <div className="space-y-2 text-xs font-mono text-zinc-500">
-                  <div>explicit authorization</div>
-                  <div>no implicit grants</div>
-                  <div>no ambient authority</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* COMPLIANCE & CERTIFICATIONS - Terminal Style */}
-        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-16 max-w-2xl scroll-reveal">
-              <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                COMPLIANCE_MATRIX
-              </h2>
-              <p className="text-zinc-500 font-mono text-sm">
-                enterprise audit & regulatory frameworks
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-6 mb-12">
-              {/* SOC 2 Type II */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">SOC_2_TYPE_II</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: certified</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">audit: 2026-Q1</div>
-              </div>
-
-              {/* GDPR */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">GDPR</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">verified: 2026-02</div>
-              </div>
-
-              {/* ISO 27001 */}
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                  <span className="text-xs font-mono text-amber-500">ISO_27001</span>
-                  <Activity className="w-4 h-4 text-amber-500" />
-                </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: in_progress</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">target: 2026-Q3</div>
-              </div>
-
-              {/* HIPAA */}
-              <div className="bg-black border border-green-500/30 p-6">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-500/20">
-                  <span className="text-xs font-mono text-green-500">HIPAA</span>
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                </div>
-                <div className="text-[10px] font-mono text-zinc-600">status: compliant</div>
-                <div className="text-[10px] font-mono text-zinc-600 mt-1">BAA: available</div>
-              </div>
-            </div>
-
-            <div className="bg-black border border-amber-500/30 p-6">
-              <div className="text-xs font-mono text-zinc-600 uppercase mb-4">AUDIT_TRAIL_FEATURES</div>
-              <div className="grid md:grid-cols-2 gap-6 text-xs font-mono">
-                <div className="space-y-2">
-                  <div><span className="text-zinc-600">retention:</span> <span className="text-zinc-400">7 years (configurable)</span></div>
-                  <div><span className="text-zinc-600">export:</span> <span className="text-zinc-400">JSON, CSV, PDF</span></div>
-                  <div><span className="text-zinc-600">encryption:</span> <span className="text-green-500">AES-256 at rest</span></div>
-                </div>
-                <div className="space-y-2">
-                  <div><span className="text-zinc-600">signatures:</span> <span className="text-zinc-400">HMAC-SHA256</span></div>
-                  <div><span className="text-zinc-600">tampering:</span> <span className="text-green-500">cryptographically impossible</span></div>
-                  <div><span className="text-zinc-600">search:</span> <span className="text-zinc-400">full-text + filters</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA SECTION - Terminal Style */}
-        <section className="py-32 border-t border-amber-500/10">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="bg-black border border-amber-500/30 p-8">
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-amber-500/20">
-                <Code2 className="w-6 h-6 text-amber-500" />
-                <span className="text-xs font-mono text-amber-500 uppercase">DEPLOY_GOVERNANCE</span>
-              </div>
-              
-              <h2 className="text-3xl font-mono font-bold tracking-tight mb-4 text-white">
-                <span className="text-amber-500">$</span> vienna-os init --tier production
-              </h2>
-              
-              <p className="text-sm font-mono text-zinc-500 mb-8">
-                integrate warrant protocol into agentic infrastructure (python | node | rust)
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a 
-                  href="https://console.regulator.ai/signup" 
-                  className="flex-1 px-8 py-4 bg-amber-500 text-black font-mono font-bold hover:bg-amber-400 transition-all text-center uppercase text-sm"
-                >
-                  GENERATE_WARRANT →
+                  <Github className="w-4 h-4 text-zinc-400" />
+                  <span className="text-sm font-mono text-zinc-400">
+                    risk-ai/vienna-os
+                  </span>
+                  <Star className="w-3 h-3 text-amber-500" />
+                  <span className="text-xs font-mono text-amber-500">
+                    Open Source
+                  </span>
                 </a>
-                <Link 
-                  href="/try"
-                  className="flex-1 px-8 py-4 bg-black border border-amber-500/30 text-amber-500 font-mono font-bold hover:border-amber-500 transition-all text-center uppercase text-sm"
+
+                {/* BSL License */}
+                <div className="flex items-center gap-2 px-4 py-2 border border-zinc-800 bg-black/50">
+                  <Shield className="w-4 h-4 text-zinc-500" />
+                  <span className="text-sm font-mono text-zinc-400">
+                    BSL-1.1 Licensed
+                  </span>
+                </div>
+              </div>
+
+              {/* Key stats row */}
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <div className="text-center py-3">
+                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+                    94+
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    proposals evaluated
+                  </div>
+                </div>
+                <div className="text-center py-3">
+                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+                    75+
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    warrants issued
+                  </div>
+                </div>
+                <div className="text-center py-3">
+                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+                    252+
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    audit events logged
+                  </div>
+                </div>
+                <div className="text-center py-3">
+                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+                    10
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    active policies
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
+        <RevealSection>
+          <section id="pipeline" className="py-24 px-6 border-t border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  EXECUTION_PIPELINE
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  request → evaluate → authorize → execute → verify
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Step 1 */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-[10px] font-mono text-amber-500 uppercase">
+                      POLICY_DEFINITION
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      [1/3]
+                    </span>
+                  </div>
+                  <div className="space-y-3 text-xs font-mono text-zinc-400">
+                    <div>
+                      <span className="text-zinc-600">action:</span>{" "}
+                      <span className="text-amber-500">db:migration</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">tier:</span>{" "}
+                      <span className="text-amber-500">T2</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">quorum:</span>{" "}
+                      <span className="text-amber-500">2</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">approvers:</span>{" "}
+                      <span className="text-zinc-400">
+                        {`['eng-lead', 'cto']`}
+                      </span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ POLICY_REGISTERED
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-[10px] font-mono text-amber-500 uppercase">
+                      WARRANT_ISSUANCE
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      [2/3]
+                    </span>
+                  </div>
+                  <div className="space-y-3 text-xs font-mono text-zinc-400">
+                    <div>
+                      <span className="text-zinc-600">warrant_id:</span>{" "}
+                      <span className="text-amber-500">WRT-A3F9</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">approvals:</span>{" "}
+                      <span className="text-green-500">2/2 ✓</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">signature:</span>{" "}
+                      <span className="text-amber-500 break-all">
+                        0x7f3a2b...
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">ttl:</span>{" "}
+                      <span className="text-zinc-400">300s</span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ WARRANT_ACTIVE
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-[10px] font-mono text-amber-500 uppercase">
+                      EXECUTION_VERIFY
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      [3/3]
+                    </span>
+                  </div>
+                  <div className="space-y-3 text-xs font-mono text-zinc-400">
+                    <div>
+                      <span className="text-zinc-600">verification:</span>{" "}
+                      <span className="text-green-500">PASS</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">audit_hash:</span>{" "}
+                      <span className="text-amber-500 break-all">SHA-256</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">ledger_root:</span>{" "}
+                      <span className="text-zinc-400 break-all">
+                        0x7e3c...
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">status:</span>{" "}
+                      <span className="text-green-500">EXECUTED</span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ EXECUTION_COMPLETE
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ RISK TIER MATRIX ═══════════════════ */}
+        <RevealSection>
+          <section id="risk" className="py-24 bg-black/30 border-y border-amber-500/10">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  RISK_TIER_MATRIX
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  classify → route → enforce → verify
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* T0 */}
+                <div className="bg-black border border-zinc-700 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                    <span className="text-xs font-mono text-green-500">T0</span>
+                    <Zap className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-2 text-[11px] font-mono">
+                    <div className="text-zinc-400 mb-3">AUTO_APPROVE</div>
+                    <div>
+                      <span className="text-zinc-600">latency:</span>{" "}
+                      <span className="text-green-500">&lt;5ms</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">scope:</span>{" "}
+                      <span className="text-zinc-400">read_only</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">audit:</span>{" "}
+                      <span className="text-zinc-400">log_only</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* T1 */}
+                <div className="bg-black border border-zinc-700 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                    <span className="text-xs font-mono text-green-500">T1</span>
+                    <Activity className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div className="space-y-2 text-[11px] font-mono">
+                    <div className="text-zinc-400 mb-3">POLICY_GATE</div>
+                    <div>
+                      <span className="text-zinc-600">max_ttl:</span>{" "}
+                      <span className="text-green-500">1h</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">scope:</span>{" "}
+                      <span className="text-zinc-400">staging</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">approval:</span>{" "}
+                      <span className="text-zinc-400">heuristic</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* T2 — Highlighted */}
+                <div className="bg-amber-500/5 border border-amber-500/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">T2</span>
+                    <Users className="w-4 h-4 text-amber-500" />
+                  </div>
+                  <div className="space-y-2 text-[11px] font-mono">
+                    <div className="text-amber-500 mb-3">HUMAN_GATE</div>
+                    <div>
+                      <span className="text-zinc-600">max_ttl:</span>{" "}
+                      <span className="text-amber-500">30m</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">targets:</span>{" "}
+                      <span className="text-amber-500">prod (write)</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">mode:</span>{" "}
+                      <span className="text-amber-500">break-glass</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* T3 */}
+                <div className="bg-black border border-red-900/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-900/20">
+                    <span className="text-xs font-mono text-red-500">T3</span>
+                    <Lock className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div className="space-y-2 text-[11px] font-mono">
+                    <div className="text-red-500 mb-3">STRICT_HALT</div>
+                    <div>
+                      <span className="text-zinc-600">quorum:</span>{" "}
+                      <span className="text-red-500">3-of-5</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">scope:</span>{" "}
+                      <span className="text-red-500">destructive</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">rollback:</span>{" "}
+                      <span className="text-zinc-400">mandatory</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ CAPABILITIES ═══════════════════ */}
+        <RevealSection>
+          <section id="features" className="py-24 px-6 border-t border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  SYSTEM_CAPABILITIES
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  core governance infrastructure
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Policy Engine */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      POLICY_ENGINE
+                    </span>
+                    <FileText className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div>
+                      <span className="text-zinc-600">throughput:</span>{" "}
+                      <span className="text-amber-500">
+                        millions of evals/day
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">eval_latency:</span>{" "}
+                      <span className="text-green-500">sub-50ms p99</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">operators:</span>{" "}
+                      <span className="text-zinc-400">
+                        11 (==, !=, &gt;, &lt;, ...)
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">deployment:</span>{" "}
+                      <span className="text-zinc-400">zero_downtime</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Audit Trail */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      AUDIT_TRAIL
+                    </span>
+                    <Shield className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div>
+                      <span className="text-zinc-600">algorithm:</span>{" "}
+                      <span className="text-amber-500">HMAC-SHA256</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">tamper_proof:</span>{" "}
+                      <span className="text-green-500">verified</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">retention:</span>{" "}
+                      <span className="text-zinc-400">7 years</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">supports:</span>{" "}
+                      <span className="text-zinc-400">SOC2, GDPR, HIPAA</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Anomaly Detection */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      ANOMALY_DETECTION
+                    </span>
+                    <Activity className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div>
+                      <span className="text-zinc-600">detection:</span>{" "}
+                      <span className="text-green-500">
+                        real-time pattern analysis
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">response:</span>{" "}
+                      <span className="text-amber-500">
+                        sub-minute alerting
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">signals:</span>{" "}
+                      <span className="text-zinc-400">
+                        frequency, scope, risk drift
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">channels:</span>{" "}
+                      <span className="text-zinc-400">
+                        slack, email, pagerduty
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Approval System */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      APPROVAL_SYSTEM
+                    </span>
+                    <Users className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div>
+                      <span className="text-zinc-600">quorum_types:</span>{" "}
+                      <span className="text-amber-500">1-of-N, M-of-N</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">avg_approval:</span>{" "}
+                      <span className="text-green-500">
+                        minutes, not days
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">interface:</span>{" "}
+                      <span className="text-zinc-400">
+                        responsive web + API
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">mfa:</span>{" "}
+                      <span className="text-green-500">enforced</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ USE CASES ═══════════════════ */}
+        <RevealSection>
+          <section id="use-cases" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  USE_CASE_MATRIX
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  devops | compliance | executive
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* DevOps Lead */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      DEVOPS_LEAD
+                    </span>
+                    <Code2 className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div className="text-zinc-400 mb-3">
+                      role: infrastructure automation
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">challenge:</span>{" "}
+                      <span className="text-red-500">
+                        agents deploy prod w/o oversight
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">solution:</span>{" "}
+                      <span className="text-green-500">
+                        T2 gate on prod writes
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">result:</span>{" "}
+                      <span className="text-zinc-400">
+                        0 unauthorized deployments
+                      </span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ ZERO_UNAUTHORIZED_DEPLOYS
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Compliance Officer */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      COMPLIANCE_OFFICER
+                    </span>
+                    <Shield className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div className="text-zinc-400 mb-3">
+                      role: regulatory audit
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">challenge:</span>{" "}
+                      <span className="text-red-500">
+                        no audit trail for AI decisions
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">solution:</span>{" "}
+                      <span className="text-green-500">
+                        SHA-256 signed warrants
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">result:</span>{" "}
+                      <span className="text-zinc-400">
+                        audit-ready in weeks, not months
+                      </span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ AUDIT_READY_IN_WEEKS
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CTO */}
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">CTO</span>
+                    <Activity className="w-4 h-4 text-zinc-600" />
+                  </div>
+                  <div className="space-y-3 text-xs font-mono">
+                    <div className="text-zinc-400 mb-3">
+                      role: technical strategy
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">challenge:</span>{" "}
+                      <span className="text-red-500">
+                        scale agents w/o losing control
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">solution:</span>{" "}
+                      <span className="text-green-500">
+                        policy-based auto-approval
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">result:</span>{" "}
+                      <span className="text-zinc-400">
+                        govern at scale, not at the expense of speed
+                      </span>
+                    </div>
+                    <div className="pt-3 border-t border-amber-500/10">
+                      <span className="text-[10px] text-green-500">
+                        ✓ GOVERNED_AT_SCALE
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ MID-PAGE CTA ═══════════════════ */}
+        <RevealSection>
+          <section className="py-16 px-6 border-y border-amber-500/20 bg-amber-500/[0.03]">
+            <div className="max-w-4xl mx-auto text-center">
+              <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">
+                READY_TO_GOVERN?
+              </div>
+              <p className="text-lg sm:text-xl font-mono text-zinc-300 mb-8">
+                Deploy warrant-based governance in under 5 minutes.
+                <br className="hidden sm:block" />
+                <span className="text-zinc-500">
+                  Free tier includes 5 agents + full pipeline.
+                </span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="https://console.regulator.ai/signup"
+                  className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
                 >
-                  VIEW_DEMO
+                  START_FREE →
+                </a>
+                <Link
+                  href="/compare"
+                  className="border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
+                >
+                  COMPARE_ALTERNATIVES
+                </Link>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ SDK INSTALLATION ═══════════════════ */}
+        <RevealSection>
+          <section id="sdk" className="py-24 bg-black/30 border-y border-amber-500/10">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  SDK_INSTALLATION
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  npm | pip | github-actions | terraform
+                </p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Left: Terminal Commands */}
+                <div className="space-y-4">
+                  <div className="bg-black border border-amber-500/30 p-6">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                      <span className="text-[10px] font-mono text-amber-500">
+                        PYTHON
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-600">
+                        $ pip
+                      </span>
+                    </div>
+                    <div className="font-mono text-sm text-zinc-400">
+                      <span className="text-green-500">$</span> pip install
+                      vienna-os
+                    </div>
+                  </div>
+
+                  <div className="bg-black border border-amber-500/30 p-6">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                      <span className="text-[10px] font-mono text-amber-500">
+                        NODE.JS
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-600">
+                        $ npm
+                      </span>
+                    </div>
+                    <div className="font-mono text-sm text-zinc-400">
+                      <span className="text-green-500">$</span> npm install
+                      @vienna-os/sdk
+                    </div>
+                  </div>
+
+                  {/* Docs link */}
+                  <Link
+                    href="/docs/getting-started"
+                    className="flex items-center gap-2 text-xs font-mono text-amber-500 hover:text-amber-400 transition-all pl-1"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    full integration guide →
+                  </Link>
+                </div>
+
+                {/* Right: Framework Support */}
+                <div>
+                  <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4">
+                    FRAMEWORK_SUPPORT
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      "GitHub Actions",
+                      "Terraform",
+                      "LangChain",
+                      "AutoGPT",
+                    ].map((tool) => (
+                      <div
+                        key={tool}
+                        className="px-4 py-3 bg-black border border-zinc-700 flex items-center justify-center font-mono text-xs text-zinc-400 hover:text-amber-500 hover:border-amber-500/30 transition-all"
+                      >
+                        {tool}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ BEFORE / AFTER SCENARIO ═══════════════════ */}
+        <RevealSection>
+          <section id="analysis" className="py-24 px-6 border-y border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  SCENARIO_ANALYSIS
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  // hypothetical: uncontrolled agent deployment vs.
+                  warrant-governed
+                </p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* BEFORE */}
+                <div className="bg-black border border-red-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-red-500/20">
+                    <span className="text-xs font-mono text-red-500">
+                      WITHOUT_GOVERNANCE
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      // hypothetical
+                    </span>
+                  </div>
+                  <div className="space-y-4 text-xs font-mono">
+                    <div className="space-y-2">
+                      <div className="text-zinc-400">incident_timeline:</div>
+                      <div className="pl-4 space-y-1 text-zinc-500">
+                        <div>03:14 - agent deploys db migration (prod)</div>
+                        <div>03:15 - payment processing fails</div>
+                        <div>03:47 - engineering paged</div>
+                        <div>04:23 - rollback initiated</div>
+                        <div>04:58 - service restored</div>
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-red-500/10">
+                      <div>
+                        <span className="text-zinc-600">downtime:</span>{" "}
+                        <span className="text-red-500">104 minutes</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-600">potential_cost:</span>{" "}
+                        <span className="text-red-500">significant</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-600">root_cause:</span>{" "}
+                        <span className="text-zinc-400">no approval gate</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AFTER */}
+                <div className="bg-black border border-green-500/30 p-6">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-green-500/20">
+                    <span className="text-xs font-mono text-green-500">
+                      WITH_VIENNA_OS
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-600">
+                      // same scenario
+                    </span>
+                  </div>
+                  <div className="space-y-4 text-xs font-mono">
+                    <div className="space-y-2">
+                      <div className="text-zinc-400">policy_enforcement:</div>
+                      <div className="pl-4 space-y-1 text-zinc-500">
+                        <div>10:22 - agent requests prod migration</div>
+                        <div>10:22 - policy eval: tier=T2, halt</div>
+                        <div>
+                          10:26 - DBA approves warrant (review complete)
+                        </div>
+                        <div>10:27 - migration executes w/ warrant</div>
+                        <div>10:29 - success, audit trail written</div>
+                      </div>
+                    </div>
+                    <div className="pt-3 border-t border-green-500/10">
+                      <div>
+                        <span className="text-zinc-600">downtime:</span>{" "}
+                        <span className="text-green-500">0 minutes</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-600">incidents:</span>{" "}
+                        <span className="text-green-500">0</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-600">control:</span>{" "}
+                        <span className="text-green-500">
+                          human gate enforced
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 bg-amber-500/5 border border-amber-500/30 p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 text-xs font-mono text-center">
+                  <div>
+                    <div className="text-amber-500 text-xl sm:text-2xl font-bold mb-1">
+                      100%
+                    </div>
+                    <div className="text-zinc-600">
+                      unauthorized deploys blocked
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-amber-500 text-xl sm:text-2xl font-bold mb-1">
+                      4min
+                    </div>
+                    <div className="text-zinc-600">avg_approval_time</div>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <div className="text-amber-500 text-xl sm:text-2xl font-bold mb-1">
+                      $0
+                    </div>
+                    <div className="text-zinc-600">incident_cost (governed)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ PROTOCOL SPEC ═══════════════════ */}
+        <RevealSection>
+          <section id="protocol" className="py-24 px-6 border-t border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  PROTOCOL_SPEC
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  open_warrant_standard v1.0
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                    <div className="text-3xl sm:text-4xl font-mono font-bold text-amber-500 mb-2">
+                      &lt;50ms
+                    </div>
+                    <div className="text-[10px] font-mono text-zinc-600 uppercase">
+                      target_p99_latency
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs font-mono text-zinc-500">
+                    <div>sub-second policy eval</div>
+                    <div>no governance bottleneck</div>
+                    <div>
+                      <Link
+                        href="/docs/api-reference"
+                        className="text-amber-500 hover:text-amber-400"
+                      >
+                        view benchmarks →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                    <div className="text-3xl sm:text-4xl font-mono font-bold text-amber-500 mb-2">
+                      SHA-256
+                    </div>
+                    <div className="text-[10px] font-mono text-zinc-600 uppercase">
+                      audit_hash
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs font-mono text-zinc-500">
+                    <div>cryptographic signatures</div>
+                    <div>tamper-evident trail</div>
+                    <div>merkle root integrity</div>
+                  </div>
+                </div>
+
+                <div className="bg-black border border-amber-500/30 p-6">
+                  <div className="text-center mb-4 pb-3 border-b border-amber-500/20">
+                    <div className="text-3xl sm:text-4xl font-mono font-bold text-amber-500 mb-2">
+                      0-Trust
+                    </div>
+                    <div className="text-[10px] font-mono text-zinc-600 uppercase">
+                      arch_model
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs font-mono text-zinc-500">
+                    <div>explicit authorization</div>
+                    <div>no implicit grants</div>
+                    <div>no ambient authority</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ COMPLIANCE ═══════════════════ */}
+        <RevealSection>
+          <section id="compliance" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  COMPLIANCE_ENABLEMENT
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  accelerate your path to regulatory compliance
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
+                {/* SOC 2 */}
+                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      SOC_2_TYPE_II
+                    </span>
+                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    provides: audit trail controls
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
+                    maps_to: CC6.1–CC8.1
+                  </div>
+                </div>
+
+                {/* GDPR */}
+                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      GDPR
+                    </span>
+                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    provides: data processing logs
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
+                    maps_to: Art. 30 records
+                  </div>
+                </div>
+
+                {/* ISO 27001 */}
+                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      ISO_27001
+                    </span>
+                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    provides: access control evidence
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
+                    maps_to: Annex A.9
+                  </div>
+                </div>
+
+                {/* HIPAA */}
+                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
+                    <span className="text-xs font-mono text-amber-500">
+                      HIPAA
+                    </span>
+                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600">
+                    provides: authorization logging
+                  </div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
+                    maps_to: §164.312 safeguards
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-black border border-amber-500/30 p-6">
+                <div className="text-xs font-mono text-zinc-600 uppercase mb-4">
+                  AUDIT_TRAIL_CAPABILITIES
+                </div>
+                <div className="grid md:grid-cols-2 gap-6 text-xs font-mono">
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-zinc-600">retention:</span>{" "}
+                      <span className="text-zinc-400">
+                        7 years (configurable)
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">export:</span>{" "}
+                      <span className="text-zinc-400">JSON, CSV, PDF</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">encryption:</span>{" "}
+                      <span className="text-amber-500">AES-256 at rest</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-zinc-600">signatures:</span>{" "}
+                      <span className="text-zinc-400">HMAC-SHA256</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">tampering:</span>{" "}
+                      <span className="text-amber-500">
+                        cryptographic verification
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">search:</span>{" "}
+                      <span className="text-zinc-400">
+                        full-text + filters
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ BOTTOM CTA ═══════════════════ */}
+        <RevealSection>
+          <section id="cta" className="py-24 sm:py-32 border-t border-amber-500/10">
+            <div className="max-w-4xl mx-auto px-6">
+              <div className="bg-black border border-amber-500/30 p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-amber-500/20">
+                  <Code2 className="w-6 h-6 text-amber-500" />
+                  <span className="text-xs font-mono text-amber-500 uppercase">
+                    DEPLOY_GOVERNANCE
+                  </span>
+                </div>
+
+                <h2 className="text-xl sm:text-3xl font-mono font-bold tracking-tight mb-4 text-white">
+                  <span className="text-amber-500">$</span> vienna-os init
+                  --tier production
+                </h2>
+
+                <p className="text-sm font-mono text-zinc-500 mb-8">
+                  integrate warrant protocol into agentic infrastructure (python
+                  | node | rust)
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a
+                    href="https://console.regulator.ai/signup"
+                    className="flex-1 px-8 py-4 bg-amber-500 text-black font-mono font-bold hover:bg-amber-400 transition-all text-center uppercase text-sm"
+                  >
+                    GENERATE_WARRANT →
+                  </a>
+                  <Link
+                    href="/docs/getting-started"
+                    className="flex-1 px-8 py-4 bg-black border border-amber-500/30 text-amber-500 font-mono font-bold hover:border-amber-500 transition-all text-center uppercase text-sm"
+                  >
+                    QUICKSTART_GUIDE
+                  </Link>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-amber-500/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-zinc-600">
+                  <span>community_tier: 5 agents, full pipeline</span>
+                  <span>setup_time: &lt;5min</span>
+                </div>
+              </div>
+
+              {/* Explore more links */}
+              <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs font-mono">
+                <Link
+                  href="/blog"
+                  className="text-zinc-500 hover:text-amber-500 transition-all"
+                >
+                  /blog
+                </Link>
+                <Link
+                  href="/compare"
+                  className="text-zinc-500 hover:text-amber-500 transition-all"
+                >
+                  /compare
+                </Link>
+                <Link
+                  href="/about"
+                  className="text-zinc-500 hover:text-amber-500 transition-all"
+                >
+                  /about
+                </Link>
+                <Link
+                  href="/enterprise"
+                  className="text-zinc-500 hover:text-amber-500 transition-all"
+                >
+                  /enterprise
+                </Link>
+                <a
+                  href="https://github.com/risk-ai/vienna-os"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-500 hover:text-amber-500 transition-all"
+                >
+                  /github
+                </a>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+        {/* ═══════════════════ LATEST FROM BLOG ═══════════════════ */}
+        <RevealSection>
+          <section className="py-24 px-6 border-t border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between mb-12">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-amber-500">
+                    LATEST_DISPATCHES
+                  </h2>
+                  <p className="text-zinc-500 font-mono text-sm mt-2">
+                    governance insights + engineering deep-dives
+                  </p>
+                </div>
+                <Link
+                  href="/blog"
+                  className="hidden sm:flex items-center gap-2 text-xs font-mono text-amber-500 hover:text-amber-400 transition"
+                >
+                  VIEW_ALL →
                 </Link>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-amber-500/10 flex items-center justify-between text-xs font-mono text-zinc-600">
-                <span>free_tier: 10k executions/mo</span>
-                <span>setup_time: &lt;5min</span>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  {
+                    slug: "execution-gap-warrants-not-guardrails",
+                    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
+                    category: "GOVERNANCE",
+                    readTime: "9 min",
+                  },
+                  {
+                    slug: "zero-trust-ai-agent-pipeline",
+                    title: "Building a Zero-Trust AI Agent Pipeline",
+                    category: "SECURITY",
+                    readTime: "8 min",
+                  },
+                  {
+                    slug: "ai-agent-disasters-prevented",
+                    title: "5 AI Agent Disasters That Could Have Been Prevented",
+                    category: "RISK",
+                    readTime: "9 min",
+                  },
+                ].map((post) => (
+                  <Link
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
+                      <span className="text-[10px] font-mono text-amber-500 uppercase">
+                        {post.category}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-600">
+                        {post.readTime}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
+                      {post.title}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-6 sm:hidden">
+                <Link
+                  href="/blog"
+                  className="text-xs font-mono text-amber-500 hover:text-amber-400 transition"
+                >
+                  VIEW_ALL_DISPATCHES →
+                </Link>
               </div>
             </div>
-              <p className="mt-8 text-[10px] font-mono text-zinc-700">
-                The only AI governance platform with a patented cryptographic warrant system. USPTO #64/018,152. Cornell Law × ai.ventures.
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ NEWSLETTER ═══════════════════ */}
+        <RevealSection>
+          <section className="py-16 px-6 border-t border-amber-500/10 bg-black/50">
+            <div className="max-w-3xl mx-auto text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Mail className="w-4 h-4 text-amber-500" />
+                <span className="text-[10px] font-mono text-amber-500 uppercase tracking-widest">
+                  DISPATCH_SUBSCRIBE
+                </span>
+              </div>
+              <p className="text-sm font-mono text-zinc-400 mb-6">
+                AI governance updates, release notes, and compliance insights.
+                No spam.
               </p>
-          </div>
-        </section>
+              <div className="flex justify-center">
+                <NewsletterInline />
+              </div>
+            </div>
+          </section>
+        </RevealSection>
       </main>
 
+      <SectionNav />
+      <FloatingContact />
+      <BackToTop />
       <SiteFooter />
     </div>
   );

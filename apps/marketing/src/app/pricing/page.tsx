@@ -1,10 +1,12 @@
 "use client";
 
-import { Check, X, Zap, Building2, Shield, Rocket, Star, ArrowLeft } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Check, X, Zap, Building2, Shield, Rocket, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 import { analytics } from "@/lib/analytics";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import FloatingContact from "@/components/FloatingContact";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 const tiers = [
   {
@@ -14,7 +16,7 @@ const tiers = [
     description: "Open-source core. Self-hosted. Get started governing your agents today.",
     agents: "5 agents",
     icon: Rocket,
-    cta: "Get Started",
+    cta: "GET_STARTED",
     ctaHref: "https://github.com/risk-ai/regulator.ai",
     highlight: false,
     popular: false,
@@ -39,7 +41,7 @@ const tiers = [
     description: "Cloud-hosted governance for growing teams. Everything in Community, plus managed infrastructure.",
     agents: "Up to 25 agents",
     icon: Zap,
-    cta: "Start Free Trial",
+    cta: "START_FREE_TRIAL",
     ctaHref: "/signup?plan=team",
     highlight: true,
     popular: true,
@@ -64,7 +66,7 @@ const tiers = [
     description: "Advanced governance for enterprises. Custom policies, SSO, priority support.",
     agents: "Up to 100 agents",
     icon: Building2,
-    cta: "Start Free Trial",
+    cta: "START_FREE_TRIAL",
     ctaHref: "/signup?plan=business",
     highlight: false,
     popular: false,
@@ -74,7 +76,7 @@ const tiers = [
       { name: "Custom policy builder", included: true },
       { name: "Policy versioning + rollback", included: true },
       { name: "GitHub + Webhook integrations", included: true },
-      { name: "Compliance reports (PDF)", included: true },
+      { name: "Compliance-ready reports (PDF)", included: true },
       { name: "Priority support", included: true },
       { name: "30-day data retention", included: true },
       { name: "RBAC (role-based access)", included: true },
@@ -86,10 +88,10 @@ const tiers = [
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "Unlimited governance. On-premise, SOC 2, dedicated support. Built for regulated industries.",
+    description: "Unlimited governance. On-premise deployment, compliance enablement, dedicated support.",
     agents: "Unlimited agents",
     icon: Shield,
-    cta: "Contact Sales",
+    cta: "CONTACT_SALES",
     ctaHref: "/contact?subject=enterprise",
     highlight: false,
     popular: false,
@@ -98,8 +100,8 @@ const tiers = [
       { name: "Everything in Business", included: true },
       { name: "Unlimited agents", included: true },
       { name: "On-premise deployment", included: true },
-      { name: "SOC 2 Type II report", included: true },
-      { name: "HIPAA BAA available", included: true },
+      { name: "SOC 2 compliance enablement", included: true },
+      { name: "HIPAA compliance enablement", included: true },
       { name: "Custom SLA (99.9%+)", included: true },
       { name: "Dedicated CSM", included: true },
       { name: "Unlimited data retention", included: true },
@@ -137,71 +139,44 @@ const faqs = [
   },
 ];
 
-/* ============================================================
-   ANIMATION COMPONENTS
-   ============================================================ */
-
-/** Simplified scroll reveal for pricing page */
-function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) return;
-
-    el.style.opacity = "0";
-    el.style.transform = "translateY(20px)";
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-            el.style.opacity = "1";
-            el.style.transform = "translateY(0)";
-          }, delay * 1000);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [delay]);
-
-  return <div ref={ref}>{children}</div>;
-}
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function PricingPage() {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadCaptureTrigger, setLeadCaptureTrigger] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("");
   const [engagementActions, setEngagementActions] = useState<string[]>([]);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
 
-  // Track pricing page view and engagement
+  const getPrice = (monthlyPrice: string) => {
+    if (monthlyPrice === "Free" || monthlyPrice === "Custom") return monthlyPrice;
+    const num = parseInt(monthlyPrice.replace("$", ""));
+    if (billingCycle === "annual") {
+      return `$${Math.round(num * 0.8)}`;
+    }
+    return monthlyPrice;
+  };
+
+  const getPeriod = (period: string) => {
+    if (!period) return "";
+    return billingCycle === "annual" ? "/agent/mo (billed annually)" : period;
+  };
+
   useEffect(() => {
     analytics.pricingView();
     
-    // Track high engagement behavior
     const trackEngagement = (action: string) => {
       setEngagementActions(prev => {
         const newActions = [...prev, action];
-        
-        // Show lead capture after multiple engagement signals
         if (newActions.length >= 3) {
           analytics.highEngagementDetected(newActions);
           setLeadCaptureTrigger('high_engagement');
           setShowLeadCapture(true);
         }
-        
         return newActions;
       });
     };
 
-    // Track scroll depth
     let maxScrollDepth = 0;
     const handleScroll = () => {
       const scrollDepth = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
@@ -216,7 +191,6 @@ export default function PricingPage() {
       }
     };
 
-    // Track time on page
     const startTime = Date.now();
     const timeTracker = setInterval(() => {
       const timeOnPage = Math.round((Date.now() - startTime) / 1000);
@@ -228,7 +202,6 @@ export default function PricingPage() {
       }
     }, 10000);
 
-    // Track multiple plan clicks
     const originalClick = analytics.pricingPlanClick;
     let planClickCount = 0;
     analytics.pricingPlanClick = (plan: string) => {
@@ -253,116 +226,69 @@ export default function PricingPage() {
     };
   }, []);
 
-  // Structured data for pricing page
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
     "@id": "https://regulator.ai/pricing#product",
     "name": "Vienna OS - AI Agent Governance Platform",
     "description": "Execution control infrastructure for autonomous AI systems with per-agent pricing. Start free with Community tier, scale to Enterprise with unlimited agents and on-premise deployment.",
-    "brand": {
-      "@type": "Brand",
-      "name": "Vienna OS"
-    },
-    "manufacturer": {
-      "@type": "Organization",
-      "name": "ai.ventures",
-      "url": "https://ai.ventures"
-    },
+    "brand": { "@type": "Brand", "name": "Vienna OS" },
+    "manufacturer": { "@type": "Organization", "name": "ai.ventures", "url": "https://ai.ventures" },
     "category": "AI Governance Software",
     "offers": [
       {
         "@type": "Offer",
         "@id": "https://regulator.ai/pricing#community",
         "name": "Community",
-        "description": "Open-source core. Self-hosted. Get started governing your agents today.",
+        "description": "Open-source core. Self-hosted.",
         "price": "0",
         "priceCurrency": "USD",
         "availability": "https://schema.org/InStock",
         "priceValidUntil": "2030-12-31",
         "url": "https://github.com/risk-ai/regulator.ai",
-        "eligibleQuantity": {
-          "@type": "QuantitativeValue",
-          "value": "5",
-          "unitText": "agents"
-        }
+        "eligibleQuantity": { "@type": "QuantitativeValue", "value": "5", "unitText": "agents" }
       },
       {
         "@type": "Offer",
         "@id": "https://regulator.ai/pricing#team",
         "name": "Team",
-        "description": "Cloud-hosted governance for growing teams. Everything in Community, plus managed infrastructure.",
+        "description": "Cloud-hosted governance for growing teams.",
         "price": "49",
         "priceCurrency": "USD",
-        "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "49",
-          "priceCurrency": "USD",
-          "billingDuration": "P1M",
-          "unitText": "agent"
-        },
+        "priceSpecification": { "@type": "UnitPriceSpecification", "price": "49", "priceCurrency": "USD", "billingDuration": "P1M", "unitText": "agent" },
         "availability": "https://schema.org/InStock",
         "priceValidUntil": "2030-12-31",
         "url": "https://regulator.ai/signup?plan=team",
-        "eligibleQuantity": {
-          "@type": "QuantitativeValue",
-          "maxValue": "25",
-          "unitText": "agents"
-        }
+        "eligibleQuantity": { "@type": "QuantitativeValue", "maxValue": "25", "unitText": "agents" }
       },
       {
         "@type": "Offer",
         "@id": "https://regulator.ai/pricing#business",
         "name": "Business",
-        "description": "Advanced governance for enterprises. Custom policies, SSO, priority support.",
+        "description": "Advanced governance. Custom policies, SSO, priority support.",
         "price": "99",
         "priceCurrency": "USD",
-        "priceSpecification": {
-          "@type": "UnitPriceSpecification",
-          "price": "99",
-          "priceCurrency": "USD",
-          "billingDuration": "P1M",
-          "unitText": "agent"
-        },
+        "priceSpecification": { "@type": "UnitPriceSpecification", "price": "99", "priceCurrency": "USD", "billingDuration": "P1M", "unitText": "agent" },
         "availability": "https://schema.org/InStock",
         "priceValidUntil": "2030-12-31",
         "url": "https://regulator.ai/signup?plan=business",
-        "eligibleQuantity": {
-          "@type": "QuantitativeValue",
-          "maxValue": "100",
-          "unitText": "agents"
-        }
+        "eligibleQuantity": { "@type": "QuantitativeValue", "maxValue": "100", "unitText": "agents" }
       },
       {
         "@type": "Offer",
         "@id": "https://regulator.ai/pricing#enterprise",
         "name": "Enterprise",
-        "description": "Unlimited governance. On-premise, SOC 2, dedicated support. Built for regulated industries.",
-        "priceSpecification": {
-          "@type": "PriceSpecification",
-          "priceCurrency": "USD",
-          "price": "Contact for pricing"
-        },
+        "description": "Unlimited governance. On-premise, compliance enablement, dedicated support.",
+        "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "price": "Contact for pricing" },
         "availability": "https://schema.org/InStock",
         "url": "https://regulator.ai/contact?subject=enterprise",
-        "eligibleQuantity": {
-          "@type": "QuantitativeValue",
-          "value": "unlimited",
-          "unitText": "agents"
-        }
+        "eligibleQuantity": { "@type": "QuantitativeValue", "value": "unlimited", "unitText": "agents" }
       }
-    ],
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "12",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+    ]
   };
 
   return (
-    <main className="min-h-screen bg-navy-900 text-white">
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white">
       {/* Lead Capture Modal */}
       <LeadCaptureModal
         isOpen={showLeadCapture}
@@ -370,267 +296,283 @@ export default function PricingPage() {
         trigger={leadCaptureTrigger}
         plan={selectedPlan}
       />
-      {/* Floating Contact Widget */}
       <FloatingContact />
-      {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
+
       {/* Navigation */}
-      <nav className="border-b border-navy-700">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
-          </a>
-          <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
-              Get Started
-            </a>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
-      {/* Removed geo-targeted urgency banner */}
+      <main className="flex-1 font-mono">
+        {/* Header */}
+        <section className="pt-20 pb-16 px-6 border-b border-amber-500/10">
+          <div className="max-w-7xl mx-auto text-center">
+            <ScrollReveal>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 mb-8">
+                <span className="flex h-2 w-2 bg-amber-500 animate-pulse"></span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500">
+                  PRICING_MATRIX
+                </span>
+              </div>
 
-      {/* Returning Visitor Banner */}
-      {typeof window !== 'undefined' && localStorage.getItem('regulator_lead_capture') && (
-        <div className="bg-gradient-to-r from-gold-500/20 to-gold-500/20 border-b border-gold-400/30">
-          <div className="max-w-7xl mx-auto px-6 py-3 text-center">
-            <p className="text-sm text-gold-300">
-              Welcome back! We noticed your interest in Vienna OS. 
-              <button
-                onClick={() => {
-                  setLeadCaptureTrigger('returning_visitor');
-                  setShowLeadCapture(true);
-                }}
-                className="ml-2 underline hover:no-underline font-medium"
-              >
-                Get priority support →
-              </button>
-            </p>
-          </div>
-        </div>
-      )}
+              <h1 className="text-3xl md:text-5xl font-mono font-bold tracking-tight mb-6">
+                <span className="text-amber-500">SIMPLE_PER_AGENT_PRICING</span>
+              </h1>
+              <p className="text-zinc-500 font-mono text-sm max-w-2xl mx-auto leading-relaxed mb-8">
+                start free with open-source community tier. scale to enterprise when you need
+                SSO, compliance enablement, and dedicated support.
+              </p>
 
-      {/* Header with gradient background */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gold-900/10 to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center relative">
-          <ScrollReveal>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
-                Simple, per-agent pricing
-              </span>
-            </h1>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
-              Start free with the open-source Community tier. Scale to Enterprise when you need
-              SSO, compliance, and dedicated support.
-            </p>
-            
-            {/* Urgent CTA for high-intent visitors */}
-            <div className="mt-8">
+              {/* Billing Cycle Toggle */}
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <button
+                  onClick={() => setBillingCycle("monthly")}
+                  className={`text-xs font-mono font-bold px-4 py-2 transition uppercase ${
+                    billingCycle === "monthly"
+                      ? "bg-amber-500 text-black"
+                      : "border border-zinc-700 text-zinc-500 hover:border-amber-500/30"
+                  }`}
+                >
+                  MONTHLY
+                </button>
+                <button
+                  onClick={() => setBillingCycle("annual")}
+                  className={`text-xs font-mono font-bold px-4 py-2 transition uppercase relative ${
+                    billingCycle === "annual"
+                      ? "bg-amber-500 text-black"
+                      : "border border-zinc-700 text-zinc-500 hover:border-amber-500/30"
+                  }`}
+                >
+                  ANNUAL
+                  <span className="absolute -top-2 -right-2 bg-green-500 text-black text-[8px] font-bold px-1.5 py-0.5">
+                    -20%
+                  </span>
+                </button>
+              </div>
+
               <button
                 onClick={() => {
                   setLeadCaptureTrigger('header_priority_access');
                   setShowLeadCapture(true);
                 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-500 hover:from-gold-400 hover:to-blue-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-6 py-3 transition uppercase text-sm"
               >
                 <Zap className="w-4 h-4" />
-                Get Priority Access
+                GET_PRIORITY_ACCESS →
               </button>
-              <p className="text-xs text-slate-500 mt-2">
-                Skip the queue • Get personalized guidance
+              <p className="text-[10px] font-mono text-zinc-600 mt-3">
+                skip the queue • get personalized guidance
               </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
+            </ScrollReveal>
+          </div>
+        </section>
 
-      {/* Pricing Cards with improved design */}
-      <div className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {tiers.map((tier, i) => (
-            <ScrollReveal key={tier.name} delay={i * 0.1}>
-              <div
-                className={`rounded-2xl p-6 border flex flex-col relative transition-all duration-300 hover:scale-105 ${
-                  tier.highlight
-                    ? "border-gold-400/50 bg-gradient-to-br from-gold-400/10 to-navy-800 ring-1 ring-gold-400/30 shadow-lg shadow-gold-400/10"
-                    : tier.premium
-                    ? "border-gold-400/50 bg-gradient-to-br from-gold-400/10 to-navy-800 ring-1 ring-gold-400/30 shadow-lg shadow-gold-400/10"
-                    : "border-navy-700 bg-gradient-to-br from-navy-800 to-navy-800/50 hover:border-navy-600 hover:bg-gradient-to-br hover:from-navy-700 hover:to-navy-800"
-                }`}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-gold-400 text-white px-3 py-1 rounded-full">
-                      <Star className="w-3 h-3" />
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-
-                {tier.premium && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider bg-gradient-to-r from-gold-400 to-gold-500 text-navy-900 px-3 py-1 rounded-full seal-glow">
-                      <Shield className="w-3 h-3" />
-                      Premium
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 mb-4">
-                  <tier.icon className={`w-6 h-6 ${
-                    tier.highlight ? 'text-gold-400' : 
-                    tier.premium ? 'text-gold-400' : 'text-slate-400'
-                  }`} />
-                  <h3 className="text-xl font-semibold text-white">{tier.name}</h3>
-                </div>
-
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-white">{tier.price}</span>
-                  {tier.period && (
-                    <span className="text-slate-400 text-sm ml-1">{tier.period}</span>
-                  )}
-                </div>
-
-                <p className="text-slate-300 text-sm mb-2 font-medium">{tier.agents}</p>
-                <p className="text-slate-500 text-sm mb-6 leading-relaxed">{tier.description}</p>
-
-                <div className="space-y-3 mb-6">
-                  <a
-                    href={tier.ctaHref}
-                    onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
-                    className={`block text-center py-3 rounded-xl font-semibold text-sm transition ${
+        {/* Pricing Cards */}
+        <section className="py-16 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {tiers.map((tier, i) => (
+                <ScrollReveal key={tier.name} delay={i * 0.1}>
+                  <div
+                    className={`bg-black p-0 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${
                       tier.highlight
-                        ? "bg-gold-400 hover:bg-gold-400 text-white shadow-lg hover:shadow-gold-400/25"
+                        ? "border-2 border-amber-500/60 shadow-lg shadow-amber-500/5"
                         : tier.premium
-                        ? "bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-navy-900 font-bold shadow-lg hover:shadow-gold-400/25"
-                        : "bg-navy-700 hover:bg-navy-600 text-white border border-navy-600 hover:border-navy-500"
+                        ? "border-2 border-amber-500/40"
+                        : "border border-zinc-800 hover:border-amber-500/30"
                     }`}
                   >
-                    {tier.cta}
-                  </a>
-                  
-                  {(tier.name === 'Team' || tier.name === 'Business') && (
-                    <button
-                      onClick={() => {
-                        analytics.pricingPlanClick(`${tier.name.toLowerCase()}_quote`);
-                        setLeadCaptureTrigger('quote_request');
-                        setSelectedPlan(tier.name);
-                        setShowLeadCapture(true);
-                      }}
-                      className="block w-full text-center py-2 rounded-lg font-medium text-xs border border-slate-600 text-slate-300 hover:bg-slate-700/30 hover:border-slate-500 transition"
-                    >
-                      Get Custom Quote
-                    </button>
-                  )}
-                </div>
-
-                <div className="space-y-3 flex-1">
-                  {tier.features.map((feature) => (
-                    <div
-                      key={feature.name}
-                      className="flex items-start gap-3 text-sm"
-                    >
-                      {feature.included ? (
-                        <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                      ) : (
-                        <X className="w-4 h-4 text-slate-600 mt-0.5 flex-shrink-0" />
+                    {/* Card Header Bar */}
+                    <div className={`px-6 py-3 border-b flex items-center justify-between ${
+                      tier.highlight
+                        ? "bg-amber-500/10 border-amber-500/30"
+                        : tier.premium
+                        ? "bg-amber-500/5 border-amber-500/20"
+                        : "bg-zinc-900/50 border-zinc-800"
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <tier.icon className={`w-4 h-4 ${
+                          tier.highlight || tier.premium ? 'text-amber-500' : 'text-zinc-600'
+                        }`} />
+                        <span className={`text-xs font-mono uppercase font-bold ${
+                          tier.highlight || tier.premium ? 'text-amber-500' : 'text-zinc-400'
+                        }`}>
+                          {tier.name.toUpperCase()}
+                        </span>
+                      </div>
+                      {tier.popular && (
+                        <div className="flex items-center gap-1 text-[10px] font-mono uppercase bg-amber-500 text-black px-2 py-0.5 font-bold">
+                          <Star className="w-3 h-3" />
+                          POPULAR
+                        </div>
                       )}
-                      <span
-                        className={
-                          feature.included ? "text-slate-300" : "text-slate-600"
-                        }
-                      >
-                        {feature.name}
-                      </span>
+                      {tier.premium && (
+                        <div className="flex items-center gap-1 text-[10px] font-mono uppercase bg-amber-500 text-black px-2 py-0.5 font-bold">
+                          <Shield className="w-3 h-3" />
+                          PREMIUM
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </div>
 
-      {/* Volume Discount Section */}
-      <ScrollReveal>
-        <div className="max-w-4xl mx-auto px-6 pb-20">
-          <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/20 rounded-2xl p-8 text-center">
-            <h2 className="text-2xl font-bold text-white mb-3">
-              Governing 100+ agents?
-            </h2>
-            <p className="text-slate-400 mb-6 max-w-2xl mx-auto">
-              Enterprise plans include volume discounts, custom SLAs, and dedicated support.
-              Let&apos;s build a plan that fits your fleet.
-            </p>
-            <a
-              href="/contact?subject=enterprise"
-              onClick={() => analytics.ctaClick('volume_discount', 'talk_to_sales')}
-              className="inline-block bg-gold-400 hover:bg-gold-400 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
-            >
-              Talk to Sales
-            </a>
-          </div>
-        </div>
-      </ScrollReveal>
+                    <div className="p-6 flex flex-col flex-1">
+                      {/* Price */}
+                      <div className="mb-4 pb-4 border-b border-zinc-800">
+                        <span className="text-3xl font-mono font-bold text-white">{getPrice(tier.price)}</span>
+                        {tier.period && (
+                          <span className="text-zinc-600 text-xs ml-1">{getPeriod(tier.period)}</span>
+                        )}
+                        <div className="text-[10px] font-mono text-amber-500 mt-1">{tier.agents}</div>
+                      </div>
 
-      {/* FAQ Section */}
-      <div className="max-w-3xl mx-auto px-6 pb-20">
-        <ScrollReveal>
-          <h2 className="text-3xl font-bold text-center mb-12">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">
-              Frequently Asked Questions
-            </span>
-          </h2>
-        </ScrollReveal>
-        
-        <div className="space-y-1">
-          {faqs.map((faq, i) => (
-            <ScrollReveal key={i} delay={i * 0.05}>
-              <div className="bg-navy-800/50 border border-navy-700/50 rounded-xl p-6 hover:bg-navy-800/70 transition-colors">
-                <h3 className="font-semibold mb-3 text-white">{faq.q}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{faq.a}</p>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-      </div>
+                      {/* Description */}
+                      <p className="text-zinc-500 text-xs font-mono mb-6 leading-relaxed">{tier.description}</p>
 
-      {/* Bottom CTA */}
-      <ScrollReveal>
-        <div className="border-t border-navy-700 py-16">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Ready to govern your AI agents?
-            </h2>
-            <p className="text-slate-400 mb-8">
-              Join teams already using Vienna OS to secure their agent deployments.
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              <a 
-                href="/signup" 
-                onClick={() => analytics.ctaClick('pricing_bottom', 'start_free_trial')}
-                className="bg-gold-400 hover:bg-gold-400 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg hover:shadow-gold-400/25"
-              >
-                Start Free Trial
-              </a>
-              <a 
-                href="/docs" 
-                onClick={() => analytics.ctaClick('pricing_bottom', 'read_docs')}
-                className="bg-navy-800 hover:bg-navy-700 text-white font-medium px-8 py-3 rounded-xl transition border border-navy-600 hover:border-navy-500"
-              >
-                Read the Docs
-              </a>
+                      {/* CTA Buttons */}
+                      <div className="space-y-2 mb-6">
+                        <a
+                          href={tier.ctaHref}
+                          onClick={() => analytics.pricingPlanClick(tier.name.toLowerCase())}
+                          className={`block text-center py-3 font-mono font-bold text-sm transition uppercase ${
+                            tier.highlight
+                              ? "bg-amber-500 hover:bg-amber-400 text-black"
+                              : tier.premium
+                              ? "bg-amber-500 hover:bg-amber-400 text-black"
+                              : "bg-zinc-900 border border-amber-500/30 hover:border-amber-500 text-amber-500"
+                          }`}
+                        >
+                          {tier.cta} →
+                        </a>
+                        
+                        {(tier.name === 'Team' || tier.name === 'Business') && (
+                          <button
+                            onClick={() => {
+                              analytics.pricingPlanClick(`${tier.name.toLowerCase()}_quote`);
+                              setLeadCaptureTrigger('quote_request');
+                              setSelectedPlan(tier.name);
+                              setShowLeadCapture(true);
+                            }}
+                            className="block w-full text-center py-2 font-mono font-medium text-[10px] border border-zinc-800 text-zinc-500 hover:border-amber-500/30 hover:text-zinc-400 transition uppercase"
+                          >
+                            REQUEST_CUSTOM_QUOTE
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Features */}
+                      <div className="space-y-2 flex-1">
+                        {tier.features.map((feature) => (
+                          <div
+                            key={feature.name}
+                            className="flex items-start gap-2 text-xs font-mono"
+                          >
+                            {feature.included ? (
+                              <Check className="w-3 h-3 text-green-500 mt-0.5 flex-shrink-0" />
+                            ) : (
+                              <X className="w-3 h-3 text-zinc-700 mt-0.5 flex-shrink-0" />
+                            )}
+                            <span className={feature.included ? "text-zinc-400" : "text-zinc-700"}>
+                              {feature.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
-        </div>
-      </ScrollReveal>
-    </main>
+        </section>
+
+        {/* Volume Discount */}
+        <section className="px-6 pb-16">
+          <ScrollReveal>
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-black border border-amber-500/30 p-8">
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-amber-500/20">
+                  <Building2 className="w-5 h-5 text-amber-500" />
+                  <span className="text-xs font-mono text-amber-500 uppercase font-bold">VOLUME_PRICING</span>
+                </div>
+                <h2 className="text-xl font-mono font-bold text-white mb-3">
+                  Governing 100+ agents?
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm mb-6 max-w-2xl">
+                  Enterprise plans include volume discounts, custom SLAs, and dedicated support.
+                  Let&apos;s build a plan that fits your fleet.
+                </p>
+                <a
+                  href="/contact?subject=enterprise"
+                  onClick={() => analytics.ctaClick('volume_discount', 'talk_to_sales')}
+                  className="inline-block bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-8 py-3 transition uppercase text-sm"
+                >
+                  CONTACT_SALES →
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-16 px-6 border-t border-amber-500/10">
+          <div className="max-w-3xl mx-auto">
+            <ScrollReveal>
+              <div className="mb-12">
+                <h2 className="text-2xl font-mono font-bold text-amber-500 mb-2">
+                  FAQ_DATABASE
+                </h2>
+                <p className="text-zinc-600 font-mono text-xs">
+                  frequently asked questions
+                </p>
+              </div>
+            </ScrollReveal>
+            
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <ScrollReveal key={i} delay={i * 0.05}>
+                  <div className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-colors">
+                    <h3 className="font-mono font-bold text-sm text-white mb-3">{faq.q}</h3>
+                    <p className="text-zinc-500 text-xs font-mono leading-relaxed">{faq.a}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Bottom CTA */}
+        <section className="py-20 border-t border-amber-500/10">
+          <ScrollReveal>
+            <div className="max-w-4xl mx-auto px-6 text-center">
+              <h2 className="text-2xl font-mono font-bold text-white mb-4">
+                <span className="text-amber-500">$</span> vienna-os init --tier production
+              </h2>
+              <p className="text-zinc-500 font-mono text-sm mb-8">
+                start governing your AI agents today
+              </p>
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <a 
+                  href="/signup" 
+                  onClick={() => analytics.ctaClick('pricing_bottom', 'start_free_trial')}
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold px-8 py-4 transition uppercase text-sm"
+                >
+                  START_FREE_TRIAL →
+                </a>
+                <a 
+                  href="/docs" 
+                  onClick={() => analytics.ctaClick('pricing_bottom', 'read_docs')}
+                  className="bg-black border border-amber-500/30 hover:border-amber-500 text-amber-500 font-mono font-bold px-8 py-4 transition uppercase text-sm"
+                >
+                  VIEW_DOCS
+                </a>
+              </div>
+            </div>
+          </ScrollReveal>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

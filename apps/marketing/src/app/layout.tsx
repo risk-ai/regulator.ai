@@ -168,9 +168,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        {/* Load SuperDesign approved fonts */}
-        <link rel="preconnect" href="https://api.fontshare.com" />
-        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,400&f[]=satoshi@700,500,400&display=swap" />
+        {/* Performance: dns-prefetch for external services */}
+        <link rel="dns-prefetch" href="https://console.regulator.ai" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         
         {/* Structured Data - JSON-LD */}
         <script

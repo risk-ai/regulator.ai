@@ -1,111 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-
-interface NewsletterEntry {
-  email: string;
-  timestamp: string;
-  ip?: string;
-  userAgent?: string;
-}
-
-const NEWSLETTER_FILE = "/tmp/newsletter-signups.json";
-
-async function readSignups(): Promise<NewsletterEntry[]> {
-  try {
-    const data = await fs.readFile(NEWSLETTER_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    // File doesn't exist yet, return empty array
-    return [];
-  }
-}
-
-async function writeSignups(signups: NewsletterEntry[]): Promise<void> {
-  await fs.writeFile(NEWSLETTER_FILE, JSON.stringify(signups, null, 2));
-}
-
-async function sendWelcomeEmail(email: string): Promise<boolean> {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  
-  if (!resendApiKey) {
-    console.log("RESEND_API_KEY not set, skipping email send");
-    return false;
-  }
-
-  try {
-    const { Resend } = await import("resend");
-    const resend = new Resend(resendApiKey);
-
-    await resend.emails.send({
-      from: "Vienna OS <updates@regulator.ai>",
-      to: [email],
-      subject: "Welcome to Vienna OS — Governance Layer for AI Agents",
-      html: `
-        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #0f172a; color: #cbd5e1;">
-          <div style="text-align: center; margin-bottom: 40px;">
-            <div style="display: inline-flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12l2 2 4-4"></path>
-                <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h9"></path>
-                <path d="m3 7 9 6 9-6"></path>
-              </svg>
-              <h1 style="color: white; font-size: 24px; font-weight: bold; margin: 0;">
-                Vienna<span style="background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">OS</span>
-              </h1>
-            </div>
-            <h2 style="color: #8b5cf6; font-size: 20px; margin: 0;">Welcome to the waitlist!</h2>
-          </div>
-
-          <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 32px;">
-            <h3 style="color: white; font-size: 18px; margin-top: 0; margin-bottom: 16px;">What's Vienna OS?</h3>
-            <p style="margin: 0 0 16px 0; line-height: 1.6;">
-              Vienna OS is the <strong style="color: #8b5cf6;">governance and authorization layer</strong> for AI agent systems. 
-              Instead of hoping agents behave correctly, we make misbehavior impossible through:
-            </p>
-            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
-              <li><strong style="color: #06b6d4;">Cryptographic warrants</strong> — Every action requires authorization</li>
-              <li><strong style="color: #06b6d4;">Risk-tiered approval</strong> — T0-T3 workflows based on impact</li>
-              <li><strong style="color: #06b6d4;">Immutable audit trails</strong> — Complete governance records</li>
-              <li><strong style="color: #06b6d4;">Policy enforcement</strong> — Automated rule evaluation</li>
-            </ul>
-          </div>
-
-          <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 32px;">
-            <h3 style="color: white; font-size: 18px; margin-top: 0; margin-bottom: 16px;">What happens next?</h3>
-            <ol style="margin: 0; padding-left: 20px; line-height: 1.8;">
-              <li>We'll notify you when Vienna OS enters public beta</li>
-              <li>You'll get early access to the governance console</li>
-              <li>Free tier includes governance for up to 3 AI agents</li>
-              <li>Priority support during the beta period</li>
-            </ol>
-          </div>
-
-          <div style="text-align: center; margin-bottom: 32px;">
-            <a href="https://regulator.ai/try" 
-               style="display: inline-block; background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600;">
-              Try the Interactive Demo
-            </a>
-          </div>
-
-          <div style="text-align: center; border-top: 1px solid #334155; padding-top: 24px;">
-            <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
-              Vienna OS — The governance layer agents answer to
-            </p>
-            <p style="margin: 0; color: #475569; font-size: 12px;">
-              © 2026 Technetwork 2 LLC dba ai.ventures
-            </p>
-          </div>
-        </div>
-      `,
-    });
-
-    return true;
-  } catch (error) {
-    console.error("Failed to send welcome email:", error);
-    return false;
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -119,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const trimmedEmail = email.trim().toLowerCase();
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
@@ -129,37 +22,124 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Read existing signups
-    const signups = await readSignups();
+    const neonUrl = process.env.DATABASE_URL;
+    let stored = false;
 
-    // Check for duplicates
-    if (signups.some(signup => signup.email === trimmedEmail)) {
-      return NextResponse.json(
-        { error: "This email is already on our waitlist" },
-        { status: 409 }
-      );
+    if (neonUrl) {
+      try {
+        const { neon } = await import("@neondatabase/serverless");
+        const sql = neon(neonUrl);
+
+        // Ensure table exists
+        await sql`
+          CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+            id SERIAL PRIMARY KEY,
+            email TEXT NOT NULL UNIQUE,
+            source TEXT DEFAULT 'website',
+            ip TEXT,
+            user_agent TEXT,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+          )
+        `;
+
+        // Insert (or ignore duplicate)
+        const result = await sql`
+          INSERT INTO newsletter_subscribers (email, source, ip, user_agent)
+          VALUES (
+            ${trimmedEmail},
+            'homepage',
+            ${request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || null},
+            ${request.headers.get("user-agent") || null}
+          )
+          ON CONFLICT (email) DO NOTHING
+          RETURNING id
+        `;
+
+        stored = true;
+
+        // If it was a duplicate (no rows returned), still succeed
+        if (result.length === 0) {
+          return NextResponse.json({
+            success: true,
+            message: "Already subscribed",
+          });
+        }
+
+        console.log(`[Newsletter] New subscriber: ${trimmedEmail}`);
+      } catch (dbError) {
+        console.error("[Newsletter] Database error:", dbError);
+        // Fall through — still try to send welcome email
+      }
     }
 
-    // Add new signup
-    const newSignup: NewsletterEntry = {
-      email: trimmedEmail,
-      timestamp: new Date().toISOString(),
-      ip: request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || undefined,
-      userAgent: request.headers.get("user-agent") || undefined,
-    };
+    // Send welcome email via Resend
+    const resendKey = process.env.RESEND_API_KEY;
+    let emailSent = false;
 
-    signups.push(newSignup);
-    await writeSignups(signups);
+    if (resendKey && stored) {
+      try {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: "Vienna OS <updates@regulator.ai>",
+            to: [trimmedEmail],
+            subject:
+              "Welcome to Vienna OS — Governance Layer for AI Agents",
+            html: `
+              <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #0a0e14; color: #a1a1aa;">
+                <div style="border: 1px solid rgba(251, 191, 36, 0.3); padding: 0; margin-bottom: 32px;">
+                  <div style="background: rgba(251, 191, 36, 0.1); border-bottom: 1px solid rgba(251, 191, 36, 0.3); padding: 8px 16px;">
+                    <span style="color: #f59e0b; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">DISPATCH_CONFIRMED</span>
+                  </div>
+                  <div style="padding: 24px;">
+                    <h1 style="color: #f59e0b; font-size: 20px; margin: 0 0 16px 0; font-family: 'Courier New', monospace;">
+                      Welcome to Vienna OS
+                    </h1>
+                    <p style="margin: 0 0 16px 0; line-height: 1.6; font-size: 13px;">
+                      You're now subscribed to governance dispatches. Here's what Vienna OS does:
+                    </p>
+                    <div style="font-size: 12px; line-height: 1.8; padding-left: 12px; border-left: 2px solid rgba(251, 191, 36, 0.3);">
+                      <div><span style="color: #71717a;">→</span> <strong style="color: #f59e0b;">Cryptographic warrants</strong> — every agent action requires authorization</div>
+                      <div><span style="color: #71717a;">→</span> <strong style="color: #f59e0b;">Risk-tiered approval</strong> — T0-T3 workflows based on impact</div>
+                      <div><span style="color: #71717a;">→</span> <strong style="color: #f59e0b;">Immutable audit trails</strong> — complete governance records</div>
+                      <div><span style="color: #71717a;">→</span> <strong style="color: #f59e0b;">Policy enforcement</strong> — automated rule evaluation</div>
+                    </div>
+                  </div>
+                </div>
 
-    // Try to send welcome email
-    const emailSent = await sendWelcomeEmail(trimmedEmail);
+                <div style="text-align: center; margin-bottom: 32px;">
+                  <a href="https://console.regulator.ai/signup"
+                     style="display: inline-block; background: #f59e0b; color: #000; text-decoration: none; padding: 12px 32px; font-weight: bold; font-family: 'Courier New', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                    GENERATE_WARRANT →
+                  </a>
+                </div>
 
-    console.log(`Newsletter signup: ${trimmedEmail} (email sent: ${emailSent})`);
+                <div style="text-align: center; border-top: 1px solid rgba(251, 191, 36, 0.1); padding-top: 24px;">
+                  <p style="margin: 0 0 4px 0; color: #52525b; font-size: 11px;">
+                    Vienna OS — The governance kernel for autonomous AI
+                  </p>
+                  <p style="margin: 0; color: #3f3f46; font-size: 10px;">
+                    © 2026 ai.ventures | <a href="https://regulator.ai" style="color: #f59e0b; text-decoration: none;">regulator.ai</a>
+                  </p>
+                </div>
+              </div>
+            `,
+          }),
+        });
+        emailSent = true;
+      } catch (emailError) {
+        console.error("[Newsletter] Email send error:", emailError);
+      }
+    }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       emailSent,
-      message: "Successfully joined the waitlist" 
+      message: "Successfully subscribed",
     });
   } catch (error) {
     console.error("Newsletter signup error:", error);
@@ -171,20 +151,18 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const neonUrl = process.env.DATABASE_URL;
+
+  if (!neonUrl) {
+    return NextResponse.json({ count: 0 });
+  }
+
   try {
-    const signups = await readSignups();
-    const count = signups.length;
-    
-    // Return only count for privacy
-    return NextResponse.json({ 
-      count,
-      message: `${count} signups so far` 
-    });
-  } catch (error) {
-    console.error("Newsletter count error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const { neon } = await import("@neondatabase/serverless");
+    const sql = neon(neonUrl);
+    const result = await sql`SELECT count(*)::int as count FROM newsletter_subscribers`;
+    return NextResponse.json({ count: result[0]?.count || 0 });
+  } catch {
+    return NextResponse.json({ count: 0 });
   }
 }

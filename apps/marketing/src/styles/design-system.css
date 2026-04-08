@@ -1,14 +1,9 @@
 /**
- * Vienna OS Design System — Unified Visual Language
+ * Vienna OS Design System — Terminal Gold
  * 
- * Core principles:
- * 1. PROFESSIONAL: Enterprise-grade, not startup-playful
- * 2. DARK + WARM: Navy/slate base with warm gold/amber accents
- * 3. TYPOGRAPHIC: Let type hierarchy do the work, not decorations
- * 4. SUBTLE MOTION: Smooth, purposeful transitions — never bouncy
- * 5. ICONOGRAPHIC: Lucide icons instead of emoji
- * 6. SPACIOUS: Generous padding, breathing room
- * 7. MONOSPACE FOR DATA: Code, hashes, IDs in mono; prose in sans
+ * Core: Dark (#0a0e14) + amber/gold + green verified
+ * Edges: Sharp (no border-radius except dots)
+ * Type: JetBrains Mono primary, Inter body
  */
 
 /* ─── Typography Scale ─── */
@@ -21,117 +16,86 @@
 .text-caption { font-size: 0.75rem; line-height: 1.5; letter-spacing: 0.02em; }
 .text-label { font-size: 0.6875rem; line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
 
-/* ─── Premium Color Tokens ─── */
+/* ─── Color Tokens ─── */
 :root {
-  --v-gold: #D4A853;
-  --v-gold-soft: rgba(212, 168, 83, 0.15);
-  --v-gold-border: rgba(212, 168, 83, 0.25);
-  --v-violet: #8B5CF6;
-  --v-violet-soft: rgba(139, 92, 246, 0.12);
-  --v-surface-0: #0B0F1A;
-  --v-surface-1: #111827;
-  --v-surface-2: #1E293B;
-  --v-surface-3: #334155;
-  --v-text-primary: #F1F5F9;
-  --v-text-secondary: #94A3B8;
-  --v-text-muted: #64748B;
-  --v-border: rgba(148, 163, 184, 0.12);
-  --v-border-strong: rgba(148, 163, 184, 0.2);
+  --v-gold: #f59e0b;
+  --v-gold-soft: rgba(245, 158, 11, 0.1);
+  --v-gold-border: rgba(245, 158, 11, 0.3);
+  --v-surface-0: #0a0e14;
+  --v-surface-1: #000000;
+  --v-surface-2: #18181b;
+  --v-surface-3: #27272a;
+  --v-text-primary: #fafafa;
+  --v-text-secondary: #a1a1aa;
+  --v-text-muted: #71717a;
+  --v-border: rgba(251, 191, 36, 0.1);
+  --v-border-strong: rgba(251, 191, 36, 0.3);
 }
 
 /* ─── Card Styles ─── */
 .v-card {
   background: var(--v-surface-1);
   border: 1px solid var(--v-border);
-  border-radius: 12px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-
 .v-card:hover {
   border-color: var(--v-border-strong);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
-.v-card-elevated {
-  background: linear-gradient(135deg, var(--v-surface-1), var(--v-surface-2));
-  border: 1px solid var(--v-border-strong);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* ─── Badge Styles (replace emoji) ─── */
+/* ─── Badge Styles ─── */
 .v-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: 9999px;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid;
 }
-
 .v-badge-gold { background: var(--v-gold-soft); color: var(--v-gold); border-color: var(--v-gold-border); }
-.v-badge-violet { background: var(--v-violet-soft); color: var(--v-violet); border-color: rgba(139, 92, 246, 0.25); }
 .v-badge-emerald { background: rgba(16, 185, 129, 0.12); color: #34D399; border-color: rgba(16, 185, 129, 0.25); }
-.v-badge-blue { background: rgba(59, 130, 246, 0.12); color: #60A5FA; border-color: rgba(59, 130, 246, 0.25); }
-.v-badge-rose { background: rgba(244, 63, 94, 0.12); color: #FB7185; border-color: rgba(244, 63, 94, 0.25); }
 
 /* ─── Button Styles ─── */
 .v-btn-primary {
-  background: linear-gradient(135deg, var(--v-gold), #C08C3A);
-  color: #0B0F1A;
-  font-weight: 600;
+  background: var(--v-gold);
+  color: #000;
+  font-weight: 700;
   padding: 12px 28px;
-  border-radius: 10px;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   transition: all 0.2s ease;
   border: none;
-  font-size: 0.9375rem;
-  letter-spacing: -0.01em;
 }
-
 .v-btn-primary:hover {
   filter: brightness(1.1);
-  box-shadow: 0 4px 16px rgba(212, 168, 83, 0.3);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
 }
 
 .v-btn-secondary {
   background: transparent;
-  color: var(--v-text-secondary);
-  font-weight: 500;
+  color: var(--v-gold);
+  font-weight: 700;
   padding: 12px 28px;
-  border-radius: 10px;
-  border: 1px solid var(--v-border-strong);
+  border: 1px solid var(--v-gold-border);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   transition: all 0.2s ease;
-  font-size: 0.9375rem;
 }
-
 .v-btn-secondary:hover {
-  color: var(--v-text-primary);
-  border-color: var(--v-gold-border);
+  border-color: var(--v-gold);
   background: var(--v-gold-soft);
 }
 
-/* ─── Section Spacing ─── */
-.v-section { padding: 6rem 0; }
-.v-section-lg { padding: 8rem 0; }
-
-/* ─── Smooth Animations ─── */
-@keyframes v-fade-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.v-animate-in {
-  animation: v-fade-in 0.5s ease forwards;
-}
-
-/* ─── Data Display (monospace) ─── */
+/* ─── Data Display ─── */
 .v-mono {
-  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace;
   font-size: 0.8125rem;
   letter-spacing: -0.02em;
 }
@@ -142,22 +106,8 @@
   background: linear-gradient(90deg, transparent, var(--v-border), transparent);
 }
 
-/* ─── Status Indicators (replace emoji circles) ─── */
-.v-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
+/* ─── Status Dots ─── */
+.v-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .v-status-success { background: #34D399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
 .v-status-warning { background: #FBBF24; box-shadow: 0 0 8px rgba(251, 191, 36, 0.4); }
 .v-status-error { background: #FB7185; box-shadow: 0 0 8px rgba(251, 113, 133, 0.4); }
-.v-status-info { background: #60A5FA; box-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
-
-/* ─── Tier Indicators (replace emoji with styled badges) ─── */
-.v-tier { font-family: monospace; font-weight: 700; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; }
-.v-tier-t0 { background: rgba(52, 211, 153, 0.15); color: #34D399; }
-.v-tier-t1 { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
-.v-tier-t2 { background: rgba(251, 113, 133, 0.15); color: #FB7185; }
-.v-tier-t3 { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; }

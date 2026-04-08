@@ -1,4 +1,6 @@
 "use client";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 import { useState } from "react";
 import { Shield, ArrowLeft, Building2, TrendingUp, Clock, Users, CheckCircle, AlertTriangle, FileText, ArrowRight, Layers, Settings, Eye } from "lucide-react";
@@ -262,7 +264,7 @@ export default function UseCasesPage() {
   const colorClasses = {
     blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
     green: "border-green-500/30 bg-green-500/5 text-green-400",
-    gold: "border-gold-400/30 bg-gold-400/5 text-gold-400",
+    gold: "border-gold-400/30 bg-amber-500/5 text-amber-500",
     orange: "border-orange-500/30 bg-orange-500/5 text-orange-400",
     red: "border-red-500/30 bg-red-500/5 text-red-400",
   };
@@ -271,7 +273,7 @@ export default function UseCasesPage() {
     return (
       <div className="min-h-screen bg-navy-950">
         {/* Navigation */}
-        <nav className="border-b border-navy-700/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
+        <nav className="border-b border-amber-500/30/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button 
@@ -281,15 +283,15 @@ export default function UseCasesPage() {
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm">Back to Industry Solutions</span>
               </button>
-              <div className="h-4 w-px bg-navy-700"></div>
-              <Shield className="w-5 h-5 text-gold-400" />
+              <div className="h-4 w-px bg-black"></div>
+              <Shield className="w-5 h-5 text-amber-500" />
               <span className="font-bold text-white">
-                Vienna<span className="text-gold-400">OS</span>
+                Vienna<span className="text-amber-500">OS</span>
               </span>
             </div>
             <a
               href="/signup"
-              className="text-sm bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Get Started
             </a>
@@ -308,7 +310,7 @@ export default function UseCasesPage() {
                 <div className="flex items-center gap-3 mb-1">
                   <span className="text-sm text-warm-500">{selectedUseCase.industry}</span>
                   {selectedUseCase.featured && (
-                    <span className="px-2 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/20 rounded-full text-xs font-medium">
+                    <span className="px-2 py-0.5 bg-gold-500/10 text-amber-500 border border-gold-500/20 rounded-full text-xs font-medium">
                       Featured Solution
                     </span>
                   )}
@@ -320,14 +322,14 @@ export default function UseCasesPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mb-6 bg-navy-800/50 rounded-xl p-1 overflow-x-auto">
+          <div className="flex gap-1 mb-6 bg-black/50/50 rounded-xl p-1 overflow-x-auto">
             {(["overview", "implementation", "workflow", "technical"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition capitalize ${
                   activeTab === tab
-                    ? "bg-navy-700 text-white"
+                    ? "bg-black text-white"
                     : "text-warm-500 hover:text-warm-300"
                 }`}
               >
@@ -357,7 +359,7 @@ export default function UseCasesPage() {
                     <h3 className="text-lg font-semibold text-white mb-4">Key Outcomes</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       {selectedUseCase.outcomes.map((outcome, i) => (
-                        <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+                        <div key={i} className="bg-black/50 border border-amber-500/30 rounded-xl p-5">
                           <h4 className="text-white font-semibold mb-2">{outcome.metric}</h4>
                           <p className="text-warm-300 text-sm mb-2">{outcome.description}</p>
                           <div className="text-xs text-warm-500 italic">{outcome.capability}</div>
@@ -374,7 +376,7 @@ export default function UseCasesPage() {
                   <div className="space-y-3">
                     {selectedUseCase.implementation.map((step, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-6 h-6 rounded-full bg-gold-400 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {i + 1}
                         </div>
                         <p className="text-warm-300">{step}</p>
@@ -389,16 +391,16 @@ export default function UseCasesPage() {
                   <h3 className="text-lg font-semibold text-white mb-4">Governance Workflow</h3>
                   <div className="space-y-4">
                     {selectedUseCase.workflow.map((step, i) => (
-                      <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                      <div key={i} className="bg-black/50 border border-amber-500/30 rounded-xl p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-gold-400 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 rounded-lg bg-amber-500 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
                             {i + 1}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="text-white font-semibold">{step.step}</h4>
                               {step.tier && (
-                                <span className="text-xs px-2 py-0.5 bg-gold-400/10 text-gold-400 border border-gold-400/20 rounded-full font-mono">
+                                <span className="text-xs px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-gold-400/20 rounded-full font-mono">
                                   {step.tier}
                                 </span>
                               )}
@@ -420,11 +422,11 @@ export default function UseCasesPage() {
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-4">Technical Implementation</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                      <div className="bg-black/50 border border-amber-500/30 rounded-xl p-4">
                         <h4 className="text-sm font-medium text-warm-400 mb-2">Governance Tier</h4>
                         <p className="font-mono text-white">{selectedUseCase.technicalDetails.tier}</p>
                       </div>
-                      <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                      <div className="bg-black/50 border border-amber-500/30 rounded-xl p-4">
                         <h4 className="text-sm font-medium text-warm-400 mb-2">Implementation Timeline</h4>
                         <p className="font-mono text-white">{selectedUseCase.technicalDetails.timeline}</p>
                       </div>
@@ -435,7 +437,7 @@ export default function UseCasesPage() {
                     <h4 className="text-sm font-medium text-warm-400 mb-3">Compliance Policies</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedUseCase.technicalDetails.policies.map((policy) => (
-                        <span key={policy} className="px-3 py-1 bg-gold-400/10 text-gold-400 border border-gold-400/20 rounded-full text-xs font-medium">
+                        <span key={policy} className="px-3 py-1 bg-amber-500/10 text-amber-500 border border-gold-400/20 rounded-full text-xs font-medium">
                           {policy}
                         </span>
                       ))}
@@ -446,7 +448,7 @@ export default function UseCasesPage() {
                     <h4 className="text-sm font-medium text-warm-400 mb-3">System Integrations</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedUseCase.technicalDetails.integrations.map((integration) => (
-                        <span key={integration} className="px-3 py-1 bg-navy-700 text-warm-300 border border-navy-600 rounded-lg text-xs font-medium">
+                        <span key={integration} className="px-3 py-1 bg-black text-warm-300 border border-amber-500/10 rounded-lg text-xs font-medium">
                           {integration}
                         </span>
                       ))}
@@ -459,7 +461,7 @@ export default function UseCasesPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Solution Info */}
-              <div className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+              <div className="bg-black/50 border border-amber-500/30 rounded-xl p-5">
                 <h4 className="text-sm font-medium text-warm-400 mb-3">Solution Overview</h4>
                 <div className="space-y-3">
                   <div>
@@ -486,13 +488,13 @@ export default function UseCasesPage() {
                 <div className="space-y-2">
                   <a 
                     href="/signup" 
-                    className="block w-full bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition text-center"
+                    className="block w-full bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-2 rounded-lg transition text-center"
                   >
                     Start Free Trial
                   </a>
                   <a 
                     href="/contact" 
-                    className="block w-full text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 text-sm font-medium px-4 py-2 rounded-lg transition text-center"
+                    className="block w-full text-amber-500 hover:text-amber-400 border border-gold-400/30 hover:bg-amber-500/5 text-sm font-medium px-4 py-2 rounded-lg transition text-center"
                   >
                     Schedule Demo
                   </a>
@@ -500,7 +502,7 @@ export default function UseCasesPage() {
               </div>
 
               {/* Other Solutions */}
-              <div className="bg-navy-800 border border-navy-700 rounded-xl p-5">
+              <div className="bg-black/50 border border-amber-500/30 rounded-xl p-5">
                 <h4 className="text-sm font-medium text-warm-400 mb-3">Other Industry Solutions</h4>
                 <div className="space-y-2">
                   {useCaseScenarios.filter(c => c.id !== selectedCase).slice(0, 3).map((otherCase) => (
@@ -510,7 +512,7 @@ export default function UseCasesPage() {
                         setSelectedCase(otherCase.id);
                         setActiveTab("overview");
                       }}
-                      className="w-full text-left p-3 rounded-lg bg-navy-900/50 hover:bg-navy-700/50 transition"
+                      className="w-full text-left p-3 rounded-lg bg-[#0a0e14]/50 hover:bg-black/50 transition"
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm">{otherCase.icon}</span>
@@ -531,20 +533,20 @@ export default function UseCasesPage() {
   return (
     <div className="min-h-screen bg-navy-950">
       {/* Navigation */}
-      <nav className="border-b border-navy-700/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
+      <nav className="border-b border-amber-500/30/50 backdrop-blur-sm bg-navy-950/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-warm-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-5 h-5 text-gold-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             <span className="font-bold text-white">
-              Vienna<span className="text-gold-400">OS</span>
+              Vienna<span className="text-amber-500">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline text-xs text-warm-500 font-mono">Industry Solutions</span>
             <a
               href="/signup"
-              className="text-sm bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
             >
               Get Started
             </a>
@@ -556,8 +558,8 @@ export default function UseCasesPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Layers className="w-6 h-6 text-gold-400" />
-            <span className="text-sm text-gold-400 font-medium uppercase tracking-wider">Industry Solutions</span>
+            <Layers className="w-6 h-6 text-amber-500" />
+            <span className="text-sm text-amber-500 font-medium uppercase tracking-wider">Industry Solutions</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
             AI Governance Use Cases
@@ -571,7 +573,7 @@ export default function UseCasesPage() {
         {/* Featured Solutions */}
         <div className="mb-12">
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-gold-400" />
+            <TrendingUp className="w-5 h-5 text-amber-500" />
             Featured Solutions
           </h2>
           <div className="grid lg:grid-cols-2 gap-6">
@@ -579,7 +581,7 @@ export default function UseCasesPage() {
               <button
                 key={useCase.id}
                 onClick={() => setSelectedCase(useCase.id)}
-                className="text-left bg-navy-800 border border-navy-700 hover:border-gold-400/30 rounded-2xl p-6 transition-all duration-300 hover:bg-navy-800/80 group"
+                className="text-left bg-black/50 border border-amber-500/30 hover:border-gold-400/30 rounded-2xl p-6 transition-all duration-300 hover:bg-black/50/80 group"
               >
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl border ${colorClasses[useCase.color as keyof typeof colorClasses]} group-hover:scale-105 transition-transform`}>
@@ -588,11 +590,11 @@ export default function UseCasesPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm text-warm-500">{useCase.industry}</span>
-                      <span className="px-2 py-0.5 bg-gold-500/10 text-gold-400 border border-gold-500/20 rounded-full text-xs font-medium">
+                      <span className="px-2 py-0.5 bg-gold-500/10 text-amber-500 border border-gold-500/20 rounded-full text-xs font-medium">
                         Featured
                       </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-gold-400 transition-colors">
+                    <h3 className="text-lg font-semibold text-white group-hover:text-amber-500 transition-colors">
                       {useCase.title}
                     </h3>
                     <p className="text-sm text-warm-400">{useCase.subtitle}</p>
@@ -614,7 +616,7 @@ export default function UseCasesPage() {
                       <span>{useCase.technicalDetails.tier}</span>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gold-400 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 text-amber-500 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
             ))}
@@ -624,7 +626,7 @@ export default function UseCasesPage() {
         {/* All Solutions */}
         <div>
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-gold-400" />
+            <Building2 className="w-5 h-5 text-amber-500" />
             All Industry Solutions
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -632,7 +634,7 @@ export default function UseCasesPage() {
               <button
                 key={useCase.id}
                 onClick={() => setSelectedCase(useCase.id)}
-                className="text-left bg-navy-800 border border-navy-700 hover:border-navy-600 rounded-xl p-5 transition-all hover:bg-navy-700/50 group"
+                className="text-left bg-black/50 border border-amber-500/30 hover:border-amber-500/10 rounded-xl p-5 transition-all hover:bg-black/50 group"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${colorClasses[useCase.color as keyof typeof colorClasses]}`}>
@@ -640,12 +642,12 @@ export default function UseCasesPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs text-warm-500 mb-0.5">{useCase.industry}</div>
-                    <h3 className="text-sm font-semibold text-white group-hover:text-gold-400 transition-colors truncate">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-amber-500 transition-colors truncate">
                       {useCase.title}
                     </h3>
                   </div>
                   {useCase.featured && (
-                    <div className="w-2 h-2 rounded-full bg-gold-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                   )}
                 </div>
                 <p className="text-sm text-warm-300 mb-3 line-clamp-2">
@@ -670,13 +672,13 @@ export default function UseCasesPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <a 
               href="/signup" 
-              className="bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold"
+              className="bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 rounded-xl transition font-semibold"
             >
               Start Free Trial
             </a>
             <a 
               href="/contact" 
-              className="text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 px-8 py-3 rounded-xl transition font-medium"
+              className="text-amber-500 hover:text-amber-400 border border-gold-400/30 hover:bg-amber-500/5 px-8 py-3 rounded-xl transition font-medium"
             >
               Schedule Demo
             </a>

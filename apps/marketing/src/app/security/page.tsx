@@ -1,4 +1,6 @@
 import {
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
   Shield,
   ArrowLeft,
   Lock,
@@ -21,8 +23,8 @@ const securityFeatures = [
   {
     icon: Lock,
     title: "Encryption",
-    color: "text-gold-300",
-    bg: "bg-gold-400/10",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
     items: [
       "TLS 1.3 for all connections in transit",
       "Session tokens with secure, httpOnly, sameSite cookies",
@@ -57,8 +59,8 @@ const securityFeatures = [
   {
     icon: Shield,
     title: "Governance Pipeline",
-    color: "text-gold-400",
-    bg: "bg-gold-400/10",
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
     items: [
       "Zero-trust agent model — agents never have direct execution authority",
       "Risk-tiered approval workflows (T0 auto-approve → T2 multi-party approval)",
@@ -137,22 +139,22 @@ const complianceRoadmap = [
 
 export default function SecurityPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
-      <nav className="border-b border-navy-700">
+    <div className="min-h-screen bg-[#0a0e14]">
+      <nav className="border-b border-amber-500/30">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <a
             href="/"
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition"
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">
               Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
           <a
             href="/docs"
-            className="text-sm text-slate-400 hover:text-white transition"
+            className="text-sm text-gray-400 hover:text-white transition"
           >
             Docs
           </a>
@@ -161,7 +163,7 @@ export default function SecurityPage() {
 
       <main className="max-w-6xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-white mb-2">Security</h1>
-        <p className="text-slate-400 mb-12 max-w-2xl">
+        <p className="text-gray-400 mb-12 max-w-2xl">
           Vienna OS is built for enterprises that need provable AI governance.
           Security isn&apos;t a feature — it&apos;s the architecture.
         </p>
@@ -171,7 +173,7 @@ export default function SecurityPage() {
           {securityFeatures.map((feature) => (
             <div
               key={feature.title}
-              className={`${feature.bg} border border-navy-700 rounded-xl p-6`}
+              className={`${feature.bg} border border-amber-500/30 rounded-xl p-6`}
             >
               <div className="flex items-center gap-3 mb-4">
                 <feature.icon className={`w-6 h-6 ${feature.color}`} />
@@ -183,7 +185,7 @@ export default function SecurityPage() {
                 {feature.items.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2 text-sm text-slate-300"
+                    className="flex items-start gap-2 text-sm text-gray-300"
                   >
                     <CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
                     {item}
@@ -202,16 +204,16 @@ export default function SecurityPage() {
           {complianceRoadmap.map((item) => (
             <div
               key={item.label}
-              className="bg-navy-800 border border-navy-700 rounded-xl p-4 flex items-center gap-4"
+              className="bg-black/50 border border-amber-500/30 rounded-xl p-4 flex items-center gap-4"
             >
               {item.status === "active" ? (
                 <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
               ) : (
-                <AlertTriangle className="w-5 h-5 text-gold-300 shrink-0" />
+                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
               )}
               <div className="flex-1">
                 <span className="text-white font-medium">{item.label}</span>
-                <span className="text-slate-500 text-sm ml-3">
+                <span className="text-gray-500 text-sm ml-3">
                   {item.detail}
                 </span>
               </div>
@@ -219,7 +221,7 @@ export default function SecurityPage() {
                 className={`text-xs font-mono px-2 py-1 rounded ${
                   item.status === "active"
                     ? "bg-emerald-500/20 text-emerald-400"
-                    : "bg-gold-400/10 text-gold-300"
+                    : "bg-amber-500/10 text-amber-400"
                 }`}
               >
                 {item.status === "active" ? "LIVE" : "PLANNED"}
@@ -229,18 +231,18 @@ export default function SecurityPage() {
         </div>
 
         {/* Responsible disclosure */}
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-8">
+        <div className="bg-black/50 border border-amber-500/30 rounded-xl p-8">
           <h2 className="text-xl font-bold text-white mb-3">
             Responsible Disclosure
           </h2>
-          <p className="text-slate-400 text-sm mb-4">
+          <p className="text-gray-400 text-sm mb-4">
             If you discover a security vulnerability in Vienna OS, please report
             it responsibly. We take all reports seriously and will respond within
             24 hours.
           </p>
           <a
             href="mailto:security@ai.ventures?subject=Vienna%20OS%20Security%20Report"
-            className="inline-flex items-center gap-2 bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition text-sm font-medium"
+            className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 rounded-lg transition text-sm font-medium"
           >
             <Shield className="w-4 h-4" />
             security@ai.ventures
@@ -248,34 +250,34 @@ export default function SecurityPage() {
         </div>
       </main>
 
-      <footer className="border-t border-navy-700 py-8 mt-12">
+      <footer className="border-t border-amber-500/30 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-gold-400" />
-            <span className="text-sm text-slate-500">
+            <Shield className="w-4 h-4 text-amber-500" />
+            <span className="text-sm text-gray-500">
               Vienna OS — Governed AI Authorization Layer
             </span>
           </div>
           <div className="flex items-center gap-6">
             <a
               href="/docs"
-              className="text-xs text-slate-600 hover:text-slate-400 transition"
+              className="text-xs text-gray-600 hover:text-gray-400 transition"
             >
               Docs
             </a>
             <a
               href="/terms"
-              className="text-xs text-slate-600 hover:text-slate-400 transition"
+              className="text-xs text-gray-600 hover:text-gray-400 transition"
             >
               Terms
             </a>
             <a
               href="/privacy"
-              className="text-xs text-slate-600 hover:text-slate-400 transition"
+              className="text-xs text-gray-600 hover:text-gray-400 transition"
             >
               Privacy
             </a>
-            <span className="text-xs text-slate-600">
+            <span className="text-xs text-gray-600">
               © 2026 Technetwork 2 LLC dba ai.ventures
             </span>
           </div>

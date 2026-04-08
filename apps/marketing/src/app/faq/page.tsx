@@ -1,5 +1,7 @@
 import { Shield, ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 
 const faqs = [
   {
-    category: "Product",
+    category: "PRODUCT",
     questions: [
       {
         q: "What is Vienna OS?",
@@ -33,18 +35,18 @@ const faqs = [
     ],
   },
   {
-    category: "Deployment",
+    category: "DEPLOYMENT",
     questions: [
       {
         q: "How do I get started?",
         a: (
           <>
             Sign up for the free Community plan at{" "}
-            <a href="https://regulator.ai/signup" className="text-amber-500 hover:text-gold-300">
+            <a href="https://regulator.ai/signup" className="text-amber-500 hover:text-amber-400">
               regulator.ai/signup
             </a>
             . You'll get instant access to the sandbox console at{" "}
-            <a href="https://console.regulator.ai" className="text-amber-500 hover:text-gold-300">
+            <a href="https://console.regulator.ai" className="text-amber-500 hover:text-amber-400">
               console.regulator.ai
             </a>
             . You can submit your first governed intent in under 60 seconds.
@@ -62,7 +64,7 @@ const faqs = [
     ],
   },
   {
-    category: "Security & Compliance",
+    category: "SECURITY_AND_COMPLIANCE",
     questions: [
       {
         q: "Is data isolated between tenants?",
@@ -79,7 +81,7 @@ const faqs = [
     ],
   },
   {
-    category: "Pricing",
+    category: "PRICING",
     questions: [
       {
         q: "What does 'per agent' mean?",
@@ -94,7 +96,7 @@ const faqs = [
         a: (
           <>
             Absolutely. Visit{" "}
-            <a href="https://regulator.ai/try" className="text-amber-500 hover:text-gold-300">
+            <a href="https://regulator.ai/try" className="text-amber-500 hover:text-amber-400">
               regulator.ai/try
             </a>
             {" "}to test the governance API live — no signup required. The Community tier gives you full sandbox console access for free.
@@ -203,42 +205,32 @@ export default function FAQPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e14]">
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white font-mono">
       {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <nav className="border-b border-zinc-800">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
-          </a>
-          <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
-            Get Started
-          </a>
-        </div>
-      </nav>
+      
+      <SiteNav />
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-white mb-2">FAQ</h1>
-        <p className="text-zinc-400 mb-12">
+      <main className="flex-1 max-w-3xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold text-amber-500 mb-2 font-mono uppercase tracking-wide">FAQ</h1>
+        <p className="text-zinc-400 mb-12 font-mono">
           Everything you need to know about Vienna OS.
         </p>
 
         <div className="space-y-12">
           {faqs.map((section) => (
             <div key={section.category}>
-              <h2 className="text-sm font-semibold text-amber-500 uppercase tracking-wider mb-4">
+              <h2 className="text-sm font-bold text-amber-500 uppercase tracking-wider mb-4 font-mono">
                 {section.category}
               </h2>
               <div className="space-y-4">
                 {section.questions.map((faq) => (
-                  <div key={faq.q} className="bg-black border border-zinc-800 p-5">
-                    <h3 className="text-white font-semibold text-sm mb-2">{faq.q}</h3>
-                    <div className="text-zinc-400 text-sm leading-relaxed">{faq.a}</div>
+                  <div key={faq.q} className="bg-black border border-amber-500/10 p-5">
+                    <h3 className="text-white font-bold text-sm mb-2 font-mono">{faq.q}</h3>
+                    <div className="text-zinc-400 text-sm leading-relaxed font-mono">{faq.a}</div>
                   </div>
                 ))}
               </div>
@@ -247,12 +239,14 @@ export default function FAQPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-zinc-500 text-sm mb-4">Still have questions?</p>
-          <a href="/contact" className="text-sm text-amber-500 hover:text-gold-300 font-medium">
-            Contact us →
+          <p className="text-zinc-600 text-sm mb-4 font-mono">STILL_HAVE_QUESTIONS?</p>
+          <a href="/contact" className="text-sm text-amber-500 hover:text-amber-400 font-mono font-bold uppercase">
+            CONTACT_US →
           </a>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

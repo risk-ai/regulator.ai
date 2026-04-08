@@ -10,6 +10,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import type { Metadata } from "next";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -20,9 +22,7 @@ export const metadata: Metadata = {
 const securityFeatures = [
   {
     icon: Lock,
-    title: "Encryption",
-    color: "text-gold-300",
-    bg: "bg-amber-500/10",
+    title: "ENCRYPTION",
     items: [
       "TLS 1.3 for all connections in transit",
       "Session tokens with secure, httpOnly, sameSite cookies",
@@ -32,9 +32,7 @@ const securityFeatures = [
   },
   {
     icon: Users,
-    title: "Tenant Isolation",
-    color: "text-amber-400",
-    bg: "bg-cyan-500/10",
+    title: "TENANT_ISOLATION",
     items: [
       "Logical tenant isolation — each tenant's data is partitioned by tenant_id",
       "Tenant-scoped API keys and session management",
@@ -44,9 +42,7 @@ const securityFeatures = [
   },
   {
     icon: Eye,
-    title: "Audit & Compliance",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
+    title: "AUDIT_AND_COMPLIANCE",
     items: [
       "Append-only audit trail — events cannot be modified or deleted",
       "Every agent action logged with: who, what, when, warrant, result, verification",
@@ -56,9 +52,7 @@ const securityFeatures = [
   },
   {
     icon: Shield,
-    title: "Governance Pipeline",
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
+    title: "GOVERNANCE_PIPELINE",
     items: [
       "Zero-trust agent model — agents never have direct execution authority",
       "Risk-tiered approval workflows (T0 auto-approve → T2 multi-party approval)",
@@ -68,9 +62,7 @@ const securityFeatures = [
   },
   {
     icon: Server,
-    title: "Infrastructure",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
+    title: "INFRASTRUCTURE",
     items: [
       "Hosted on Fly.io with dedicated compute (not shared containers)",
       "US East (iad) region — ITAR/sovereignty-compatible deployment options",
@@ -80,9 +72,7 @@ const securityFeatures = [
   },
   {
     icon: FileCheck,
-    title: "Policy Enforcement",
-    color: "text-rose-400",
-    bg: "bg-rose-500/10",
+    title: "POLICY_ENFORCEMENT",
     items: [
       "Policy-as-code — rules are version-controlled and auditable",
       "Circuit breakers — automatic shutdown on anomalous execution patterns",
@@ -137,31 +127,12 @@ const complianceRoadmap = [
 
 export default function SecurityPage() {
   return (
-    <div className="min-h-screen bg-[#0a0e14]">
-      <nav className="border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a
-            href="/"
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">
-              Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
-            </span>
-          </a>
-          <a
-            href="/docs"
-            className="text-sm text-zinc-400 hover:text-white transition"
-          >
-            Docs
-          </a>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white font-mono">
+      <SiteNav />
 
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-white mb-2">Security</h1>
-        <p className="text-zinc-400 mb-12 max-w-2xl">
+      <main className="flex-1 max-w-6xl mx-auto px-6 py-12">
+        <h1 className="text-3xl font-bold text-amber-500 mb-2 font-mono uppercase tracking-wide">SECURITY</h1>
+        <p className="text-zinc-400 mb-12 max-w-2xl font-mono">
           Vienna OS is built for enterprises that need provable AI governance.
           Security isn&apos;t a feature — it&apos;s the architecture.
         </p>
@@ -171,11 +142,11 @@ export default function SecurityPage() {
           {securityFeatures.map((feature) => (
             <div
               key={feature.title}
-              className={`${feature.bg} border border-zinc-800 p-6`}
+              className="bg-black border border-amber-500/10 p-6"
             >
               <div className="flex items-center gap-3 mb-4">
-                <feature.icon className={`w-6 h-6 ${feature.color}`} />
-                <h3 className="text-white font-semibold text-lg">
+                <feature.icon className="w-6 h-6 text-amber-500" />
+                <h3 className="text-amber-500 font-mono font-bold text-lg uppercase tracking-wide">
                   {feature.title}
                 </h3>
               </div>
@@ -183,9 +154,9 @@ export default function SecurityPage() {
                 {feature.items.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2 text-sm text-zinc-300"
+                    className="flex items-start gap-2 text-sm text-zinc-400 font-mono"
                   >
-                    <CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -195,31 +166,31 @@ export default function SecurityPage() {
         </div>
 
         {/* Compliance roadmap */}
-        <h2 className="text-2xl font-bold text-white mb-6">
-          Compliance Roadmap
+        <h2 className="text-2xl font-bold text-amber-500 mb-6 font-mono uppercase tracking-wide">
+          COMPLIANCE_ROADMAP
         </h2>
         <div className="space-y-3 mb-16">
           {complianceRoadmap.map((item) => (
             <div
               key={item.label}
-              className="bg-black border border-zinc-800 p-4 flex items-center gap-4"
+              className="bg-black border border-amber-500/10 p-4 flex items-center gap-4"
             >
               {item.status === "active" ? (
-                <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                <CheckCircle className="w-5 h-5 text-amber-500 shrink-0" />
               ) : (
-                <AlertTriangle className="w-5 h-5 text-gold-300 shrink-0" />
+                <AlertTriangle className="w-5 h-5 text-zinc-400 shrink-0" />
               )}
               <div className="flex-1">
-                <span className="text-white font-medium">{item.label}</span>
-                <span className="text-zinc-500 text-sm ml-3">
+                <span className="text-white font-mono font-bold">{item.label}</span>
+                <span className="text-zinc-600 text-sm ml-3 font-mono">
                   {item.detail}
                 </span>
               </div>
               <span
-                className={`text-xs font-mono px-2 py-1 rounded ${
+                className={`text-xs font-mono px-2 py-1 ${
                   item.status === "active"
-                    ? "bg-emerald-500/20 text-emerald-400"
-                    : "bg-amber-500/10 text-gold-300"
+                    ? "bg-amber-500/20 text-amber-500"
+                    : "bg-amber-500/10 text-zinc-400"
                 }`}
               >
                 {item.status === "active" ? "LIVE" : "PLANNED"}
@@ -229,58 +200,26 @@ export default function SecurityPage() {
         </div>
 
         {/* Responsible disclosure */}
-        <div className="bg-black border border-zinc-800 p-8">
-          <h2 className="text-xl font-bold text-white mb-3">
-            Responsible Disclosure
+        <div className="bg-black border border-amber-500/30 p-8">
+          <h2 className="text-xl font-bold text-amber-500 mb-3 font-mono uppercase tracking-wide">
+            RESPONSIBLE_DISCLOSURE
           </h2>
-          <p className="text-zinc-400 text-sm mb-4">
+          <p className="text-zinc-400 text-sm mb-4 font-mono">
             If you discover a security vulnerability in Vienna OS, please report
             it responsibly. We take all reports seriously and will respond within
             24 hours.
           </p>
           <a
             href="mailto:security@ai.ventures?subject=Vienna%20OS%20Security%20Report"
-            className="inline-flex items-center gap-2 bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition text-sm font-medium"
+            className="inline-flex items-center gap-2 bg-amber-500 text-black px-4 py-2 transition text-sm font-mono font-bold uppercase"
           >
             <Shield className="w-4 h-4" />
-            security@ai.ventures
+            SECURITY@AI.VENTURES
           </a>
         </div>
       </main>
 
-      <footer className="border-t border-zinc-800 py-8 mt-12">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-500" />
-            <span className="text-sm text-zinc-500">
-              Vienna OS — Governed AI Authorization Layer
-            </span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a
-              href="/docs"
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition"
-            >
-              Docs
-            </a>
-            <a
-              href="/terms"
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition"
-            >
-              Terms
-            </a>
-            <a
-              href="/privacy"
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition"
-            >
-              Privacy
-            </a>
-            <span className="text-xs text-zinc-600">
-              © 2026 Technetwork 2 LLC dba ai.ventures
-            </span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

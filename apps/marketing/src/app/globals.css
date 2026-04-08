@@ -618,3 +618,32 @@ input:focus, textarea:focus, select:focus {
     linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 40px 40px;
 }
+
+/* === MARQUEE TICKER === */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Enhanced card micro-interactions */
+.feature-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 24px rgba(245, 158, 11, 0.08);
+}
+
+.feature-card:hover .feature-number {
+  background-color: rgba(245, 158, 11, 0.2);
+  transform: scale(1.1);
+}

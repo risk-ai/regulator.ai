@@ -152,6 +152,26 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Live Governance Feed - mini ticker */}
+            <div className="lg:col-span-2 mb-8">
+              <div className="bg-black/50 border border-amber-500/10 px-4 py-2 flex items-center gap-4 overflow-hidden">
+                <span className="text-[10px] font-mono text-amber-500 flex-shrink-0">GOVERNANCE_FEED</span>
+                <div className="flex-1 overflow-hidden">
+                  <div className="flex gap-6 animate-marquee text-[10px] font-mono text-zinc-600 whitespace-nowrap">
+                    <span>✓ deploy_staging approved (T1) — 2s ago</span>
+                    <span>● wire_transfer pending approval (T2) — 14s ago</span>
+                    <span>✓ config_update auto-passed (T0) — 23s ago</span>
+                    <span>✓ restart_service warrant issued (T1) — 41s ago</span>
+                    <span>■ drop_database HALTED (T3) — 1m ago</span>
+                    <span>✓ schema_migration verified (T2) — 2m ago</span>
+                    <span>✓ deploy_staging approved (T1) — 2s ago</span>
+                    <span>● wire_transfer pending approval (T2) — 14s ago</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono text-green-500 flex-shrink-0">● LIVE</span>
+              </div>
+            </div>
+
             {/* Right Column: Warrant Card - Terminal Style */}
             <div className="relative lg:block flex justify-center">
               <div className={`w-full max-w-[520px] bg-black border p-0 overflow-hidden font-mono transition-all duration-1000 relative ${warrantPhase >= 3 ? "border-green-500/50 shadow-lg shadow-green-500/10" : "border-amber-500/30"}`}>
@@ -260,7 +280,22 @@ export default function Home() {
               </span>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6 relative">
+              {/* Pipeline connector arrows */}
+              <div className="hidden md:flex absolute top-1/2 left-[33%] -translate-y-1/2 -translate-x-1/2 z-20">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  pipelineStep >= 2 ? 'bg-amber-500 shadow-lg shadow-amber-500/30' : 'bg-zinc-800 border border-zinc-700'
+                }`}>
+                  <ArrowRight className={`w-4 h-4 ${pipelineStep >= 2 ? 'text-black' : 'text-zinc-600'}`} />
+                </div>
+              </div>
+              <div className="hidden md:flex absolute top-1/2 left-[67%] -translate-y-1/2 -translate-x-1/2 z-20">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  pipelineStep >= 3 ? 'bg-green-500 shadow-lg shadow-green-500/30' : 'bg-zinc-800 border border-zinc-700'
+                }`}>
+                  <ArrowRight className={`w-4 h-4 ${pipelineStep >= 3 ? 'text-black' : 'text-zinc-600'}`} />
+                </div>
+              </div>
               {/* Step 1 */}
               <div className={`bg-black border p-6 transition-all duration-500 ${
                 pipelineStep === 1 ? 'border-amber-500 shadow-lg shadow-amber-500/10 scale-[1.02]' : 'border-amber-500/30'
@@ -492,11 +527,11 @@ export default function Home() {
 
             <div className="space-y-6">
               {/* Feature 1: Natural Language Policies — with live demo */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 transition-all">
+              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs">01</div>
+                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">01</div>
                       <span className="text-sm font-mono text-amber-500 font-bold">NATURAL_LANGUAGE_POLICIES</span>
                     </div>
                     <p className="text-sm text-zinc-400 mb-4">
@@ -522,11 +557,11 @@ export default function Home() {
               </div>
 
               {/* Feature 2: Merkle Warrant Chain */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 transition-all">
+              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs">02</div>
+                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">02</div>
                       <span className="text-sm font-mono text-amber-500 font-bold">MERKLE_WARRANT_CHAIN</span>
                     </div>
                     <p className="text-sm text-zinc-400 mb-4">
@@ -558,11 +593,11 @@ export default function Home() {
               </div>
 
               {/* Feature 3: Policy Simulation */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 transition-all">
+              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs">03</div>
+                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">03</div>
                       <span className="text-sm font-mono text-amber-500 font-bold">POLICY_SIMULATION</span>
                     </div>
                     <p className="text-sm text-zinc-400 mb-4">
@@ -606,11 +641,11 @@ export default function Home() {
               </div>
 
               {/* Feature 4: Cross-Agent Delegation */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 transition-all">
+              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs">04</div>
+                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">04</div>
                       <span className="text-sm font-mono text-amber-500 font-bold">CROSS_AGENT_DELEGATION</span>
                     </div>
                     <p className="text-sm text-zinc-400 mb-4">
@@ -644,11 +679,11 @@ export default function Home() {
               </div>
 
               {/* Feature 5: Agent Trust Scoring */}
-              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 transition-all">
+              <div className="bg-black border border-amber-500/30 p-8 scroll-reveal group hover:border-amber-500/60 feature-card">
                 <div className="grid lg:grid-cols-2 gap-8">
                   <div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs">05</div>
+                      <div className="w-8 h-8 bg-amber-500/10 flex items-center justify-center text-amber-500 font-mono font-bold text-xs feature-number transition-all">05</div>
                       <span className="text-sm font-mono text-amber-500 font-bold">AGENT_TRUST_SCORING</span>
                     </div>
                     <p className="text-sm text-zinc-400 mb-4">

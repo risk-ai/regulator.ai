@@ -22,6 +22,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ScrollReveal from "@/components/ScrollReveal";
 import FloatingContact from "@/components/FloatingContact";
 import BackToTop from "@/components/BackToTop";
+import SectionNav from "@/components/SectionNav";
 
 /* ── Isolated Clock Component (avoids full-page re-render every second) ── */
 function LiveClock() {
@@ -168,7 +169,7 @@ export default function Home() {
 
       <main className="flex-1" id="main-content">
         {/* ═══════════════════ HERO ═══════════════════ */}
-        <section className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-6 relative z-10">
+        <section id="hero" className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-6 relative z-10">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Text */}
             <div className="space-y-6 sm:space-y-8 overflow-hidden">
@@ -433,7 +434,7 @@ export default function Home() {
 
         {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 border-t border-amber-500/10">
+          <section id="pipeline" className="py-24 px-6 border-t border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -562,7 +563,7 @@ export default function Home() {
 
         {/* ═══════════════════ RISK TIER MATRIX ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 bg-black/30 border-y border-amber-500/10">
+          <section id="risk" className="py-24 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto px-6">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -672,7 +673,7 @@ export default function Home() {
 
         {/* ═══════════════════ CAPABILITIES ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 border-t border-amber-500/10">
+          <section id="features" className="py-24 px-6 border-t border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -818,7 +819,7 @@ export default function Home() {
 
         {/* ═══════════════════ USE CASES ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+          <section id="use-cases" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -980,7 +981,7 @@ export default function Home() {
 
         {/* ═══════════════════ SDK INSTALLATION ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 bg-black/30 border-y border-amber-500/10">
+          <section id="sdk" className="py-24 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto px-6">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1062,7 +1063,7 @@ export default function Home() {
 
         {/* ═══════════════════ BEFORE / AFTER SCENARIO ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 border-y border-amber-500/10">
+          <section id="analysis" className="py-24 px-6 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1186,7 +1187,7 @@ export default function Home() {
 
         {/* ═══════════════════ PROTOCOL SPEC ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 border-t border-amber-500/10">
+          <section id="protocol" className="py-24 px-6 border-t border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1259,7 +1260,7 @@ export default function Home() {
 
         {/* ═══════════════════ COMPLIANCE ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+          <section id="compliance" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1383,7 +1384,7 @@ export default function Home() {
 
         {/* ═══════════════════ BOTTOM CTA ═══════════════════ */}
         <RevealSection>
-          <section className="py-24 sm:py-32 border-t border-amber-500/10">
+          <section id="cta" className="py-24 sm:py-32 border-t border-amber-500/10">
             <div className="max-w-4xl mx-auto px-6">
               <div className="bg-black border border-amber-500/30 p-6 sm:p-8">
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-amber-500/20">
@@ -1558,6 +1559,7 @@ export default function Home() {
         </RevealSection>
       </main>
 
+      <SectionNav />
       <FloatingContact />
       <BackToTop />
       <SiteFooter />

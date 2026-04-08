@@ -36,7 +36,7 @@ const features = [
 
 export default function CompareGuardrailsPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-12">
         <Link href="/compare" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <ArrowLeft className="w-4 h-4 mr-2" /> All Comparisons
@@ -73,14 +73,14 @@ export default function CompareGuardrailsPage() {
           {features.map((row, i) => (
             <div key={i} className="grid grid-cols-3 gap-4 p-4 bg-black border border-zinc-800 text-sm">
               <div className="font-medium text-zinc-200">{row.feature}</div>
-              <div className={`text-center ${row.advantage === "vienna" ? "text-emerald-400" : "text-zinc-300"}`}>
+              <div className={`text-center ${row.advantage === "vienna" ? "text-green-500" : "text-zinc-300"}`}>
                 {row.vienna === "Not available" || row.vienna === "Not the focus (complementary)" ? (
                   <span className="text-zinc-500">{row.vienna}</span>
                 ) : (
                   <span>{row.vienna}</span>
                 )}
               </div>
-              <div className={`text-center ${row.advantage === "guardrails" ? "text-emerald-400" : "text-zinc-300"}`}>
+              <div className={`text-center ${row.advantage === "guardrails" ? "text-green-500" : "text-zinc-300"}`}>
                 {row.guardrails === "Not available" || row.guardrails === "Logging only" ? (
                   <span className="text-zinc-500">{row.guardrails}</span>
                 ) : (

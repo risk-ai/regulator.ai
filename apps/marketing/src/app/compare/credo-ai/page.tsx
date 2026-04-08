@@ -33,7 +33,7 @@ const comparison = [
 
 export default function CredoAiPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-5xl mx-auto px-6 pt-24 pb-12">
         <Link href="/compare" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <ArrowLeft className="w-4 h-4 mr-2" /> All Comparisons
@@ -56,7 +56,7 @@ export default function CredoAiPage() {
               Agent wants to access customer data → Vienna checks risk tier → requires privacy officer approval → 
               issues cryptographic warrant → allows execution → logs audit trail
             </p>
-            <p className="mt-4 text-emerald-400 text-sm font-medium">Bad action never happens</p>
+            <p className="mt-4 text-green-500 text-sm font-medium">Bad action never happens</p>
           </div>
           
           <div className="bg-blue-500/5 border border-blue-500/20 p-6 text-center">

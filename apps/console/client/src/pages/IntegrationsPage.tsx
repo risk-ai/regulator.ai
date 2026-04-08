@@ -65,7 +65,7 @@ const styles = {
   } as React.CSSProperties),
   button: (variant: 'primary' | 'danger' | 'ghost' | 'success') => {
     const colors: Record<string, { bg: string; text: string; border: string }> = {
-      primary: { bg: '#7c3aed', text: '#fff', border: '#7c3aed' },
+      primary: { bg: '#f59e0b', text: '#fff', border: '#f59e0b' },
       danger: { bg: '#ef4444', text: '#fff', border: '#ef4444' },
       ghost: { bg: 'transparent', text: 'var(--text-secondary)', border: 'var(--border-subtle)' },
       success: { bg: '#22c55e', text: '#fff', border: '#22c55e' },
@@ -262,7 +262,7 @@ function IntegrationCard({ integration, onClick, onToggle }: {
     <div
       style={styles.card}
       onClick={onClick}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed44'; }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = '#f59e0b44'; }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -330,7 +330,7 @@ function TypePicker({ schemas, onSelect, onCancel }: {
             key={schema.type}
             style={{ ...styles.card, display: 'flex', gap: '16px', alignItems: 'center' }}
             onClick={() => onSelect(schema.type)}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed44'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#f59e0b44'; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)'; }}
           >
             <span style={{ fontSize: '32px' }}>{schema.icon}</span>
@@ -655,7 +655,7 @@ function IntegrationDetail({ id, schemas, onBack, onEdit, onDelete }: {
         <div style={{ marginTop: '12px', fontSize: '12px' }}>
           <span style={{ color: 'var(--text-tertiary)' }}>Events: </span>
           {(integration.event_types || []).map((et: string) => (
-            <span key={et} style={{ ...styles.badge('#7c3aed'), marginRight: '4px' }}>{et}</span>
+            <span key={et} style={{ ...styles.badge('#f59e0b'), marginRight: '4px' }}>{et}</span>
           ))}
         </div>
       </div>

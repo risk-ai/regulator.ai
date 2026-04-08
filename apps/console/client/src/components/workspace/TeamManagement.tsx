@@ -16,7 +16,7 @@ interface TeamMember {
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; desc: string }> = {
   owner: { label: 'Owner', color: '#D4A520', desc: 'Full access, billing, workspace settings' },
-  admin: { label: 'Admin', color: '#a78bfa', desc: 'Manage agents, policies, and team members' },
+  admin: { label: 'Admin', color: '#f59e0b', desc: 'Manage agents, policies, and team members' },
   operator: { label: 'Operator', color: '#10b981', desc: 'Approve/deny proposals, manage warrants' },
   viewer: { label: 'Viewer', color: '#94a3b8', desc: 'Read-only access to dashboard and audit trail' },
 };
@@ -66,7 +66,7 @@ export function TeamManagement() {
           onClick={() => setShowInvite(!showInvite)}
           style={{
             padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600,
-            background: '#7c3aed', border: 'none', color: '#fff', cursor: 'pointer',
+            background: '#f59e0b', border: 'none', color: '#fff', cursor: 'pointer',
             fontFamily: 'var(--font-sans)',
           }}
         >
@@ -109,7 +109,7 @@ export function TeamManagement() {
               disabled={inviting || !inviteEmail.trim()}
               style={{
                 padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 600,
-                background: inviting ? 'var(--bg-tertiary)' : '#7c3aed',
+                background: inviting ? 'var(--bg-tertiary)' : '#f59e0b',
                 border: 'none', color: '#fff', cursor: inviting ? 'default' : 'pointer',
                 fontFamily: 'var(--font-sans)',
               }}

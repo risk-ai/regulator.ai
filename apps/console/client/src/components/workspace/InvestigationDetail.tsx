@@ -242,7 +242,7 @@ export function InvestigationDetail({ investigationId, onClose, onUpdate }: Inve
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:bg-gray-750 transition-colors">
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm font-medium text-gray-400">Intents</div>
-            <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>

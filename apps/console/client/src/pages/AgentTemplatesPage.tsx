@@ -86,7 +86,7 @@ export default function AgentTemplatesPage() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="text-5xl">{template.icon}</div>
-                <span className="px-3 py-1 bg-purple-50 text-purple-600 text-sm rounded font-medium">
+                <span className="px-3 py-1 bg-amber-50 text-amber-600 text-sm rounded font-medium">
                   {template.framework}
                 </span>
               </div>
@@ -150,7 +150,7 @@ export default function AgentTemplatesPage() {
                   <h2 className="text-2xl font-bold text-[#e2e8f0] mb-1">
                     {selectedTemplate.name}
                   </h2>
-                  <span className="px-3 py-1 bg-purple-50 text-purple-600 text-sm rounded">
+                  <span className="px-3 py-1 bg-amber-50 text-amber-600 text-sm rounded">
                     {selectedTemplate.framework}
                   </span>
                 </div>

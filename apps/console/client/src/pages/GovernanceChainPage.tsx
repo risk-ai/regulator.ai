@@ -55,11 +55,11 @@ const STEP_CONFIG: Record<string, {
   bgColor: string;
 }> = {
   intent: { icon: Zap, label: 'Intent Submitted', color: 'text-blue-400', bgColor: 'bg-blue-500/10' },
-  policy: { icon: FileText, label: 'Policy Evaluated', color: 'text-purple-400', bgColor: 'bg-purple-500/10' },
+  policy: { icon: FileText, label: 'Policy Evaluated', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   approval: { icon: CheckCircle, label: 'Approval', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   warrant: { icon: Lock, label: 'Warrant Issued', color: 'text-green-400', bgColor: 'bg-green-500/10' },
   execution: { icon: Zap, label: 'Executed', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
-  verification: { icon: Eye, label: 'Verified', color: 'text-indigo-400', bgColor: 'bg-indigo-500/10' },
+  verification: { icon: Eye, label: 'Verified', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
   attestation: { icon: Shield, label: 'Attested', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
 };
 
@@ -67,7 +67,7 @@ const RISK_TIER_COLORS: Record<string, string> = {
   T0: 'text-green-400 bg-green-500/10 border-green-500/30',
   T1: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
   T2: 'text-red-400 bg-red-500/10 border-red-500/30',
-  T3: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+  T3: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
 };
 
 // ─── Step Detail Component ───
@@ -287,7 +287,7 @@ export function GovernanceChainPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-3">
-          <Shield className="w-7 h-7 text-purple-400" />
+          <Shield className="w-7 h-7 text-amber-400" />
           Governance Chain
         </h1>
         <p className="text-[var(--text-secondary)] mt-1">

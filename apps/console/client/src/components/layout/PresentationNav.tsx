@@ -116,7 +116,7 @@ export function PresentationNav({ currentSection, onNavigate }: PresentationNavP
                   <span>{item.label}</span>
                   
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></span>
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-amber-500 to-pink-500"></span>
                   )}
                 </button>
               );

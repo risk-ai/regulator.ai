@@ -78,7 +78,7 @@ export function ServicesPage() {
       {/* Stat cards */}
       {health && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '24px' }}>
-          <MiniStat label="Endpoints" value={health.endpoints?.total || 0} sub={`${health.endpoints?.healthy || 0} healthy`} color="#a78bfa" />
+          <MiniStat label="Endpoints" value={health.endpoints?.total || 0} sub={`${health.endpoints?.healthy || 0} healthy`} color="#f59e0b" />
           <MiniStat label="DB Latency" value={health.checks?.database?.latency_ms || 0} sub="ms" color={health.checks?.database?.latency_ms > 200 ? '#ef4444' : '#10b981'} />
           <MiniStat label="Proposals" value={health.checks?.pipeline?.proposals || 0} sub="total" color="#60a5fa" />
           <MiniStat label="Audit Events" value={health.checks?.pipeline?.audit_events || 0} sub="total" color="#94a3b8" />
@@ -139,7 +139,7 @@ export function ServicesPage() {
 
       {loading && !health && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#a78bfa', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       )}
     </PageLayout>

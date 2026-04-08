@@ -89,8 +89,8 @@ export function EmptyDashboard({ onSeedDemo, onNavigate }: EmptyDashboardProps) 
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Welcome Header */}
       <div className="text-center space-y-4">
-        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full flex items-center justify-center mb-6">
-          <Sparkles className="w-10 h-10 text-purple-400" />
+        <div className="mx-auto w-20 h-20 bg-gradient-to-br from-amber-500/10 to-blue-500/10 rounded-full flex items-center justify-center mb-6">
+          <Sparkles className="w-10 h-10 text-amber-400" />
         </div>
         
         <h1 className="text-3xl font-bold text-[var(--text-primary)]">

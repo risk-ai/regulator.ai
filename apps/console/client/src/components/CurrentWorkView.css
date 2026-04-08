@@ -163,7 +163,7 @@
 }
 
 .meta-tag.adapter {
-  color: var(--accent-purple, #b84aff);
+  color: var(--accent-amber, #b84aff);
 }
 
 .meta-tag.attempts {

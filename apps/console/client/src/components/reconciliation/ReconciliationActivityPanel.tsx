@@ -66,7 +66,7 @@ export function ReconciliationActivityPanel() {
       case 'reconciling': return 'blue';
       case 'cooldown': return 'yellow';
       case 'degraded': return 'red';
-      case 'safe_mode': return 'purple';
+      case 'safe_mode': return 'amber';
       default: return 'neutral';
     }
   };

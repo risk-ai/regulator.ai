@@ -10,7 +10,7 @@ interface StatusCardProps {
   title: string;
   children: React.ReactNode;
   className?: string;
-  accent?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple';
+  accent?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'amber';
 }
 
 const accentBorders: Record<string, string> = {
@@ -19,7 +19,7 @@ const accentBorders: Record<string, string> = {
   warning: 'rgba(251, 191, 36, 0.2)',
   error: 'rgba(248, 113, 113, 0.2)',
   info: 'rgba(96, 165, 250, 0.2)',
-  purple: 'rgba(124, 58, 237, 0.2)',
+  amber: 'rgba(245, 158, 11, 0.2)',
 };
 
 export function StatusCard({ title, children, className = '', accent = 'default' }: StatusCardProps) {

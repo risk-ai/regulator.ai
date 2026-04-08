@@ -36,7 +36,7 @@ const COLORS = {
   yellow: 'var(--warning-text)',
   red: 'var(--error-text)',
   blue: 'var(--info-text)',
-  purple: 'var(--accent-primary)',
+  amber: 'var(--accent-primary)',
   cyan: '#06b6d4',
   textPrimary: 'var(--text-primary)',
   textSecondary: 'var(--text-secondary)',
@@ -65,7 +65,7 @@ const RESULT_COLORS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  autonomous: COLORS.purple,
+  autonomous: COLORS.amber,
   'semi-autonomous': COLORS.blue,
   supervised: COLORS.cyan,
 };

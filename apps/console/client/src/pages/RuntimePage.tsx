@@ -95,7 +95,7 @@ export function RuntimePage() {
               padding: '4px 10px', borderRadius: '5px', fontSize: '11px', fontWeight: 600,
               background: window === w ? 'rgba(167, 139, 250, 0.15)' : 'transparent',
               border: `1px solid ${window === w ? 'rgba(167, 139, 250, 0.3)' : 'var(--border-subtle)'}`,
-              color: window === w ? '#a78bfa' : 'var(--text-tertiary)', 
+              color: window === w ? '#f59e0b' : 'var(--text-tertiary)', 
               cursor: 'pointer', 
               fontFamily: 'var(--font-mono)',
               boxShadow: window === w ? '0 0 8px rgba(124, 58, 237, 0.2)' : 'none',
@@ -113,7 +113,7 @@ export function RuntimePage() {
             <MetricCard label="Succeeded" value={stats.envelopes.succeeded} color="#10b981" />
             <MetricCard label="Failed" value={stats.envelopes.failed} color="#ef4444" />
             <MetricCard label="Queue" value={stats.queueDepth} color="#f59e0b" />
-            <MetricCard label="Throughput" value={stats.throughputPerMinute} suffix="/min" color="#a78bfa" />
+            <MetricCard label="Throughput" value={stats.throughputPerMinute} suffix="/min" color="#f59e0b" />
             <MetricCard label="Error Rate" value={Math.round(stats.errorRate * 100)} suffix="%" color={stats.errorRate > 0.1 ? '#ef4444' : '#10b981'} />
             <MetricCard label="Audit Events" value={stats.auditEvents} color="#94a3b8" />
           </div>
@@ -190,7 +190,7 @@ export function RuntimePage() {
 
       {loading && (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#a78bfa', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         </div>
       )}
     </PageLayout>

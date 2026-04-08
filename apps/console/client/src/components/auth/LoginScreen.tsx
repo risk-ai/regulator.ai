@@ -102,7 +102,7 @@ export function LoginScreen() {
             border: '1px solid rgba(124, 58, 237, 0.2)',
             marginBottom: '16px',
           }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
             </svg>
           </div>
@@ -113,7 +113,7 @@ export function LoginScreen() {
             letterSpacing: '-0.02em',
             margin: '0 0 6px 0',
           }}>
-            Vienna<span style={{ color: '#a78bfa' }}>OS</span> Console
+            Vienna<span style={{ color: '#f59e0b' }}>OS</span> Console
           </h1>
           <p style={{ fontSize: '14px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
             {mode === 'login' 
@@ -322,7 +322,7 @@ export function LoginScreen() {
               disabled={loading || !email.trim() || !password.trim()}
               style={{
                 width: '100%',
-                background: loading ? 'rgba(124, 58, 237, 0.5)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                background: loading ? 'rgba(124, 58, 237, 0.5)' : 'linear-gradient(135deg, #f59e0b 0%, #6d28d9 100%)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '10px',
@@ -358,7 +358,7 @@ export function LoginScreen() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#a78bfa',
+                    color: '#f59e0b',
                     cursor: 'pointer',
                     textDecoration: 'none',
                     padding: 0,
@@ -378,7 +378,7 @@ export function LoginScreen() {
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#a78bfa',
+                    color: '#f59e0b',
                     cursor: 'pointer',
                     textDecoration: 'none',
                     padding: 0,

@@ -221,7 +221,7 @@ export function ConnectAgentPage() {
                 position: 'absolute',
                 top: -8,
                 right: 16,
-                background: '#7c3aed',
+                background: '#f59e0b',
                 color: 'white',
                 fontSize: 10,
                 fontWeight: 600,
@@ -342,7 +342,7 @@ export function ConnectAgentPage() {
             disabled={!apiKey || loading}
             style={{
               padding: '10px 20px',
-              background: apiKey ? '#7c3aed' : 'var(--bg-tertiary)',
+              background: apiKey ? '#f59e0b' : 'var(--bg-tertiary)',
               color: apiKey ? 'white' : 'var(--text-tertiary)',
               border: 'none',
               borderRadius: 6,
@@ -447,7 +447,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
             onClick={() => setCurrentStep(3)}
             style={{
               padding: '10px 20px',
-              background: '#7c3aed',
+              background: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: 6,
@@ -510,7 +510,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
             onClick={() => setCurrentStep(3)}
             style={{
               padding: '10px 20px',
-              background: '#7c3aed',
+              background: '#f59e0b',
               color: 'white',
               border: 'none',
               borderRadius: 6,
@@ -558,7 +558,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
             onClick={() => setSelectedPolicyPack(pack.id)}
             style={{
               padding: 20,
-              border: `2px solid ${selectedPolicyPack === pack.id ? '#7c3aed' : 'var(--border-subtle)'}`,
+              border: `2px solid ${selectedPolicyPack === pack.id ? '#f59e0b' : 'var(--border-subtle)'}`,
               borderRadius: 8,
               cursor: 'pointer',
               background: selectedPolicyPack === pack.id ? 'rgba(124, 58, 237, 0.05)' : 'var(--bg-primary)',
@@ -579,7 +579,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
                   width: 20,
                   height: 20,
                   borderRadius: '50%',
-                  background: '#7c3aed',
+                  background: '#f59e0b',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -615,7 +615,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
           onClick={() => setSelectedPolicyPack(null)}
           style={{
             padding: 20,
-            border: `1px dashed ${selectedPolicyPack === null ? '#7c3aed' : 'var(--border-subtle)'}`,
+            border: `1px dashed ${selectedPolicyPack === null ? '#f59e0b' : 'var(--border-subtle)'}`,
             borderRadius: 8,
             cursor: 'pointer',
             background: selectedPolicyPack === null ? 'rgba(124, 58, 237, 0.05)' : 'transparent',
@@ -653,7 +653,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
           disabled={loading}
           style={{
             padding: '10px 20px',
-            background: '#7c3aed',
+            background: '#f59e0b',
             color: 'white',
             border: 'none',
             borderRadius: 6,
@@ -760,7 +760,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
           onClick={() => window.location.href = '/'}
           style={{
             padding: '10px 20px',
-            background: '#7c3aed',
+            background: '#f59e0b',
             color: 'white',
             border: 'none',
             borderRadius: 6,
@@ -783,7 +783,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
             width: 32,
             height: 32,
             borderRadius: '50%',
-            background: step <= currentStep ? '#7c3aed' : 'var(--bg-tertiary)',
+            background: step <= currentStep ? '#f59e0b' : 'var(--bg-tertiary)',
             color: step <= currentStep ? 'white' : 'var(--text-tertiary)',
             display: 'flex',
             alignItems: 'center',
@@ -797,7 +797,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
             <div style={{
               width: 40,
               height: 2,
-              background: step < currentStep ? '#7c3aed' : 'var(--border-subtle)'
+              background: step < currentStep ? '#f59e0b' : 'var(--border-subtle)'
             }} />
           )}
         </React.Fragment>

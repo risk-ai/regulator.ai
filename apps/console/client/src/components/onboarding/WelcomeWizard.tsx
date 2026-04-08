@@ -57,8 +57,8 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
       content: (
         <div className="space-y-6">
           <div className="text-center">
-            <div className="mx-auto w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-10 h-10 text-purple-400" />
+            <div className="mx-auto w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
+              <Shield className="w-10 h-10 text-amber-400" />
             </div>
             <p className="text-[var(--text-secondary)] leading-relaxed">
               Vienna OS is a governed AI execution layer that ensures your AI agents operate safely 
@@ -78,7 +78,7 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
               <p className="text-sm text-[var(--text-secondary)]">Automated guardrails</p>
             </div>
             <div className="bg-[var(--bg-secondary)] rounded-lg p-4 text-center">
-              <CheckCircle className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+              <CheckCircle className="w-8 h-8 text-amber-400 mx-auto mb-2" />
               <h4 className="font-semibold text-[var(--text-primary)] mb-1">Approvals</h4>
               <p className="text-sm text-[var(--text-secondary)]">T1/T2 authorization</p>
             </div>
@@ -190,8 +190,8 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
 
           <div className="bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Settings className="w-5 h-5 text-purple-400" />
+              <div className="p-2 bg-amber-500/10 rounded-lg">
+                <Settings className="w-5 h-5 text-amber-400" />
               </div>
               <div>
                 <h4 className="font-semibold text-[var(--text-primary)]">Keyboard Shortcuts</h4>

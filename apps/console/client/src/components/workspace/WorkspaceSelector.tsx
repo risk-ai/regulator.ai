@@ -57,7 +57,7 @@ export function WorkspaceSelector({ currentWorkspaceId, onSwitch }: WorkspaceSel
 
   const planColors: Record<string, string> = {
     community: '#94a3b8',
-    team: '#a78bfa',
+    team: '#f59e0b',
     business: '#D4A520',
     enterprise: '#10b981',
   };
@@ -113,7 +113,7 @@ export function WorkspaceSelector({ currentWorkspaceId, onSwitch }: WorkspaceSel
             </button>
           ))}
           <div style={{ borderTop: '1px solid var(--border-subtle)', padding: '6px 12px' }}>
-            <button style={{ fontSize: '11px', color: '#a78bfa', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
+            <button style={{ fontSize: '11px', color: '#f59e0b', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontWeight: 600 }}>
               + Create Workspace
             </button>
           </div>

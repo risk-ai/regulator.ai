@@ -75,7 +75,7 @@ export function WebhookManager() {
         </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          style={{ padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: '#7c3aed', border: 'none', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
+          style={{ padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: '#f59e0b', border: 'none', color: '#fff', cursor: 'pointer', fontFamily: 'var(--font-sans)' }}
         >
           + Add Webhook
         </button>
@@ -102,13 +102,13 @@ export function WebhookManager() {
                       return e.target.checked ? [...filtered, opt.value] : filtered.filter(v => v !== opt.value);
                     });
                   }}
-                  style={{ accentColor: '#7c3aed' }}
+                  style={{ accentColor: '#f59e0b' }}
                 />
                 {opt.label}
               </label>
             ))}
           </div>
-          <button onClick={handleAdd} disabled={adding || !newUrl.trim()} style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: adding ? 'var(--bg-tertiary)' : '#7c3aed', border: 'none', color: '#fff', cursor: adding ? 'default' : 'pointer', fontFamily: 'var(--font-sans)' }}>
+          <button onClick={handleAdd} disabled={adding || !newUrl.trim()} style={{ padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, background: adding ? 'var(--bg-tertiary)' : '#f59e0b', border: 'none', color: '#fff', cursor: adding ? 'default' : 'pointer', fontFamily: 'var(--font-sans)' }}>
             {adding ? 'Creating...' : 'Create Webhook'}
           </button>
         </div>

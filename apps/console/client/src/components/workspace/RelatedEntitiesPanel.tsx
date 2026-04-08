@@ -161,7 +161,7 @@ export function RelatedEntitiesPanel({
       <div className="bg-gray-800 border border-gray-700 rounded-lg p-5">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-white font-medium flex items-center gap-2">
-            <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             Intents
@@ -177,14 +177,14 @@ export function RelatedEntitiesPanel({
               <button
                 key={intent.intent_id}
                 onClick={() => onSelectIntent?.(intent.intent_id)}
-                className="w-full bg-gray-900/50 border border-gray-700 rounded p-3 hover:bg-gray-900 hover:border-purple-600 transition-colors text-left"
+                className="w-full bg-gray-900/50 border border-gray-700 rounded p-3 hover:bg-gray-900 hover:border-amber-600 transition-colors text-left"
               >
                 <div className="flex items-start justify-between mb-1">
                   <div className="font-medium text-white text-sm">
                     {intent.intent_type || 'Unknown intent'}
                   </div>
                   {intent.status && (
-                    <span className="px-2 py-0.5 text-xs bg-purple-900/50 text-purple-300 rounded">
+                    <span className="px-2 py-0.5 text-xs bg-amber-900/50 text-amber-300 rounded">
                       {intent.status}
                     </span>
                   )}
@@ -194,7 +194,7 @@ export function RelatedEntitiesPanel({
                   {intent.submitted_at && <span>{formatTimestamp(intent.submitted_at)}</span>}
                 </div>
                 {onSelectIntent && (
-                  <div className="mt-2 text-xs text-purple-400">
+                  <div className="mt-2 text-xs text-amber-400">
                     Click to view trace timeline →
                   </div>
                 )}
@@ -282,7 +282,7 @@ export function RelatedEntitiesPanel({
             {intents.length > 0 && (
               <div className="flex items-center justify-between border-t border-gray-700 pt-3">
                 <span className="text-gray-400">Links to intents</span>
-                <span className="text-purple-400 font-medium">{intents.length}</span>
+                <span className="text-amber-400 font-medium">{intents.length}</span>
               </div>
             )}
 

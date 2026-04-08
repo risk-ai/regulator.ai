@@ -315,7 +315,7 @@ export function NotificationCenter() {
                             <span style={{
                               width: '6px',
                               height: '6px',
-                              background: '#7c3aed',
+                              background: '#f59e0b',
                               borderRadius: '50%',
                             }} />
                           )}

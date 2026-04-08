@@ -232,7 +232,7 @@ export function AnalyticsPage() {
         <div style={{ padding: '80px', textAlign: 'center' }}>
           <div style={{
             display: 'inline-block', width: '28px', height: '28px',
-            border: '2px solid var(--border-subtle)', borderTop: '2px solid #7c3aed',
+            border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
             borderRadius: '50%', animation: 'spin 0.8s linear infinite',
           }} />
           <p style={{ marginTop: '16px', fontSize: '13px', color: 'var(--text-tertiary)' }}>Loading analytics...</p>

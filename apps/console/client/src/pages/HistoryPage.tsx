@@ -22,7 +22,7 @@ interface AuditEntry {
 }
 
 const typeConfig: Record<string, { icon: string; color: string; bg: string; label: string }> = {
-  intent: { icon: '🎯', color: '#a78bfa', bg: 'rgba(167, 139, 250, 0.08)', label: 'Intent' },
+  intent: { icon: '🎯', color: '#f59e0b', bg: 'rgba(167, 139, 250, 0.08)', label: 'Intent' },
   warrant: { icon: '🔐', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)', label: 'Warrant' },
   execution: { icon: '⚡', color: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', label: 'Execution' },
   verification: { icon: '🔍', color: '#60a5fa', bg: 'rgba(96, 165, 250, 0.08)', label: 'Verification' },
@@ -120,8 +120,8 @@ export function HistoryPage() {
             }}
             style={{
               padding: '6px 12px', fontSize: '12px', borderRadius: '6px',
-              border: '1px solid rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.08)',
-              color: '#a78bfa', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-mono)',
+              border: '1px solid rgba(245,158,11,0.2)', background: 'rgba(245,158,11,0.08)',
+              color: '#f59e0b', cursor: 'pointer', fontWeight: 500, fontFamily: 'var(--font-mono)',
             }}
           >
             📄 PDF

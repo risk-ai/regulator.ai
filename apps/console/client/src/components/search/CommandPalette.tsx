@@ -243,12 +243,12 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
                   }}
                   className={`w-full p-3 rounded-lg text-left transition flex items-center gap-3 ${
                     isSelected 
-                      ? 'bg-purple-600/20 border border-purple-500/30' 
+                      ? 'bg-amber-600/20 border border-amber-500/30' 
                       : 'hover:bg-gray-700/50'
                   }`}
                 >
                   <div className={`p-2 rounded-md ${
-                    item.type === 'action' ? 'bg-purple-500/10 text-purple-400' :
+                    item.type === 'action' ? 'bg-amber-500/10 text-amber-400' :
                     item.type === 'page' ? 'bg-blue-500/10 text-blue-400' :
                     'bg-gray-500/10 text-gray-400'
                   }`}>

@@ -92,7 +92,7 @@ export function InteractiveTutorial() {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center text-white font-bold">
               {currentStep + 1}
             </div>
             <h3 className="text-lg font-semibold text-white">{step.title}</h3>
@@ -112,7 +112,7 @@ export function InteractiveTutorial() {
               <div
                 key={idx}
                 className={`h-1 flex-1 rounded ${
-                  idx <= currentStep ? 'bg-purple-600' : 'bg-neutral-700'
+                  idx <= currentStep ? 'bg-amber-600' : 'bg-neutral-700'
                 }`}
               />
             ))}
@@ -127,8 +127,8 @@ export function InteractiveTutorial() {
           <p className="text-neutral-300 leading-relaxed">{step.description}</p>
           
           {step.action && (
-            <div className="mt-4 p-3 bg-purple-900/20 border border-purple-700/50 rounded-lg">
-              <p className="text-sm text-purple-300">
+            <div className="mt-4 p-3 bg-amber-900/20 border border-amber-700/50 rounded-lg">
+              <p className="text-sm text-amber-300">
                 <strong>Action:</strong> {step.action}
               </p>
             </div>
@@ -148,7 +148,7 @@ export function InteractiveTutorial() {
           
           <button
             onClick={handleNext}
-            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
           >
             {isLastStep ? (
               <>

@@ -98,7 +98,7 @@ const styles = {
   } as React.CSSProperties,
   registerBtn: {
     padding: '10px 20px',
-    background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
+    background: 'linear-gradient(135deg, #f59e0b, #6366f1)',
     color: '#fff',
     border: 'none',
     borderRadius: '8px',
@@ -118,7 +118,7 @@ const styles = {
   filterBtn: (active: boolean) => ({
     padding: '6px 14px',
     background: active ? 'rgba(124, 58, 237, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-    color: active ? '#a78bfa' : '#9ca3af',
+    color: active ? '#f59e0b' : '#9ca3af',
     border: active ? '1px solid rgba(124, 58, 237, 0.4)' : '1px solid rgba(255, 255, 255, 0.06)',
     borderRadius: '6px',
     fontSize: '13px',
@@ -331,7 +331,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: '4px',
-    border: selected ? '2px solid #7c3aed' : '1px solid transparent',
+    border: selected ? '2px solid #f59e0b' : '1px solid transparent',
     background: selected ? 'rgba(124, 58, 237, 0.2)' : 'transparent',
     cursor: 'pointer',
     fontSize: '16px',
@@ -370,7 +370,7 @@ const styles = {
   } as React.CSSProperties,
   submitBtn: {
     padding: '10px 24px',
-    background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
+    background: 'linear-gradient(135deg, #f59e0b, #6366f1)',
     color: '#fff',
     border: 'none',
     borderRadius: '6px',
@@ -392,7 +392,7 @@ const styles = {
     width: '40px',
     height: '22px',
     borderRadius: '11px',
-    background: enabled ? '#7c3aed' : '#4b5563',
+    background: enabled ? '#f59e0b' : '#4b5563',
     position: 'relative' as const,
     cursor: 'pointer',
     border: 'none',
@@ -1087,7 +1087,7 @@ function RegistrationModal({ editingType, onClose, onSaved, onError }: Registrat
               <label style={styles.label}>
                 Icon
                 <button
-                  style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', marginLeft: '8px', fontSize: '12px' }}
+                  style={{ background: 'none', border: 'none', color: '#f59e0b', cursor: 'pointer', marginLeft: '8px', fontSize: '12px' }}
                   onClick={() => setShowIconPicker(!showIconPicker)}
                 >
                   {showIconPicker ? 'hide picker' : 'show picker'}

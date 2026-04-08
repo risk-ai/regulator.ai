@@ -179,8 +179,8 @@ function FilterBar({ filters, onChange, onClear, activeCount }: {
           onClick={() => setExpanded(!expanded)}
           style={{
             padding: '6px 14px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--border-subtle)',
-            background: expanded ? 'rgba(124,58,237,0.1)' : 'rgba(255,255,255,0.04)',
-            color: expanded ? '#a78bfa' : 'var(--text-secondary)', cursor: 'pointer',
+            background: expanded ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)',
+            color: expanded ? '#f59e0b' : 'var(--text-secondary)', cursor: 'pointer',
             fontFamily: 'var(--font-sans)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px',
           }}
         >
@@ -188,7 +188,7 @@ function FilterBar({ filters, onChange, onClear, activeCount }: {
           {activeCount > 0 && (
             <span style={{
               padding: '1px 6px', borderRadius: '10px', fontSize: '10px', fontWeight: 700,
-              background: '#7c3aed', color: '#fff',
+              background: '#f59e0b', color: '#fff',
             }}>
               {activeCount}
             </span>
@@ -402,7 +402,7 @@ function DetailModal({ detail, loading, onClose }: {
           <div style={{ padding: '80px', textAlign: 'center' }}>
             <div style={{
               display: 'inline-block', width: '28px', height: '28px',
-              border: '2px solid var(--border-subtle)', borderTop: '2px solid #7c3aed',
+              border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
               borderRadius: '50%', animation: 'spin 0.8s linear infinite',
             }} />
           </div>
@@ -511,7 +511,7 @@ function DetailModal({ detail, loading, onClose }: {
                     fontWeight: activeTab === t.key ? 600 : 400,
                     color: activeTab === t.key ? 'var(--text-primary)' : 'var(--text-tertiary)',
                     background: 'transparent',
-                    borderBottom: activeTab === t.key ? '2px solid #7c3aed' : '2px solid transparent',
+                    borderBottom: activeTab === t.key ? '2px solid #f59e0b' : '2px solid transparent',
                     fontFamily: 'var(--font-sans)',
                   }}
                 >
@@ -792,7 +792,7 @@ export function ExecutionsPage() {
           <div style={{ padding: '48px', textAlign: 'center' }}>
             <div style={{
               display: 'inline-block', width: '24px', height: '24px',
-              border: '2px solid var(--border-subtle)', borderTop: '2px solid #7c3aed',
+              border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
               borderRadius: '50%', animation: 'spin 0.8s linear infinite',
             }} />
             <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-tertiary)' }}>Loading executions...</p>
@@ -813,7 +813,7 @@ export function ExecutionsPage() {
                 onClick={() => setFilters(DEFAULT_FILTERS)}
                 style={{
                   marginTop: '16px', padding: '8px 16px', fontSize: '12px', borderRadius: '6px',
-                  border: 'none', background: 'rgba(124,58,237,0.1)', color: '#a78bfa',
+                  border: 'none', background: 'rgba(245,158,11,0.1)', color: '#f59e0b',
                   cursor: 'pointer', fontWeight: 500,
                 }}
               >
@@ -841,12 +841,12 @@ export function ExecutionsPage() {
                     onClick={() => openDetail(exec.execution_id)}
                     style={{
                       cursor: 'pointer',
-                      background: selected === exec.execution_id ? 'rgba(124,58,237,0.05)' : 'transparent',
+                      background: selected === exec.execution_id ? 'rgba(245,158,11,0.05)' : 'transparent',
                       borderBottom: '1px solid rgba(255,255,255,0.03)',
                       transition: 'background 100ms',
                     }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected === exec.execution_id ? 'rgba(124,58,237,0.05)' : 'transparent'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected === exec.execution_id ? 'rgba(245,158,11,0.05)' : 'transparent'; }}
                   >
                     <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-primary)', fontWeight: 500 }}>
                       {exec.execution_id.slice(0, 16)}…
@@ -887,7 +887,7 @@ function TimelineView({ timeline }: { timeline: any[] }) {
   if (!timeline.length) return <p style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>No timeline entries</p>;
   return (
     <div style={{ position: 'relative', paddingLeft: '20px' }}>
-      <div style={{ position: 'absolute', left: '7px', top: '8px', bottom: '8px', width: '2px', background: 'rgba(124,58,237,0.15)' }} />
+      <div style={{ position: 'absolute', left: '7px', top: '8px', bottom: '8px', width: '2px', background: 'rgba(245,158,11,0.15)' }} />
       {timeline.map((entry: any, i: number) => (
         <div key={i} style={{ position: 'relative', paddingBottom: '14px', paddingLeft: '16px' }}>
           <div style={{

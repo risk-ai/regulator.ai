@@ -72,7 +72,7 @@ function ExecutionModeIndicator() {
   };
 
   const getModeColor = (mode: 'direct' | 'passback') => {
-    return mode === 'direct' ? '#7c3aed' : '#3b82f6';
+    return mode === 'direct' ? '#f59e0b' : '#3b82f6';
   };
 
   if (loading || !config) {
@@ -150,7 +150,7 @@ function ExecutionModeIndicator() {
           borderRadius: '6px',
           border: '1px solid rgba(124, 58, 237, 0.3)',
           background: 'rgba(124, 58, 237, 0.08)',
-          color: '#7c3aed',
+          color: '#f59e0b',
           fontSize: '11px',
           fontWeight: 600,
           textDecoration: 'none',
@@ -707,7 +707,7 @@ export function ExecutionPage() {
                       padding: '2px 8px',
                       borderRadius: '12px',
                       background: record.mode === 'vienna_direct' ? 'rgba(124, 58, 237, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                      color: record.mode === 'vienna_direct' ? '#a78bfa' : '#60a5fa',
+                      color: record.mode === 'vienna_direct' ? '#f59e0b' : '#60a5fa',
                     }}>
                       {getModeDisplay(record.mode)}
                     </span>

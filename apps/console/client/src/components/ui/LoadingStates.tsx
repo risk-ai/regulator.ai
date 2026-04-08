@@ -20,7 +20,7 @@ export function Spinner({ size = 'md', className = '' }: SpinnerProps) {
   };
 
   return (
-    <Loader2 className={`animate-spin text-purple-400 ${sizeClasses[size]} ${className}`} />
+    <Loader2 className={`animate-spin text-amber-400 ${sizeClasses[size]} ${className}`} />
   );
 }
 

@@ -1462,6 +1462,80 @@ export default function Home() {
             </div>
           </section>
         </RevealSection>
+        {/* ═══════════════════ LATEST FROM BLOG ═══════════════════ */}
+        <RevealSection>
+          <section className="py-24 px-6 border-t border-amber-500/10">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between mb-12">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-amber-500">
+                    LATEST_DISPATCHES
+                  </h2>
+                  <p className="text-zinc-500 font-mono text-sm mt-2">
+                    governance insights + engineering deep-dives
+                  </p>
+                </div>
+                <Link
+                  href="/blog"
+                  className="hidden sm:flex items-center gap-2 text-xs font-mono text-amber-500 hover:text-amber-400 transition"
+                >
+                  VIEW_ALL →
+                </Link>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  {
+                    slug: "execution-gap-warrants-not-guardrails",
+                    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
+                    category: "GOVERNANCE",
+                    readTime: "9 min",
+                  },
+                  {
+                    slug: "zero-trust-ai-agent-pipeline",
+                    title: "Building a Zero-Trust AI Agent Pipeline",
+                    category: "SECURITY",
+                    readTime: "8 min",
+                  },
+                  {
+                    slug: "ai-agent-disasters-prevented",
+                    title: "5 AI Agent Disasters That Could Have Been Prevented",
+                    category: "RISK",
+                    readTime: "9 min",
+                  },
+                ].map((post) => (
+                  <Link
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
+                      <span className="text-[10px] font-mono text-amber-500 uppercase">
+                        {post.category}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-600">
+                        {post.readTime}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
+                      {post.title}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="mt-6 sm:hidden">
+                <Link
+                  href="/blog"
+                  className="text-xs font-mono text-amber-500 hover:text-amber-400 transition"
+                >
+                  VIEW_ALL_DISPATCHES →
+                </Link>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
         {/* ═══════════════════ NEWSLETTER ═══════════════════ */}
         <RevealSection>
           <section className="py-16 px-6 border-t border-amber-500/10 bg-black/50">

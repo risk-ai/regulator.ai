@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { analytics } from "@/lib/analytics";
 import SiteNav from "@/components/SiteNav";
+import SectionNav from "@/components/SectionNav";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import TerminalTypewriter from "@/components/TerminalTypewriter";
 import ScrollAnimator from "@/components/ScrollAnimator";
@@ -68,7 +69,7 @@ export default function Home() {
       {/* Sticky Header Container */}
       <div className="sticky top-0 z-50">
         <SiteNav />
-      <ScrollAnimator />
+        <ScrollAnimator />
         
         {/* Coordinate/UTC Bar */}
         <div className="bg-black/90 backdrop-blur-sm border-b border-amber-500/20 px-6 py-2">
@@ -86,9 +87,12 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Section Navigation Dots */}
+      <SectionNav />
+
       <main className="flex-1">
         {/* HERO SECTION */}
-        <section className="pt-20 pb-32 px-6 relative z-10">
+        <section id="hero" className="pt-20 pb-32 px-6 relative z-10">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Column: Text */}
             <div className="space-y-8 overflow-hidden">
@@ -248,7 +252,7 @@ export default function Home() {
         </section>
 
         {/* HOW IT WORKS - Interactive Pipeline Demo */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
+        <section id="pipeline" className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -393,7 +397,7 @@ export default function Home() {
         </section>
 
         {/* TIERED RISK - Interactive Selector */}
-        <section className="py-24 bg-black/30 border-y border-amber-500/10">
+        <section id="risk" className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -513,7 +517,7 @@ export default function Home() {
           </div>
         </section>
         {/* UNIQUE CAPABILITIES — Interactive Feature Showcase */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
+        <section id="features" className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">CAPABILITIES_NO_ONE_ELSE_HAS</div>
@@ -728,7 +732,7 @@ export default function Home() {
 
 
         {/* PERSONA USE CASES - Terminal Style */}
-        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+        <section id="use-cases" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -795,7 +799,7 @@ export default function Home() {
         </section>
 
         {/* INTEGRATION - Interactive Terminal */}
-        <section className="py-24 bg-black/30 border-y border-amber-500/10">
+        <section id="sdk" className="py-24 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -908,7 +912,7 @@ export default function Home() {
         </section>
 
         {/* BEFORE/AFTER SCENARIO - Terminal Comparison */}
-        <section className="py-24 px-6 border-y border-amber-500/10">
+        <section id="analysis" className="py-24 px-6 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1002,7 +1006,7 @@ export default function Home() {
         </section>
 
         {/* OPEN WARRANT STANDARD - Terminal Stats */}
-        <section className="py-24 px-6 border-t border-amber-500/10">
+        <section id="protocol" className="py-24 px-6 border-t border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1057,7 +1061,7 @@ export default function Home() {
         </section>
 
         {/* COMPLIANCE & CERTIFICATIONS - Terminal Style */}
-        <section className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+        <section id="compliance" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
           <div className="max-w-7xl mx-auto">
             <div className="mb-16 max-w-2xl scroll-reveal">
               <h2 className="text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -1129,7 +1133,7 @@ export default function Home() {
         </section>
 
         {/* CTA SECTION - Terminal Style */}
-        <section className="py-32 border-t border-amber-500/10">
+        <section id="cta" className="py-32 border-t border-amber-500/10">
           <div className="max-w-4xl mx-auto px-6">
             <div className="bg-black border border-amber-500/30 p-8">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-amber-500/20">

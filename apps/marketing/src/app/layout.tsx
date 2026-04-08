@@ -127,7 +127,7 @@ export default function RootLayout({
       "Integrates with existing CI/CD and monitoring tools",
       "Multi-party approval for high-risk operations",
       "Real-time verification of agent actions",
-      "SOC 2, HIPAA, SEC compliant architecture"
+      "SOC 2, HIPAA, SEC compliance enablement"
     ],
     "audience": {
       "@type": "Audience",
@@ -155,10 +155,10 @@ export default function RootLayout({
         },
         {
           "@type": "Question",
-          "name": "Is Vienna OS compliant with regulations?",
+          "name": "Does Vienna OS help with regulatory compliance?",
           "acceptedAnswer": {
             "@type": "Answer", 
-            "text": "Yes, Vienna OS supports SOC 2, HIPAA, SEC, and EU AI Act compliance with appropriate policy configuration and audit trail retention."
+            "text": "Vienna OS provides the audit trail controls, access logging, and policy enforcement that accelerate SOC 2, HIPAA, and EU AI Act compliance. It maps to specific regulatory sections (e.g., SOC 2 CC6.1-CC8.1, HIPAA §164.312)."
           }
         }
       ]

@@ -24,8 +24,6 @@ import {
 import { analytics } from "@/lib/analytics";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import FloatingContact from "@/components/FloatingContact";
-import SiteNav from "@/components/SiteNav";
-import SiteFooter from "@/components/SiteFooter";
 
 /* ============================================================
    SCROLL REVEAL ANIMATION
@@ -224,22 +222,7 @@ export default function EnterprisePage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white">
-      {/* Terminal Grid Background */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.08]"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(251, 191, 36, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(251, 191, 36, 0.5) 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      ></div>
-
-      {/* Sticky Header Container */}
-      <div className="sticky top-0 z-50">
-        <SiteNav />
-      </div>
-
-      <main className="flex-1 relative z-10">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-blue-950/20 to-slate-950 text-white">
       {/* Lead Capture Modal */}
       <LeadCaptureModal
         isOpen={showLeadCapture}
@@ -286,17 +269,40 @@ export default function EnterprisePage() {
         }}
       />
 
-        {/* Hero Section */}
+      {/* Navigation */}
+      <nav className="border-b border-navy-700/50 backdrop-blur-xl bg-slate-950/90">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+            <ArrowLeft className="w-4 h-4" />
+            <Shield className="w-7 h-7 text-gold-400" />
+            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+          </a>
+          <div className="flex items-center gap-6">
+            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
+            <a 
+              href="/contact?subject=enterprise" 
+              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium"
+            >
+              Schedule Demo
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gold-900/20 via-blue-900/10 to-transparent pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16">
           <ScrollReveal>
-            <div className="max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gold-400/10 border border-gold-400/20 mb-8">
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="inline-flex items-center gap-2 bg-gold-400/15 border border-gold-400/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
                 <Shield className="w-4 h-4 text-gold-400" />
                 <span className="text-sm text-gold-300 font-semibold uppercase tracking-wider">Enterprise</span>
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                <span className="text-transparent bg-clip-text bg-black from-white via-gold-200 to-blue-200">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
                   Enterprise AI Governance
                 </span>
               </h1>
@@ -310,7 +316,7 @@ export default function EnterprisePage() {
                 <a 
                   href="/contact?subject=enterprise"
                   onClick={() => analytics.ctaClick('hero', 'schedule_demo')}
-                  className="bg-black from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
+                  className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
                 >
                   Schedule a Demo
                   <ArrowRight className="w-5 h-5" />
@@ -399,9 +405,9 @@ export default function EnterprisePage() {
                 <h3 className="font-semibold text-slate-300">Feature</h3>
               </div>
               <div className="p-4 bg-navy-700/30">
-                <h3 className="font-semibold text-gold-400">Business</h3>
+                <h3 className="font-semibold text-blue-400">Business</h3>
               </div>
-              <div className="p-4 bg-black from-gold-500/20 to-gold-400/20">
+              <div className="p-4 bg-gradient-to-r from-gold-500/20 to-gold-400/20">
                 <h3 className="font-semibold text-gold-300">Enterprise</h3>
               </div>
             </div>
@@ -515,7 +521,7 @@ export default function EnterprisePage() {
       <ScrollReveal>
         <div className="border-t border-navy-700/50 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="bg-gradient-to-br from-gold-800/50 to-navy-800/50 border border-slate-700/50 rounded-2xl p-12">
+            <div className="bg-gradient-to-br from-slate-800/50 to-navy-800/50 border border-slate-700/50 rounded-2xl p-12">
               <Shield className="w-12 h-12 text-gold-400 mx-auto mb-6" />
               <h3 className="text-2xl text-slate-200 font-medium mb-6 leading-relaxed">
                 Vienna OS is in early access for enterprise teams governing autonomous AI agents.
@@ -525,7 +531,7 @@ export default function EnterprisePage() {
               </p>
               <a 
                 href="/contact?subject=enterprise"
-                className="inline-flex items-center gap-2 bg-black from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30"
               >
                 Request Early Access
                 <ArrowRight className="w-5 h-5" />
@@ -551,7 +557,7 @@ export default function EnterprisePage() {
               <a 
                 href="/contact?subject=enterprise"
                 onClick={() => analytics.ctaClick('final_cta', 'schedule_demo')}
-                className="bg-black from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-400 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 text-lg"
+                className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 text-lg"
               >
                 Schedule a Demo
               </a>
@@ -567,9 +573,6 @@ export default function EnterprisePage() {
           </div>
         </div>
       </ScrollReveal>
-      </main>
-
-      <SiteFooter />
-    </div>
+    </main>
   );
 }

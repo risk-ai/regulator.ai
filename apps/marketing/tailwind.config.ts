@@ -71,14 +71,7 @@ const config: Config = {
           700: '#1C222E',
           600: '#2A3244',
         },
-        gold: {
-          50:  '#FFF9E6',
-          100: '#FFF0BF',
-          200: '#FFE080',
-          300: '#FFD040',
-          400: '#D4A520',
-          500: '#B8860B',
-        },
+        // warm neutrals for body text and soft elements
         warm: {
           50:  '#F8F7F5',
           100: '#E8E6E1',

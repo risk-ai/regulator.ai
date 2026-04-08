@@ -79,7 +79,7 @@ export default function ExecutionPage() {
                 Try Interactive Demo <ArrowRight className="w-4 h-4" />
               </a>
               <a 
-                href="/docs/execution"
+                href="/docs#execution"
                 className="inline-flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/80 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium border border-gray-600/50"
               >
                 <Code className="w-4 h-4" />

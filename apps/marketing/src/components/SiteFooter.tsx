@@ -22,6 +22,7 @@ export default function SiteFooter() {
               <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
               <li><Link href="/enterprise" className="hover:text-white transition-colors">Enterprise</Link></li>
+              <li><Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
               <li><Link href="/case-studies" className="hover:text-white transition-colors">Case Studies</Link></li>
@@ -45,6 +46,7 @@ export default function SiteFooter() {
               <li><Link href="/use-cases" className="hover:text-white transition-colors">Use Cases</Link></li>
               <li><Link href="/examples" className="hover:text-white transition-colors">Examples</Link></li>
               <li><Link href="/roi" className="hover:text-white transition-colors">ROI Calculator</Link></li>
+              <li><Link href="/community" className="hover:text-white transition-colors">Community</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
               <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>

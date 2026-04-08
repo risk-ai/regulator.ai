@@ -173,7 +173,7 @@ const scenarios = [
     desc: "Define your own action and see how the governance engine evaluates it.",
     tier: "?",
     tierLabel: "Dynamic",
-    docs: "/docs/policies",
+    docs: "/docs#policies",
     category: "custom",
     riskFactors: [],
   },
@@ -1434,7 +1434,7 @@ export default function TryPage() {
                 </div>
 
                 <a
-                  href="/docs/policies"
+                  href="/docs#policies"
                   className="flex items-center justify-center gap-2 bg-gold-400/10 border border-gold-400/20 text-gold-400 hover:bg-gold-400/15 rounded-xl px-4 py-3 transition text-sm font-medium"
                 >
                   Build your own policies <ArrowRight className="w-4 h-4" />
@@ -1622,7 +1622,7 @@ export default function TryPage() {
                       <p className="text-[11px] text-slate-400 leading-relaxed">
                         Share this token with any system that implements the Open Warrant Standard. 
                         They can verify the agent&apos;s authorization without calling Vienna OS.
-                        <a href="/docs/ows" className="text-gold-400 hover:underline ml-1">Read the spec →</a>
+                        <a href="/docs#open-warrant-standard" className="text-gold-400 hover:underline ml-1">Read the spec →</a>
                       </p>
                     </div>
                   </div>

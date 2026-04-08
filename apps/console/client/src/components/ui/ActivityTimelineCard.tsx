@@ -9,7 +9,7 @@ import React from 'react';
 export interface ActivityEvent {
   id: string;
   icon: string; // emoji or icon identifier
-  iconBg: 'emerald' | 'blue' | 'red' | 'amber' | 'violet';
+  iconBg: 'emerald' | 'blue' | 'red' | 'amber';
   title: string;
   description: string;
   timestamp: string;
@@ -27,7 +27,7 @@ export function ActivityTimelineCard({ event, opacity = 1 }: ActivityTimelineCar
     blue: 'blue-500',
     red: 'red-500',
     amber: 'amber-500',
-    violet: 'violet-500',
+
   };
 
   const bgColor = iconColors[event.iconBg];
@@ -135,7 +135,7 @@ export function ActivityTimeline({ events, onViewAll, loading = false }: Activit
         <div className="mt-10 flex items-center justify-center">
           <button 
             onClick={onViewAll}
-            className="text-violet-400 hover:text-white text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
+            className="text-amber-400 hover:text-white text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors"
           >
             View Full Audit Trail
             <span>→</span>

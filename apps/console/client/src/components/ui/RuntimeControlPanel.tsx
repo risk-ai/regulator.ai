@@ -50,7 +50,7 @@ export function RuntimeControlPanel({
         {/* Operating Mode */}
         <div className="flex items-center justify-between">
           <span className="text-[15px] text-[rgba(255,255,255,0.7)]">Operating Mode</span>
-          <span className="px-4 py-1 bg-violet-600/20 border border-violet-600/40 rounded-lg text-[13px] font-bold text-violet-400">
+          <span className="px-4 py-1 bg-amber-600/20 border border-amber-600/40 rounded-lg text-[13px] font-bold text-amber-400">
             {status.operatingMode}
           </span>
         </div>

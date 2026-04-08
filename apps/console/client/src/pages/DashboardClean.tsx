@@ -114,7 +114,7 @@ export function DashboardClean() {
       <header className="border-b border-[rgba(255,255,255,0.08)] bg-[#12131a] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-10 py-6 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="w-10 h-10 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center shadow-lg">
               <Cpu className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-[28px] font-bold tracking-tight text-white">
@@ -127,11 +127,11 @@ export function DashboardClean() {
             </button>
             <button 
               onClick={() => navigate('/runtime')}
-              className="px-6 py-2.5 bg-violet-600 text-white text-[15px] font-semibold rounded-xl hover:bg-violet-700 transition-all shadow-xl"
+              className="px-6 py-2.5 bg-amber-600 text-white text-[15px] font-semibold rounded-xl hover:bg-amber-700 transition-all shadow-xl"
             >
               Force Reconciliation
             </button>
-            <div className="w-11 h-11 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full border-2 border-violet-500/30" />
+            <div className="w-11 h-11 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full border-2 border-amber-500/30" />
           </div>
         </div>
       </header>

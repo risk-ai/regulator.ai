@@ -52,7 +52,7 @@ export function MetricCard({
   }
 
   return (
-    <div className="bg-gradient-to-br from-[#12131a] to-[#1a1b26] border border-[rgba(255,255,255,0.08)] rounded-2xl p-8 flex flex-col gap-6 shadow-lg hover:border-violet-500/30 transition-colors">
+    <div className="bg-gradient-to-br from-[#12131a] to-[#1a1b26] border border-[rgba(255,255,255,0.08)] rounded-2xl p-8 flex flex-col gap-6 shadow-lg hover:border-amber-500/30 transition-colors">
       {/* Label */}
       <div className="text-[12px] font-bold text-[rgba(255,255,255,0.55)] uppercase tracking-[0.1em]">
         {label}

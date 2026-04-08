@@ -9,7 +9,7 @@ import { LucideIcon, X } from 'lucide-react';
 
 interface BannerProps {
   icon: LucideIcon;
-  iconColor?: 'blue' | 'emerald' | 'amber' | 'red' | 'violet';
+  iconColor?: 'blue' | 'emerald' | 'amber' | 'red';
   title: string;
   description: string;
   dismissible?: boolean;
@@ -56,14 +56,6 @@ export function Banner({
       iconText: 'text-red-400',
       titleText: 'text-red-100',
       descText: 'text-red-300/80',
-    },
-    violet: {
-      bg: 'bg-violet-900/20',
-      border: 'border-violet-500/30',
-      iconBg: 'bg-violet-500/10',
-      iconText: 'text-violet-400',
-      titleText: 'text-violet-100',
-      descText: 'text-violet-300/80',
     },
   };
 

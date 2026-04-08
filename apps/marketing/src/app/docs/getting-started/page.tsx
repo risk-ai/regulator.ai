@@ -115,7 +115,7 @@ if intent.status == "approved":
 
 export default function GettingStartedPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
         <Link href="/docs" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <ArrowLeft className="w-4 h-4 mr-2" /> Documentation
@@ -176,10 +176,10 @@ export default function GettingStartedPage() {
             <p><span className="text-zinc-500">1.</span> <span className="text-amber-500">Intent received</span> — Gateway validates structure and agent identity</p>
             <p><span className="text-zinc-500">2.</span> <span className="text-amber-400">Policy evaluated</span> — Rules engine checks against configured policies</p>
             <p><span className="text-zinc-500">3.</span> <span className="text-gold-300">Risk assessed</span> — Classifier assigns T0-T3 tier based on action type and scope</p>
-            <p><span className="text-zinc-500">4.</span> <span className="text-emerald-400">Approval obtained</span> — Auto (T0), policy (T1), human (T2), multi-party (T3)</p>
+            <p><span className="text-zinc-500">4.</span> <span className="text-green-500">Approval obtained</span> — Auto (T0), policy (T1), human (T2), multi-party (T3)</p>
             <p><span className="text-zinc-500">5.</span> <span className="text-amber-500">Warrant issued</span> — HMAC-SHA256 signed, time-limited, scope-constrained</p>
             <p><span className="text-zinc-500">6.</span> <span className="text-amber-400">Execution controlled</span> — Action runs within warrant constraints</p>
-            <p><span className="text-zinc-500">7.</span> <span className="text-emerald-400">Verified</span> — Post-execution state compared to truth snapshot</p>
+            <p><span className="text-zinc-500">7.</span> <span className="text-green-500">Verified</span> — Post-execution state compared to truth snapshot</p>
             <p><span className="text-zinc-500">8.</span> <span className="text-zinc-400">Audit logged</span> — Immutable record with full warrant chain</p>
           </div>
         </div>
@@ -225,7 +225,7 @@ export default function GettingStartedPage() {
               <p className="text-sm text-zinc-400">Full documentation for all SDK modules</p>
             </Link>
             <Link href="/docs/integration-guide" className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition group">
-              <Shield className="w-5 h-5 text-emerald-400 mb-3" />
+              <Shield className="w-5 h-5 text-green-500 mb-3" />
               <h3 className="font-bold group-hover:text-amber-500 transition mb-1">Integration Guide</h3>
               <p className="text-sm text-zinc-400">LangChain, CrewAI, AutoGen, and custom agents</p>
             </Link>

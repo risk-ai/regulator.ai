@@ -196,7 +196,7 @@ function CodeBlock({
           className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
           <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
@@ -230,7 +230,7 @@ function Endpoint({
   const [expanded, setExpanded] = useState(false);
   const colors: Record<string, string> = {
     GET: "bg-blue-500/20 text-blue-400",
-    POST: "bg-emerald-500/20 text-emerald-400",
+    POST: "bg-emerald-500/20 text-green-500",
     PUT: "bg-amber-500/20 text-gold-300",
     DELETE: "bg-red-500/20 text-red-400",
     PATCH: "bg-amber-500/20 text-amber-500",
@@ -872,7 +872,7 @@ submit_intent("send_email", {
 
           <div className="border-t border-amber-500/30 my-16" />
 
-          <H2 id="concepts" icon={<BookOpen className="w-6 h-6 text-emerald-400" />}>Core Concepts</H2>
+          <H2 id="concepts" icon={<BookOpen className="w-6 h-6 text-green-500" />}>Core Concepts</H2>
           <P>
             Vienna OS is built on seven foundational concepts. Understanding these
             is essential for integrating effectively and designing governance policies
@@ -2949,7 +2949,7 @@ app.listen(3001);`}</CodeBlock>
                 <tr className="border-b border-zinc-800">
                   <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">Property</th>
                   <th className="text-left py-2 pr-4 text-zinc-400 font-semibold">API Key / OAuth</th>
-                  <th className="text-left py-2 text-emerald-400 font-semibold">Vienna Warrant</th>
+                  <th className="text-left py-2 text-green-500 font-semibold">Vienna Warrant</th>
                 </tr>
               </thead>
               <tbody className="text-zinc-300 text-xs">
@@ -2966,7 +2966,7 @@ app.listen(3001);`}</CodeBlock>
                   <tr key={prop} className={i % 2 === 0 ? "" : "bg-black/30"}>
                     <td className="py-2 pr-4 text-white font-medium">{prop}</td>
                     <td className="py-2 pr-4 text-zinc-500">{trad}</td>
-                    <td className="py-2 text-emerald-400">{warrant}</td>
+                    <td className="py-2 text-green-500">{warrant}</td>
                   </tr>
                 ))}
               </tbody>
@@ -3097,10 +3097,10 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {[
               { label: "SOC 2 Type II", status: "In progress", color: "text-gold-300" },
-              { label: "HIPAA BAA", status: "Available on Enterprise", color: "text-emerald-400" },
-              { label: "GDPR", status: "Compliant (EU deployment option)", color: "text-emerald-400" },
-              { label: "EU AI Act", status: "Designed for compliance", color: "text-emerald-400" },
-              { label: "NIST AI RMF", status: "Aligned", color: "text-emerald-400" },
+              { label: "HIPAA BAA", status: "Available on Enterprise", color: "text-green-500" },
+              { label: "GDPR", status: "Compliant (EU deployment option)", color: "text-green-500" },
+              { label: "EU AI Act", status: "Designed for compliance", color: "text-green-500" },
+              { label: "NIST AI RMF", status: "Aligned", color: "text-green-500" },
               { label: "FedRAMP", status: "Planned (2026 Q4)", color: "text-zinc-400" },
             ].map((c) => (
               <div key={c.label} className="bg-black border border-zinc-800 p-3 flex items-center justify-between">

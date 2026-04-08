@@ -198,7 +198,7 @@ function CodeBlock({ children, language, title }: { children: string; language?:
           className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-zinc-900 text-zinc-400 hover:text-white transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
-          {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+          {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
         </button>
         <pre className="p-4 overflow-x-auto group">
           <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
@@ -346,7 +346,7 @@ export default function IntegrationsPage() {
                     <div className="space-y-2">
                       {adapter.features.map((f) => (
                         <div key={f} className="flex items-center gap-3 text-sm text-zinc-300">
-                          <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                           <span>{f}</span>
                         </div>
                       ))}
@@ -370,7 +370,7 @@ export default function IntegrationsPage() {
                     <p className="text-amber-500 font-mono text-sm">@vienna-os/sdk</p>
                   </div>
                 </div>
-                <div className="px-4 py-2 rounded-full text-sm font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+                <div className="px-4 py-2 rounded-full text-sm font-bold text-green-500 bg-emerald-500/10 border border-emerald-500/30">
                   Available
                 </div>
               </div>

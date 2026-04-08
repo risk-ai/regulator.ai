@@ -124,7 +124,7 @@ const terms = [
 
 export default function GlossaryPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
+    <main className="min-h-screen bg-[#0a0e14] text-white">
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
         <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <Shield className="w-4 h-4 mr-2" /> Back to Home

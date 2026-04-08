@@ -68,7 +68,7 @@ function SuccessContent() {
       <div className="max-w-2xl mx-auto text-center">
         {/* Success Icon */}
         <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-8">
-          <CheckCircle className="w-10 h-10 text-emerald-400" />
+          <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
 
         {/* Headline */}
@@ -104,7 +104,7 @@ function SuccessContent() {
             {/* Step 2 */}
             <div className="text-center">
               <div className="w-16 h-16 bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-8 h-8 text-emerald-400" />
+                <BookOpen className="w-8 h-8 text-green-500" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
                 2. Read Quick Guide

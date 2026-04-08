@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, ArrowLeft, Building2, TrendingUp, Clock, Users, CheckCircle, AlertTriangle, FileText, ArrowRight, Layers, Settings, Eye } from "lucide-react";
+import { Shield, Building2, TrendingUp, Clock, Users, CheckCircle, AlertTriangle, FileText, ArrowRight, Layers, Settings, Eye } from "lucide-react";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 interface UseCaseScenario {
   id: string;
@@ -84,7 +86,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["FIX Protocol", "Bloomberg Terminal", "Risk Management Systems", "Trade Surveillance"],
       timeline: "6-8 weeks implementation + regulatory review"
     },
-    icon: "",
+    icon: "💹",
     color: "blue",
     featured: true
   },
@@ -139,7 +141,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["Epic EHR", "Cerner", "HL7 FHIR", "Medical Imaging", "Insurance Systems"],
       timeline: "8-10 weeks implementation + HIPAA audit"
     },
-    icon: "",
+    icon: "🏥",
     color: "green"
   },
   {
@@ -193,7 +195,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["iManage", "NetDocuments", "Westlaw", "LexisNexis", "Court Filing Systems"],
       timeline: "10-12 weeks implementation + bar association review"
     },
-    icon: "",
+    icon: "⚖️",
     color: "gold"
   },
   {
@@ -247,7 +249,7 @@ const useCaseScenarios: UseCaseScenario[] = [
       integrations: ["Kubernetes", "Jenkins", "GitLab CI", "Monitoring Tools", "Incident Management"],
       timeline: "4-6 weeks implementation + performance testing"
     },
-    icon: "",
+    icon: "🚀",
     color: "orange",
     featured: true
   }
@@ -259,82 +261,46 @@ export default function UseCasesPage() {
 
   const selectedUseCase = selectedCase ? useCaseScenarios.find(c => c.id === selectedCase) : null;
 
-  const colorClasses = {
-    blue: "border-blue-500/30 bg-blue-500/5 text-blue-400",
-    green: "border-green-500/30 bg-green-500/5 text-green-400",
-    gold: "border-amber-500/30 bg-amber-500/5 text-amber-500",
-    orange: "border-orange-500/30 bg-orange-500/5 text-orange-400",
-    red: "border-red-500/30 bg-red-500/5 text-red-400",
-  };
-
   if (selectedUseCase) {
     return (
-      <div className="min-h-screen bg-[#0a0e14]">
-        {/* Navigation */}
-        <nav className="border-b border-zinc-800 backdrop-blur-sm bg-[#0a0e14]/80 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setSelectedCase(null)}
-                className="flex items-center gap-2 text-warm-400 hover:text-white transition"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm">Back to Industry Solutions</span>
-              </button>
-              <div className="h-4 w-px bg-zinc-900"></div>
-              <Shield className="w-5 h-5 text-amber-500" />
-              <span className="font-bold text-white">
-                Vienna<span className="text-amber-500">OS</span>
-              </span>
-            </div>
-            <a
-              href="/signup"
-              className="text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-1.5 transition font-medium"
-            >
-              Get Started
-            </a>
-          </div>
-        </nav>
+      <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white font-mono">
+        <SiteNav />
 
         {/* Use Case Detail */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-4">
-              <div className={`w-16 h-16 flex items-center justify-center text-2xl border ${colorClasses[selectedUseCase.color as keyof typeof colorClasses]}`}>
+              <div className="w-16 h-16 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl">
                 {selectedUseCase.icon}
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-sm text-warm-500">{selectedUseCase.industry}</span>
+                  <span className="text-sm text-zinc-600 font-mono uppercase tracking-wide">{selectedUseCase.industry}</span>
                   {selectedUseCase.featured && (
-                    <span className="px-2 py-0.5 bg-gold-500/10 text-amber-500 border border-gold-500/20 rounded-full text-xs font-medium">
-                      Featured Solution
+                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-mono uppercase tracking-wide">
+                      FEATURED_SOLUTION
                     </span>
                   )}
                 </div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">{selectedUseCase.title}</h1>
-                <p className="text-warm-400">{selectedUseCase.subtitle}</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-amber-500 mb-1 font-mono uppercase tracking-wide">{selectedUseCase.title}</h1>
+                <p className="text-zinc-400 font-mono">{selectedUseCase.subtitle}</p>
               </div>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mb-6 bg-black/50 p-1 overflow-x-auto">
+          <div className="flex gap-1 mb-6 bg-black p-1 overflow-x-auto">
             {(["overview", "implementation", "workflow", "technical"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-shrink-0 px-4 py-2 text-sm font-medium transition capitalize ${
+                className={`flex-shrink-0 px-4 py-2 text-sm font-mono font-bold transition uppercase ${
                   activeTab === tab
-                    ? "bg-zinc-900 text-white"
-                    : "text-warm-500 hover:text-warm-300"
+                    ? "bg-amber-500/10 text-amber-500 border border-amber-500/30"
+                    : "text-zinc-600 hover:text-zinc-400"
                 }`}
               >
-                {tab === "overview" && "Overview "}
-                {tab === "implementation" && "Implementation "}
-                {tab === "workflow" && "Workflow "}
-                {tab === "technical" && "Technical "}
                 {tab}
               </button>
             ))}
@@ -346,21 +312,21 @@ export default function UseCasesPage() {
               {activeTab === "overview" && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">The Challenge</h3>
-                    <p className="text-warm-300 leading-relaxed">{selectedUseCase.challenge}</p>
+                    <h3 className="text-lg font-bold text-amber-500 mb-3 font-mono uppercase tracking-wide">THE_CHALLENGE</h3>
+                    <p className="text-zinc-400 leading-relaxed font-mono">{selectedUseCase.challenge}</p>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-3">Vienna OS Solution</h3>
-                    <p className="text-warm-300 leading-relaxed">{selectedUseCase.solution}</p>
+                    <h3 className="text-lg font-bold text-amber-500 mb-3 font-mono uppercase tracking-wide">VIENNA_OS_SOLUTION</h3>
+                    <p className="text-zinc-400 leading-relaxed font-mono">{selectedUseCase.solution}</p>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Key Outcomes</h3>
+                    <h3 className="text-lg font-bold text-amber-500 mb-4 font-mono uppercase tracking-wide">KEY_OUTCOMES</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       {selectedUseCase.outcomes.map((outcome, i) => (
-                        <div key={i} className="bg-black border border-zinc-800 p-5">
-                          <h4 className="text-white font-semibold mb-2">{outcome.metric}</h4>
-                          <p className="text-warm-300 text-sm mb-2">{outcome.description}</p>
-                          <div className="text-xs text-warm-500 italic">{outcome.capability}</div>
+                        <div key={i} className="bg-black border border-amber-500/10 p-5">
+                          <h4 className="text-white font-mono font-bold mb-2 uppercase tracking-wide">{outcome.metric}</h4>
+                          <p className="text-zinc-400 text-sm mb-2 font-mono">{outcome.description}</p>
+                          <div className="text-xs text-zinc-600 font-mono">{outcome.capability}</div>
                         </div>
                       ))}
                     </div>
@@ -370,14 +336,14 @@ export default function UseCasesPage() {
 
               {activeTab === "implementation" && (
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4">Implementation Steps</h3>
+                  <h3 className="text-lg font-bold text-amber-500 mb-4 font-mono uppercase tracking-wide">IMPLEMENTATION_STEPS</h3>
                   <div className="space-y-3">
                     {selectedUseCase.implementation.map((step, i) => (
                       <div key={i} className="flex gap-3">
-                        <div className="w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 bg-amber-500 text-black text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {i + 1}
                         </div>
-                        <p className="text-warm-300">{step}</p>
+                        <p className="text-zinc-400 font-mono">{step}</p>
                       </div>
                     ))}
                   </div>
@@ -386,28 +352,28 @@ export default function UseCasesPage() {
 
               {activeTab === "workflow" && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Governance Workflow</h3>
+                  <h3 className="text-lg font-bold text-amber-500 mb-4 font-mono uppercase tracking-wide">GOVERNANCE_WORKFLOW</h3>
                   <div className="space-y-4">
                     {selectedUseCase.workflow.map((step, i) => (
-                      <div key={i} className="bg-black border border-zinc-800 p-4">
+                      <div key={i} className="bg-black border border-amber-500/10 p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-amber-500 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 bg-amber-500 text-black text-sm font-bold flex items-center justify-center flex-shrink-0">
                             {i + 1}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="text-white font-semibold">{step.step}</h4>
+                              <h4 className="text-white font-mono font-bold uppercase tracking-wide">{step.step}</h4>
                               {step.tier && (
-                                <span className="text-xs px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full font-mono">
+                                <span className="text-xs px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 font-mono">
                                   {step.tier}
                                 </span>
                               )}
                             </div>
-                            <p className="text-warm-300 text-sm">{step.description}</p>
+                            <p className="text-zinc-400 text-sm font-mono">{step.description}</p>
                           </div>
                         </div>
                         {i < selectedUseCase.workflow.length - 1 && (
-                          <div className="ml-4 mt-2 w-0.5 h-6 bg-zinc-800"></div>
+                          <div className="ml-4 mt-2 w-0.5 h-6 bg-amber-500/20"></div>
                         )}
                       </div>
                     ))}
@@ -418,24 +384,24 @@ export default function UseCasesPage() {
               {activeTab === "technical" && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Technical Implementation</h3>
+                    <h3 className="text-lg font-bold text-amber-500 mb-4 font-mono uppercase tracking-wide">TECHNICAL_IMPLEMENTATION</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div className="bg-black border border-zinc-800 p-4">
-                        <h4 className="text-sm font-medium text-warm-400 mb-2">Governance Tier</h4>
+                      <div className="bg-black border border-amber-500/10 p-4">
+                        <h4 className="text-sm font-bold text-zinc-400 mb-2 font-mono uppercase tracking-wide">GOVERNANCE_TIER</h4>
                         <p className="font-mono text-white">{selectedUseCase.technicalDetails.tier}</p>
                       </div>
-                      <div className="bg-black border border-zinc-800 p-4">
-                        <h4 className="text-sm font-medium text-warm-400 mb-2">Implementation Timeline</h4>
+                      <div className="bg-black border border-amber-500/10 p-4">
+                        <h4 className="text-sm font-bold text-zinc-400 mb-2 font-mono uppercase tracking-wide">IMPLEMENTATION_TIMELINE</h4>
                         <p className="font-mono text-white">{selectedUseCase.technicalDetails.timeline}</p>
                       </div>
                     </div>
                   </div>
                   
                   <div>
-                    <h4 className="text-sm font-medium text-warm-400 mb-3">Compliance Policies</h4>
+                    <h4 className="text-sm font-bold text-zinc-400 mb-3 font-mono uppercase tracking-wide">COMPLIANCE_POLICIES</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedUseCase.technicalDetails.policies.map((policy) => (
-                        <span key={policy} className="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-xs font-medium">
+                        <span key={policy} className="px-3 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-mono">
                           {policy}
                         </span>
                       ))}
@@ -443,10 +409,10 @@ export default function UseCasesPage() {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-warm-400 mb-3">System Integrations</h4>
+                    <h4 className="text-sm font-bold text-zinc-400 mb-3 font-mono uppercase tracking-wide">SYSTEM_INTEGRATIONS</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedUseCase.technicalDetails.integrations.map((integration) => (
-                        <span key={integration} className="px-3 py-1 bg-zinc-900 text-warm-300 border border-amber-500/20 text-xs font-medium">
+                        <span key={integration} className="px-3 py-1 bg-black text-zinc-400 border border-amber-500/10 text-xs font-mono">
                           {integration}
                         </span>
                       ))}
@@ -459,110 +425,69 @@ export default function UseCasesPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Solution Info */}
-              <div className="bg-black border border-zinc-800 p-5">
-                <h4 className="text-sm font-medium text-warm-400 mb-3">Solution Overview</h4>
+              <div className="bg-black border border-amber-500/30 p-5">
+                <h4 className="text-sm font-bold text-amber-500 mb-3 font-mono uppercase tracking-wide">SOLUTION_OVERVIEW</h4>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-xs text-warm-600">Industry</div>
-                    <div className="text-white font-medium">{selectedUseCase.industry}</div>
+                    <div className="text-xs text-zinc-600 font-mono uppercase">INDUSTRY</div>
+                    <div className="text-white font-mono font-bold">{selectedUseCase.industry}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-warm-600">Governance Approach</div>
-                    <div className="text-white font-medium font-mono">{selectedUseCase.technicalDetails.tier}</div>
+                    <div className="text-xs text-zinc-600 font-mono uppercase">GOVERNANCE_APPROACH</div>
+                    <div className="text-white font-mono font-bold">{selectedUseCase.technicalDetails.tier}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-warm-600">Implementation Type</div>
-                    <div className="text-white font-medium">Enterprise Deployment</div>
+                    <div className="text-xs text-zinc-600 font-mono uppercase">IMPLEMENTATION_TYPE</div>
+                    <div className="text-white font-mono font-bold">ENTERPRISE_DEPLOYMENT</div>
                   </div>
                 </div>
               </div>
 
               {/* CTA */}
-              <div className="bg-black border border-amber-500/20 p-5">
-                <h4 className="text-white font-semibold mb-2">Ready to implement?</h4>
-                <p className="text-warm-400 text-sm mb-4">
+              <div className="bg-black border border-amber-500/30 p-5">
+                <h4 className="text-white font-mono font-bold mb-2 uppercase tracking-wide">READY_TO_IMPLEMENT</h4>
+                <p className="text-zinc-400 text-sm mb-4 font-mono">
                   Deploy Vienna OS governance for your {selectedUseCase.industry.toLowerCase()} organization.
                 </p>
                 <div className="space-y-2">
                   <a 
                     href="/signup" 
-                    className="block w-full bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-2 transition text-center"
+                    className="block w-full bg-amber-500 text-black text-sm font-mono font-bold px-4 py-2 transition text-center uppercase tracking-wide"
                   >
-                    Start Free Trial
+                    START_FREE_TRIAL
                   </a>
                   <a 
                     href="/contact" 
-                    className="block w-full text-amber-500 hover:text-gold-300 border border-amber-500/30 hover:bg-amber-500/5 text-sm font-medium px-4 py-2 transition text-center"
+                    className="block w-full text-amber-500 hover:text-amber-400 border border-amber-500/30 hover:bg-amber-500/5 text-sm font-mono font-bold px-4 py-2 transition text-center uppercase tracking-wide"
                   >
-                    Schedule Demo
+                    SCHEDULE_DEMO
                   </a>
-                </div>
-              </div>
-
-              {/* Other Solutions */}
-              <div className="bg-black border border-zinc-800 p-5">
-                <h4 className="text-sm font-medium text-warm-400 mb-3">Other Industry Solutions</h4>
-                <div className="space-y-2">
-                  {useCaseScenarios.filter(c => c.id !== selectedCase).slice(0, 3).map((otherCase) => (
-                    <button
-                      key={otherCase.id}
-                      onClick={() => {
-                        setSelectedCase(otherCase.id);
-                        setActiveTab("overview");
-                      }}
-                      className="w-full text-left p-3 bg-[#0a0e14]/50 hover:bg-zinc-900/50 transition"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm">{otherCase.icon}</span>
-                        <span className="text-sm text-white font-medium">{otherCase.industry}</span>
-                      </div>
-                      <p className="text-xs text-warm-500">{otherCase.title}</p>
-                    </button>
-                  ))}
                 </div>
               </div>
             </div>
           </div>
         </main>
+
+        <SiteFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0e14]">
-      {/* Navigation */}
-      <nav className="border-b border-zinc-800 backdrop-blur-sm bg-[#0a0e14]/80 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-warm-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-5 h-5 text-amber-500" />
-            <span className="font-bold text-white">
-              Vienna<span className="text-amber-500">OS</span>
-            </span>
-          </a>
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-warm-500 font-mono">Industry Solutions</span>
-            <a
-              href="/signup"
-              className="text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-1.5 transition font-medium"
-            >
-              Get Started
-            </a>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col bg-[#0a0e14] text-white font-mono">
+      <SiteNav />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Layers className="w-6 h-6 text-amber-500" />
-            <span className="text-sm text-amber-500 font-medium uppercase tracking-wider">Industry Solutions</span>
+            <span className="text-sm text-amber-500 font-mono font-bold uppercase tracking-wider">INDUSTRY_SOLUTIONS</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            AI Governance Use Cases
+          <h1 className="text-3xl md:text-4xl font-bold text-amber-500 mb-4 font-mono uppercase tracking-wide">
+            AI_GOVERNANCE_USE_CASES
           </h1>
-          <p className="text-warm-400 text-lg max-w-3xl mx-auto">
+          <p className="text-zinc-400 text-lg max-w-3xl mx-auto font-mono">
             Discover how Vienna OS enables AI agent governance across regulated industries. 
             See the workflows, technical implementations, and compliance frameworks in action.
           </p>
@@ -570,46 +495,46 @@ export default function UseCasesPage() {
 
         {/* Featured Solutions */}
         <div className="mb-12">
-          <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-amber-500 mb-6 flex items-center gap-2 font-mono uppercase tracking-wide">
             <TrendingUp className="w-5 h-5 text-amber-500" />
-            Featured Solutions
+            FEATURED_SOLUTIONS
           </h2>
           <div className="grid lg:grid-cols-2 gap-6">
             {useCaseScenarios.filter(c => c.featured).map((useCase) => (
               <button
                 key={useCase.id}
                 onClick={() => setSelectedCase(useCase.id)}
-                className="text-left bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all duration-300 hover:bg-black/80 group"
+                className="text-left bg-black border border-amber-500/10 hover:border-amber-500/30 p-6 transition-all group"
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`w-12 h-12 flex items-center justify-center text-xl border ${colorClasses[useCase.color as keyof typeof colorClasses]} group-hover:scale-105 transition-transform`}>
+                  <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
                     {useCase.icon}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm text-warm-500">{useCase.industry}</span>
-                      <span className="px-2 py-0.5 bg-gold-500/10 text-amber-500 border border-gold-500/20 rounded-full text-xs font-medium">
-                        Featured
+                      <span className="text-sm text-zinc-600 font-mono uppercase tracking-wide">{useCase.industry}</span>
+                      <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-mono uppercase tracking-wide">
+                        FEATURED
                       </span>
                     </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-amber-500 transition-colors">
+                    <h3 className="text-lg font-bold text-white group-hover:text-amber-500 transition-colors font-mono uppercase tracking-wide">
                       {useCase.title}
                     </h3>
-                    <p className="text-sm text-warm-400">{useCase.subtitle}</p>
+                    <p className="text-sm text-zinc-400 font-mono">{useCase.subtitle}</p>
                   </div>
                 </div>
                 
-                <p className="text-sm text-warm-300 leading-relaxed mb-4 line-clamp-3">
+                <p className="text-sm text-zinc-400 leading-relaxed mb-4 font-mono line-clamp-3">
                   {useCase.challenge}
                 </p>
                 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-xs text-warm-600">
-                    <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-4 text-xs text-zinc-600">
+                    <div className="flex items-center gap-1 font-mono">
                       <Clock className="w-3 h-3" />
                       <span>{useCase.technicalDetails.timeline}</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 font-mono">
                       <Settings className="w-3 h-3" />
                       <span>{useCase.technicalDetails.tier}</span>
                     </div>
@@ -623,35 +548,35 @@ export default function UseCasesPage() {
 
         {/* All Solutions */}
         <div>
-          <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-amber-500 mb-6 flex items-center gap-2 font-mono uppercase tracking-wide">
             <Building2 className="w-5 h-5 text-amber-500" />
-            All Industry Solutions
+            ALL_INDUSTRY_SOLUTIONS
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {useCaseScenarios.map((useCase) => (
               <button
                 key={useCase.id}
                 onClick={() => setSelectedCase(useCase.id)}
-                className="text-left bg-black border border-zinc-800 hover:border-amber-500/20 p-5 transition-all hover:bg-zinc-900/50 group"
+                className="text-left bg-black border border-amber-500/10 hover:border-amber-500/20 p-5 transition-all hover:bg-amber-500/5 group"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 flex items-center justify-center border ${colorClasses[useCase.color as keyof typeof colorClasses]}`}>
+                  <div className="w-10 h-10 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
                     {useCase.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-warm-500 mb-0.5">{useCase.industry}</div>
-                    <h3 className="text-sm font-semibold text-white group-hover:text-amber-500 transition-colors truncate">
+                    <div className="text-xs text-zinc-600 mb-0.5 font-mono uppercase tracking-wide">{useCase.industry}</div>
+                    <h3 className="text-sm font-bold text-white group-hover:text-amber-500 transition-colors truncate font-mono uppercase tracking-wide">
                       {useCase.title}
                     </h3>
                   </div>
                   {useCase.featured && (
-                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <div className="w-2 h-2 bg-amber-500"></div>
                   )}
                 </div>
-                <p className="text-sm text-warm-300 mb-3 line-clamp-2">
+                <p className="text-sm text-zinc-400 mb-3 line-clamp-2 font-mono">
                   {useCase.subtitle}
                 </p>
-                <div className="flex items-center justify-between text-xs text-warm-600">
+                <div className="flex items-center justify-between text-xs text-zinc-600">
                   <span className="font-mono">{useCase.technicalDetails.tier}</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </div>
@@ -661,34 +586,36 @@ export default function UseCasesPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 bg-black border border-amber-500/20 p-8 text-center">
-          <h2 className="text-2xl font-bold text-white mb-3">Ready to Implement AI Governance?</h2>
-          <p className="text-warm-400 mb-6 max-w-2xl mx-auto">
+        <div className="mt-16 bg-black border border-amber-500/30 p-8 text-center">
+          <h2 className="text-2xl font-bold text-amber-500 mb-3 font-mono uppercase tracking-wide">READY_TO_IMPLEMENT_AI_GOVERNANCE</h2>
+          <p className="text-zinc-400 mb-6 max-w-2xl mx-auto font-mono">
             Vienna OS provides the governance framework your regulated industry needs 
             to deploy AI agents safely, compliantly, and efficiently.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <a 
               href="/signup" 
-              className="bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold"
+              className="bg-amber-500 text-black px-8 py-3 transition font-mono font-bold uppercase tracking-wide"
             >
-              Start Free Trial
+              START_FREE_TRIAL
             </a>
             <a 
               href="/contact" 
-              className="text-amber-500 hover:text-gold-300 border border-amber-500/30 hover:bg-amber-500/5 px-8 py-3 transition font-medium"
+              className="text-amber-500 hover:text-amber-400 border border-amber-500/30 hover:bg-amber-500/5 px-8 py-3 transition font-mono font-bold uppercase tracking-wide"
             >
-              Schedule Demo
+              SCHEDULE_DEMO
             </a>
             <a 
               href="/try" 
-              className="text-warm-400 hover:text-white transition font-medium"
+              className="text-zinc-400 hover:text-white transition font-mono font-bold uppercase tracking-wide"
             >
-              Try Interactive Demo →
+              TRY_INTERACTIVE_DEMO →
             </a>
           </div>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
   );
 }

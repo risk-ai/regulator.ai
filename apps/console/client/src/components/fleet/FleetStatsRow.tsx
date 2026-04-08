@@ -42,12 +42,14 @@ function StatCard({
   unit,
   color,
   secondaryValue,
+  children,
 }: {
   label: string;
   value: string | number;
   unit?: string;
   color?: string;
   secondaryValue?: { label: string; value: string | number };
+  children?: React.ReactNode;
 }) {
   return (
     <div
@@ -110,6 +112,7 @@ function StatCard({
           <span>{secondaryValue.value}</span>
         </div>
       )}
+      {children}
     </div>
   );
 }

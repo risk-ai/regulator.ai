@@ -19,6 +19,21 @@ interface TimelineState {
   error?: string;
 }
 
+// Utility: Convert timestamp to relative time
+function relativeTime(ts: string | null): string {
+  if (!ts) return 'never';
+  const diff = Date.now() - new Date(ts).getTime();
+  if (diff < 0) return 'just now';
+  const secs = Math.floor(diff / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
 export function ActivityTimeline() {
   const [state, setState] = useState<TimelineState>({
     events: [],
@@ -187,7 +202,7 @@ export function ActivityTimeline() {
 function TimelineEventRow({ event }: { event: TimelineEvent }) {
   const icon = getEventIcon(event.event_type);
   const color = getEventColor(event.event_type);
-  const relativeTime = getRelativeTime(event.timestamp);
+  const eventRelativeTime = relativeTime(event.timestamp);
 
   return (
     <div
@@ -257,7 +272,7 @@ function TimelineEventRow({ event }: { event: TimelineEvent }) {
           textAlign: 'right',
         }}
       >
-        {relativeTime}
+        {eventRelativeTime}
       </div>
     </div>
   );

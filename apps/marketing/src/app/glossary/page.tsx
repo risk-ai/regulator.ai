@@ -124,17 +124,17 @@ const terms = [
 
 export default function GlossaryPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-navy-950 to-slate-950 text-white">
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-[#0a0e14] to-slate-950 text-white">
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-12">
-        <Link href="/" className="inline-flex items-center text-sm text-slate-400 hover:text-white mb-8 transition">
+        <Link href="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white mb-8 transition">
           <Shield className="w-4 h-4 mr-2" /> Back to Home
         </Link>
         
         <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="w-8 h-8 text-gold-400" />
+          <BookOpen className="w-8 h-8 text-amber-500" />
           <h1 className="text-3xl md:text-4xl font-bold">AI Governance Glossary</h1>
         </div>
-        <p className="text-xl text-slate-300 max-w-3xl">
+        <p className="text-xl text-zinc-300 max-w-3xl">
           The vocabulary of responsible AI agent deployment. From execution warrants to risk tiering.
         </p>
       </div>
@@ -142,18 +142,18 @@ export default function GlossaryPage() {
       <div className="max-w-4xl mx-auto px-6 pb-24">
         <div className="space-y-6">
           {terms.map((t, i) => (
-            <div key={i} id={t.term.toLowerCase().replace(/[^a-z0-9]+/g, "-")} className="bg-slate-900/50 border border-slate-800/50 rounded-xl p-6 scroll-mt-24">
+            <div key={i} id={t.term.toLowerCase().replace(/[^a-z0-9]+/g, "-")} className="bg-black border border-zinc-800 p-6 scroll-mt-24">
               <h2 className="text-xl font-bold text-white mb-3">{t.term}</h2>
-              <p className="text-slate-300 leading-relaxed mb-4">{t.definition}</p>
+              <p className="text-zinc-300 leading-relaxed mb-4">{t.definition}</p>
               <div className="flex flex-wrap gap-2">
                 {t.related.map((r, j) => (
-                  <span key={j} className="text-xs bg-slate-800 border border-slate-700/50 rounded-full px-3 py-1 text-slate-400">
+                  <span key={j} className="text-xs bg-slate-800 border border-zinc-800 rounded-full px-3 py-1 text-zinc-400">
                     {r}
                   </span>
                 ))}
               </div>
               {t.link && (
-                <Link href={t.link} className="inline-flex items-center text-sm text-gold-400 hover:underline mt-3">
+                <Link href={t.link} className="inline-flex items-center text-sm text-amber-500 hover:underline mt-3">
                   Learn more &rarr;
                 </Link>
               )}

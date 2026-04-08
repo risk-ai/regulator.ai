@@ -69,18 +69,18 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* Navigation */}
-      <nav className="border-b border-navy-700">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
               Get Started
             </a>
           </div>
@@ -95,14 +95,14 @@ export default function ContactPage() {
                 <CheckCircle className="w-10 h-10 text-emerald-400" />
               </div>
               <h1 className="text-3xl font-bold text-white mb-4">Message sent successfully</h1>
-              <p className="text-slate-400 text-lg mb-8 max-w-lg mx-auto">
+              <p className="text-zinc-400 text-lg mb-8 max-w-lg mx-auto">
                 Thank you for reaching out. We&apos;ll get back to you within 24 hours.
               </p>
               <div className="flex items-center justify-center gap-4">
-                <a href="/" className="text-gold-400 hover:text-gold-300 font-medium transition">
+                <a href="/" className="text-amber-500 hover:text-gold-300 font-medium transition">
                   ← Back to home
                 </a>
-                <a href="/docs" className="bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-xl transition font-medium">
+                <a href="/docs" className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 transition font-medium">
                   Explore Docs
                 </a>
               </div>
@@ -118,7 +118,7 @@ export default function ContactPage() {
                     Let&apos;s talk
                   </span>
                 </h1>
-                <p className="text-xl text-slate-400 mb-8 leading-relaxed">
+                <p className="text-xl text-zinc-400 mb-8 leading-relaxed">
                   Whether you&apos;re evaluating Vienna OS for your enterprise, 
                   interested in a partnership, or have technical questions — we&apos;d love to hear from you.
                 </p>
@@ -126,25 +126,25 @@ export default function ContactPage() {
                 {/* Contact Methods */}
                 <div className="space-y-4 mb-12">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gold-400/20 border border-gold-400/30 flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-gold-400" />
+                    <div className="w-10 h-10 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-amber-500" />
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">General Inquiries</h3>
-                      <p className="text-slate-400 text-sm mb-1">Questions, partnerships, media</p>
-                      <a href="mailto:admin@ai.ventures" className="text-gold-400 hover:text-gold-300 font-medium transition">
+                      <p className="text-zinc-400 text-sm mb-1">Questions, partnerships, media</p>
+                      <a href="mailto:admin@ai.ventures" className="text-amber-500 hover:text-gold-300 font-medium transition">
                         admin@ai.ventures
                       </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+                    <div className="w-10 h-10 bg-red-500/20 border border-red-500/30 flex items-center justify-center">
                       <Shield className="w-5 h-5 text-red-400" />
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">Security Issues</h3>
-                      <p className="text-slate-400 text-sm mb-1">Vulnerabilities, compliance concerns</p>
+                      <p className="text-zinc-400 text-sm mb-1">Vulnerabilities, compliance concerns</p>
                       <a href="mailto:security@ai.ventures" className="text-red-400 hover:text-red-300 font-medium transition">
                         security@ai.ventures
                       </a>
@@ -152,15 +152,15 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-slate-500/20 border border-slate-500/30 flex items-center justify-center">
-                      <Github className="w-5 h-5 text-slate-400" />
+                    <div className="w-10 h-10 bg-slate-500/20 border border-slate-500/30 flex items-center justify-center">
+                      <Github className="w-5 h-5 text-zinc-400" />
                     </div>
                     <div>
                       <h3 className="text-white font-semibold mb-1">Open Source</h3>
-                      <p className="text-slate-400 text-sm mb-1">Issues, contributions, discussions</p>
+                      <p className="text-zinc-400 text-sm mb-1">Issues, contributions, discussions</p>
                       <a 
                         href="https://github.com/risk-ai/regulator.ai" 
-                        className="text-slate-400 hover:text-slate-300 font-medium transition"
+                        className="text-zinc-400 hover:text-zinc-300 font-medium transition"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -171,12 +171,12 @@ export default function ContactPage() {
                 </div>
 
                 {/* Response Time */}
-                <div className="bg-navy-800 border border-navy-700 rounded-xl p-4">
+                <div className="bg-black border border-zinc-800 p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <Clock className="w-5 h-5 text-blue-400" />
                     <h3 className="text-white font-semibold">Response Time</h3>
                   </div>
-                  <div className="text-sm text-slate-400 space-y-1">
+                  <div className="text-sm text-zinc-400 space-y-1">
                     <p>• General inquiries: Within 24 hours</p>
                     <p>• Enterprise/sales: Within 4 hours</p>
                     <p>• Security issues: Within 2 hours</p>
@@ -187,55 +187,55 @@ export default function ContactPage() {
 
             {/* Right Column - Contact Form */}
             <ScrollReveal delay={0.2}>
-              <div className="bg-gradient-to-br from-navy-800 to-navy-800/50 border border-navy-700 rounded-2xl p-8">
+              <div className="bg-black border border-zinc-800 p-8">
                 <div className="flex items-center gap-3 mb-6">
-                  <MessageCircle className="w-6 h-6 text-gold-400" />
+                  <MessageCircle className="w-6 h-6 text-amber-500" />
                   <h2 className="text-2xl font-bold text-white">Send us a message</h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Name *</label>
+                      <label className="block text-sm font-medium text-zinc-300 mb-2">Name *</label>
                       <input 
                         required 
                         type="text" 
                         value={form.name} 
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
-                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
+                        className="w-full bg-[#0a0e14] border border-amber-500/20 px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                         placeholder="Jane Smith" 
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Email *</label>
+                      <label className="block text-sm font-medium text-zinc-300 mb-2">Email *</label>
                       <input 
                         required 
                         type="email" 
                         value={form.email} 
                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
+                        className="w-full bg-[#0a0e14] border border-amber-500/20 px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                         placeholder="jane@company.com" 
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Company</label>
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">Company</label>
                     <input 
                       type="text" 
                       value={form.company} 
                       onChange={(e) => setForm({ ...form, company: e.target.value })}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
+                      className="w-full bg-[#0a0e14] border border-amber-500/20 px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors" 
                       placeholder="Acme Corp" 
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">What can we help with?</label>
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">What can we help with?</label>
                     <select 
                       value={form.type} 
                       onChange={(e) => setForm({ ...form, type: e.target.value })}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors"
+                      className="w-full bg-[#0a0e14] border border-amber-500/20 px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors"
                     >
                       <option value="general">General inquiry</option>
                       <option value="enterprise">Enterprise plan</option>
@@ -247,13 +247,13 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Message *</label>
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">Message *</label>
                     <textarea 
                       required 
                       value={form.message} 
                       onChange={(e) => setForm({ ...form, message: e.target.value })} 
                       rows={6}
-                      className="w-full bg-navy-900 border border-navy-600 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors resize-none"
+                      className="w-full bg-[#0a0e14] border border-amber-500/20 px-4 py-3 text-white text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-gold-400/50 transition-colors resize-none"
                       placeholder="Tell us about your use case, requirements, or question..."
                     />
                   </div>
@@ -261,7 +261,7 @@ export default function ContactPage() {
                   <button 
                     type="submit" 
                     disabled={sending}
-                    className="w-full flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25"
+                    className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 transition font-semibold shadow-lg hover:shadow-gold-400/25"
                   >
                     <Send className="w-5 h-5" />
                     {sending ? "Sending..." : "Send Message"}

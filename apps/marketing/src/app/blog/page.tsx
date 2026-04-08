@@ -16,7 +16,7 @@ const posts = [
     date: "March 30, 2026",
     readTime: "9 min",
     category: "Governance",
-    categoryColor: "text-gold-400 bg-gold-400/10",
+    categoryColor: "text-amber-500 bg-amber-500/10",
     author: "Max Anderson",
   },
   {
@@ -82,7 +82,7 @@ const posts = [
     date: "March 28, 2026",
     readTime: "8 min",
     category: "Deep Dive",
-    categoryColor: "text-gold-300 bg-gold-400/10",
+    categoryColor: "text-gold-300 bg-amber-500/10",
     author: "ai.ventures",
   },
   {
@@ -93,7 +93,7 @@ const posts = [
     date: "March 28, 2026",
     readTime: "7 min",
     category: "Comparison",
-    categoryColor: "text-gold-400 bg-gold-400/10",
+    categoryColor: "text-amber-500 bg-amber-500/10",
     author: "ai.ventures",
   },
   {
@@ -115,7 +115,7 @@ const posts = [
     date: "March 27, 2026",
     readTime: "8 min",
     category: "Governance",
-    categoryColor: "text-gold-400 bg-gold-400/10",
+    categoryColor: "text-amber-500 bg-amber-500/10",
     author: "Max Anderson",
   },
   {
@@ -170,7 +170,7 @@ const posts = [
     date: "March 25, 2026",
     readTime: "7 min",
     category: "Framework",
-    categoryColor: "text-gold-300 bg-gold-400/10",
+    categoryColor: "text-gold-300 bg-amber-500/10",
     author: "Team",
   },
 ];
@@ -186,24 +186,24 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-navy-900">
-      <nav className="border-b border-navy-700">
+    <div className="min-h-screen bg-[#0a0e14]">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <a
             href="/"
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition"
+            className="flex items-center gap-2 text-zinc-400 hover:text-white transition"
           >
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">
               Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
             <a
               href="/signup"
-              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium"
             >
               Get Started
             </a>
@@ -213,7 +213,7 @@ export default function BlogPage() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-white mb-2">Blog</h1>
-        <p className="text-slate-400 mb-12">
+        <p className="text-zinc-400 mb-12">
           Insights on AI governance, agent compliance, and building trustworthy
           autonomous systems.
         </p>
@@ -224,7 +224,7 @@ export default function BlogPage() {
               key={post.slug}
               href={`/blog/${post.slug}`}
               onClick={() => handlePostClick(post.slug)}
-              className="block bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-navy-600 transition group"
+              className="block bg-black border border-zinc-800 p-6 hover:border-amber-500/20 transition group"
             >
               <div className="flex items-center gap-3 mb-3">
                 <span
@@ -232,19 +232,19 @@ export default function BlogPage() {
                 >
                   {post.category}
                 </span>
-                <div className="flex items-center gap-1 text-xs text-slate-500">
+                <div className="flex items-center gap-1 text-xs text-zinc-500">
                   <Clock className="w-3 h-3" />
                   {post.readTime}
                 </div>
-                <span className="text-xs text-slate-600">{post.date}</span>
+                <span className="text-xs text-zinc-600">{post.date}</span>
               </div>
-              <h2 className="text-lg font-semibold text-white mb-2 group-hover:text-gold-400 transition">
+              <h2 className="text-lg font-semibold text-white mb-2 group-hover:text-amber-500 transition">
                 {post.title}
               </h2>
-              <p className="text-sm text-slate-400 leading-relaxed mb-3">
+              <p className="text-sm text-zinc-400 leading-relaxed mb-3">
                 {post.excerpt}
               </p>
-              <span className="inline-flex items-center gap-1 text-sm text-gold-400 font-medium">
+              <span className="inline-flex items-center gap-1 text-sm text-amber-500 font-medium">
                 Read more <ArrowRight className="w-3 h-3" />
               </span>
             </Link>
@@ -252,9 +252,9 @@ export default function BlogPage() {
         </div>
       </main>
 
-      <footer className="border-t border-navy-700 py-8 mt-12">
+      <footer className="border-t border-zinc-800 py-8 mt-12">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <span className="text-xs text-slate-600">
+          <span className="text-xs text-zinc-600">
             © 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.
           </span>
         </div>

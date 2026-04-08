@@ -181,12 +181,12 @@ const scenarios = [
 
 const tierColors: Record<string, { text: string; bg: string; border: string }> = {
   T0: { text: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-  T1: { text: "text-gold-400", bg: "bg-gold-400/10", border: "border-gold-400/20" },
+  T1: { text: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20" },
   "T1+": { text: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/20" },
   T2: { text: "text-red-400", bg: "bg-red-400/10", border: "border-red-400/20" },
   DENY: { text: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
   DENIED: { text: "text-red-500", bg: "bg-red-500/10", border: "border-red-500/20" },
-  "?": { text: "text-slate-400", bg: "bg-slate-400/10", border: "border-slate-400/20" },
+  "?": { text: "text-zinc-400", bg: "bg-slate-400/10", border: "border-slate-400/20" },
 };
 
 const stepIcons: Record<string, string> = {
@@ -383,20 +383,20 @@ export default function TryPage() {
   return (
     <div className="min-h-screen bg-slate-950">
       {/* ─── Nav ─── */}
-      <nav className="border-b border-slate-700/50 backdrop-blur-sm bg-slate-950/80 sticky top-0 z-50">
+      <nav className="border-b border-zinc-800 backdrop-blur-sm bg-slate-950/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-5 h-5 text-gold-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             <span className="font-bold text-white">
-              Vienna<span className="text-gold-400">OS</span>
+              Vienna<span className="text-amber-500">OS</span>
             </span>
           </a>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline text-xs text-slate-500 font-mono">Interactive Playground</span>
+            <span className="hidden sm:inline text-xs text-zinc-500 font-mono">Interactive Playground</span>
             <a
               href="/signup"
-              className="text-sm bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 border border-gold-400/20 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-1.5 transition font-medium"
             >
               Get Started
             </a>
@@ -413,7 +413,7 @@ export default function TryPage() {
               <span className="text-xs text-emerald-400 font-medium uppercase tracking-wider">Live Playground</span>
             </div>
             <div className="h-4 w-px bg-slate-700"></div>
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-zinc-500 font-mono">
               {visibleSteps.length > 0 ? `${visibleSteps.length}/8 steps completed` : "Ready to simulate"}
             </span>
           </div>
@@ -421,12 +421,12 @@ export default function TryPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">
             Interactive Governance Pipeline
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base max-w-2xl mb-4">
+          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl mb-4">
             Submit any AI agent intent and watch it flow through Vienna OS — policy evaluation, 
             risk tiering, approval workflows, warrant issuance, and immutable audit logging.
           </p>
           
-          <div className="flex items-center gap-6 text-xs text-slate-500">
+          <div className="flex items-center gap-6 text-xs text-zinc-500">
             <div className="flex items-center gap-2">
               <span className="v-status-dot v-status-warning"></span>
               <span>Real-time simulation</span>
@@ -452,8 +452,8 @@ export default function TryPage() {
           {/* ─── Left: Interactive Controls ─── */}
           <div className="space-y-3">
             {/* Mode Selector */}
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Demo Mode</h4>
+            <div className="bg-slate-800/50 border border-zinc-800 p-3">
+              <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Demo Mode</h4>
               <div className="grid grid-cols-1 gap-1.5">
                 {[
                   { id: 'scenarios', label: 'Scenarios', desc: 'Pre-built examples' },
@@ -464,17 +464,17 @@ export default function TryPage() {
                     key={mode.id}
                     onClick={() => setInteractiveMode(mode.id as any)}
                     className={`
-                      text-left px-3 py-2 rounded-lg border transition-all text-sm
+                      text-left px-3 py-2 border transition-all text-sm
                       ${interactiveMode === mode.id
-                        ? 'border-gold-400/30 bg-gold-400/5 text-white'
-                        : 'border-slate-700/30 bg-slate-800/30 text-slate-300 hover:border-navy-600 hover:bg-slate-700/30'
+                        ? 'border-amber-500/30 bg-amber-500/5 text-white'
+                        : 'border-slate-700/30 bg-slate-800/30 text-zinc-300 hover:border-amber-500/20 hover:bg-slate-700/30'
                       }
                     `}
                   >
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm">{mode.label}</span>
                     </div>
-                    <div className="text-xs text-slate-500">{mode.desc}</div>
+                    <div className="text-xs text-zinc-500">{mode.desc}</div>
                   </button>
                 ))}
               </div>
@@ -487,13 +487,13 @@ export default function TryPage() {
                 <div className="lg:hidden">
                   <button
                     onClick={() => setMobileOpen(!mobileOpen)}
-                    className="w-full flex items-center justify-between bg-slate-800 border border-slate-700 rounded-xl px-4 py-3"
+                    className="w-full flex items-center justify-between bg-slate-800 border border-slate-700 px-4 py-3"
                   >
                     <div className="flex items-center gap-2">
                       <span>{selectedScenario.icon}</span>
                       <span className="text-white font-medium text-sm">{selectedScenario.label}</span>
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${mobileOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${mobileOpen ? "rotate-180" : ""}`} />
                   </button>
                   {mobileOpen && (
                     <div className="mt-2 max-h-[400px] overflow-y-auto space-y-1.5">
@@ -517,8 +517,8 @@ export default function TryPage() {
 
             {/* Tier Picker Mode */}
             {interactiveMode === 'tier_picker' && (
-              <div className="bg-slate-800 border border-slate-700/50 rounded-xl p-4 space-y-3">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Risk Tier Explorer</h4>
+              <div className="bg-slate-800 border border-zinc-800 p-4 space-y-3">
+                <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Risk Tier Explorer</h4>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { tier: 'T0', label: 'Auto-Approved', desc: 'Read-only, no risk', color: 'emerald', example: 'Web search' },
@@ -535,19 +535,19 @@ export default function TryPage() {
                         if (tierScenario) setSelected(tierScenario.id);
                       }}
                       className={`
-                        text-left p-3 rounded-lg border transition-all
+                        text-left p-3 border transition-all
                         ${selectedTier === t.tier
                           ? `border-${t.color}-400/30 bg-${t.color}-400/5`
-                          : 'border-slate-700/30 bg-slate-800/30 hover:border-navy-600'
+                          : 'border-slate-700/30 bg-slate-800/30 hover:border-amber-500/20'
                         }
                       `}
                     >
                       <div className={`text-sm font-bold mb-1 ${selectedTier === t.tier ? `text-${t.color}-400` : 'text-white'}`}>
                         {t.tier}
                       </div>
-                      <div className="text-xs text-slate-400 mb-1">{t.label}</div>
-                      <div className="text-xs text-slate-500 leading-relaxed">{t.desc}</div>
-                      <div className="text-xs text-slate-600 mt-1 italic">{t.example}</div>
+                      <div className="text-xs text-zinc-400 mb-1">{t.label}</div>
+                      <div className="text-xs text-zinc-500 leading-relaxed">{t.desc}</div>
+                      <div className="text-xs text-zinc-600 mt-1 italic">{t.example}</div>
                     </button>
                   ))}
                 </div>
@@ -556,10 +556,10 @@ export default function TryPage() {
 
             {/* Warrant Builder Mode */}
             {interactiveMode === 'warrant_builder' && (
-              <div className="bg-slate-800 border border-slate-700/50 rounded-xl p-4 space-y-3">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Interactive Warrant Creator</h4>
+              <div className="bg-slate-800 border border-zinc-800 p-4 space-y-3">
+                <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Interactive Warrant Creator</h4>
                 <div className="space-y-2">
-                  <div className="text-xs text-slate-500 mb-2">Follow the warrant creation process step by step:</div>
+                  <div className="text-xs text-zinc-500 mb-2">Follow the warrant creation process step by step:</div>
                   
                   <div className="space-y-2">
                     {[
@@ -571,23 +571,23 @@ export default function TryPage() {
                       <div
                         key={s.step}
                         className={`
-                          flex items-center gap-3 p-2 rounded-lg border transition-all
+                          flex items-center gap-3 p-2 border transition-all
                           ${s.status === 'completed' ? 'border-emerald-400/30 bg-emerald-400/5' : ''}
-                          ${s.status === 'active' ? 'border-gold-400/30 bg-gold-400/5' : ''}
+                          ${s.status === 'active' ? 'border-amber-500/30 bg-amber-500/5' : ''}
                           ${s.status === 'pending' ? 'border-slate-700/30 bg-slate-800/30' : ''}
                         `}
                       >
                         <div className={`
                           w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
                           ${s.status === 'completed' ? 'bg-emerald-400 text-slate-950' : ''}
-                          ${s.status === 'active' ? 'bg-gold-400 text-slate-950' : ''}
-                          ${s.status === 'pending' ? 'bg-slate-700 text-slate-500' : ''}
+                          ${s.status === 'active' ? 'bg-amber-500 text-slate-950' : ''}
+                          ${s.status === 'pending' ? 'bg-slate-700 text-zinc-500' : ''}
                         `}>
                           {s.status === 'completed' ? '✓' : s.step}
                         </div>
                         <div className="flex-1">
                           <div className="text-sm text-white font-medium">{s.label}</div>
-                          <div className="text-xs text-slate-500">{s.desc}</div>
+                          <div className="text-xs text-zinc-500">{s.desc}</div>
                         </div>
                       </div>
                     ))}
@@ -600,7 +600,7 @@ export default function TryPage() {
                         setSelected('wire_transfer'); // Auto-select a good example
                       }
                     }}
-                    className="w-full mt-3 flex items-center justify-center gap-2 bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                    className="w-full mt-3 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-2 transition"
                   >
                     {showWarrantBuilder ? 'Reset Flow' : 'Start Warrant Flow'}
                   </button>
@@ -611,8 +611,8 @@ export default function TryPage() {
             {/* Desktop Scenario List */}
             {interactiveMode === 'scenarios' && (
               <div className="hidden lg:block space-y-1.5">
-                <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                  Scenarios <span className="text-slate-500">↑↓ to navigate</span>
+                <h3 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                  Scenarios <span className="text-zinc-500">↑↓ to navigate</span>
                 </h3>
                 <div className="max-h-[500px] overflow-y-auto space-y-1.5 pr-2">
                   {scenarios.map((s) => (
@@ -631,8 +631,8 @@ export default function TryPage() {
             {/* Desktop Tier List */}
             {interactiveMode === 'tier_picker' && (
               <div className="hidden lg:block space-y-1.5">
-                <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                  Risk Tiers <span className="text-slate-500">explore approval flows</span>
+                <h3 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                  Risk Tiers <span className="text-zinc-500">explore approval flows</span>
                 </h3>
                 <div className="space-y-2">
                   {scenarios.filter(s => s.id !== 'custom').map((s) => (
@@ -651,8 +651,8 @@ export default function TryPage() {
             {/* Warrant Builder List */}
             {interactiveMode === 'warrant_builder' && (
               <div className="hidden lg:block space-y-1.5">
-                <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                  Warrant Examples <span className="text-slate-500">step-by-step creation</span>
+                <h3 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                  Warrant Examples <span className="text-zinc-500">step-by-step creation</span>
                 </h3>
                 <div className="space-y-2">
                   {scenarios.filter(s => s.tier !== 'DENY' && s.id !== 'custom').slice(0, 4).map((s) => (
@@ -670,17 +670,17 @@ export default function TryPage() {
 
             {/* Custom action fields */}
             {selected === "custom" && (
-              <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Define Your Action</h4>
+              <div className="bg-slate-800 border border-slate-700 p-4 space-y-3">
+                <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Define Your Action</h4>
                 <Field label="Action Name" value={customAction} onChange={setCustomAction} placeholder="e.g. delete_records" />
                 <Field label="Agent ID" value={customAgent} onChange={setCustomAgent} placeholder="e.g. untrusted-agent" />
                 <Field label="Amount ($)" value={customAmount} onChange={setCustomAmount} placeholder="0" type="number" />
                 <div>
-                  <label className="text-[11px] text-slate-500 block mb-1">Parameters</label>
+                  <label className="text-[11px] text-zinc-500 block mb-1">Parameters</label>
                   {customParams.map((p, i) => (
                     <div key={i} className="flex gap-1.5 mb-1.5">
                       <input
-                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
+                        className="flex-1 bg-slate-900 border border-amber-500/20 px-2.5 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:border-amber-500/40 focus:outline-none transition"
                         placeholder="key"
                         value={p.key}
                         onChange={(e) => {
@@ -690,7 +690,7 @@ export default function TryPage() {
                         }}
                       />
                       <input
-                        className="flex-1 bg-slate-900 border border-navy-600 rounded-lg px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
+                        className="flex-1 bg-slate-900 border border-amber-500/20 px-2.5 py-1.5 text-sm text-white placeholder:text-zinc-500 focus:border-amber-500/40 focus:outline-none transition"
                         placeholder="value"
                         value={p.value}
                         onChange={(e) => {
@@ -701,7 +701,7 @@ export default function TryPage() {
                       />
                       <button
                         onClick={() => setCustomParams(customParams.filter((_, j) => j !== i))}
-                        className="text-slate-500 hover:text-red-400 transition p-1"
+                        className="text-zinc-500 hover:text-red-400 transition p-1"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -709,13 +709,13 @@ export default function TryPage() {
                   ))}
                   <button
                     onClick={() => setCustomParams([...customParams, { key: "", value: "" }])}
-                    className="flex items-center gap-1 text-xs text-gold-400 hover:text-gold-300 transition mt-1"
+                    className="flex items-center gap-1 text-xs text-amber-500 hover:text-gold-300 transition mt-1"
                   >
                     <Plus className="w-3 h-3" /> Add parameter
                   </button>
                 </div>
                 <div className="pt-1">
-                  <p className="text-[10px] text-slate-500 leading-relaxed">
+                  <p className="text-[10px] text-zinc-500 leading-relaxed">
                     Try: &quot;untrusted-agent&quot; → denied · amount &gt;$10K → T2 · &quot;delete&quot; in action → T2 · &quot;deploy&quot; after 6PM → T1+
                   </p>
                 </div>
@@ -723,28 +723,28 @@ export default function TryPage() {
             )}
 
             {/* Risk Tier Legend */}
-            <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Risk Tier Legend</h4>
+            <div className="bg-slate-800/50 border border-zinc-800 p-4">
+              <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Risk Tier Legend</h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-xs">
                   <span className="w-6 h-4 rounded bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 font-mono text-[10px] font-bold">T0</span>
-                  <span className="text-slate-300">Auto-approved (low risk)</span>
+                  <span className="text-zinc-300">Auto-approved (low risk)</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="w-6 h-4 rounded bg-gold-400/10 border border-gold-400/30 flex items-center justify-center text-gold-400 font-mono text-[10px] font-bold">T1</span>
-                  <span className="text-slate-300">Single approval required</span>
+                  <span className="w-6 h-4 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 font-mono text-[10px] font-bold">T1</span>
+                  <span className="text-zinc-300">Single approval required</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="w-6 h-4 rounded bg-orange-400/10 border border-orange-400/30 flex items-center justify-center text-orange-400 font-mono text-[10px] font-bold">T2</span>
-                  <span className="text-slate-300">Multi-party approval</span>
+                  <span className="text-zinc-300">Multi-party approval</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="w-6 h-4 rounded bg-red-400/10 border border-red-400/30 flex items-center justify-center text-red-400 font-mono text-[10px] font-bold">T3</span>
-                  <span className="text-slate-300">Legal/executive review</span>
+                  <span className="text-zinc-300">Legal/executive review</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="w-6 h-4 rounded bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 font-mono text-[9px] font-bold">⚠</span>
-                  <span className="text-slate-300">Policy violation (deny)</span>
+                  <span className="text-zinc-300">Policy violation (deny)</span>
                 </div>
               </div>
             </div>
@@ -754,7 +754,7 @@ export default function TryPage() {
               <button
                 onClick={execute}
                 disabled={loading || runningAllScenarios}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-300 disabled:from-gold-400/50 disabled:to-gold-400/50 text-slate-950 font-bold px-6 py-4 rounded-xl transition text-sm shadow-lg shadow-gold-400/20"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-400 to-gold-400 hover:from-gold-400 hover:to-gold-300 disabled:from-gold-400/50 disabled:to-gold-400/50 text-slate-950 font-bold px-6 py-4 transition text-sm shadow-lg shadow-gold-400/20"
               >
                 {loading ? (
                   <>
@@ -765,7 +765,7 @@ export default function TryPage() {
                         setLoading(false);
                         setAnimatingStep(-1);
                       }}
-                      className="ml-2 text-slate-700 hover:text-navy-600 text-xs"
+                      className="ml-2 text-zinc-600 hover:text-zinc-600 text-xs"
                     >
                       Cancel
                     </button>
@@ -781,7 +781,7 @@ export default function TryPage() {
               <button
                 onClick={runAllScenarios}
                 disabled={loading || runningAllScenarios}
-                className="w-full flex items-center justify-center gap-2 bg-gold-400/90 hover:bg-gold-300 disabled:bg-gold-400/30 text-white font-medium px-4 py-3 rounded-lg transition text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-amber-500/90 hover:bg-amber-400 disabled:bg-amber-500/30 text-white font-medium px-4 py-3 transition text-sm"
               >
                 {runningAllScenarios ? (
                   <>
@@ -795,7 +795,7 @@ export default function TryPage() {
                 )}
               </button>
               
-              <div className="text-[10px] text-slate-500 text-center space-y-1">
+              <div className="text-[10px] text-zinc-500 text-center space-y-1">
                 <p>Enter: Execute • ↑↓: Navigate • Esc: Cancel • ⌘R: Run All</p>
                 <p>Simulated locally • Click steps for details</p>
               </div>
@@ -806,15 +806,15 @@ export default function TryPage() {
           <div className="min-w-0" ref={pipelineRef}>
             {/* Tabs */}
             {result && (
-              <div className="flex gap-1 mb-4 bg-slate-800/50 rounded-xl p-1 overflow-x-auto">
+              <div className="flex gap-1 mb-4 bg-slate-800/50 p-1 overflow-x-auto">
                 {(["pipeline", "warrant", "chain", "trust", "ows", "audit", "policies"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition capitalize ${
+                    className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium transition capitalize ${
                       activeTab === tab
                         ? "bg-slate-700 text-white"
-                        : "text-slate-500 hover:text-slate-300"
+                        : "text-zinc-500 hover:text-zinc-300"
                     } ${tab === "warrant" && !result.warrant ? "opacity-40 cursor-not-allowed" : ""}`}
                     disabled={tab === "warrant" && !result.warrant}
                   >
@@ -833,25 +833,25 @@ export default function TryPage() {
 
             {/* Error state */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center">
+              <div className="bg-red-500/10 border border-red-500/20 p-6 text-center">
                 <p className="text-red-400 font-medium mb-1">Pipeline Error</p>
-                <p className="text-sm text-slate-500">{error}</p>
+                <p className="text-sm text-zinc-500">{error}</p>
               </div>
             )}
 
             {/* Empty state */}
             {!result && !loading && !error && (
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden min-h-[400px]">
+              <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden min-h-[400px]">
                 {/* Interactive demo header */}
-                <div className="bg-slate-800 border-b border-slate-700/50 px-6 py-4">
+                <div className="bg-slate-800 border-b border-zinc-800 px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-gold-400" />
+                      <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-amber-500" />
                       </div>
                       <div>
                         <h3 className="text-white font-semibold">Interactive Governance Simulator</h3>
-                        <p className="text-xs text-slate-500">Submit a mock intent and watch it flow through the pipeline</p>
+                        <p className="text-xs text-zinc-500">Submit a mock intent and watch it flow through the pipeline</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -866,30 +866,30 @@ export default function TryPage() {
                   {interactiveMode === 'scenarios' && (
                     <div className="mb-6">
                       <div className="mb-4">
-                        <h4 className="text-sm font-semibold text-slate-400 mb-3">Governance Pipeline Flow</h4>
+                        <h4 className="text-sm font-semibold text-zinc-400 mb-3">Governance Pipeline Flow</h4>
                         <div className="flex flex-wrap items-center gap-2 justify-center">
                           {["Intent Gateway", "Policy Engine", "Risk Assessment", "Approval Gate", "Warrant Issuer", "Execution Router", "Verification Engine", "Audit Logger"].map((step, i) => (
                             <div key={step} className="flex items-center">
-                              <div className="bg-slate-900/50 border border-slate-700/50 rounded-lg p-3 text-center group hover:border-gold-400/30 hover:bg-gold-400/5 transition-all duration-300 min-w-[100px]">
+                              <div className="bg-black border border-zinc-800 p-3 text-center group hover:border-amber-500/30 hover:bg-amber-500/5 transition-all duration-300 min-w-[100px]">
                                 <div className="text-xl mb-1">
                                   {['I','P','R','A','W','E','V','L'][i]}
                                 </div>
-                                <div className="text-xs text-slate-400 font-medium leading-tight">{step}</div>
-                                <div className="text-[10px] text-slate-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="text-xs text-zinc-400 font-medium leading-tight">{step}</div>
+                                <div className="text-[10px] text-zinc-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                   Step {i + 1}
                                 </div>
                               </div>
                               {i < 7 && (
-                                <ArrowRight className="w-4 h-4 text-slate-500 mx-1 flex-shrink-0" />
+                                <ArrowRight className="w-4 h-4 text-zinc-500 mx-1 flex-shrink-0" />
                               )}
                             </div>
                           ))}
                         </div>
                       </div>
                       
-                      <div className="bg-slate-900/30 border border-slate-700/30 rounded-lg p-4">
+                      <div className="bg-slate-900/30 border border-slate-700/30 p-4">
                         <div className="flex items-center gap-3 mb-3">
-                          <span className="text-sm text-gold-400 font-medium">Try these scenarios:</span>
+                          <span className="text-sm text-amber-500 font-medium">Try these scenarios:</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {[
@@ -898,7 +898,7 @@ export default function TryPage() {
                             "Patient record update (HIPAA compliant)", 
                             "Read-only query (T0 auto-approved)"
                           ].map((suggestion) => (
-                            <div key={suggestion} className="text-xs text-slate-500 bg-slate-800/50 rounded px-3 py-2 border border-slate-700/30">
+                            <div key={suggestion} className="text-xs text-zinc-500 bg-slate-800/50 rounded px-3 py-2 border border-slate-700/30">
                               {suggestion}
                             </div>
                           ))}
@@ -911,7 +911,7 @@ export default function TryPage() {
                     <div className="mb-6 space-y-4">
                       <div className="text-center mb-6">
                         <h3 className="text-xl font-semibold text-white mb-2">Risk Tier Explorer</h3>
-                        <p className="text-slate-400 text-sm">Understand how Vienna OS classifies and handles different risk levels</p>
+                        <p className="text-zinc-400 text-sm">Understand how Vienna OS classifies and handles different risk levels</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -960,7 +960,7 @@ export default function TryPage() {
                           <div
                             key={t.tier}
                             className={`
-                              bg-slate-900/30 border rounded-xl p-4 transition-all hover:border-${t.color}-400/30 hover:bg-${t.color}-400/5
+                              bg-slate-900/30 border p-4 transition-all hover:border-${t.color}-400/30 hover:bg-${t.color}-400/5
                               ${selectedTier === t.tier ? `border-${t.color}-400/30 bg-${t.color}-400/5` : 'border-slate-700/30'}
                             `}
                           >
@@ -968,13 +968,13 @@ export default function TryPage() {
                               <span className="text-2xl">{t.icon}</span>
                               <div>
                                 <h4 className="text-white font-semibold">{t.tier} - {t.label}</h4>
-                                <p className="text-xs text-slate-500">{t.approval} • {t.timing}</p>
+                                <p className="text-xs text-zinc-500">{t.approval} • {t.timing}</p>
                               </div>
                             </div>
-                            <p className="text-sm text-slate-400 mb-3 leading-relaxed">{t.description}</p>
+                            <p className="text-sm text-zinc-400 mb-3 leading-relaxed">{t.description}</p>
                             <div className="space-y-1">
                               {t.examples.map((example) => (
-                                <div key={example} className="text-xs text-slate-500 bg-slate-800/50 rounded px-2 py-1">
+                                <div key={example} className="text-xs text-zinc-500 bg-slate-800/50 rounded px-2 py-1">
                                   {example}
                                 </div>
                               ))}
@@ -989,29 +989,29 @@ export default function TryPage() {
                     <div className="mb-6 space-y-4">
                       <div className="text-center mb-6">
                         <h3 className="text-xl font-semibold text-white mb-2">Interactive Warrant Creation</h3>
-                        <p className="text-slate-400 text-sm">See how Vienna OS creates cryptographic authorization proofs</p>
+                        <p className="text-zinc-400 text-sm">See how Vienna OS creates cryptographic authorization proofs</p>
                       </div>
 
-                      <div className="bg-slate-900/30 border border-slate-700/30 rounded-xl p-6">
+                      <div className="bg-slate-900/30 border border-slate-700/30 p-6">
                         <div className="space-y-4">
                           {/* Warrant Properties Preview */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
-                              <h4 className="text-sm font-semibold text-slate-400">Warrant Properties</h4>
+                              <h4 className="text-sm font-semibold text-zinc-400">Warrant Properties</h4>
                               <div className="space-y-2">
-                                <div className="bg-slate-800/50 rounded-lg p-3">
-                                  <div className="text-xs text-slate-500 mb-1">Scope</div>
-                                  <div className="font-mono text-xs text-gold-400">action: {selected}</div>
-                                  <div className="font-mono text-xs text-gold-400">resource: production.api</div>
+                                <div className="bg-slate-800/50 p-3">
+                                  <div className="text-xs text-zinc-500 mb-1">Scope</div>
+                                  <div className="font-mono text-xs text-amber-500">action: {selected}</div>
+                                  <div className="font-mono text-xs text-amber-500">resource: production.api</div>
                                 </div>
-                                <div className="bg-slate-800/50 rounded-lg p-3">
-                                  <div className="text-xs text-slate-500 mb-1">TTL</div>
+                                <div className="bg-slate-800/50 p-3">
+                                  <div className="text-xs text-zinc-500 mb-1">TTL</div>
                                   <div className="font-mono text-xs text-emerald-400">60 seconds</div>
                                 </div>
                               </div>
                             </div>
                             <div className="space-y-3">
-                              <h4 className="text-sm font-semibold text-slate-400">Security Features</h4>
+                              <h4 className="text-sm font-semibold text-zinc-400">Security Features</h4>
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2 text-xs text-emerald-400">
                                   <span>✓</span> HMAC-SHA256 signature
@@ -1030,7 +1030,7 @@ export default function TryPage() {
                           </div>
 
                           <div className="border-t border-slate-700/30 pt-4">
-                            <div className="text-xs text-slate-500 space-y-1">
+                            <div className="text-xs text-zinc-500 space-y-1">
                               <div>Warrant ID: warrant_2024{Date.now().toString().slice(-6)}</div>
                               <div>Risk Tier: {selectedScenario.tier}</div>
                               <div>Approver: {selectedScenario.tier === 'T0' ? 'Auto-system' : selectedScenario.tier === 'T1' ? 'Policy Engine' : 'Human Required'}</div>
@@ -1042,7 +1042,7 @@ export default function TryPage() {
                   )}
 
                   <div className="text-center">
-                    <p className="text-slate-400 text-sm mb-4 max-w-md mx-auto">
+                    <p className="text-zinc-400 text-sm mb-4 max-w-md mx-auto">
                       {interactiveMode === 'scenarios' && "Select a scenario and click \"Execute Pipeline\" to see the governance pipeline in action."}
                       {interactiveMode === 'tier_picker' && "Pick a risk tier above to explore different approval workflows and timing."}
                       {interactiveMode === 'warrant_builder' && "Choose an action above to see how warrants are created with cryptographic proofs."}
@@ -1050,19 +1050,19 @@ export default function TryPage() {
                     </p>
                     
                     <div className="flex items-center justify-center gap-4 flex-wrap">
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <div className="flex items-center gap-2 text-xs text-zinc-500">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
                         <span>Real-time simulation</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold-400"></div>
+                      <div className="flex items-center gap-2 text-xs text-zinc-500">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
                         <span>Interactive controls</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold-400"></div>
+                      <div className="flex items-center gap-2 text-xs text-zinc-500">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
                         <span>Full audit trail</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <div className="flex items-center gap-2 text-xs text-zinc-500">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
                         <span>Cryptographic warrants</span>
                       </div>
@@ -1076,9 +1076,9 @@ export default function TryPage() {
             {loading && !result && (
               <div className="space-y-3">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="bg-slate-800/50 border border-slate-700/30 rounded-xl p-4 animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
+                  <div key={i} className="bg-slate-800/50 border border-slate-700/30 p-4 animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-slate-700/50" />
+                      <div className="w-8 h-8 bg-slate-700/50" />
                       <div className="flex-1">
                         <div className="h-3 bg-slate-700/50 rounded w-32 mb-2" />
                         <div className="h-2 bg-slate-700/30 rounded w-64" />
@@ -1094,12 +1094,12 @@ export default function TryPage() {
             {result && activeTab === "pipeline" && (
               <div className="space-y-2">
                 {/* Outcome banner */}
-                <div className={`rounded-xl p-4 mb-4 border ${
+                <div className={`p-4 mb-4 border ${
                   result.outcome === "denied"
                     ? "bg-red-500/5 border-red-500/20"
                     : result.outcome === "auto-approved"
                     ? "bg-emerald-500/5 border-emerald-500/20"
-                    : "bg-gold-400/5 border-gold-400/20"
+                    : "bg-amber-500/5 border-amber-500/20"
                 }`}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
@@ -1109,7 +1109,7 @@ export default function TryPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <p className={`font-semibold text-sm ${
-                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-gold-400"
+                            result.outcome === "denied" ? "text-red-400" : result.outcome === "auto-approved" ? "text-emerald-400" : "text-amber-500"
                           }`}>
                             {result.outcome === "denied" ? "Action Denied" : result.outcome === "auto-approved" ? "Auto-Approved" : "Approved"}
                             {" — "}
@@ -1120,27 +1120,27 @@ export default function TryPage() {
                             <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
                               result.execution_mode === "vienna_direct" 
                                 ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
-                                : "bg-gold-400/10 text-gold-400 border border-gold-400/20"
+                                : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                             }`}>
                               {result.execution_mode === "vienna_direct" ? "Vienna Direct" : "Agent Passback"}
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <div className="flex items-center gap-2 text-xs text-zinc-500">
                           <span>Execution {result.execution_id.slice(0, 8)}… · {result.total_duration_ms}ms total</span>
                           {/* Execution Mode Explanation */}
                           {result.execution_mode === "vienna_direct" && result.outcome !== "denied" && (
                             <span className="text-[10px] text-emerald-400">• Zero human latency</span>
                           )}
                           {result.execution_mode === "agent_passback" && (
-                            <span className="text-[10px] text-gold-400">• Human oversight required</span>
+                            <span className="text-[10px] text-amber-500">• Human oversight required</span>
                           )}
                         </div>
                       </div>
                     </div>
                     <a
                       href={selectedScenario.docs}
-                      className="text-xs text-gold-400 hover:text-gold-300 transition flex items-center gap-1"
+                      className="text-xs text-amber-500 hover:text-gold-300 transition flex items-center gap-1"
                     >
                       Learn more <ArrowRight className="w-3 h-3" />
                     </a>
@@ -1149,7 +1149,7 @@ export default function TryPage() {
 
                 {/* Pipeline Progress Bar */}
                 <div className="mb-4">
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
+                  <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                     <span>Pipeline Progress</span>
                     <span>{visibleSteps.length}/{result.pipeline.length} steps completed</span>
                   </div>
@@ -1179,9 +1179,9 @@ export default function TryPage() {
                         }
                       }}
                       className={`
-                        rounded-xl border p-3.5 transition-all duration-500 cursor-pointer group relative
+                        border p-3.5 transition-all duration-500 cursor-pointer group relative
                         ${!visible ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}
-                        ${active ? "border-gold-400/40 bg-gold-400/5 shadow-[0_0_20px_rgba(212,165,32,0.08)] animate-pulse" : ""}
+                        ${active ? "border-amber-500/40 bg-amber-500/5 shadow-[0_0_20px_rgba(212,165,32,0.08)] animate-pulse" : ""}
                         ${isDenied && visible && !active ? "border-red-500/30 bg-red-500/5" : ""}
                         ${isSkipped && visible && !active ? "border-slate-700/30 bg-slate-800/30 opacity-50" : ""}
                         ${isComplete && !isDenied && !isSkipped ? "border-emerald-400/20 bg-emerald-400/5 hover:border-emerald-400/40" : ""}
@@ -1190,13 +1190,13 @@ export default function TryPage() {
                     >
                       {/* Connecting line between steps */}
                       {i > 0 && visible && (
-                        <div className="absolute -top-3 left-7 w-0.5 h-6 bg-gold-400/30" />
+                        <div className="absolute -top-3 left-7 w-0.5 h-6 bg-amber-500/30" />
                       )}
 
                       <div className="flex items-start gap-3">
                         <div className={`
-                          w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm transition-all duration-500 relative
-                          ${active ? "bg-gold-400/20 scale-110" : ""}
+                          w-8 h-8 flex items-center justify-center flex-shrink-0 text-sm transition-all duration-500 relative
+                          ${active ? "bg-amber-500/20 scale-110" : ""}
                           ${isDenied && !active ? "bg-red-500/10 border-2 border-red-500/30" : ""}
                           ${isSkipped && !active ? "bg-slate-700/30" : ""}
                           ${isComplete && !isDenied && !isSkipped ? "bg-emerald-400/10 border-2 border-emerald-400/30" : ""}
@@ -1204,12 +1204,12 @@ export default function TryPage() {
                         `}>
                           {/* Pulse effect for active step */}
                           {active && (
-                            <div className="absolute inset-0 rounded-lg bg-gold-400/20 animate-ping" />
+                            <div className="absolute inset-0 bg-amber-500/20 animate-ping" />
                           )}
                           
                           {/* Status-based icon */}
                           {isSkipped ? (
-                            <span className="text-slate-500">—</span>
+                            <span className="text-zinc-500">—</span>
                           ) : isDenied ? (
                             <span className="text-red-400 font-bold">✗</span>
                           ) : isComplete ? (
@@ -1222,9 +1222,9 @@ export default function TryPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className={`font-medium text-sm transition-colors ${
-                              isSkipped ? "text-slate-500" : 
+                              isSkipped ? "text-zinc-500" : 
                               isDenied ? "text-red-400" : 
-                              active ? "text-gold-400" :
+                              active ? "text-amber-500" :
                               isComplete ? "text-emerald-400" : "text-white"
                             }`}>
                               {step.label}
@@ -1235,7 +1235,7 @@ export default function TryPage() {
                               <span className={`
                                 inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded transition-all
                                 ${isDenied ? "text-red-400 bg-red-400/10 border border-red-400/20" : 
-                                  active ? "text-gold-400 bg-gold-400/10 border border-gold-400/20 animate-pulse" :
+                                  active ? "text-amber-500 bg-amber-500/10 border border-amber-500/20 animate-pulse" :
                                   "text-emerald-400 bg-emerald-400/10 border border-emerald-400/20"}
                               `}>
                                 {isDenied ? "✗ denied" : active ? "⏳ running" : "✓ complete"}
@@ -1244,16 +1244,16 @@ export default function TryPage() {
                             
                             {/* Click hint */}
                             {visible && (
-                              <span className="text-[9px] text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <span className="text-[9px] text-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity">
                                 Click for audit
                               </span>
                             )}
                           </div>
                           
                           <p className={`text-xs leading-relaxed transition-colors ${
-                            isSkipped ? "text-slate-600" : 
-                            active ? "text-slate-300" : 
-                            "text-slate-500"
+                            isSkipped ? "text-zinc-600" : 
+                            active ? "text-zinc-300" : 
+                            "text-zinc-500"
                           }`}>
                             {step.detail}
                           </p>
@@ -1262,11 +1262,11 @@ export default function TryPage() {
                         {/* Duration and step number */}
                         <div className="flex flex-col items-end gap-1">
                           {visible && step.duration_ms > 0 && (
-                            <span className="text-[10px] font-mono text-slate-500">
+                            <span className="text-[10px] font-mono text-zinc-500">
                               {step.duration_ms}ms
                             </span>
                           )}
-                          <span className="text-[9px] text-slate-600 font-mono">
+                          <span className="text-[9px] text-zinc-600 font-mono">
                             #{i + 1}
                           </span>
                         </div>
@@ -1279,19 +1279,19 @@ export default function TryPage() {
 
             {/* ─── Warrant Inspector ─── */}
             {result && activeTab === "warrant" && result.warrant && (
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
+              <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
                 {/* Warrant header */}
-                <div className="bg-gold-400/5 border-b border-gold-400/10 px-5 py-4 flex items-center justify-between">
+                <div className="bg-amber-500/5 border-b border-amber-500/10 px-5 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-mono text-gold-400">W</span>
+                    <span className="text-xl font-mono text-amber-500">W</span>
                     <div>
                       <h3 className="text-white font-semibold text-sm">Cryptographic Warrant</h3>
-                      <p className="text-[11px] font-mono text-slate-500">{result.warrant.warrant_id}</p>
+                      <p className="text-[11px] font-mono text-zinc-500">{result.warrant.warrant_id}</p>
                     </div>
                   </div>
                   {/* Verified stamp with enhanced animation */}
                   <div className={`
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all duration-700 relative
+                    flex items-center gap-1.5 px-3 py-1.5 border transition-all duration-700 relative
                     ${warrantVerified
                       ? "bg-emerald-400/10 border-emerald-400/30 scale-100 opacity-100"
                       : showWarrant
@@ -1301,13 +1301,13 @@ export default function TryPage() {
                   `}>
                     {/* Stamp effect ring */}
                     {warrantVerified && (
-                      <div className="absolute inset-0 rounded-lg border-2 border-emerald-400/50 animate-ping" />
+                      <div className="absolute inset-0 border-2 border-emerald-400/50 animate-ping" />
                     )}
                     
-                    <span className={`text-sm transition-all duration-500 ${warrantVerified ? "text-emerald-400" : "text-slate-500"}`}>
+                    <span className={`text-sm transition-all duration-500 ${warrantVerified ? "text-emerald-400" : "text-zinc-500"}`}>
                       {warrantVerified ? "✓" : "…"}
                     </span>
-                    <span className={`text-xs font-semibold transition-all duration-300 ${warrantVerified ? "text-emerald-400" : "text-slate-500"}`}>
+                    <span className={`text-xs font-semibold transition-all duration-300 ${warrantVerified ? "text-emerald-400" : "text-zinc-500"}`}>
                       {warrantVerified ? "VERIFIED" : "Verifying"}
                     </span>
                   </div>
@@ -1324,9 +1324,9 @@ export default function TryPage() {
 
                   {/* Scope */}
                   <div>
-                    <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Scope</h4>
-                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-3">
-                      <pre className="text-xs font-mono text-gold-400 overflow-x-auto whitespace-pre-wrap">
+                    <h4 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Scope</h4>
+                    <div className="bg-black border border-zinc-800 p-3">
+                      <pre className="text-xs font-mono text-amber-500 overflow-x-auto whitespace-pre-wrap">
                         {JSON.stringify(result.warrant.scope, null, 2)}
                       </pre>
                     </div>
@@ -1334,9 +1334,9 @@ export default function TryPage() {
 
                   {/* Constraints */}
                   <div>
-                    <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Constraints</h4>
-                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-3">
-                      <pre className="text-xs font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                    <h4 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Constraints</h4>
+                    <div className="bg-black border border-zinc-800 p-3">
+                      <pre className="text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap">
                         {JSON.stringify(result.warrant.constraints, null, 2)}
                       </pre>
                     </div>
@@ -1344,9 +1344,9 @@ export default function TryPage() {
 
                   {/* Signature */}
                   <div>
-                    <h4 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Signature Hash</h4>
-                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-3">
-                      <p className="text-[11px] font-mono text-slate-500 break-all">{result.warrant.signature_hash}</p>
+                    <h4 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Signature Hash</h4>
+                    <div className="bg-black border border-zinc-800 p-3">
+                      <p className="text-[11px] font-mono text-zinc-500 break-all">{result.warrant.signature_hash}</p>
                     </div>
                   </div>
                 </div>
@@ -1355,13 +1355,13 @@ export default function TryPage() {
 
             {/* ─── Audit Trail ─── */}
             {result && activeTab === "audit" && (
-              <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
-                <div className="bg-slate-800 border-b border-slate-700/50 px-5 py-3 flex items-center justify-between">
+              <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
+                <div className="bg-slate-800 border-b border-zinc-800 px-5 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="v-status-dot v-status-success" />
                     <h3 className="text-white font-semibold text-sm">Immutable Audit Trail</h3>
                   </div>
-                  <span className="text-[10px] font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded">
+                  <span className="text-[10px] font-mono text-zinc-500 bg-slate-900 px-2 py-1 rounded">
                     {result.audit_trail.length} entries · tamper-evident
                   </span>
                 </div>
@@ -1369,7 +1369,7 @@ export default function TryPage() {
                   {result.audit_trail.map((entry, i) => (
                     <div key={i} className="px-5 py-3 flex gap-4 hover:bg-slate-700/10 transition">
                       <div className="flex-shrink-0 w-[72px]">
-                        <span className="text-[10px] font-mono text-slate-500">
+                        <span className="text-[10px] font-mono text-zinc-500">
                           {new Date(entry.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
@@ -1377,13 +1377,13 @@ export default function TryPage() {
                         <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
                           entry.event.includes("denied") || entry.event.includes("ALERT")
                             ? "text-red-400 bg-red-400/10"
-                            : "text-gold-400 bg-gold-400/10"
+                            : "text-amber-500 bg-amber-500/10"
                         }`}>
                           {entry.event}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 flex-1">{entry.detail}</p>
-                      <span className="text-[9px] text-slate-600 flex-shrink-0" title="Immutable entry">●</span>
+                      <p className="text-xs text-zinc-400 flex-1">{entry.detail}</p>
+                      <span className="text-[9px] text-zinc-600 flex-shrink-0" title="Immutable entry">●</span>
                     </div>
                   ))}
                 </div>
@@ -1393,13 +1393,13 @@ export default function TryPage() {
             {/* ─── Policy Rules ─── */}
             {result && activeTab === "policies" && (
               <div className="space-y-3">
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-800 border-b border-slate-700/50 px-5 py-3 flex items-center justify-between">
+                <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
+                  <div className="bg-slate-800 border-b border-zinc-800 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="v-status-dot v-status-info" />
                       <h3 className="text-white font-semibold text-sm">Policy Rules Evaluated</h3>
                     </div>
-                    <span className="text-[10px] font-mono text-slate-500">
+                    <span className="text-[10px] font-mono text-zinc-500">
                       {result.policy_rules.filter((r) => r.matched).length}/{result.policy_rules.length} matched
                     </span>
                   </div>
@@ -1411,21 +1411,21 @@ export default function TryPage() {
                         </span>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-xs font-mono text-slate-500">{rule.rule_id}</span>
+                            <span className="text-xs font-mono text-zinc-500">{rule.rule_id}</span>
                             <span className="text-sm text-white font-medium">{rule.name}</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 font-mono">{rule.conditions}</p>
+                          <p className="text-[11px] text-zinc-500 font-mono">{rule.conditions}</p>
                           {rule.result && (
                             <p className={`text-xs mt-1 ${
                               rule.result.startsWith("DENIED") || rule.result.startsWith("VIOLATION")
                                 ? "text-red-400"
-                                : "text-gold-400"
+                                : "text-amber-500"
                             }`}>
                               → {rule.result}
                             </p>
                           )}
                         </div>
-                        <span className={`text-[10px] font-mono flex-shrink-0 ${rule.matched ? "text-gold-400" : "text-slate-600"}`}>
+                        <span className={`text-[10px] font-mono flex-shrink-0 ${rule.matched ? "text-amber-500" : "text-zinc-600"}`}>
                           {rule.matched ? "matched" : "skipped"}
                         </span>
                       </div>
@@ -1435,7 +1435,7 @@ export default function TryPage() {
 
                 <a
                   href="/docs#policies"
-                  className="flex items-center justify-center gap-2 bg-gold-400/10 border border-gold-400/20 text-gold-400 hover:bg-gold-400/15 rounded-xl px-4 py-3 transition text-sm font-medium"
+                  className="flex items-center justify-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/15 px-4 py-3 transition text-sm font-medium"
                 >
                   Build your own policies <ArrowRight className="w-4 h-4" />
                 </a>
@@ -1445,8 +1445,8 @@ export default function TryPage() {
             {/* ─── Merkle Warrant Chain Tab ─── */}
             {result && activeTab === "chain" && result.merkle_chain && (
               <div className="space-y-3">
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-800 border-b border-slate-700/50 px-5 py-3 flex items-center justify-between">
+                <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
+                  <div className="bg-slate-800 border-b border-zinc-800 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="v-status-dot v-status-success" />
                       <h3 className="text-white font-semibold text-sm">Merkle Warrant Chain</h3>
@@ -1456,7 +1456,7 @@ export default function TryPage() {
                     </span>
                   </div>
                   <div className="p-5 space-y-4">
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-xs text-zinc-400 leading-relaxed">
                       This warrant has been appended to an immutable, hash-linked chain. 
                       Each warrant&apos;s hash includes the previous warrant&apos;s hash — any tampering is instantly detectable.
                       Third-party auditors can verify the chain without trusting Vienna OS.
@@ -1470,10 +1470,10 @@ export default function TryPage() {
                         { idx: result.merkle_chain!.chain_index, current: true },
                       ].filter(b => b.idx >= 0).map((block, i) => (
                         <div key={i} className="flex items-center gap-2 flex-shrink-0">
-                          {i > 0 && <div className="text-slate-500">→</div>}
-                          <div className={`border rounded-lg p-3 min-w-[140px] ${block.current ? 'border-gold-400/50 bg-gold-400/5' : 'border-navy-600 bg-slate-800/50'}`}>
-                            <div className="text-[10px] text-slate-500 mb-1">Block #{block.idx}</div>
-                            <div className="text-[10px] font-mono text-slate-400 truncate max-w-[120px]">
+                          {i > 0 && <div className="text-zinc-500">→</div>}
+                          <div className={`border p-3 min-w-[140px] ${block.current ? 'border-amber-500/50 bg-amber-500/5' : 'border-amber-500/20 bg-slate-800/50'}`}>
+                            <div className="text-[10px] text-zinc-500 mb-1">Block #{block.idx}</div>
+                            <div className="text-[10px] font-mono text-zinc-400 truncate max-w-[120px]">
                               {block.current ? result.merkle_chain!.chain_hash.slice(7, 23) + '...' : sha256Short()}
                             </div>
                           </div>
@@ -1482,23 +1482,23 @@ export default function TryPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-900/50 rounded-lg p-3">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Index</div>
-                        <div className="text-sm font-mono text-gold-400">{result.merkle_chain!.chain_index.toLocaleString()}</div>
+                      <div className="bg-black p-3">
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Chain Index</div>
+                        <div className="text-sm font-mono text-amber-500">{result.merkle_chain!.chain_index.toLocaleString()}</div>
                       </div>
-                      <div className="bg-slate-900/50 rounded-lg p-3">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Merkle Root</div>
+                      <div className="bg-black p-3">
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Merkle Root</div>
                         <div className="text-sm font-mono text-white truncate">{result.merkle_chain!.merkle_root.slice(7, 23)}...</div>
                       </div>
-                      <div className="bg-slate-900/50 rounded-lg p-3 col-span-2">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Chain Hash</div>
-                        <div className="text-xs font-mono text-slate-300 break-all">{result.merkle_chain!.chain_hash}</div>
+                      <div className="bg-black p-3 col-span-2">
+                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Chain Hash</div>
+                        <div className="text-xs font-mono text-zinc-300 break-all">{result.merkle_chain!.chain_hash}</div>
                       </div>
                     </div>
 
-                    <div className="bg-gold-400/5 border border-gold-400/20 rounded-lg p-3">
+                    <div className="bg-amber-500/5 border border-amber-500/20 p-3">
                       <div className="text-xs text-gold-300 font-medium mb-1">Why this matters</div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
                         A SOC 2 auditor can verify this entire governance chain without accessing your Vienna OS instance. 
                         They only need the Merkle proof — the math proves integrity. No trust required.
                       </p>
@@ -1511,23 +1511,23 @@ export default function TryPage() {
             {/* ─── Agent Trust Score Tab ─── */}
             {result && activeTab === "trust" && result.trust_score && (
               <div className="space-y-3">
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-800 border-b border-slate-700/50 px-5 py-3 flex items-center justify-between">
+                <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
+                  <div className="bg-slate-800 border-b border-zinc-800 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="v-status-dot v-status-info" />
                       <h3 className="text-white font-semibold text-sm">Agent Trust Score</h3>
                     </div>
-                    <span className="text-sm font-mono text-slate-400">{result.trust_score.agent_id}</span>
+                    <span className="text-sm font-mono text-zinc-400">{result.trust_score.agent_id}</span>
                   </div>
                   <div className="p-5 space-y-4">
                     {/* Score dial */}
                     <div className="text-center py-4">
                       <div className="text-6xl font-bold text-white mb-1">{result.trust_score.score}</div>
-                      <div className="text-sm text-slate-400">out of 100</div>
+                      <div className="text-sm text-zinc-400">out of 100</div>
                       <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
                         result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-emerald-400' :
                         result.trust_score.level === 'good' ? 'bg-blue-500/20 text-blue-400' :
-                        result.trust_score.level === 'watch' ? 'bg-gold-400/20 text-gold-300' :
+                        result.trust_score.level === 'watch' ? 'bg-amber-500/20 text-gold-300' :
                         'bg-red-500/20 text-red-400'
                       }`}>
                         {result.trust_score.level.toUpperCase()}
@@ -1538,22 +1538,22 @@ export default function TryPage() {
                     <div className="space-y-2">
                       {Object.entries(result.trust_score.components).map(([name, comp]) => (
                         <div key={name} className="flex items-center gap-3">
-                          <div className="w-24 text-[11px] text-slate-400 capitalize">{name.replace(/_/g, ' ')}</div>
+                          <div className="w-24 text-[11px] text-zinc-400 capitalize">{name.replace(/_/g, ' ')}</div>
                           <div className="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-gold-400 to-gold-400 transition-all duration-1000"
                               style={{ width: `${(comp.score / comp.max) * 100}%` }}
                             />
                           </div>
-                          <div className="text-[11px] font-mono text-slate-500 w-10 text-right">{comp.score}/{comp.max}</div>
+                          <div className="text-[11px] font-mono text-zinc-500 w-10 text-right">{comp.score}/{comp.max}</div>
                         </div>
                       ))}
                     </div>
 
                     {/* Recommendation */}
-                    <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
+                    <div className="bg-blue-500/5 border border-blue-500/20 p-3">
                       <div className="text-xs text-blue-300 font-medium mb-1">Governance Recommendation</div>
-                      <p className="text-xs text-slate-400">{result.trust_score.recommendation}</p>
+                      <p className="text-xs text-zinc-400">{result.trust_score.recommendation}</p>
                     </div>
                   </div>
                 </div>
@@ -1563,28 +1563,28 @@ export default function TryPage() {
             {/* ─── OWS Token Tab ─── */}
             {result && activeTab === "ows" && result.ows_token && (
               <div className="space-y-3">
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-800 border-b border-slate-700/50 px-5 py-3 flex items-center justify-between">
+                <div className="bg-slate-800/50 border border-zinc-800 overflow-hidden">
+                  <div className="bg-slate-800 border-b border-zinc-800 px-5 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="v-status-dot v-status-warning" />
                       <h3 className="text-white font-semibold text-sm">Open Warrant Standard Token</h3>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gold-400/20 text-gold-300">OWS v1.0</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-gold-300">OWS v1.0</span>
                   </div>
                   <div className="p-5 space-y-4">
-                    <p className="text-xs text-slate-400 leading-relaxed">
+                    <p className="text-xs text-zinc-400 leading-relaxed">
                       This is a portable execution authorization token — like JWT for authentication, 
                       OWS is for AI agent authorization. Any system can verify this token independently.
                     </p>
 
                     {/* Token display */}
-                    <div className="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+                    <div className="bg-slate-950 p-4 overflow-x-auto">
                       <div className="text-[11px] font-mono leading-relaxed">
                         <span className="text-red-400">{result.ows_token.split('.')[0]}</span>
-                        <span className="text-slate-500">.</span>
-                        <span className="text-gold-400">{result.ows_token.split('.')[1]}</span>
-                        <span className="text-slate-500">.</span>
-                        <span className="text-cyan-400">{result.ows_token.split('.')[2]}</span>
+                        <span className="text-zinc-500">.</span>
+                        <span className="text-amber-500">{result.ows_token.split('.')[1]}</span>
+                        <span className="text-zinc-500">.</span>
+                        <span className="text-amber-400">{result.ows_token.split('.')[2]}</span>
                       </div>
                     </div>
 
@@ -1592,15 +1592,15 @@ export default function TryPage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                        <span className="text-xs text-slate-400">Header — algorithm, type, version</span>
+                        <span className="text-xs text-zinc-400">Header — algorithm, type, version</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-gold-400"></div>
-                        <span className="text-xs text-slate-400">Payload — warrant ID, tier, scope, expiration, agent</span>
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <span className="text-xs text-zinc-400">Payload — warrant ID, tier, scope, expiration, agent</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
-                        <span className="text-xs text-slate-400">Signature — HMAC-SHA256 (tamper-proof)</span>
+                        <span className="text-xs text-zinc-400">Signature — HMAC-SHA256 (tamper-proof)</span>
                       </div>
                     </div>
 
@@ -1609,20 +1609,20 @@ export default function TryPage() {
                       try {
                         const payload = JSON.parse(atob(result.ows_token.split('.')[1]));
                         return (
-                          <div className="bg-slate-900/50 rounded-lg p-3">
-                            <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">Decoded Payload</div>
-                            <pre className="text-[11px] font-mono text-slate-300 whitespace-pre-wrap">{JSON.stringify(payload, null, 2)}</pre>
+                          <div className="bg-black p-3">
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Decoded Payload</div>
+                            <pre className="text-[11px] font-mono text-zinc-300 whitespace-pre-wrap">{JSON.stringify(payload, null, 2)}</pre>
                           </div>
                         );
                       } catch { return null; }
                     })()}
 
-                    <div className="bg-gold-400/5 border border-gold-400/20 rounded-lg p-3">
+                    <div className="bg-amber-500/5 border border-amber-500/20 p-3">
                       <div className="text-xs text-gold-300 font-medium mb-1">Interoperable</div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
                         Share this token with any system that implements the Open Warrant Standard. 
                         They can verify the agent&apos;s authorization without calling Vienna OS.
-                        <a href="/docs#open-warrant-standard" className="text-gold-400 hover:underline ml-1">Read the spec →</a>
+                        <a href="/docs#open-warrant-standard" className="text-amber-500 hover:underline ml-1">Read the spec →</a>
                       </p>
                     </div>
                   </div>
@@ -1632,25 +1632,25 @@ export default function TryPage() {
 
             {/* ─── Delegation info (shown on warrant tab for T2+) ─── */}
             {result && activeTab === "warrant" && result.delegation && (
-              <div className="mt-3 bg-gold-400/5 border border-gold-400/20 rounded-xl p-4">
+              <div className="mt-3 bg-amber-500/5 border border-amber-500/20 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="v-status-dot v-status-info" />
                   <h4 className="text-sm font-semibold text-gold-300">Warrant Delegation</h4>
                 </div>
-                <p className="text-xs text-slate-400 mb-3">
+                <p className="text-xs text-zinc-400 mb-3">
                   This warrant can be delegated to sub-agents with reduced scope.
                 </p>
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div className="bg-slate-900/50 rounded p-2">
-                    <div className="text-slate-500">Delegated to</div>
+                  <div className="bg-black rounded p-2">
+                    <div className="text-zinc-500">Delegated to</div>
                     <div className="font-mono text-white">{result.delegation.delegated_to}</div>
                   </div>
-                  <div className="bg-slate-900/50 rounded p-2">
-                    <div className="text-slate-500">Delegation depth</div>
+                  <div className="bg-black rounded p-2">
+                    <div className="text-zinc-500">Delegation depth</div>
                     <div className="font-mono text-white">{result.delegation.depth} / 5 max</div>
                   </div>
-                  <div className="bg-slate-900/50 rounded p-2 col-span-2">
-                    <div className="text-slate-500">Scope reduction</div>
+                  <div className="bg-black rounded p-2 col-span-2">
+                    <div className="text-zinc-500">Scope reduction</div>
                     <div className="font-mono text-gold-300">{result.delegation.scope_reduction.join(', ') || 'N/A'}</div>
                   </div>
                 </div>
@@ -1659,14 +1659,14 @@ export default function TryPage() {
 
             {/* ─── CTA after result ─── */}
             {result && activeTab === "pipeline" && animatingStep === -1 && (
-              <div className={`mt-4 rounded-xl p-4 border transition-all duration-500 ${
+              <div className={`mt-4 p-4 border transition-all duration-500 ${
                 result.outcome === "denied"
                   ? "bg-red-500/5 border-red-500/20"
-                  : "bg-gold-400/5 border-gold-400/20"
+                  : "bg-amber-500/5 border-amber-500/20"
               }`}>
                 <div className="flex items-start justify-between gap-4 flex-wrap">
                   <div>
-                    <p className={`text-sm font-medium mb-1 ${result.outcome === "denied" ? "text-red-400" : "text-gold-400"}`}>
+                    <p className={`text-sm font-medium mb-1 ${result.outcome === "denied" ? "text-red-400" : "text-amber-500"}`}>
                       {result.outcome === "denied"
                         ? "That action was blocked by the governance pipeline"
                         : result.outcome === "auto-approved"
@@ -1674,7 +1674,7 @@ export default function TryPage() {
                         : "Full governance pipeline completed in " + result.total_duration_ms + "ms"
                       }
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-zinc-500">
                       {result.outcome === "denied"
                         ? "Every denial is logged, the agent is flagged, and security is notified. This is governance working."
                         : `Intent → Policy → Risk (${result.tier}) → ${result.outcome === "auto-approved" ? "Auto-Approve" : "Approval"} → Warrant → Execute → Verify → Audit`
@@ -1683,7 +1683,7 @@ export default function TryPage() {
                   </div>
                   <a
                     href="/signup"
-                    className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-gold-400 hover:text-gold-300 transition"
+                    className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-amber-500 hover:text-gold-300 transition"
                   >
                     Get your own console <ArrowRight className="w-3.5 h-3.5" />
                   </a>
@@ -1703,7 +1703,7 @@ export default function TryPage() {
           {/* API Snippet */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <h3 className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
                 Integrate via API
               </h3>
               <button 
@@ -1716,13 +1716,13 @@ export default function TryPage() {
     "tenant_id": "your-org",
     "context": { "environment": "production" }
   }'`)}
-                className="text-xs text-gold-400 hover:text-gold-300 transition px-2 py-1 border border-gold-400/20 rounded"
+                className="text-xs text-amber-500 hover:text-gold-300 transition px-2 py-1 border border-amber-500/20 rounded"
               >
                 Copy cURL
               </button>
             </div>
-            <div className="bg-slate-800 border border-slate-700/50 rounded-xl p-4 sm:p-5">
-              <pre className="font-mono text-xs sm:text-sm text-slate-300 overflow-x-auto">
+            <div className="bg-slate-800 border border-zinc-800 p-4 sm:p-5">
+              <pre className="font-mono text-xs sm:text-sm text-zinc-300 overflow-x-auto">
 {`curl -X POST https://api.vienna-os.dev/v1/agent/intent \\
   -H "Authorization: Bearer \$VIENNA_API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -1737,30 +1737,30 @@ export default function TryPage() {
           </div>
 
           {/* Next Steps */}
-          <div className="bg-gradient-to-r from-gold-900/20 to-slate-800/50 border border-gold-400/20 rounded-2xl p-6">
+          <div className="bg-gradient-to-r from-gold-900/20 to-slate-800/50 border border-amber-500/20 p-6">
             <h3 className="text-lg font-semibold text-white mb-3">Ready to govern your AI agents?</h3>
-            <p className="text-slate-400 text-sm mb-4 max-w-2xl">
+            <p className="text-zinc-400 text-sm mb-4 max-w-2xl">
               This playground shows Vienna OS capabilities. Get started with your own governance infrastructure in minutes.
             </p>
             <div className="grid sm:grid-cols-3 gap-3">
               <a 
                 href="/signup" 
                 onClick={() => analytics.ctaClick('try_demo', 'start_free_trial')}
-                className="bg-gold-400 hover:bg-gold-300 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+                className="bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-3 transition text-center"
               >
                 Start Free Trial →
               </a>
               <a 
                 href="/docs" 
                 onClick={() => analytics.ctaClick('try_demo', 'read_documentation')}
-                className="bg-slate-700 hover:bg-navy-600 border border-navy-600 text-white text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+                className="bg-slate-700 hover:bg-zinc-800 border border-amber-500/20 text-white text-sm font-medium px-4 py-3 transition text-center"
               >
                 Read Documentation
               </a>
               <a 
                 href="/contact" 
                 onClick={() => analytics.ctaClick('try_demo', 'schedule_demo')}
-                className="text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:bg-gold-400/5 text-sm font-medium px-4 py-3 rounded-xl transition text-center"
+                className="text-amber-500 hover:text-gold-300 border border-amber-500/30 hover:bg-amber-500/5 text-sm font-medium px-4 py-3 transition text-center"
               >
                 Schedule Demo
               </a>
@@ -1771,9 +1771,9 @@ export default function TryPage() {
 
       {/* ─── Footer ─── */}
       <footer className="border-t border-slate-700/30 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-between text-xs text-zinc-500">
           <span>Vienna OS — The governance and authorization layer for AI systems</span>
-          <a href="/docs" className="text-gold-400 hover:text-gold-300 transition">Documentation →</a>
+          <a href="/docs" className="text-amber-500 hover:text-gold-300 transition">Documentation →</a>
         </div>
       </footer>
     </div>
@@ -1798,10 +1798,10 @@ function ScenarioButton({
     <button
       onClick={onClick}
       className={`
-        w-full text-left rounded-xl p-3 transition-all duration-200 border group relative
+        w-full text-left p-3 transition-all duration-200 border group relative
         ${active
-          ? "border-gold-400/40 bg-gold-400/8 shadow-[0_0_20px_rgba(212,165,32,0.1)] ring-1 ring-gold-400/20"
-          : "border-slate-700/50 bg-slate-800/50 hover:border-navy-600 hover:bg-slate-800"
+          ? "border-amber-500/40 bg-amber-500/8 shadow-[0_0_20px_rgba(212,165,32,0.1)] ring-1 ring-gold-400/20"
+          : "border-zinc-800 bg-slate-800/50 hover:border-amber-500/20 hover:bg-slate-800"
         }
       `}
     >
@@ -1817,7 +1817,7 @@ function ScenarioButton({
           {scenario.tier}
         </span>
       </div>
-      <p className="text-[11px] text-slate-500 leading-relaxed pl-7 mb-1">{scenario.desc}</p>
+      <p className="text-[11px] text-zinc-500 leading-relaxed pl-7 mb-1">{scenario.desc}</p>
       
       {/* Risk Factors */}
       {(scenario as any).riskFactors && (scenario as any).riskFactors.length > 0 && (
@@ -1826,13 +1826,13 @@ function ScenarioButton({
             {(scenario as any).riskFactors.slice(0, 3).map((factor: string) => (
               <span
                 key={factor}
-                className="text-[10px] px-2 py-1 rounded border border-slate-500/40 bg-warm-800/30 text-slate-300 font-mono"
+                className="text-[10px] px-2 py-1 rounded border border-slate-500/40 bg-warm-800/30 text-zinc-300 font-mono"
               >
                 {factor.replace(/_/g, ' ')}
               </span>
             ))}
             {(scenario as any).riskFactors.length > 3 && (
-              <span className="text-[10px] text-slate-500 font-medium">+{(scenario as any).riskFactors.length - 3}</span>
+              <span className="text-[10px] text-zinc-500 font-medium">+{(scenario as any).riskFactors.length - 3}</span>
             )}
           </div>
         </div>
@@ -1841,7 +1841,7 @@ function ScenarioButton({
       {/* Category Badge */}
       {(scenario as any).category && (
         <div className="pl-7 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className="text-[9px] text-slate-600 capitalize">
+          <span className="text-[9px] text-zinc-600 capitalize">
             {(scenario as any).category} • {scenario.tierLabel}
           </span>
         </div>
@@ -1852,8 +1852,8 @@ function ScenarioButton({
 
 function WarrantField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-slate-900/50 rounded-lg border border-slate-700/30 px-3 py-2">
-      <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">{label}</p>
+    <div className="bg-black border border-slate-700/30 px-3 py-2">
+      <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-xs text-white font-mono truncate">{value}</p>
     </div>
   );
@@ -1874,13 +1874,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-[11px] text-slate-500 block mb-1">{label}</label>
+      <label className="text-[11px] text-zinc-500 block mb-1">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-slate-900 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-gold-400/40 focus:outline-none transition"
+        className="w-full bg-slate-900 border border-amber-500/20 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:border-amber-500/40 focus:outline-none transition"
       />
     </div>
   );

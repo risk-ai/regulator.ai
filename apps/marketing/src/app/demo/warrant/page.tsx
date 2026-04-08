@@ -80,7 +80,7 @@ function SectionHeader({ step, title, subtitle }: { step: number; title: string;
         </span>
         <h2 className="text-xl font-bold text-white">{title}</h2>
       </div>
-      <p className="text-sm text-slate-400 ml-10">{subtitle}</p>
+      <p className="text-sm text-zinc-400 ml-10">{subtitle}</p>
     </div>
   );
 }
@@ -101,12 +101,12 @@ function JsonBlock({
       ? "border-emerald-500/40"
       : highlight === "invalid"
       ? "border-red-500/40"
-      : "border-navy-700";
+      : "border-zinc-800";
 
   if (editable) {
     return (
       <textarea
-        className={`w-full bg-navy-900/80 border ${borderColor} rounded-xl p-4 font-mono text-xs text-slate-300 leading-relaxed resize-y min-h-[300px] focus:outline-none focus:border-gold-300/50 transition`}
+        className={`w-full bg-[#0a0e14]/80 border ${borderColor} p-4 font-mono text-xs text-zinc-300 leading-relaxed resize-y min-h-[300px] focus:outline-none focus:border-gold-300/50 transition`}
         value={data}
         onChange={(e) => onChange?.(e.target.value)}
         spellCheck={false}
@@ -116,7 +116,7 @@ function JsonBlock({
   }
 
   return (
-    <pre className={`bg-navy-900/80 border ${borderColor} rounded-xl p-4 font-mono text-xs text-slate-300 leading-relaxed overflow-x-auto transition-colors duration-500`}>
+    <pre className={`bg-[#0a0e14]/80 border ${borderColor} p-4 font-mono text-xs text-zinc-300 leading-relaxed overflow-x-auto transition-colors duration-500`}>
       {data}
     </pre>
   );
@@ -149,13 +149,13 @@ function VerificationRow({
 
   return (
     <div
-      className={`flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-500 ${
+      className={`flex items-center justify-between py-2.5 px-3 transition-all duration-500 ${
         visible ? (pass ? "bg-emerald-500/5" : "bg-red-500/5") : "opacity-30"
       }`}
     >
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-slate-400 font-medium">{label}</div>
-        <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+        <div className="text-xs text-zinc-400 font-medium">{label}</div>
+        <div className="text-[10px] text-zinc-500 font-mono mt-0.5">
           {expected} → {actual}
         </div>
       </div>
@@ -312,17 +312,17 @@ export default function WarrantDemo() {
   }, [verifying, verified, scopeChecking, tamperSig, expiryRunning, expired, handleVerify, handleTamperVerify]);
 
   return (
-    <div className="min-h-screen bg-navy-950 text-white">
+    <div className="min-h-screen bg-[#0a0e14] text-white">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-navy-700/50 bg-navy-900/80 backdrop-blur sticky top-0 z-50">
+      <nav className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-[#0a0e14]/80 backdrop-blur sticky top-0 z-50">
         <a href="/" className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-gold-300" />
           <span className="font-semibold text-sm">Vienna OS</span>
         </a>
         <div className="flex items-center gap-4">
-          <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Multi-Agent Demo</a>
-          <a href="/try" className="text-xs text-slate-400 hover:text-white transition">Try API</a>
-          <a href="/signup" className="text-xs bg-gold-400 hover:bg-gold-300 text-white px-3 py-1.5 rounded-lg transition font-medium">
+          <a href="/try" className="text-xs text-zinc-400 hover:text-white transition">Multi-Agent Demo</a>
+          <a href="/try" className="text-xs text-zinc-400 hover:text-white transition">Try API</a>
+          <a href="/signup" className="text-xs bg-amber-500 hover:bg-amber-400 text-white px-3 py-1.5 transition font-medium">
             Get Started
           </a>
         </div>
@@ -337,12 +337,12 @@ export default function WarrantDemo() {
           <h1 className="text-3xl sm:text-4xl font-bold mb-3">
             Warrant <span className="text-gold-300">Inspector</span>
           </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto text-sm">
+          <p className="text-zinc-400 max-w-2xl mx-auto text-sm">
             Every AI action in Vienna OS requires a cryptographic warrant — scoped, time-limited,
             and tamper-evident. See how it works.
           </p>
-          <div className="mt-4 text-xs text-slate-500 font-mono">
-            Shortcuts: <span className="text-slate-400">Ctrl+V</span>=verify • <span className="text-slate-400">Ctrl+C</span>=compliance • <span className="text-slate-400">Ctrl+T</span>=tamper • <span className="text-slate-400">Ctrl+E</span>=expiry
+          <div className="mt-4 text-xs text-zinc-500 font-mono">
+            Shortcuts: <span className="text-zinc-400">Ctrl+V</span>=verify • <span className="text-zinc-400">Ctrl+C</span>=compliance • <span className="text-zinc-400">Ctrl+T</span>=tamper • <span className="text-zinc-400">Ctrl+E</span>=expiry
           </div>
         </div>
 
@@ -352,7 +352,7 @@ export default function WarrantDemo() {
         <section className="mb-16">
           <SectionHeader step={1} title="Warrant Issuance" subtitle="A $75,000 wire transfer warrant is issued after multi-party approval." />
           <JsonBlock data={fullWarrantJson} />
-          <div className="mt-3 flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+          <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
             <Lock className="w-3 h-3 text-gold-300" />
             <span>Signed with HMAC-SHA256 · tamper-evident · scoped to exactly one action</span>
           </div>
@@ -368,18 +368,18 @@ export default function WarrantDemo() {
             subtitle="The Verification Engine re-computes the HMAC and compares it to the stored signature."
           />
 
-          <div className="bg-navy-800/40 border border-navy-700 rounded-xl p-5 space-y-4">
+          <div className="bg-black/40 border border-zinc-800 p-5 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1.5">Input</div>
-                <div className="text-[10px] text-slate-400 font-mono bg-navy-900/60 rounded-lg p-2.5 break-all">
+                <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">Input</div>
+                <div className="text-[10px] text-zinc-400 font-mono bg-[#0a0e14]/60 p-2.5 break-all">
                   warrant payload (JSON, minus signature field)
                 </div>
               </div>
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1.5">Signing Key</div>
-                <div className="text-[10px] text-slate-400 font-mono bg-navy-900/60 rounded-lg p-2.5">
-                  ****-****-****-...key <span className="text-slate-600">(server-side only)</span>
+                <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1.5">Signing Key</div>
+                <div className="text-[10px] text-zinc-400 font-mono bg-[#0a0e14]/60 p-2.5">
+                  ****-****-****-...key <span className="text-zinc-600">(server-side only)</span>
                 </div>
               </div>
             </div>
@@ -388,7 +388,7 @@ export default function WarrantDemo() {
               <button
                 onClick={handleVerify}
                 disabled={verifying}
-                className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-gold-300/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 rounded-xl transition font-semibold text-sm disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-amber-400/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 transition font-semibold text-sm disabled:opacity-50"
               >
                 {verifying ? (
                   <>
@@ -405,19 +405,19 @@ export default function WarrantDemo() {
             {computedSig && (
               <div className="space-y-3 animate-fade-in">
                 <div>
-                  <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Computed Signature</div>
-                  <div className="text-[10px] text-emerald-400 font-mono bg-navy-900/60 rounded-lg p-2.5 break-all">
+                  <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">Computed Signature</div>
+                  <div className="text-[10px] text-emerald-400 font-mono bg-[#0a0e14]/60 p-2.5 break-all">
                     hmac-sha256:{computedSig}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Stored Signature</div>
-                  <div className="text-[10px] text-gold-300 font-mono bg-navy-900/60 rounded-lg p-2.5 break-all">
+                  <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">Stored Signature</div>
+                  <div className="text-[10px] text-gold-300 font-mono bg-[#0a0e14]/60 p-2.5 break-all">
                     hmac-sha256:{originalSig}
                   </div>
                 </div>
                 {verified !== null && (
-                  <div className={`text-center py-4 rounded-xl border ${
+                  <div className={`text-center py-4 border ${
                     verified
                       ? "bg-emerald-500/5 border-emerald-500/30"
                       : "bg-red-500/5 border-red-500/30"
@@ -425,7 +425,7 @@ export default function WarrantDemo() {
                     <div className={`text-2xl font-bold ${verified ? "text-emerald-400" : "text-red-400"}`}>
                       {verified ? "✓ VERIFIED" : "✗ INVALID"}
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">
+                    <div className="text-[10px] text-zinc-500 mt-1">
                       {verified
                         ? "Signatures match — warrant is authentic and unmodified"
                         : "Signatures do not match — warrant has been tampered with"}
@@ -447,12 +447,12 @@ export default function WarrantDemo() {
             subtitle="After execution, the Verification Engine checks every constraint in the warrant."
           />
 
-          <div className="bg-navy-800/40 border border-navy-700 rounded-xl p-5">
+          <div className="bg-black/40 border border-zinc-800 p-5">
             <button
               onClick={() => setScopeChecking(true)}
               className={`mb-4 inline-flex items-center gap-2 text-sm font-semibold transition ${
                 scopeChecking
-                  ? "text-slate-500 cursor-default"
+                  ? "text-zinc-500 cursor-default"
                   : "text-gold-300 hover:text-gold-300 cursor-pointer"
               }`}
               disabled={scopeChecking}
@@ -498,11 +498,11 @@ export default function WarrantDemo() {
 
             {scopeChecking && (
               <div
-                className="mt-4 text-center py-3 rounded-xl bg-emerald-500/5 border border-emerald-500/30 animate-fade-in"
+                className="mt-4 text-center py-3 bg-emerald-500/5 border border-emerald-500/30 animate-fade-in"
                 style={{ animationDelay: "1.2s", animationFillMode: "both" }}
               >
                 <div className="text-lg font-bold text-emerald-400">✓ Scope Compliant</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
+                <div className="text-[10px] text-zinc-500 mt-0.5">
                   All constraints satisfied — execution is valid
                 </div>
               </div>
@@ -520,7 +520,7 @@ export default function WarrantDemo() {
             subtitle="Try modifying the warrant below — change the amount from 75000 to 750000. Then verify."
           />
 
-          <div className="bg-navy-800/40 border border-navy-700 rounded-xl p-5 space-y-4">
+          <div className="bg-black/40 border border-zinc-800 p-5 space-y-4">
             <div className="flex items-center gap-2 text-[10px] text-gold-300/80 font-mono mb-2">
               <AlertTriangle className="w-3 h-3" />
               Edit the warrant JSON below and click Verify to test tamper detection
@@ -540,7 +540,7 @@ export default function WarrantDemo() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleTamperVerify}
-                className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-gold-300/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 rounded-xl transition font-semibold text-sm"
+                className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-amber-400/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 transition font-semibold text-sm"
               >
                 <Shield className="w-4 h-4" /> Verify Modified Warrant
               </button>
@@ -550,7 +550,7 @@ export default function WarrantDemo() {
                   setTamperResult(null);
                   setTamperSig("");
                 }}
-                className="text-xs text-slate-500 hover:text-white transition"
+                className="text-xs text-zinc-500 hover:text-white transition"
               >
                 Reset to original
               </button>
@@ -560,10 +560,10 @@ export default function WarrantDemo() {
               <div className="space-y-3 animate-fade-in">
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div>
-                    <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                    <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
                       New Computed Signature
                     </div>
-                    <div className={`text-[10px] font-mono rounded-lg p-2.5 break-all ${
+                    <div className={`text-[10px] font-mono p-2.5 break-all ${
                       tamperResult === "valid"
                         ? "text-emerald-400 bg-emerald-500/5"
                         : "text-red-400 bg-red-500/5"
@@ -572,17 +572,17 @@ export default function WarrantDemo() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
+                    <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-1">
                       Original Signature
                     </div>
-                    <div className="text-[10px] text-gold-300 font-mono bg-navy-900/60 rounded-lg p-2.5 break-all">
+                    <div className="text-[10px] text-gold-300 font-mono bg-[#0a0e14]/60 p-2.5 break-all">
                       hmac-sha256:{originalSig.slice(0, 32)}...
                     </div>
                   </div>
                 </div>
 
                 {tamperResult === "invalid" && (
-                  <div className="text-center py-4 rounded-xl bg-red-500/5 border border-red-500/30">
+                  <div className="text-center py-4 bg-red-500/5 border border-red-500/30">
                     <div className="text-2xl font-bold text-red-400">⚠ TAMPERED</div>
                     <div className="text-xs text-red-300/80 mt-1 max-w-md mx-auto">
                       The Verification Engine would block this execution and generate a critical alert.
@@ -591,7 +591,7 @@ export default function WarrantDemo() {
                   </div>
                 )}
                 {tamperResult === "valid" && (
-                  <div className="text-center py-4 rounded-xl bg-emerald-500/5 border border-emerald-500/30">
+                  <div className="text-center py-4 bg-emerald-500/5 border border-emerald-500/30">
                     <div className="text-2xl font-bold text-emerald-400">✓ VERIFIED</div>
                     <div className="text-xs text-emerald-300/80 mt-1">
                       Warrant is unmodified — signatures match.
@@ -613,15 +613,15 @@ export default function WarrantDemo() {
             subtitle="Warrants expire. Watch the TTL countdown — once it hits zero, the warrant is dead."
           />
 
-          <div className="bg-navy-800/40 border border-navy-700 rounded-xl p-5 text-center space-y-4">
-            <div className={`inline-block px-6 py-4 rounded-2xl border transition-all duration-300 ${
+          <div className="bg-black/40 border border-zinc-800 p-5 text-center space-y-4">
+            <div className={`inline-block px-6 py-4 border transition-all duration-300 ${
               expired
                 ? "bg-red-500/5 border-red-500/30"
                 : expiryCountdown < 60
-                ? "bg-gold-400/5 border-gold-400/30"
-                : "bg-navy-900/60 border-navy-700"
+                ? "bg-amber-500/5 border-amber-500/30"
+                : "bg-[#0a0e14]/60 border-zinc-800"
             }`}>
-              <div className="text-[9px] text-slate-500 uppercase tracking-wider font-semibold mb-2">
+              <div className="text-[9px] text-zinc-500 uppercase tracking-wider font-semibold mb-2">
                 Warrant TTL
               </div>
               <div className={`text-5xl font-mono font-bold tabular-nums transition-colors duration-300 ${
@@ -644,7 +644,7 @@ export default function WarrantDemo() {
               {!expiryRunning && !expired && (
                 <button
                   onClick={() => setExpiryRunning(true)}
-                  className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-gold-300/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 rounded-xl transition font-semibold text-sm"
+                  className="inline-flex items-center gap-2 bg-gold-300/10 hover:bg-amber-400/20 text-gold-300 border border-gold-300/25 px-5 py-2.5 transition font-semibold text-sm"
                 >
                   <Clock className="w-4 h-4" /> Start Countdown
                 </button>
@@ -656,7 +656,7 @@ export default function WarrantDemo() {
                     setExpired(false);
                     setExpiryCountdown(300);
                   }}
-                  className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-white transition"
+                  className="inline-flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition"
                 >
                   Reset
                 </button>
@@ -664,7 +664,7 @@ export default function WarrantDemo() {
             </div>
 
             {expired && (
-              <p className="text-xs text-slate-400 max-w-md mx-auto animate-fade-in">
+              <p className="text-xs text-zinc-400 max-w-md mx-auto animate-fade-in">
                 Expired warrants cannot be used for execution. A new warrant must be issued
                 through the full governance pipeline — intent, policy evaluation, operator approval.
               </p>
@@ -678,14 +678,14 @@ export default function WarrantDemo() {
         <section className="mb-16">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold mb-2">Traditional Auth vs. Vienna Warrants</h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-zinc-400">
               API keys give blanket access. Warrants give exactly what&apos;s needed, nothing more.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
             {/* Traditional */}
-            <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-5 space-y-4">
+            <div className="border border-red-500/20 bg-red-500/5 p-5 space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <XCircle className="w-5 h-5 text-red-400" />
                 <h3 className="font-semibold text-red-300">Traditional Auth</h3>
@@ -705,7 +705,7 @@ export default function WarrantDemo() {
             </div>
 
             {/* Vienna Warrants */}
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 space-y-4">
+            <div className="border border-emerald-500/20 bg-emerald-500/5 p-5 space-y-4">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle className="w-5 h-5 text-emerald-400" />
                 <h3 className="font-semibold text-emerald-300">Vienna Warrants</h3>
@@ -729,24 +729,24 @@ export default function WarrantDemo() {
         {/* ============================================
             CTA
             ============================================ */}
-        <div className="text-center py-12 border-t border-navy-700/50">
+        <div className="text-center py-12 border-t border-zinc-800">
           <h2 className="text-2xl font-bold mb-3">
             Every AI action should require a warrant.
           </h2>
-          <p className="text-slate-400 text-sm mb-6 max-w-lg mx-auto">
+          <p className="text-zinc-400 text-sm mb-6 max-w-lg mx-auto">
             Scoped permissions. Time-limited execution. Cryptographic tamper evidence.
             This is what governance looks like.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <a
               href="/signup"
-              className="inline-flex items-center gap-2 bg-gold-400 hover:bg-gold-300 text-white px-7 py-3 rounded-xl transition font-semibold text-sm"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-7 py-3 transition font-semibold text-sm"
             >
               Start Governing <ArrowRight className="w-4 h-4" />
             </a>
             <a
               href="/try"
-              className="inline-flex items-center gap-2 bg-navy-800 hover:bg-navy-700 text-white px-7 py-3 rounded-xl transition text-sm border border-navy-700"
+              className="inline-flex items-center gap-2 bg-black hover:bg-zinc-900 text-white px-7 py-3 transition text-sm border border-zinc-800"
             >
               Watch Multi-Agent Demo
             </a>

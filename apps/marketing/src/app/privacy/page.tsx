@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
-      <nav className="border-b border-navy-700">
+    <div className="min-h-screen bg-[#0a0e14]">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
           </a>
         </div>
@@ -21,9 +21,9 @@ export default function PrivacyPage() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <h1 className="text-3xl font-bold text-white mb-2">Privacy Policy</h1>
-        <p className="text-sm text-slate-500 mb-8">Last updated: March 25, 2026</p>
+        <p className="text-sm text-zinc-500 mb-8">Last updated: March 25, 2026</p>
 
-        <div className="prose prose-invert prose-slate max-w-none space-y-6 text-slate-300 text-sm leading-relaxed">
+        <div className="prose prose-invert prose-slate max-w-none space-y-6 text-zinc-300 text-sm leading-relaxed">
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">1. Introduction</h2>
             <p>Technetwork 2 LLC dba ai.ventures (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;) operates the Vienna OS governance platform at regulator.ai and console.regulator.ai. This Privacy Policy explains how we collect, use, and protect your information.</p>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">3. How We Use Your Information</h2>
-            <ul className="list-disc list-inside space-y-1 text-slate-400">
+            <ul className="list-disc list-inside space-y-1 text-zinc-400">
               <li>Provide and maintain the governance platform</li>
               <li>Process agent proposals and maintain audit trails</li>
               <li>Send account-related communications</li>
@@ -86,15 +86,15 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-lg font-semibold text-white mt-8 mb-3">11. Contact</h2>
-            <p>For privacy inquiries, contact <a href="mailto:admin@ai.ventures" className="text-gold-400 hover:text-gold-300">admin@ai.ventures</a>.</p>
+            <p>For privacy inquiries, contact <a href="mailto:admin@ai.ventures" className="text-amber-500 hover:text-gold-300">admin@ai.ventures</a>.</p>
             <p className="mt-2">Technetwork 2 LLC dba ai.ventures<br/>244 5th Avenue #2283<br/>New York, NY 10001</p>
           </section>
         </div>
       </main>
 
-      <footer className="border-t border-navy-700 py-8 mt-12">
+      <footer className="border-t border-zinc-800 py-8 mt-12">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
+          <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
         </div>
       </footer>
     </div>

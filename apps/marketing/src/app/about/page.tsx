@@ -53,18 +53,18 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* Navigation */}
-      <nav className="border-b border-navy-700">
+      <nav className="border-b border-zinc-800">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
+            <Shield className="w-7 h-7 text-amber-500" />
             <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-gold-300 bg-clip-text text-transparent">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/signup" className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium">
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
+            <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
               Get Started
             </a>
           </div>
@@ -83,11 +83,11 @@ export default function AboutPage() {
                   governed, not guardrailed
                 </span>
               </h1>
-              <p className="text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl text-zinc-400 leading-relaxed max-w-3xl mx-auto">
                 Vienna OS exists because the AI industry has a governance gap.
                 As enterprises deploy autonomous agents, there&apos;s no standardized
                 layer for approval workflows, policy enforcement, or audit trails.
-                <strong className="text-slate-300"> We&apos;re building that layer.</strong>
+                <strong className="text-zinc-300"> We&apos;re building that layer.</strong>
               </p>
             </div>
           </ScrollReveal>
@@ -96,22 +96,22 @@ export default function AboutPage() {
         {/* Core Thesis */}
         <ScrollReveal delay={0.2}>
           <section className="mb-24">
-            <div className="bg-gradient-to-br from-gold-900/20 to-navy-800 border border-gold-400/30 rounded-2xl p-8 md:p-10">
+            <div className="bg-black border border-amber-500/30 p-8 md:p-10">
               <div className="flex items-start gap-6 mb-8">
-                <Scale className="w-10 h-10 text-gold-400 shrink-0 mt-1 seal-glow" />
+                <Scale className="w-10 h-10 text-amber-500 shrink-0 mt-1 seal-glow" />
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-4">Our Thesis</h2>
-                  <p className="text-lg text-slate-300 leading-relaxed mb-4">
-                    Content guardrails filter what AI <em className="text-gold-400">says</em>. Governance controls
-                    what AI <em className="text-gold-400">does</em>. As agents move from demos to production — executing
+                  <p className="text-lg text-zinc-300 leading-relaxed mb-4">
+                    Content guardrails filter what AI <em className="text-amber-500">says</em>. Governance controls
+                    what AI <em className="text-amber-500">does</em>. As agents move from demos to production — executing
                     real transactions, deploying real code, sending real communications —
-                    the question shifts from <span className="text-slate-200">&quot;Is the output safe?&quot;</span> to{" "}
-                    <span className="text-slate-200">&quot;Is the action authorized?&quot;</span>
+                    the question shifts from <span className="text-zinc-200">&quot;Is the output safe?&quot;</span> to{" "}
+                    <span className="text-zinc-200">&quot;Is the action authorized?&quot;</span>
                   </p>
                 </div>
               </div>
-              <div className="bg-navy-800/50 border border-gold-400/20 rounded-xl p-6">
-                <div className="font-mono text-lg text-gold-400 text-center">
+              <div className="bg-black/50 border border-amber-500/20 p-6">
+                <div className="font-mono text-lg text-amber-500 text-center">
                   AI explains → Runtime executes → Operator approves
                 </div>
               </div>
@@ -122,24 +122,24 @@ export default function AboutPage() {
         {/* Patent & IP */}
         <ScrollReveal delay={0.3}>
           <section className="mb-24">
-            <div className="bg-gradient-to-br from-gold-400/10 to-navy-800 border border-gold-400/30 rounded-2xl p-8">
+            <div className="bg-black border border-amber-500/30 p-8">
               <div className="flex items-start gap-6">
-                <FileText className="w-10 h-10 text-gold-400 shrink-0 mt-1" />
+                <FileText className="w-10 h-10 text-amber-500 shrink-0 mt-1" />
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                     Patented Innovation
-                    <Award className="w-6 h-6 text-gold-400" />
+                    <Award className="w-6 h-6 text-amber-500" />
                   </h2>
-                  <p className="text-lg text-slate-300 leading-relaxed mb-4">
+                  <p className="text-lg text-zinc-300 leading-relaxed mb-4">
                     Vienna OS&apos;s warrant-based governance architecture is protected by
-                    <strong className="text-gold-400"> USPTO Patent Application #64/018,152</strong>.
+                    <strong className="text-amber-500"> USPTO Patent Application #64/018,152</strong>.
                     The invention covers the cryptographic warrant system, scope-constrained authorization,
                     and post-execution verification that makes Vienna unique.
                   </p>
-                  <div className="text-sm text-slate-400 bg-navy-800/50 rounded-lg p-4 border border-gold-400/20">
-                    <strong className="text-gold-400">Filing:</strong> &quot;Methods and Systems for Warrant-Based Autonomous Agent Governance&quot;
+                  <div className="text-sm text-zinc-400 bg-black/50 p-4 border border-amber-500/20">
+                    <strong className="text-amber-500">Filing:</strong> &quot;Methods and Systems for Warrant-Based Autonomous Agent Governance&quot;
                     <br />
-                    <strong className="text-gold-400">Filed:</strong> March 2026 • <strong className="text-gold-400">Status:</strong> Patent Pending
+                    <strong className="text-amber-500">Filed:</strong> March 2026 • <strong className="text-amber-500">Status:</strong> Patent Pending
                   </div>
                 </div>
               </div>
@@ -176,10 +176,10 @@ export default function AboutPage() {
                   color: "emerald",
                 },
               ].map((item) => (
-                <div key={item.title} className="bg-navy-800 border border-navy-700 rounded-xl p-6 hover:border-navy-600 transition-colors group">
+                <div key={item.title} className="bg-black border border-zinc-800 p-6 hover:border-amber-500/20 transition-colors group">
                   <item.icon className={`w-8 h-8 text-${item.color}-400 mb-4 group-hover:scale-110 transition-transform`} />
                   <h3 className="text-white font-semibold mb-3 text-lg">{item.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -195,25 +195,25 @@ export default function AboutPage() {
               </span>
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-gold-400/30 transition-colors">
+              <div className="bg-black border border-zinc-800 p-8 hover:border-amber-500/30 transition-colors">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gold-400/20 border border-gold-400/40 flex items-center justify-center">
-                    <GraduationCap className="w-8 h-8 text-gold-400" />
+                  <div className="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8 text-amber-500" />
                   </div>
                   <div>
                     <h3 className="text-white font-bold text-xl">Max Anderson</h3>
-                    <p className="text-gold-400 font-medium">Founder & Lead Developer</p>
-                    <p className="text-slate-500 text-sm">Cornell Law School 3L</p>
+                    <p className="text-amber-500 font-medium">Founder & Lead Developer</p>
+                    <p className="text-zinc-500 text-sm">Cornell Law School 3L</p>
                   </div>
                 </div>
-                <p className="text-slate-300 leading-relaxed">
+                <p className="text-zinc-300 leading-relaxed">
                   Built Vienna OS from the conviction that legal frameworks and distributed systems 
                   share the same primitives: <strong className="text-white">authority, scope, evidence, and accountability</strong>. 
                   Combines formal legal training with deep technical expertise in distributed governance.
                 </p>
               </div>
               
-              <div className="bg-navy-800 border border-navy-700 rounded-xl p-8 hover:border-blue-500/30 transition-colors">
+              <div className="bg-black border border-zinc-800 p-8 hover:border-amber-500/30 transition-colors">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 rounded-full bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
                     <Building2 className="w-8 h-8 text-blue-400" />
@@ -221,10 +221,10 @@ export default function AboutPage() {
                   <div>
                     <h3 className="text-white font-bold text-xl">ai.ventures</h3>
                     <p className="text-blue-400 font-medium">Platform & Operations</p>
-                    <p className="text-slate-500 text-sm">Technetwork 2 LLC</p>
+                    <p className="text-zinc-500 text-sm">Technetwork 2 LLC</p>
                   </div>
                 </div>
-                <p className="text-slate-300 leading-relaxed">
+                <p className="text-zinc-300 leading-relaxed">
                   Portfolio company with shared infrastructure, agent pool, and cross-portfolio
                   synergies across 12+ AI-focused sites. Vienna OS benefits from unique distribution 
                   and customer validation across the entire ai.ventures ecosystem.
@@ -238,7 +238,7 @@ export default function AboutPage() {
         <ScrollReveal delay={0.6}>
           <section className="mb-24">
             <h3 className="text-2xl font-bold text-white mb-6">Portfolio Synergies</h3>
-            <p className="text-slate-400 mb-8">
+            <p className="text-zinc-400 mb-8">
               Vienna OS has unique cross-portfolio synergies across the ai.ventures ecosystem.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -248,9 +248,9 @@ export default function AboutPage() {
                 { name: "agents.net", role: "Agent certification marketplace", color: "emerald" },
                 { name: "risk.ai", role: "Complementary risk assessment", color: "gold" },
               ].map((s) => (
-                <div key={s.name} className="bg-navy-800/70 border border-navy-600 rounded-xl p-4 text-center hover:bg-navy-700/70 transition-colors">
+                <div key={s.name} className="bg-black/70 border border-amber-500/20 p-4 text-center hover:bg-zinc-900/70 transition-colors">
                   <div className={`text-lg font-bold text-${s.color}-400 mb-2`}>{s.name}</div>
-                  <div className="text-xs text-slate-500 leading-relaxed">{s.role}</div>
+                  <div className="text-xs text-zinc-500 leading-relaxed">{s.role}</div>
                 </div>
               ))}
             </div>
@@ -260,18 +260,18 @@ export default function AboutPage() {
         {/* Contact CTA */}
         <ScrollReveal delay={0.7}>
           <section>
-            <div className="bg-gradient-to-br from-gold-900/30 to-navy-800 border border-gold-400/30 rounded-2xl p-10 text-center">
-              <Target className="w-12 h-12 text-gold-400 mx-auto mb-6" />
+            <div className="bg-black border border-amber-500/30 p-10 text-center">
+              <Target className="w-12 h-12 text-amber-500 mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-white mb-4">Want to learn more?</h2>
-              <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-zinc-400 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
                 Whether you&apos;re an enterprise evaluating governance solutions,
                 an investor interested in our patent portfolio, or a developer building agents — we&apos;d love to talk.
               </p>
               <div className="flex items-center justify-center gap-6">
-                <a href="/signup" className="bg-gold-400 hover:bg-gold-300 text-white px-8 py-3 rounded-xl transition font-semibold shadow-lg hover:shadow-gold-400/25">
+                <a href="/signup" className="bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold shadow-lg hover:shadow-gold-400/25">
                   Get Started Free
                 </a>
-                <a href="/contact" className="bg-navy-700 hover:bg-navy-600 text-white px-8 py-3 rounded-xl transition font-semibold border border-navy-600 hover:border-navy-500">
+                <a href="/contact" className="bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-3 transition font-semibold border border-amber-500/20 hover:border-amber-500/30">
                   Contact Us
                 </a>
               </div>

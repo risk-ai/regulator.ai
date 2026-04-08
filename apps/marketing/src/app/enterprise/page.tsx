@@ -270,19 +270,19 @@ export default function EnterprisePage() {
       />
 
       {/* Navigation */}
-      <nav className="border-b border-navy-700/50 backdrop-blur-xl bg-slate-950/90">
+      <nav className="border-b border-zinc-800 backdrop-blur-xl bg-slate-950/90">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-gold-400" />
-            <span className="font-bold text-white">Vienna<span className="text-gold-400">OS</span></span>
+            <Shield className="w-7 h-7 text-amber-500" />
+            <span className="font-bold text-white">Vienna<span className="text-amber-500">OS</span></span>
           </a>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-sm text-slate-400 hover:text-white transition">Docs</a>
-            <a href="/pricing" className="text-sm text-slate-400 hover:text-white transition">Pricing</a>
+            <a href="/docs" className="text-sm text-zinc-400 hover:text-white transition">Docs</a>
+            <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition">Pricing</a>
             <a 
               href="/contact?subject=enterprise" 
-              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-2 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium"
             >
               Schedule Demo
             </a>
@@ -296,18 +296,18 @@ export default function EnterprisePage() {
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16">
           <ScrollReveal>
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-gold-400/15 border border-gold-400/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
-                <Shield className="w-4 h-4 text-gold-400" />
+              <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-4 py-2 mb-6 backdrop-blur-sm">
+                <Shield className="w-4 h-4 text-amber-500" />
                 <span className="text-sm text-gold-300 font-semibold uppercase tracking-wider">Enterprise</span>
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-blue-200">
+                <span className="text-amber-500">
                   Enterprise AI Governance
                 </span>
               </h1>
               
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-xl text-zinc-300 mb-8 leading-relaxed max-w-3xl mx-auto">
                 Govern AI at scale with verifiable Merkle warrant chains, policy simulation,
                 cross-agent delegation, compliance reports, and trust scoring. Built for regulated industries.
               </p>
@@ -316,14 +316,14 @@ export default function EnterprisePage() {
                 <a 
                   href="/contact?subject=enterprise"
                   onClick={() => analytics.ctaClick('hero', 'schedule_demo')}
-                  className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
+                  className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30 flex items-center gap-2"
                 >
                   Schedule a Demo
                   <ArrowRight className="w-5 h-5" />
                 </a>
                 <a 
                   href="/pricing"
-                  className="bg-slate-800/50 hover:bg-slate-700/50 text-white font-medium px-8 py-4 rounded-xl transition border border-slate-600 hover:border-slate-500"
+                  className="bg-slate-800/50 hover:bg-slate-700/50 text-white font-medium px-8 py-4 transition border border-zinc-800 hover:border-slate-500"
                 >
                   Compare Plans
                 </a>
@@ -335,16 +335,16 @@ export default function EnterprisePage() {
 
       {/* Trust Logos Section */}
       <ScrollReveal delay={0.2}>
-        <div className="border-t border-navy-700/50 py-16">
+        <div className="border-t border-zinc-800 py-16">
           <div className="max-w-6xl mx-auto px-6 text-center">
-            <p className="text-slate-400 text-sm mb-8 uppercase tracking-wider font-medium">
+            <p className="text-zinc-400 text-sm mb-8 uppercase tracking-wider font-medium">
               Built for Fortune 500 &amp; Regulated Industries
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
               {trustLogos.map((logo, i) => (
-                <div key={i} className="bg-navy-800/30 border border-navy-700/50 rounded-lg p-4 h-20 flex flex-col items-center justify-center">
-                  <div className="text-slate-300 font-medium text-sm">{logo.name}</div>
-                  <div className="text-slate-500 text-xs">{logo.industry}</div>
+                <div key={i} className="bg-black/30 border border-zinc-800 p-4 h-20 flex flex-col items-center justify-center">
+                  <div className="text-zinc-300 font-medium text-sm">{logo.name}</div>
+                  <div className="text-zinc-500 text-xs">{logo.industry}</div>
                 </div>
               ))}
             </div>
@@ -359,7 +359,7 @@ export default function EnterprisePage() {
             <h2 className="text-4xl font-bold text-white mb-6">
               Enterprise-Grade Capabilities
             </h2>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+            <p className="text-xl text-zinc-400 max-w-3xl mx-auto">
               Everything your enterprise needs to govern autonomous AI systems at scale, 
               with the security and compliance that regulated industries require.
             </p>
@@ -369,14 +369,14 @@ export default function EnterprisePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {enterpriseCapabilities.map((capability, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
-              <div className="bg-gradient-to-br from-navy-800/50 to-slate-900/50 border border-navy-700/50 rounded-xl p-6 hover:bg-gradient-to-br hover:from-navy-700/50 hover:to-slate-800/50 transition-colors">
+              <div className="bg-black border border-zinc-800 p-6 hover:bg-zinc-900 transition-colors">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gold-400/20 border border-gold-400/30 flex items-center justify-center">
-                    <capability.icon className="w-6 h-6 text-gold-400" />
+                  <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                    <capability.icon className="w-6 h-6 text-amber-500" />
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold text-white mb-2">{capability.title}</h3>
-                    <p className="text-slate-400 leading-relaxed">{capability.description}</p>
+                    <p className="text-zinc-400 leading-relaxed">{capability.description}</p>
                   </div>
                 </div>
               </div>
@@ -392,19 +392,19 @@ export default function EnterprisePage() {
             <h2 className="text-4xl font-bold text-white mb-4">
               Enterprise vs Business
             </h2>
-            <p className="text-lg text-slate-400">
+            <p className="text-lg text-zinc-400">
               See what Enterprise adds to our Business tier
             </p>
           </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2}>
-          <div className="bg-gradient-to-br from-navy-800/50 to-slate-900/50 border border-navy-700/50 rounded-xl overflow-hidden">
-            <div className="grid grid-cols-3 gap-0 text-center border-b border-navy-700/50">
-              <div className="p-4 bg-navy-800/30">
-                <h3 className="font-semibold text-slate-300">Feature</h3>
+          <div className="bg-black border border-zinc-800 overflow-hidden">
+            <div className="grid grid-cols-3 gap-0 text-center border-b border-zinc-800">
+              <div className="p-4 bg-black/30">
+                <h3 className="font-semibold text-zinc-300">Feature</h3>
               </div>
-              <div className="p-4 bg-navy-700/30">
+              <div className="p-4 bg-zinc-900/30">
                 <h3 className="font-semibold text-blue-400">Business</h3>
               </div>
               <div className="p-4 bg-gradient-to-r from-gold-500/20 to-gold-400/20">
@@ -413,9 +413,9 @@ export default function EnterprisePage() {
             </div>
             
             {comparisonData.map((row, i) => (
-              <div key={i} className="grid grid-cols-3 gap-0 border-b border-navy-700/30 last:border-b-0">
-                <div className="p-4 text-slate-300 font-medium">{row.feature}</div>
-                <div className="p-4 text-slate-400">{row.business}</div>
+              <div key={i} className="grid grid-cols-3 gap-0 border-b border-zinc-800 last:border-b-0">
+                <div className="p-4 text-zinc-300 font-medium">{row.feature}</div>
+                <div className="p-4 text-zinc-400">{row.business}</div>
                 <div className="p-4 text-gold-300 font-medium">{row.enterprise}</div>
               </div>
             ))}
@@ -424,14 +424,14 @@ export default function EnterprisePage() {
       </div>
 
       {/* Security & Compliance */}
-      <div className="border-t border-navy-700/50 py-20">
+      <div className="border-t border-zinc-800 py-20">
         <div className="max-w-6xl mx-auto px-6">
           <ScrollReveal>
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-white mb-6">
                 Security &amp; Compliance
               </h2>
-              <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
                 Built for regulated industries with enterprise-grade security controls 
                 and compliance certifications.
               </p>
@@ -441,12 +441,12 @@ export default function EnterprisePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {complianceFeatures.map((feature, i) => (
               <ScrollReveal key={i} delay={i * 0.1}>
-                <div className="bg-gradient-to-br from-emerald-900/20 to-blue-900/20 border border-emerald-500/30 rounded-xl p-6 text-center">
-                  <div className="w-12 h-12 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-gradient-to-br from-emerald-900/20 to-blue-900/20 border border-emerald-500/30 p-6 text-center">
+                  <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
                     <feature.icon className="w-6 h-6 text-emerald-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-slate-400 text-sm">{feature.description}</p>
+                  <p className="text-zinc-400 text-sm">{feature.description}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -462,7 +462,7 @@ export default function EnterprisePage() {
               <h2 className="text-4xl font-bold text-white mb-6">
                 Calculate Your ROI
               </h2>
-              <p className="text-xl text-slate-400 mb-8 leading-relaxed">
+              <p className="text-xl text-zinc-400 mb-8 leading-relaxed">
                 On average, enterprises save $2M annually in compliance costs by implementing 
                 Vienna OS governance across their AI agent fleet.
               </p>
@@ -474,7 +474,7 @@ export default function EnterprisePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Reduced Compliance Overhead</h3>
-                    <p className="text-slate-400">Automated governance reduces manual compliance work by 60%</p>
+                    <p className="text-zinc-400">Automated governance reduces manual compliance work by 60%</p>
                   </div>
                 </div>
                 
@@ -484,7 +484,7 @@ export default function EnterprisePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Faster Agent Deployment</h3>
-                    <p className="text-slate-400">Deploy new AI agents 4x faster with pre-approved governance policies</p>
+                    <p className="text-zinc-400">Deploy new AI agents 4x faster with pre-approved governance policies</p>
                   </div>
                 </div>
                 
@@ -494,7 +494,7 @@ export default function EnterprisePage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-2">Risk Mitigation</h3>
-                    <p className="text-slate-400">Prevent costly incidents with real-time governance enforcement</p>
+                    <p className="text-zinc-400">Prevent costly incidents with real-time governance enforcement</p>
                   </div>
                 </div>
               </div>
@@ -502,9 +502,9 @@ export default function EnterprisePage() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2}>
-            <div className="bg-navy-800/50 border border-navy-700 rounded-xl p-6">
+            <div className="bg-black/50 border border-zinc-800 p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Why Enterprise?</h3>
-              <ul className="space-y-3 text-slate-300">
+              <ul className="space-y-3 text-zinc-300">
                 <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Merkle warrant chain — third-party verifiable governance history</li>
                 <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> Policy simulation — predict the impact of changes before deploying</li>
                 <li className="flex items-start gap-3"><Check className="w-5 h-5 text-green-400 mt-0.5 shrink-0" /> SOC 2 compliance reports with one-click export (CC6.1–CC8.1)</li>
@@ -519,19 +519,19 @@ export default function EnterprisePage() {
 
       {/* Early Access CTA */}
       <ScrollReveal>
-        <div className="border-t border-navy-700/50 py-20">
+        <div className="border-t border-zinc-800 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <div className="bg-gradient-to-br from-slate-800/50 to-navy-800/50 border border-slate-700/50 rounded-2xl p-12">
-              <Shield className="w-12 h-12 text-gold-400 mx-auto mb-6" />
-              <h3 className="text-2xl text-slate-200 font-medium mb-6 leading-relaxed">
+            <div className="bg-black border border-zinc-800 p-12">
+              <Shield className="w-12 h-12 text-amber-500 mx-auto mb-6" />
+              <h3 className="text-2xl text-zinc-200 font-medium mb-6 leading-relaxed">
                 Vienna OS is in early access for enterprise teams governing autonomous AI agents.
               </h3>
-              <p className="text-slate-400 mb-8">
+              <p className="text-zinc-400 mb-8">
                 Be among the first to deploy warrant-based governance at scale.
               </p>
               <a 
                 href="/contact?subject=enterprise"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30"
               >
                 Request Early Access
                 <ArrowRight className="w-5 h-5" />
@@ -543,12 +543,12 @@ export default function EnterprisePage() {
 
       {/* Final CTA */}
       <ScrollReveal>
-        <div className="border-t border-navy-700/50 py-20">
+        <div className="border-t border-zinc-800 py-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h2 className="text-4xl font-bold text-white mb-6">
               Ready to Scale AI Governance?
             </h2>
-            <p className="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-zinc-400 mb-8 max-w-2xl mx-auto">
               Built for Fortune 500 companies ready to govern their AI agents at scale. 
               Schedule a demo to see enterprise features in action.
             </p>
@@ -557,14 +557,14 @@ export default function EnterprisePage() {
               <a 
                 href="/contact?subject=enterprise"
                 onClick={() => analytics.ctaClick('final_cta', 'schedule_demo')}
-                className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 rounded-xl transition shadow-xl hover:shadow-gold-400/30 text-lg"
+                className="bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-white font-semibold px-8 py-4 transition shadow-xl hover:shadow-gold-400/30 text-lg"
               >
                 Schedule a Demo
               </a>
               <a 
                 href="/docs"
                 onClick={() => analytics.ctaClick('final_cta', 'view_docs')}
-                className="text-gold-400 hover:text-gold-300 font-medium transition text-lg flex items-center gap-2"
+                className="text-amber-500 hover:text-gold-300 font-medium transition text-lg flex items-center gap-2"
               >
                 View Documentation
                 <ArrowRight className="w-5 h-5" />

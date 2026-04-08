@@ -130,23 +130,23 @@ function CodeBlock({
   };
 
   return (
-    <div className="group relative bg-navy-900 border border-navy-800 rounded-xl overflow-hidden mb-6">
+    <div className="group relative bg-[#0a0e14] border border-zinc-800 overflow-hidden mb-6">
       {title && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-navy-800 bg-navy-800">
-          <span className="text-xs font-mono text-slate-500">{title}</span>
-          <span className="text-xs font-mono text-slate-600">{language}</span>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-black">
+          <span className="text-xs font-mono text-zinc-500">{title}</span>
+          <span className="text-xs font-mono text-zinc-600">{language}</span>
         </div>
       )}
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-navy-800 text-slate-500 hover:text-white hover:bg-navy-700 transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 rounded-md bg-black text-zinc-500 hover:text-white hover:bg-zinc-900 transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
         <pre className="p-4 overflow-x-auto">
-          <code className="font-mono text-sm text-slate-300 leading-relaxed">{children}</code>
+          <code className="font-mono text-sm text-zinc-300 leading-relaxed">{children}</code>
         </pre>
       </div>
     </div>
@@ -176,7 +176,7 @@ function Method({
     <div id={id} className="mb-12 scroll-mt-24">
       <div className="flex items-baseline gap-4 mb-4 group">
         <h3 className="text-xl font-bold text-white">{name}</h3>
-        <a href={`#${id}`} className="text-slate-600 hover:text-gold-400 opacity-0 group-hover:opacity-100 transition text-sm">
+        <a href={`#${id}`} className="text-zinc-600 hover:text-amber-500 opacity-0 group-hover:opacity-100 transition text-sm">
           #
         </a>
       </div>
@@ -185,21 +185,21 @@ function Method({
         {signature}
       </CodeBlock>
 
-      <p className="text-slate-400 mb-6 leading-relaxed">{description}</p>
+      <p className="text-zinc-400 mb-6 leading-relaxed">{description}</p>
 
       {parameters && parameters.length > 0 && (
         <div className="mb-6">
           <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Parameters</h4>
           <div className="space-y-3">
             {parameters.map((param) => (
-              <div key={param.name} className="border border-navy-800 rounded-lg p-4 bg-navy-800/30">
+              <div key={param.name} className="border border-zinc-800 p-4 bg-black/30">
                 <div className="flex items-center gap-2 mb-1">
-                  <code className="text-gold-400 font-mono text-sm">{param.name}</code>
-                  <span className="text-slate-500 text-xs">—</span>
+                  <code className="text-amber-500 font-mono text-sm">{param.name}</code>
+                  <span className="text-zinc-500 text-xs">—</span>
                   <code className="text-emerald-400 font-mono text-xs">{param.type}</code>
-                  {!param.required && <span className="text-slate-600 text-xs">(optional)</span>}
+                  {!param.required && <span className="text-zinc-600 text-xs">(optional)</span>}
                 </div>
-                <p className="text-slate-400 text-sm">{param.description}</p>
+                <p className="text-zinc-400 text-sm">{param.description}</p>
               </div>
             ))}
           </div>
@@ -224,7 +224,7 @@ function Method({
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
     info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
-    warning: "border-gold-400/30 bg-gold-400/5 text-gold-300",
+    warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
   const icons = {
@@ -233,7 +233,7 @@ function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip
     tip: <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" />,
   };
   return (
-    <div className={`border rounded-xl p-4 mb-6 flex gap-3 ${styles[type]}`}>
+    <div className={`border p-4 mb-6 flex gap-3 ${styles[type]}`}>
       {icons[type]}
       <div className="text-sm leading-relaxed">{children}</div>
     </div>
@@ -247,7 +247,7 @@ function H2({ id, icon, children }: { id: string; icon: React.ReactNode; childre
     <div id={id} className="flex items-center gap-3 mb-6 pt-8 scroll-mt-24 group">
       {icon}
       <h2 className="text-2xl font-bold text-white">{children}</h2>
-      <a href={`#${id}`} className="text-slate-600 hover:text-gold-400 opacity-0 group-hover:opacity-100 transition">
+      <a href={`#${id}`} className="text-zinc-600 hover:text-amber-500 opacity-0 group-hover:opacity-100 transition">
         #
       </a>
     </div>
@@ -255,11 +255,11 @@ function H2({ id, icon, children }: { id: string; icon: React.ReactNode; childre
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="text-slate-400 mb-4 leading-relaxed">{children}</p>;
+  return <p className="text-zinc-400 mb-4 leading-relaxed">{children}</p>;
 }
 
 function InlineCode({ children }: { children: React.ReactNode }) {
-  return <code className="text-gold-400 bg-navy-800 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
+  return <code className="text-amber-500 bg-black px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>;
 }
 
 /* ─────────────────────── Main API Reference Page ─────────────────────── */
@@ -321,38 +321,38 @@ export default function ApiReferencePage() {
   const isActive = (id: string) => activeSection === id;
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-[#0a0e14]">
       {/* ── Top Navigation ── */}
-      <nav className="border-b border-navy-800 sticky top-0 bg-navy-900/95 backdrop-blur-xl z-50">
+      <nav className="border-b border-zinc-800 sticky top-0 bg-[#0a0e14]/95 backdrop-blur-xl z-50">
         <div className="max-w-[90rem] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="lg:hidden p-1.5 rounded-lg hover:bg-navy-800 text-slate-400"
+              className="lg:hidden p-1.5 hover:bg-black text-zinc-400"
             >
               {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <a href="/docs" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+            <a href="/docs" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Back to Docs</span>
             </a>
-            <span className="text-slate-700 hidden sm:inline">|</span>
+            <span className="text-zinc-600 hidden sm:inline">|</span>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-gold-400" />
+              <Shield className="w-6 h-6 text-amber-500" />
               <span className="font-bold text-white text-sm">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
             </div>
-            <span className="text-slate-700 text-xs font-mono hidden sm:inline">API v1</span>
+            <span className="text-zinc-600 text-xs font-mono hidden sm:inline">API v1</span>
           </div>
           <div className="flex items-center gap-3">
             <a
               href="https://github.com/risk-ai/regulator.ai"
-              className="text-sm text-slate-500 hover:text-white transition hidden sm:inline-flex items-center gap-1"
+              className="text-sm text-zinc-500 hover:text-white transition hidden sm:inline-flex items-center gap-1"
             >
               GitHub
             </a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-gold-400/20 text-gold-400 hover:bg-gold-400/30 px-4 py-1.5 rounded-lg transition font-medium"
+              className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-1.5 transition font-medium"
             >
               Console
             </a>
@@ -365,13 +365,13 @@ export default function ApiReferencePage() {
         <aside
           className={`
             fixed lg:sticky top-[53px] left-0 h-[calc(100vh-53px)] w-72 shrink-0
-            bg-navy-900 border-r border-navy-800 overflow-y-auto z-40
+            bg-[#0a0e14] border-r border-zinc-800 overflow-y-auto z-40
             transition-transform duration-200
             ${mobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           `}
         >
           <div className="py-6 px-4">
-            <div className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4 px-3">
+            <div className="text-xs font-semibold text-zinc-600 uppercase tracking-wider mb-4 px-3">
               API Reference
             </div>
             <nav className="space-y-0.5">
@@ -379,23 +379,23 @@ export default function ApiReferencePage() {
                 <div key={s.id}>
                   <button
                     onClick={() => toggleSection(s.id)}
-                    className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 rounded-lg transition ${
+                    className={`w-full flex items-center gap-2.5 text-sm py-2 px-3 transition ${
                       isActive(s.id)
-                        ? "bg-gold-400/10 text-gold-400"
-                        : "text-slate-400 hover:text-white hover:bg-navy-800"
+                        ? "bg-amber-500/10 text-amber-500"
+                        : "text-zinc-400 hover:text-white hover:bg-black"
                     }`}
                   >
                     <span className="flex-1 text-left">{s.label}</span>
                     {s.methods && (
                       <ChevronDown
-                        className={`w-3.5 h-3.5 text-slate-600 transition-transform ${
+                        className={`w-3.5 h-3.5 text-zinc-600 transition-transform ${
                           expandedSections[s.id] ? "" : "-rotate-90"
                         }`}
                       />
                     )}
                   </button>
                   {s.methods && expandedSections[s.id] && (
-                    <div className="ml-4 pl-3 border-l border-navy-800 mt-1 mb-2 space-y-0.5">
+                    <div className="ml-4 pl-3 border-l border-zinc-800 mt-1 mb-2 space-y-0.5">
                       {s.methods.map((m) => (
                         <a
                           key={m.id}
@@ -403,8 +403,8 @@ export default function ApiReferencePage() {
                           onClick={() => setMobileNavOpen(false)}
                           className={`block text-xs py-1.5 px-3 rounded transition ${
                             isActive(m.id)
-                              ? "text-gold-400 bg-gold-400/5"
-                              : "text-slate-500 hover:text-slate-300"
+                              ? "text-amber-500 bg-amber-500/5"
+                              : "text-zinc-500 hover:text-zinc-300"
                           }`}
                         >
                           <span className="text-emerald-400 font-mono mr-1">{m.method}</span>
@@ -500,7 +500,7 @@ console.log('Intent status:', result.status);`}
                VIENNA CLIENT
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="client" icon={<Settings className="w-6 h-6 text-gold-400" />}>
+          <H2 id="client" icon={<Settings className="w-6 h-6 text-amber-500" />}>
             ViennaClient
           </H2>
           <P>
@@ -749,7 +749,7 @@ const agentIntents = await vienna.intent.list({
                POLICIES MODULE
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="policies" icon={<FileText className="w-6 h-6 text-cyan-400" />}>
+          <H2 id="policies" icon={<FileText className="w-6 h-6 text-amber-400" />}>
             Policies Module
           </H2>
           <P>
@@ -1619,18 +1619,18 @@ stats.topViolatingAgents.forEach(agent => {
           />
 
           {/* End of content */}
-          <div className="border-t border-navy-800 my-16" />
+          <div className="border-t border-zinc-800 my-16" />
 
-          <div className="bg-gradient-to-br from-gold-900/20 to-navy-800/50 border border-gold-400/20 rounded-2xl p-8 text-center">
+          <div className="bg-black border border-amber-500/20 p-8 text-center">
             <h2 className="text-xl font-bold text-white mb-2">Ready to start building?</h2>
-            <p className="text-slate-400 text-sm mb-4">
+            <p className="text-zinc-400 text-sm mb-4">
               Install the SDK and start governing your agents in minutes.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <a href="/signup" className="bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-xl transition font-semibold text-sm">
+              <a href="/signup" className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 transition font-semibold text-sm">
                 Get API Key
               </a>
-              <a href="/docs" className="bg-navy-800 hover:bg-navy-700 text-white px-6 py-2.5 rounded-xl transition text-sm border border-navy-700">
+              <a href="/docs" className="bg-black hover:bg-zinc-900 text-white px-6 py-2.5 transition text-sm border border-zinc-800">
                 Full Documentation
               </a>
             </div>
@@ -1640,16 +1640,16 @@ stats.topViolatingAgents.forEach(agent => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-navy-800 py-8 mt-12">
+      <footer className="border-t border-zinc-800 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-gold-400" />
-            <span className="text-sm text-slate-500">Vienna OS API Reference</span>
+            <Shield className="w-4 h-4 text-amber-500" />
+            <span className="text-sm text-zinc-500">Vienna OS API Reference</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="/docs" className="text-xs text-slate-600 hover:text-slate-400 transition">Documentation</a>
-            <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-slate-600 hover:text-slate-400 transition">GitHub</a>
-            <span className="text-xs text-slate-600">© 2026 Technetwork 2 LLC dba ai.ventures</span>
+            <a href="/docs" className="text-xs text-zinc-600 hover:text-zinc-400 transition">Documentation</a>
+            <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-zinc-600 hover:text-zinc-400 transition">GitHub</a>
+            <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           </div>
         </div>
       </footer>

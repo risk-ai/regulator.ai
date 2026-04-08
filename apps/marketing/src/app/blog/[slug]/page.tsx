@@ -40,7 +40,7 @@ function MarkdownContent({ content }: { content: string }) {
   const blocks = content.split(/\n\n+/);
 
   return (
-    <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-gold-400 prose-strong:text-white prose-code:text-gold-300 prose-code:bg-slate-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700">
+    <div className="prose prose-invert prose-slate max-w-none prose-headings:text-white prose-a:text-amber-500 prose-strong:text-white prose-code:text-gold-300 prose-code:bg-slate-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-700">
       {blocks.map((block, i) => {
         const trimmed = block.trim();
         if (!trimmed) return null;
@@ -51,8 +51,8 @@ function MarkdownContent({ content }: { content: string }) {
           const lang = lines[0].replace("```", "").trim();
           const code = lines.slice(1, -1).join("\n");
           return (
-            <pre key={i} className="bg-slate-900 border border-slate-700 rounded-lg p-4 overflow-x-auto my-6">
-              <code className={`text-sm text-slate-300 ${lang ? `language-${lang}` : ""}`}>
+            <pre key={i} className="bg-slate-900 border border-slate-700 p-4 overflow-x-auto my-6">
+              <code className={`text-sm text-zinc-300 ${lang ? `language-${lang}` : ""}`}>
                 {code}
               </code>
             </pre>
@@ -74,7 +74,7 @@ function MarkdownContent({ content }: { content: string }) {
         if (trimmed.startsWith("> ")) {
           const text = trimmed.replace(/^>\s?/gm, "");
           return (
-            <blockquote key={i} className="border-l-4 border-gold-400 pl-4 my-6 text-slate-400 italic">
+            <blockquote key={i} className="border-l-4 border-amber-500 pl-4 my-6 text-zinc-400 italic">
               {text}
             </blockquote>
           );
@@ -84,10 +84,10 @@ function MarkdownContent({ content }: { content: string }) {
         if (/^[-*!]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
           const items = trimmed.split("\n").filter((l) => l.trim());
           return (
-            <ul key={i} className="space-y-2 my-4 text-slate-300">
+            <ul key={i} className="space-y-2 my-4 text-zinc-300">
               {items.map((item, j) => (
                 <li key={j} className="flex gap-2">
-                  <span className="text-slate-300 leading-relaxed">
+                  <span className="text-zinc-300 leading-relaxed">
                     {item.replace(/^[-*]\s+/, "• ").replace(/^\d+\.\s+/, "")}
                   </span>
                 </li>
@@ -101,7 +101,7 @@ function MarkdownContent({ content }: { content: string }) {
           const rows = trimmed.split("\n").filter((l) => l.trim() && !l.match(/^[-|:\s]+$/));
           return (
             <div key={i} className="overflow-x-auto my-6">
-              <table className="w-full text-sm text-slate-300 border border-slate-700">
+              <table className="w-full text-sm text-zinc-300 border border-slate-700">
                 <tbody>
                   {rows.map((row, j) => (
                     <tr key={j} className={j === 0 ? "bg-slate-800/50 font-semibold text-white" : "border-t border-slate-700"}>
@@ -123,13 +123,13 @@ function MarkdownContent({ content }: { content: string }) {
 
         // Regular paragraph — handle inline formatting
         return (
-          <p key={i} className="text-slate-300 text-lg leading-relaxed my-4"
+          <p key={i} className="text-zinc-300 text-lg leading-relaxed my-4"
             dangerouslySetInnerHTML={{
               __html: trimmed
                 .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
                 .replace(/\*(.+?)\*/g, '<em>$1</em>')
                 .replace(/`(.+?)`/g, '<code class="text-gold-300 bg-slate-800/50 px-1.5 py-0.5 rounded text-sm">$1</code>')
-                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-gold-400 hover:text-gold-300 underline">$1</a>')
+                .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-amber-500 hover:text-gold-300 underline">$1</a>')
                 .replace(/\n/g, '<br />')
             }}
           />
@@ -155,30 +155,30 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <nav className="flex items-center justify-between mb-8">
           <a
             href="/blog"
-            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Blog
           </a>
           <a href="/" className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-gold-400" />
+            <Shield className="w-5 h-5 text-amber-500" />
             <span className="font-bold text-white text-sm">
               Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span>
             </span>
           </a>
         </nav>
 
-        <article className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-xl p-8 md:p-12">
+        <article className="bg-black backdrop-blur-sm border border-slate-800 p-8 md:p-12">
           <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
             <span className={`px-3 py-1 rounded-full font-medium ${post.categoryColor}`}>
               {post.category}
             </span>
-            <span className="text-slate-400">{post.date}</span>
-            <span className="flex items-center gap-1.5 text-slate-400">
+            <span className="text-zinc-400">{post.date}</span>
+            <span className="flex items-center gap-1.5 text-zinc-400">
               <Clock className="w-4 h-4" />
               {post.readTime}
             </span>
-            <span className="text-slate-500">By {post.author}</span>
+            <span className="text-zinc-500">By {post.author}</span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent leading-tight">
@@ -189,23 +189,23 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
           {/* CTA */}
           <div className="mt-12 pt-8 border-t border-slate-700">
-            <div className="bg-gradient-to-r from-gold-400/10 to-blue-600/10 border border-gold-400/20 rounded-xl p-6 text-center">
+            <div className="bg-gradient-to-r from-gold-400/10 to-blue-600/10 border border-amber-500/20 p-6 text-center">
               <h3 className="text-xl font-bold text-white mb-2">
                 Ready to govern your AI agents?
               </h3>
-              <p className="text-slate-400 mb-4">
+              <p className="text-zinc-400 mb-4">
                 Start with the open-source Community tier or try Team free for 14 days.
               </p>
               <div className="flex justify-center gap-4">
                 <a
                   href="/pricing"
-                  className="bg-gold-400 hover:bg-gold-300 text-white px-6 py-2.5 rounded-lg font-medium transition"
+                  className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 font-medium transition"
                 >
                   View Pricing
                 </a>
                 <a
                   href="https://github.com/risk-ai/vienna-os"
-                  className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-lg font-medium transition"
+                  className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 font-medium transition"
                 >
                   GitHub
                 </a>

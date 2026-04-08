@@ -86,8 +86,12 @@ async function requireAuth(req, res) {
   const cookies = parseCookies(req.headers.cookie);
   const authHeader = req.headers.authorization || '';
   
-  // Try JWT token first (Bearer or cookie)
-  const jwtToken = authHeader.replace('Bearer ', '') || cookies.vienna_session;
+  // Parse query params for SSE auth (EventSource can't send headers)
+  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const queryToken = url.searchParams.get('token');
+  
+  // Try JWT token first (Bearer header, cookie, or query param for SSE)
+  const jwtToken = authHeader.replace('Bearer ', '') || cookies.vienna_session || queryToken;
   
   if (jwtToken && !jwtToken.startsWith('vos_')) {
     // JWT authentication

@@ -29,7 +29,12 @@ export function useViennaStream() {
     
     // Connect to SSE stream
     console.log('[SSE] Attempting connection...');
-    const eventSource = new EventSource(`${SSE_BASE}/stream`);
+    // EventSource can't send Authorization headers, so pass token as query param
+    const token = localStorage.getItem('vienna_access_token');
+    const sseUrl = token 
+      ? `${SSE_BASE}/stream?token=${encodeURIComponent(token)}`
+      : `${SSE_BASE}/stream`;
+    const eventSource = new EventSource(sseUrl);
     eventSourceRef.current = eventSource;
     
     // Connection opened
@@ -195,6 +200,19 @@ export function useViennaStream() {
       console.error('[SSE] Connection error:', error);
       setSSEConnected(false);
       eventSource.close();
+      
+      // Don't reconnect if user has no auth token (avoids infinite 401 loop)
+      const currentToken = localStorage.getItem('vienna_access_token');
+      if (!currentToken) {
+        console.warn('[SSE] No auth token — skipping reconnect');
+        return;
+      }
+      
+      // Stop reconnecting after 5 failed attempts (likely auth issue)
+      if (reconnectAttemptsRef.current >= 5) {
+        console.warn('[SSE] Max reconnect attempts reached — stopping');
+        return;
+      }
       
       // Calculate backoff delay (1s, 2s, 4s, 8s, 16s, max 30s)
       const maxDelay = 30000;

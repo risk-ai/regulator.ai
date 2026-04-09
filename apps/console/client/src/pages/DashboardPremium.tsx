@@ -217,7 +217,7 @@ export default function DashboardPremium() {
                 Heap: {systemMetrics.checks?.memory?.heap_used_mb || 0}/{systemMetrics.checks?.memory?.heap_total_mb || 0} MB
               </div>
               <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-                <div className="h-full bg-blue-500" style={{ width: `${Math.min((systemMetrics.checks?.memory?.heap_used_mb / systemMetrics.checks?.memory?.heap_total_mb) * 100, 100)}%` }} />
+                <div className="h-full bg-blue-500" style={{ width: `${Math.min(((systemMetrics.checks?.memory?.heap_used_mb || 0) / (systemMetrics.checks?.memory?.heap_total_mb || 1)) * 100, 100)}%` }} />
               </div>
             </div>
 
@@ -236,7 +236,7 @@ export default function DashboardPremium() {
                 Status: {systemMetrics.checks?.database?.status || 'unknown'}
               </div>
               <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-                <div className="h-full bg-emerald-500" style={{ width: `${Math.min((systemMetrics.checks?.database?.latency_ms / 100) * 100, 100)}%` }} />
+                <div className="h-full bg-emerald-500" style={{ width: `${Math.min(((systemMetrics.checks?.database?.latency_ms || 0) / 100) * 100, 100)}%` }} />
               </div>
             </div>
 

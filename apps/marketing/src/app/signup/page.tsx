@@ -204,7 +204,7 @@ export default function SignupPage() {
 
             <button
               onClick={() => setStep("details")}
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-medium"
+              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-medium"
             >
               Continue with {currentPlan.name}
               <ArrowRight className="w-4 h-4" />
@@ -292,7 +292,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-medium disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-medium disabled:opacity-50"
               >
                 {submitting ? "Setting up..." : "Create Account"}
                 <ArrowRight className="w-4 h-4" />
@@ -332,7 +332,7 @@ export default function SignupPage() {
                   </p>
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 transition font-medium text-sm"
+                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 transition font-medium text-sm"
                   >
                     Open Console <ArrowRight className="w-4 h-4" />
                   </a>
@@ -394,7 +394,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-medium"
+                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />
@@ -419,7 +419,7 @@ export default function SignupPage() {
                 <div className="flex items-center gap-4">
                   <a
                     href="https://console.regulator.ai"
-                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-medium"
+                    className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-medium"
                   >
                     Explore Sandbox
                     <ArrowRight className="w-4 h-4" />

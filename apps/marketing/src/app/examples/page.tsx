@@ -225,7 +225,7 @@ export default function ExamplesPage() {
             <a href="/pricing" className="text-sm text-zinc-400 hover:text-white transition">Pricing</a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 transition"
+              className="text-sm bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 transition"
             >
               Console
             </a>
@@ -299,7 +299,7 @@ export default function ExamplesPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/signup?plan=community"
-              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-semibold"
             >
               <Zap className="w-5 h-5" />
               Get Started Free

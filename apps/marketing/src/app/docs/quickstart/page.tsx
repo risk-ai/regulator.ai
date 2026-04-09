@@ -132,7 +132,7 @@ export default function QuickstartPage() {
         {/* Step 1: Install */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">1</span>
+            <span className="bg-amber-500 text-black text-sm font-bold font-mono w-6 h-6 flex items-center justify-center">1</span>
             Install
           </h2>
           <p className="text-zinc-400 mb-4">
@@ -151,7 +151,7 @@ pip install vienna-os
         {/* Step 2: Initialize */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">2</span>
+            <span className="bg-amber-500 text-black text-sm font-bold font-mono w-6 h-6 flex items-center justify-center">2</span>
             Initialize
           </h2>
           <p className="text-zinc-400 mb-4">
@@ -179,7 +179,7 @@ vienna = ViennaClient(
         {/* Step 3: Govern an Action */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">3</span>
+            <span className="bg-amber-500 text-black text-sm font-bold font-mono w-6 h-6 flex items-center justify-center">3</span>
             Govern an Action
           </h2>
           <p className="text-zinc-400 mb-4">
@@ -238,7 +238,7 @@ elif result.pipeline == 'denied':
         {/* Step 4: Handle Errors */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">4</span>
+            <span className="bg-amber-500 text-black text-sm font-bold font-mono w-6 h-6 flex items-center justify-center">4</span>
             Handle Errors
           </h2>
           <p className="text-zinc-400 mb-4">
@@ -310,7 +310,7 @@ except ViennaError as e:
         {/* Step 5: See It Live */}
         <div className="mb-12">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <span className="bg-amber-500 text-white text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">5</span>
+            <span className="bg-amber-500 text-black text-sm font-bold font-mono w-6 h-6 flex items-center justify-center">5</span>
             See It Live
           </h2>
           <p className="text-zinc-400 mb-4">

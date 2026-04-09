@@ -1627,7 +1627,7 @@ stats.topViolatingAgents.forEach(agent => {
               Install the SDK and start governing your agents in minutes.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <a href="/signup" className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 transition font-semibold text-sm">
+              <a href="/signup" className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 transition font-semibold text-sm">
                 Get API Key
               </a>
               <a href="/docs" className="bg-black hover:bg-zinc-900 text-white px-6 py-2.5 transition text-sm border border-zinc-800">

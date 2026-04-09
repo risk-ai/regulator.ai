@@ -47,7 +47,7 @@ export default function ExecutionPage() {
               <a href="/" className="text-sm text-gray-400 hover:text-white transition">Home</a>
               <a href="/docs" className="text-sm text-gray-400 hover:text-white transition">Docs</a>
               <a href="/pricing" className="text-sm text-gray-400 hover:text-white transition">Pricing</a>
-              <a href="/signup" className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-5 py-2.5 transition font-semibold">
+              <a href="/signup" className="text-sm bg-amber-500 hover:bg-amber-400 text-black px-5 py-2.5 transition font-semibold">
                 Get Started
               </a>
             </div>

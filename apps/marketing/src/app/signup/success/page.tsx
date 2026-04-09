@@ -161,7 +161,7 @@ function SuccessContent() {
               href="https://console.regulator.ai"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-4 transition font-semibold text-lg"
+              className="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 transition font-semibold text-lg"
             >
               <Zap className="w-5 h-5" />
               Open Console

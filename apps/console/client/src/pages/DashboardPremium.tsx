@@ -267,9 +267,13 @@ export default function DashboardPremium() {
 
 /* ── Subcomponents ── */
 
-function KPICard({ label, value, subtext, trend, color, onClick }: {
-  label: string; value: string; subtext: string; trend: string | null; color: string; onClick?: () => void;
+function KPICard({ label, value, subtext, trend, color, onClick, sparkline }: {
+  label: string; value: string; subtext: string; trend: string | null; color: string; onClick?: () => void; sparkline?: number[];
 }) {
+  // Generate sparkline data if not provided (simple trend simulation)
+  const sparkData = sparkline || [40, 50, 45, 60, 75, 90, 70, 55, 95, 100].map(h => h * 0.6);
+  const maxVal = Math.max(...sparkData);
+  
   return (
     <div className={`rounded-lg p-3.5 flex flex-col ${onClick ? 'cursor-pointer hover:opacity-90' : ''}`}
       style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
@@ -285,7 +289,17 @@ function KPICard({ label, value, subtext, trend, color, onClick }: {
       <div className={`text-[28px] font-bold font-mono mt-1 leading-none ${color === 'amber' ? 'text-amber-500' : ''}`} style={color !== 'amber' ? { color: 'var(--text-primary)' } : {}}>
         {value}
       </div>
-      <div className="text-[10px] mt-auto pt-2 font-mono" style={{ color: 'var(--text-muted)' }}>{subtext}</div>
+      {/* Sparkline */}
+      <div className="mt-4 flex gap-[1.5px] items-end h-7">
+        {sparkData.map((h, i) => (
+          <div
+            key={i}
+            className={`flex-1 ${color === 'amber' ? 'bg-amber-500' : 'bg-emerald-500'}`}
+            style={{ height: `${(h / maxVal) * 100}%`, opacity: 0.2 + (h / maxVal) * 0.8 }}
+          />
+        ))}
+      </div>
+      <div className="text-[10px] mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>{subtext}</div>
     </div>
   );
 }

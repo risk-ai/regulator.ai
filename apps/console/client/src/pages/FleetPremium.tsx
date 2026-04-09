@@ -124,10 +124,13 @@ export default function FleetPremium() {
               </tr>
             </thead>
             <tbody>
-              {agents.map((agent) => (
+              {agents.map((agent, idx) => (
                 <tr key={agent.id || agent.agent_id}
                   className="transition-colors hover:opacity-90 cursor-pointer"
-                  style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                  style={{ 
+                    borderBottom: '1px solid var(--border-subtle)',
+                    background: idx % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.02)'
+                  }}
                   onClick={() => navigate(`/fleet/${agent.agent_id}`)}>
                   <td className="py-2 px-4">
                     <div className="flex items-center gap-2">

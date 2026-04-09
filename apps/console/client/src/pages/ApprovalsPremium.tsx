@@ -9,6 +9,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from 'lucide-react';
 import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
 import { useAuthStore } from '../store/authStore.js';
+import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';
 
 export default function ApprovalsPremium() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
@@ -16,6 +17,7 @@ export default function ApprovalsPremium() {
   const [refreshing, setRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [stats, setStats] = useState({ approved: 0, denied: 0 });
+  const [selectedApproval, setSelectedApproval] = useState<string | null>(null);
   const auth = useAuthStore();
 
   const loadApprovals = useCallback(async (showRefresh = false) => {
@@ -145,8 +147,9 @@ export default function ApprovalsPremium() {
 
             return (
               <div key={approval.approval_id}
-                className={`rounded-lg p-5 transition-all ${isProcessing ? 'opacity-50' : ''}`}
-                style={{ background: 'var(--bg-secondary)', border: `1px solid ${borderColor}` }}>
+                className={`rounded-lg p-5 transition-all cursor-pointer hover:opacity-95 ${isProcessing ? 'opacity-50' : ''}`}
+                style={{ background: 'var(--bg-secondary)', border: `1px solid ${borderColor}` }}
+                onClick={() => setSelectedApproval(approval.approval_id)}>
                 {/* Header Row */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -190,11 +193,11 @@ export default function ApprovalsPremium() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
-                  <button onClick={() => handleApprove(approval.approval_id)} disabled={isProcessing}
+                  <button onClick={(e) => { e.stopPropagation(); handleApprove(approval.approval_id); }} disabled={isProcessing}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-bold text-[13px] uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                     <CheckCircle size={16} /> Approve
                   </button>
-                  <button onClick={() => handleDeny(approval.approval_id)} disabled={isProcessing}
+                  <button onClick={(e) => { e.stopPropagation(); handleDeny(approval.approval_id); }} disabled={isProcessing}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-bold text-[13px] uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
                     <XCircle size={16} /> Deny
                   </button>
@@ -228,6 +231,16 @@ export default function ApprovalsPremium() {
           <div className="font-mono text-2xl font-bold text-red-500">{stats.denied}</div>
         </div>
       </div>
+
+      {/* Warrant Detail Modal */}
+      {selectedApproval && (
+        <WarrantDetailModal
+          approvalId={selectedApproval}
+          onClose={() => setSelectedApproval(null)}
+          onApprove={() => { loadApprovals(); setStats(s => ({ ...s, approved: s.approved + 1 })); }}
+          onDeny={() => { loadApprovals(); setStats(s => ({ ...s, denied: s.denied + 1 })); }}
+        />
+      )}
     </div>
   );
 }

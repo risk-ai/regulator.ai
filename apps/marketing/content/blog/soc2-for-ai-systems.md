@@ -308,7 +308,7 @@ The governance platform designed for SOC 2 compliance is now available to help y
 
 **Ready to secure your AI agents? Get started:**
 - 📚 **Documentation:** [docs.vienna-os.dev](https://docs.vienna-os.dev)
-- 💻 **GitHub:** [github.com/ai-ventures/vienna-os](https://github.com/ai-ventures/vienna-os)
+- 💻 **GitHub:** [github.com/risk-ai/vienna-os](https://github.com/risk-ai/vienna-os)
 - 🚀 **Quick Start:** Deploy in under 10 minutes
 - 📞 **Enterprise Support:** Compliance consulting available
 

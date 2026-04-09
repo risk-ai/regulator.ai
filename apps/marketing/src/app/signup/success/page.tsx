@@ -12,11 +12,21 @@ function SuccessContent() {
   const [verified, setVerified] = useState<boolean | null>(sessionId ? null : true)
 
   useEffect(() => {
-    // If we have a session_id from Stripe embedded checkout, verify it
+    // Server-side Stripe session verification
     if (sessionId && sessionId.startsWith('cs_')) {
-      // Create verify endpoint or add verification logic here
-      // For now, assume success and track
-      setVerified(true)
+      fetch('/api/verify-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          setVerified(data.verified !== false)
+        })
+        .catch(() => {
+          // Graceful degradation — show success page anyway
+          setVerified(true)
+        })
     }
 
     // Track signup success with actual plan

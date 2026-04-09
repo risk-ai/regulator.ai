@@ -1,334 +1,170 @@
-import React from 'react';
-import { Cpu, Settings, TrendingUp, Activity } from 'lucide-react';
+/**
+ * Fleet Premium — Dense Terminal-Style Agent Dashboard
+ * 
+ * Integrates with fleet API. No duplicate header — renders inside App.tsx shell.
+ * Dense table layout inspired by Bloomberg/Datadog.
+ */
+
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TrendingUp, RefreshCw } from 'lucide-react';
+import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
 
 export default function FleetPremium() {
-  const agents = [
-    {
-      id: 'AGT-001',
-      name: 'compliance-monitor',
-      status: 'active',
-      trust: 98.4,
-      actions24h: 1842,
-      lastAction: '2s ago',
-      warrants: 124,
-    },
-    {
-      id: 'AGT-002',
-      name: 'risk-analyzer',
-      status: 'active',
-      trust: 96.7,
-      actions24h: 2103,
-      lastAction: '5s ago',
-      warrants: 138,
-    },
-    {
-      id: 'AGT-003',
-      name: 'policy-enforcer',
-      status: 'idle',
-      trust: 94.2,
-      actions24h: 842,
-      lastAction: '2m ago',
-      warrants: 98,
-    },
-    {
-      id: 'AGT-004',
-      name: 'audit-logger',
-      status: 'active',
-      trust: 99.1,
-      actions24h: 3241,
-      lastAction: '1s ago',
-      warrants: 156,
-    },
-    {
-      id: 'AGT-005',
-      name: 'decision-reviewer',
-      status: 'suspended',
-      trust: 72.3,
-      actions24h: 18,
-      lastAction: '1h ago',
-      warrants: 12,
-    },
-    {
-      id: 'AGT-006',
-      name: 'execution-monitor',
-      status: 'active',
-      trust: 95.8,
-      actions24h: 1924,
-      lastAction: '3s ago',
-      warrants: 131,
-    },
-    {
-      id: 'AGT-007',
-      name: 'warrant-issuer',
-      status: 'active',
-      trust: 97.2,
-      actions24h: 2184,
-      lastAction: '4s ago',
-      warrants: 142,
-    },
-    {
-      id: 'AGT-008',
-      name: 'compliance-checker',
-      status: 'idle',
-      trust: 93.6,
-      actions24h: 724,
-      lastAction: '5m ago',
-      warrants: 89,
-    },
-  ];
+  const navigate = useNavigate();
+  const [agents, setAgents] = useState<FleetAgent[]>([]);
+  const [summary, setSummary] = useState<FleetSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]';
-      case 'idle':
-        return 'bg-amber-500';
-      case 'suspended':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
+  const loadFleet = useCallback(async (showRefresh = false) => {
+    if (showRefresh) setRefreshing(true);
+    try {
+      const data = await fleetApi.getOverview() as any;
+      setAgents(data.agents || []);
+      setSummary(data.summary || null);
+    } catch (err) {
+      console.error('Fleet load failed:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, []);
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'ACT';
-      case 'idle':
-        return 'IDL';
-      case 'suspended':
-        return 'SUS';
-      default:
-        return 'UNK';
-    }
-  };
+  useEffect(() => { loadFleet(); }, [loadFleet]);
 
-  const getRowClass = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-emerald-500/[0.03]';
-      case 'idle':
-        return 'bg-amber-500/[0.03]';
-      case 'suspended':
-        return 'bg-red-500/[0.03]';
-      default:
-        return '';
-    }
-  };
+  // Auto-refresh every 30s
+  useEffect(() => {
+    const interval = setInterval(() => loadFleet(), 30000);
+    return () => clearInterval(interval);
+  }, [loadFleet]);
+
+  const totalAgents = agents.length;
+  const activeCount = agents.filter(a => a.status === 'active').length;
+  const idleCount = agents.filter(a => a.status === 'idle').length;
+  const suspendedCount = agents.filter(a => a.status === 'suspended').length;
+  const avgTrust = totalAgents > 0
+    ? (agents.reduce((s, a) => s + (a.trust_score || 0), 0) / totalAgents).toFixed(1)
+    : '0.0';
+  const totalActions = summary?.actionsToday ?? agents.reduce((s, a) => s + (a.actions_today || 0), 0);
+  const avgLatency = summary?.avgLatencyMs?.toFixed(1) ?? '—';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white font-sans">
-      {/* Top Header */}
-      <header className="border-b border-white/8 bg-[#12131a] sticky top-0 z-50">
-        <div className="max-w-[1440px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-8 bg-[#d4a853] rounded flex items-center justify-center">
-              <Cpu className="text-black text-xl" size={20} />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold leading-none tracking-tight">Fleet Console</h1>
-              <p className="text-[11px] text-white/55 uppercase tracking-widest mt-1">
-                Terminal View
-              </p>
-            </div>
+    <div className="space-y-6 max-w-[1440px] mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Fleet Console</h1>
+          <p className="text-[11px] uppercase tracking-widest mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {totalAgents} agents registered
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-1.5 rounded flex items-center gap-2" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-mono text-emerald-500 uppercase tracking-wider">Live</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="px-3 py-1.5 bg-[#1a1b26] border border-white/8 rounded flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span className="text-xs font-mono text-emerald-500 uppercase tracking-wider">
-                System High-Res
-              </span>
-            </div>
-            <button className="p-2 hover:bg-white/[0.03] rounded-lg transition-colors">
-              <Settings className="text-white/55" size={18} />
+          <button onClick={() => loadFleet(true)} disabled={refreshing}
+            className="p-2 rounded-lg transition-colors hover:opacity-80" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} style={{ color: 'var(--text-tertiary)' }} />
+          </button>
+          <button onClick={() => navigate('/connect')}
+            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+            style={{ background: 'var(--accent-primary)', color: '#000' }}>
+            + Connect Agent
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <StatCard label="Total Agents" value={`${totalAgents}`}>
+          <div className="flex h-1 rounded-full overflow-hidden mt-2" style={{ background: 'var(--border-subtle)' }}>
+            {activeCount > 0 && <div className="bg-emerald-500" style={{ width: `${(activeCount / Math.max(totalAgents, 1)) * 100}%` }} />}
+            {idleCount > 0 && <div className="bg-amber-500" style={{ width: `${(idleCount / Math.max(totalAgents, 1)) * 100}%` }} />}
+            {suspendedCount > 0 && <div className="bg-red-500" style={{ width: `${(suspendedCount / Math.max(totalAgents, 1)) * 100}%` }} />}
+          </div>
+          <div className="flex gap-3 text-[9px] font-mono mt-1.5" style={{ color: 'var(--text-muted)' }}>
+            <span className="text-emerald-500">● {activeCount} ACT</span>
+            <span className="text-amber-500">● {idleCount} IDL</span>
+            <span className="text-red-500">● {suspendedCount} SUS</span>
+          </div>
+        </StatCard>
+        <StatCard label="Avg Trust" value={`${avgTrust}`} suffix="%" valueColor="text-emerald-500" />
+        <StatCard label="Actions (24h)" value={totalActions.toLocaleString()} valueColor="text-blue-500" />
+        <StatCard label="Fleet Latency" value={avgLatency} suffix="ms" />
+        <StatCard label="Total Warrants" value={(summary?.actionsToday ?? 0).toLocaleString()} valueColor="text-amber-500" />
+      </div>
+
+      {/* Agent Table */}
+      <div className="rounded-lg overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+        {agents.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-sm mb-2" style={{ color: 'var(--text-tertiary)' }}>No agents registered yet</p>
+            <button onClick={() => navigate('/connect')} className="text-sm underline" style={{ color: 'var(--accent-primary)' }}>
+              Connect your first agent →
             </button>
           </div>
-        </div>
-      </header>
-
-      <main className="max-w-[1440px] mx-auto px-6 py-8 w-full">
-        {/* Fleet Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-[10px] mb-8">
-          <div className="bg-[#12131a] border border-white/6 rounded-md p-4 flex flex-col">
-            <div className="text-[10px] font-semibold text-white/55 uppercase tracking-[0.05em] mb-2">
-              Total Agents
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl font-bold">{agents.length}</span>
-              <span className="font-mono text-[11px] text-white/70 font-medium">SYS_ID</span>
-            </div>
-            <div className="mt-3">
-              <div className="flex h-1 rounded-full overflow-hidden bg-white/8 mb-2">
-                <div
-                  className="bg-emerald-500"
-                  style={{
-                    width: `${
-                      (agents.filter((a) => a.status === 'active').length / agents.length) * 100
-                    }%`,
-                  }}
-                />
-                <div
-                  className="bg-amber-500"
-                  style={{
-                    width: `${
-                      (agents.filter((a) => a.status === 'idle').length / agents.length) * 100
-                    }%`,
-                  }}
-                />
-                <div
-                  className="bg-red-500"
-                  style={{
-                    width: `${
-                      (agents.filter((a) => a.status === 'suspended').length / agents.length) * 100
-                    }%`,
-                  }}
-                />
-              </div>
-              <div className="flex gap-4 text-[9px] font-mono opacity-70">
-                <span className="text-emerald-500">
-                  ● {agents.filter((a) => a.status === 'active').length} ACT
-                </span>
-                <span className="text-amber-500">
-                  ● {agents.filter((a) => a.status === 'idle').length} IDL
-                </span>
-                <span className="text-red-500">
-                  ● {agents.filter((a) => a.status === 'suspended').length} SUS
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#12131a] border border-white/6 rounded-md p-4 flex flex-col">
-            <div className="text-[10px] font-semibold text-white/55 uppercase tracking-[0.05em] mb-2">
-              Avg Trust
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl font-bold text-emerald-500">
-                {(agents.reduce((sum, a) => sum + a.trust, 0) / agents.length).toFixed(1)}
-              </span>
-              <span className="font-mono text-[11px] text-white/70 font-medium">%</span>
-            </div>
-            <div className="text-[10px] text-white/55 mt-auto font-mono">SIGMA_H: 0.94</div>
-          </div>
-
-          <div className="bg-[#12131a] border border-white/6 rounded-md p-4 flex flex-col">
-            <div className="text-[10px] font-semibold text-white/55 uppercase tracking-[0.05em] mb-2">
-              Actions (24h)
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl font-bold text-blue-500">
-                {agents.reduce((sum, a) => sum + a.actions24h, 0).toLocaleString()}
-              </span>
-            </div>
-            <div className="text-[10px] text-white/55 mt-auto font-mono">Δ +1,244 VPS</div>
-          </div>
-
-          <div className="bg-[#12131a] border border-white/6 rounded-md p-4 flex flex-col">
-            <div className="text-[10px] font-semibold text-white/55 uppercase tracking-[0.05em] mb-2">
-              Fleet Latency
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl font-bold text-white">2.4</span>
-              <span className="font-mono text-[11px] text-white/70 font-medium">ms</span>
-            </div>
-            <div className="text-[10px] text-white/55 mt-auto font-mono">p95: 4.1ms</div>
-          </div>
-
-          <div className="bg-[#12131a] border border-white/6 rounded-md p-4 flex flex-col">
-            <div className="text-[10px] font-semibold text-white/55 uppercase tracking-[0.05em] mb-2">
-              Total Warrants
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-mono text-2xl font-bold text-[#d4a853]">
-                {agents.reduce((sum, a) => sum + a.warrants, 0).toLocaleString()}
-              </span>
-            </div>
-            <div className="text-[10px] text-white/55 mt-auto font-mono flex items-center gap-1">
-              <TrendingUp size={10} className="text-emerald-500" />
-              <span className="text-emerald-500">+8.2%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Terminal Table */}
-        <div className="bg-[#12131a] border border-white/8 rounded-lg overflow-hidden shadow-lg">
+        ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/8">
-                <th className="text-left py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Status
-                </th>
-                <th className="text-left py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Agent ID
-                </th>
-                <th className="text-left py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Name
-                </th>
-                <th className="text-right py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Trust
-                </th>
-                <th className="text-right py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Actions (24h)
-                </th>
-                <th className="text-left py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Last Action
-                </th>
-                <th className="text-right py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Warrants
-                </th>
-                <th className="text-right py-3 px-4 text-[11px] font-semibold uppercase tracking-wider text-white/55">
-                  Actions
-                </th>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                {['Status', 'Agent ID', 'Name', 'Trust', 'Actions (24h)', 'Last Heartbeat', 'Latency', ''].map(h => (
+                  <th key={h} className={`py-3 px-4 text-[11px] font-semibold uppercase tracking-wider ${h === 'Trust' || h === 'Actions (24h)' || h === 'Latency' ? 'text-right' : 'text-left'}`}
+                    style={{ color: 'var(--text-muted)' }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {agents.map((agent) => (
-                <tr
-                  key={agent.id}
-                  className={`border-b border-white/6 hover:bg-[#1a1b26] transition-colors ${getRowClass(
-                    agent.status
-                  )}`}
-                >
+                <tr key={agent.id || agent.agent_id}
+                  className="transition-colors hover:opacity-90 cursor-pointer"
+                  style={{ borderBottom: '1px solid var(--border-subtle)' }}
+                  onClick={() => navigate('/fleet')}>
                   <td className="py-2 px-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${getStatusColor(agent.status)}`} />
-                      <span className="text-[10px] font-mono font-semibold uppercase text-white/70">
-                        {getStatusLabel(agent.status)}
+                      <div className={`w-2 h-2 rounded-full ${statusDot(agent.status)}`} />
+                      <span className="text-[10px] font-mono font-semibold uppercase" style={{ color: 'var(--text-tertiary)' }}>
+                        {statusLabel(agent.status)}
                       </span>
                     </div>
                   </td>
                   <td className="py-2 px-4">
-                    <span className="font-mono text-xs text-[#d4a853]">{agent.id}</span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--accent-primary)' }}>{agent.agent_id}</span>
                   </td>
                   <td className="py-2 px-4">
-                    <span className="font-mono text-xs text-white/90">{agent.name}</span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-primary)' }}>{agent.display_name || agent.agent_id}</span>
                   </td>
                   <td className="py-2 px-4 text-right">
-                    <span
-                      className={`font-mono text-xs font-medium ${
-                        agent.trust >= 95
-                          ? 'text-emerald-500'
-                          : agent.trust >= 85
-                          ? 'text-amber-500'
-                          : 'text-red-500'
-                      }`}
-                    >
-                      {agent.trust.toFixed(1)}%
+                    <span className={`font-mono text-xs font-medium ${trustColor(agent.trust_score)}`}>
+                      {agent.trust_score?.toFixed(1) ?? '—'}%
                     </span>
                   </td>
                   <td className="py-2 px-4 text-right">
-                    <span className="font-mono text-xs text-white/70">
-                      {agent.actions24h.toLocaleString()}
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      {(agent.actions_today ?? 0).toLocaleString()}
                     </span>
                   </td>
                   <td className="py-2 px-4">
-                    <span className="font-mono text-xs text-white/55">{agent.lastAction}</span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {agent.last_heartbeat ? timeAgo(agent.last_heartbeat) : '—'}
+                    </span>
                   </td>
                   <td className="py-2 px-4 text-right">
-                    <span className="font-mono text-xs text-white/70">{agent.warrants}</span>
+                    <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                      {agent.avg_latency_ms?.toFixed(0) ?? '—'}ms
+                    </span>
                   </td>
                   <td className="py-2 px-4 text-right">
-                    <button className="text-xs text-[#d4a853] hover:text-[#e0b866] font-medium">
+                    <button className="text-xs font-medium" style={{ color: 'var(--accent-primary)' }}>
                       Details →
                     </button>
                   </td>
@@ -336,55 +172,60 @@ export default function FleetPremium() {
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Performance Monitor */}
-        <div className="mt-8 bg-[#12131a] border border-white/8 rounded-lg p-6 shadow-lg">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-white/70 mb-4">
-            Performance Monitor
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <div className="text-[10px] font-semibold text-white/55 uppercase tracking-wider mb-2">
-                CPU Usage
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold text-blue-500">24</span>
-                <span className="font-mono text-sm text-white/70">%</span>
-              </div>
-              <div className="mt-2 h-1 bg-white/8 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 w-[24%]" />
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[10px] font-semibold text-white/55 uppercase tracking-wider mb-2">
-                Memory Usage
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold text-emerald-500">3.2</span>
-                <span className="font-mono text-sm text-white/70">GB</span>
-              </div>
-              <div className="mt-2 h-1 bg-white/8 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 w-[40%]" />
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[10px] font-semibold text-white/55 uppercase tracking-wider mb-2">
-                Network I/O
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold text-amber-500">142</span>
-                <span className="font-mono text-sm text-white/70">MB/s</span>
-              </div>
-              <div className="mt-2 h-1 bg-white/8 rounded-full overflow-hidden">
-                <div className="h-full bg-amber-500 w-[56%]" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   );
+}
+
+/* ── Helpers ── */
+
+function StatCard({ label, value, suffix, valueColor, children }: {
+  label: string; value: string; suffix?: string; valueColor?: string; children?: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-md p-3.5 flex flex-col" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+      <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{label}</div>
+      <div className="flex items-baseline gap-1">
+        <span className={`font-mono text-2xl font-bold ${valueColor || ''}`} style={!valueColor ? { color: 'var(--text-primary)' } : {}}>
+          {value}
+        </span>
+        {suffix && <span className="font-mono text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{suffix}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function statusDot(status: string) {
+  switch (status) {
+    case 'active': return 'bg-emerald-500';
+    case 'idle': return 'bg-amber-500';
+    case 'suspended': return 'bg-red-500';
+    default: return 'bg-gray-500';
+  }
+}
+
+function statusLabel(status: string) {
+  switch (status) {
+    case 'active': return 'ACT';
+    case 'idle': return 'IDL';
+    case 'suspended': return 'SUS';
+    default: return 'UNK';
+  }
+}
+
+function trustColor(score: number | undefined) {
+  if (!score) return '';
+  if (score >= 95) return 'text-emerald-500';
+  if (score >= 85) return 'text-amber-500';
+  return 'text-red-500';
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
 }

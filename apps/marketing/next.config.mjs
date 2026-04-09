@@ -19,6 +19,7 @@ const nextConfig = {
       { source: '/signup', destination: 'https://console.regulator.ai?mode=register', permanent: false },
       { source: '/register', destination: 'https://console.regulator.ai?mode=register', permanent: false },
       { source: '/dashboard', destination: 'https://console.regulator.ai', permanent: false },
+      { source: '/api-docs', destination: '/docs/api-reference', permanent: true },
     ];
   }
 };

@@ -25,13 +25,13 @@ export default function IntegrationGuidePage() {
             <Step
               number={1}
               title="Install the SDK"
-              code={`npm install @vienna/sdk\n# or\npip install vienna-sdk`}
+              code={`npm install @vienna-os/sdk\n# or\npip install vienna-os`}
             />
 
             <Step
               number={2}
               title="Initialize the adapter"
-              code={`import { createLangChainAdapter } from '@vienna/sdk';
+              code={`import { createLangChainAdapter } from '@vienna-os/sdk';
 
 const vienna = createLangChainAdapter({
   apiUrl: 'https://api.regulator.ai',
@@ -87,7 +87,7 @@ if (result.status === 'approved') {
             <FrameworkExample
               name="LangChain / LangGraph"
               description="Wrap tool calls with Vienna governance"
-              code={`import { createLangChainAdapter } from '@vienna/sdk';
+              code={`import { createLangChainAdapter } from '@vienna-os/sdk';
 
 const vienna = createLangChainAdapter({
   apiUrl: 'https://api.regulator.ai',
@@ -144,7 +144,7 @@ if result["status"] == "approved":
             <FrameworkExample
               name="OpenClaw"
               description="Native integration via OpenClaw bridge"
-              code={`import { createOpenClawAdapter } from '@vienna/sdk';
+              code={`import { createOpenClawAdapter } from '@vienna-os/sdk';
 
 const vienna = createOpenClawAdapter({
   apiUrl: 'https://api.regulator.ai',

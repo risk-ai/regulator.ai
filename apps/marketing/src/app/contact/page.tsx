@@ -104,12 +104,12 @@ export default function ContactPage() {
                     <h3 className="text-amber-500 font-mono font-bold mb-1 uppercase tracking-wide">OPEN_SOURCE</h3>
                     <p className="text-zinc-600 text-sm mb-1 font-mono">Issues, contributions, discussions</p>
                     <a 
-                      href="https://github.com/risk-ai/regulator.ai" 
+                      href="https://github.com/risk-ai/vienna-os" 
                       className="text-amber-500 hover:text-amber-400 font-mono transition"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      risk-ai/regulator.ai
+                      risk-ai/vienna-os
                     </a>
                   </div>
                 </div>

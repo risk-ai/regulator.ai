@@ -366,10 +366,10 @@ if (response.mode === "passback") {
                 <div>
                   <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Install SDK</h4>
                   <pre className="text-sm text-gray-300 bg-gray-900 rounded p-3">
-{`npm install @vienna/sdk
+{`npm install @vienna-os/sdk
 
 # or
-pip install vienna-sdk
+pip install vienna-os
 # or  
 go get github.com/vienna/sdk-go`}
                   </pre>
@@ -377,7 +377,7 @@ go get github.com/vienna/sdk-go`}
                 <div>
                   <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Configure Client</h4>
                   <pre className="text-sm text-gray-300 bg-gray-900 rounded p-3">
-{`import { Vienna } from '@vienna/sdk';
+{`import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new Vienna({
   apiKey: process.env.VIENNA_API_KEY,

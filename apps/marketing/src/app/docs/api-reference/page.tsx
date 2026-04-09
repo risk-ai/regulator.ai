@@ -345,7 +345,7 @@ export default function ApiReferencePage() {
           </div>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/risk-ai/regulator.ai"
+              href="https://github.com/risk-ai/vienna-os"
               className="text-sm text-zinc-500 hover:text-white transition hidden sm:inline-flex items-center gap-1"
             >
               GitHub
@@ -450,14 +450,14 @@ export default function ApiReferencePage() {
 
           <CodeBlock language="bash" title="Installation">
 {`# Install the SDK
-npm install @vienna/sdk
+npm install @vienna-os/sdk
 
 # Or via yarn
-yarn add @vienna/sdk`}
+yarn add @vienna-os/sdk`}
           </CodeBlock>
 
           <CodeBlock language="typescript" title="Quick Start">
-{`import { ViennaClient } from '@vienna/sdk';
+{`import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
   apiKey: 'vna_your_api_key_here',
@@ -522,7 +522,7 @@ console.log('Intent status:', result.status);`}
               },
             ]}
             returns="ViennaClient"
-            example={`import { ViennaClient } from '@vienna/sdk';
+            example={`import { ViennaClient } from '@vienna-os/sdk';
 
 const vienna = new ViennaClient({
   apiKey: 'vna_your_api_key',
@@ -1648,7 +1648,7 @@ stats.topViolatingAgents.forEach(agent => {
           </div>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-xs text-zinc-600 hover:text-zinc-400 transition">Documentation</a>
-            <a href="https://github.com/risk-ai/regulator.ai" className="text-xs text-zinc-600 hover:text-zinc-400 transition">GitHub</a>
+            <a href="https://github.com/risk-ai/vienna-os" className="text-xs text-zinc-600 hover:text-zinc-400 transition">GitHub</a>
             <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           </div>
         </div>

@@ -89,12 +89,12 @@ const OPERATORS_BY_TYPE: Record<string, { value: string; label: string }[]> = {
 };
 
 const ACTION_OPTIONS = [
-  { value: 'allow', label: 'Allow', color: '#4ade80', icon: '✅' },
-  { value: 'deny', label: 'Deny', color: '#f87171', icon: '🚫' },
-  { value: 'require_approval', label: 'Require Approval', color: '#fbbf24', icon: '⏳' },
-  { value: 'flag_for_review', label: 'Flag for Review', color: '#60a5fa', icon: '🔍' },
-  { value: 'rate_limit', label: 'Rate Limit', color: '#c084fc', icon: '⏱️' },
-  { value: 'escalate', label: 'Escalate', color: '#fb923c', icon: '🔺' },
+  { value: 'allow', label: 'Allow', color: '#10b981', icon: '✅' },
+  { value: 'deny', label: 'Deny', color: '#ef4444', icon: '🚫' },
+  { value: 'require_approval', label: 'Require Approval', color: '#f59e0b', icon: '⏳' },
+  { value: 'flag_for_review', label: 'Flag for Review', color: '#f59e0b', icon: '🔍' },
+  { value: 'rate_limit', label: 'Rate Limit', color: '#f59e0b', icon: '⏱️' },
+  { value: 'escalate', label: 'Escalate', color: '#f59e0b', icon: '🔺' },
 ];
 
 const TIER_OPTIONS = [
@@ -119,34 +119,34 @@ const DEFAULT_MOCK_INTENT = `{
 
 const styles = {
   card: {
-    background: '#12131a',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: '8px',
+    background: 'var(--bg-panel, #0F1419)',
+    border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0',
     padding: '20px',
   } as React.CSSProperties,
   input: {
-    background: '#0a0a0f',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px',
+    background: 'var(--bg-app, #0A0E14)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    borderRadius: '0',
     padding: '8px 12px',
-    color: 'var(--text-primary)',
+    color: '#E6E1DC',
     fontSize: '13px',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'var(--font-mono, monospace)',
     outline: 'none',
     width: '100%',
   } as React.CSSProperties,
   select: {
-    background: '#0a0a0f',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px',
+    background: 'var(--bg-app, #0A0E14)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    borderRadius: '0',
     padding: '8px 12px',
-    color: 'var(--text-primary)',
+    color: '#E6E1DC',
     fontSize: '13px',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'var(--font-mono, monospace)',
     outline: 'none',
     cursor: 'pointer',
     appearance: 'none' as const,
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 10px center',
     paddingRight: '30px',
@@ -165,16 +165,19 @@ const styles = {
     gap: '6px',
   } as React.CSSProperties,
   btnPrimary: {
-    background: '#3b82f6',
-    color: '#fff',
+    background: '#f59e0b',
+    color: '#0A0E14',
+    fontWeight: 600,
   } as React.CSSProperties,
   btnSecondary: {
-    background: 'rgba(255,255,255,0.06)',
-    color: 'var(--text-secondary)',
+    background: 'transparent',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    color: '#fbbf24',
   } as React.CSSProperties,
   btnDanger: {
-    background: 'rgba(248,113,113,0.1)',
-    color: '#f87171',
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: '#ef4444',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
   } as React.CSSProperties,
   btnGhost: {
     background: 'transparent',
@@ -192,19 +195,20 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     padding: '2px 8px',
-    borderRadius: '4px',
+    borderRadius: '0',
     fontSize: '11px',
     fontFamily: 'var(--font-mono, monospace)',
-    background: 'rgba(255,255,255,0.06)',
-    color: 'var(--text-secondary)',
+    background: 'rgba(251, 191, 36, 0.1)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    color: '#fbbf24',
     gap: '4px',
   } as React.CSSProperties,
   textarea: {
-    background: '#0a0a0f',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px',
+    background: 'var(--bg-app, #0A0E14)',
+    border: '1px solid rgba(251, 191, 36, 0.3)',
+    borderRadius: '0',
     padding: '12px',
-    color: 'var(--text-primary)',
+    color: '#E6E1DC',
     fontSize: '12px',
     fontFamily: 'var(--font-mono, monospace)',
     outline: 'none',
@@ -230,7 +234,7 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
         height: '20px',
         borderRadius: '10px',
         border: 'none',
-        background: checked ? '#4ade80' : 'rgba(255,255,255,0.1)',
+        background: checked ? '#10b981' : 'rgba(251, 191, 36, 0.1)',
         position: 'relative',
         cursor: disabled ? 'default' : 'pointer',
         transition: 'background 150ms',
@@ -282,7 +286,7 @@ function ConditionChips({ conditions }: { conditions: PolicyCondition[] }) {
         </span>
       ))}
       {conditions.length > 3 && (
-        <span style={{ ...styles.chip, color: '#60a5fa' }}>+{conditions.length - 3} more</span>
+        <span style={{ ...styles.chip, color: '#fbbf24' }}>+{conditions.length - 3} more</span>
       )}
     </div>
   );
@@ -449,7 +453,7 @@ function ConditionRow({ condition, index, onChange, onRemove }: ConditionRowProp
         style={{
           ...styles.btn,
           ...styles.btnGhost,
-          color: '#f87171',
+          color: '#ef4444',
           padding: '4px 8px',
           fontSize: '16px',
           flexShrink: 0,
@@ -552,7 +556,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0,0,0,0.6)',
+      background: 'rgba(10, 14, 20, 0.85)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -560,9 +564,9 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
       padding: '24px',
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{
-        background: '#12131a',
+        background: 'var(--bg-panel, #0F1419)',
         border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '12px',
+        borderRadius: '0',
         width: '100%',
         maxWidth: '1100px',
         maxHeight: '90vh',
@@ -616,7 +620,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>All conditions must match (AND)</span>
               </div>
               <div style={{
-                background: '#0a0a0f',
+                background: 'var(--bg-app, #0A0E14)',
                 border: '1px solid rgba(255,255,255,0.06)',
                 borderRadius: '8px',
                 padding: '12px',
@@ -713,7 +717,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                 background: 'rgba(248,113,113,0.1)',
                 border: '1px solid rgba(248,113,113,0.2)',
                 borderRadius: '6px',
-                color: '#f87171',
+                color: '#ef4444',
                 fontSize: '13px',
                 marginBottom: '16px',
               }}>
@@ -735,7 +739,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
           </div>
 
           {/* Right: Test Panel */}
-          <div style={{ flex: '0 0 40%', padding: '24px', overflowY: 'auto', background: '#0a0a0f' }}>
+          <div style={{ flex: '0 0 40%', padding: '24px', overflowY: 'auto', background: 'var(--bg-app, #0A0E14)' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 12px 0' }}>
               🧪 Test Policy Rules
             </h3>
@@ -771,7 +775,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                 padding: '10px',
                 background: 'rgba(248,113,113,0.1)',
                 borderRadius: '6px',
-                color: '#f87171',
+                color: '#ef4444',
                 fontSize: '12px',
               }}>
                 {testError}
@@ -809,7 +813,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                 {testResult.all_results.map((r, i) => (
                   <div key={i} style={{
                     padding: '10px 12px',
-                    background: '#12131a',
+                    background: 'var(--bg-panel, #0F1419)',
                     borderRadius: '6px',
                     marginBottom: '6px',
                     border: `1px solid ${r.matched ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.04)'}`,
@@ -820,7 +824,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                       justifyContent: 'space-between',
                       marginBottom: r.conditions_detail.length > 0 ? '6px' : 0,
                     }}>
-                      <span style={{ fontSize: '12px', fontWeight: 500, color: r.matched ? '#4ade80' : '#9ca3af' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 500, color: r.matched ? '#10b981' : '#9ca3af' }}>
                         {r.matched ? '✅' : '○'} {r.rule_name}
                       </span>
                       <ActionBadge action={r.action} />
@@ -830,7 +834,7 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
                         {r.conditions_detail.map((cd, j) => (
                           <div key={j} style={{
                             fontSize: '11px',
-                            color: cd.passed ? '#4ade80' : '#f87171',
+                            color: cd.passed ? '#10b981' : '#f87171',
                             fontFamily: 'var(--font-mono, monospace)',
                             padding: '2px 0',
                           }}>
@@ -875,7 +879,7 @@ function TemplateLibrary({ templates, onImport, onClose }: {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0,0,0,0.6)',
+      background: 'rgba(10, 14, 20, 0.85)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -883,9 +887,9 @@ function TemplateLibrary({ templates, onImport, onClose }: {
       padding: '24px',
     }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={{
-        background: '#12131a',
+        background: 'var(--bg-panel, #0F1419)',
         border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '12px',
+        borderRadius: '0',
         width: '100%',
         maxWidth: '700px',
         maxHeight: '80vh',
@@ -1017,7 +1021,7 @@ function AuditTrailView() {
                 <span style={{
                   ...styles.chip,
                   background: ev.result === 'matched' ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
-                  color: ev.result === 'matched' ? '#4ade80' : '#9ca3af',
+                  color: ev.result === 'matched' ? '#10b981' : '#9ca3af',
                 }}>{ev.result}</span>
               </td>
               <td style={{ padding: '8px 14px' }}>
@@ -1073,12 +1077,12 @@ function VersionHistoryModal({ rule, onRevert, onClose }: {
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       style={{
         position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        background: 'rgba(10, 14, 20, 0.85)', backdropFilter: 'blur(4px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
       <div style={{
-        background: 'var(--bg-primary, #12131a)', borderRadius: '12px',
+        background: 'var(--bg-panel, #0F1419)', borderRadius: '0',
         border: '1px solid var(--border-subtle)', width: '500px', maxWidth: '90vw',
         maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
         boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
@@ -1392,7 +1396,7 @@ export function PolicyBuilderPage() {
               background: 'rgba(248,113,113,0.1)',
               border: '1px solid rgba(248,113,113,0.2)',
               borderRadius: '6px',
-              color: '#f87171',
+              color: '#ef4444',
               fontSize: '13px',
               marginBottom: '16px',
             }}>
@@ -1528,7 +1532,7 @@ export function PolicyBuilderPage() {
                           </button>
                           <button
                             onClick={() => handleDelete(rule)}
-                            style={{ ...styles.btn, ...styles.btnGhost, fontSize: '12px', color: '#f87171' }}
+                            style={{ ...styles.btn, ...styles.btnGhost, fontSize: '12px', color: '#ef4444' }}
                             title="Delete"
                           >
                             🗑️

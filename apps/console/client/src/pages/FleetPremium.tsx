@@ -128,7 +128,7 @@ export default function FleetPremium() {
                 <tr key={agent.id || agent.agent_id}
                   className="transition-colors hover:opacity-90 cursor-pointer"
                   style={{ borderBottom: '1px solid var(--border-subtle)' }}
-                  onClick={() => navigate('/fleet')}>
+                  onClick={() => navigate(`/fleet/${agent.agent_id}`)}>
                   <td className="py-2 px-4">
                     <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${statusDot(agent.status)}`} />

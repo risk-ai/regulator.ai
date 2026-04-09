@@ -50,6 +50,7 @@ const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.j
 const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js'));
 const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js'));
 const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js'));
+const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js'));
 
 function PageLoadingSpinner() {
   return (
@@ -232,9 +233,11 @@ export function App() {
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-clean" element={<DashboardClean />} />
                   <Route path="/fleet" element={<FleetPremium />} />
+                  <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
                   <Route path="/fleet-new" element={<FleetDashboardNew />} />
                   <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
+                  <Route path="/agents/:agentId" element={<AgentDetailPage />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
                   <Route path="/intent" element={<IntentPage />} />
                   <Route path="/execution" element={<ExecutionPage />} />

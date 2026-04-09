@@ -159,12 +159,12 @@ export default function ApprovalsPremium() {
   ]);
 
   const handleApprove = (id: string) => {
-    console.log('Approved:', id);
+    // TODO: Wire to API - POST /api/v1/approvals/:id/approve
     setApprovals(prev => prev.filter(a => a.id !== id));
   };
 
   const handleDeny = (id: string) => {
-    console.log('Denied:', id);
+    // TODO: Wire to API - POST /api/v1/approvals/:id/deny
     setApprovals(prev => prev.filter(a => a.id !== id));
   };
 

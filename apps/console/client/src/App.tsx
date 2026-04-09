@@ -18,6 +18,7 @@ import { useAuthStore } from './store/authStore.js';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 import { FeedbackWidget } from './components/feedback/FeedbackWidget.js';
+import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsModal.js';
 import { apiClient } from './api/client.js';
 
 // Lazy-loaded pages
@@ -68,6 +69,7 @@ export function App() {
   const demoMode = useDemoMode();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const [backendDown, setBackendDown] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,6 +77,25 @@ export function App() {
   useKeyboardShortcuts({
     onOpenCommandPalette: () => setShowCommandPalette(true)
   });
+
+  // Global ? key handler for shortcuts modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only trigger if not in an input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+      
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setShowShortcuts(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Handle OAuth callback on mount
   useEffect(() => {
@@ -229,13 +250,16 @@ export function App() {
               <Suspense fallback={<PageLoadingSpinner />}>
                 <Routes>
                   <Route path="/" element={<DashboardPremium />} />
-                  <Route path="/now" element={<NowPage />} />
+                  <Route path="/now" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                  <Route path="/dashboard-old" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-clean" element={<DashboardClean />} />
                   <Route path="/fleet" element={<FleetPremium />} />
                   <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
                   <Route path="/fleet-new" element={<FleetDashboardNew />} />
                   <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
+                  <Route path="/fleet-old" element={<Navigate to="/fleet" replace />} />
+                  <Route path="/fleet-dashboard" element={<Navigate to="/fleet" replace />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/agents/:agentId" element={<AgentDetailPage />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
@@ -245,6 +269,7 @@ export function App() {
                   <Route path="/approvals" element={<ApprovalsPremium />} />
                   <Route path="/approvals-new" element={<ApprovalsNew />} />
                   <Route path="/approvals-legacy" element={<ApprovalsPage />} />
+                  <Route path="/approvals-old" element={<Navigate to="/approvals" replace />} />
                   <Route path="/policies" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />
@@ -275,6 +300,12 @@ export function App() {
               navigate(`/${section}`);
               setShowCommandPalette(false);
             }}
+          />
+          
+          {/* Keyboard Shortcuts Modal */}
+          <KeyboardShortcutsModal
+            isOpen={showShortcuts}
+            onClose={() => setShowShortcuts(false)}
           />
           
           {/* Enhanced Onboarding Wizard */}

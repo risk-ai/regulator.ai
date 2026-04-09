@@ -137,19 +137,30 @@ async function tenantQuery(sql, params, tenantId) {
   if (!tenantId) return query(sql, params);
   const paramIdx = (params?.length || 0) + 1;
   const newParams = [...(params || []), tenantId];
-  // Add tenant filter
-  if (sql.toUpperCase().includes('WHERE')) {
-    sql = sql.replace(/ORDER BY/i, `AND tenant_id = $${paramIdx} ORDER BY`);
-    if (!sql.includes(`$${paramIdx}`)) {
-      // No ORDER BY clause — append to end of WHERE
-      sql += ` AND tenant_id = $${paramIdx}`;
+  
+  // Check for a top-level WHERE clause (not inside FILTER/CASE/subquery parens)
+  // by stripping parenthesized content first, then checking for WHERE
+  const stripped = sql.replace(/\([^)]*\)/g, '(...)');
+  const hasTopLevelWhere = /\bWHERE\b/i.test(stripped);
+  const hasOrderBy = /\bORDER BY\b/i.test(sql);
+  const hasLimit = /\bLIMIT\b/i.test(sql);
+  
+  const tenantClause = `tenant_id = $${paramIdx}`;
+  
+  if (hasTopLevelWhere) {
+    if (hasOrderBy) {
+      sql = sql.replace(/ORDER BY/i, `AND ${tenantClause} ORDER BY`);
+    } else if (hasLimit) {
+      sql = sql.replace(/LIMIT/i, `AND ${tenantClause} LIMIT`);
+    } else {
+      sql += ` AND ${tenantClause}`;
     }
-  } else if (sql.toUpperCase().includes('ORDER BY')) {
-    sql = sql.replace(/ORDER BY/i, `WHERE tenant_id = $${paramIdx} ORDER BY`);
-  } else if (sql.toUpperCase().includes('LIMIT')) {
-    sql = sql.replace(/LIMIT/i, `WHERE tenant_id = $${paramIdx} LIMIT`);
+  } else if (hasOrderBy) {
+    sql = sql.replace(/ORDER BY/i, `WHERE ${tenantClause} ORDER BY`);
+  } else if (hasLimit) {
+    sql = sql.replace(/LIMIT/i, `WHERE ${tenantClause} LIMIT`);
   } else {
-    sql += ` WHERE tenant_id = $${paramIdx}`;
+    sql += ` WHERE ${tenantClause}`;
   }
   return query(sql, newParams);
 }

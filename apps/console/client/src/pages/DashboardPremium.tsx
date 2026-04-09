@@ -30,6 +30,7 @@ export default function DashboardPremium() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [systemMetrics, setSystemMetrics] = useState<any>(null);
 
   // SSE stream for live events
   useViennaStream({
@@ -50,10 +51,11 @@ export default function DashboardPremium() {
     let cancelled = false;
     (async () => {
       try {
-        const [dashData, fleetData, approvalData] = await Promise.allSettled([
+        const [dashData, fleetData, approvalData, metricsData] = await Promise.allSettled([
           bootstrapApi.dashboard(),
           fleetApi.getOverview(),
           listApprovals({ status: 'pending' }),
+          fetch('/api/v1/system/health/detailed').then(r => r.json()).then(d => d.data),
         ]);
 
         if (cancelled) return;
@@ -75,6 +77,10 @@ export default function DashboardPremium() {
         if (approvalData.status === 'fulfilled') {
           const a = approvalData.value as any;
           setApprovals(Array.isArray(a) ? a : a.data || []);
+        }
+
+        if (metricsData.status === 'fulfilled') {
+          setSystemMetrics(metricsData.value);
         }
       } catch (err) {
         console.error('Dashboard bootstrap failed:', err);
@@ -188,6 +194,73 @@ export default function DashboardPremium() {
         <HealthCard label="Database" value={systemStatus?.database ? 'HEALTHY' : 'CHECKING…'} sub={`Pool: ${systemStatus?.connections || '—'}`} color="emerald" />
         <HealthCard label="Pending Approvals" value={`${pendingApprovals}`} sub={pendingApprovals > 0 ? 'Requires operator action' : 'All clear'} color={pendingApprovals > 0 ? 'amber' : 'emerald'} onClick={() => navigate('/approvals')} />
       </div>
+
+      {/* Performance Monitor */}
+      {systemMetrics && (
+        <div className="rounded-lg p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+          <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>
+            Performance Monitor
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Memory Usage */}
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                Memory Usage
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-3xl font-bold text-blue-500">
+                  {systemMetrics.checks?.memory?.rss_mb || 0}
+                </span>
+                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>MB</span>
+              </div>
+              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
+                Heap: {systemMetrics.checks?.memory?.heap_used_mb || 0}/{systemMetrics.checks?.memory?.heap_total_mb || 0} MB
+              </div>
+              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+                <div className="h-full bg-blue-500" style={{ width: `${Math.min((systemMetrics.checks?.memory?.heap_used_mb / systemMetrics.checks?.memory?.heap_total_mb) * 100, 100)}%` }} />
+              </div>
+            </div>
+
+            {/* Database Latency */}
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                Database Latency
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono text-3xl font-bold text-emerald-500">
+                  {systemMetrics.checks?.database?.latency_ms?.toFixed(0) || '—'}
+                </span>
+                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>ms</span>
+              </div>
+              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
+                Status: {systemMetrics.checks?.database?.status || 'unknown'}
+              </div>
+              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+                <div className="h-full bg-emerald-500" style={{ width: `${Math.min((systemMetrics.checks?.database?.latency_ms / 100) * 100, 100)}%` }} />
+              </div>
+            </div>
+
+            {/* Disk Usage */}
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                Disk Usage
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className={`font-mono text-3xl font-bold ${(systemMetrics.checks?.disk?.usage_percent || 0) > 75 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                  {systemMetrics.checks?.disk?.usage_percent || 0}
+                </span>
+                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>%</span>
+              </div>
+              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
+                Status: {systemMetrics.checks?.disk?.status || 'unknown'}
+              </div>
+              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+                <div className={`h-full ${(systemMetrics.checks?.disk?.usage_percent || 0) > 75 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${systemMetrics.checks?.disk?.usage_percent || 0}%` }} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

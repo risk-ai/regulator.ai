@@ -423,7 +423,7 @@ console.log(\` Result: \${result.executionResult}\`);`}
               Check out our interactive API explorer to get started.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a href="/try" className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-white px-8 py-3 transition font-semibold shadow-lg hover:shadow-gold-400/25">
+              <a href="/try" className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black px-8 py-3 transition font-semibold shadow-lg hover:shadow-gold-400/25">
                 Try API Live <ArrowRight className="w-5 h-5" />
               </a>
               <a href="/docs" className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-3 transition font-semibold border border-amber-500/20 hover:border-amber-500/30">

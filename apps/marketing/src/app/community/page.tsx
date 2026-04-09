@@ -96,7 +96,7 @@ export default function CommunityPage() {
             <a href="/examples" className="text-sm text-zinc-400 hover:text-white transition">Examples</a>
             <a
               href="https://console.regulator.ai"
-              className="text-sm bg-amber-500 hover:bg-amber-400 text-white px-4 py-2 transition"
+              className="text-sm bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 transition"
             >
               Console
             </a>

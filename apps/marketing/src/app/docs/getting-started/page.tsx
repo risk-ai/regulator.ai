@@ -136,7 +136,7 @@ export default function GettingStartedPage() {
             <div key={step.number} className="relative">
               {/* Step header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white font-bold text-lg">
+                <div className="flex items-center justify-center w-10 h-10 bg-amber-500 text-black font-bold text-lg">
                   {step.number}
                 </div>
                 <h2 className="text-2xl font-bold">{step.title}</h2>

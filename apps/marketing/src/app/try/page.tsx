@@ -600,7 +600,7 @@ export default function TryPage() {
                         setSelected('wire_transfer'); // Auto-select a good example
                       }
                     }}
-                    className="w-full mt-3 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-2 transition"
+                    className="w-full mt-3 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-black text-sm font-medium px-4 py-2 transition"
                   >
                     {showWarrantBuilder ? 'Reset Flow' : 'Start Warrant Flow'}
                   </button>
@@ -781,7 +781,7 @@ export default function TryPage() {
               <button
                 onClick={runAllScenarios}
                 disabled={loading || runningAllScenarios}
-                className="w-full flex items-center justify-center gap-2 bg-amber-500/90 hover:bg-amber-400 disabled:bg-amber-500/30 text-white font-medium px-4 py-3 transition text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-amber-500/90 hover:bg-amber-400 disabled:bg-amber-500/30 text-black font-medium px-4 py-3 transition text-sm"
               >
                 {runningAllScenarios ? (
                   <>
@@ -1746,7 +1746,7 @@ export default function TryPage() {
               <a 
                 href="/signup" 
                 onClick={() => analytics.ctaClick('try_demo', 'start_free_trial')}
-                className="bg-amber-500 hover:bg-amber-400 text-white text-sm font-medium px-4 py-3 transition text-center"
+                className="bg-amber-500 hover:bg-amber-400 text-black text-sm font-medium px-4 py-3 transition text-center"
               >
                 Start Free Trial →
               </a>

@@ -199,7 +199,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               <div className="flex justify-center gap-4">
                 <a
                   href="/pricing"
-                  className="bg-amber-500 hover:bg-amber-400 text-white px-6 py-2.5 font-medium transition"
+                  className="bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 font-medium transition"
                 >
                   View Pricing
                 </a>

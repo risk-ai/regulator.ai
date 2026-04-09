@@ -303,7 +303,7 @@ result = vienna.submit_intent(
           <p className="text-gray-400 mb-6">Start with the free Community tier. No credit card required.</p>
           <a
             href="/signup"
-            className="inline-block bg-amber-500 hover:bg-gold-500 text-white font-semibold px-8 py-3 transition"
+            className="inline-block bg-amber-500 hover:bg-amber-400 text-black font-semibold px-8 py-3 transition"
           >
             Get Started Free
           </a>

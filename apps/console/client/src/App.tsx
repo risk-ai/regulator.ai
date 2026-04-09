@@ -254,12 +254,14 @@ export function App() {
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-old" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-clean" element={<DashboardClean />} />
+                  <Route path="/dashboard-premium" element={<DashboardPremium />} />
                   <Route path="/fleet" element={<FleetPremium />} />
                   <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
                   <Route path="/fleet-new" element={<FleetDashboardNew />} />
                   <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
                   <Route path="/fleet-old" element={<Navigate to="/fleet" replace />} />
                   <Route path="/fleet-dashboard" element={<Navigate to="/fleet" replace />} />
+                  <Route path="/fleet-premium" element={<FleetPremium />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/agents/:agentId" element={<AgentDetailPage />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
@@ -268,8 +270,9 @@ export function App() {
                   <Route path="/executions" element={<ExecutionsPage />} />
                   <Route path="/approvals" element={<ApprovalsPremium />} />
                   <Route path="/approvals-new" element={<ApprovalsNew />} />
-                  <Route path="/approvals-legacy" element={<ApprovalsPage />} />
+                  <Route path="/approvals-legacy" element={<Navigate to="/approvals" replace />} />
                   <Route path="/approvals-old" element={<Navigate to="/approvals" replace />} />
+                  <Route path="/approvals-premium" element={<ApprovalsPremium />} />
                   <Route path="/policies" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />

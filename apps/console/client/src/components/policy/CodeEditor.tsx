@@ -47,11 +47,10 @@ export function CodeEditor({
 
   return (
     <div
-      className="relative rounded overflow-hidden"
+      className="relative rounded overflow-hidden font-mono"
       style={{
-        background: 'var(--bg-app)',
+        background: '#0a0a0f',
         border: '1px solid rgba(212, 168, 83, 0.3)',
-        fontFamily: 'var(--font-mono, monospace)',
       }}
     >
       <div className="flex">
@@ -63,10 +62,10 @@ export function CodeEditor({
             width: '48px',
             padding: '12px 8px',
             textAlign: 'right',
-            background: 'rgba(0, 0, 0, 0.2)',
+            background: 'rgba(0, 0, 0, 0.4)',
             borderRight: '1px solid rgba(212, 168, 83, 0.2)',
-            color: 'var(--text-muted)',
-            fontSize: '12px',
+            color: 'rgba(212, 168, 83, 0.5)',
+            fontSize: '13px',
             lineHeight: '1.5',
             userSelect: 'none',
           }}
@@ -101,14 +100,13 @@ export function CodeEditor({
             placeholder={placeholder}
             disabled={disabled}
             spellCheck={false}
-            className="relative w-full bg-transparent outline-none resize-vertical"
+            className="relative w-full bg-transparent outline-none resize-vertical font-mono"
             style={{
               padding: '12px',
-              fontSize: '12px',
+              fontSize: '13px',
               lineHeight: '1.5',
               minHeight,
               color: '#E6E1DC',
-              fontFamily: 'inherit',
               border: 'none',
               caretColor: '#d4a853',
             }}

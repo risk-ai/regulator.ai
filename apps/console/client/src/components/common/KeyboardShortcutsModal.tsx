@@ -22,33 +22,30 @@ const SHORTCUTS: ShortcutSection[] = [
   {
     section: 'Global',
     shortcuts: [
-      { keys: ['⌘', 'K'], description: 'Open command palette' },
-      { keys: ['?'], description: 'Show keyboard shortcuts' },
-      { keys: ['Esc'], description: 'Close modals/overlays' },
-    ],
-  },
-  {
-    section: 'Navigation',
-    shortcuts: [
-      { keys: ['g', 'd'], description: 'Go to Dashboard' },
-      { keys: ['g', 'f'], description: 'Go to Fleet' },
-      { keys: ['g', 'a'], description: 'Go to Approvals' },
-      { keys: ['g', 'p'], description: 'Go to Policies' },
+      { keys: ['⌘K'], description: 'Open command palette' },
+      { keys: ['?'], description: 'Toggle keyboard shortcuts' },
+      { keys: ['Esc'], description: 'Close modals / Clear focus' },
     ],
   },
   {
     section: 'Approvals',
     shortcuts: [
-      { keys: ['A'], description: 'Approve first pending warrant' },
-      { keys: ['D'], description: 'Deny first pending warrant' },
-      { keys: ['E'], description: 'Escalate first pending warrant' },
+      { keys: ['A'], description: 'Approve selected' },
+      { keys: ['D'], description: 'Deny selected' },
+      { keys: ['Shift+A'], description: 'Bulk approve' },
     ],
   },
   {
     section: 'Fleet',
     shortcuts: [
-      { keys: ['r'], description: 'Refresh agent list' },
-      { keys: ['c'], description: 'Connect new agent' },
+      { keys: ['/'], description: 'Focus search' },
+    ],
+  },
+  {
+    section: 'Lists',
+    shortcuts: [
+      { keys: ['↑ / ↓'], description: 'Navigate list' },
+      { keys: ['Enter'], description: 'Select / Open' },
     ],
   },
 ];
@@ -73,104 +70,62 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0, 0, 0, 0.85)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="rounded-lg max-w-3xl w-full max-h-[85vh] overflow-y-auto"
-        style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
+        className="bg-[#12131a] border border-white/[0.12] rounded-lg max-w-2xl w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          className="sticky top-0 p-6 flex items-center justify-between"
-          style={{
-            background: 'var(--bg-secondary)',
-            borderBottom: '1px solid var(--border-subtle)',
-          }}
-        >
-          <div>
-            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-              Keyboard Shortcuts
-            </h2>
-            <p className="text-xs mt-1 font-mono" style={{ color: 'var(--text-muted)' }}>
-              Press ? or Esc to close
-            </p>
-          </div>
+        <div className="border-b border-white/[0.08] px-6 py-4 flex items-center justify-between">
+          <h2 className="text-[18px] font-bold text-white font-mono">KEYBOARD_SHORTCUTS</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:opacity-80 transition-opacity"
-            style={{ background: 'var(--bg-app)' }}
+            className="p-1.5 hover:bg-white/[0.05] rounded transition-colors"
           >
-            <X size={20} style={{ color: 'var(--text-tertiary)' }} />
+            <X size={18} className="text-white/55 hover:text-white" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {SHORTCUTS.map((section) => (
-            <div key={section.section}>
-              <h3
-                className="text-xs font-bold uppercase tracking-wider mb-3 pb-2"
-                style={{
-                  color: 'var(--text-muted)',
-                  borderBottom: '1px solid var(--border-subtle)',
-                }}
-              >
-                {section.section}
-              </h3>
-              <div className="space-y-2">
-                {section.shortcuts.map((shortcut, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 rounded"
-                    style={{ background: 'var(--bg-app)' }}
-                  >
-                    <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                      {shortcut.description}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {shortcut.keys.map((key, keyIdx) => (
-                        <React.Fragment key={keyIdx}>
-                          {keyIdx > 0 && (
-                            <span
-                              className="text-xs font-mono mx-1"
-                              style={{ color: 'var(--text-muted)' }}
-                            >
-                              then
-                            </span>
-                          )}
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-6">
+            {SHORTCUTS.map((section) => (
+              <div key={section.section}>
+                <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider mb-3 font-mono">
+                  {section.section}
+                </h3>
+                <div className="space-y-2">
+                  {section.shortcuts.map((shortcut, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between py-2.5 px-3 bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.04] rounded transition-colors"
+                    >
+                      <span className="text-[13px] text-white/80">{shortcut.description}</span>
+                      <div className="flex items-center gap-1">
+                        {shortcut.keys.map((key, keyIdx) => (
                           <kbd
-                            className="px-2 py-1 rounded text-xs font-mono font-semibold min-w-[28px] text-center"
-                            style={{
-                              background: 'var(--bg-secondary)',
-                              border: '1px solid var(--border-subtle)',
-                              color: 'var(--text-primary)',
-                            }}
+                            key={keyIdx}
+                            className="px-2.5 py-1 bg-[#1a1b26] border border-white/[0.12] rounded text-[12px] font-mono text-white/90 shadow-sm"
                           >
                             {key}
                           </kbd>
-                        </React.Fragment>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
-        <div
-          className="sticky bottom-0 p-4 text-center"
-          style={{
-            background: 'var(--bg-secondary)',
-            borderTop: '1px solid var(--border-subtle)',
-          }}
-        >
-          <p className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
-            More shortcuts coming soon. Submit feedback via the widget in the bottom-right corner.
+        <div className="border-t border-white/[0.08] px-6 py-3 bg-white/[0.02]">
+          <p className="text-[11px] text-white/45 font-mono">
+            Press <kbd className="px-1.5 py-0.5 bg-[#1a1b26] border border-white/[0.12] rounded text-[10px]">?</kbd> or{' '}
+            <kbd className="px-1.5 py-0.5 bg-[#1a1b26] border border-white/[0.12] rounded text-[10px]">Esc</kbd> to close
           </p>
         </div>
       </div>

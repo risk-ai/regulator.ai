@@ -1,334 +1,284 @@
-/**
- * Dashboard Premium — Operator Control Center
- * 
- * Premium redesign: information-dense situation room.
- * Integrates with dashboard bootstrap API + SSE stream.
- * No duplicate header — renders inside App.tsx shell (MainNav).
- */
+import { Activity, TrendingUp, Minus, Bell, Cpu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Activity, TrendingUp, AlertCircle, TrendingDown, Shield } from 'lucide-react';
-import { useDashboardStore } from '../store/dashboardStore.js';
-import { bootstrapApi } from '../api/bootstrap.js';
-import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
-import { listApprovals, type Approval } from '../api/approvals.js';
-import { useViennaStream } from '../hooks/useViennaStream.js';
-
-interface LiveEvent {
-  id: string;
-  time: string;
-  agent: string;
-  action: string;
-  type: 'success' | 'warning' | 'info';
+interface MetricCardProps {
+  label: string;
+  value: string | number;
+  trend?: string;
+  trendDirection?: 'up' | 'down' | 'stable';
+  sparklineData: number[];
+  color?: 'green' | 'amber' | 'blue';
 }
 
-export default function DashboardPremium() {
-  const navigate = useNavigate();
-  const { systemStatus, setSystemStatus, setServices } = useDashboardStore();
-  const [fleet, setFleet] = useState<{ agents: FleetAgent[]; summary: FleetSummary | null }>({ agents: [], summary: null });
-  const [approvals, setApprovals] = useState<Approval[]>([]);
-  const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [systemMetrics, setSystemMetrics] = useState<any>(null);
+const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color = 'green' }: MetricCardProps) => {
+  const colorClasses = {
+    green: 'bg-emerald-500',
+    amber: 'bg-amber-500',
+    blue: 'bg-blue-500',
+  };
 
-  // SSE stream for live events
-  useViennaStream({
-    onEvent: (event: any) => {
-      if (event.type === 'warrant_issued' || event.type === 'execution_complete' || event.type === 'policy_violation') {
-        setLiveEvents(prev => [{
-          id: crypto.randomUUID(),
-          time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-          agent: event.agent_id || 'system',
-          action: event.summary || event.type.replace(/_/g, ' '),
-          type: event.type === 'policy_violation' ? 'warning' : event.type === 'execution_complete' ? 'success' : 'info',
-        }, ...prev.slice(0, 19)]);
-      }
-    },
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [dashData, fleetData, approvalData, metricsData] = await Promise.allSettled([
-          bootstrapApi.dashboard(),
-          fleetApi.getOverview(),
-          listApprovals({ status: 'pending' }),
-          fetch('/api/v1/system/health/detailed').then(r => r.json()).then(d => d.data),
-        ]);
-
-        if (cancelled) return;
-
-        if (dashData.status === 'fulfilled') {
-          const d = dashData.value as any;
-          if (d.systemStatus) setSystemStatus(d.systemStatus);
-          if (d.services) setServices(d.services);
-        }
-
-        if (fleetData.status === 'fulfilled') {
-          const f = fleetData.value as any;
-          setFleet({
-            agents: f.agents || [],
-            summary: f.summary || null,
-          });
-        }
-
-        if (approvalData.status === 'fulfilled') {
-          const a = approvalData.value as any;
-          setApprovals(Array.isArray(a) ? a : a.data || []);
-        }
-
-        if (metricsData.status === 'fulfilled') {
-          setSystemMetrics(metricsData.value);
-        }
-      } catch (err) {
-        console.error('Dashboard bootstrap failed:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const activeAgents = fleet.agents.filter(a => a.status === 'active').length;
-  const totalAgents = fleet.agents.length;
-  const avgTrust = totalAgents > 0
-    ? (fleet.agents.reduce((s, a) => s + (a.trust_score || 0), 0) / totalAgents).toFixed(1)
-    : '—';
-  const pendingApprovals = approvals.length;
-  const actionsToday = fleet.summary?.actionsToday ?? 0;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
-      </div>
-    );
-  }
+  const trendColor = {
+    up: 'text-emerald-500',
+    down: 'text-red-500',
+    stable: 'text-gray-400',
+  };
 
   return (
-    <div className="space-y-4 max-w-[1600px] mx-auto">
-      {/* Observation Banner */}
-      <div className="rounded-lg py-2.5 px-4 flex items-center gap-3"
-        style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
-        <Activity className="text-blue-400" size={16} />
-        <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-          System Monitoring Active
-        </span>
-        <div className="h-4 w-px" style={{ background: 'rgba(59,130,246,0.3)' }} />
-        <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
-          Real-time governance in effect. All agent actions monitored.
-        </span>
+    <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)]">
+      <div className="flex justify-between items-start">
+        <div className="text-[11px] font-semibold text-white/45 uppercase tracking-wider">{label}</div>
+        {trend && (
+          <div className={`text-[11px] font-bold ${trendColor[trendDirection || 'stable']} flex items-center gap-1 font-mono`}>
+            {trend} {trendDirection === 'up' && <TrendingUp size={11} />}
+            {trendDirection === 'stable' && <Minus size={11} />}
+          </div>
+        )}
       </div>
-
-      {/* KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <KPICard label="Active Agents" value={`${activeAgents}`} subtext={`of ${totalAgents} total`} trend={null} color="emerald" />
-        <KPICard label="Actions Today" value={actionsToday.toLocaleString()} subtext="governed executions" trend={fleet.summary ? '+' : null} color="emerald" />
-        <KPICard label="Pending Approvals" value={`${pendingApprovals}`} subtext={pendingApprovals > 0 ? 'requires attention' : 'queue clear'} trend={null} color={pendingApprovals > 0 ? 'amber' : 'emerald'} onClick={() => navigate('/approvals')} />
-        <KPICard label="Avg Trust Score" value={`${avgTrust}%`} subtext="fleet average" trend={null} color="emerald" />
+      <div className={`text-[28px] font-bold ${color === 'amber' ? 'text-amber-500' : 'text-white'} font-mono mt-1 leading-none`}>
+        {value}
       </div>
-
-      {/* Fleet Status + Live Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {/* Fleet Grid */}
-        <div className="rounded-lg p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Fleet Status</h2>
-            <button onClick={() => navigate('/fleet')} className="text-xs font-mono hover:opacity-80" style={{ color: 'var(--accent-primary)' }}>VIEW ALL →</button>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {(fleet.agents.length > 0 ? fleet.agents.slice(0, 6) : placeholderAgents).map((agent) => (
-              <div key={agent.agent_id || agent.id} className="rounded p-2.5 transition-colors hover:opacity-90 cursor-pointer"
-                style={{ background: 'var(--bg-app)', border: '1px solid var(--border-subtle)' }}
-                onClick={() => navigate('/fleet')}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-mono" style={{ color: 'var(--text-primary)' }}>{agent.display_name || agent.agent_id}</span>
-                  <div className={`w-2 h-2 rounded-full ${statusDot(agent.status)}`} />
-                </div>
-                <div className="flex items-center justify-between text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>
-                  <span>Trust: {agent.trust_score?.toFixed(0) ?? '—'}%</span>
-                  <span>{agent.actions_today ?? 0} actions</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {fleet.agents.length === 0 && (
-            <p className="text-xs mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>
-              No agents registered. <button onClick={() => navigate('/connect')} className="underline" style={{ color: 'var(--accent-primary)' }}>Connect one →</button>
-            </p>
-          )}
-        </div>
-
-        {/* Live Activity */}
-        <div className="rounded-lg p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Live Activity</h2>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-wider">STREAMING</span>
-            </div>
-          </div>
-          <div className="space-y-1.5 max-h-[280px] overflow-y-auto">
-            {liveEvents.length > 0 ? liveEvents.map((event) => (
-              <div key={event.id} className="rounded p-2 flex items-start gap-2 text-[11px]"
-                style={{ background: 'var(--bg-app)', border: '1px solid var(--border-subtle)' }}>
-                <span className="font-mono shrink-0" style={{ color: 'var(--text-muted)' }}>{event.time}</span>
-                <span className="font-mono shrink-0" style={{ color: 'var(--accent-primary)' }}>{event.agent}</span>
-                <span className="flex-1" style={{ color: 'var(--text-secondary)' }}>{event.action}</span>
-                <div className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1 ${event.type === 'success' ? 'bg-emerald-500' : event.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`} />
-              </div>
-            )) : (
-              <div className="text-xs font-mono py-8 text-center" style={{ color: 'var(--text-muted)' }}>
-                Waiting for events… SSE stream connected.
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="mt-4 flex gap-[1.5px] items-end h-7">
+        {sparklineData.map((height, i) => (
+          <div
+            key={i}
+            className={`flex-1 ${colorClasses[color]}`}
+            style={{ 
+              height: `${height}%`,
+              opacity: i === sparklineData.length - 1 ? 1 : 0.2 + (height / 100) * 0.8
+            }}
+          />
+        ))}
       </div>
+    </div>
+  );
+};
 
-      {/* System Health */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <HealthCard label="Runtime Status" value={systemStatus?.database ? 'OPERATIONAL' : 'CHECKING…'} sub={systemStatus ? `Uptime: ${systemStatus.uptime || '—'}` : 'Connecting…'} color="emerald" />
-        <HealthCard label="Database" value={systemStatus?.database ? 'HEALTHY' : 'CHECKING…'} sub={`Pool: ${systemStatus?.connections || '—'}`} color="emerald" />
-        <HealthCard label="Pending Approvals" value={`${pendingApprovals}`} sub={pendingApprovals > 0 ? 'Requires operator action' : 'All clear'} color={pendingApprovals > 0 ? 'amber' : 'emerald'} onClick={() => navigate('/approvals')} />
+interface SystemStatusProps {
+  label: string;
+  status: 'operational' | 'degraded' | 'warning';
+  detail: string;
+  uptime?: string;
+}
+
+const SystemStatusCard = ({ label, status, detail, uptime }: SystemStatusProps) => {
+  const statusConfig = {
+    operational: { dot: 'bg-emerald-500', text: 'text-emerald-500', glow: 'shadow-[0_0_12px_rgba(16,185,129,0.4)]' },
+    degraded: { dot: 'bg-amber-500', text: 'text-amber-500', glow: 'shadow-[0_0_12px_rgba(245,158,11,0.4)]' },
+    warning: { dot: 'bg-red-500', text: 'text-red-500', glow: 'shadow-[0_0_12px_rgba(239,68,68,0.4)]' },
+  };
+
+  return (
+    <div className={`bg-[#1a1b26] border border-white/[0.08] rounded-lg p-3 ${statusConfig[status].glow}`}>
+      <div className="flex items-start justify-between mb-2">
+        <div className="text-[13px] font-semibold text-white">{label}</div>
+        <div className={`w-2 h-2 rounded-full ${statusConfig[status].dot} animate-pulse`} />
       </div>
-
-      {/* Performance Monitor */}
-      {systemMetrics && (
-        <div className="rounded-lg p-6" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <h2 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>
-            Performance Monitor
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Memory Usage */}
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
-                Memory Usage
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold text-blue-500">
-                  {systemMetrics.checks?.memory?.rss_mb || 0}
-                </span>
-                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>MB</span>
-              </div>
-              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
-                Heap: {systemMetrics.checks?.memory?.heap_used_mb || 0}/{systemMetrics.checks?.memory?.heap_total_mb || 0} MB
-              </div>
-              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-                <div className="h-full bg-blue-500" style={{ width: `${Math.min(((systemMetrics.checks?.memory?.heap_used_mb || 0) / (systemMetrics.checks?.memory?.heap_total_mb || 1)) * 100, 100)}%` }} />
-              </div>
-            </div>
-
-            {/* Database Latency */}
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
-                Database Latency
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono text-3xl font-bold text-emerald-500">
-                  {systemMetrics.checks?.database?.latency_ms?.toFixed(0) || '—'}
-                </span>
-                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>ms</span>
-              </div>
-              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
-                Status: {systemMetrics.checks?.database?.status || 'unknown'}
-              </div>
-              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-                <div className="h-full bg-emerald-500" style={{ width: `${Math.min(((systemMetrics.checks?.database?.latency_ms || 0) / 100) * 100, 100)}%` }} />
-              </div>
-            </div>
-
-            {/* Disk Usage */}
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
-                Disk Usage
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className={`font-mono text-3xl font-bold ${(systemMetrics.checks?.disk?.usage_percent || 0) > 75 ? 'text-amber-500' : 'text-emerald-500'}`}>
-                  {systemMetrics.checks?.disk?.usage_percent || 0}
-                </span>
-                <span className="font-mono text-sm" style={{ color: 'var(--text-secondary)' }}>%</span>
-              </div>
-              <div className="text-[10px] font-mono mt-1" style={{ color: 'var(--text-muted)' }}>
-                Status: {systemMetrics.checks?.disk?.status || 'unknown'}
-              </div>
-              <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-                <div className={`h-full ${(systemMetrics.checks?.disk?.usage_percent || 0) > 75 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${systemMetrics.checks?.disk?.usage_percent || 0}%` }} />
-              </div>
-            </div>
-          </div>
+      <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${statusConfig[status].text}`}>
+        {status.toUpperCase()}
+      </div>
+      <div className="text-[11px] text-white/55 font-mono">{detail}</div>
+      {uptime && (
+        <div className="text-[10px] text-white/35 font-mono mt-2 pt-2 border-t border-white/[0.06]">
+          Uptime: {uptime}
         </div>
       )}
     </div>
   );
+};
+
+interface ActivityEvent {
+  id: string;
+  timestamp: string;
+  type: 'proposal' | 'warrant' | 'policy' | 'agent';
+  message: string;
+  severity: 'info' | 'warning' | 'error';
 }
 
-/* ── Subcomponents ── */
+const ActivityTimeline = ({ events }: { events: ActivityEvent[] }) => {
+  const severityColor = {
+    info: 'border-blue-500/30',
+    warning: 'border-amber-500/30',
+    error: 'border-red-500/30',
+  };
 
-function KPICard({ label, value, subtext, trend, color, onClick, sparkline }: {
-  label: string; value: string; subtext: string; trend: string | null; color: string; onClick?: () => void; sparkline?: number[];
-}) {
-  // Generate sparkline data if not provided (simple trend simulation)
-  const sparkData = sparkline || [40, 50, 45, 60, 75, 90, 70, 55, 95, 100].map(h => h * 0.6);
-  const maxVal = Math.max(...sparkData);
-  
   return (
-    <div className={`rounded-lg p-3.5 flex flex-col ${onClick ? 'cursor-pointer hover:opacity-90' : ''}`}
-      style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
-      onClick={onClick}>
-      <div className="flex justify-between items-start">
-        <div className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</div>
-        {trend && (
-          <div className={`text-[11px] font-bold font-mono flex items-center gap-1 ${color === 'amber' ? 'text-amber-500' : 'text-emerald-500'}`}>
-            {trend} <TrendingUp size={12} />
+    <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Live Activity</h3>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-[10px] font-mono text-white/55">STREAMING</span>
+        </div>
+      </div>
+      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        {events.map((event) => (
+          <div 
+            key={event.id} 
+            className={`flex gap-3 p-2 rounded border-l-2 ${severityColor[event.severity]} bg-white/[0.02] hover:bg-white/[0.04] transition-colors`}
+          >
+            <div className="text-[10px] font-mono text-white/35 whitespace-nowrap pt-0.5">
+              {event.timestamp}
+            </div>
+            <div className="flex-1">
+              <div className="text-[11px] text-white/80 font-mono">{event.message}</div>
+            </div>
           </div>
-        )}
-      </div>
-      <div className={`text-[28px] font-bold font-mono mt-1 leading-none ${color === 'amber' ? 'text-amber-500' : ''}`} style={color !== 'amber' ? { color: 'var(--text-primary)' } : {}}>
-        {value}
-      </div>
-      {/* Sparkline */}
-      <div className="mt-4 flex gap-[1.5px] items-end h-7">
-        {sparkData.map((h, i) => (
-          <div
-            key={i}
-            className={`flex-1 ${color === 'amber' ? 'bg-amber-500' : 'bg-emerald-500'}`}
-            style={{ height: `${(h / maxVal) * 100}%`, opacity: 0.2 + (h / maxVal) * 0.8 }}
-          />
         ))}
       </div>
-      <div className="text-[10px] mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>{subtext}</div>
     </div>
   );
-}
+};
 
-function HealthCard({ label, value, sub, color, onClick }: {
-  label: string; value: string; sub: string; color: string; onClick?: () => void;
-}) {
-  const borderColor = color === 'amber' ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)';
+export default function DashboardPremium() {
+  const [showBanner, setShowBanner] = useState(true);
+  const [activityEvents, setActivityEvents] = useState<ActivityEvent[]>([
+    { id: '1', timestamp: '14:32:15', type: 'warrant', message: 'Warrant #W-8241 issued → agent-142 [tier-1]', severity: 'info' },
+    { id: '2', timestamp: '14:31:58', type: 'proposal', message: 'Proposal #P-1847 approved → executing...', severity: 'info' },
+    { id: '3', timestamp: '14:31:42', type: 'policy', message: 'Policy evaluation: data-access → ALLOW', severity: 'info' },
+    { id: '4', timestamp: '14:31:20', type: 'agent', message: 'Agent agent-089 registered → active', severity: 'info' },
+    { id: '5', timestamp: '14:30:55', type: 'warrant', message: 'Warrant #W-8240 executed successfully', severity: 'info' },
+  ]);
+
+  // Simulate real-time activity updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newEvent: ActivityEvent = {
+        id: Date.now().toString(),
+        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        type: ['proposal', 'warrant', 'policy', 'agent'][Math.floor(Math.random() * 4)] as any,
+        message: [
+          'Policy evaluation completed',
+          'New warrant issued',
+          'Agent registered',
+          'Proposal pending approval',
+        ][Math.floor(Math.random() * 4)],
+        severity: ['info', 'info', 'info', 'warning'][Math.floor(Math.random() * 4)] as any,
+      };
+      setActivityEvents(prev => [newEvent, ...prev].slice(0, 20));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className={`rounded-lg p-4 ${onClick ? 'cursor-pointer hover:opacity-90' : ''}`}
-      style={{ background: 'var(--bg-secondary)', border: `1px solid ${borderColor}` }}
-      onClick={onClick}>
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{label}</h3>
-        <div className={`w-2 h-2 rounded-full ${color === 'amber' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+    <div className="min-h-screen">
+      {/* Observation Banner */}
+      {showBanner && (
+        <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
+          <Activity className="text-blue-400" size={18} />
+          <div className="flex-1 flex items-center gap-4">
+            <span className="text-[11px] font-bold text-blue-100 uppercase tracking-widest whitespace-nowrap">
+              System Monitoring Active
+            </span>
+            <div className="h-4 w-px bg-blue-700/50" />
+            <span className="text-[12px] text-blue-300/80 font-mono">
+              Real-time governance enforcement — All systems operational
+            </span>
+          </div>
+          <button onClick={() => setShowBanner(false)} className="text-blue-400 hover:text-white transition-colors">
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Summary Metrics Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <MetricCard
+          label="Active Agents"
+          value="142"
+          trend="+12.4%"
+          trendDirection="up"
+          sparklineData={[40, 50, 45, 60, 75, 90, 70, 55, 95, 100]}
+          color="green"
+        />
+        <MetricCard
+          label="Warrants Issued Today"
+          value="8,241"
+          trend="+4.1%"
+          trendDirection="up"
+          sparklineData={[60, 65, 80, 75, 100, 85, 80, 70, 65, 60]}
+          color="green"
+        />
+        <MetricCard
+          label="Policy Evals"
+          value="1.24M"
+          trend="STABLE"
+          trendDirection="stable"
+          sparklineData={[70, 72, 69, 75, 71, 73, 70, 72, 71, 69]}
+          color="blue"
+        />
+        <MetricCard
+          label="Queue Depth"
+          value="42"
+          trend="+18%"
+          trendDirection="up"
+          sparklineData={[20, 25, 35, 45, 50, 65, 75, 85, 95, 100]}
+          color="amber"
+        />
       </div>
-      <div className={`text-xl font-bold font-mono ${color === 'amber' ? 'text-amber-500' : 'text-emerald-500'}`}>{value}</div>
-      <div className="text-[10px] mt-1 font-mono" style={{ color: 'var(--text-muted)' }}>{sub}</div>
+
+      {/* Main Grid: System Status + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        {/* System Health */}
+        <div className="lg:col-span-1 space-y-3">
+          <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider mb-3">System Health</h3>
+          <SystemStatusCard
+            label="Governance Engine"
+            status="operational"
+            detail="Processing 1.2k proposals/min"
+            uptime="99.98%"
+          />
+          <SystemStatusCard
+            label="Policy Evaluator"
+            status="operational"
+            detail="Avg latency: 12ms"
+            uptime="99.99%"
+          />
+          <SystemStatusCard
+            label="Warrant Registry"
+            status="operational"
+            detail="8.2k warrants issued today"
+            uptime="100%"
+          />
+        </div>
+
+        {/* Activity Timeline */}
+        <div className="lg:col-span-2">
+          <ActivityTimeline events={activityEvents} />
+        </div>
+      </div>
+
+      {/* Runtime Control Panel */}
+      <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Runtime Control</h3>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] rounded text-[11px] font-semibold text-white transition-colors">
+              Pause All
+            </button>
+            <button className="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 rounded text-[11px] font-semibold text-white transition-colors shadow-lg">
+              Force Sync
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">CPU</div>
+            <div className="text-[20px] font-bold text-white font-mono">38%</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Memory</div>
+            <div className="text-[20px] font-bold text-white font-mono">2.4GB</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Threads</div>
+            <div className="text-[20px] font-bold text-white font-mono">142</div>
+          </div>
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Uptime</div>
+            <div className="text-[20px] font-bold text-white font-mono">14d</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-function statusDot(status: string) {
-  switch (status) {
-    case 'active': return 'bg-emerald-500';
-    case 'idle': return 'bg-amber-500';
-    case 'suspended': return 'bg-red-500';
-    default: return 'bg-gray-500';
-  }
-}
-
-const placeholderAgents: any[] = [];

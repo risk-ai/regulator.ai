@@ -44,7 +44,7 @@ function CodeBlock({
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -61,7 +61,7 @@ function CodeBlock({
 
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
-    info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
+    info: "border-amber-500/30 bg-amber-500/5 text-amber-300",
     warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
@@ -115,7 +115,7 @@ export default function QuickstartPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-3 flex items-center gap-3">
-            <Terminal className="w-8 h-8 text-blue-400" />
+            <Terminal className="w-8 h-8 text-amber-400" />
             Govern Your Agent in 5 Minutes
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed">

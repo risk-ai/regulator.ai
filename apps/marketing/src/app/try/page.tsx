@@ -1063,7 +1063,7 @@ export default function TryPage() {
                         <span>Full audit trail</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
                         <span>Cryptographic warrants</span>
                       </div>
                     </div>
@@ -1117,7 +1117,7 @@ export default function TryPage() {
                           </p>
                           {/* Execution Mode Badge */}
                           {result.execution_mode && result.outcome !== "denied" && (
-                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md ${
+                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 ${
                               result.execution_mode === "vienna_direct" 
                                 ? "bg-emerald-400/10 text-green-500 border border-emerald-400/20"
                                 : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
@@ -1526,7 +1526,7 @@ export default function TryPage() {
                       <div className="text-sm text-zinc-400">out of 100</div>
                       <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${
                         result.trust_score.level === 'exemplary' ? 'bg-emerald-500/20 text-green-500' :
-                        result.trust_score.level === 'good' ? 'bg-blue-500/20 text-blue-400' :
+                        result.trust_score.level === 'good' ? 'bg-amber-500/20 text-amber-400' :
                         result.trust_score.level === 'watch' ? 'bg-amber-500/20 text-gold-300' :
                         'bg-red-500/20 text-red-400'
                       }`}>
@@ -1551,8 +1551,8 @@ export default function TryPage() {
                     </div>
 
                     {/* Recommendation */}
-                    <div className="bg-blue-500/5 border border-blue-500/20 p-3">
-                      <div className="text-xs text-blue-300 font-medium mb-1">Governance Recommendation</div>
+                    <div className="bg-amber-500/5 border border-amber-500/20 p-3">
+                      <div className="text-xs text-amber-300 font-medium mb-1">Governance Recommendation</div>
                       <p className="text-xs text-zinc-400">{result.trust_score.recommendation}</p>
                     </div>
                   </div>

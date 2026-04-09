@@ -140,7 +140,7 @@ function CodeBlock({
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-black text-zinc-500 hover:text-white hover:bg-zinc-900 transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 bg-black text-zinc-500 hover:text-white hover:bg-zinc-900 transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -223,7 +223,7 @@ function Method({
 
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
-    info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
+    info: "border-amber-500/30 bg-amber-500/5 text-amber-300",
     warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
@@ -434,7 +434,7 @@ export default function ApiReferencePage() {
                OVERVIEW
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="overview" icon={<Code className="w-6 h-6 text-blue-400" />}>
+          <H2 id="overview" icon={<Code className="w-6 h-6 text-amber-400" />}>
             Vienna SDK API Reference
           </H2>
           <P>

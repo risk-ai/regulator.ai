@@ -167,7 +167,7 @@ const notificationAdapters = [
 
 const statusLabels = {
   live: { label: "Live", color: "emerald", bg: "emerald-500/10", border: "emerald-500/30" },
-  compatible: { label: "Compatible", color: "blue", bg: "blue-500/10", border: "blue-500/30" },
+  compatible: { label: "Compatible", color: "blue", bg: "amber-500/10", border: "amber-500/30" },
   coming: { label: "Coming Soon", color: "gold", bg: "gold-400/10", border: "gold-400/30" },
 } as const;
 
@@ -322,7 +322,7 @@ export default function IntegrationsPage() {
         <section className="mb-20">
           <ScrollReveal delay={0.7}>
             <div className="flex items-center gap-3 mb-8">
-              <Zap className="w-6 h-6 text-blue-400" />
+              <Zap className="w-6 h-6 text-amber-400" />
               <h2 className="text-2xl font-bold text-white">Notifications & Deployment</h2>
             </div>
           </ScrollReveal>

@@ -193,7 +193,7 @@ function CodeBlock({
       <div className="relative">
         <button
           onClick={handleCopy}
-          className="absolute top-3 right-3 p-1.5 rounded-md bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 p-1.5 bg-[#1C222E] text-zinc-500 hover:text-white hover:bg-[#252B3B] transition opacity-0 group-hover:opacity-100"
           aria-label="Copy code"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -229,7 +229,7 @@ function Endpoint({
 }) {
   const [expanded, setExpanded] = useState(false);
   const colors: Record<string, string> = {
-    GET: "bg-blue-500/20 text-blue-400",
+    GET: "bg-amber-500/20 text-amber-400",
     POST: "bg-emerald-500/20 text-green-500",
     PUT: "bg-amber-500/20 text-gold-300",
     DELETE: "bg-red-500/20 text-red-400",
@@ -287,7 +287,7 @@ function Endpoint({
 
 function Callout({ type = "info", children }: { type?: "info" | "warning" | "tip"; children: React.ReactNode }) {
   const styles = {
-    info: "border-blue-500/30 bg-blue-500/5 text-blue-300",
+    info: "border-amber-500/30 bg-amber-500/5 text-amber-300",
     warning: "border-amber-500/30 bg-amber-500/5 text-gold-300",
     tip: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300",
   };
@@ -558,7 +558,7 @@ export default function DocsPage() {
                SECTION 1: QUICK START
              ════════════════════════════════════════════════════════════════ */}
 
-          <H2 id="quickstart" icon={<Terminal className="w-6 h-6 text-blue-400" />}>Quick Start</H2>
+          <H2 id="quickstart" icon={<Terminal className="w-6 h-6 text-amber-400" />}>Quick Start</H2>
           <P>
             Get from zero to a governed agent intent in under five minutes.
             This guide walks you through authentication, agent registration,

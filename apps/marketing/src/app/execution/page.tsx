@@ -30,9 +30,9 @@ export default function ExecutionPage() {
       {/* ============================================
           HERO SECTION
           ============================================ */}
-      <header className="relative overflow-hidden bg-gradient-to-br from-gold-900/20 via-gray-900 to-blue-900/20">
+      <header className="relative overflow-hidden bg-gradient-to-br from-gold-900/20 via-gray-900 to-amber-900/20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.15),transparent)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.1),transparent)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(245,158,11,0.1),transparent)]" />
         
         <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-24">
           {/* Nav */}
@@ -147,23 +147,23 @@ export default function ExecutionPage() {
                 <div className="text-xs text-amber-500 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/15 text-green-500 border border-emerald-500/20 font-mono font-semibold">T0</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/20 font-mono font-semibold">T1</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20 font-mono font-semibold">T1</span>
                   <span className="text-xs text-gray-500">Auto-approved execution</span>
                 </div>
               </div>
             </div>
 
             {/* Agent Passback */}
-            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 p-8 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-400" />
+            <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-500/20 p-8 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600 to-amber-400" />
               
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-blue-500/20 flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-blue-400" />
+                <div className="w-16 h-16 bg-amber-500/20 flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-amber-400" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-white">Agent Passback</h3>
-                  <p className="text-blue-400 font-medium">Agent executes with warrant</p>
+                  <p className="text-amber-400 font-medium">Agent executes with warrant</p>
                 </div>
               </div>
 
@@ -181,7 +181,7 @@ export default function ExecutionPage() {
                   { icon: Eye, text: "Post-execution verification", desc: "Vienna verifies warrant compliance" }
                 ].map((feature, i) => (
                   <div key={i} className="flex items-start gap-3 bg-gray-900/30 p-4">
-                    <feature.icon className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                    <feature.icon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                     <div>
                       <div className="text-sm font-medium text-white">{feature.text}</div>
                       <div className="text-xs text-gray-400">{feature.desc}</div>
@@ -190,8 +190,8 @@ export default function ExecutionPage() {
                 ))}
               </div>
 
-              <div className="bg-gray-900/50 p-4 border border-blue-500/20">
-                <div className="text-xs text-blue-400 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
+              <div className="bg-gray-900/50 p-4 border border-amber-500/20">
+                <div className="text-xs text-amber-400 font-bold mb-3 uppercase tracking-wider">Risk Tiers</div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs px-3 py-1.5 rounded-full bg-amber-500/15 text-gold-300 border border-amber-500/20 font-mono font-semibold">T2</span>
                   <span className="text-xs px-3 py-1.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/20 font-mono font-semibold">T3</span>
@@ -271,10 +271,10 @@ export default function ExecutionPage() {
                   </div>
                 </div>
 
-                <div className="bg-blue-500/5 border border-blue-500/20 p-6">
+                <div className="bg-amber-500/5 border border-amber-500/20 p-6">
                   <div className="text-center">
-                    <div className="w-12 h-12 mx-auto mb-4 bg-blue-500/20 flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-blue-400" />
+                    <div className="w-12 h-12 mx-auto mb-4 bg-amber-500/20 flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-amber-400" />
                     </div>
                     <h4 className="text-white font-semibold mb-2">Agent Passback</h4>
                     <p className="text-sm text-gray-400 mb-4">T2/T3 → Warrant + Agent execution</p>
@@ -421,7 +421,7 @@ const vienna = new Vienna({
               },
               {
                 icon: BookOpen,
-                color: "text-blue-400",
+                color: "text-amber-400",
                 title: "Complete Audit Trail", 
                 desc: "Immutable record of every intent, approval, warrant, and execution result. Regulator-ready from day one."
               },
@@ -459,7 +459,7 @@ const vienna = new Vienna({
       {/* ============================================
           CTA SECTION
           ============================================ */}
-      <section className="py-24 bg-gradient-to-br from-gold-900/20 via-gray-900 to-blue-900/20">
+      <section className="py-24 bg-gradient-to-br from-gold-900/20 via-gray-900 to-amber-900/20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to govern your AI agents?

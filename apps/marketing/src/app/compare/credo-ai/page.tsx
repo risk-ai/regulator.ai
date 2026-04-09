@@ -59,9 +59,9 @@ export default function CredoAiPage() {
             <p className="mt-4 text-green-500 text-sm font-medium">Bad action never happens</p>
           </div>
           
-          <div className="bg-blue-500/5 border border-blue-500/20 p-6 text-center">
-            <FileText className="w-8 h-8 text-blue-400 mx-auto mb-3" />
-            <h3 className="text-lg font-bold text-blue-400 mb-2">Credo AI</h3>
+          <div className="bg-amber-500/5 border border-amber-500/20 p-6 text-center">
+            <FileText className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-amber-400 mb-2">Credo AI</h3>
             <p className="text-sm text-zinc-300 mb-4">Compliance Documentation</p>
             <p className="text-zinc-400 text-sm">
               AI system deployed → Credo analyzes system documentation → generates compliance reports → 

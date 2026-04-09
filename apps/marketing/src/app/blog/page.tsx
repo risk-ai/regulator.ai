@@ -27,7 +27,7 @@ const posts = [
     date: "March 30, 2026",
     readTime: "8 min",
     category: "Architecture",
-    categoryColor: "text-blue-400 bg-blue-500/10",
+    categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Max Anderson",
   },
   {
@@ -49,7 +49,7 @@ const posts = [
     date: "March 28, 2026",
     readTime: "8 min",
     category: "Security",
-    categoryColor: "text-blue-400 bg-blue-500/10",
+    categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Vienna OS Team",
   },
   {
@@ -104,7 +104,7 @@ const posts = [
     date: "March 28, 2026",
     readTime: "10 min",
     category: "Integration",
-    categoryColor: "text-blue-400 bg-blue-500/10",
+    categoryColor: "text-amber-400 bg-amber-500/10",
     author: "ai.ventures",
   },
   {
@@ -126,7 +126,7 @@ const posts = [
     date: "March 27, 2026",
     readTime: "8 min",
     category: "Architecture",
-    categoryColor: "text-blue-400 bg-blue-500/10",
+    categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Max Anderson",
   },
   {
@@ -148,7 +148,7 @@ const posts = [
     date: "March 25, 2026",
     readTime: "10 min",
     category: "Architecture",
-    categoryColor: "text-blue-400 bg-blue-500/10",
+    categoryColor: "text-amber-400 bg-amber-500/10",
     author: "Team",
   },
   {

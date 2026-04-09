@@ -48,7 +48,7 @@ const releases = [
     version: "0.7.0",
     date: "March 25, 2026",
     tag: "Console & SDKs",
-    tagColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    tagColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     changes: [
       { type: "feat", text: "Console UI (16 pages, dark navy theme)" },
       { type: "feat", text: "TypeScript SDK (@vienna-os/sdk)" },
@@ -97,7 +97,7 @@ const releases = [
 
 const typeColors: Record<string, { bg: string; text: string; label: string }> = {
   feat: { bg: "bg-emerald-500/10", text: "text-green-500", label: "NEW" },
-  fix: { bg: "bg-blue-500/10", text: "text-blue-400", label: "FIXED" },
+  fix: { bg: "bg-amber-500/10", text: "text-amber-400", label: "FIXED" },
   docs: { bg: "bg-amber-500/10", text: "text-gold-300", label: "DOCS" },
   improved: { bg: "bg-amber-500/10", text: "text-amber-500", label: "IMPROVED" },
   breaking: { bg: "bg-red-500/10", text: "text-red-400", label: "BREAKING" },

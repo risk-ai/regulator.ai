@@ -116,8 +116,8 @@ function SuccessContent() {
 
             {/* Step 3 */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-400" />
+              <div className="w-16 h-16 bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-amber-400" />
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">
                 3. Build Policies
@@ -196,7 +196,7 @@ function SuccessContent() {
         </div>
 
         {/* Follow-Up Sequence Preview */}
-        <div className="bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 p-6 mb-8">
+        <div className="bg-gradient-to-r from-gold-900/30 to-amber-900/30 border border-gold-800/30 p-6 mb-8">
           <h3 className="text-lg font-semibold text-white mb-4">
             Your Learning Journey
           </h3>

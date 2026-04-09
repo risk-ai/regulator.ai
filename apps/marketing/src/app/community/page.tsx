@@ -37,8 +37,8 @@ const channels = [
     icon: Star,
     href: "https://twitter.com/Vienna_OS",
     cta: "Follow Us",
-    color: "bg-blue-500/20",
-    textColor: "text-blue-400",
+    color: "bg-amber-500/20",
+    textColor: "text-amber-400",
   },
 ];
 
@@ -172,7 +172,7 @@ export default function CommunityPage() {
         </div>
 
         {/* Open Source Stats */}
-        <div className="bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 p-12 text-center mb-16">
+        <div className="bg-gradient-to-r from-gold-900/30 to-amber-900/30 border border-gold-800/30 p-12 text-center mb-16">
           <h2 className="text-2xl font-bold text-white mb-3">Open Source at Heart</h2>
           <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
             Vienna OS core is open source. Inspect every line of the governance engine that controls your AI agents.

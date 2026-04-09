@@ -118,8 +118,12 @@ export function MainNav() {
             borderBottom: '1px solid var(--border-subtle)',
             fontFamily: 'var(--font-sans)',
           }}>
-          <span className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-            Vienna<span style={{ color: 'var(--accent-primary)' }}>OS</span>
+          <span className="text-sm font-bold" style={{ 
+            color: '#fbbf24',
+            fontFamily: 'var(--font-mono, monospace)',
+            letterSpacing: '0.05em',
+          }}>
+            VIENNA_OS
           </span>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -185,12 +189,12 @@ export function MainNav() {
                       <button
                         key={item.path}
                         onClick={() => { navigate(item.path); setMobileMenuOpen(false); }}
-                        className="flex items-center gap-3 w-full text-left rounded-lg px-4 py-3.5 transition-colors"
+                        className="flex items-center gap-3 w-full text-left rounded-none px-4 py-3.5 transition-colors"
                         style={{
                           fontWeight: isActive ? 600 : 400,
                           color: isActive ? 'var(--accent-secondary)' : 'var(--text-primary)',
                           background: isActive ? 'rgba(124, 58, 237, 0.08)' : 'transparent',
-                          border: isActive ? '1px solid rgba(124, 58, 237, 0.2)' : '1px solid var(--border-subtle)',
+                          border: isActive ? '1px solid rgba(251, 191, 36, 0.2)' : '1px solid var(--border-subtle)',
                           cursor: 'pointer',
                           fontSize: '15px',
                           fontFamily: 'var(--font-sans)',
@@ -206,7 +210,7 @@ export function MainNav() {
                   }) : (
                     <button
                       onClick={() => { navigate(group.defaultPath || '/'); setMobileMenuOpen(false); }}
-                      className="flex items-center gap-3 w-full text-left rounded-lg px-4 py-3.5 transition-colors"
+                      className="flex items-center gap-3 w-full text-left rounded-none px-4 py-3.5 transition-colors"
                       style={{
                         color: 'var(--text-primary)',
                         background: 'transparent',
@@ -244,11 +248,12 @@ export function MainNav() {
         className="flex items-center mr-4 pb-2"
         style={{ 
           background: 'none', border: 'none', cursor: 'pointer', 
-          color: 'var(--text-primary)', fontWeight: 700, fontSize: '14px',
-          fontFamily: 'var(--font-sans)',
+          color: '#fbbf24', fontWeight: 700, fontSize: '13px',
+          fontFamily: 'var(--font-mono, monospace)',
+          letterSpacing: '0.05em',
         }}
       >
-        Vienna<span style={{ color: 'var(--accent-primary)' }}>OS</span>
+        VIENNA_OS
       </button>
 
       {NAV_GROUPS.map(group => (
@@ -340,7 +345,7 @@ function NavGroupButton({ group }: { group: NavGroup }) {
             style={{
               background: 'var(--bg-primary)',
               border: '1px solid var(--border-subtle)',
-              borderRadius: '10px',
+              borderRadius: '0',
               padding: '6px',
               minWidth: '260px',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
@@ -352,13 +357,13 @@ function NavGroupButton({ group }: { group: NavGroup }) {
                 <button
                   key={item.path}
                   onClick={() => { navigate(item.path); setOpen(false); }}
-                  className="flex items-center gap-2.5 w-full text-left rounded-md transition-colors"
+                  className="flex items-center gap-2.5 w-full text-left rounded-none transition-colors"
                   style={{
                     padding: '10px 12px',
                     fontSize: '13px',
                     fontWeight: isItemActive ? 600 : 400,
                     color: isItemActive ? 'var(--accent-secondary)' : 'var(--text-primary)',
-                    background: isItemActive ? 'rgba(124, 58, 237, 0.1)' : 'transparent',
+                    background: isItemActive ? 'rgba(251, 191, 36, 0.1)' : 'transparent',
                     border: 'none',
                     cursor: 'pointer',
                     fontFamily: 'inherit',

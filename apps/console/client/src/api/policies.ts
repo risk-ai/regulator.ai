@@ -109,7 +109,8 @@ export async function listPolicies(params?: {
   search?: string;
   action?: string;
 }): Promise<PolicyRule[]> {
-  return apiClient.get<PolicyRule[]>('/policies', params as Record<string, string | boolean>);
+  const response = await apiClient.get<{ policies: PolicyRule[]; total: number }>('/policies', params as Record<string, string | boolean>);
+  return response.policies;
 }
 
 export async function getPolicy(id: string): Promise<PolicyRule> {

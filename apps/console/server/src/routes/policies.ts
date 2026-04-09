@@ -96,8 +96,8 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       const approval_tier = req.body.approval_tier || 'T1';
       const required_approvers = req.body.required_approvers || [];
       
-      // Insert into database
-      const result = await queryOne<{ id: string }>(`
+      // Insert into database and return full policy
+      const policy = await queryOne(`
         INSERT INTO policy_rules (
           name,
           description,
@@ -109,7 +109,7 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
           tenant_scope,
           created_by
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id
+        RETURNING *
       `, [
         name,
         description || null,
@@ -122,14 +122,9 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
         created_by
       ]);
       
-      const policy_id = result?.id;
-      
       res.json({
         success: true,
-        data: {
-          policy_id,
-          message: `Policy '${name}' created successfully`
-        }
+        data: policy
       });
     } catch (error) {
       console.error('[PoliciesRouter] Create error:', error);
@@ -227,18 +222,17 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       
       values.push(policy_id); // For WHERE clause
       
-      await execute(`
+      // Update and return full policy
+      const updatedPolicy = await queryOne(`
         UPDATE policy_rules
         SET ${setClauses.join(', ')}
         WHERE id = $${paramIndex}
+        RETURNING *
       `, values);
       
       res.json({
         success: true,
-        data: {
-          policy_id,
-          message: 'Policy updated successfully'
-        }
+        data: updatedPolicy
       });
     } catch (error) {
       console.error('[PoliciesRouter] Update error:', error);
@@ -283,6 +277,44 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
         success: false,
         error: 'Failed to delete policy',
         code: 'DELETE_ERROR'
+      });
+    }
+  });
+
+  /**
+   * Toggle policy enabled/disabled
+   * POST /api/v1/policies/:policy_id/toggle
+   */
+  router.post('/:policy_id/toggle', async (req: Request, res: Response) => {
+    try {
+      const { policy_id } = req.params;
+      
+      // Toggle enabled field
+      const policy = await queryOne(`
+        UPDATE policy_rules
+        SET enabled = NOT enabled, updated_at = NOW()
+        WHERE id = $1
+        RETURNING *
+      `, [policy_id]);
+      
+      if (!policy) {
+        return res.status(404).json({
+          success: false,
+          error: 'Policy not found',
+          code: 'NOT_FOUND'
+        });
+      }
+      
+      res.json({
+        success: true,
+        data: policy
+      });
+    } catch (error) {
+      console.error('[PoliciesRouter] Toggle error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to toggle policy',
+        code: 'TOGGLE_ERROR'
       });
     }
   });

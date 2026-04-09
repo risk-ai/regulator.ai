@@ -11,6 +11,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { CodeEditor } from '../components/policy/CodeEditor.js';
 import {
   listPolicies,
   createPolicy,
@@ -747,11 +748,11 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
               Enter a mock intent to test against <strong>all active rules</strong>:
             </p>
 
-            <textarea
-              style={styles.textarea}
+            <CodeEditor
               value={testJson}
-              onChange={e => setTestJson(e.target.value)}
-              spellCheck={false}
+              onChange={setTestJson}
+              placeholder='{"action_type": "create_order", "amount": 5000}'
+              minHeight="120px"
             />
 
             <button

@@ -6,6 +6,7 @@
 
 import { Router, Request, Response } from 'express';
 import type { ViennaRuntimeService } from '../services/viennaRuntime.js';
+import { query, queryOne, execute } from '../db/postgres.js';
 
 export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Router {
   const router = Router();
@@ -19,9 +20,27 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       // Get tenant_id from authenticated session (set by auth middleware)
       const tenant_id = (req as any).user?.tenantId || (req as any).session?.tenantId || 'default';
       
-      // TEMP: Return empty array until StateGraph API is updated
-      // Vienna Core is operational, but legacy route needs refactoring
-      const policies: any[] = [];
+      // Query policy_rules table (created by migration 001)
+      const policies = await query(`
+        SELECT 
+          id,
+          name,
+          description,
+          conditions,
+          action_on_match,
+          approval_tier,
+          required_approvers,
+          priority,
+          enabled,
+          tenant_scope,
+          created_by,
+          created_at,
+          updated_at,
+          version
+        FROM policy_rules
+        WHERE tenant_scope = $1 OR tenant_scope = '*'
+        ORDER BY priority DESC, created_at DESC
+      `, [tenant_id]);
       
       res.json({
         success: true,
@@ -69,16 +88,41 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       const tenant_id = (req as any).user?.tenantId || (req as any).session?.tenantId || 'default';
       const created_by = (req as any).user?.email || (req as any).session?.operator || 'unknown';
       
-      const stateGraph = viennaRuntime.getStateGraph();
-      const policy_id = stateGraph.createPolicy({
-        tenant_id,
+      // Map frontend 'actions' array to single action_on_match field
+      // Frontend sends: actions: ['require_approval', ...], we take first
+      const action_on_match = Array.isArray(actions) && actions.length > 0 ? actions[0] : 'require_approval';
+      
+      // Extract approval_tier and required_approvers if present
+      const approval_tier = req.body.approval_tier || 'T1';
+      const required_approvers = req.body.required_approvers || [];
+      
+      // Insert into database
+      const result = await queryOne<{ id: string }>(`
+        INSERT INTO policy_rules (
+          name,
+          description,
+          conditions,
+          action_on_match,
+          approval_tier,
+          required_approvers,
+          priority,
+          tenant_scope,
+          created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id
+      `, [
         name,
-        description,
-        conditions,
-        actions,
-        priority,
+        description || null,
+        JSON.stringify(conditions),
+        action_on_match,
+        approval_tier,
+        JSON.stringify(required_approvers),
+        priority || 100,
+        tenant_id,
         created_by
-      });
+      ]);
+      
+      const policy_id = result?.id;
       
       res.json({
         success: true,
@@ -105,8 +149,9 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
     try {
       const { policy_id } = req.params;
       
-      const stateGraph = viennaRuntime.getStateGraph();
-      const policy = stateGraph.getPolicy(policy_id);
+      const policy = await queryOne(`
+        SELECT * FROM policy_rules WHERE id = $1
+      `, [policy_id]);
       
       if (!policy) {
         return res.status(404).json({
@@ -139,10 +184,8 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
       const { policy_id } = req.params;
       const updates = req.body;
       
-      const stateGraph = viennaRuntime.getStateGraph();
-      
       // Check if policy exists
-      const existing = stateGraph.getPolicy(policy_id);
+      const existing = await queryOne(`SELECT id FROM policy_rules WHERE id = $1`, [policy_id]);
       if (!existing) {
         return res.status(404).json({
           success: false,
@@ -151,7 +194,44 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
         });
       }
       
-      stateGraph.updatePolicy(policy_id, updates);
+      // Build dynamic UPDATE statement from provided fields
+      const allowedFields = ['name', 'description', 'conditions', 'action_on_match', 'approval_tier', 'required_approvers', 'priority', 'enabled'];
+      const setClauses: string[] = [];
+      const values: any[] = [];
+      let paramIndex = 1;
+      
+      for (const field of allowedFields) {
+        if (updates[field] !== undefined) {
+          setClauses.push(`${field} = $${paramIndex}`);
+          // JSON fields need stringifying
+          if (field === 'conditions' || field === 'required_approvers') {
+            values.push(JSON.stringify(updates[field]));
+          } else {
+            values.push(updates[field]);
+          }
+          paramIndex++;
+        }
+      }
+      
+      if (setClauses.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No valid fields to update',
+          code: 'NO_UPDATES'
+        });
+      }
+      
+      // Add updated_at and version increment
+      setClauses.push(`updated_at = NOW()`);
+      setClauses.push(`version = version + 1`);
+      
+      values.push(policy_id); // For WHERE clause
+      
+      await execute(`
+        UPDATE policy_rules
+        SET ${setClauses.join(', ')}
+        WHERE id = $${paramIndex}
+      `, values);
       
       res.json({
         success: true,
@@ -178,10 +258,8 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
     try {
       const { policy_id } = req.params;
       
-      const stateGraph = viennaRuntime.getStateGraph();
-      
       // Check if policy exists
-      const existing = stateGraph.getPolicy(policy_id);
+      const existing = await queryOne(`SELECT id FROM policy_rules WHERE id = $1`, [policy_id]);
       if (!existing) {
         return res.status(404).json({
           success: false,
@@ -190,7 +268,7 @@ export function createPoliciesRouter(viennaRuntime: ViennaRuntimeService): Route
         });
       }
       
-      stateGraph.deletePolicy(policy_id);
+      await execute(`DELETE FROM policy_rules WHERE id = $1`, [policy_id]);
       
       res.json({
         success: true,

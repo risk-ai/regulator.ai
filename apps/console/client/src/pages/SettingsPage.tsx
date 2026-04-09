@@ -282,8 +282,8 @@ function GovernanceConfigCard() {
         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
           <button onClick={() => setEditing(true)} style={{
             padding: '6px 16px', borderRadius: '0',
-            border: '1px solid rgba(124, 58, 237, 0.3)',
-            background: 'rgba(124, 58, 237, 0.08)', color: '#f59e0b',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            background: 'rgba(251, 191, 36, 0.1)', color: '#f59e0b',
             fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
           }}>Edit Configuration</button>
         </div>
@@ -718,7 +718,7 @@ function ExecutionModeConfigCard() {
   };
 
   const getModeColor = (mode: 'direct' | 'passback') => {
-    return mode === 'direct' ? '#f59e0b' : '#f59e0b'; // Purple for direct, blue for passback
+    return mode === 'direct' ? '#f59e0b' : '#10b981'; // Amber for direct, green for passback
   };
 
   const getModeIndicator = (mode: 'direct' | 'passback') => {
@@ -766,8 +766,8 @@ function ExecutionModeConfigCard() {
           style={{
             padding: '6px 12px',
             borderRadius: '0',
-            border: '1px solid rgba(124, 58, 237, 0.3)',
-            background: 'rgba(124, 58, 237, 0.08)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
+            background: 'rgba(251, 191, 36, 0.1)',
             color: '#f59e0b',
             fontSize: '11px',
             fontWeight: 600,
@@ -784,8 +784,8 @@ function ExecutionModeConfigCard() {
           style={{
             padding: '6px 12px',
             borderRadius: '0',
-            border: '1px solid rgba(59, 130, 246, 0.3)',
-            background: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: 'rgba(16, 185, 129, 0.1)',
             color: '#f59e0b',
             fontSize: '11px',
             fontWeight: 600,
@@ -1044,7 +1044,7 @@ function BillingCard() {
             padding: '8px 16px',
             borderRadius: '0',
             border: '1px solid #f59e0b',
-            background: 'rgba(124, 58, 237, 0.08)',
+            background: 'rgba(251, 191, 36, 0.1)',
             color: '#f59e0b',
             fontSize: '12px',
             fontWeight: 600,

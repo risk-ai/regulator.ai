@@ -72,7 +72,7 @@ export function SettingsPage() {
               onClick={() => { if (confirm('Logout?')) logout(); }}
               style={{
                 padding: '8px 16px',
-                borderRadius: '6px',
+                borderRadius: '0',
                 border: '1px solid rgba(248, 113, 113, 0.2)',
                 background: 'rgba(248, 113, 113, 0.08)',
                 color: '#ef4444',
@@ -181,7 +181,7 @@ function DemoModeCard() {
         <div
           onClick={() => setForcedDemo(!forcedDemo)}
           style={{
-            width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+            width: '36px', height: '20px', borderRadius: '0', cursor: 'pointer',
             background: forcedDemo ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)',
             border: `1px solid ${forcedDemo ? 'rgba(245,158,11,0.4)' : 'var(--border-subtle)'}`,
             position: 'relative', transition: 'all 150ms',
@@ -196,7 +196,7 @@ function DemoModeCard() {
         </div>
       </div>
       <div style={{
-        padding: '8px 12px', borderRadius: '6px', fontSize: '11px',
+        padding: '8px 12px', borderRadius: '0', fontSize: '11px',
         background: isDemoMode ? 'rgba(245,158,11,0.06)' : 'rgba(16,185,129,0.06)',
         color: isDemoMode ? '#f59e0b' : '#10b981',
         display: 'flex', alignItems: 'center', gap: '6px',
@@ -259,7 +259,7 @@ function GovernanceConfigCard() {
   };
 
   const inputStyle: React.CSSProperties = {
-    width: '80px', padding: '4px 8px', borderRadius: '4px',
+    width: '80px', padding: '4px 8px', borderRadius: '0',
     border: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)',
     color: 'var(--text-primary)', fontSize: '12px', fontFamily: 'var(--font-mono)',
     textAlign: 'right',
@@ -281,7 +281,7 @@ function GovernanceConfigCard() {
         <SettingsRow label="Audit Retention" value={`${config.auditRetentionYears} years`} />
         <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
           <button onClick={() => setEditing(true)} style={{
-            padding: '6px 16px', borderRadius: '6px',
+            padding: '6px 16px', borderRadius: '0',
             border: '1px solid rgba(124, 58, 237, 0.3)',
             background: 'rgba(124, 58, 237, 0.08)', color: '#f59e0b',
             fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
@@ -319,7 +319,7 @@ function GovernanceConfigCard() {
         <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Auto-approve low-risk (T0)</span>
         <button onClick={() => setConfig(prev => ({ ...prev, autoApproveLowRisk: !prev.autoApproveLowRisk }))}
           style={{
-            padding: '4px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
+            padding: '4px 12px', borderRadius: '0', fontSize: '11px', fontWeight: 600, cursor: 'pointer',
             border: `1px solid ${config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'}`,
             background: config.autoApproveLowRisk ? 'rgba(74, 222, 128, 0.08)' : 'rgba(248, 113, 113, 0.08)',
             color: config.autoApproveLowRisk ? '#10b981' : '#ef4444',
@@ -336,24 +336,24 @@ function GovernanceConfigCard() {
 
       <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', gap: '8px' }}>
         <button onClick={handleSave} style={{
-          flex: 1, padding: '8px 16px', borderRadius: '6px',
+          flex: 1, padding: '8px 16px', borderRadius: '0',
           border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
           color: '#10b981', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
         }}>Save Settings</button>
         <button onClick={handleReset} style={{
-          padding: '8px 16px', borderRadius: '6px',
+          padding: '8px 16px', borderRadius: '0',
           border: '1px solid var(--border-subtle)', background: 'transparent',
           color: 'var(--text-tertiary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
         }}>Reset</button>
         <button onClick={() => setEditing(false)} style={{
-          padding: '8px 16px', borderRadius: '6px',
+          padding: '8px 16px', borderRadius: '0',
           border: '1px solid var(--border-subtle)', background: 'transparent',
           color: 'var(--text-tertiary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
         }}>Cancel</button>
       </div>
 
       {saved && (
-        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '4px', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#10b981', textAlign: 'center' }}>
+        <div style={{ marginTop: '8px', padding: '6px 10px', borderRadius: '0', background: 'rgba(74, 222, 128, 0.06)', border: '1px solid rgba(74, 222, 128, 0.15)', fontSize: '11px', color: '#10b981', textAlign: 'center' }}>
           ✓ Settings saved
         </div>
       )}
@@ -480,7 +480,7 @@ function SimulationCard() {
           disabled={loading}
           style={{
             padding: '4px 12px',
-            borderRadius: '4px',
+            borderRadius: '0',
             border: `1px solid ${running ? 'rgba(248, 113, 113, 0.3)' : 'rgba(74, 222, 128, 0.3)'}`,
             background: running ? 'rgba(248, 113, 113, 0.08)' : 'rgba(74, 222, 128, 0.08)',
             color: running ? '#ef4444' : '#10b981',
@@ -536,7 +536,7 @@ function SimulationCard() {
           style={{
             flex: 1,
             padding: '6px 12px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(99, 102, 241, 0.2)',
             background: 'rgba(99, 102, 241, 0.08)',
             color: '#818cf8',
@@ -555,7 +555,7 @@ function SimulationCard() {
           style={{
             flex: 1,
             padding: '6px 12px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(248, 113, 113, 0.2)',
             background: 'rgba(248, 113, 113, 0.08)',
             color: '#ef4444',
@@ -575,7 +575,7 @@ function SimulationCard() {
         <div style={{
           marginTop: '8px',
           padding: '6px 10px',
-          borderRadius: '4px',
+          borderRadius: '0',
           background: 'rgba(99, 102, 241, 0.06)',
           border: '1px solid rgba(99, 102, 241, 0.15)',
           fontSize: '11px',
@@ -718,7 +718,7 @@ function ExecutionModeConfigCard() {
   };
 
   const getModeColor = (mode: 'direct' | 'passback') => {
-    return mode === 'direct' ? '#f59e0b' : '#3b82f6'; // Purple for direct, blue for passback
+    return mode === 'direct' ? '#f59e0b' : '#f59e0b'; // Purple for direct, blue for passback
   };
 
   const getModeIndicator = (mode: 'direct' | 'passback') => {
@@ -743,7 +743,7 @@ function ExecutionModeConfigCard() {
           padding: '8px 12px',
           background: 'rgba(248, 113, 113, 0.08)',
           border: '1px solid rgba(248, 113, 113, 0.2)',
-          borderRadius: '6px',
+          borderRadius: '0',
           fontSize: '11px',
           color: '#ef4444',
         }}>
@@ -765,7 +765,7 @@ function ExecutionModeConfigCard() {
           disabled={loading}
           style={{
             padding: '6px 12px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(124, 58, 237, 0.3)',
             background: 'rgba(124, 58, 237, 0.08)',
             color: '#f59e0b',
@@ -783,10 +783,10 @@ function ExecutionModeConfigCard() {
           disabled={loading}
           style={{
             padding: '6px 12px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(59, 130, 246, 0.3)',
             background: 'rgba(59, 130, 246, 0.08)',
-            color: '#3b82f6',
+            color: '#f59e0b',
             fontSize: '11px',
             fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
@@ -801,7 +801,7 @@ function ExecutionModeConfigCard() {
           disabled={loading}
           style={{
             padding: '6px 12px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(16, 185, 129, 0.3)',
             background: 'rgba(16, 185, 129, 0.08)',
             color: '#10b981',
@@ -845,7 +845,7 @@ function ExecutionModeConfigCard() {
                 alignItems: 'center',
                 gap: '8px',
                 padding: '6px 12px',
-                borderRadius: '20px',
+                borderRadius: '0',
                 border: `1px solid ${getModeColor(config[tier])}30`,
                 background: `${getModeColor(config[tier])}10`,
                 color: getModeColor(config[tier]),
@@ -876,7 +876,7 @@ function ExecutionModeConfigCard() {
           style={{
             width: '100%',
             padding: '8px 16px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid rgba(16, 185, 129, 0.3)',
             background: 'rgba(16, 185, 129, 0.08)',
             color: '#10b981',
@@ -895,7 +895,7 @@ function ExecutionModeConfigCard() {
         <div style={{
           marginTop: '8px',
           padding: '6px 10px',
-          borderRadius: '4px',
+          borderRadius: '0',
           background: 'rgba(16, 185, 129, 0.06)',
           border: '1px solid rgba(16, 185, 129, 0.15)',
           fontSize: '11px',
@@ -918,7 +918,7 @@ function SettingsCard({ title, children }: { title: string; children: React.Reac
     <div style={{
       background: 'var(--bg-primary)',
       border: '1px solid var(--border-subtle)',
-      borderRadius: '12px',
+      borderRadius: '0',
       padding: '20px',
     }}>
       <h3 style={{
@@ -972,7 +972,7 @@ function SettingsLink({ label, href }: { label: string; href: string }) {
       style={{
         display: 'block',
         padding: '8px 12px',
-        borderRadius: '6px',
+        borderRadius: '0',
         fontSize: '12px',
         color: 'var(--text-secondary)',
         background: 'var(--bg-secondary)',
@@ -1027,7 +1027,7 @@ function BillingCard() {
           padding: '8px 12px',
           background: 'rgba(248, 113, 113, 0.08)',
           border: '1px solid rgba(248, 113, 113, 0.2)',
-          borderRadius: '6px',
+          borderRadius: '0',
           fontSize: '11px',
           color: '#ef4444',
         }}>
@@ -1042,7 +1042,7 @@ function BillingCard() {
           style={{
             width: '100%',
             padding: '8px 16px',
-            borderRadius: '6px',
+            borderRadius: '0',
             border: '1px solid #f59e0b',
             background: 'rgba(124, 58, 237, 0.08)',
             color: '#f59e0b',
@@ -1115,7 +1115,7 @@ function NotificationPreferencesCard() {
   };
 
   const toggleStyle = (enabled: boolean): React.CSSProperties => ({
-    width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+    width: '36px', height: '20px', borderRadius: '0', cursor: 'pointer',
     background: enabled ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)',
     border: `1px solid ${enabled ? 'rgba(16,185,129,0.4)' : 'var(--border-subtle)'}`,
     position: 'relative', transition: 'all 150ms', flexShrink: 0,

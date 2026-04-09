@@ -1,278 +1,346 @@
-/**
- * Approvals Premium — High-Urgency Authorization Queue
- * 
- * Integrates with approvals API. No duplicate sidebar/header — renders inside App.tsx shell.
- * Keyboard shortcuts for approve/deny. Live countdown timers.
- */
+import { CheckCircle, XCircle, Bot, Timer, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from 'lucide-react';
-import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
-import { useAuthStore } from '../store/authStore.js';
-import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';
+interface Approval {
+  id: string;
+  tier: 'T0' | 'T1' | 'T2' | 'T3';
+  action: string;
+  title: string;
+  description: string;
+  expiresIn: string;
+  targetResource?: string;
+  requestingAgent: string;
+  timeAgo: string;
+  urgency: 'critical' | 'high' | 'standard';
+}
 
-export default function ApprovalsPremium() {
-  const [approvals, setApprovals] = useState<Approval[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [processingId, setProcessingId] = useState<string | null>(null);
-  const [stats, setStats] = useState({ approved: 0, denied: 0 });
-  const [selectedApproval, setSelectedApproval] = useState<string | null>(null);
-  const auth = useAuthStore();
+const TierGlow = {
+  T0: 'border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)]',
+  T1: 'border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.3)]',
+  T2: 'border-blue-500/40 shadow-[0_0_20px_rgba(59,130,246,0.2)]',
+  T3: 'border-gray-500/40 shadow-[0_0_20px_rgba(107,114,128,0.1)]',
+};
 
-  const loadApprovals = useCallback(async (showRefresh = false) => {
-    if (showRefresh) setRefreshing(true);
-    try {
-      const data = await listApprovals({ status: 'pending' }) as any;
-      setApprovals(Array.isArray(data) ? data : data.data || []);
-    } catch (err) {
-      console.error('Failed to load approvals:', err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+const TierBadge = {
+  T0: { bg: 'bg-red-900/40', text: 'text-red-400', border: 'border-red-500/40' },
+  T1: { bg: 'bg-amber-900/40', text: 'text-amber-400', border: 'border-amber-500/40' },
+  T2: { bg: 'bg-blue-900/40', text: 'text-blue-400', border: 'border-blue-500/40' },
+  T3: { bg: 'bg-gray-900/40', text: 'text-gray-400', border: 'border-gray-500/40' },
+};
 
-  useEffect(() => { loadApprovals(); }, [loadApprovals]);
+const TierDot = {
+  T0: 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]',
+  T1: 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]',
+  T2: 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]',
+  T3: 'bg-gray-500',
+};
 
-  // Auto-refresh every 15s for urgent queue
-  useEffect(() => {
-    const interval = setInterval(() => loadApprovals(), 15000);
-    return () => clearInterval(interval);
-  }, [loadApprovals]);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (approvals.length === 0 || processingId) return;
-      const first = approvals[0];
-      if (e.key === 'a' || e.key === 'A') handleApprove(first.approval_id);
-      if (e.key === 'd' || e.key === 'D') handleDeny(first.approval_id);
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [approvals, processingId]);
-
-  const handleApprove = async (id: string) => {
-    setProcessingId(id);
-    try {
-      await approveApproval(id, auth.user?.email || 'operator', 'Approved via console');
-      setApprovals(prev => prev.filter(a => a.approval_id !== id));
-      setStats(prev => ({ ...prev, approved: prev.approved + 1 }));
-    } catch (err) {
-      console.error('Approve failed:', err);
-    } finally {
-      setProcessingId(null);
-    }
-  };
-
-  const handleDeny = async (id: string) => {
-    setProcessingId(id);
-    try {
-      await denyApproval(id, auth.user?.email || 'operator', 'Denied via console');
-      setApprovals(prev => prev.filter(a => a.approval_id !== id));
-      setStats(prev => ({ ...prev, denied: prev.denied + 1 }));
-    } catch (err) {
-      console.error('Deny failed:', err);
-    } finally {
-      setProcessingId(null);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
-      </div>
-    );
-  }
-
-  const criticalCount = approvals.filter(a => a.tier === 'T2').length;
+const ApprovalCard = ({ approval, onApprove, onDeny }: { approval: Approval; onApprove: () => void; onDeny: () => void }) => {
+  const [selected, setSelected] = useState(false);
+  
+  const tierConfig = TierBadge[approval.tier];
+  const glowClass = TierGlow[approval.tier];
+  const dotClass = TierDot[approval.tier];
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Approvals</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>
-            High-urgency queue for critical agent authorizations
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => loadApprovals(true)} disabled={refreshing}
-            className="p-2 rounded-lg transition-colors hover:opacity-80"
-            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} style={{ color: 'var(--text-tertiary)' }} />
-          </button>
-          <div className="flex items-center gap-3 px-4 py-2 rounded-lg"
-            style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-            <div className="flex flex-col">
-              <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)' }}>Queue</span>
-              <span className="text-sm font-mono font-bold" style={{ color: 'var(--accent-primary)' }}>{approvals.length} pending</span>
-            </div>
-            <Clock size={18} style={{ color: 'var(--text-tertiary)' }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Priority Banner */}
-      {criticalCount > 0 && (
-        <div className="rounded-lg py-3 px-4 flex items-center gap-3"
-          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
-          <AlertCircle className="text-red-400 shrink-0" size={18} />
-          <span className="text-[13px] font-semibold text-red-300">
-            {criticalCount} tier-2 warrant{criticalCount !== 1 ? 's' : ''} pending approval
-          </span>
-        </div>
-      )}
-
-      {/* Approval Cards */}
-      {approvals.length === 0 ? (
-        <div className="rounded-lg p-12 text-center" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(16,185,129,0.1)' }}>
-            <CheckCircle className="text-emerald-500" size={32} />
-          </div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>All Clear</h2>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No pending approvals in the queue.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {approvals.map((approval, idx) => {
-            const isT2 = approval.tier === 'T2';
-            const borderColor = isT2 ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.2)';
-            const isProcessing = processingId === approval.approval_id;
-
-            return (
-              <div key={approval.approval_id}
-                className={`rounded-lg p-5 transition-all cursor-pointer hover:opacity-95 ${isProcessing ? 'opacity-50' : ''}`}
-                style={{ background: 'var(--bg-secondary)', border: `1px solid ${borderColor}` }}
-                onClick={() => setSelectedApproval(approval.approval_id)}>
-                {/* Header Row */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${isT2 ? 'bg-red-500/10 text-red-400 border-red-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}`}>
-                      {approval.tier}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-mono text-sm font-semibold" style={{ color: 'var(--accent-primary)' }}>
-                        {approval.approval_id}
-                      </span>
-                      <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                        Agent: {approval.target_id || approval.requested_by}
-                      </span>
-                    </div>
-                  </div>
-                  {approval.expires_at && (
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Timeout</span>
-                      <CountdownTimer expiresAt={approval.expires_at} isT2={isT2} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Action */}
-                <div className="mb-3">
-                  <div className="text-[11px] uppercase tracking-wider mb-1 font-semibold" style={{ color: 'var(--text-muted)' }}>
-                    Requested Action
-                  </div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
-                    {approval.action_type}: {approval.action_summary}
-                  </div>
-                </div>
-
-                {/* Metadata */}
-                <div className="flex items-center justify-between mb-4 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <div className="flex items-center gap-4 text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
-                    <span>Status: <span className={isT2 ? 'text-red-400' : 'text-amber-400'}>{approval.status}</span></span>
-                    <span>Submitted: {approval.requested_at ? timeAgo(approval.requested_at) : '—'}</span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center gap-3">
-                  <button onClick={(e) => { e.stopPropagation(); handleApprove(approval.approval_id); }} disabled={isProcessing}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-bold text-[13px] uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                    <CheckCircle size={16} /> Approve
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); handleDeny(approval.approval_id); }} disabled={isProcessing}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-bold text-[13px] uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
-                    <XCircle size={16} /> Deny
-                  </button>
-                </div>
-
-                {/* Keyboard Hints (first item only) */}
-                {idx === 0 && (
-                  <div className="mt-2.5 flex items-center gap-4 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
-                    <span><kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-subtle)' }}>A</kbd> Approve</span>
-                    <span><kbd className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-subtle)' }}>D</kbd> Deny</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Stats Footer */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Pending</div>
-          <div className="font-mono text-2xl font-bold" style={{ color: 'var(--accent-primary)' }}>{approvals.length}</div>
-        </div>
-        <div className="rounded-lg p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Approved (session)</div>
-          <div className="font-mono text-2xl font-bold text-emerald-500">{stats.approved}</div>
-        </div>
-        <div className="rounded-lg p-4" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Denied (session)</div>
-          <div className="font-mono text-2xl font-bold text-red-500">{stats.denied}</div>
-        </div>
-      </div>
-
-      {/* Warrant Detail Modal */}
-      {selectedApproval && (
-        <WarrantDetailModal
-          approvalId={selectedApproval}
-          onClose={() => setSelectedApproval(null)}
-          onApprove={() => { loadApprovals(); setStats(s => ({ ...s, approved: s.approved + 1 })); }}
-          onDeny={() => { loadApprovals(); setStats(s => ({ ...s, denied: s.denied + 1 })); }}
+    <div className="flex gap-4">
+      <div className="pt-6">
+        <input 
+          type="checkbox" 
+          checked={selected}
+          onChange={(e) => setSelected(e.target.checked)}
+          className="w-5 h-5 rounded accent-violet-500 cursor-pointer"
         />
-      )}
+      </div>
+      <div className={`flex-1 bg-[#12131a] border-2 ${glowClass} rounded-xl p-7 transition-all hover:border-opacity-60`}>
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <span className={`px-3 py-1 ${tierConfig.bg} ${tierConfig.text} border ${tierConfig.border} rounded text-[11px] font-bold tracking-widest uppercase`}>
+                Tier {approval.tier.slice(1)}
+              </span>
+              <span className="text-white/35 text-xs font-mono uppercase">Action: {approval.action}</span>
+            </div>
+            <h4 className="text-xl font-bold text-white tracking-tight">{approval.title}</h4>
+            <p className="mt-2 text-[14px] text-white/55 leading-relaxed">{approval.description}</p>
+          </div>
+          <div className="text-right ml-6">
+            <div className="text-[10px] text-white/35 font-bold uppercase mb-1">Expires In</div>
+            <div className={`text-3xl font-mono font-bold ${approval.urgency === 'critical' ? 'text-red-500' : approval.urgency === 'high' ? 'text-amber-500' : 'text-blue-500'}`}>
+              {approval.expiresIn}
+            </div>
+          </div>
+        </div>
+        
+        <div className={`flex flex-wrap gap-x-8 gap-y-3 mb-6 p-4 ${tierConfig.bg} rounded-lg border ${tierConfig.border} text-xs`}>
+          {approval.targetResource && (
+            <div>
+              <span className="text-white/35 uppercase block mb-1 font-semibold tracking-tighter">Target Resource</span>
+              <span className="text-white font-mono">{approval.targetResource}</span>
+            </div>
+          )}
+          <div>
+            <span className="text-white/35 uppercase block mb-1 font-semibold tracking-tighter">Requesting Agent</span>
+            <span className="text-white font-mono flex items-center gap-1.5">
+              <Bot size={12} className={tierConfig.text} />
+              {approval.requestingAgent}
+            </span>
+          </div>
+          <div>
+            <span className="text-white/35 uppercase block mb-1 font-semibold tracking-tighter">Time Since Request</span>
+            <span className="text-white">{approval.timeAgo}</span>
+          </div>
+        </div>
+
+        <div className="flex gap-4">
+          <button 
+            onClick={onApprove}
+            className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[15px] font-bold transition-all flex items-center justify-center gap-2 active:scale-[0.98] shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
+          >
+            <CheckCircle size={18} />
+            Authorize Execution
+            <span className="ml-auto text-[11px] opacity-60 font-normal">⌘A</span>
+          </button>
+          <button 
+            onClick={onDeny}
+            className="flex-1 h-12 bg-transparent hover:bg-red-500/10 text-red-400 rounded-lg text-[15px] font-bold transition-all border-2 border-red-500/20 flex items-center justify-center gap-2 active:scale-[0.98]"
+          >
+            <XCircle size={18} />
+            Deny Access
+            <span className="ml-auto text-[11px] opacity-60 font-normal">⌘D</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-/* ── Subcomponents ── */
+export default function ApprovalsPremium() {
+  const [activeTab, setActiveTab] = useState<'pending' | 'history'>('pending');
+  const [tierFilter, setTierFilter] = useState<'all' | 'T1' | 'T2'>('all');
+  
+  const [approvals, setApprovals] = useState<Approval[]>([
+    {
+      id: 'appr-001',
+      tier: 'T0',
+      action: 'PROD_REDEPLOY',
+      title: 'Deploy system upgrade to node-group vienna-prd-alpha',
+      description: 'Full service replacement in production cluster. This will trigger a rolling restart of all workers in the primary ingestion pool.',
+      expiresIn: '02:47',
+      targetResource: 'vienna-prd-alpha.internal.local',
+      requestingAgent: 'Gov-Sentinel-04',
+      timeAgo: '4m 12s ago',
+      urgency: 'critical',
+    },
+    {
+      id: 'appr-002',
+      tier: 'T1',
+      action: 'DB_MIGRATION',
+      title: 'Execute database schema migration on production',
+      description: 'Apply schema changes to policy_rules table. Includes adding new columns for policy versioning and rollback capabilities.',
+      expiresIn: '14:22',
+      targetResource: 'postgres-prod-01.regulator.ai',
+      requestingAgent: 'Schema-Manager-02',
+      timeAgo: '8m 40s ago',
+      urgency: 'high',
+    },
+    {
+      id: 'appr-003',
+      tier: 'T2',
+      action: 'API_KEY_GENERATION',
+      title: 'Generate new API key for external integration',
+      description: 'Third-party service integration requires new API credentials with read-only access to agent metrics.',
+      expiresIn: '45:10',
+      targetResource: 'api-gateway.regulator.ai',
+      requestingAgent: 'Integration-Bot-09',
+      timeAgo: '12m 05s ago',
+      urgency: 'standard',
+    },
+  ]);
 
-function CountdownTimer({ expiresAt, isT2 }: { expiresAt: number; isT2: boolean }) {
-  const [remaining, setRemaining] = useState('');
+  const handleApprove = (id: string) => {
+    console.log('Approved:', id);
+    setApprovals(prev => prev.filter(a => a.id !== id));
+  };
 
-  useEffect(() => {
-    const update = () => {
-      const ms = expiresAt - Date.now();
-      if (ms <= 0) { setRemaining('EXPIRED'); return; }
-      const m = Math.floor(ms / 60000);
-      const s = Math.floor((ms % 60000) / 1000);
-      setRemaining(`${m}m ${s.toString().padStart(2, '0')}s`);
-    };
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [expiresAt]);
+  const handleDeny = (id: string) => {
+    console.log('Denied:', id);
+    setApprovals(prev => prev.filter(a => a.id !== id));
+  };
+
+  const filteredApprovals = tierFilter === 'all' 
+    ? approvals 
+    : approvals.filter(a => a.tier === tierFilter);
+
+  const criticalApprovals = filteredApprovals.filter(a => a.urgency === 'critical');
+  const highApprovals = filteredApprovals.filter(a => a.urgency === 'high');
+  const standardApprovals = filteredApprovals.filter(a => a.urgency === 'standard');
 
   return (
-    <span className={`font-mono text-sm font-bold ${isT2 ? 'text-red-400' : 'text-amber-400'}`}>
-      {remaining}
-    </span>
-  );
-}
+    <div className="min-h-screen">
+      {/* Header */}
+      <div className="border-b border-white/[0.08] bg-[#12131a] px-8 py-6 mb-8">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-[24px] font-bold text-white">Approvals</h1>
+            <p className="text-[15px] text-white/70 mt-1">High-urgency queue for critical agent authorizations</p>
+          </div>
+          <div className="flex items-center gap-4 bg-[#1a1b26] border border-white/10 px-4 py-2 rounded-lg">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/35 uppercase tracking-wider font-semibold">Response Target</span>
+              <span className="text-[15px] font-mono text-emerald-500 font-bold">00:04:12</span>
+            </div>
+            <Timer className="text-emerald-500" size={20} />
+          </div>
+        </div>
+      </div>
 
-function timeAgo(ts: number): string {
-  const diff = Date.now() - ts;
-  if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  return `${Math.floor(diff / 3600000)}h ago`;
+      <div className="max-w-5xl mx-auto px-8">
+        {/* Tabs */}
+        <div className="flex gap-[2px] mb-8 border-b border-white/[0.06]">
+          <button 
+            onClick={() => setActiveTab('pending')}
+            className={`px-6 py-3 text-[14px] font-semibold transition-all border-b-2 ${
+              activeTab === 'pending' 
+                ? 'text-white border-violet-500' 
+                : 'text-white/55 border-transparent hover:text-white'
+            }`}
+          >
+            ⏳ Pending Approvals
+          </button>
+          <button 
+            onClick={() => setActiveTab('history')}
+            className={`px-6 py-3 text-[14px] font-semibold transition-all border-b-2 ${
+              activeTab === 'history' 
+                ? 'text-white border-violet-500' 
+                : 'text-white/55 border-transparent hover:text-white'
+            }`}
+          >
+            📜 View History
+          </button>
+        </div>
+
+        {activeTab === 'pending' && (
+          <>
+            {/* Queue Actions */}
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex gap-1 bg-[#12131a] p-1 rounded-lg border border-white/5">
+                <button 
+                  onClick={() => setTierFilter('all')}
+                  className={`px-4 py-1.5 text-[13px] font-semibold rounded-md transition-colors ${
+                    tierFilter === 'all' ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white'
+                  }`}
+                >
+                  All ({approvals.length})
+                </button>
+                <button 
+                  onClick={() => setTierFilter('T1')}
+                  className={`px-4 py-1.5 text-[13px] font-semibold rounded-md transition-colors ${
+                    tierFilter === 'T1' ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white'
+                  }`}
+                >
+                  T1 Only
+                </button>
+                <button 
+                  onClick={() => setTierFilter('T2')}
+                  className={`px-4 py-1.5 text-[13px] font-semibold rounded-md transition-colors ${
+                    tierFilter === 'T2' ? 'bg-white/10 text-white' : 'text-white/55 hover:text-white'
+                  }`}
+                >
+                  T2 Only
+                </button>
+              </div>
+              <div className="flex items-center gap-3 text-[13px] text-white/70">
+                <span className="bg-white/5 border border-white/10 rounded px-2 py-1 font-mono text-[11px]">Shift + A: Bulk Approve</span>
+                <div className="h-4 w-[1px] bg-white/10" />
+                <input type="checkbox" id="select-all" className="w-4 h-4 rounded accent-violet-500 cursor-pointer" />
+                <label htmlFor="select-all" className="cursor-pointer font-medium">Select All</label>
+              </div>
+            </div>
+
+            {/* Approval Lists */}
+            <div className="space-y-10 pb-32">
+              {/* Critical Priority */}
+              {criticalApprovals.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse" />
+                      <h3 className="text-base font-bold text-red-400 uppercase tracking-widest">Critical Priority (T0)</h3>
+                    </div>
+                    <span className="text-[11px] font-mono text-white/35">NEEDS IMMEDIATE AUTHORIZATION</span>
+                  </div>
+                  <div className="space-y-6">
+                    {criticalApprovals.map(approval => (
+                      <ApprovalCard 
+                        key={approval.id} 
+                        approval={approval} 
+                        onApprove={() => handleApprove(approval.id)}
+                        onDeny={() => handleDeny(approval.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* High Priority */}
+              {highApprovals.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-3 h-3 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse" />
+                    <h3 className="text-base font-bold text-amber-400 uppercase tracking-widest">High Priority (T1)</h3>
+                  </div>
+                  <div className="space-y-6">
+                    {highApprovals.map(approval => (
+                      <ApprovalCard 
+                        key={approval.id} 
+                        approval={approval} 
+                        onApprove={() => handleApprove(approval.id)}
+                        onDeny={() => handleDeny(approval.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Standard Priority */}
+              {standardApprovals.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <h3 className="text-base font-bold text-blue-400 uppercase tracking-widest">Standard Queue (T2+)</h3>
+                  </div>
+                  <div className="space-y-6">
+                    {standardApprovals.map(approval => (
+                      <ApprovalCard 
+                        key={approval.id} 
+                        approval={approval} 
+                        onApprove={() => handleApprove(approval.id)}
+                        onDeny={() => handleDeny(approval.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {filteredApprovals.length === 0 && (
+                <div className="text-center py-16">
+                  <CheckCircle size={48} className="mx-auto text-emerald-500 mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">Queue Clear</h3>
+                  <p className="text-white/55">No pending approvals at this time.</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {activeTab === 'history' && (
+          <div className="text-center py-16 text-white/45">
+            <p className="font-mono text-[12px]">APPROVAL_HISTORY_VIEW</p>
+            <p className="text-[14px] mt-2">Historical approval records will appear here</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

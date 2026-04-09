@@ -43,8 +43,8 @@ const s = {
     gap: '12px', marginBottom: '28px',
   } as React.CSSProperties,
   statCard: (color: string) => ({
-    background: 'rgba(255,255,255,0.03)',
-    borderRadius: '10px', padding: '20px', textAlign: 'center' as const,
+    background: 'var(--bg-panel, #0F1419)',
+    borderRadius: '0', padding: '20px', textAlign: 'center' as const,
   }),
   statValue: (color: string) => ({
     fontSize: '32px', fontWeight: 700, color, lineHeight: 1.1,
@@ -64,12 +64,12 @@ const s = {
     color: active ? '#f59e0b' : '#94a3b8',
     background: active ? 'rgba(245,158,11,0.15)' : 'transparent',
     border: '1px solid ' + (active ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'),
-    borderRadius: '6px', cursor: 'pointer', marginLeft: '6px',
+    borderRadius: '0', cursor: 'pointer', marginLeft: '6px',
   }),
 
   // Tabs
   tabBar: {
-    display: 'flex', gap: '2px', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.08)',
+    display: 'flex', gap: '2px', marginBottom: '24px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)',
   } as React.CSSProperties,
   tab: (active: boolean) => ({
     padding: '10px 18px', fontSize: '13px', fontWeight: active ? 600 : 400,
@@ -82,22 +82,22 @@ const s = {
   // Buttons
   primaryBtn: {
     padding: '10px 20px', fontSize: '13px', fontWeight: 600, color: '#fff',
-    background: '#f59e0b', border: 'none', borderRadius: '8px', cursor: 'pointer',
+    background: '#f59e0b', border: 'none', borderRadius: '0', cursor: 'pointer',
   } as React.CSSProperties,
   secondaryBtn: {
     padding: '8px 16px', fontSize: '12px', fontWeight: 500, color: '#f59e0b',
     background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
-    borderRadius: '6px', cursor: 'pointer',
+    borderRadius: '0', cursor: 'pointer',
   } as React.CSSProperties,
   dangerBtn: {
     padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#ef4444',
     background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-    borderRadius: '4px', cursor: 'pointer',
+    borderRadius: '0', cursor: 'pointer',
   } as React.CSSProperties,
   ghostBtn: {
     padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#94a3b8',
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '4px', cursor: 'pointer',
+    background: 'transparent', border: '1px solid rgba(251, 191, 36, 0.15)',
+    borderRadius: '0', cursor: 'pointer',
   } as React.CSSProperties,
 
   // Modal
@@ -106,8 +106,8 @@ const s = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
   } as React.CSSProperties,
   modal: {
-    background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '12px', padding: '28px', width: '520px', maxHeight: '80vh', overflow: 'auto',
+    background: 'var(--bg-panel, #0F1419)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', padding: '28px', width: '520px', maxHeight: '80vh', overflow: 'auto',
   } as React.CSSProperties,
   modalTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '20px' } as React.CSSProperties,
 
@@ -116,13 +116,13 @@ const s = {
   label: { display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
   select: {
     width: '100%', padding: '10px 12px', fontSize: '13px', color: '#e2e8f0',
-    background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px', outline: 'none',
+    background: 'var(--bg-app, #0A0E14)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', outline: 'none',
   } as React.CSSProperties,
   input: {
     width: '100%', padding: '10px 12px', fontSize: '13px', color: '#e2e8f0',
-    background: '#0f0f1a', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '6px', outline: 'none',
+    background: 'var(--bg-app, #0A0E14)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', outline: 'none',
   } as React.CSSProperties,
   checkbox: { marginRight: '8px' } as React.CSSProperties,
   checkboxLabel: { fontSize: '13px', color: '#cbd5e1', cursor: 'pointer' } as React.CSSProperties,
@@ -131,35 +131,35 @@ const s = {
   table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' } as React.CSSProperties,
   th: {
     padding: '10px 12px', textAlign: 'left' as const, fontWeight: 600, color: '#94a3b8',
-    borderBottom: '1px solid rgba(255,255,255,0.08)', fontSize: '11px',
+    borderBottom: '1px solid rgba(251, 191, 36, 0.15)', fontSize: '11px',
     textTransform: 'uppercase' as const, letterSpacing: '0.5px',
   } as React.CSSProperties,
-  td: { padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#cbd5e1' } as React.CSSProperties,
+  td: { padding: '10px 12px', borderBottom: '1px solid rgba(251, 191, 36, 0.1)', color: '#cbd5e1' } as React.CSSProperties,
 
   // Report Viewer
   viewerWrapper: {
-    background: '#12131a', borderRadius: '12px', padding: '0', overflow: 'hidden',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'var(--bg-panel, #0F1419)', borderRadius: '0', padding: '0', overflow: 'hidden',
+    border: '1px solid rgba(251, 191, 36, 0.2)',
   } as React.CSSProperties,
   viewerToolbar: {
     display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between',
-    padding: '12px 20px', background: '#1a1b26', borderBottom: '1px solid rgba(255,255,255,0.08)',
+    padding: '12px 20px', background: 'var(--bg-panel, #0F1419)', borderBottom: '1px solid rgba(251, 191, 36, 0.15)',
   } as React.CSSProperties,
   viewerContent: { padding: '32px 40px', background: 'var(--surface-secondary, #12131a)' } as React.CSSProperties,
   viewerNav: {
     position: 'sticky' as const, top: 0, display: 'flex', flexDirection: 'column' as const,
-    gap: '2px', padding: '12px', background: '#0f1015', borderRight: '1px solid rgba(255,255,255,0.08)',
+    gap: '2px', padding: '12px', background: 'var(--bg-app, #0A0E14)', borderRight: '1px solid rgba(251, 191, 36, 0.15)',
     minWidth: '200px',
   } as React.CSSProperties,
   viewerNavItem: (active: boolean) => ({
     padding: '8px 12px', fontSize: '12px', fontWeight: active ? 600 : 400,
     color: active ? '#f59e0b' : '#64748b', background: active ? 'rgba(245,158,11,0.08)' : 'transparent',
-    border: 'none', borderRadius: '6px', cursor: 'pointer', textAlign: 'left' as const,
+    border: 'none', borderRadius: '0', cursor: 'pointer', textAlign: 'left' as const,
   }),
 
   // Badges
   badge: (color: string, bg: string) => ({
-    display: 'inline-block', padding: '2px 10px', borderRadius: '12px',
+    display: 'inline-block', padding: '2px 10px', borderRadius: '0',
     fontSize: '11px', fontWeight: 600, color, background: bg,
   }),
   statusBadge: (status: string) => {
@@ -168,46 +168,46 @@ const s = {
       failed: ['#991b1b', '#fee2e2'], scheduled: ['#1e40af', '#dbeafe'],
     };
     const [c, b] = map[status] || ['#64748b', '#f1f5f9'];
-    return { display: 'inline-block', padding: '2px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600, color: c, background: b };
+    return { display: 'inline-block', padding: '2px 10px', borderRadius: '0', fontSize: '11px', fontWeight: 600, color: c, background: b };
   },
 
   // Section in viewer
   sectionBlock: { marginBottom: '32px', color: '#e2e8f0' } as React.CSSProperties,
-  sectionTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)' } as React.CSSProperties,
+  sectionTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)' } as React.CSSProperties,
   kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '16px' } as React.CSSProperties,
-  kpiCard: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '14px', textAlign: 'center' as const } as React.CSSProperties,
+  kpiCard: { background: 'var(--bg-panel, #0F1419)', border: '1px solid rgba(251, 191, 36, 0.15)', borderRadius: '0', padding: '14px', textAlign: 'center' as const } as React.CSSProperties,
   kpiValue: (color = '#e2e8f0') => ({ fontSize: '24px', fontWeight: 700, color }),
   kpiLabel: { fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
 
   barRow: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' } as React.CSSProperties,
   barLabel: { width: '120px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.6)', textAlign: 'right' as const } as React.CSSProperties,
-  barTrack: { flex: 1, height: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' } as React.CSSProperties,
-  barFill: (pct: number, color: string) => ({ width: `${pct}%`, height: '100%', background: color, borderRadius: '4px' }),
+  barTrack: { flex: 1, height: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden' } as React.CSSProperties,
+  barFill: (pct: number, color: string) => ({ width: `${pct}%`, height: '100%', background: color, borderRadius: '0' }),
   barValue: { width: '36px', fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
 
   dataTable: { width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px', marginBottom: '12px' } as React.CSSProperties,
-  dtTh: { padding: '8px 10px', textAlign: 'left' as const, fontWeight: 600, color: 'rgba(255,255,255,0.6)', borderBottom: '2px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', fontSize: '10px', textTransform: 'uppercase' as const } as React.CSSProperties,
-  dtTd: { padding: '8px 10px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: '#e2e8f0' } as React.CSSProperties,
+  dtTh: { padding: '8px 10px', textAlign: 'left' as const, fontWeight: 600, color: 'rgba(255,255,255,0.6)', borderBottom: '2px solid rgba(255,255,255,0.08)', background: 'var(--bg-panel, #0F1419)', fontSize: '10px', textTransform: 'uppercase' as const } as React.CSSProperties,
+  dtTd: { padding: '8px 10px', borderBottom: '1px solid rgba(251, 191, 36, 0.1)', color: '#e2e8f0' } as React.CSSProperties,
 
   trustBar: (score: number) => {
     const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
     return { display: 'inline-flex', alignItems: 'center', gap: '4px', color };
   },
 
-  highlight: { background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '14px 18px', marginTop: '12px' } as React.CSSProperties,
+  highlight: { background: 'var(--bg-panel, #0F1419)', borderRadius: '0', padding: '14px 18px', marginTop: '12px' } as React.CSSProperties,
   highlightItem: { fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', lineHeight: 1.5 } as React.CSSProperties,
 
   rec: (severity: string) => {
     const map: Record<string, [string, string]> = { critical: ['#fef2f2', '#ef4444'], warning: ['#fffbeb', '#f59e0b'], info: ['#eff6ff', '#3b82f6'] };
     const [bg, border] = map[severity] || ['#f8fafc', '#94a3b8'];
-    return { padding: '12px 14px', borderRadius: '8px', marginBottom: '8px', borderLeft: `4px solid ${border}`, background: bg };
+    return { padding: '12px 14px', borderRadius: '0', marginBottom: '8px', borderLeft: `4px solid ${border}`, background: bg };
   },
   recCategory: { fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginLeft: '8px' } as React.CSSProperties,
   recMessage: { fontSize: '13px', color: '#e2e8f0', margin: '4px 0' } as React.CSSProperties,
   recAction: { fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' } as React.CSSProperties,
 
   callout: (type: 'green' | 'yellow') => ({
-    padding: '10px 14px', borderRadius: '8px', marginBottom: '8px', fontSize: '13px',
+    padding: '10px 14px', borderRadius: '0', marginBottom: '8px', fontSize: '13px',
     background: type === 'green' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(245, 158, 11, 0.15)',
     borderLeft: `4px solid ${type === 'green' ? '#22c55e' : '#f59e0b'}`,
     color: '#e2e8f0',
@@ -311,7 +311,7 @@ export function CompliancePage() {
         ))}
       </div>
 
-      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{error} <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>✕</button></div>}
+      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '0', color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{error} <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>✕</button></div>}
 
       {/* Dashboard Tab */}
       {tab === 'dashboard' && (
@@ -995,8 +995,8 @@ function BarChart({ items }: { items: Array<{ label: string; value: number; colo
 
 function InlineBar({ pct }: { pct: number }) {
   return (
-    <span style={{ display: 'inline-block', width: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
-      <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#f59e0b', borderRadius: '3px' }} />
+    <span style={{ display: 'inline-block', width: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
+      <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#f59e0b', borderRadius: '0' }} />
     </span>
   );
 }
@@ -1004,7 +1004,7 @@ function InlineBar({ pct }: { pct: number }) {
 function MiniChart({ data }: { data: Array<{ date: string; count: number }> }) {
   const max = Math.max(...data.map(d => d.count), 1);
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)' }}>
       {data.map((d, i) => (
         <div key={i} title={`${d.date}: ${d.count}`}
           style={{ flex: 1, minWidth: '3px', background: '#f59e0b', borderRadius: '2px 2px 0 0', opacity: 0.8,
@@ -1018,8 +1018,8 @@ function TrustBar({ score }: { score: number }) {
   const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
   return (
     <span style={s.trustBar(score)}>
-      <span style={{ width: '40px', height: '5px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden', display: 'inline-block' }}>
-        <span style={{ display: 'block', width: `${score}%`, height: '100%', background: color, borderRadius: '3px' }} />
+      <span style={{ width: '40px', height: '5px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden', display: 'inline-block' }}>
+        <span style={{ display: 'block', width: `${score}%`, height: '100%', background: color, borderRadius: '0' }} />
       </span>
       <span style={{ fontSize: '11px', fontWeight: 600 }}>{score}</span>
     </span>

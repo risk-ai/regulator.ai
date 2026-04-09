@@ -28,20 +28,15 @@ const WorkspacePage = React.lazy(() => import('./pages/WorkspacePage.js').then(m
 const HistoryPage = React.lazy(() => import('./pages/HistoryPage.js').then(m => ({ default: m.HistoryPage })));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage.js').then(m => ({ default: m.ServicesPage })));
 const SettingsPage = React.lazy(() => import('./pages/SettingsPage.js').then(m => ({ default: m.SettingsPage })));
-const ApprovalsPage = React.lazy(() => import('./pages/ApprovalsPage.js').then(m => ({ default: m.ApprovalsPage })));
 const IntentPage = React.lazy(() => import('./pages/IntentPage.js').then(m => ({ default: m.IntentPage })));
 const PolicyBuilderPage = React.lazy(() => import('./pages/PolicyBuilderPage.js').then(m => ({ default: m.PolicyBuilderPage })));
 const ActionTypesPage = React.lazy(() => import('./pages/ActionTypesPage.js').then(m => ({ default: m.ActionTypesPage })));
-const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.js').then(m => ({ default: m.FleetDashboardPage })));
 const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
 const CompliancePage = React.lazy(() => import('./pages/CompliancePage.js').then(m => ({ default: m.CompliancePage })));
 const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m => ({ default: m.ExecutionPage })));
 const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js'));
 const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js'));
 const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'));
-const DashboardClean = React.lazy(() => import('./pages/DashboardClean.js').then(m => ({ default: m.DashboardClean })));
-const FleetDashboardNew = React.lazy(() => import('./pages/FleetDashboardNew.js').then(m => ({ default: m.FleetDashboardNew })));
-const ApprovalsNew = React.lazy(() => import('./pages/ApprovalsNew.js').then(m => ({ default: m.ApprovalsNew })));
 const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
@@ -253,12 +248,12 @@ export function App() {
                   <Route path="/now" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-old" element={<Navigate to="/" replace />} />
-                  <Route path="/dashboard-clean" element={<DashboardClean />} />
+                  <Route path="/dashboard-clean" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-premium" element={<DashboardPremium />} />
                   <Route path="/fleet" element={<FleetPremium />} />
                   <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
-                  <Route path="/fleet-new" element={<FleetDashboardNew />} />
-                  <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
+                  <Route path="/fleet-new" element={<Navigate to="/fleet" replace />} />
+                  <Route path="/fleet-legacy" element={<Navigate to="/fleet" replace />} />
                   <Route path="/fleet-old" element={<Navigate to="/fleet" replace />} />
                   <Route path="/fleet-dashboard" element={<Navigate to="/fleet" replace />} />
                   <Route path="/fleet-premium" element={<FleetPremium />} />
@@ -269,7 +264,7 @@ export function App() {
                   <Route path="/execution" element={<ExecutionPage />} />
                   <Route path="/executions" element={<ExecutionsPage />} />
                   <Route path="/approvals" element={<ApprovalsPremium />} />
-                  <Route path="/approvals-new" element={<ApprovalsNew />} />
+                  <Route path="/approvals-new" element={<Navigate to="/approvals" replace />} />
                   <Route path="/approvals-legacy" element={<Navigate to="/approvals" replace />} />
                   <Route path="/approvals-old" element={<Navigate to="/approvals" replace />} />
                   <Route path="/approvals-premium" element={<ApprovalsPremium />} />

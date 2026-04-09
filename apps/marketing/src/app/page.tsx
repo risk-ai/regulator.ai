@@ -348,7 +348,7 @@ function AnimatedPipeline() {
       label: "AUDIT_CHAIN",
       num: "[8/8]",
       desc: "Immutable record written to ledger",
-      detail: "merkle root",
+      detail: "HMAC-signed",
       color: "text-green-500",
     },
   ];
@@ -731,7 +731,7 @@ export default function Home() {
 
         {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
         <RevealSection>
-          <section id="pipeline" className="py-24 px-6 border-t border-amber-500/10">
+          <section id="pipeline" className="py-24 px-6 border-t border-amber-500/10" aria-label="Execution Pipeline">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
@@ -743,6 +743,167 @@ export default function Home() {
               </div>
 
               <AnimatedPipeline />
+            </div>
+          </section>
+        </RevealSection>
+
+        {/* ═══════════════════ SYSTEM ARCHITECTURE ═══════════════════ */}
+        <RevealSection>
+          <section id="architecture" className="py-24 px-6 bg-black/30 border-y border-amber-500/10" aria-label="System Architecture">
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-16 max-w-2xl">
+                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
+                  SYSTEM_ARCHITECTURE
+                </h2>
+                <p className="text-zinc-500 font-mono text-sm">
+                  infrastructure-grade governance — every layer purpose-built
+                </p>
+              </div>
+
+              {/* Architecture Diagram - Terminal Style */}
+              <div className="bg-black border border-amber-500/30 p-6 mb-8">
+                <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4 pb-2 border-b border-amber-500/20">
+                  ARCHITECTURE_OVERVIEW
+                </div>
+
+                {/* Layer diagram */}
+                <div className="space-y-3 font-mono text-[11px]">
+                  {/* Agent Layer */}
+                  <div className="flex items-stretch gap-3">
+                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">AGENT_LAYER</div>
+                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent A</span>
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent B</span>
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent N</span>
+                        <span className="text-zinc-600 px-2 py-0.5">→ submit intents via SDK</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1">│ REST / WebSocket │</div>
+                  </div>
+
+                  {/* API Gateway */}
+                  <div className="flex items-stretch gap-3">
+                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">API_GATEWAY</div>
+                    <div className="flex-1 border border-amber-500/30 bg-amber-500/5 p-3">
+                      <div className="flex flex-wrap gap-4">
+                        <div><span className="text-amber-500">auth:</span> <span className="text-zinc-400">API key + JWT</span></div>
+                        <div><span className="text-amber-500">rate_limit:</span> <span className="text-zinc-400">per-tenant</span></div>
+                        <div><span className="text-amber-500">protocol:</span> <span className="text-zinc-400">REST + SSE streaming</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1">▼</div>
+                  </div>
+
+                  {/* Governance Kernel */}
+                  <div className="flex items-stretch gap-3">
+                    <div className="w-28 sm:w-36 shrink-0 text-right text-amber-500 py-2 font-bold">GOVERNANCE<br/>KERNEL</div>
+                    <div className="flex-1 border-2 border-amber-500/50 bg-amber-500/5 p-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="border border-amber-500/20 p-2">
+                          <div className="text-amber-500 text-[10px] mb-1">POLICY_ENGINE</div>
+                          <div className="text-zinc-500 text-[10px]">11 operators, conditional rules, priority-ordered evaluation</div>
+                        </div>
+                        <div className="border border-amber-500/20 p-2">
+                          <div className="text-amber-500 text-[10px] mb-1">RISK_ROUTER</div>
+                          <div className="text-zinc-500 text-[10px]">T0-T3 tier classification, auto-approve / gate / halt</div>
+                        </div>
+                        <div className="border border-amber-500/20 p-2">
+                          <div className="text-amber-500 text-[10px] mb-1">WARRANT_AUTHORITY</div>
+                          <div className="text-zinc-500 text-[10px]">HMAC-SHA256 signing, TTL-bounded, scope-restricted</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1">▼</div>
+                  </div>
+
+                  {/* Approval + Execution */}
+                  <div className="flex items-stretch gap-3">
+                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">EXECUTION<br/>LAYER</div>
+                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-500">●</span>
+                          <span className="text-zinc-400">Approval queues (M-of-N quorum)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-500">●</span>
+                          <span className="text-zinc-400">Scoped execution with warrant authority</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-500">●</span>
+                          <span className="text-zinc-400">Anomaly detection + alerting</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-500">●</span>
+                          <span className="text-zinc-400">Dead letter queue for failed ops</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1">▼</div>
+                  </div>
+
+                  {/* Data Layer */}
+                  <div className="flex items-stretch gap-3">
+                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">DATA_LAYER</div>
+                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-500">◆</span>
+                          <span className="text-zinc-400">PostgreSQL (Neon)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-500">◆</span>
+                          <span className="text-zinc-400">HMAC-signed audit log</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-500">◆</span>
+                          <span className="text-zinc-400">Configurable retention</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Deployment options */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="bg-black border border-amber-500/30 p-4">
+                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_CLOUD</div>
+                  <div className="text-[10px] font-mono text-zinc-500">Vercel + Neon — serverless, zero-ops</div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">scale: automatic</div>
+                </div>
+                <div className="bg-black border border-amber-500/30 p-4">
+                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_SELF_HOST</div>
+                  <div className="text-[10px] font-mono text-zinc-500">Docker Compose — your infra, your data</div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">requires: PostgreSQL 15+</div>
+                </div>
+                <div className="bg-black border border-amber-500/30 p-4">
+                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_HYBRID</div>
+                  <div className="text-[10px] font-mono text-zinc-500">Cloud control plane + on-prem execution</div>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-1">enterprise tier</div>
+                </div>
+              </div>
             </div>
           </section>
         </RevealSection>
@@ -1462,7 +1623,7 @@ result = vienna.intent.submit(
                   <div className="space-y-2 text-xs font-mono text-zinc-500">
                     <div>cryptographic signatures</div>
                     <div>tamper-evident trail</div>
-                    <div>merkle root integrity</div>
+                    <div>hash-chain integrity</div>
                   </div>
                 </div>
 

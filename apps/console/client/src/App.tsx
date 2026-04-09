@@ -224,11 +224,11 @@ export function App() {
             <ErrorBoundary key={location.pathname}>
               <Suspense fallback={<PageLoadingSpinner />}>
                 <Routes>
-                  <Route path="/" element={<NowPage />} />
-                  <Route path="/now" element={<Navigate to="/" replace />} />
-                  <Route path="/dashboard" element={<DashboardClean />} />
-                  <Route path="/fleet" element={<FleetDashboardPage />} />
-                  <Route path="/fleet-new" element={<FleetDashboardNew />} />
+                  <Route path="/" element={<DashboardClean />} />
+                  <Route path="/now" element={<NowPage />} />
+                  <Route path="/dashboard" element={<Navigate to="/" replace />} />
+                  <Route path="/fleet" element={<FleetDashboardNew />} />
+                  <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
                   <Route path="/intent" element={<IntentPage />} />

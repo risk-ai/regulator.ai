@@ -149,7 +149,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="min-h-screen bg-[#0a0e14]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-700/20 via-slate-900/50 to-transparent"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-700/20 via-slate-900/50 to-transparent"></div>
 
       <div className="relative max-w-4xl mx-auto px-6 py-12">
         <nav className="flex items-center justify-between mb-8">
@@ -189,7 +189,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
           {/* CTA */}
           <div className="mt-12 pt-8 border-t border-slate-700">
-            <div className="bg-gradient-to-r from-gold-400/10 to-blue-600/10 border border-amber-500/20 p-6 text-center">
+            <div className="bg-gradient-to-r from-gold-400/10 to-amber-600/10 border border-amber-500/20 p-6 text-center">
               <h3 className="text-xl font-bold text-white mb-2">
                 Ready to govern your AI agents?
               </h3>

@@ -116,8 +116,8 @@ export default function CompareGuardrailsPage() {
             </ul>
           </div>
           
-          <div className="bg-blue-500/5 border border-blue-500/20 p-6">
-            <h3 className="text-lg font-bold text-blue-400 mb-4">Choose Guardrails AI when:</h3>
+          <div className="bg-amber-500/5 border border-amber-500/20 p-6">
+            <h3 className="text-lg font-bold text-amber-400 mb-4">Choose Guardrails AI when:</h3>
             <ul className="space-y-3">
               {[
                 "Your primary concern is LLM output quality and safety",
@@ -128,7 +128,7 @@ export default function CompareGuardrailsPage() {
                 "You want a lighter-weight, Python-native solution",
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                  <Check className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                   {item}
                 </li>
               ))}

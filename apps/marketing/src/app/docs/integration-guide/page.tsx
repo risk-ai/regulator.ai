@@ -272,7 +272,7 @@ result = vienna.submit_intent(
                   <td className="py-3">Read file, check status</td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-3 pr-4 font-mono text-blue-400">T1</td>
+                  <td className="py-3 pr-4 font-mono text-amber-400">T1</td>
                   <td className="py-3 pr-4">Low</td>
                   <td className="py-3 pr-4">Policy auto</td>
                   <td className="py-3 pr-4">30 min</td>
@@ -364,7 +364,7 @@ function ApiEndpoint({
   body: Record<string, string>;
   response: Record<string, string>;
 }) {
-  const methodColor = method === "POST" ? "text-green-400" : "text-blue-400";
+  const methodColor = method === "POST" ? "text-green-400" : "text-amber-400";
   return (
     <div className="bg-[#111826] p-6 border border-gray-800">
       <div className="flex items-center gap-3 mb-2">

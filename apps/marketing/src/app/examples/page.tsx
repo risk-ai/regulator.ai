@@ -291,7 +291,7 @@ export default function ExamplesPage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-16 text-center bg-gradient-to-r from-gold-900/30 to-blue-900/30 border border-gold-800/30 p-12">
+        <div className="mt-16 text-center bg-gradient-to-r from-gold-900/30 to-amber-900/30 border border-gold-800/30 p-12">
           <h2 className="text-2xl font-bold text-white mb-4">Ready to add governance to your AI?</h2>
           <p className="text-zinc-400 mb-8 max-w-lg mx-auto">
             Get started in under 5 minutes with our free Community tier. No credit card required.

@@ -47,6 +47,9 @@ const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').
 const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m => ({ default: m.AnalyticsPage })));
 const GovernanceChainPage = React.lazy(() => import('./pages/GovernanceChainPage.js').then(m => ({ default: m.GovernanceChainPage })));
 const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.js').then(m => ({ default: m.GovernanceLivePage })));
+const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js'));
+const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js'));
+const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js'));
 
 function PageLoadingSpinner() {
   return (
@@ -224,18 +227,21 @@ export function App() {
             <ErrorBoundary key={location.pathname}>
               <Suspense fallback={<PageLoadingSpinner />}>
                 <Routes>
-                  <Route path="/" element={<DashboardClean />} />
+                  <Route path="/" element={<DashboardPremium />} />
                   <Route path="/now" element={<NowPage />} />
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
-                  <Route path="/fleet" element={<FleetDashboardNew />} />
+                  <Route path="/dashboard-clean" element={<DashboardClean />} />
+                  <Route path="/fleet" element={<FleetPremium />} />
+                  <Route path="/fleet-new" element={<FleetDashboardNew />} />
                   <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
                   <Route path="/intent" element={<IntentPage />} />
                   <Route path="/execution" element={<ExecutionPage />} />
                   <Route path="/executions" element={<ExecutionsPage />} />
-                  <Route path="/approvals" element={<ApprovalsPage />} />
+                  <Route path="/approvals" element={<ApprovalsPremium />} />
                   <Route path="/approvals-new" element={<ApprovalsNew />} />
+                  <Route path="/approvals-legacy" element={<ApprovalsPage />} />
                   <Route path="/policies" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />

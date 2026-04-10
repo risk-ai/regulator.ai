@@ -45,7 +45,9 @@ const COLOR_PRESETS = [
   '#eab308', '#14b8a6', '#a855f7', '#f43f5e', '#0ea5e9',
 ];
 
-const CATEGORY_FILTERS = ['all', 'infrastructure', 'financial', 'healthcare', 'communication', 'integration', 'data', 'custom'];
+// Category filters are now dynamic from the API — see fetchData()
+// Fallback list only used if categories API fails
+const FALLBACK_CATEGORY_FILTERS = ['all', 'infrastructure', 'financial', 'communication', 'integration', 'data'];
 
 const ICON_EMOJI_MAP: Record<string, string> = {
   'activity': '📊', 'alert-triangle': '⚠️', 'archive': '📦', 'arrow-right': '➡️',
@@ -619,9 +621,9 @@ export function ActionTypesPage() {
         </div>
       )}
 
-      {/* Filter bar */}
+      {/* Filter bar — dynamic from API categories */}
       <div style={styles.filterBar}>
-        {CATEGORY_FILTERS.map(cat => (
+        {['all', ...(categories.length > 0 ? categories.map(c => c.category || (c as any).name) : FALLBACK_CATEGORY_FILTERS.slice(1))].map(cat => (
           <button
             key={cat}
             style={styles.filterBtn(filter === cat)}

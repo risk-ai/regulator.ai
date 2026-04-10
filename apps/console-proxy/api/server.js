@@ -987,6 +987,42 @@ module.exports = async function handler(req, res) {
 
     // Activity feed & summary - handled by expanded section below
 
+    // Pipeline stats — real counts for each governance stage
+    if (path === '/api/v1/pipeline/stats') {
+      try {
+        const [intents, proposals, policies, warrants, executions, audit] = await Promise.all([
+          tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE created_at > NOW() - interval \'24 hours\') as recent FROM regulator.intents', [], tenantId).catch(() => [{ total: 0, recent: 0 }]),
+          tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE state = \'pending\') as pending, count(*) FILTER (WHERE created_at > NOW() - interval \'24 hours\') as recent FROM regulator.proposals', [], tenantId).catch(() => [{ total: 0, pending: 0, recent: 0 }]),
+          tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE enabled = true) as active FROM regulator.policies', [], tenantId).catch(() => [{ total: 0, active: 0 }]),
+          tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE revoked = false AND expires_at > NOW()) as active, count(*) FILTER (WHERE created_at > NOW() - interval \'24 hours\') as recent FROM regulator.warrants', [], tenantId).catch(() => [{ total: 0, active: 0, recent: 0 }]),
+          tenantQuery("SELECT count(*) as total, count(*) FILTER (WHERE state IN ('executing','running')) as active, count(*) FILTER (WHERE created_at > NOW() - interval '24 hours') as recent FROM regulator.execution_log", [], tenantId).catch(() => [{ total: 0, active: 0, recent: 0 }]),
+          tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE created_at > NOW() - interval \'24 hours\') as recent FROM regulator.audit_log', [], tenantId).catch(() => [{ total: 0, recent: 0 }]),
+        ]);
+        const i = intents[0] || {}, p = proposals[0] || {}, po = policies[0] || {}, w = warrants[0] || {}, e = executions[0] || {}, a = audit[0] || {};
+        return res.status(200).json({
+          success: true,
+          data: {
+            intent: { total: parseInt(i.total||0), recent: parseInt(i.recent||0), status: parseInt(i.recent||0) > 0 ? 'active' : 'idle' },
+            plan: { total: parseInt(p.total||0), pending: parseInt(p.pending||0), recent: parseInt(p.recent||0), status: parseInt(p.pending||0) > 0 ? 'active' : 'idle' },
+            policy: { total: parseInt(po.total||0), active: parseInt(po.active||0), status: parseInt(po.active||0) > 0 ? 'active' : 'idle' },
+            warrant: { total: parseInt(w.total||0), active: parseInt(w.active||0), recent: parseInt(w.recent||0), status: parseInt(w.active||0) > 0 ? 'active' : 'idle' },
+            execution: { total: parseInt(e.total||0), active: parseInt(e.active||0), recent: parseInt(e.recent||0), status: parseInt(e.active||0) > 0 ? 'active' : 'idle' },
+            verification: { total: parseInt(a.total||0), recent: parseInt(a.recent||0), status: parseInt(a.recent||0) > 0 ? 'active' : 'idle' },
+          },
+          timestamp: new Date().toISOString(),
+        });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: {
+          intent: { total: 0, recent: 0, status: 'idle' },
+          plan: { total: 0, pending: 0, recent: 0, status: 'idle' },
+          policy: { total: 0, active: 0, status: 'idle' },
+          warrant: { total: 0, active: 0, recent: 0, status: 'idle' },
+          execution: { total: 0, active: 0, recent: 0, status: 'idle' },
+          verification: { total: 0, recent: 0, status: 'idle' },
+        }, timestamp: new Date().toISOString() });
+      }
+    }
+
     // Reconciliation
     if (path === '/api/v1/reconciliation/safe-mode') {
       return res.status(200).json({ success: true, data: { active: false } });

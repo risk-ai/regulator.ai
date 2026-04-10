@@ -22,7 +22,7 @@ import { KeyboardShortcutsModal } from './components/common/KeyboardShortcutsMod
 import { apiClient } from './api/client.js';
 
 // Lazy-loaded pages
-const NowPage = React.lazy(() => import('./pages/NowPage.js').then(m => ({ default: m.NowPage })));
+// NowPage removed — /now redirects to / via Navigate
 const RuntimePage = React.lazy(() => import('./pages/RuntimePage.js').then(m => ({ default: m.RuntimePage })));
 const WorkspacePage = React.lazy(() => import('./pages/WorkspacePage.js').then(m => ({ default: m.WorkspacePage })));
 const HistoryPage = React.lazy(() => import('./pages/HistoryPage.js').then(m => ({ default: m.HistoryPage })));

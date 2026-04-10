@@ -26,7 +26,6 @@ export function ApprovalCard({ approval, onAction, urgent = false, focused = fal
   
   // Debug: Log approval data
   React.useEffect(() => {
-    console.log('[ApprovalCard] Rendering approval:', {
       approval_id: approval.approval_id,
       tier: approval.tier,
       target_id: approval.target_id,

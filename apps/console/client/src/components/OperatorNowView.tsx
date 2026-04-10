@@ -16,14 +16,12 @@ import { AttentionPanel } from './AttentionPanel.js';
 import './OperatorNowView.css';
 
 export const OperatorNowView: React.FC = () => {
-  console.log('[OperatorNowView] Component mounted');
   
   const { snapshot, loading, error, refresh, lastUpdated } = useSystemNow({
     refreshInterval: 5000, // Refresh every 5 seconds
     hydrateFromSSE: true,
   });
   
-  console.log('[OperatorNowView] State:', { snapshot: !!snapshot, loading, error: !!error });
   
   /**
    * Get system state badge class

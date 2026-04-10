@@ -39,7 +39,6 @@ export function WelcomeWizard({ onComplete, onSkip }: WelcomeWizardProps) {
       
       if (response.ok) {
         setDemoDataSeeded(true);
-        console.log('Demo data seeded successfully');
       } else {
         console.error('Failed to seed demo data');
       }

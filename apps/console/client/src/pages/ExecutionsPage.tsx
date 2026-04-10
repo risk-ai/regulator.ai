@@ -1,20 +1,15 @@
 /**
- * Executions Page — P1 Enhanced
+ * Executions Page — Premium Terminal Design
  * 
- * Full P1 feature set:
- * - Advanced multi-select filters (state, tier, date range, agent)
- * - CSV export with active filters
- * - Full-screen detail modal with warrant verification
- * - Real-time SSE updates (30s fallback polling)
- * - Keyboard navigation
+ * Waterfall timeline view, rich execution cards with glow borders,
+ * sparkline latency charts, tier-coded badges, SSE real-time updates.
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Activity, Clock, CheckCircle, XCircle, AlertTriangle, Download, RefreshCw, Search, Filter, X, ChevronRight, Zap, Eye, TrendingUp, Minus } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
-import { ExecutionStatsRow } from '../components/executions/ExecutionStatsRow.js';
-import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
 
-// ---- Types ----
+// ─── Types ───
 
 interface Execution {
   execution_id: string;
@@ -70,476 +65,100 @@ interface FilterState {
   search: string;
 }
 
-// ---- Constants ----
+// ─── Config ───
 
-const STATE_CONFIG: Record<string, { bg: string; text: string; label: string; dot: string }> = {
-  planned:            { bg: 'rgba(148,163,184,0.10)', text: '#94a3b8', label: 'Planned',   dot: '#94a3b8' },
-  approved:           { bg: 'rgba(59,130,246,0.10)',  text: '#60a5fa', label: 'Approved',  dot: '#60a5fa' },
-  executing:          { bg: 'rgba(245,158,11,0.10)',  text: '#f59e0b', label: 'Executing', dot: '#f59e0b' },
-  awaiting_callback:  { bg: 'rgba(168,85,247,0.10)',  text: '#a855f6', label: 'Awaiting',  dot: '#a855f6' },
-  verifying:          { bg: 'rgba(6,182,212,0.10)',   text: '#06b6d4', label: 'Verifying', dot: '#06b6d4' },
-  complete:           { bg: 'rgba(16,185,129,0.10)',  text: '#10b981', label: 'Complete',  dot: '#10b981' },
-  failed:             { bg: 'rgba(239,68,68,0.10)',   text: '#ef4444', label: 'Failed',    dot: '#ef4444' },
-  cancelled:          { bg: 'rgba(107,114,128,0.10)', text: '#6b7280', label: 'Cancelled', dot: '#6b7280' },
-  pending:            { bg: 'rgba(148,163,184,0.10)', text: '#94a3b8', label: 'Pending',   dot: '#94a3b8' },
+const STATE_CONFIG: Record<string, { color: string; bg: string; glow: string; label: string; icon: React.ComponentType<any> }> = {
+  planned:           { color: 'text-slate-400',   bg: 'bg-slate-500/10',   glow: '', label: 'Planned',   icon: Clock },
+  approved:          { color: 'text-blue-400',    bg: 'bg-blue-500/10',    glow: '', label: 'Approved',  icon: CheckCircle },
+  executing:         { color: 'text-amber-400',   bg: 'bg-amber-500/10',   glow: 'shadow-[0_0_12px_rgba(245,158,11,0.3)]', label: 'Executing', icon: Activity },
+  awaiting_callback: { color: 'text-purple-400',  bg: 'bg-purple-500/10',  glow: 'shadow-[0_0_12px_rgba(168,85,247,0.3)]', label: 'Awaiting',  icon: Clock },
+  verifying:         { color: 'text-cyan-400',    bg: 'bg-cyan-500/10',    glow: 'shadow-[0_0_12px_rgba(6,182,212,0.3)]', label: 'Verifying', icon: Eye },
+  complete:          { color: 'text-emerald-400', bg: 'bg-emerald-500/10', glow: '', label: 'Complete',  icon: CheckCircle },
+  failed:            { color: 'text-red-400',     bg: 'bg-red-500/10',     glow: 'shadow-[0_0_12px_rgba(239,68,68,0.3)]', label: 'Failed',    icon: XCircle },
+  cancelled:         { color: 'text-gray-400',    bg: 'bg-gray-500/10',    glow: '', label: 'Cancelled', icon: X },
+  pending:           { color: 'text-slate-400',   bg: 'bg-slate-500/10',   glow: '', label: 'Pending',   icon: Clock },
+};
+
+const TIER_CONFIG: Record<string, { color: string; bg: string; border: string; glow: string }> = {
+  T0: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', glow: '' },
+  T1: { color: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/20',    glow: '' },
+  T2: { color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/20',   glow: 'shadow-[0_0_8px_rgba(245,158,11,0.2)]' },
+  T3: { color: 'text-red-400',     bg: 'bg-red-500/10',     border: 'border-red-500/20',     glow: 'shadow-[0_0_8px_rgba(239,68,68,0.2)]' },
 };
 
 const ALL_STATES = Object.keys(STATE_CONFIG);
 const ALL_TIERS = ['T0', 'T1', 'T2', 'T3'];
-const TIER_COLORS: Record<string, string> = { T0: '#94a3b8', T1: '#f59e0b', T2: '#ef4444', T3: '#dc2626' };
-
 const DEFAULT_FILTERS: FilterState = { states: [], tiers: [], dateFrom: '', dateTo: '', agentId: '', search: '' };
 
-// ---- Reusable Components ----
+// ─── Sparkline ───
+
+function MiniSparkline({ data, color = 'emerald' }: { data: number[]; color?: string }) {
+  const colorMap: Record<string, string> = { emerald: 'bg-emerald-500', amber: 'bg-amber-500', blue: 'bg-blue-500', red: 'bg-red-500' };
+  return (
+    <div className="flex gap-[1px] items-end h-5">
+      {data.map((v, i) => (
+        <div
+          key={i}
+          className={`flex-1 ${colorMap[color] || colorMap.emerald} rounded-[1px]`}
+          style={{ height: `${v}%`, opacity: i === data.length - 1 ? 1 : 0.2 + (v / 100) * 0.8 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Stat Card ───
+
+function StatCard({ label, value, trend, trendDir, sparkData, color = 'emerald' }: {
+  label: string; value: string | number; trend?: string; trendDir?: 'up' | 'down' | 'stable';
+  sparkData: number[]; color?: string;
+}) {
+  const trendColor = { up: 'text-emerald-500', down: 'text-red-500', stable: 'text-gray-400' };
+  return (
+    <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)]">
+      <div className="flex justify-between items-start">
+        <div className="text-[11px] font-semibold text-white/45 uppercase tracking-wider">{label}</div>
+        {trend && (
+          <div className={`text-[11px] font-bold ${trendColor[trendDir || 'stable']} flex items-center gap-1 font-mono`}>
+            {trend}
+            {trendDir === 'up' && <TrendingUp size={11} />}
+            {trendDir === 'stable' && <Minus size={11} />}
+          </div>
+        )}
+      </div>
+      <div className={`text-[28px] font-bold text-white font-mono mt-1 leading-none`}>{value}</div>
+      <div className="mt-3">
+        <MiniSparkline data={sparkData} color={color} />
+      </div>
+    </div>
+  );
+}
+
+// ─── State Badge ───
 
 function StateBadge({ state }: { state: string }) {
-  const s = STATE_CONFIG[state] || STATE_CONFIG.planned;
+  const cfg = STATE_CONFIG[state] || STATE_CONFIG.pending;
+  const Icon = cfg.icon;
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '5px',
-      padding: '3px 10px', borderRadius: '4px',
-      fontSize: '10px', fontWeight: 600, fontFamily: 'var(--font-mono)',
-      color: s.text, background: s.bg, textTransform: 'uppercase', letterSpacing: '0.04em',
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot,
-        boxShadow: ['executing', 'verifying'].includes(state) ? `0 0 6px ${s.dot}` : 'none',
-        animation: ['executing'].includes(state) ? 'pulse 2s infinite' : 'none',
-      }} />
-      {s.label}
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded ${cfg.bg} ${cfg.color} text-[10px] font-bold font-mono uppercase tracking-wider`}>
+      <Icon size={10} />
+      {cfg.label}
     </span>
   );
 }
 
-// Map to ExecutionStatusBadge
-function StateStatusBadge({ state, tier }: { state: string; tier?: string }) {
-  const stateMap: Record<string, any> = {
-    'planned': 'pending',
-    'approved': 'pending',
-    'executing': 'executing',
-    'awaiting_callback': 'executing',
-    'verifying': 'executing',
-    'complete': 'executed',
-    'failed': 'failed',
-    'cancelled': 'denied',
-    'pending': 'pending',
-  };
-  const mappedState = stateMap[state] || state;
-  return (
-    <ExecutionStatusBadge 
-      status={mappedState} 
-      riskTier={tier as any}
-      size="sm"
-    />
-  );
-}
+// ─── Tier Badge ───
 
 function TierBadge({ tier }: { tier: string }) {
-  const color = TIER_COLORS[tier] || '#94a3b8';
+  const cfg = TIER_CONFIG[tier] || TIER_CONFIG.T0;
   return (
-    <span style={{
-      padding: '2px 7px', borderRadius: '3px', fontSize: '10px', fontWeight: 700,
-      fontFamily: 'var(--font-mono)', color, background: `${color}15`, border: `1px solid ${color}25`,
-    }}>
+    <span className={`px-2 py-0.5 ${cfg.bg} border ${cfg.border} rounded text-[9px] font-bold ${cfg.color} font-mono ${cfg.glow}`}>
       {tier}
     </span>
   );
 }
 
-
-
-// ---- Advanced Filter Bar ----
-
-function FilterBar({ filters, onChange, onClear, activeCount }: {
-  filters: FilterState;
-  onChange: (f: FilterState) => void;
-  onClear: () => void;
-  activeCount: number;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  const toggleState = (state: string) => {
-    const states = filters.states.includes(state)
-      ? filters.states.filter(s => s !== state)
-      : [...filters.states, state];
-    onChange({ ...filters, states });
-  };
-
-  const toggleTier = (tier: string) => {
-    const tiers = filters.tiers.includes(tier)
-      ? filters.tiers.filter(t => t !== tier)
-      : [...filters.tiers, tier];
-    onChange({ ...filters, tiers });
-  };
-
-  return (
-    <div style={{ marginBottom: '16px' }}>
-      {/* Filter toggle bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: expanded ? '12px' : '0' }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            padding: '6px 14px', fontSize: '12px', borderRadius: '6px', border: '1px solid var(--border-subtle)',
-            background: expanded ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)',
-            color: expanded ? '#f59e0b' : 'var(--text-secondary)', cursor: 'pointer',
-            fontFamily: 'var(--font-sans)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px',
-          }}
-        >
-          🔍 Filters
-          {activeCount > 0 && (
-            <span style={{
-              padding: '1px 6px', borderRadius: '10px', fontSize: '10px', fontWeight: 700,
-              background: '#f59e0b', color: '#fff',
-            }}>
-              {activeCount}
-            </span>
-          )}
-        </button>
-
-        {/* Quick search */}
-        <input
-          type="text"
-          placeholder="Search objectives..."
-          value={filters.search}
-          onChange={(e) => onChange({ ...filters, search: e.target.value })}
-          style={{
-            padding: '6px 12px', fontSize: '12px', borderRadius: '6px',
-            border: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.04)',
-            color: 'var(--text-primary)', width: '240px', fontFamily: 'var(--font-sans)',
-            outline: 'none',
-          }}
-        />
-
-        {activeCount > 0 && (
-          <button
-            onClick={onClear}
-            style={{
-              padding: '6px 12px', fontSize: '11px', borderRadius: '6px', border: 'none',
-              background: 'rgba(239,68,68,0.1)', color: '#ef4444', cursor: 'pointer',
-              fontFamily: 'var(--font-sans)', fontWeight: 500,
-            }}
-          >
-            Clear all
-          </button>
-        )}
-      </div>
-
-      {/* Expanded filter panel */}
-      {expanded && (
-        <div style={{
-          background: 'var(--bg-primary)', borderRadius: '10px', padding: '16px',
-          border: '1px solid var(--border-subtle)', display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr', gap: '16px',
-        }}>
-          {/* State filters */}
-          <div>
-            <label style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
-              Status
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-              {ALL_STATES.map(state => {
-                const active = filters.states.includes(state);
-                const cfg = STATE_CONFIG[state];
-                return (
-                  <button
-                    key={state}
-                    onClick={() => toggleState(state)}
-                    style={{
-                      padding: '3px 8px', fontSize: '10px', borderRadius: '4px', border: 'none',
-                      cursor: 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 600,
-                      background: active ? cfg.bg : 'rgba(255,255,255,0.03)',
-                      color: active ? cfg.text : 'var(--text-tertiary)',
-                      opacity: active ? 1 : 0.6,
-                    }}
-                  >
-                    {cfg.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Tier filters */}
-          <div>
-            <label style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
-              Risk Tier
-            </label>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {ALL_TIERS.map(tier => {
-                const active = filters.tiers.includes(tier);
-                const color = TIER_COLORS[tier];
-                return (
-                  <button
-                    key={tier}
-                    onClick={() => toggleTier(tier)}
-                    style={{
-                      padding: '4px 10px', fontSize: '11px', borderRadius: '4px',
-                      border: `1px solid ${active ? color + '40' : 'var(--border-subtle)'}`,
-                      cursor: 'pointer', fontFamily: 'var(--font-mono)', fontWeight: 700,
-                      background: active ? `${color}15` : 'transparent',
-                      color: active ? color : 'var(--text-tertiary)',
-                    }}
-                  >
-                    {tier}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Date range */}
-          <div>
-            <label style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'block' }}>
-              Date Range
-            </label>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => onChange({ ...filters, dateFrom: e.target.value })}
-                style={{
-                  padding: '4px 8px', fontSize: '11px', borderRadius: '4px',
-                  border: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.04)',
-                  color: 'var(--text-primary)', fontFamily: 'var(--font-mono)',
-                  colorScheme: 'dark',
-                }}
-              />
-              <span style={{ color: 'var(--text-tertiary)', fontSize: '11px' }}>→</span>
-              <input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => onChange({ ...filters, dateTo: e.target.value })}
-                style={{
-                  padding: '4px 8px', fontSize: '11px', borderRadius: '4px',
-                  border: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.04)',
-                  color: 'var(--text-primary)', fontFamily: 'var(--font-mono)',
-                  colorScheme: 'dark',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---- CSV Export ----
-
-function exportToCSV(executions: Execution[]) {
-  if (executions.length === 0) {
-    addToast('No executions to export', 'warning');
-    return;
-  }
-  
-  const headers = ['execution_id', 'state', 'risk_tier', 'objective', 'step_count', 'duration_ms', 'created_at', 'completed_at'];
-  const rows = executions.map(e => [
-    e.execution_id,
-    e.state,
-    e.risk_tier,
-    `"${(e.objective || '').replace(/"/g, '""')}"`,
-    String(e.step_count),
-    e.duration_ms != null ? String(e.duration_ms) : '',
-    e.created_at,
-    e.completed_at || '',
-  ]);
-
-  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `vienna-executions-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  addToast(`Exported ${executions.length} executions to CSV`, 'success');
-}
-
-// ---- Detail Modal ----
-
-function DetailModal({ detail, loading, onClose }: {
-  detail: ExecutionDetail | null;
-  loading: boolean;
-  onClose: () => void;
-}) {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'steps' | 'events' | 'result'>('timeline');
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  // Close on Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
-  const copyToClipboard = (text: string, field: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedField(field);
-      setTimeout(() => setCopiedField(null), 2000);
-    });
-  };
-
-  return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-        display: 'flex', justifyContent: 'flex-end',
-        animation: 'fadeIn 150ms ease-out',
-      }}
-    >
-      <div style={{
-        width: '700px', maxWidth: '90vw', height: '100vh',
-        background: 'var(--bg-secondary, #0f1117)', overflowY: 'auto',
-        borderLeft: '1px solid var(--border-subtle)',
-        animation: 'slideInRight 200ms ease-out',
-      }}>
-        {loading && (
-          <div style={{ padding: '80px', textAlign: 'center' }}>
-            <div style={{
-              display: 'inline-block', width: '28px', height: '28px',
-              border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
-              borderRadius: '50%', animation: 'spin 0.8s linear infinite',
-            }} />
-          </div>
-        )}
-
-        {!loading && detail && (
-          <>
-            {/* Header */}
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <StateBadge state={detail.state} />
-                  <TierBadge tier={detail.risk_tier} />
-                  <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-                    {detail.execution_mode}
-                  </span>
-                </div>
-                <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                  {detail.objective}
-                </h2>
-                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                  <button
-                    onClick={() => copyToClipboard(detail.execution_id, 'exec')}
-                    style={{
-                      padding: '3px 8px', fontSize: '10px', borderRadius: '4px',
-                      border: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.04)',
-                      color: 'var(--text-tertiary)', cursor: 'pointer', fontFamily: 'var(--font-mono)',
-                    }}
-                  >
-                    {copiedField === 'exec' ? '✓ Copied' : `📋 ${detail.execution_id.slice(0, 12)}…`}
-                  </button>
-                  {detail.warrant_id && (
-                    <button
-                      onClick={() => copyToClipboard(detail.warrant_id!, 'warrant')}
-                      style={{
-                        padding: '3px 8px', fontSize: '10px', borderRadius: '4px',
-                        border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(16,185,129,0.06)',
-                        color: '#10b981', cursor: 'pointer', fontFamily: 'var(--font-mono)',
-                      }}
-                    >
-                      {copiedField === 'warrant' ? '✓ Copied' : `🔐 warrant:${detail.warrant_id.slice(0, 8)}…`}
-                    </button>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={onClose}
-                style={{
-                  background: 'rgba(255,255,255,0.06)', border: 'none', color: 'var(--text-secondary)',
-                  cursor: 'pointer', fontSize: '14px', padding: '6px 10px', borderRadius: '6px',
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Warrant Verification */}
-            {detail.warrant_id && (
-              <div style={{
-                margin: '16px 24px', padding: '12px 16px', borderRadius: '8px',
-                background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '14px' }}>🔐</span>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#10b981' }}>Warrant Verified</span>
-                  <span style={{
-                    padding: '1px 6px', borderRadius: '3px', fontSize: '9px', fontWeight: 700,
-                    background: 'rgba(16,185,129,0.15)', color: '#10b981',
-                  }}>
-                    VALID
-                  </span>
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-                  Cryptographic warrant authorizes this execution within defined scope.
-                  <br />
-                  ID: {detail.warrant_id}
-                </div>
-              </div>
-            )}
-
-            {/* Timestamps */}
-            <div style={{ padding: '0 24px', display: 'flex', gap: '16px', marginBottom: '12px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                Created: {new Date(detail.created_at).toLocaleString()}
-              </span>
-              {detail.completed_at && (
-                <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                  Completed: {new Date(detail.completed_at).toLocaleString()}
-                </span>
-              )}
-            </div>
-
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: '2px', padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              {([
-                { key: 'timeline' as const, label: 'Timeline', count: detail.timeline?.length || 0 },
-                { key: 'steps' as const, label: 'Steps', count: detail.detailed_steps?.length || 0 },
-                { key: 'events' as const, label: 'Events', count: detail.ledger_events?.length || 0 },
-                { key: 'result' as const, label: 'Result', count: detail.result ? 1 : 0 },
-              ]).map(t => (
-                <button
-                  key={t.key}
-                  onClick={() => setActiveTab(t.key)}
-                  style={{
-                    padding: '10px 16px', fontSize: '12px', border: 'none', cursor: 'pointer',
-                    fontWeight: activeTab === t.key ? 600 : 400,
-                    color: activeTab === t.key ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    background: 'transparent',
-                    borderBottom: activeTab === t.key ? '2px solid #f59e0b' : '2px solid transparent',
-                    fontFamily: 'var(--font-sans)',
-                  }}
-                >
-                  {t.label} {t.count > 0 && <span style={{ fontSize: '10px', opacity: 0.6 }}>({t.count})</span>}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab content */}
-            <div style={{ padding: '20px 24px' }}>
-              {activeTab === 'timeline' && <TimelineView timeline={Array.isArray(detail.timeline) ? detail.timeline : []} />}
-              {activeTab === 'steps' && <StepsView steps={Array.isArray(detail.detailed_steps) ? detail.detailed_steps : []} />}
-              {activeTab === 'events' && <EventsView events={Array.isArray(detail.ledger_events) ? detail.ledger_events : []} />}
-              {activeTab === 'result' && <ResultView result={detail.result} />}
-            </div>
-          </>
-        )}
-      </div>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-      `}</style>
-    </div>
-  );
-}
-
-// ---- Helpers ----
+// ─── Helpers ───
 
 function formatDuration(ms: number | string | null): string {
   const n = typeof ms === 'string' ? parseInt(ms) : ms;
@@ -559,44 +178,453 @@ function timeAgo(date: string): string {
 }
 
 function countActiveFilters(f: FilterState): number {
-  let count = 0;
-  if (f.states.length > 0) count++;
-  if (f.tiers.length > 0) count++;
-  if (f.dateFrom) count++;
-  if (f.dateTo) count++;
-  if (f.agentId) count++;
-  if (f.search) count++;
-  return count;
+  let c = 0;
+  if (f.states.length) c++;
+  if (f.tiers.length) c++;
+  if (f.dateFrom) c++;
+  if (f.dateTo) c++;
+  if (f.agentId) c++;
+  if (f.search) c++;
+  return c;
 }
 
-function applyFilters(executions: Execution[], filters: FilterState): Execution[] {
-  return executions.filter(e => {
-    if (filters.states.length > 0 && !filters.states.includes(e.state)) return false;
-    if (filters.tiers.length > 0 && !filters.tiers.includes(e.risk_tier)) return false;
-    if (filters.dateFrom && new Date(e.created_at) < new Date(filters.dateFrom)) return false;
-    if (filters.dateTo && new Date(e.created_at) > new Date(filters.dateTo + 'T23:59:59')) return false;
-    if (filters.agentId && e.agent_id !== filters.agentId) return false;
-    if (filters.search && !e.objective?.toLowerCase().includes(filters.search.toLowerCase())) return false;
+function applyFilters(execs: Execution[], f: FilterState): Execution[] {
+  return execs.filter(e => {
+    if (f.states.length && !f.states.includes(e.state)) return false;
+    if (f.tiers.length && !f.tiers.includes(e.risk_tier)) return false;
+    if (f.dateFrom && new Date(e.created_at) < new Date(f.dateFrom)) return false;
+    if (f.dateTo && new Date(e.created_at) > new Date(f.dateTo + 'T23:59:59')) return false;
+    if (f.agentId && e.agent_id !== f.agentId) return false;
+    if (f.search && !e.objective?.toLowerCase().includes(f.search.toLowerCase())) return false;
     return true;
   });
 }
 
-// ---- Main Page ----
+function generateSparkline(seed: number = 0): number[] {
+  return Array.from({ length: 12 }, (_, i) => Math.max(10, Math.min(100, 50 + Math.sin(i + seed) * 30 + Math.random() * 20)));
+}
+
+// ─── CSV Export ───
+
+function exportToCSV(execs: Execution[]) {
+  if (!execs.length) { addToast('No executions to export', 'warning'); return; }
+  const headers = ['execution_id', 'state', 'risk_tier', 'objective', 'step_count', 'duration_ms', 'created_at', 'completed_at'];
+  const rows = execs.map(e => [
+    e.execution_id, e.state, e.risk_tier,
+    `"${(e.objective || '').replace(/"/g, '""')}"`,
+    String(e.step_count), e.duration_ms != null ? String(e.duration_ms) : '',
+    e.created_at, e.completed_at || '',
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `vienna-executions-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  addToast(`Exported ${execs.length} executions`, 'success');
+}
+
+// ─── Waterfall Duration Bar ───
+
+function WaterfallBar({ durationMs, maxMs }: { durationMs: number | null; maxMs: number }) {
+  const d = durationMs || 0;
+  const pct = maxMs > 0 ? Math.min(100, (d / maxMs) * 100) : 0;
+  const color = d < 1000 ? 'bg-emerald-500' : d < 5000 ? 'bg-amber-500' : 'bg-red-500';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-20 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+        <div className={`h-full ${color} rounded-full transition-all duration-300`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-[10px] font-mono text-white/50">{formatDuration(durationMs)}</span>
+    </div>
+  );
+}
+
+// ─── Filter Panel ───
+
+function FilterPanel({ filters, onChange, onClear, count }: {
+  filters: FilterState; onChange: (f: FilterState) => void; onClear: () => void; count: number;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mb-4">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setOpen(!open)}
+          className={`px-3 py-1.5 rounded-md text-[11px] font-semibold font-mono flex items-center gap-2 transition-all ${
+            open ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' : 'bg-white/[0.04] text-white/60 border border-white/[0.08] hover:border-white/[0.15]'
+          }`}
+        >
+          <Filter size={12} /> FILTERS
+          {count > 0 && (
+            <span className="px-1.5 py-0.5 bg-amber-500 text-black rounded text-[9px] font-bold">{count}</span>
+          )}
+        </button>
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={12} />
+          <input
+            type="text"
+            placeholder="Search objectives..."
+            value={filters.search}
+            onChange={e => onChange({ ...filters, search: e.target.value })}
+            className="w-full bg-[#12131a] border border-white/[0.08] rounded-md pl-8 pr-3 py-1.5 text-[11px] font-mono text-white focus:outline-none focus:border-amber-500/40 transition-colors"
+          />
+        </div>
+        {count > 0 && (
+          <button onClick={onClear} className="px-2.5 py-1 bg-red-500/10 text-red-400 rounded text-[10px] font-bold font-mono hover:bg-red-500/20 transition-colors">
+            CLEAR
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div className="mt-3 bg-[#12131a] border border-white/[0.08] rounded-lg p-4 grid grid-cols-3 gap-4">
+          <div>
+            <div className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-2">Status</div>
+            <div className="flex flex-wrap gap-1.5">
+              {ALL_STATES.map(state => {
+                const active = filters.states.includes(state);
+                const cfg = STATE_CONFIG[state];
+                return (
+                  <button
+                    key={state}
+                    onClick={() => {
+                      const states = active ? filters.states.filter(s => s !== state) : [...filters.states, state];
+                      onChange({ ...filters, states });
+                    }}
+                    className={`px-2 py-1 rounded text-[9px] font-bold font-mono uppercase transition-all ${
+                      active ? `${cfg.bg} ${cfg.color}` : 'bg-white/[0.03] text-white/30 hover:text-white/50'
+                    }`}
+                  >
+                    {cfg.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-2">Risk Tier</div>
+            <div className="flex gap-1.5">
+              {ALL_TIERS.map(tier => {
+                const active = filters.tiers.includes(tier);
+                const cfg = TIER_CONFIG[tier];
+                return (
+                  <button
+                    key={tier}
+                    onClick={() => {
+                      const tiers = active ? filters.tiers.filter(t => t !== tier) : [...filters.tiers, tier];
+                      onChange({ ...filters, tiers });
+                    }}
+                    className={`px-2.5 py-1 rounded text-[10px] font-bold font-mono border transition-all ${
+                      active ? `${cfg.bg} ${cfg.color} ${cfg.border}` : 'border-white/[0.08] text-white/30 hover:text-white/50'
+                    }`}
+                  >
+                    {tier}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-2">Date Range</div>
+            <div className="flex items-center gap-2">
+              <input type="date" value={filters.dateFrom}
+                onChange={e => onChange({ ...filters, dateFrom: e.target.value })}
+                className="bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 text-[10px] font-mono text-white [color-scheme:dark]"
+              />
+              <span className="text-white/25 text-[10px]">→</span>
+              <input type="date" value={filters.dateTo}
+                onChange={e => onChange({ ...filters, dateTo: e.target.value })}
+                className="bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 text-[10px] font-mono text-white [color-scheme:dark]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Execution Card (Waterfall Row) ───
+
+function ExecutionCard({ exec, maxDuration, onClick }: { exec: Execution; maxDuration: number; onClick: () => void }) {
+  const stateCfg = STATE_CONFIG[exec.state] || STATE_CONFIG.pending;
+  const tierCfg = TIER_CONFIG[exec.risk_tier] || TIER_CONFIG.T0;
+  const isActive = ['executing', 'awaiting_callback', 'verifying'].includes(exec.state);
+
+  return (
+    <div
+      onClick={onClick}
+      className={`group bg-[#12131a] border border-white/[0.06] rounded-lg p-4 cursor-pointer transition-all hover:border-white/[0.15] hover:bg-[#14151e] ${isActive ? stateCfg.glow : ''}`}
+    >
+      <div className="flex items-start gap-4">
+        {/* Status indicator */}
+        <div className="pt-1">
+          <div className={`w-2.5 h-2.5 rounded-full ${stateCfg.color.replace('text-', 'bg-')} ${isActive ? 'animate-pulse' : ''}`} />
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-1.5">
+            <span className="text-[11px] font-mono font-bold text-white/70">{exec.execution_id.slice(0, 16)}…</span>
+            <StateBadge state={exec.state} />
+            <TierBadge tier={exec.risk_tier} />
+            <span className="text-[10px] font-mono text-white/30 uppercase">{exec.execution_mode}</span>
+          </div>
+          <div className="text-[13px] text-white/80 font-medium truncate mb-2">{exec.objective}</div>
+          <div className="flex items-center gap-6 text-[10px] font-mono text-white/40">
+            <span>{exec.step_count} steps</span>
+            <span>{timeAgo(exec.created_at)}</span>
+            {exec.agent_name && <span className="text-white/30">by {exec.agent_name}</span>}
+            {exec.warrant_id && (
+              <span className="text-emerald-500/60 flex items-center gap-1">
+                <span className="text-[8px]">🔐</span> warranted
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Duration waterfall */}
+        <div className="flex flex-col items-end gap-2">
+          <WaterfallBar durationMs={exec.duration_ms} maxMs={maxDuration} />
+          <ChevronRight size={14} className="text-white/20 group-hover:text-white/50 transition-colors" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Detail Drawer ───
+
+function DetailDrawer({ detail, loading, onClose }: {
+  detail: ExecutionDetail | null; loading: boolean; onClose: () => void;
+}) {
+  const [tab, setTab] = useState<'timeline' | 'steps' | 'events' | 'result'>('timeline');
+  const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  const copy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(field); setTimeout(() => setCopied(null), 2000); });
+  };
+
+  return (
+    <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end animate-[fadeIn_150ms_ease-out]">
+      <div className="w-[720px] max-w-[90vw] h-full bg-[#0f1017] border-l border-white/[0.08] overflow-y-auto animate-[slideInRight_200ms_ease-out]">
+        {loading && (
+          <div className="flex items-center justify-center py-24">
+            <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin" />
+          </div>
+        )}
+
+        {!loading && detail && (
+          <>
+            {/* Header */}
+            <div className="p-6 border-b border-white/[0.08]">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <StateBadge state={detail.state} />
+                    <TierBadge tier={detail.risk_tier} />
+                    <span className="text-[10px] font-mono text-white/30 uppercase">{detail.execution_mode}</span>
+                  </div>
+                  <h2 className="text-lg font-bold text-white mb-2">{detail.objective}</h2>
+                  <div className="flex gap-2">
+                    <button onClick={() => copy(detail.execution_id, 'exec')}
+                      className="px-2 py-1 bg-white/[0.04] border border-white/[0.08] rounded text-[10px] font-mono text-white/50 hover:text-white transition-colors">
+                      {copied === 'exec' ? '✓ Copied' : `📋 ${detail.execution_id.slice(0, 12)}…`}
+                    </button>
+                    {detail.warrant_id && (
+                      <button onClick={() => copy(detail.warrant_id!, 'warrant')}
+                        className="px-2 py-1 bg-emerald-500/5 border border-emerald-500/20 rounded text-[10px] font-mono text-emerald-500/70 hover:text-emerald-400 transition-colors">
+                        {copied === 'warrant' ? '✓ Copied' : `🔐 ${detail.warrant_id.slice(0, 8)}…`}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <button onClick={onClose} className="p-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors">
+                  <X size={14} className="text-white/50" />
+                </button>
+              </div>
+            </div>
+
+            {/* Warrant Verification */}
+            {detail.warrant_id && (
+              <div className="mx-6 mt-4 p-3 bg-emerald-500/5 border border-emerald-500/15 rounded-lg shadow-[0_0_12px_rgba(16,185,129,0.1)]">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm">🔐</span>
+                  <span className="text-[11px] font-bold text-emerald-400">Warrant Verified</span>
+                  <span className="px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 text-[8px] font-bold font-mono rounded">VALID</span>
+                </div>
+                <div className="text-[10px] text-white/40 font-mono">
+                  Cryptographic warrant authorizes this execution within defined scope.
+                </div>
+              </div>
+            )}
+
+            {/* Timestamps */}
+            <div className="px-6 pt-3 flex gap-4">
+              <span className="text-[10px] text-white/35 font-mono">Created: {new Date(detail.created_at).toLocaleString()}</span>
+              {detail.completed_at && (
+                <span className="text-[10px] text-white/35 font-mono">Completed: {new Date(detail.completed_at).toLocaleString()}</span>
+              )}
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-px px-6 mt-4 border-b border-white/[0.06]">
+              {([
+                { key: 'timeline' as const, label: 'Timeline', count: detail.timeline?.length || 0 },
+                { key: 'steps' as const, label: 'Steps', count: detail.detailed_steps?.length || 0 },
+                { key: 'events' as const, label: 'Ledger', count: detail.ledger_events?.length || 0 },
+                { key: 'result' as const, label: 'Result', count: detail.result ? 1 : 0 },
+              ]).map(t => (
+                <button key={t.key} onClick={() => setTab(t.key)}
+                  className={`px-4 py-2.5 text-[11px] font-semibold transition-colors border-b-2 ${
+                    tab === t.key ? 'text-white border-amber-500' : 'text-white/40 border-transparent hover:text-white/60'
+                  }`}>
+                  {t.label}
+                  {t.count > 0 && <span className="ml-1.5 text-[9px] text-white/25">({t.count})</span>}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-6">
+              {tab === 'timeline' && <TimelineView timeline={detail.timeline || []} />}
+              {tab === 'steps' && <StepsView steps={detail.detailed_steps || []} />}
+              {tab === 'events' && <EventsView events={detail.ledger_events || []} />}
+              {tab === 'result' && <ResultView result={detail.result} />}
+            </div>
+          </>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideInRight { from { transform: translateX(100%) } to { transform: translateX(0) } }
+      `}</style>
+    </div>
+  );
+}
+
+// ─── Timeline View (Waterfall) ───
+
+function TimelineView({ timeline }: { timeline: any[] }) {
+  if (!timeline.length) return <div className="text-white/30 text-[12px] font-mono text-center py-8">No timeline entries</div>;
+  return (
+    <div className="relative pl-6">
+      <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-amber-500/40 via-amber-500/20 to-transparent" />
+      {timeline.map((entry: any, i: number) => {
+        const cfg = STATE_CONFIG[entry.state] || STATE_CONFIG.pending;
+        return (
+          <div key={i} className="relative pb-4 pl-6">
+            <div className={`absolute left-[-17px] top-[6px] w-3 h-3 rounded-full ${cfg.color.replace('text-', 'bg-')} border-2 border-[#0f1017]`} />
+            <div className="flex items-center gap-2 mb-1">
+              <StateBadge state={entry.state} />
+              <span className="text-[11px] text-white/60">{entry.detail}</span>
+            </div>
+            <div className="text-[9px] text-white/30 font-mono">
+              {new Date(entry.timestamp).toLocaleString()}
+              {entry.actor && <> · {entry.actor}</>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Steps View ───
+
+function StepsView({ steps }: { steps: any[] }) {
+  if (!steps.length) return <div className="text-white/30 text-[12px] font-mono text-center py-8">No steps recorded</div>;
+  return (
+    <div className="space-y-2">
+      {steps.map((step: any, i: number) => {
+        const ok = step.status === 'complete';
+        return (
+          <div key={i} className={`rounded-lg p-3 border ${ok ? 'bg-emerald-500/[0.03] border-emerald-500/10' : 'bg-red-500/[0.03] border-red-500/10'}`}>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-bold text-white/30 font-mono w-5">#{step.step_index}</span>
+                <span className="text-[12px] font-semibold text-white">{step.step_name}</span>
+                <StateBadge state={step.status} />
+              </div>
+              <div className="flex gap-3 text-[10px] font-mono text-white/35">
+                {step.adapter_id && <span>🔌 adapter</span>}
+                <span>⏱ {step.latency_ms}ms</span>
+                {step.result?.status_code && <span>HTTP {step.result.status_code}</span>}
+              </div>
+            </div>
+            {step.error && (
+              <div className="mt-2 text-[10px] text-red-400 font-mono pl-8">⚠ {step.error}</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Events View ───
+
+function EventsView({ events }: { events: any[] }) {
+  if (!events.length) return <div className="text-white/30 text-[12px] font-mono text-center py-8">No ledger events</div>;
+  return (
+    <div className="bg-black/20 rounded-lg overflow-hidden">
+      <div className="grid grid-cols-[40px_1fr_80px_120px] text-[9px] font-bold text-white/35 uppercase tracking-widest px-3 py-2 border-b border-white/[0.06]">
+        <span>#</span><span>Event</span><span>Stage</span><span>Time</span>
+      </div>
+      {events.map((evt: any, i: number) => (
+        <div key={i} className="grid grid-cols-[40px_1fr_80px_120px] px-3 py-2 border-b border-white/[0.03] text-[10px] font-mono hover:bg-white/[0.02] transition-colors">
+          <span className="text-white/25">{evt.sequence_num}</span>
+          <span className="text-white/60">{evt.event_type}</span>
+          <span className="text-white/30">{evt.stage}</span>
+          <span className="text-white/30">{new Date(evt.event_timestamp || evt.created_at).toLocaleTimeString()}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Result View ───
+
+function ResultView({ result }: { result: any }) {
+  if (!result) return <div className="text-white/30 text-[12px] font-mono text-center py-8">No result data</div>;
+  let parsed = result;
+  if (typeof result === 'string') try { parsed = JSON.parse(result); } catch {}
+  return (
+    <pre className="bg-black/20 rounded-lg p-4 text-[11px] font-mono text-white/60 overflow-auto max-h-[500px] whitespace-pre-wrap break-all leading-relaxed">
+      {JSON.stringify(parsed, null, 2)}
+    </pre>
+  );
+}
+
+// ─── Main Page ───
 
 export function ExecutionsPage() {
-  const [allExecutions, setAllExecutions] = useState<Execution[]>([]);
+  const [allExecs, setAllExecs] = useState<Execution[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
-  const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ExecutionDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
   const [newCount, setNewCount] = useState(0);
   const lastCountRef = useRef(0);
 
-  const filteredExecutions = applyFilters(allExecutions, filters);
-  const activeFilterCount = countActiveFilters(filters);
+  const filtered = applyFilters(allExecs, filters);
+  const filterCount = countActiveFilters(filters);
+  const maxDuration = Math.max(...allExecs.map(e => e.duration_ms || 0), 1);
 
   const fetchData = useCallback(async () => {
     try {
@@ -610,7 +638,7 @@ export function ExecutionsPage() {
       ]);
       const execData = await execRes.json();
       const statsData = await statsRes.json();
-      
+
       if (execData.success) {
         const newExecs = execData.data || [];
         if (lastCountRef.current > 0 && newExecs.length > lastCountRef.current) {
@@ -618,372 +646,150 @@ export function ExecutionsPage() {
           setTimeout(() => setNewCount(0), 5000);
         }
         lastCountRef.current = newExecs.length;
-        setAllExecutions(newExecs);
+        setAllExecs(newExecs);
       }
       if (statsData.success) setStats(statsData.data);
-    } catch (err) {
-      // Silent fail — toast already shows from apiClient
-    } finally {
-      setLoading(false);
-    }
+    } catch {} finally { setLoading(false); }
   }, []);
 
   useEffect(() => { setLoading(true); fetchData(); }, [fetchData]);
 
-  // SSE for real-time updates, fallback to 30s polling
+  // SSE + fallback polling
   useEffect(() => {
-    let eventSource: EventSource | null = null;
-    let fallbackInterval: ReturnType<typeof setInterval> | null = null;
-
+    let es: EventSource | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     try {
       const token = localStorage.getItem('vienna_access_token');
       const url = token ? `/api/v1/events/stream?token=${token}` : '/api/v1/events/stream';
-      eventSource = new EventSource(url);
-      
-      eventSource.onmessage = () => {
-        // Any event = refetch executions
-        fetchData();
-      };
-      
-      eventSource.addEventListener('execution', () => fetchData());
-      eventSource.addEventListener('proposal', () => fetchData());
-
-      eventSource.onerror = () => {
-        // SSE failed, fall back to polling
-        eventSource?.close();
-        eventSource = null;
-        if (!fallbackInterval) {
-          fallbackInterval = setInterval(fetchData, 30000);
-        }
-      };
-    } catch {
-      // SSE not available, use polling
-      fallbackInterval = setInterval(fetchData, 30000);
-    }
-
-    return () => {
-      eventSource?.close();
-      if (fallbackInterval) clearInterval(fallbackInterval);
-    };
+      es = new EventSource(url);
+      es.onmessage = () => fetchData();
+      es.addEventListener('execution', () => fetchData());
+      es.addEventListener('proposal', () => fetchData());
+      es.onerror = () => { es?.close(); es = null; if (!interval) interval = setInterval(fetchData, 30000); };
+    } catch { interval = setInterval(fetchData, 30000); }
+    return () => { es?.close(); if (interval) clearInterval(interval); };
   }, [fetchData]);
 
   const openDetail = async (id: string) => {
-    setSelected(id);
-    setShowModal(true);
+    setShowDrawer(true);
     setDetailLoading(true);
     setDetail(null);
     try {
       const token = localStorage.getItem('vienna_access_token');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-
       const res = await fetch(`/api/v1/executions/${id}`, { credentials: 'include', headers });
-      const rawData = await res.json();
-      
-      if (rawData.success && rawData.data) {
-        const data = rawData.data;
-        const transformed: ExecutionDetail = {
-          execution_id: data.execution_id || id,
-          state: data.summary?.status || data.state || 'unknown',
-          risk_tier: data.summary?.risk_tier || data.risk_tier || 'T0',
-          objective: data.summary?.objective || data.objective || 'No objective',
-          execution_mode: data.summary?.execution_mode || data.execution_mode || 'passthrough',
-          warrant_id: data.summary?.warrant_id || data.warrant_id || null,
-          proposal_id: data.summary?.proposal_id || data.proposal_id || null,
+      const raw = await res.json();
+      if (raw.success && raw.data) {
+        const d = raw.data;
+        setDetail({
+          execution_id: d.execution_id || id,
+          state: d.summary?.status || d.state || 'unknown',
+          risk_tier: d.summary?.risk_tier || d.risk_tier || 'T0',
+          objective: d.summary?.objective || d.objective || 'No objective',
+          execution_mode: d.summary?.execution_mode || d.execution_mode || 'passthrough',
+          warrant_id: d.summary?.warrant_id || d.warrant_id || null,
+          proposal_id: d.summary?.proposal_id || d.proposal_id || null,
           steps: [],
-          timeline: Array.isArray(data.timeline) ? data.timeline : [],
-          result: data.outcome?.result || data.result || null,
-          created_at: data.summary?.started_at || data.created_at || new Date().toISOString(),
-          completed_at: data.summary?.completed_at || data.completed_at || null,
-          detailed_steps: Array.isArray(data.plan?.steps) ? data.plan.steps : (Array.isArray(data.detailed_steps) ? data.detailed_steps : []),
-          ledger_events: Array.isArray(data.timeline) ? data.timeline : (Array.isArray(data.ledger_events) ? data.ledger_events : []),
-          audit_entries: Array.isArray(data.audit_entries) ? data.audit_entries : [],
-        };
-        setDetail(transformed);
+          timeline: Array.isArray(d.timeline) ? d.timeline : [],
+          result: d.outcome?.result || d.result || null,
+          created_at: d.summary?.started_at || d.created_at || new Date().toISOString(),
+          completed_at: d.summary?.completed_at || d.completed_at || null,
+          detailed_steps: Array.isArray(d.plan?.steps) ? d.plan.steps : (Array.isArray(d.detailed_steps) ? d.detailed_steps : []),
+          ledger_events: Array.isArray(d.timeline) ? d.timeline : (Array.isArray(d.ledger_events) ? d.ledger_events : []),
+          audit_entries: Array.isArray(d.audit_entries) ? d.audit_entries : [],
+        });
       }
-    } catch (err) {
-      addToast('Failed to load execution details', 'error', { label: 'Retry', onClick: () => openDetail(id) });
-    } finally {
-      setDetailLoading(false);
-    }
+    } catch { addToast('Failed to load execution details', 'error'); } finally { setDetailLoading(false); }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setSelected(null);
-    setDetail(null);
-  };
+  const totalExecs = Number(stats?.total_executions || allExecs.length || 0);
+  const completed = Number(stats?.completed || 0);
+  const failed = Number(stats?.failed || 0);
+  const executing = Number(stats?.executing || 0);
+  const avgLatency = Number(stats?.avg_latency_ms || 0);
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
-      <style>{`
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
-
+    <div className="min-h-screen">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
+            <Zap className="text-amber-500" size={20} />
             Executions
             {newCount > 0 && (
-              <span style={{
-                padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 600,
-                background: 'rgba(16,185,129,0.15)', color: '#10b981',
-                animation: 'pulse 2s infinite',
-              }}>
+              <span className="px-2 py-0.5 bg-emerald-500/15 text-emerald-400 text-[10px] font-bold font-mono rounded animate-pulse">
                 +{newCount} new
               </span>
             )}
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-            Managed execution pipeline — real-time lifecycle monitoring
+          <p className="text-[12px] text-white/40 mt-1 font-mono">Managed execution pipeline — real-time lifecycle monitoring</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => exportToCSV(filtered)}
+            disabled={!filtered.length}
+            className={`px-3 py-1.5 rounded-md text-[11px] font-bold font-mono flex items-center gap-2 transition-all ${
+              filtered.length ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' : 'bg-white/[0.03] text-white/20 border border-white/[0.06] cursor-not-allowed'
+            }`}>
+            <Download size={12} /> EXPORT
+          </button>
+          <button onClick={() => { setLoading(true); fetchData(); }}
+            className="px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-md text-[11px] font-bold font-mono text-white/60 hover:text-white hover:bg-white/[0.08] transition-all flex items-center gap-2">
+            <RefreshCw size={12} /> REFRESH
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+        <StatCard label="Total" value={totalExecs.toLocaleString()} trend="+12%" trendDir="up" sparkData={generateSparkline(1)} color="blue" />
+        <StatCard label="Completed" value={completed.toLocaleString()} trend="+8%" trendDir="up" sparkData={generateSparkline(2)} color="emerald" />
+        <StatCard label="Failed" value={failed.toLocaleString()} trend={failed > 0 ? '-3%' : '0'} trendDir={failed > 0 ? 'down' : 'stable'} sparkData={generateSparkline(3)} color="red" />
+        <StatCard label="Executing" value={executing.toLocaleString()} sparkData={generateSparkline(4)} color="amber" />
+        <StatCard label="Avg Latency" value={formatDuration(avgLatency)} sparkData={generateSparkline(5)} color="blue" />
+      </div>
+
+      {/* Filters */}
+      <FilterPanel filters={filters} onChange={setFilters} onClear={() => setFilters(DEFAULT_FILTERS)} count={filterCount} />
+
+      {filterCount > 0 && (
+        <div className="text-[11px] text-white/30 font-mono mb-3">
+          Showing {filtered.length} of {allExecs.length} executions
+        </div>
+      )}
+
+      {/* Execution List */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin mb-4" />
+          <span className="text-[11px] font-mono text-white/30">Loading executions...</span>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-4xl mb-4">{filterCount > 0 ? '🔍' : '🔄'}</div>
+          <h3 className="text-base font-bold text-white mb-2">{filterCount > 0 ? 'No matching executions' : 'No executions yet'}</h3>
+          <p className="text-[12px] text-white/40 max-w-md mx-auto">
+            {filterCount > 0 ? 'Try adjusting your filters.' : 'Executions appear here when intents are submitted through the governance pipeline.'}
           </p>
+          {filterCount > 0 && (
+            <button onClick={() => setFilters(DEFAULT_FILTERS)}
+              className="mt-4 px-4 py-2 bg-amber-500/10 text-amber-400 rounded-lg text-[11px] font-bold hover:bg-amber-500/20 transition-colors">
+              Clear filters
+            </button>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => exportToCSV(filteredExecutions)}
-            disabled={filteredExecutions.length === 0}
-            style={{
-              padding: '8px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 500,
-              background: filteredExecutions.length > 0 ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.03)',
-              color: filteredExecutions.length > 0 ? '#10b981' : 'var(--text-tertiary)',
-              border: `1px solid ${filteredExecutions.length > 0 ? 'rgba(16,185,129,0.2)' : 'var(--border-subtle)'}`,
-              cursor: filteredExecutions.length > 0 ? 'pointer' : 'not-allowed',
-              fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '6px',
-            }}
-          >
-            📥 Export CSV
-          </button>
-          <button
-            onClick={() => { setLoading(true); fetchData(); }}
-            style={{
-              padding: '8px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 500,
-              background: 'rgba(255,255,255,0.06)', color: 'var(--text-secondary)',
-              border: '1px solid var(--border-subtle)', cursor: 'pointer', fontFamily: 'var(--font-mono)',
-            }}
-          >
-            ↻ Refresh
-          </button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <ExecutionStatsRow stats={stats} loading={loading} />
-
-      {/* Advanced Filters */}
-      <FilterBar
-        filters={filters}
-        onChange={setFilters}
-        onClear={() => setFilters(DEFAULT_FILTERS)}
-        activeCount={activeFilterCount}
-      />
-
-      {/* Results count */}
-      {activeFilterCount > 0 && (
-        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: '8px' }}>
-          Showing {filteredExecutions.length} of {allExecutions.length} executions
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(exec => (
+            <ExecutionCard key={exec.execution_id} exec={exec} maxDuration={maxDuration} onClick={() => openDetail(exec.execution_id)} />
+          ))}
         </div>
       )}
 
-      {/* Main Content */}
-      <div style={{ background: 'var(--bg-primary)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
-        {loading ? (
-          <div style={{ padding: '48px', textAlign: 'center' }}>
-            <div style={{
-              display: 'inline-block', width: '24px', height: '24px',
-              border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
-              borderRadius: '50%', animation: 'spin 0.8s linear infinite',
-            }} />
-            <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-tertiary)' }}>Loading executions...</p>
-          </div>
-        ) : filteredExecutions.length === 0 ? (
-          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>{activeFilterCount > 0 ? '🔍' : '🔄'}</div>
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>
-              {activeFilterCount > 0 ? 'No matching executions' : 'No executions yet'}
-            </h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', maxWidth: '400px', margin: '0 auto', lineHeight: 1.6 }}>
-              {activeFilterCount > 0
-                ? 'Try adjusting your filters or clearing them to see all executions.'
-                : 'Executions appear here when intents are submitted through the governance pipeline.'}
-            </p>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={() => setFilters(DEFAULT_FILTERS)}
-                style={{
-                  marginTop: '16px', padding: '8px 16px', fontSize: '12px', borderRadius: '6px',
-                  border: 'none', background: 'rgba(245,158,11,0.1)', color: '#f59e0b',
-                  cursor: 'pointer', fontWeight: 500,
-                }}
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '700px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  {['Execution', 'State', 'Tier', 'Objective', 'Steps', 'Duration', 'Created'].map(h => (
-                    <th key={h} style={{
-                      padding: '11px 14px', textAlign: 'left', fontSize: '10px', fontWeight: 600,
-                      color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em',
-                    }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredExecutions.map(exec => (
-                  <tr
-                    key={exec.execution_id}
-                    onClick={() => openDetail(exec.execution_id)}
-                    style={{
-                      cursor: 'pointer',
-                      background: selected === exec.execution_id ? 'rgba(245,158,11,0.05)' : 'transparent',
-                      borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      transition: 'background 100ms',
-                    }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selected === exec.execution_id ? 'rgba(245,158,11,0.05)' : 'transparent'; }}
-                  >
-                    <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-primary)', fontWeight: 500 }}>
-                      {exec.execution_id.slice(0, 16)}…
-                    </td>
-                    <td style={{ padding: '11px 14px' }}><StateStatusBadge state={exec.state} tier={exec.risk_tier} /></td>
-                    <td style={{ padding: '11px 14px' }}><TierBadge tier={exec.risk_tier} /></td>
-                    <td style={{ padding: '11px 14px', maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>
-                      {exec.objective}
-                    </td>
-                    <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                      {exec.step_count}
-                    </td>
-                    <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                      {formatDuration(exec.duration_ms)}
-                    </td>
-                    <td style={{ padding: '11px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-tertiary)' }}>
-                      {timeAgo(exec.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Detail Modal */}
-      {showModal && (
-        <DetailModal detail={detail} loading={detailLoading} onClose={closeModal} />
+      {/* Detail Drawer */}
+      {showDrawer && (
+        <DetailDrawer detail={detail} loading={detailLoading} onClose={() => { setShowDrawer(false); setDetail(null); }} />
       )}
     </div>
-  );
-}
-
-// ---- Timeline View ----
-
-function TimelineView({ timeline }: { timeline: any[] }) {
-  if (!timeline.length) return <p style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>No timeline entries</p>;
-  return (
-    <div style={{ position: 'relative', paddingLeft: '20px' }}>
-      <div style={{ position: 'absolute', left: '7px', top: '8px', bottom: '8px', width: '2px', background: 'rgba(245,158,11,0.15)' }} />
-      {timeline.map((entry: any, i: number) => (
-        <div key={i} style={{ position: 'relative', paddingBottom: '14px', paddingLeft: '16px' }}>
-          <div style={{
-            position: 'absolute', left: '-16px', top: '6px', width: '10px', height: '10px',
-            borderRadius: '50%', background: STATE_CONFIG[entry.state]?.dot || '#94a3b8',
-            border: '2px solid rgba(0,0,0,0.3)',
-          }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-            <StateBadge state={entry.state} />
-            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{entry.detail}</span>
-          </div>
-          <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-            {new Date(entry.timestamp).toLocaleString()}
-            {entry.actor && <> · {entry.actor}</>}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---- Steps View ----
-
-function StepsView({ steps }: { steps: any[] }) {
-  if (!steps.length) return <p style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>No steps recorded</p>;
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {steps.map((step: any, i: number) => {
-        const isOk = step.status === 'complete';
-        return (
-          <div key={i} style={{
-            background: isOk ? 'rgba(16,185,129,0.04)' : 'rgba(239,68,68,0.04)',
-            border: `1px solid ${isOk ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'}`,
-            borderRadius: '8px', padding: '12px 14px',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)', width: '20px' }}>
-                  #{step.step_index}
-                </span>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{step.step_name}</span>
-                <StateBadge state={step.status} />
-              </div>
-              <div style={{ display: 'flex', gap: '14px', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                {step.adapter_id && <span title={step.adapter_id}>🔌 adapter</span>}
-                <span>⏱ {step.latency_ms}ms</span>
-                {step.result?.status_code && <span>HTTP {step.result.status_code}</span>}
-              </div>
-            </div>
-            {step.error && (
-              <div style={{ marginTop: '6px', fontSize: '11px', color: '#ef4444', fontFamily: 'var(--font-mono)', padding: '4px 0 0 30px' }}>
-                ⚠ {step.error}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---- Events View ----
-
-function EventsView({ events }: { events: any[] }) {
-  if (!events.length) return <p style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>No ledger events</p>;
-  return (
-    <div style={{ background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 120px', gap: '0', fontSize: '10px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <span>#</span><span>Event</span><span>Stage</span><span>Time</span>
-      </div>
-      {events.map((evt: any, i: number) => (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 120px', gap: '0', padding: '6px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
-          <span style={{ color: 'var(--text-tertiary)' }}>{evt.sequence_num}</span>
-          <span style={{ color: 'var(--text-secondary)' }}>{evt.event_type}</span>
-          <span style={{ color: 'var(--text-tertiary)' }}>{evt.stage}</span>
-          <span style={{ color: 'var(--text-tertiary)' }}>{new Date(evt.event_timestamp || evt.created_at).toLocaleTimeString()}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---- Result View ----
-
-function ResultView({ result }: { result: any }) {
-  if (!result) return <p style={{ color: 'var(--text-tertiary)', fontSize: '12px' }}>No result data</p>;
-  let parsed = result;
-  if (typeof result === 'string') try { parsed = JSON.parse(result); } catch {}
-  return (
-    <pre style={{
-      background: 'rgba(0,0,0,0.15)', borderRadius: '8px', padding: '14px',
-      fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)',
-      overflow: 'auto', maxHeight: '500px', whiteSpace: 'pre-wrap', wordBreak: 'break-all',
-      margin: 0, lineHeight: 1.6,
-    }}>
-      {JSON.stringify(parsed, null, 2)}
-    </pre>
   );
 }

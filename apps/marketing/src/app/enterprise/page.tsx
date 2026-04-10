@@ -283,14 +283,14 @@ export default function EnterprisePage() {
                 <span className="text-sm text-amber-500 font-mono font-bold uppercase tracking-wider">ENTERPRISE_TIER</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl font-mono font-bold mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-mono font-bold mb-6 leading-tight break-all sm:break-normal">
                 <span className="text-amber-500">
                   ENTERPRISE_AI_GOVERNANCE
                 </span>
               </h1>
               
               <p className="text-xl text-zinc-400 font-mono mb-8 leading-relaxed max-w-3xl mx-auto">
-                govern AI at scale with verifiable Merkle warrant chains, policy simulation,
+                govern AI at scale with verifiable HMAC-SHA256 warrant chains, policy simulation,
                 cross-agent delegation, compliance reports, and trust scoring. built for regulated industries.
               </p>
               
@@ -491,7 +491,7 @@ export default function EnterprisePage() {
                 <span className="text-sm font-mono text-amber-500 uppercase font-bold">WHY_ENTERPRISE</span>
               </div>
               <ul className="space-y-3 text-zinc-400 font-mono text-sm">
-                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> merkle warrant chain — third-party verifiable governance history</li>
+                <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> HMAC warrant chain — cryptographically verifiable governance history</li>
                 <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> policy simulation — predict the impact of changes before deploying</li>
                 <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> SOC 2 compliance reports with one-click export (CC6.1–CC8.1)</li>
                 <li className="flex items-start gap-3"><Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> cross-agent warrant delegation with cascading revocation</li>

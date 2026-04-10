@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { PageLayout } from '../components/layout/PageLayout.js';
+import { Shield } from 'lucide-react';
 import { CodeEditor } from '../components/policy/CodeEditor.js';
 import {
   listPolicies,
@@ -1330,11 +1330,16 @@ export function PolicyBuilderPage() {
   );
 
   return (
-    <PageLayout
-      title="Policy Builder"
-      description="Define governance rules that control what agents can do"
-      actions={headerActions}
-    >
+    <div className="min-h-screen">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
+            <Shield className="text-amber-400" size={20} /> Policy Builder
+          </h1>
+          <p className="text-[12px] text-white/40 mt-1 font-mono">Define governance rules that control what agents can do</p>
+        </div>
+        <div className="flex gap-2">{headerActions}</div>
+      </div>
       {/* Tabs */}
       <div style={{
         display: 'flex',
@@ -1599,6 +1604,6 @@ export function PolicyBuilderPage() {
           onClose={() => setVersionHistoryRule(null)}
         />
       )}
-    </PageLayout>
+    </div>
   );
 }

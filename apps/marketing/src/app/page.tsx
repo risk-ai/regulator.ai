@@ -487,7 +487,7 @@ export default function Home() {
                   _AI_OPERATIONS
                 </span>
                 <br />
-                <span className="text-zinc-500">/ WITH_SIGNED_WARRANTS</span>
+                <span className="text-zinc-500 whitespace-nowrap">/ WITH_SIGNED_WARRANTS</span>
               </div>
 
               <p className="text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed font-mono">

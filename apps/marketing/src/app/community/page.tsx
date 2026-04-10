@@ -17,7 +17,7 @@ const channels = [
     name: "GitHub Discussions",
     description: "Ask questions, share ideas, and get help from the community and maintainers.",
     icon: Github,
-    href: "https://github.com/risk-ai/vienna-os/discussions",
+    href: "https://github.com/risk-ai/regulatorai/discussions",
     cta: "Join Discussion",
     color: "bg-slate-500/20",
     textColor: "text-zinc-300",
@@ -47,25 +47,25 @@ const contributions = [
     title: "Report Bugs",
     description: "Found something broken? Open an issue on GitHub with reproduction steps.",
     icon: "",
-    href: "https://github.com/risk-ai/vienna-os/issues/new?template=bug_report.md",
+    href: "https://github.com/risk-ai/regulatorai/issues/new?template=bug_report.md",
   },
   {
     title: "Request Features",
     description: "Have an idea for Vienna OS? We'd love to hear it.",
     icon: "",
-    href: "https://github.com/risk-ai/vienna-os/issues/new?template=feature_request.md",
+    href: "https://github.com/risk-ai/regulatorai/issues/new?template=feature_request.md",
   },
   {
     title: "Submit a PR",
     description: "Code contributions welcome. Check CONTRIBUTING.md for guidelines.",
     icon: "",
-    href: "https://github.com/risk-ai/vienna-os/blob/main/CONTRIBUTING.md",
+    href: "https://github.com/risk-ai/regulatorai/blob/main/CONTRIBUTING.md",
   },
   {
     title: "Write Documentation",
     description: "Help improve docs, write tutorials, or translate to other languages.",
     icon: "",
-    href: "https://github.com/risk-ai/vienna-os/tree/main/docs",
+    href: "https://github.com/risk-ai/regulatorai/tree/main/docs",
   },
   {
     title: "Share Your Use Case",
@@ -77,7 +77,7 @@ const contributions = [
     title: "Security Reports",
     description: "Found a vulnerability? Report it responsibly via our security policy.",
     icon: "",
-    href: "https://github.com/risk-ai/vienna-os/blob/main/SECURITY.md",
+    href: "https://github.com/risk-ai/regulatorai/blob/main/SECURITY.md",
   },
 ];
 
@@ -179,7 +179,7 @@ export default function CommunityPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://github.com/risk-ai/vienna-os"
+              href="https://github.com/risk-ai/regulatorai"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 transition font-semibold border border-zinc-800"
@@ -205,7 +205,7 @@ export default function CommunityPage() {
             We&apos;re committed to providing a welcoming, inclusive environment for everyone.
             Be respectful, constructive, and helpful. See our{" "}
             <a
-              href="https://github.com/risk-ai/vienna-os/blob/main/CODE_OF_CONDUCT.md"
+              href="https://github.com/risk-ai/regulatorai/blob/main/CODE_OF_CONDUCT.md"
               target="_blank"
               rel="noopener noreferrer"
               className="text-amber-500 hover:text-gold-300 transition"

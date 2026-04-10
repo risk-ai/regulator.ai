@@ -17,7 +17,7 @@ const tiers = [
     agents: "5 agents",
     icon: Rocket,
     cta: "GET_STARTED",
-    ctaHref: "https://github.com/risk-ai/vienna-os",
+    ctaHref: "https://github.com/risk-ai/regulatorai",
     highlight: false,
     popular: false,
     features: [
@@ -245,7 +245,7 @@ export default function PricingPage() {
         "priceCurrency": "USD",
         "availability": "https://schema.org/InStock",
         "priceValidUntil": "2030-12-31",
-        "url": "https://github.com/risk-ai/vienna-os",
+        "url": "https://github.com/risk-ai/regulatorai",
         "eligibleQuantity": { "@type": "QuantitativeValue", "value": "5", "unitText": "agents" }
       },
       {

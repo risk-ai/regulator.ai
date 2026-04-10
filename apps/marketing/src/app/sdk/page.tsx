@@ -48,7 +48,7 @@ export default function SDKPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="https://github.com/risk-ai/vienna-os"
+                href="https://github.com/risk-ai/regulatorai"
                 className="bg-gold-400 hover:bg-gold-300 text-black px-8 py-4 font-mono font-bold flex items-center gap-2 transition-all uppercase text-sm"
               >
                 <Github className="w-4 h-4" />
@@ -204,7 +204,7 @@ const proposal = await vienna.proposals.create({
             </Link>
 
             <Link
-              href="https://github.com/risk-ai/vienna-os"
+              href="https://github.com/risk-ai/regulatorai"
               className="bg-black border border-gold-400/30 p-6 hover:border-gold-400 transition-all group"
             >
               <Github className="w-6 h-6 text-gold-400 mb-4" />
@@ -219,7 +219,7 @@ const proposal = await vienna.proposals.create({
             </Link>
 
             <Link
-              href="https://github.com/risk-ai/vienna-os/tree/main/examples"
+              href="https://github.com/risk-ai/regulatorai/tree/main/examples"
               className="bg-black border border-gold-400/30 p-6 hover:border-gold-400 transition-all group"
             >
               <Code className="w-6 h-6 text-gold-400 mb-4" />

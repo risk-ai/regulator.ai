@@ -418,6 +418,119 @@ function AnimatedPipeline() {
   );
 }
 
+/* ── Live Stats (fetched from DB via API) ── */
+function LiveStats() {
+  const [stats, setStats] = useState({
+    proposals: 94,
+    warrants: 75,
+    audit_events: 252,
+    policies: 10,
+  });
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.proposals) setStats(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const fmt = (n: number) => (n < 1000 ? `${n}+` : `${(n / 1000).toFixed(1)}k`);
+
+  return (
+    <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.proposals)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          proposals evaluated
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.warrants)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          warrants issued
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.audit_events)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          audit events logged
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.policies)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          active policies
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Dynamic Blog Posts (fetched from API) ── */
+function LatestBlogPosts() {
+  const [posts, setPosts] = useState<
+    { slug: string; title: string; category: string; readTime: string }[]
+  >([]);
+
+  useEffect(() => {
+    fetch("/api/blog/latest")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setPosts(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  if (posts.length === 0) {
+    // Skeleton while loading
+    return (
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-black border border-zinc-800 p-6 animate-pulse">
+            <div className="h-3 bg-zinc-800 rounded w-20 mb-4" />
+            <div className="h-4 bg-zinc-800 rounded w-full mb-2" />
+            <div className="h-4 bg-zinc-800 rounded w-3/4" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid md:grid-cols-3 gap-6">
+      {posts.map((post) => (
+        <Link
+          key={post.slug}
+          href={`/blog/${post.slug}`}
+          className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
+        >
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
+            <span className="text-[10px] font-mono text-amber-500 uppercase">
+              {post.category}
+            </span>
+            <span className="text-[10px] font-mono text-zinc-600">
+              {post.readTime}
+            </span>
+          </div>
+          <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
+            {post.title}
+          </h3>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 /* ── Alias for compatibility ── */
 const RevealSection = ScrollReveal;
 
@@ -593,14 +706,14 @@ export default function Home() {
 
                 {/* Open Source */}
                 <a
-                  href="https://github.com/risk-ai/vienna-os"
+                  href="https://github.com/risk-ai/regulatorai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50 hover:border-amber-500/30 transition-all"
                 >
                   <Github className="w-4 h-4 text-zinc-400" />
                   <span className="text-sm font-mono text-zinc-400">
-                    risk-ai/vienna-os
+                    risk-ai/regulatorai
                   </span>
                   <Star className="w-3 h-3 text-amber-500" />
                   <span className="text-xs font-mono text-amber-500">
@@ -617,41 +730,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Key stats row */}
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    94+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    proposals evaluated
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    75+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    warrants issued
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    252+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    audit events logged
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    10
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    active policies
-                  </div>
-                </div>
-              </div>
+              {/* Key stats row — live from DB */}
+              <LiveStats />
 
               {/* Primary Testimonial — ai.ventures / law.ai (real deployment) */}
               <div className="mt-10 max-w-3xl mx-auto">
@@ -770,7 +850,7 @@ export default function Home() {
                 <div className="space-y-3 font-mono text-[11px]">
                   {/* Agent Layer */}
                   <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">AGENT_LAYER</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">AGENT_LAYER</div>
                     <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
                       <div className="flex flex-wrap gap-2">
                         <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent A</span>
@@ -783,13 +863,13 @@ export default function Home() {
 
                   {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
                     <div className="text-amber-500 text-center flex-1">│ REST / WebSocket │</div>
                   </div>
 
                   {/* API Gateway */}
                   <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">API_GATEWAY</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">API_GATEWAY</div>
                     <div className="flex-1 border border-amber-500/30 bg-amber-500/5 p-3">
                       <div className="flex flex-wrap gap-4">
                         <div><span className="text-amber-500">auth:</span> <span className="text-zinc-400">API key + JWT</span></div>
@@ -801,13 +881,13 @@ export default function Home() {
 
                   {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
                     <div className="text-amber-500 text-center flex-1">▼</div>
                   </div>
 
                   {/* Governance Kernel */}
                   <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-amber-500 py-2 font-bold">GOVERNANCE<br/>KERNEL</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-amber-500 py-2 font-bold">GOVERNANCE<br/>KERNEL</div>
                     <div className="flex-1 border-2 border-amber-500/50 bg-amber-500/5 p-3">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="border border-amber-500/20 p-2">
@@ -828,13 +908,13 @@ export default function Home() {
 
                   {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
                     <div className="text-amber-500 text-center flex-1">▼</div>
                   </div>
 
                   {/* Approval + Execution */}
                   <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">EXECUTION<br/>LAYER</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">EXECUTION<br/>LAYER</div>
                     <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
@@ -859,13 +939,13 @@ export default function Home() {
 
                   {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
                     <div className="text-amber-500 text-center flex-1">▼</div>
                   </div>
 
                   {/* Data Layer */}
                   <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">DATA_LAYER</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">DATA_LAYER</div>
                     <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="flex items-center gap-2">
@@ -1289,38 +1369,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
-        </RevealSection>
-
-        {/* ═══════════════════ MID-PAGE CTA ═══════════════════ */}
-        <RevealSection>
-          <section className="py-16 px-6 border-y border-amber-500/20 bg-amber-500/[0.03]">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">
-                READY_TO_GOVERN?
-              </div>
-              <p className="text-lg sm:text-xl font-mono text-zinc-300 mb-8">
-                Deploy warrant-based governance in under 5 minutes.
-                <br className="hidden sm:block" />
-                <span className="text-zinc-500">
-                  Free tier includes 5 agents + full pipeline.
-                </span>
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://console.regulator.ai/signup"
-                  className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
-                >
-                  START_FREE →
-                </a>
-                <Link
-                  href="/compare"
-                  className="border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
-                >
-                  COMPARE_ALTERNATIVES
-                </Link>
               </div>
             </div>
           </section>
@@ -1841,7 +1889,7 @@ result = vienna.intent.submit(
                   /enterprise
                 </Link>
                 <a
-                  href="https://github.com/risk-ai/vienna-os"
+                  href="https://github.com/risk-ai/regulatorai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-zinc-500 hover:text-amber-500 transition-all"
@@ -1873,46 +1921,7 @@ result = vienna.intent.submit(
                 </Link>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    slug: "execution-gap-warrants-not-guardrails",
-                    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
-                    category: "GOVERNANCE",
-                    readTime: "9 min",
-                  },
-                  {
-                    slug: "zero-trust-ai-agent-pipeline",
-                    title: "Building a Zero-Trust AI Agent Pipeline",
-                    category: "SECURITY",
-                    readTime: "8 min",
-                  },
-                  {
-                    slug: "ai-agent-disasters-prevented",
-                    title: "5 AI Agent Disasters That Could Have Been Prevented",
-                    category: "RISK",
-                    readTime: "9 min",
-                  },
-                ].map((post) => (
-                  <Link
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
-                  >
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
-                      <span className="text-[10px] font-mono text-amber-500 uppercase">
-                        {post.category}
-                      </span>
-                      <span className="text-[10px] font-mono text-zinc-600">
-                        {post.readTime}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
-                      {post.title}
-                    </h3>
-                  </Link>
-                ))}
-              </div>
+              <LatestBlogPosts />
 
               <div className="mt-6 sm:hidden">
                 <Link

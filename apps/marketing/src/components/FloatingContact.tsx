@@ -57,7 +57,7 @@ export default function FloatingContact() {
             </a>
 
             <a
-              href="https://github.com/risk-ai/vienna-os/issues"
+              href="https://github.com/risk-ai/regulatorai/issues"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => {

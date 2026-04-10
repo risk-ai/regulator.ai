@@ -60,7 +60,7 @@ export default function SiteNav() {
         </div>
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="https://github.com/risk-ai/vienna-os"
+            href="https://github.com/risk-ai/regulatorai"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-zinc-500 hover:text-amber-500 transition-colors"
@@ -128,7 +128,7 @@ export default function SiteNav() {
             </Link>
           ))}
           <a
-            href="https://github.com/risk-ai/vienna-os"
+            href="https://github.com/risk-ai/regulatorai"
             target="_blank"
             rel="noopener noreferrer"
             className="block text-sm text-zinc-500 hover:text-amber-500"

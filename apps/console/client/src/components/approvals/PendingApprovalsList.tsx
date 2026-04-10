@@ -44,8 +44,6 @@ export const PendingApprovalsList = forwardRef<any, PendingApprovalsListProps>((
       }
       
       const data = await listApprovals(filters);
-      console.log('[PendingApprovalsList] Loaded approvals:', data.length);
-      console.log('[PendingApprovalsList] First approval:', data[0]);
       setApprovals(data);
     } catch (err) {
       console.error('[PendingApprovalsList] Load error:', err);

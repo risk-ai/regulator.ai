@@ -1037,15 +1037,48 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // Execution pipeline — serverless mode returns safe defaults
+    // Execution pipeline — DB-backed stats with safe fallbacks
     if (path === '/api/v1/execution/active') {
-      return res.status(200).json({ success: true, data: [], timestamp: new Date().toISOString() });
+      try {
+        const active = await tenantQuery("SELECT * FROM regulator.execution_log WHERE state IN ('executing', 'running', 'pending') ORDER BY created_at DESC LIMIT 20", [], tenantId);
+        return res.status(200).json({ success: true, data: active, timestamp: new Date().toISOString() });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], timestamp: new Date().toISOString() });
+      }
     }
     if (path === '/api/v1/execution/queue') {
-      return res.status(200).json({ success: true, data: { queued: 0, executing: 0, completed: 0, failed: 0, blocked: 0, total: 0, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      try {
+        const stats = await tenantQuery(`
+          SELECT 
+            count(*) FILTER (WHERE state IN ('queued', 'pending')) as queued,
+            count(*) FILTER (WHERE state IN ('executing', 'running')) as executing,
+            count(*) FILTER (WHERE state IN ('completed', 'succeeded')) as completed,
+            count(*) FILTER (WHERE state IN ('failed', 'error')) as failed,
+            count(*) FILTER (WHERE state = 'blocked') as blocked,
+            count(*) as total
+          FROM regulator.execution_log
+        `, [], tenantId);
+        const s = stats[0] || {};
+        return res.status(200).json({ success: true, data: { queued: parseInt(s.queued||0), executing: parseInt(s.executing||0), completed: parseInt(s.completed||0), failed: parseInt(s.failed||0), blocked: parseInt(s.blocked||0), total: parseInt(s.total||0), timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { queued: 0, executing: 0, completed: 0, failed: 0, blocked: 0, total: 0, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      }
     }
     if (path === '/api/v1/execution/metrics') {
-      return res.status(200).json({ success: true, data: { total_submitted: 0, total_completed: 0, total_failed: 0, avg_execution_time_ms: 0, p99_execution_time_ms: 0, active_rate: 0, success_rate: 100, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      try {
+        const m = await tenantQuery(`
+          SELECT 
+            count(*) as total_submitted,
+            count(*) FILTER (WHERE state IN ('completed', 'succeeded')) as total_completed,
+            count(*) FILTER (WHERE state IN ('failed', 'error')) as total_failed,
+            CASE WHEN count(*) > 0 THEN round(count(*) FILTER (WHERE state IN ('completed', 'succeeded'))::numeric / count(*)::numeric * 100, 1) ELSE 100 END as success_rate
+          FROM regulator.execution_log
+        `, [], tenantId);
+        const s = m[0] || {};
+        return res.status(200).json({ success: true, data: { total_submitted: parseInt(s.total_submitted||0), total_completed: parseInt(s.total_completed||0), total_failed: parseInt(s.total_failed||0), avg_execution_time_ms: 0, p99_execution_time_ms: 0, active_rate: 0, success_rate: parseFloat(s.success_rate||100), timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { total_submitted: 0, total_completed: 0, total_failed: 0, avg_execution_time_ms: 0, p99_execution_time_ms: 0, active_rate: 0, success_rate: 100, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+      }
     }
     if (path === '/api/v1/execution/health') {
       return res.status(200).json({ success: true, data: { status: 'ok', message: 'Serverless mode — runtime available via SDK', timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });

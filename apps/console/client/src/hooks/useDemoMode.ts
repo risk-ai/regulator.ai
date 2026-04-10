@@ -57,11 +57,21 @@ export function useDemoMode(): DemoModeState {
       const agents = (response as any)?.data || response || [];
       const agentList = Array.isArray(agents) ? agents : [];
       
-      const realAgents = agentList.filter((a: any) => 
-        !a.name?.startsWith('[Demo]')
-      );
+      // An agent is "real" only if it has a recent heartbeat (< 1 hour old).
+      // Seed/demo data has heartbeats from days/weeks ago.
+      const ONE_HOUR_MS = 60 * 60 * 1000;
+      const now = Date.now();
+      
+      const realAgents = agentList.filter((a: any) => {
+        if (a.name?.startsWith('[Demo]')) return false;
+        if (!a.last_heartbeat) return false;
+        const hbAge = now - new Date(a.last_heartbeat).getTime();
+        return hbAge < ONE_HOUR_MS;
+      });
       const demoAgents = agentList.filter((a: any) => 
-        a.name?.startsWith('[Demo]')
+        a.name?.startsWith('[Demo]') || 
+        !a.last_heartbeat || 
+        (now - new Date(a.last_heartbeat).getTime()) >= ONE_HOUR_MS
       );
       
       // If we transition from 0 → 1+ real agents, clear the dismissed state

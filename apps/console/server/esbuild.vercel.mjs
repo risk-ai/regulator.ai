@@ -15,7 +15,6 @@ await build({
   sourcemap: false,
   external: [
     '@vercel/node',    // Provided by Vercel runtime
-    '@vercel/postgres', // Provided by Vercel runtime  
   ],
   minify: false,
   logLevel: 'info',

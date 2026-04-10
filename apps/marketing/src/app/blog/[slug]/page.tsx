@@ -204,7 +204,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                   View Pricing
                 </a>
                 <a
-                  href="https://github.com/risk-ai/vienna-os"
+                  href="https://github.com/risk-ai/regulatorai"
                   className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 font-medium transition"
                 >
                   GitHub

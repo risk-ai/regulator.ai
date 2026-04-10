@@ -377,7 +377,7 @@ export function WeekOneEmail({ name, email }: WeekOneEmailProps) {
             gap: '12px',
             flexWrap: 'wrap'
           }}>
-            <a href="https://github.com/risk-ai/vienna-os" style={{
+            <a href="https://github.com/risk-ai/regulatorai" style={{
               display: 'inline-flex',
               alignItems: 'center',
               color: '#667eea',

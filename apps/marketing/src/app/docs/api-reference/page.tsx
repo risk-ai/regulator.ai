@@ -345,7 +345,7 @@ export default function ApiReferencePage() {
           </div>
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/risk-ai/vienna-os"
+              href="https://github.com/risk-ai/regulatorai"
               className="text-sm text-zinc-500 hover:text-white transition hidden sm:inline-flex items-center gap-1"
             >
               GitHub
@@ -1648,7 +1648,7 @@ stats.topViolatingAgents.forEach(agent => {
           </div>
           <div className="flex items-center gap-6">
             <a href="/docs" className="text-xs text-zinc-600 hover:text-zinc-400 transition">Documentation</a>
-            <a href="https://github.com/risk-ai/vienna-os" className="text-xs text-zinc-600 hover:text-zinc-400 transition">GitHub</a>
+            <a href="https://github.com/risk-ai/regulatorai" className="text-xs text-zinc-600 hover:text-zinc-400 transition">GitHub</a>
             <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures</span>
           </div>
         </div>

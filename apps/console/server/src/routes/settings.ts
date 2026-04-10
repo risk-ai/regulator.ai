@@ -38,25 +38,23 @@ export function createSettingsRouter(): Router {
    */
   router.get('/execution-modes', async (req: AuthenticatedRequest, res: Response) => {
     try {
-      if (!req.user?.tenantId) {
-        const err: ErrorResponse = {
-          success: false,
-          error: 'Authentication required',
-          code: 'AUTH_REQUIRED',
-          timestamp: new Date().toISOString(),
-        };
-        return res.status(401).json(err);
+      let executionModes: Record<string, string> = {};
+      
+      // Try to get tenant-specific settings if authenticated
+      const tenantId = req.user?.tenantId;
+      if (tenantId) {
+        try {
+          const tenant = await queryOne<{ settings: any }>(
+            'SELECT settings FROM tenants WHERE id = $1',
+            [tenantId]
+          );
+          const currentSettings = tenant?.settings || {};
+          executionModes = currentSettings.execution_modes || {};
+        } catch (dbErr: any) {
+          // Table may not exist or query may fail — fall back to defaults
+          console.warn('[Settings] Could not read tenant settings:', dbErr.message);
+        }
       }
-
-      // Get tenant settings from database
-      const tenant = await queryOne<{ settings: any }>(
-        'SELECT settings FROM regulator.tenants WHERE id = $1',
-        [req.user.tenantId]
-      );
-
-      // Extract execution_modes from settings JSONB, merge with defaults
-      const currentSettings = tenant?.settings || {};
-      const executionModes = currentSettings.execution_modes || {};
       
       const config: ExecutionModesConfig = {
         ...DEFAULT_EXECUTION_MODES,

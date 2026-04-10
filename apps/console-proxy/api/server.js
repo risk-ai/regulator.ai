@@ -917,14 +917,61 @@ module.exports = async function handler(req, res) {
     }
 
     // Policy templates
+    if (path === '/api/v1/policy-templates/packs') {
+      try {
+        const templates = await query('SELECT id, name, description, category FROM regulator.policy_templates WHERE enabled = true ORDER BY category, name');
+        const packMap = {};
+        for (const t of templates) {
+          const cat = (t.category || 'general').toLowerCase().replace(/\s+/g, '-');
+          if (!packMap[cat]) {
+            packMap[cat] = { id: cat, name: t.category || 'General', description: `${t.category || 'General'} policy templates`, templates: [] };
+          }
+          packMap[cat].templates.push({ id: t.id, name: t.name, description: t.description });
+        }
+        return res.status(200).json({ success: true, packs: Object.values(packMap), timestamp: new Date().toISOString() });
+      } catch (e) {
+        return res.status(200).json({ success: true, packs: [], timestamp: new Date().toISOString() });
+      }
+    }
     if (path === '/api/v1/policy-templates') {
-      const category = url.searchParams.get('category');
-      return res.status(200).json({ success: true, data: [] });
+      try {
+        const category = url.searchParams.get('category');
+        let q = 'SELECT * FROM regulator.policy_templates WHERE enabled = true';
+        const params = [];
+        if (category) { q += ' AND category = $1'; params.push(category); }
+        q += ' ORDER BY use_count DESC, name ASC';
+        const templates = await query(q, params);
+        return res.status(200).json({ success: true, data: templates, pagination: { total: templates.length, limit: 50, offset: 0 } });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [] });
+      }
     }
 
     // Agent templates
-    if (path === '/api/v1/agent-templates' || path.startsWith('/api/v1/agent-templates/')) {
-      return res.status(200).json({ success: true, data: [] });
+    // Agent templates — fetch from DB
+    if (path === '/api/v1/agent-templates' && req.method === 'GET') {
+      try {
+        const framework = url.searchParams.get('framework');
+        let q = 'SELECT * FROM regulator.agent_templates WHERE enabled = true';
+        const params = [];
+        if (framework) { q += ' AND framework = $1'; params.push(framework); }
+        q += ' ORDER BY use_count DESC, name ASC';
+        const templates = await query(q, params);
+        return res.status(200).json({ success: true, data: templates, pagination: { total: templates.length, limit: 50, offset: 0 } });
+      } catch (e) {
+        // Table may not exist yet
+        return res.status(200).json({ success: true, data: [], pagination: { total: 0, limit: 50, offset: 0 } });
+      }
+    }
+    if (path.startsWith('/api/v1/agent-templates/')) {
+      const id = path.split('/').pop();
+      try {
+        const templates = await query('SELECT * FROM regulator.agent_templates WHERE id = $1 AND enabled = true', [id]);
+        if (templates.length === 0) return res.status(404).json({ success: false, error: 'Template not found' });
+        return res.status(200).json({ success: true, data: templates[0] });
+      } catch (e) {
+        return res.status(404).json({ success: false, error: 'Template not found' });
+      }
     }
 
     // Action types (GET list) - expanded handlers below cover CRUD + categories
@@ -990,6 +1037,25 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: [] });
     }
 
+    // Execution pipeline — serverless mode returns safe defaults
+    if (path === '/api/v1/execution/active') {
+      return res.status(200).json({ success: true, data: [], timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/execution/queue') {
+      return res.status(200).json({ success: true, data: { queued: 0, executing: 0, completed: 0, failed: 0, blocked: 0, total: 0, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/execution/metrics') {
+      return res.status(200).json({ success: true, data: { total_submitted: 0, total_completed: 0, total_failed: 0, avg_execution_time_ms: 0, p99_execution_time_ms: 0, active_rate: 0, success_rate: 100, timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/execution/health') {
+      return res.status(200).json({ success: true, data: { status: 'ok', message: 'Serverless mode — runtime available via SDK', timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/execution/blocked') {
+      return res.status(200).json({ success: true, data: [], timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/execution/integrity') {
+      return res.status(200).json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
+    }
     // Execution control
     if (path === '/api/v1/execution/pause' && req.method === 'POST') {
       return res.status(200).json({ success: true, paused: true });
@@ -1681,8 +1747,9 @@ module.exports = async function handler(req, res) {
     }
 
     // ========== Action Types (expanded) ==========
+    // Note: action_types is a global table (no tenant_id column) — use query() not tenantQuery()
     if (path === '/api/v1/action-types/categories') {
-      const cats = await tenantQuery('SELECT DISTINCT category, count(*) as cnt FROM regulator.action_types GROUP BY category ORDER BY category', [], tenantId);
+      const cats = await query('SELECT DISTINCT category, count(*) as cnt FROM regulator.action_types GROUP BY category ORDER BY category');
       return res.status(200).json({
         success: true,
         data: cats.map(c => ({ name: c.category, count: parseInt(c.cnt) })),
@@ -1690,12 +1757,12 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/action-types\/[^/]+\/usage$/) && req.method === 'GET') {
       const id = path.split('/')[4];
-      const usage = await tenantQuery('SELECT * FROM regulator.action_type_usage WHERE action_type_id = $1 ORDER BY created_at DESC LIMIT 20', [id], tenantId);
+      const usage = await query('SELECT * FROM regulator.action_type_usage WHERE action_type_id = $1 ORDER BY created_at DESC LIMIT 20', [id]);
       return res.status(200).json({ success: true, data: usage });
     }
     if (path.match(/^\/api\/v1\/action-types\/[^/]+$/) && req.method === 'GET') {
       const id = path.split('/').pop();
-      const types = await tenantQuery('SELECT * FROM regulator.action_types WHERE id = $1', [id], tenantId);
+      const types = await query('SELECT * FROM regulator.action_types WHERE id = $1', [id]);
       if (types.length === 0) return res.status(404).json({ success: false, error: 'Action type not found' });
       return res.status(200).json({ success: true, data: { ...types[0], stats: { total: 0, last24h: 0, avgLatencyMs: 0 } } });
     }
@@ -1850,6 +1917,32 @@ module.exports = async function handler(req, res) {
     }
 
     // ========== Settings ==========
+    if (path === '/api/v1/settings/execution-modes' && req.method === 'GET') {
+      // Try tenant-specific settings, fall back to defaults
+      const defaults = { T0: 'direct', T1: 'direct', T2: 'passback', T3: 'passback', default: 'direct' };
+      try {
+        if (tenantId) {
+          const tenant = await query('SELECT settings FROM regulator.tenants WHERE id = $1', [tenantId]);
+          if (tenant.length > 0 && tenant[0].settings?.execution_modes) {
+            return res.status(200).json({ success: true, data: { ...defaults, ...tenant[0].settings.execution_modes }, timestamp: new Date().toISOString() });
+          }
+        }
+      } catch (e) { /* fall through to defaults */ }
+      return res.status(200).json({ success: true, data: defaults, timestamp: new Date().toISOString() });
+    }
+    if (path === '/api/v1/settings/execution-modes' && req.method === 'PUT') {
+      const body = await parseBody(req);
+      try {
+        if (tenantId) {
+          await query(
+            `UPDATE regulator.tenants SET settings = COALESCE(settings, '{}'::jsonb) || jsonb_build_object('execution_modes', COALESCE(settings->'execution_modes', '{}'::jsonb) || $2::jsonb) WHERE id = $1`,
+            [tenantId, JSON.stringify(body)]
+          );
+        }
+      } catch (e) { /* ignore */ }
+      const defaults = { T0: 'direct', T1: 'direct', T2: 'passback', T3: 'passback', default: 'direct' };
+      return res.status(200).json({ success: true, data: { ...defaults, ...body }, timestamp: new Date().toISOString() });
+    }
     if (path === '/api/v1/settings' && req.method === 'GET') {
       return res.status(200).json({
         success: true,

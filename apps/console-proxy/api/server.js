@@ -644,11 +644,14 @@ module.exports = async function handler(req, res) {
 
     // Dashboard bootstrap (DB-driven)
     if (path === '/api/v1/dashboard/bootstrap' || path === '/api/v1/dashboard') {
-      const [agents, policies, warrants, audit] = await Promise.all([
+      const [agents, policies, warrants, audit, executions, recentEvents, proposals] = await Promise.all([
         tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE status = \'active\') as active FROM regulator.agent_registry', [], tenantId),
         tenantQuery('SELECT count(*) as total FROM regulator.policies WHERE enabled = true', [], tenantId),
-        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE revoked = false) as active FROM regulator.warrants', [], tenantId),
+        tenantQuery('SELECT count(*) as total, count(*) FILTER (WHERE revoked = false AND expires_at > NOW()) as active FROM regulator.warrants', [], tenantId),
         tenantQuery('SELECT count(*) as total FROM regulator.audit_log', [], tenantId),
+        tenantQuery("SELECT count(*) as total, count(*) FILTER (WHERE created_at > NOW() - interval '24 hours') as recent FROM regulator.execution_log", [], tenantId).catch(() => [{ total: 0, recent: 0 }]),
+        tenantQuery('SELECT event, created_at, details FROM regulator.audit_log ORDER BY created_at DESC LIMIT 10', [], tenantId).catch(() => []),
+        tenantQuery("SELECT count(*) as total, count(*) FILTER (WHERE state = 'pending') as pending FROM regulator.proposals", [], tenantId).catch(() => [{ total: 0, pending: 0 }]),
       ]);
       return res.status(200).json({
         success: true,
@@ -658,7 +661,9 @@ module.exports = async function handler(req, res) {
           policies: { total: parseInt(policies[0]?.total || 0) },
           warrants: { total: parseInt(warrants[0]?.total || 0), active: parseInt(warrants[0]?.active || 0) },
           audit: { total: parseInt(audit[0]?.total || 0) },
-          executions: { total: 0, recent: [] },
+          executions: { total: parseInt(executions[0]?.total || 0), recent_24h: parseInt(executions[0]?.recent || 0) },
+          proposals: { total: parseInt(proposals[0]?.total || 0), pending: parseInt(proposals[0]?.pending || 0) },
+          recent_events: recentEvents || [],
         }
       });
     }
@@ -985,6 +990,39 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: types });
     }
 
+    // Fleet summary — agent stats for Fleet page
+    if (path === '/api/v1/fleet/summary') {
+      try {
+        const [counts, topAgents, typeBreakdown] = await Promise.all([
+          tenantQuery(`SELECT 
+            count(*) as total,
+            count(*) FILTER (WHERE status = 'active') as active,
+            count(*) FILTER (WHERE last_heartbeat > NOW() - interval '5 minutes') as live,
+            count(*) FILTER (WHERE last_heartbeat > NOW() - interval '1 hour' AND last_heartbeat <= NOW() - interval '5 minutes') as stale,
+            avg(trust_score)::int as avg_trust
+          FROM regulator.agent_registry`, [], tenantId),
+          tenantQuery('SELECT agent_id, display_name, trust_score, last_heartbeat, agent_type FROM regulator.agent_registry ORDER BY trust_score DESC LIMIT 5', [], tenantId),
+          tenantQuery('SELECT agent_type, count(*) as cnt FROM regulator.agent_registry GROUP BY agent_type ORDER BY cnt DESC', [], tenantId),
+        ]);
+        const c = counts[0] || {};
+        return res.status(200).json({
+          success: true,
+          data: {
+            total: parseInt(c.total || 0),
+            active: parseInt(c.active || 0),
+            live: parseInt(c.live || 0),
+            stale: parseInt(c.stale || 0),
+            offline: parseInt(c.total || 0) - parseInt(c.live || 0) - parseInt(c.stale || 0),
+            avg_trust: parseInt(c.avg_trust || 0),
+            top_agents: topAgents || [],
+            by_type: typeBreakdown?.reduce((acc, r) => { acc[r.agent_type] = parseInt(r.cnt); return acc; }, {}) || {},
+          },
+        });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { total: 0, active: 0, live: 0, stale: 0, offline: 0, avg_trust: 0, top_agents: [], by_type: {} } });
+      }
+    }
+
     // Activity feed & summary - handled by expanded section below
 
     // Pipeline stats — real counts for each governance stage
@@ -1068,9 +1106,44 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { investigations: [], total: 0 } });
     }
 
-    // Executions
-    if (path === '/api/v1/executions') {
-      return res.status(200).json({ success: true, data: [] });
+    // Executions — route to DB-backed handler below (line ~2122)
+    // Executions stats
+    if (path === '/api/v1/executions/stats') {
+      try {
+        const [totals, byTier, byState, recent24h] = await Promise.all([
+          tenantQuery('SELECT count(*) as total FROM regulator.execution_log', [], tenantId).catch(() => [{ total: 0 }]),
+          tenantQuery("SELECT risk_tier, count(*) as cnt FROM regulator.execution_log GROUP BY risk_tier ORDER BY risk_tier", [], tenantId).catch(() => []),
+          tenantQuery("SELECT state, count(*) as cnt FROM regulator.execution_log GROUP BY state ORDER BY cnt DESC", [], tenantId).catch(() => []),
+          tenantQuery("SELECT count(*) as cnt FROM regulator.execution_log WHERE created_at > NOW() - interval '24 hours'", [], tenantId).catch(() => [{ cnt: 0 }]),
+        ]);
+        return res.status(200).json({
+          success: true,
+          data: {
+            total: parseInt(totals[0]?.total || 0),
+            last_24h: parseInt(recent24h[0]?.cnt || 0),
+            by_tier: byTier.reduce((acc, r) => { acc[r.risk_tier || 'unknown'] = parseInt(r.cnt); return acc; }, {}),
+            by_state: byState.reduce((acc, r) => { acc[r.state || 'unknown'] = parseInt(r.cnt); return acc; }, {}),
+          },
+        });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { total: 0, last_24h: 0, by_tier: {}, by_state: {} } });
+      }
+    }
+    // Single execution detail
+    if (path.match(/^\/api\/v1\/executions\/[^/]+$/) && req.method === 'GET') {
+      const execId = path.split('/').pop();
+      try {
+        const rows = await tenantQuery(
+          `SELECT e.*, p.action, p.agent_id, p.payload, p.state as proposal_state, a.display_name as agent_name
+           FROM regulator.execution_log e
+           LEFT JOIN regulator.proposals p ON e.proposal_id = p.id
+           LEFT JOIN regulator.agent_registry a ON p.agent_id = a.agent_id
+           WHERE e.execution_id = $1`, [execId], tenantId);
+        if (rows.length === 0) return res.status(404).json({ success: false, error: 'Execution not found' });
+        return res.status(200).json({ success: true, data: rows[0] });
+      } catch (e) {
+        return res.status(404).json({ success: false, error: 'Execution not found' });
+      }
     }
 
     // Execution pipeline — DB-backed stats with safe fallbacks

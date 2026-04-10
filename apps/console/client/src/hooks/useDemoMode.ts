@@ -58,7 +58,7 @@ export function useDemoMode(): DemoModeState {
       const agentList = Array.isArray(agents) ? agents : [];
       
       const realAgents = agentList.filter((a: any) => 
-        !a.name?.startsWith('[Demo]')
+        !a.name?.startsWith('[Demo]') && a.last_heartbeat != null
       );
       const demoAgents = agentList.filter((a: any) => 
         a.name?.startsWith('[Demo]')

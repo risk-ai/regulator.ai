@@ -58,7 +58,8 @@ export async function query<T = any>(text: string, params: any[] = []): Promise<
   const client = getPool();
   
   if (isVercel) {
-    // Vercel Postgres (@vercel/postgres)
+    // Vercel Postgres (@vercel/postgres) — must set search_path per query
+    await client.query("SET search_path TO regulator, public");
     const result = await client.query(text, params);
     return result.rows as T[];
   } else {
@@ -90,6 +91,8 @@ export async function raw(sqlText: string): Promise<void> {
   const client = getPool();
   
   if (isVercel) {
+    // Vercel Postgres (@vercel/postgres) — must set search_path per query
+    await client.query("SET search_path TO regulator, public");
     await client.query(sqlText);
   } else {
     await client.query(sqlText);
@@ -104,6 +107,7 @@ export async function transaction<T>(callback: () => Promise<T>): Promise<T> {
   
   if (isVercel) {
     // Vercel Postgres transactions
+    await client.query("SET search_path TO regulator, public");
     await client.query('BEGIN');
     try {
       const result = await callback();

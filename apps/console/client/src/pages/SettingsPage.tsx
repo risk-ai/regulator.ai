@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Settings } from 'lucide-react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { useAuthStore } from '../store/authStore.js';
 import { apiClient } from '../api/client.js';
 import { TeamManagement } from '../components/workspace/TeamManagement.js';
@@ -55,13 +55,10 @@ export function SettingsPage() {
   const { isMobile } = useResponsive();
 
   return (
-    <div className="min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-          <Settings className="text-white/60" size={20} /> Settings
-        </h1>
-        <p className="text-[12px] text-white/40 mt-1 font-mono">Operator configuration and system information</p>
-      </div>
+    <PageLayout
+      title="Settings"
+      description="Operator configuration and system information"
+    >
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
 
         {/* Session */}
@@ -159,7 +156,7 @@ export function SettingsPage() {
           </div>
         </SettingsCard>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 

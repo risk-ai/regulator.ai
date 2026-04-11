@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Bot } from 'lucide-react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { apiClient } from '../api/client.js';
 import { useAuthStore } from '../store/authStore.js';
 
@@ -806,13 +806,10 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
   );
 
   return (
-    <div className="min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-          <Bot className="text-emerald-400" size={20} /> Connect Your Agent
-        </h1>
-        <p className="text-[12px] text-white/40 mt-1 font-mono">Set up governance for your first agent</p>
-      </div>
+    <PageLayout
+      title="Connect Your Agent"
+      description="Set up governance for your first agent"
+    >
       <div style={{ maxWidth: 800, margin: '0 auto' }}>
         {renderStepIndicator()}
         
@@ -821,6 +818,6 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
         {currentStep === 3 && renderStep3()}
         {currentStep === 4 && renderStep4()}
       </div>
-    </div>
+    </PageLayout>
   );
 }

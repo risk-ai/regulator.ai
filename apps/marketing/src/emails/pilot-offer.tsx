@@ -291,7 +291,7 @@ export function PilotOfferEmail({ name, email, company }: PilotOfferEmailProps) 
             marginTop: '32px'
           }}>
             <a 
-              href="https://cal.com/risk-ai/regulatorai-pilot?utm_source=email&utm_campaign=pilot_offer" 
+              href="https://cal.com/risk-ai/vienna-os-pilot?utm_source=email&utm_campaign=pilot_offer" 
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

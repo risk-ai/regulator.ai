@@ -1,12 +1,12 @@
 /**
- * Compliance Page — Premium Terminal Design
+ * Compliance Page — Vienna OS
  * 
- * Risk heatmap, compliance score gauges with animated arcs,
- * board-ready report generation, glow-coded severity indicators.
+ * One-click governance reports for board presentation.
+ * Quick stats dashboard, report generator, viewer, history, and scheduling.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Shield, FileText, Clock, AlertTriangle, CheckCircle, XCircle, Download, Plus, Calendar, Eye, Trash2, RefreshCw, X, TrendingUp, Minus, Activity } from 'lucide-react';
+import { useResponsive } from '../hooks/useResponsive.js';
 import {
   complianceApi,
   type QuickStats,
@@ -15,7 +15,7 @@ import {
   type ReportsListResponse,
 } from '../api/compliance.js';
 
-// ─── Section Labels ───
+// ─── Section Labels ─────────────────────────────────────────────────────────
 
 const SECTION_LABELS: Record<string, string> = {
   executive_summary: 'Executive Summary',
@@ -32,382 +32,194 @@ const SECTION_LABELS: Record<string, string> = {
 
 const ALL_SECTIONS = Object.keys(SECTION_LABELS);
 
+// ─── Styles ─────────────────────────────────────────────────────────────────
+
+const s = {
+  page: { padding: '0' } as React.CSSProperties,
+  
+  // Quick Stats
+  statsGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: '12px', marginBottom: '28px',
+  } as React.CSSProperties,
+  statCard: (color: string) => ({
+    background: 'var(--bg-panel, #0F1419)',
+    borderRadius: '0', padding: '20px', textAlign: 'center' as const,
+  }),
+  statValue: (color: string) => ({
+    fontSize: '32px', fontWeight: 700, color, lineHeight: 1.1,
+  }),
+  statLabel: {
+    fontSize: '11px', color: '#94a3b8', marginTop: '6px', textTransform: 'uppercase' as const, letterSpacing: '0.5px',
+  } as React.CSSProperties,
+  statUnit: { fontSize: '14px', fontWeight: 400, color: '#64748b' } as React.CSSProperties,
+
+  // Period Selector
+  periodBar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: '16px',
+  } as React.CSSProperties,
+  periodBtn: (active: boolean) => ({
+    padding: '6px 14px', fontSize: '12px', fontWeight: active ? 600 : 400,
+    color: active ? '#f59e0b' : '#94a3b8',
+    background: active ? 'rgba(245,158,11,0.15)' : 'transparent',
+    border: '1px solid ' + (active ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'),
+    borderRadius: '0', cursor: 'pointer', marginLeft: '6px',
+  }),
+
+  // Tabs
+  tabBar: {
+    display: 'flex', gap: '2px', marginBottom: '24px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)',
+  } as React.CSSProperties,
+  tab: (active: boolean) => ({
+    padding: '10px 18px', fontSize: '13px', fontWeight: active ? 600 : 400,
+    color: active ? 'var(--text-primary)' : '#94a3b8',
+    background: 'transparent',
+    border: 'none', borderBottom: active ? '2px solid var(--text-primary)' : '2px solid transparent',
+    borderRadius: 0, cursor: 'pointer',
+  }),
+
+  // Buttons
+  primaryBtn: {
+    padding: '10px 20px', fontSize: '13px', fontWeight: 600, color: '#fff',
+    background: '#f59e0b', border: 'none', borderRadius: '0', cursor: 'pointer',
+  } as React.CSSProperties,
+  secondaryBtn: {
+    padding: '8px 16px', fontSize: '12px', fontWeight: 500, color: '#f59e0b',
+    background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+    borderRadius: '0', cursor: 'pointer',
+  } as React.CSSProperties,
+  dangerBtn: {
+    padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#ef4444',
+    background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+    borderRadius: '0', cursor: 'pointer',
+  } as React.CSSProperties,
+  ghostBtn: {
+    padding: '6px 12px', fontSize: '11px', fontWeight: 500, color: '#94a3b8',
+    background: 'transparent', border: '1px solid rgba(251, 191, 36, 0.15)',
+    borderRadius: '0', cursor: 'pointer',
+  } as React.CSSProperties,
+
+  // Modal
+  overlay: {
+    position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.6)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+  } as React.CSSProperties,
+  modal: {
+    background: 'var(--bg-panel, #0F1419)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', padding: '28px', width: '520px', maxHeight: '80vh', overflow: 'auto',
+  } as React.CSSProperties,
+  modalTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '20px' } as React.CSSProperties,
+
+  // Form
+  formGroup: { marginBottom: '16px' } as React.CSSProperties,
+  label: { display: 'block', fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginBottom: '6px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
+  select: {
+    width: '100%', padding: '10px 12px', fontSize: '13px', color: '#e2e8f0',
+    background: 'var(--bg-app, #0A0E14)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', outline: 'none',
+  } as React.CSSProperties,
+  input: {
+    width: '100%', padding: '10px 12px', fontSize: '13px', color: '#e2e8f0',
+    background: 'var(--bg-app, #0A0E14)', border: '1px solid rgba(251, 191, 36, 0.2)',
+    borderRadius: '0', outline: 'none',
+  } as React.CSSProperties,
+  checkbox: { marginRight: '8px' } as React.CSSProperties,
+  checkboxLabel: { fontSize: '13px', color: '#cbd5e1', cursor: 'pointer' } as React.CSSProperties,
+
+  // Table
+  table: { width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' } as React.CSSProperties,
+  th: {
+    padding: '10px 12px', textAlign: 'left' as const, fontWeight: 600, color: '#94a3b8',
+    borderBottom: '1px solid rgba(251, 191, 36, 0.15)', fontSize: '11px',
+    textTransform: 'uppercase' as const, letterSpacing: '0.5px',
+  } as React.CSSProperties,
+  td: { padding: '10px 12px', borderBottom: '1px solid rgba(251, 191, 36, 0.1)', color: '#cbd5e1' } as React.CSSProperties,
+
+  // Report Viewer
+  viewerWrapper: {
+    background: 'var(--bg-panel, #0F1419)', borderRadius: '0', padding: '0', overflow: 'hidden',
+    border: '1px solid rgba(251, 191, 36, 0.2)',
+  } as React.CSSProperties,
+  viewerToolbar: {
+    display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'space-between',
+    padding: '12px 20px', background: 'var(--bg-panel, #0F1419)', borderBottom: '1px solid rgba(251, 191, 36, 0.15)',
+  } as React.CSSProperties,
+  viewerContent: { padding: '32px 40px', background: 'var(--surface-secondary, #12131a)' } as React.CSSProperties,
+  viewerNav: {
+    position: 'sticky' as const, top: 0, display: 'flex', flexDirection: 'column' as const,
+    gap: '2px', padding: '12px', background: 'var(--bg-app, #0A0E14)', borderRight: '1px solid rgba(251, 191, 36, 0.15)',
+    minWidth: '200px',
+  } as React.CSSProperties,
+  viewerNavItem: (active: boolean) => ({
+    padding: '8px 12px', fontSize: '12px', fontWeight: active ? 600 : 400,
+    color: active ? '#f59e0b' : '#64748b', background: active ? 'rgba(245,158,11,0.08)' : 'transparent',
+    border: 'none', borderRadius: '0', cursor: 'pointer', textAlign: 'left' as const,
+  }),
+
+  // Badges
+  badge: (color: string, bg: string) => ({
+    display: 'inline-block', padding: '2px 10px', borderRadius: '0',
+    fontSize: '11px', fontWeight: 600, color, background: bg,
+  }),
+  statusBadge: (status: string) => {
+    const map: Record<string, [string, string]> = {
+      ready: ['#166534', '#dcfce7'], generating: ['#854d0e', '#fef9c3'],
+      failed: ['#991b1b', '#fee2e2'], scheduled: ['#1e40af', '#dbeafe'],
+    };
+    const [c, b] = map[status] || ['#64748b', '#f1f5f9'];
+    return { display: 'inline-block', padding: '2px 10px', borderRadius: '0', fontSize: '11px', fontWeight: 600, color: c, background: b };
+  },
+
+  // Section in viewer
+  sectionBlock: { marginBottom: '32px', color: '#e2e8f0' } as React.CSSProperties,
+  sectionTitle: { fontSize: '18px', fontWeight: 700, color: '#e2e8f0', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)' } as React.CSSProperties,
+  kpiGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '16px' } as React.CSSProperties,
+  kpiCard: { background: 'var(--bg-panel, #0F1419)', border: '1px solid rgba(251, 191, 36, 0.15)', borderRadius: '0', padding: '14px', textAlign: 'center' as const } as React.CSSProperties,
+  kpiValue: (color = '#e2e8f0') => ({ fontSize: '24px', fontWeight: 700, color }),
+  kpiLabel: { fontSize: '10px', color: 'rgba(255,255,255,0.6)', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' } as React.CSSProperties,
+
+  barRow: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' } as React.CSSProperties,
+  barLabel: { width: '120px', fontSize: '12px', fontWeight: 500, color: 'rgba(255,255,255,0.6)', textAlign: 'right' as const } as React.CSSProperties,
+  barTrack: { flex: 1, height: '16px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden' } as React.CSSProperties,
+  barFill: (pct: number, color: string) => ({ width: `${pct}%`, height: '100%', background: color, borderRadius: '0' }),
+  barValue: { width: '36px', fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
+
+  dataTable: { width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px', marginBottom: '12px' } as React.CSSProperties,
+  dtTh: { padding: '8px 10px', textAlign: 'left' as const, fontWeight: 600, color: 'rgba(255,255,255,0.6)', borderBottom: '2px solid rgba(255,255,255,0.08)', background: 'var(--bg-panel, #0F1419)', fontSize: '10px', textTransform: 'uppercase' as const } as React.CSSProperties,
+  dtTd: { padding: '8px 10px', borderBottom: '1px solid rgba(251, 191, 36, 0.1)', color: '#e2e8f0' } as React.CSSProperties,
+
+  trustBar: (score: number) => {
+    const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
+    return { display: 'inline-flex', alignItems: 'center', gap: '4px', color };
+  },
+
+  highlight: { background: 'var(--bg-panel, #0F1419)', borderRadius: '0', padding: '14px 18px', marginTop: '12px' } as React.CSSProperties,
+  highlightItem: { fontSize: '13px', color: 'rgba(255,255,255,0.6)', marginBottom: '4px', lineHeight: 1.5 } as React.CSSProperties,
+
+  rec: (severity: string) => {
+    const map: Record<string, [string, string]> = { critical: ['#fef2f2', '#ef4444'], warning: ['#fffbeb', '#f59e0b'], info: ['#eff6ff', '#3b82f6'] };
+    const [bg, border] = map[severity] || ['#f8fafc', '#94a3b8'];
+    return { padding: '12px 14px', borderRadius: '0', marginBottom: '8px', borderLeft: `4px solid ${border}`, background: bg };
+  },
+  recCategory: { fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginLeft: '8px' } as React.CSSProperties,
+  recMessage: { fontSize: '13px', color: '#e2e8f0', margin: '4px 0' } as React.CSSProperties,
+  recAction: { fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' } as React.CSSProperties,
+
+  callout: (type: 'green' | 'yellow') => ({
+    padding: '10px 14px', borderRadius: '0', marginBottom: '8px', fontSize: '13px',
+    background: type === 'green' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+    borderLeft: `4px solid ${type === 'green' ? '#22c55e' : '#f59e0b'}`,
+    color: '#e2e8f0',
+  }),
+
+  empty: { textAlign: 'center' as const, padding: '60px 20px', color: 'rgba(255,255,255,0.6)' } as React.CSSProperties,
+  spinner: { display: 'inline-block', width: '16px', height: '16px', border: '2px solid #f59e0b', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' } as React.CSSProperties,
+};
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
 type Tab = 'dashboard' | 'history' | 'viewer' | 'schedules';
-
-// ─── Score Gauge (SVG Arc) ───
-
-function ScoreGauge({ value, max = 100, label, color = 'emerald', size = 96 }: {
-  value: number; max?: number; label: string; color?: string; size?: number;
-}) {
-  const pct = Math.min(100, (value / max) * 100);
-  const radius = (size - 12) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (pct / 100) * circumference;
-  const colorMap: Record<string, { stroke: string; text: string; glow: string }> = {
-    emerald: { stroke: '#10b981', text: 'text-emerald-400', glow: 'drop-shadow(0 0 8px rgba(16,185,129,0.4))' },
-    amber:   { stroke: '#f59e0b', text: 'text-amber-400',   glow: 'drop-shadow(0 0 8px rgba(245,158,11,0.4))' },
-    red:     { stroke: '#ef4444', text: 'text-red-400',     glow: 'drop-shadow(0 0 8px rgba(239,68,68,0.4))' },
-    blue:    { stroke: '#3b82f6', text: 'text-blue-400',    glow: 'drop-shadow(0 0 8px rgba(59,130,246,0.4))' },
-  };
-  const c = colorMap[color] || colorMap.emerald;
-
-  return (
-    <div className="flex flex-col items-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="transform -rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={c.stroke} strokeWidth="6"
-            strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
-            className="transition-all duration-1000 ease-out" style={{ filter: c.glow }} />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`text-[20px] font-bold font-mono ${c.text}`}>{value}</span>
-          <span className="text-[8px] text-white/25 font-mono uppercase">{label.length > 6 ? label.slice(0, 6) : label}</span>
-        </div>
-      </div>
-      <span className="text-[10px] text-white/40 mt-1 font-medium">{label}</span>
-    </div>
-  );
-}
-
-// ─── Risk Heatmap Cell ───
-
-function HeatmapCell({ label, value, maxValue }: { label: string; value: number; maxValue: number }) {
-  const intensity = maxValue > 0 ? value / maxValue : 0;
-  const bgColor = intensity > 0.7 ? 'bg-red-500' : intensity > 0.4 ? 'bg-amber-500' : intensity > 0.1 ? 'bg-emerald-500' : 'bg-white/[0.04]';
-  const opacity = Math.max(0.1, intensity);
-
-  return (
-    <div className={`relative rounded aspect-square flex items-center justify-center ${bgColor} transition-all hover:scale-105`}
-      style={{ opacity: value > 0 ? opacity : 0.3 }}
-      title={`${label}: ${value}`}>
-      <span className="text-[9px] font-bold font-mono text-white/90">{value > 0 ? value : '—'}</span>
-    </div>
-  );
-}
-
-// ─── Stat Card ───
-
-function ComplianceStatCard({ label, value, unit, color, icon: Icon, trend }: {
-  label: string; value: string | number; unit?: string; color: string;
-  icon: React.ComponentType<any>; trend?: 'up' | 'down' | 'stable';
-}) {
-  const colorMap: Record<string, { text: string; bg: string; glow: string }> = {
-    emerald: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', glow: 'shadow-[0_0_12px_rgba(16,185,129,0.15)]' },
-    amber:   { text: 'text-amber-400',   bg: 'bg-amber-500/10',   glow: 'shadow-[0_0_12px_rgba(245,158,11,0.15)]' },
-    red:     { text: 'text-red-400',     bg: 'bg-red-500/10',     glow: 'shadow-[0_0_12px_rgba(239,68,68,0.15)]' },
-    blue:    { text: 'text-blue-400',    bg: 'bg-blue-500/10',    glow: 'shadow-[0_0_12px_rgba(59,130,246,0.15)]' },
-  };
-  const c = colorMap[color] || colorMap.emerald;
-  const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingUp : Minus; // down shows inverted
-
-  return (
-    <div className={`bg-[#12131a] border border-white/[0.08] rounded-lg p-4 ${c.glow} shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4)]`}>
-      <div className="flex items-start justify-between mb-2">
-        <div className={`p-2 rounded-lg ${c.bg}`}>
-          <Icon size={14} className={c.text} />
-        </div>
-        {trend && (
-          <div className={`flex items-center gap-1 ${trend === 'up' ? 'text-emerald-500' : trend === 'down' ? 'text-red-500' : 'text-white/30'}`}>
-            <TrendIcon size={10} className={trend === 'down' ? 'rotate-180' : ''} />
-          </div>
-        )}
-      </div>
-      <div className={`text-[28px] font-bold font-mono leading-none ${c.text}`}>
-        {value}{unit && <span className="text-[14px] text-white/30 ml-0.5">{unit}</span>}
-      </div>
-      <div className="text-[10px] text-white/40 mt-1 uppercase tracking-wider font-semibold">{label}</div>
-    </div>
-  );
-}
-
-// ─── Status Badge ───
-
-function StatusBadge({ status }: { status: string }) {
-  const config: Record<string, { color: string; bg: string; dot: string }> = {
-    ready:      { color: 'text-emerald-400', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
-    generating: { color: 'text-amber-400',   bg: 'bg-amber-500/10',   dot: 'bg-amber-500 animate-pulse' },
-    failed:     { color: 'text-red-400',     bg: 'bg-red-500/10',     dot: 'bg-red-500' },
-    scheduled:  { color: 'text-blue-400',    bg: 'bg-blue-500/10',    dot: 'bg-blue-500' },
-  };
-  const c = config[status] || config.ready;
-
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded ${c.bg} ${c.color} text-[9px] font-bold font-mono uppercase`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-      {status}
-    </span>
-  );
-}
-
-// ─── Report Card ───
-
-function ReportCard({ report, onView, onDelete }: {
-  report: ComplianceReport; onView: () => void; onDelete: () => void;
-}) {
-  return (
-    <div className="bg-[#12131a] border border-white/[0.06] rounded-lg p-4 hover:border-white/[0.12] transition-all group">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
-            <FileText size={16} className="text-amber-400" />
-          </div>
-          <div>
-            <h4 className="text-[13px] font-bold text-white">{report.title}</h4>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[9px] font-mono text-white/25">{report.report_type}</span>
-              <StatusBadge status={report.status} />
-            </div>
-          </div>
-        </div>
-        <div className="text-[10px] font-mono text-white/25">
-          {new Date(report.generated_at).toLocaleDateString()}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2 mt-3">
-        <span className="text-[9px] text-white/25 font-mono flex-1">
-          {report.period_start && report.period_end
-            ? `${new Date(report.period_start).toLocaleDateString()} → ${new Date(report.period_end).toLocaleDateString()}`
-            : 'No date range'}
-        </span>
-        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          {report.status === 'ready' && (
-            <button onClick={onView}
-              className="p-1.5 bg-white/[0.04] border border-white/[0.06] rounded hover:bg-white/[0.08] transition-colors">
-              <Eye size={12} className="text-white/50" />
-            </button>
-          )}
-          <button onClick={onDelete}
-            className="p-1.5 bg-red-500/5 border border-red-500/10 rounded hover:bg-red-500/10 transition-colors">
-            <Trash2 size={12} className="text-red-400/50" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Generate Modal ───
-
-function GenerateModal({ templates, onClose, onGenerate }: {
-  templates: ReportTemplate[]; onClose: () => void; onGenerate: (params: any) => void;
-}) {
-  const [title, setTitle] = useState('');
-  const [reportType, setReportType] = useState('governance_summary');
-  const [period, setPeriod] = useState(30);
-  const [sections, setSections] = useState<string[]>(ALL_SECTIONS);
-  const [generating, setGenerating] = useState(false);
-
-  const toggleSection = (s: string) => {
-    setSections(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-  };
-
-  const handleGenerate = async () => {
-    setGenerating(true);
-    try {
-      const report = await complianceApi.generateReport({
-        title: title || `Governance Report — ${new Date().toLocaleDateString()}`,
-        report_type: reportType,
-        period_days: period,
-        sections,
-      });
-      onGenerate(report);
-    } catch (err: any) {
-      alert(`Failed: ${err.message}`);
-    } finally { setGenerating(false); }
-  };
-
-  return (
-    <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center animate-[fadeIn_150ms]">
-      <div className="bg-[#12131a] border border-white/[0.12] rounded-xl p-6 w-full max-w-lg shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-emerald-500/15 rounded-lg flex items-center justify-center">
-            <Shield size={18} className="text-emerald-400" />
-          </div>
-          <div>
-            <h3 className="text-[16px] font-bold text-white">Generate Report</h3>
-            <p className="text-[11px] text-white/40">Board-ready compliance documentation</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 mb-6">
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Report Title</label>
-            <input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="e.g., Q1 2026 Governance Review"
-              className="w-full bg-black/30 border border-white/[0.08] rounded-lg px-4 py-2.5 text-[12px] font-mono text-white focus:border-emerald-500/40 focus:outline-none transition-colors" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Type</label>
-              <select value={reportType} onChange={e => setReportType(e.target.value)}
-                className="w-full bg-black/30 border border-white/[0.08] rounded-lg px-3 py-2.5 text-[12px] text-white [color-scheme:dark]">
-                <option value="governance_summary">Governance Summary</option>
-                <option value="risk_assessment">Risk Assessment</option>
-                <option value="agent_audit">Agent Audit</option>
-                <option value="incident_report">Incident Report</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Period</label>
-              <div className="flex gap-1.5">
-                {[7, 30, 90, 365].map(d => (
-                  <button key={d} onClick={() => setPeriod(d)}
-                    className={`flex-1 py-2 rounded-md text-[10px] font-bold font-mono transition-all ${
-                      period === d ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-white/[0.03] text-white/30 border border-white/[0.06]'
-                    }`}>{d === 365 ? '1y' : `${d}d`}</button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Sections</label>
-            <div className="flex flex-wrap gap-1.5">
-              {ALL_SECTIONS.map(s => (
-                <button key={s} onClick={() => toggleSection(s)}
-                  className={`px-2 py-1 rounded text-[9px] font-bold transition-all ${
-                    sections.includes(s) ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20'
-                                        : 'bg-white/[0.03] text-white/25 border border-white/[0.06]'
-                  }`}>{SECTION_LABELS[s]}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose}
-            className="px-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-[11px] font-bold text-white/40 hover:text-white transition-colors">
-            Cancel
-          </button>
-          <button onClick={handleGenerate} disabled={generating}
-            className={`px-4 py-2 rounded-lg text-[11px] font-bold flex items-center gap-2 transition-all ${
-              !generating ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'
-                         : 'bg-white/[0.03] text-white/20 border border-white/[0.06] cursor-not-allowed'
-            }`}>
-            {generating ? (
-              <><div className="w-3 h-3 border border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" /> Generating...</>
-            ) : (
-              <><Shield size={12} /> Generate</>
-            )}
-          </button>
-        </div>
-      </div>
-      <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-    </div>
-  );
-}
-
-// ─── Report Viewer ───
-
-function ReportViewer({ report, onBack }: { report: ComplianceReport; onBack: () => void }) {
-  const [activeSection, setActiveSection] = useState('');
-  const reportData = typeof report.report_data === 'string' ? JSON.parse(report.report_data) : report.report_data;
-  const sectionKeys = Object.keys(reportData?.sections || {});
-
-  useEffect(() => {
-    if (sectionKeys.length > 0 && !activeSection) setActiveSection(sectionKeys[0]);
-  }, [sectionKeys, activeSection]);
-
-  const currentData = reportData?.sections?.[activeSection];
-
-  return (
-    <div>
-      {/* Viewer Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="p-2 bg-white/[0.04] border border-white/[0.06] rounded-lg hover:bg-white/[0.08] transition-colors">
-          <X size={14} className="text-white/50" />
-        </button>
-        <div>
-          <h2 className="text-[16px] font-bold text-white">{report.title}</h2>
-          <div className="flex items-center gap-3 mt-0.5">
-            <StatusBadge status={report.status} />
-            <span className="text-[10px] font-mono text-white/25">
-              {new Date(report.generated_at).toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Section Nav + Content */}
-      <div className="grid grid-cols-[200px_1fr] gap-4">
-        {/* Section sidebar */}
-        <div className="bg-[#12131a] border border-white/[0.06] rounded-lg p-2 h-fit">
-          {sectionKeys.map(key => (
-            <button key={key} onClick={() => setActiveSection(key)}
-              className={`w-full text-left px-3 py-2 rounded-md text-[10px] font-medium transition-all mb-0.5 ${
-                activeSection === key ? 'bg-emerald-500/10 text-emerald-400' : 'text-white/40 hover:text-white/60 hover:bg-white/[0.03]'
-              }`}>{SECTION_LABELS[key] || key}</button>
-          ))}
-        </div>
-
-        {/* Section content */}
-        <div className="bg-[#12131a] border border-white/[0.06] rounded-lg p-6">
-          <h3 className="text-[14px] font-bold text-white mb-4">{SECTION_LABELS[activeSection] || activeSection}</h3>
-          {currentData ? (
-            <div className="space-y-4">
-              {typeof currentData === 'string' ? (
-                <p className="text-[12px] text-white/60 leading-relaxed">{currentData}</p>
-              ) : typeof currentData === 'object' ? (
-                <>
-                  {currentData.summary && (
-                    <p className="text-[12px] text-white/60 leading-relaxed mb-4">{currentData.summary}</p>
-                  )}
-                  {currentData.metrics && (
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      {Object.entries(currentData.metrics).map(([key, val]) => (
-                        <div key={key} className="bg-white/[0.02] border border-white/[0.04] rounded p-3">
-                          <div className="text-[18px] font-bold font-mono text-white">{String(val)}</div>
-                          <div className="text-[9px] text-white/30 uppercase tracking-wider">{key.replace(/_/g, ' ')}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {currentData.findings && Array.isArray(currentData.findings) && (
-                    <div className="space-y-2">
-                      {currentData.findings.map((f: any, i: number) => {
-                        const severityColors: Record<string, string> = {
-                          critical: 'border-red-500/30 bg-red-500/5',
-                          warning: 'border-amber-500/30 bg-amber-500/5',
-                          info: 'border-blue-500/30 bg-blue-500/5',
-                        };
-                        return (
-                          <div key={i} className={`p-3 rounded-lg border ${severityColors[f.severity] || 'border-white/[0.06]'}`}>
-                            <div className="flex items-center gap-2 mb-1">
-                              {f.severity === 'critical' && <AlertTriangle size={12} className="text-red-400" />}
-                              {f.severity === 'warning' && <AlertTriangle size={12} className="text-amber-400" />}
-                              <span className="text-[11px] font-bold text-white">{f.title || f.message}</span>
-                            </div>
-                            {f.detail && <p className="text-[10px] text-white/40 ml-5">{f.detail}</p>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  {!currentData.summary && !currentData.metrics && !currentData.findings && (
-                    <pre className="bg-black/20 rounded-lg p-4 text-[10px] font-mono text-white/50 overflow-auto max-h-96 whitespace-pre-wrap">
-                      {JSON.stringify(currentData, null, 2)}
-                    </pre>
-                  )}
-                </>
-              ) : (
-                <p className="text-[12px] text-white/40">No data for this section.</p>
-              )}
-            </div>
-          ) : (
-            <p className="text-[12px] text-white/30 text-center py-8 font-mono">Section data not available</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Page ───
 
 export function CompliancePage() {
   const [tab, setTab] = useState<Tab>('dashboard');
@@ -417,30 +229,40 @@ export function CompliancePage() {
   const [reportsTotal, setReportsTotal] = useState(0);
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);
   const [viewingReport, setViewingReport] = useState<ComplianceReport | null>(null);
+  const [activeViewerSection, setActiveViewerSection] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Fetch data
   const fetchStats = useCallback(async () => {
-    try { const data = await complianceApi.getQuickStats(period); setStats(data); } catch {}
+    try { const data = await complianceApi.getQuickStats(period); setStats(data); } catch (e) { /* Error handled silently */ }
   }, [period]);
 
   const fetchReports = useCallback(async () => {
-    try { const data = await complianceApi.listReports(); setReports(data.reports); setReportsTotal(data.total); } catch {}
+    try {
+      const data = await complianceApi.listReports();
+      setReports(data.reports); setReportsTotal(data.total);
+    } catch (e) { /* Error handled silently */ }
   }, []);
 
   const fetchTemplates = useCallback(async () => {
-    try { const data = await complianceApi.listTemplates(); setTemplates(data); } catch {}
+    try { const data = await complianceApi.listTemplates(); setTemplates(data); } catch (e) { /* Error handled silently */ }
   }, []);
 
   useEffect(() => { fetchStats(); }, [fetchStats]);
   useEffect(() => { fetchReports(); fetchTemplates(); }, [fetchReports, fetchTemplates]);
 
+  // Actions
   const handleViewReport = async (id: string) => {
     setLoading(true);
     try {
       const report = await complianceApi.getReport(id);
       setViewingReport(report);
+      const rd = typeof report.report_data === 'string' ? JSON.parse(report.report_data) : report.report_data;
+      const firstSection = Object.keys(rd.sections || {})[0] || '';
+      setActiveViewerSection(firstSection);
       setTab('viewer');
     } catch (e: any) { setError(e.message); } finally { setLoading(false); }
   };
@@ -453,6 +275,7 @@ export function CompliancePage() {
   const handleGenerated = (report: ComplianceReport) => {
     setShowGenerateModal(false);
     fetchReports();
+    // Poll until ready
     const poll = setInterval(async () => {
       try {
         const r = await complianceApi.getReport(report.id);
@@ -465,195 +288,740 @@ export function CompliancePage() {
     }, 2000);
   };
 
-  // Derive risk heatmap from stats
-  const riskData = stats ? [
-    { label: 'T0', value: Math.round(stats.total_actions * 0.4) },
-    { label: 'T1', value: Math.round(stats.total_actions * 0.3) },
-    { label: 'T2', value: Math.round(stats.total_actions * 0.2) },
-    { label: 'T3', value: Math.round(stats.total_actions * 0.1) },
-  ] : [];
-  const maxRisk = Math.max(...riskData.map(r => r.value), 1);
-
   return (
-    <div className="min-h-screen">
+    <div style={s.page}>
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div>
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Shield className="text-emerald-400" size={20} />
-            Compliance
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Board-ready governance reports with real data</p>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#e2e8f0', margin: 0 }}>Compliance Reports</h1>
+          <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>Board-ready governance reports with real data</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setShowGenerateModal(true)}
-            className="px-4 py-2 bg-emerald-500/15 border border-emerald-500/30 rounded-lg text-[11px] font-bold text-emerald-400 hover:bg-emerald-500/25 transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
-            <Plus size={14} /> Generate Report
-          </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button style={s.secondaryBtn} onClick={() => setShowScheduleModal(true)}>Schedule Report</button>
+          <button style={s.primaryBtn} onClick={() => setShowGenerateModal(true)}>Generate Report</button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-px mb-6 border-b border-white/[0.06]">
-        {([
-          { key: 'dashboard' as Tab, label: 'Dashboard', icon: Activity },
-          { key: 'history' as Tab, label: 'Reports', icon: FileText },
-          { key: 'viewer' as Tab, label: 'Viewer', icon: Eye },
-        ]).map(t => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-[11px] font-semibold flex items-center gap-2 border-b-2 transition-colors ${
-              tab === t.key ? 'text-white border-emerald-500' : 'text-white/30 border-transparent hover:text-white/50'
-            }`}>
-            <t.icon size={12} /> {t.label}
+      <div style={s.tabBar}>
+        {(['dashboard', 'history', 'viewer', 'schedules'] as Tab[]).map(t => (
+          <button key={t} style={s.tab(tab === t)} onClick={() => setTab(t)}>
+            {t === 'dashboard' ? '📊 Dashboard' : t === 'history' ? '📋 Reports' : t === 'viewer' ? '📄 Viewer' : '⏰ Schedules'}
           </button>
         ))}
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-500/5 border border-red-500/20 rounded-lg flex items-center gap-2">
-          <AlertTriangle size={14} className="text-red-400" />
-          <span className="text-[11px] text-red-400 flex-1">{error}</span>
-          <button onClick={() => setError('')} className="p-1 hover:bg-white/[0.04] rounded"><X size={12} className="text-white/30" /></button>
-        </div>
-      )}
+      {error && <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '0', color: '#ef4444', fontSize: '13px', marginBottom: '16px' }}>{error} <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>✕</button></div>}
 
       {/* Dashboard Tab */}
       {tab === 'dashboard' && (
         <div>
-          {/* Period Selector */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Reporting Period</span>
-            <div className="flex bg-[#12131a] border border-white/[0.08] rounded-lg p-1 gap-0.5">
+          <div style={s.periodBar}>
+            <span style={{ fontSize: '13px', color: '#94a3b8' }}>Reporting period</span>
+            <div>
               {[7, 30, 90, 365].map(d => (
-                <button key={d} onClick={() => setPeriod(d)}
-                  className={`px-3 py-1 rounded text-[10px] font-bold font-mono transition-all ${
-                    period === d ? 'bg-emerald-500/15 text-emerald-400' : 'text-white/30 hover:text-white/50'
-                  }`}>{d === 365 ? '1y' : `${d}d`}</button>
+                <button key={d} style={s.periodBtn(period === d)} onClick={() => setPeriod(d)}>
+                  {d === 365 ? '1y' : `${d}d`}
+                </button>
               ))}
             </div>
           </div>
-
           {stats ? (
-            <>
-              {/* Score Gauges Row */}
-              <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-6 mb-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4)]">
-                <div className="flex items-center gap-2 mb-4">
-                  <Shield size={14} className="text-emerald-400" />
-                  <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider">Compliance Overview</h3>
-                </div>
-                <div className="flex justify-around">
-                  <ScoreGauge value={stats.compliance_rate} label="Compliance" 
-                    color={stats.compliance_rate >= 95 ? 'emerald' : stats.compliance_rate >= 80 ? 'amber' : 'red'} />
-                  <ScoreGauge value={stats.fleet_health_score} label="Fleet Health"
-                    color={stats.fleet_health_score >= 80 ? 'emerald' : stats.fleet_health_score >= 60 ? 'amber' : 'red'} />
-                  <ScoreGauge value={Math.round(100 - (stats.policy_violations / Math.max(stats.total_actions, 1)) * 100)} label="Policy Score"
-                    color={stats.policy_violations === 0 ? 'emerald' : stats.policy_violations < 10 ? 'amber' : 'red'} />
-                  <ScoreGauge value={Math.max(0, 100 - stats.unauthorized_executions * 10)} label="Auth Score"
-                    color={stats.unauthorized_executions === 0 ? 'emerald' : 'red'} />
-                </div>
+            <div style={s.statsGrid}>
+              <div style={s.statCard('#f59e0b')}>
+                <div style={s.statValue('#f59e0b')}>{stats.total_actions.toLocaleString()}</div>
+                <div style={s.statLabel}>Actions Governed</div>
               </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-                <ComplianceStatCard label="Actions Governed" value={stats.total_actions.toLocaleString()}
-                  color="amber" icon={Activity} trend="up" />
-                <ComplianceStatCard label="Compliance Rate" value={stats.compliance_rate} unit="%"
-                  color={stats.compliance_rate >= 95 ? 'emerald' : 'red'} icon={CheckCircle}
-                  trend={stats.compliance_rate >= 95 ? 'up' : 'down'} />
-                <ComplianceStatCard label="Policy Violations" value={stats.policy_violations}
-                  color={stats.policy_violations > 10 ? 'red' : stats.policy_violations > 0 ? 'amber' : 'emerald'}
-                  icon={AlertTriangle} trend={stats.policy_violations === 0 ? 'stable' : 'down'} />
-                <ComplianceStatCard label="Avg Approval Time" value={stats.avg_approval_time_minutes} unit=" min"
-                  color="blue" icon={Clock} />
-                <ComplianceStatCard label="Unauthorized" value={stats.unauthorized_executions}
-                  color={stats.unauthorized_executions > 0 ? 'red' : 'emerald'} icon={XCircle} />
-                <ComplianceStatCard label="Fleet Health" value={stats.fleet_health_score} unit="/100"
-                  color={stats.fleet_health_score >= 80 ? 'emerald' : 'amber'} icon={Shield} />
+              <div style={s.statCard(stats.compliance_rate >= 95 ? '#22c55e' : '#ef4444')}>
+                <div style={s.statValue(stats.compliance_rate >= 95 ? '#10b981' : '#ef4444')}>{stats.compliance_rate}%</div>
+                <div style={s.statLabel}>Compliance Rate</div>
               </div>
-
-              {/* Risk Heatmap */}
-              <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4 mb-6">
-                <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider mb-3">Risk Distribution by Tier</h3>
-                <div className="grid grid-cols-4 gap-3">
-                  {riskData.map(r => (
-                    <div key={r.label} className="text-center">
-                      <HeatmapCell label={r.label} value={r.value} maxValue={maxRisk} />
-                      <div className="mt-2 text-[10px] font-bold font-mono text-white/40">{r.label}</div>
-                      <div className="text-[9px] font-mono text-white/20">{r.value.toLocaleString()}</div>
-                    </div>
-                  ))}
+              <div style={s.statCard(stats.policy_violations > 10 ? '#ef4444' : stats.policy_violations > 0 ? '#f59e0b' : '#22c55e')}>
+                <div style={s.statValue(stats.policy_violations > 10 ? '#ef4444' : stats.policy_violations > 0 ? '#f59e0b' : '#10b981')}>{stats.policy_violations}</div>
+                <div style={s.statLabel}>Policy Violations</div>
+              </div>
+              <div style={s.statCard('#3b82f6')}>
+                <div style={s.statValue('#60a5fa')}>{stats.avg_approval_time_minutes}<span style={s.statUnit}> min</span></div>
+                <div style={s.statLabel}>Avg Approval Time</div>
+              </div>
+              <div style={s.statCard(stats.unauthorized_executions > 0 ? '#ef4444' : '#22c55e')}>
+                <div style={s.statValue(stats.unauthorized_executions > 0 ? '#ef4444' : '#10b981')}>{stats.unauthorized_executions}</div>
+                <div style={s.statLabel}>Unauthorized Executions</div>
+              </div>
+              <div style={s.statCard(stats.fleet_health_score >= 80 ? '#22c55e' : stats.fleet_health_score >= 60 ? '#f59e0b' : '#ef4444')}>
+                <div style={s.statValue(stats.fleet_health_score >= 80 ? '#10b981' : stats.fleet_health_score >= 60 ? '#f59e0b' : '#ef4444')}>
+                  {stats.fleet_health_score}<span style={s.statUnit}>/100</span>
                 </div>
+                <div style={s.statLabel}>Fleet Health Score</div>
               </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-24">
-              <div className="w-8 h-8 border-2 border-white/10 border-t-emerald-500 rounded-full animate-spin mb-4" />
-              <span className="text-[11px] font-mono text-white/30">Loading compliance data...</span>
             </div>
+          ) : (
+            <div style={s.empty}><div style={s.spinner} /> Loading stats...</div>
           )}
 
           {/* Recent Reports */}
-          <div className="mb-4">
-            <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider mb-3">Recent Reports</h3>
-            {reports.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                {reports.slice(0, 4).map(r => (
-                  <ReportCard key={r.id} report={r} onView={() => handleViewReport(r.id)} onDelete={() => handleDeleteReport(r.id)} />
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0', marginBottom: '12px' }}>Recent Reports</h3>
+          {reports.length > 0 ? (
+            <table style={s.table}>
+              <thead>
+                <tr>
+                  <th style={s.th}>Title</th><th style={s.th}>Type</th><th style={s.th}>Status</th>
+                  <th style={s.th}>Generated</th><th style={s.th}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.slice(0, 5).map(r => (
+                  <tr key={r.id}>
+                    <td style={s.td}>{r.title}</td>
+                    <td style={s.td}><span style={s.badge('#f59e0b', 'rgba(245,158,11,0.15)')}>{r.report_type}</span></td>
+                    <td style={s.td}><span style={s.statusBadge(r.status)}>{r.status}</span></td>
+                    <td style={s.td}>{new Date(r.generated_at).toLocaleDateString()}</td>
+                    <td style={s.td}>
+                      {r.status === 'ready' && <button style={s.ghostBtn} onClick={() => handleViewReport(r.id)}>View</button>}
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-[#12131a] border border-white/[0.06] rounded-lg">
-                <FileText size={24} className="text-white/15 mx-auto mb-2" />
-                <p className="text-[12px] text-white/30">No reports yet. Generate your first compliance report.</p>
-              </div>
-            )}
-          </div>
+              </tbody>
+            </table>
+          ) : (
+            <div style={s.empty}>No reports yet. Generate your first compliance report above.</div>
+          )}
         </div>
       )}
 
       {/* History Tab */}
       {tab === 'history' && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[11px] font-mono text-white/30">{reportsTotal} reports</span>
-            <button onClick={fetchReports}
-              className="px-3 py-1.5 bg-white/[0.04] border border-white/[0.06] rounded-md text-[10px] font-bold font-mono text-white/40 hover:text-white transition-colors flex items-center gap-2">
-              <RefreshCw size={10} /> Refresh
-            </button>
-          </div>
-          {reports.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={s.th}>Title</th><th style={s.th}>Type</th><th style={s.th}>Period</th>
+                <th style={s.th}>Generated By</th><th style={s.th}>Date</th><th style={s.th}>Status</th>
+                <th style={s.th}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
               {reports.map(r => (
-                <ReportCard key={r.id} report={r} onView={() => handleViewReport(r.id)} onDelete={() => handleDeleteReport(r.id)} />
+                <tr key={r.id}>
+                  <td style={s.td}>{r.title}</td>
+                  <td style={s.td}><span style={s.badge('#f59e0b', 'rgba(245,158,11,0.15)')}>{r.report_type}</span></td>
+                  <td style={{ ...s.td, fontSize: '11px' }}>
+                    {new Date(r.period_start).toLocaleDateString()} – {new Date(r.period_end).toLocaleDateString()}
+                  </td>
+                  <td style={s.td}>{r.generated_by}</td>
+                  <td style={s.td}>{new Date(r.generated_at).toLocaleString()}</td>
+                  <td style={s.td}><span style={s.statusBadge(r.status)}>{r.status}</span></td>
+                  <td style={{ ...s.td, display: 'flex', gap: '4px' }}>
+                    {r.status === 'ready' && (
+                      <>
+                        <button style={s.ghostBtn} onClick={() => handleViewReport(r.id)}>View</button>
+                        <a href={complianceApi.getPdfUrl(r.id)} target="_blank" rel="noreferrer" style={{ ...s.ghostBtn, textDecoration: 'none' }}>PDF</a>
+                        <a href={complianceApi.getCsvUrl(r.id)} style={{ ...s.ghostBtn, textDecoration: 'none' }}>CSV</a>
+                      </>
+                    )}
+                    <button style={s.dangerBtn} onClick={() => handleDeleteReport(r.id)}>Delete</button>
+                  </td>
+                </tr>
               ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-[#12131a] border border-white/[0.06] rounded-lg">
-              <FileText size={28} className="text-white/10 mx-auto mb-3" />
-              <h3 className="text-[14px] font-bold text-white mb-1">No Reports</h3>
-              <p className="text-[11px] text-white/30">Generate your first compliance report above.</p>
-            </div>
-          )}
+            </tbody>
+          </table>
+          {reports.length === 0 && <div style={s.empty}>No reports generated yet.</div>}
         </div>
       )}
 
       {/* Viewer Tab */}
       {tab === 'viewer' && (
-        viewingReport ? (
-          <ReportViewer report={viewingReport} onBack={() => { setViewingReport(null); setTab('dashboard'); }} />
-        ) : (
-          <div className="text-center py-20 bg-[#12131a] border border-white/[0.06] rounded-lg">
-            <Eye size={28} className="text-white/10 mx-auto mb-3" />
-            <h3 className="text-[14px] font-bold text-white mb-1">No Report Selected</h3>
-            <p className="text-[11px] text-white/30">Select a report from the Dashboard or History tab to view.</p>
+        viewingReport ? <ReportViewer report={viewingReport} activeSection={activeViewerSection} onSectionChange={setActiveViewerSection} onBack={() => { setViewingReport(null); setTab('history'); }} /> :
+        <div style={s.empty}>Select a report from the History tab to view it.</div>
+      )}
+
+      {/* Schedules Tab */}
+      {tab === 'schedules' && (
+        <div>
+          <div style={{ marginBottom: '16px' }}>
+            <button style={s.primaryBtn} onClick={() => setShowScheduleModal(true)}>+ Add Schedule</button>
           </div>
-        )
+          {reports.filter(r => r.schedule_cron).length > 0 ? (
+            <table style={s.table}>
+              <thead><tr><th style={s.th}>Report Type</th><th style={s.th}>Schedule</th><th style={s.th}>Recipients</th></tr></thead>
+              <tbody>
+                {reports.filter(r => r.schedule_cron).map(r => (
+                  <tr key={r.id}>
+                    <td style={s.td}>{r.report_type}</td>
+                    <td style={s.td}><code style={{ fontSize: '12px', color: '#f59e0b' }}>{r.schedule_cron}</code></td>
+                    <td style={s.td}>{(r.recipients || []).join(', ') || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={s.empty}>No scheduled reports. Set up recurring report generation.</div>
+          )}
+        </div>
       )}
 
       {/* Generate Modal */}
-      {showGenerateModal && (
-        <GenerateModal templates={templates} onClose={() => setShowGenerateModal(false)} onGenerate={handleGenerated} />
+      {showGenerateModal && <GenerateModal templates={templates} onClose={() => setShowGenerateModal(false)} onGenerated={handleGenerated} />}
+
+      {/* Schedule Modal */}
+      {showScheduleModal && <ScheduleModal onClose={() => setShowScheduleModal(false)} onCreated={() => { setShowScheduleModal(false); fetchReports(); }} />}
+    </div>
+  );
+}
+
+// ─── Generate Report Modal ──────────────────────────────────────────────────
+
+function GenerateModal({ templates, onClose, onGenerated }: { templates: ReportTemplate[]; onClose: () => void; onGenerated: (r: ComplianceReport) => void }) {
+  const [reportType, setReportType] = useState('quarterly');
+  const [templateId, setTemplateId] = useState('');
+  const [sections, setSections] = useState<string[]>([...ALL_SECTIONS]);
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
+  const [generating, setGenerating] = useState(false);
+
+  const toggleSection = (s: string) => {
+    setSections(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+  };
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const params: any = { report_type: reportType, sections };
+      if (templateId) params.template_id = templateId;
+      if (reportType === 'custom' && customStart) params.period_start = customStart;
+      if (reportType === 'custom' && customEnd) params.period_end = customEnd;
+      const report = await complianceApi.generateReport(params);
+      onGenerated(report);
+    } catch (e: any) {
+      alert('Generation failed: ' + e.message);
+    } finally { setGenerating(false); }
+  };
+
+  return (
+    <div style={s.overlay} onClick={onClose}>
+      <div style={s.modal} onClick={e => e.stopPropagation()}>
+        <h2 style={s.modalTitle}>Generate Compliance Report</h2>
+
+        <div style={s.formGroup}>
+          <label style={s.label}>Report Type</label>
+          <select style={s.select} value={reportType} onChange={e => setReportType(e.target.value)}>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="annual">Annual</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+
+        {reportType === 'custom' && (
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ ...s.formGroup, flex: 1 }}>
+              <label style={s.label}>Start Date</label>
+              <input type="date" style={s.input} value={customStart} onChange={e => setCustomStart(e.target.value)} />
+            </div>
+            <div style={{ ...s.formGroup, flex: 1 }}>
+              <label style={s.label}>End Date</label>
+              <input type="date" style={s.input} value={customEnd} onChange={e => setCustomEnd(e.target.value)} />
+            </div>
+          </div>
+        )}
+
+        {templates.length > 0 && (
+          <div style={s.formGroup}>
+            <label style={s.label}>Template</label>
+            <select style={s.select} value={templateId} onChange={e => setTemplateId(e.target.value)}>
+              <option value="">All Sections (Default)</option>
+              {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div style={s.formGroup}>
+          <label style={s.label}>Sections</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            {ALL_SECTIONS.map(sec => (
+              <label key={sec} style={{ ...s.checkboxLabel, display: 'flex', alignItems: 'center' }}>
+                <input type="checkbox" style={s.checkbox} checked={sections.includes(sec)} onChange={() => toggleSection(sec)} />
+                {SECTION_LABELS[sec]}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '20px' }}>
+          <button style={s.secondaryBtn} onClick={onClose}>Cancel</button>
+          <button style={{ ...s.primaryBtn, opacity: generating ? 0.6 : 1 }} disabled={generating} onClick={handleGenerate}>
+            {generating ? 'Generating...' : 'Generate Report'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Schedule Modal ─────────────────────────────────────────────────────────
+
+function ScheduleModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [reportType, setReportType] = useState('weekly');
+  const [frequency, setFrequency] = useState('weekly');
+  const [recipients, setRecipients] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  const cronMap: Record<string, string> = {
+    daily: '0 8 * * *',
+    weekly: '0 8 * * 1',
+    monthly: '0 8 1 * *',
+  };
+
+  const handleCreate = async () => {
+    setCreating(true);
+    try {
+      await complianceApi.createSchedule({
+        report_type: reportType,
+        schedule_cron: cronMap[frequency] || '0 8 * * 1',
+        recipients: recipients.split(',').map(r => r.trim()).filter(Boolean),
+      });
+      onCreated();
+    } catch (e: any) { alert('Failed: ' + e.message); } finally { setCreating(false); }
+  };
+
+  return (
+    <div style={s.overlay} onClick={onClose}>
+      <div style={s.modal} onClick={e => e.stopPropagation()}>
+        <h2 style={s.modalTitle}>Schedule Recurring Report</h2>
+        <div style={s.formGroup}>
+          <label style={s.label}>Report Type</label>
+          <select style={s.select} value={reportType} onChange={e => setReportType(e.target.value)}>
+            <option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option>
+          </select>
+        </div>
+        <div style={s.formGroup}>
+          <label style={s.label}>Frequency</label>
+          <select style={s.select} value={frequency} onChange={e => setFrequency(e.target.value)}>
+            <option value="daily">Daily (8:00 AM)</option><option value="weekly">Weekly (Monday 8:00 AM)</option><option value="monthly">Monthly (1st, 8:00 AM)</option>
+          </select>
+        </div>
+        <div style={s.formGroup}>
+          <label style={s.label}>Recipients (comma-separated emails)</label>
+          <input style={s.input} placeholder="ciso@company.com, cto@company.com" value={recipients} onChange={e => setRecipients(e.target.value)} />
+        </div>
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '20px' }}>
+          <button style={s.secondaryBtn} onClick={onClose}>Cancel</button>
+          <button style={{ ...s.primaryBtn, opacity: creating ? 0.6 : 1 }} disabled={creating} onClick={handleCreate}>
+            {creating ? 'Creating...' : 'Create Schedule'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Report Viewer ──────────────────────────────────────────────────────────
+
+function ReportViewer({ report, activeSection, onSectionChange, onBack }: {
+  report: ComplianceReport; activeSection: string; onSectionChange: (s: string) => void; onBack: () => void;
+}) {
+  const data = typeof report.report_data === 'string' ? JSON.parse(report.report_data) : report.report_data;
+  const sections = data.sections || {};
+  const sectionKeys = Object.keys(sections);
+
+  return (
+    <div style={s.viewerWrapper}>
+      {/* Toolbar */}
+      <div style={s.viewerToolbar}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button onClick={onBack} style={{ ...s.ghostBtn, color: '#64748b' }}>← Back</button>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>{report.title}</span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a href={complianceApi.getPdfUrl(report.id)} target="_blank" rel="noreferrer"
+            style={{ ...s.primaryBtn, textDecoration: 'none', fontSize: '12px', padding: '8px 14px', background: '#f59e0b' }}>
+            Download PDF
+          </a>
+          <a href={complianceApi.getCsvUrl(report.id)}
+            style={{ ...s.secondaryBtn, textDecoration: 'none', color: '#f59e0b', borderColor: 'rgba(245,158,11,0.2)' }}>
+            Export CSV
+          </a>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex' }}>
+        {/* Navigation sidebar */}
+        <div style={s.viewerNav}>
+          {sectionKeys.map((key, i) => (
+            <button key={key} style={s.viewerNavItem(activeSection === key)} onClick={() => onSectionChange(key)}>
+              {i + 1}. {SECTION_LABELS[key] || key}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div style={s.viewerContent}>
+          {/* Report Header */}
+          <div style={{ marginBottom: '32px', borderBottom: '3px solid #f59e0b', paddingBottom: '20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#f59e0b', letterSpacing: '2px', marginBottom: '8px' }}>VIENNA OS</div>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#e2e8f0', margin: '0 0 6px' }}>{report.title}</h1>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>
+              Period: <strong>{new Date(report.period_start).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong> — <strong>{new Date(report.period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>
+              {' · '}Generated: {new Date(report.generated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </div>
+          </div>
+
+          {/* Render all sections */}
+          {sectionKeys.map((key, idx) => (
+            <div key={key} id={`section-${key}`} style={s.sectionBlock}>
+              <RenderSection sectionKey={key} data={sections[key]} index={idx + 1} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section Renderer ───────────────────────────────────────────────────────
+
+function RenderSection({ sectionKey, data, index }: { sectionKey: string; data: any; index: number }) {
+  if (!data || data.error) {
+    return (
+      <div>
+        <h2 style={s.sectionTitle}>{index}. {SECTION_LABELS[sectionKey] || sectionKey}</h2>
+        <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>{data?.error || 'No data available'}</p>
+      </div>
+    );
+  }
+
+  switch (sectionKey) {
+    case 'executive_summary': return <ExecutiveSummarySection data={data} index={index} />;
+    case 'governance_overview': return <GovernanceOverviewSection data={data} index={index} />;
+    case 'action_volume': return <ActionVolumeSection data={data} index={index} />;
+    case 'policy_compliance': return <PolicyComplianceSection data={data} index={index} />;
+    case 'agent_performance': return <AgentPerformanceSection data={data} index={index} />;
+    case 'risk_analysis': return <RiskAnalysisSection data={data} index={index} />;
+    case 'approval_metrics': return <ApprovalMetricsSection data={data} index={index} />;
+    case 'violations_incidents': return <ViolationsSection data={data} index={index} />;
+    case 'integration_health': return <IntegrationHealthSection data={data} index={index} />;
+    case 'recommendations': return <RecommendationsSection data={data} index={index} />;
+    default: return <div><h2 style={s.sectionTitle}>{index}. {sectionKey}</h2><pre style={{ fontSize: '11px', color: '#64748b' }}>{JSON.stringify(data, null, 2)}</pre></div>;
+  }
+}
+
+function ExecutiveSummarySection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Executive Summary</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={data.total_actions_governed?.toLocaleString() || '0'} label="Actions Governed" />
+        <KpiCard value={`${data.policy_compliance_rate || 0}%`} label="Compliance Rate" color={(data.policy_compliance_rate || 0) >= 95 ? '#16a34a' : '#dc2626'} />
+        <KpiCard value={String(data.unauthorized_executions || 0)} label="Unauthorized Executions" color={data.unauthorized_executions === 0 ? '#16a34a' : '#dc2626'} />
+        <KpiCard value={`${data.fleet_health_score || 0}/100`} label="Fleet Health" color={(data.fleet_health_score || 0) >= 80 ? '#16a34a' : '#f59e0b'} />
+        <KpiCard value={String(data.active_agents || 0)} label="Active Agents" />
+        <KpiCard value={`${data.avg_approval_time_minutes || 0} min`} label="Avg Approval Time" />
+      </div>
+      {data.highlights?.length > 0 && (
+        <div style={s.highlight}>
+          {data.highlights.map((h: string, i: number) => <p key={i} style={s.highlightItem}>• {h}</p>)}
+        </div>
       )}
     </div>
+  );
+}
+
+function GovernanceOverviewSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Governance Overview</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={String(data.active_rules_count || 0)} label="Active Rules" />
+        <KpiCard value={String(data.rules_added_in_period || 0)} label="Rules Added" />
+      </div>
+      {data.action_distribution?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>Default Action Distribution</h3>
+          <BarChart items={data.action_distribution.map((d: any) => ({
+            label: d.action, value: d.count,
+            color: d.action === 'deny' ? '#ef4444' : d.action === 'require_approval' ? '#f59e0b' : '#22c55e',
+          }))} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ActionVolumeSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Action Volume</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={(data.total_intents || 0).toLocaleString()} label="Total Intents" />
+      </div>
+      {data.by_risk_tier?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>By Risk Tier</h3>
+          <BarChart items={data.by_risk_tier.map((t: any) => ({
+            label: t.tier, value: t.count,
+            color: t.tier === 'T2' ? '#ef4444' : t.tier === 'T1' ? '#f59e0b' : '#22c55e',
+          }))} />
+        </>
+      )}
+      {data.by_action_type?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>By Action Type</h3>
+          <table style={s.dataTable}>
+            <thead><tr><th style={s.dtTh}>Type</th><th style={s.dtTh}>Count</th><th style={s.dtTh}>%</th></tr></thead>
+            <tbody>{data.by_action_type.map((a: any) => {
+              const pct = data.total_intents > 0 ? Math.round((a.count / data.total_intents) * 100) : 0;
+              return <tr key={a.type}><td style={s.dtTd}>{a.type}</td><td style={s.dtTd}>{a.count}</td><td style={s.dtTd}><InlineBar pct={pct} /> {pct}%</td></tr>;
+            })}</tbody>
+          </table>
+        </>
+      )}
+      {data.daily_trend?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>Daily Trend</h3>
+          <MiniChart data={data.daily_trend} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function PolicyComplianceSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Policy Compliance</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={(data.total_evaluations || 0).toLocaleString()} label="Rules Evaluated" />
+        <KpiCard value={`${data.match_rate || 0}%`} label="Match Rate" />
+      </div>
+      {data.top_triggered_rules?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>Top Triggered Rules</h3>
+          <table style={s.dataTable}>
+            <thead><tr><th style={s.dtTh}>Rule</th><th style={s.dtTh}>Triggered</th><th style={s.dtTh}>Block Rate</th></tr></thead>
+            <tbody>{data.top_triggered_rules.map((r: any) => (
+              <tr key={r.rule_id}><td style={s.dtTd}>{r.name}</td><td style={s.dtTd}>{r.times_triggered}</td>
+                <td style={s.dtTd}><span style={s.badge(r.block_rate > 50 ? '#991b1b' : '#854d0e', r.block_rate > 50 ? '#fee2e2' : '#fef9c3')}>{r.block_rate}%</span></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AgentPerformanceSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Agent Performance</h2>
+      {data.best_performer && <div style={s.callout('green')}>🏆 Best Performer: <strong>{data.best_performer.name}</strong> (Trust: {data.best_performer.trust_score}/100)</div>}
+      {data.worst_performer && <div style={s.callout('yellow')}>⚠️ Needs Attention: <strong>{data.worst_performer.name}</strong> (Trust: {data.worst_performer.trust_score}/100)</div>}
+      {data.scorecards?.length > 0 && (
+        <table style={s.dataTable}>
+          <thead><tr><th style={s.dtTh}>Agent</th><th style={s.dtTh}>Status</th><th style={s.dtTh}>Actions</th><th style={s.dtTh}>Approval</th><th style={s.dtTh}>Error</th><th style={s.dtTh}>Latency</th><th style={s.dtTh}>Trust</th></tr></thead>
+          <tbody>{data.scorecards.map((a: any) => (
+            <tr key={a.agent_id}>
+              <td style={{ ...s.dtTd, fontWeight: 600 }}>{a.display_name}</td>
+              <td style={s.dtTd}><span style={s.badge(
+                a.status === 'active' ? '#166534' : a.status === 'suspended' ? '#991b1b' : '#64748b',
+                a.status === 'active' ? '#dcfce7' : a.status === 'suspended' ? '#fee2e2' : '#f1f5f9'
+              )}>{a.status}</span></td>
+              <td style={s.dtTd}>{a.total_actions}</td>
+              <td style={s.dtTd}>{a.approval_rate}%</td>
+              <td style={{ ...s.dtTd, color: a.error_rate > 10 ? '#ef4444' : a.error_rate > 5 ? '#f59e0b' : '#22c55e' }}>{a.error_rate}%</td>
+              <td style={s.dtTd}>{a.avg_latency_ms}ms</td>
+              <td style={s.dtTd}><TrustBar score={a.trust_score} /></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function RiskAnalysisSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Risk Analysis</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={String(data.high_risk_actions?.total || 0)} label="High-Risk (T2) Actions" color="#ef4444" />
+        <KpiCard value={String(data.scope_creep_attempts || 0)} label="Scope Creep Attempts" />
+        <KpiCard value={String(data.anomalies_detected || 0)} label="Anomalies Detected" />
+      </div>
+      {data.top_denials?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>Top Denial Reasons</h3>
+          <table style={s.dataTable}>
+            <thead><tr><th style={s.dtTh}>Agent</th><th style={s.dtTh}>Action</th><th style={s.dtTh}>Denials</th></tr></thead>
+            <tbody>{data.top_denials.map((d: any, i: number) => <tr key={i}><td style={s.dtTd}>{d.agent_id}</td><td style={s.dtTd}>{d.action_type}</td><td style={s.dtTd}>{d.count}</td></tr>)}</tbody>
+          </table>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ApprovalMetricsSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Approval Metrics</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={String(data.total_approvals_requested || 0)} label="Approvals Requested" />
+        <KpiCard value={`${data.avg_time_to_approval_minutes || 0} min`} label="Avg Time to Approval" />
+        <KpiCard value={`${data.approval_rate || 0}%`} label="Approval Rate" color="#16a34a" />
+      </div>
+      {data.by_tier?.length > 0 && (
+        <>
+          <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#334155', margin: '16px 0 8px' }}>By Tier</h3>
+          <BarChart items={data.by_tier.map((t: any) => ({ label: t.tier, value: t.count, color: '#f59e0b' }))} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ViolationsSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Violations & Incidents</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={String(data.total_violations || 0)} label="Total Violations" color={data.total_violations > 0 ? '#ef4444' : '#16a34a'} />
+        <KpiCard value={String(data.unresolved_count || 0)} label="Unresolved" color={data.unresolved_count > 0 ? '#f59e0b' : '#16a34a'} />
+      </div>
+      {data.by_severity?.length > 0 && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          {data.by_severity.map((sv: any) => (
+            <span key={sv.severity} style={s.badge(
+              sv.severity === 'critical' ? '#991b1b' : sv.severity === 'warning' ? '#854d0e' : '#1e40af',
+              sv.severity === 'critical' ? '#fee2e2' : sv.severity === 'warning' ? '#fef9c3' : '#dbeafe',
+            )}>{sv.severity}: {sv.count}</span>
+          ))}
+        </div>
+      )}
+      {data.incident_timeline?.length > 0 && (
+        <table style={s.dataTable}>
+          <thead><tr><th style={s.dtTh}>Time</th><th style={s.dtTh}>Agent</th><th style={s.dtTh}>Type</th><th style={s.dtTh}>Severity</th><th style={s.dtTh}>Message</th><th style={s.dtTh}>Resolved</th></tr></thead>
+          <tbody>{data.incident_timeline.slice(0, 15).map((i: any) => (
+            <tr key={i.id}>
+              <td style={{ ...s.dtTd, fontSize: '11px', whiteSpace: 'nowrap' }}>{new Date(i.created_at).toLocaleString()}</td>
+              <td style={s.dtTd}>{i.agent_id}</td><td style={s.dtTd}>{i.alert_type}</td>
+              <td style={s.dtTd}><span style={s.badge(
+                i.severity === 'critical' ? '#991b1b' : i.severity === 'warning' ? '#854d0e' : '#1e40af',
+                i.severity === 'critical' ? '#fee2e2' : i.severity === 'warning' ? '#fef9c3' : '#dbeafe',
+              )}>{i.severity}</span></td>
+              <td style={{ ...s.dtTd, fontSize: '11px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{i.message}</td>
+              <td style={s.dtTd}>{i.resolved ? '✅' : '❌'}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function IntegrationHealthSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Integration Health</h2>
+      <div style={s.kpiGrid}>
+        <KpiCard value={String(data.total_active || 0)} label="Active Integrations" />
+        <KpiCard value={`${data.overall_delivery_rate || 100}%`} label="Delivery Rate" color="#16a34a" />
+      </div>
+      {data.integrations?.length > 0 && (
+        <table style={s.dataTable}>
+          <thead><tr><th style={s.dtTh}>Name</th><th style={s.dtTh}>Type</th><th style={s.dtTh}>Status</th><th style={s.dtTh}>Success Rate</th><th style={s.dtTh}>Events</th></tr></thead>
+          <tbody>{data.integrations.map((i: any) => (
+            <tr key={i.name}>
+              <td style={s.dtTd}>{i.name}</td><td style={s.dtTd}>{i.type}</td>
+              <td style={s.dtTd}><span style={s.badge(i.enabled ? '#166534' : '#64748b', i.enabled ? '#dcfce7' : '#f1f5f9')}>{i.enabled ? 'Active' : 'Disabled'}</span></td>
+              <td style={s.dtTd}>{i.delivery_success_rate}%</td><td style={s.dtTd}>{i.events_in_period}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+function RecommendationsSection({ data, index }: { data: any; index: number }) {
+  return (
+    <div>
+      <h2 style={s.sectionTitle}>{index}. Recommendations</h2>
+      {data.items?.length > 0 ? data.items.map((r: any, i: number) => (
+        <div key={i} style={s.rec(r.severity)}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+            <span style={s.badge(
+              r.severity === 'critical' ? '#991b1b' : r.severity === 'warning' ? '#854d0e' : '#1e40af',
+              r.severity === 'critical' ? '#fee2e2' : r.severity === 'warning' ? '#fef9c3' : '#dbeafe',
+            )}>{r.severity.toUpperCase()}</span>
+            <span style={s.recCategory}>{r.category}</span>
+          </div>
+          <p style={s.recMessage}>{r.message}</p>
+          <p style={s.recAction}>→ {r.action}</p>
+        </div>
+      )) : (
+        <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>No recommendations at this time. Governance posture is strong. ✅</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Shared Chart Components ────────────────────────────────────────────────
+
+function KpiCard({ value, label, color }: { value: string; label: string; color?: string }) {
+  return (
+    <div style={s.kpiCard}>
+      <div style={s.kpiValue(color || '#1a1a2e')}>{value}</div>
+      <div style={s.kpiLabel}>{label}</div>
+    </div>
+  );
+}
+
+function BarChart({ items }: { items: Array<{ label: string; value: number; color: string }> }) {
+  const max = Math.max(...items.map(i => i.value), 1);
+  return (
+    <div>
+      {items.map((item, i) => (
+        <div key={i} style={s.barRow}>
+          <span style={s.barLabel}>{item.label}</span>
+          <div style={s.barTrack}><div style={s.barFill((item.value / max) * 100, item.color)} /></div>
+          <span style={s.barValue}>{item.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InlineBar({ pct }: { pct: number }) {
+  return (
+    <span style={{ display: 'inline-block', width: '60px', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden', verticalAlign: 'middle', marginRight: '4px' }}>
+      <span style={{ display: 'block', width: `${pct}%`, height: '100%', background: '#f59e0b', borderRadius: '0' }} />
+    </span>
+  );
+}
+
+function MiniChart({ data }: { data: Array<{ date: string; count: number }> }) {
+  const max = Math.max(...data.map(d => d.count), 1);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '60px', borderBottom: '1px solid rgba(251, 191, 36, 0.15)' }}>
+      {data.map((d, i) => (
+        <div key={i} title={`${d.date}: ${d.count}`}
+          style={{ flex: 1, minWidth: '3px', background: '#f59e0b', borderRadius: '2px 2px 0 0', opacity: 0.8,
+            height: `${Math.max(4, (d.count / max) * 56)}px` }} />
+      ))}
+    </div>
+  );
+}
+
+function TrustBar({ score }: { score: number }) {
+  const color = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
+  return (
+    <span style={s.trustBar(score)}>
+      <span style={{ width: '40px', height: '5px', background: 'rgba(255,255,255,0.08)', borderRadius: '0', overflow: 'hidden', display: 'inline-block' }}>
+        <span style={{ display: 'block', width: `${score}%`, height: '100%', background: color, borderRadius: '0' }} />
+      </span>
+      <span style={{ fontSize: '11px', fontWeight: 600 }}>{score}</span>
+    </span>
   );
 }

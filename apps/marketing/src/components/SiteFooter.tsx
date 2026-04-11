@@ -42,7 +42,7 @@ export default function SiteFooter() {
               <li><Link href="/privacy" className="hover:text-amber-500 transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="hover:text-amber-500 transition-colors">Terms</Link></li>
               <li><Link href="/security" className="hover:text-amber-500 transition-colors">Security</Link></li>
-              <li><a href="https://github.com/risk-ai/regulatorai" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors">GitHub</a></li>
+              <li><a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="hover:text-amber-500 transition-colors">GitHub</a></li>
             </ul>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function SiteFooter() {
             <span>© 2026 Vienna OS — BSL 1.1 License</span>
           </div>
           <div className="flex items-center gap-6 text-xs">
-            <a href="https://github.com/risk-ai/regulatorai" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-amber-500 transition-colors">GitHub</a>
+            <a href="https://github.com/risk-ai/vienna-os" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-amber-500 transition-colors">GitHub</a>
             <a href="https://twitter.com/Vienna_OS" target="_blank" rel="noopener noreferrer" className="text-zinc-600 hover:text-amber-500 transition-colors">Twitter</a>
           </div>
         </div>

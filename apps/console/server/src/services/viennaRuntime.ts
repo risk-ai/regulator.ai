@@ -702,10 +702,10 @@ export class ViennaRuntimeService {
   // ==========================================================================
 
   async getActiveEnvelopes(): Promise<EnvelopeExecution[]> {
-    // Safe when runtime unavailable (serverless/degraded mode)
-    if (!this.viennaCore?.queuedExecutor) return [];
+    // For Phase 5E: return currently executing envelopes
     try {
       const queueState = this.viennaCore.queuedExecutor.getQueueState();
+      // Return empty for now - full implementation would query executor
       return [];
     } catch (error) {
       console.error('[ViennaRuntimeService] Failed to get active envelopes:', error);
@@ -784,9 +784,6 @@ export class ViennaRuntimeService {
 
   async getQueueState(): Promise<QueueSnapshot> {
     try {
-      if (!this.viennaCore?.queuedExecutor) {
-        return { queued: 0, executing: 0, completed: 0, failed: 0, blocked: 0, total: 0, timestamp: new Date().toISOString() };
-      }
       const queueState = this.viennaCore.queuedExecutor.getQueueState();
       
       return {
@@ -800,44 +797,37 @@ export class ViennaRuntimeService {
       };
     } catch (error) {
       console.error('[ViennaRuntimeService] Failed to get queue state:', error);
-      return { queued: 0, executing: 0, completed: 0, failed: 0, blocked: 0, total: 0, timestamp: new Date().toISOString() };
+      throw error;
     }
   }
 
   async getBlockedEnvelopes(): Promise<EnvelopeExecution[]> {
-    // Safe default when runtime unavailable
-    return [];
+    // Future: Filter envelopes by blocked status in StateGraph
+    // - recursion blocked
+    // - budget blocked
+    // - rate limited
+    // - safety blocked
+    
+    throw new Error('Not implemented');
   }
 
   async getExecutionMetrics(): Promise<ExecutionMetrics> {
-    // Return zero metrics when runtime unavailable (serverless/degraded mode)
-    return {
-      total_submitted: 0,
-      total_completed: 0,
-      total_failed: 0,
-      avg_execution_time_ms: 0,
-      p99_execution_time_ms: 0,
-      active_rate: 0,
-      success_rate: 100,
-      timestamp: new Date().toISOString(),
-    } as ExecutionMetrics;
+    // Note: Requires executor.getExecutionMetrics() — currently using queue state
+    
+    throw new Error('Not implemented');
   }
 
   async getHealth(): Promise<HealthSnapshot> {
-    return {
-      status: 'degraded',
-      message: 'Running in serverless mode — runtime not available',
-      timestamp: new Date().toISOString(),
-    } as HealthSnapshot;
+    // Note: Requires executor.getHealth() — using shim for now
+    
+    throw new Error('Not implemented');
   }
 
   async checkIntegrity(operator: string): Promise<IntegritySnapshot> {
-    return {
-      status: 'skipped',
-      message: 'Integrity check not available in serverless mode',
-      operator,
-      timestamp: new Date().toISOString(),
-    } as IntegritySnapshot;
+    // Note: Requires executor.checkIntegrity() — using placeholder for now
+    // - emit audit event
+    
+    throw new Error('Not implemented');
   }
 
   async pauseExecution(request: PauseExecutionRequest): Promise<{

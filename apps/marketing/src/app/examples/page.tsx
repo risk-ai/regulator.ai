@@ -53,7 +53,7 @@ const deletion = await vienna.submitIntent({
   payload: { customer_id: 'cust_789' }
 });
 // → Pending senior approval + compliance review`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/customer-support-agent",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/customer-support-agent",
   },
   {
     title: "Quick Start — Submit Your First Intent",
@@ -78,7 +78,7 @@ const intent = await vienna.intents.submit({
 
 console.log('Intent status:', intent.status);
 // → "pending_approval" (T1 requires operator sign-off)`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/quickstart",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/quickstart",
   },
   {
     title: "Policy-as-Code",
@@ -101,7 +101,7 @@ const policy = await vienna.policies.create({
     },
   ],
 });`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/policies",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/policies",
   },
   {
     title: "Execution Warrants",
@@ -124,7 +124,7 @@ if (verified.valid) {
     artifacts: { deployId: 'dep_abc123' },
   });
 }`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/warrants",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/warrants",
   },
   {
     title: "Python SDK — Regulatory Monitor",
@@ -151,7 +151,7 @@ intent = client.intents.submit(
     resource="eu-ai-act",
     context={"scope": "high-risk-systems"},
 )`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/regulatory-monitor",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/regulatory-monitor",
   },
   {
     title: "GitHub Action — CI/CD Governance",
@@ -171,7 +171,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Request deployment warrant
-        uses: risk-ai/regulatorai-action@v1
+        uses: risk-ai/vienna-os-action@v1
         with:
           api-key: \${{ secrets.VIENNA_API_KEY }}
           action: deploy
@@ -206,7 +206,7 @@ const report = await vienna.audit.report({
 
 console.log(\`Found \${events.length} governed actions\`);
 console.log(\`Report: \${report.url}\`);`,
-    href: "https://github.com/risk-ai/regulatorai/tree/main/examples/audit",
+    href: "https://github.com/risk-ai/vienna-os/tree/main/examples/audit",
   },
 ];
 
@@ -305,7 +305,7 @@ export default function ExamplesPage() {
               Get Started Free
             </a>
             <a
-              href="https://github.com/risk-ai/regulatorai"
+              href="https://github.com/risk-ai/vienna-os"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 text-zinc-300 hover:text-white border border-zinc-800 hover:border-slate-500 px-8 py-3 transition font-semibold"

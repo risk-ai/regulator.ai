@@ -35,10 +35,7 @@ export function NetworkStatus() {
         signal: AbortSignal.timeout(5000)
       });
       const latency = Date.now() - startTime;
-      // Treat any HTTP response as "reachable" — only true network failures
-      // should trigger the banner. 401/403/404 mean the server is up.
-      const reachable = response.status > 0;
-      return { success: reachable, latency };
+      return { success: response.ok, latency };
     } catch {
       return { success: false, latency: Date.now() - startTime };
     }
@@ -119,9 +116,11 @@ export function NetworkStatus() {
           setRetrying(false);
         }
         
-        // Only show banner for actual network-level failures (status 0),
-        // not server errors (5xx) or auth failures (4xx).
-        // Server errors mean the network is fine — the app can handle them.
+        // If request failed due to network, show banner
+        if (!response.ok && response.status >= 500) {
+          setShowBanner(true);
+          setRetrying(true);
+        }
         
         return response;
       } catch (error) {

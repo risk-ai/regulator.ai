@@ -30,7 +30,7 @@ const faqs = [
       },
       {
         q: "Is this open source?",
-        a: "The core governance pipeline is open source (GitHub: risk-ai/regulatorai). The Community tier is free for up to 5 agents. Cloud-hosted and enterprise tiers add managed infrastructure, SSO, compliance certifications, and dedicated support.",
+        a: "The core governance pipeline is open source (GitHub: risk-ai/vienna-os). The Community tier is free for up to 5 agents. Cloud-hosted and enterprise tiers add managed infrastructure, SSO, compliance certifications, and dedicated support.",
       },
     ],
   },
@@ -150,7 +150,7 @@ export default function FAQPage() {
         "name": "Is this open source?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The core governance pipeline is open source (GitHub: risk-ai/regulatorai). The Community tier is free for up to 5 agents. Cloud-hosted and enterprise tiers add managed infrastructure, SSO, compliance certifications, and dedicated support."
+          "text": "The core governance pipeline is open source (GitHub: risk-ai/vienna-os). The Community tier is free for up to 5 agents. Cloud-hosted and enterprise tiers add managed infrastructure, SSO, compliance certifications, and dedicated support."
         }
       },
       {

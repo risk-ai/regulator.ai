@@ -1,214 +1,129 @@
 /**
- * Execution Pipeline Status — Premium
+ * Execution Pipeline Status
  * 
- * Animated governance pipeline: Intent → Plan → Policy → Warrant → Execution → Verification
- * Pulls real counts from /api/v1/pipeline/stats
+ * Phase 10.5: Visual representation of Vienna's execution pipeline
+ * Shows: Intent → Plan → Policy → Warrant → Execution → Verification
  */
 
 import React, { useState, useEffect } from 'react';
+import { statusApi } from '../../api/status.js';
+import './ExecutionPipelineStatus.css';
 
-interface StageData {
-  total: number;
-  recent?: number;
-  active?: number;
-  pending?: number;
-  status: 'active' | 'idle';
+interface PipelineStage {
+  name: string;
+  count: number | null;
+  status: 'active' | 'idle' | 'unknown';
 }
-
-interface PipelineStats {
-  intent: StageData;
-  plan: StageData;
-  policy: StageData;
-  warrant: StageData;
-  execution: StageData;
-  verification: StageData;
-}
-
-const STAGE_CONFIG = [
-  { key: 'intent', label: 'INTENT', icon: '🎯', desc: 'Agent requests' },
-  { key: 'plan', label: 'PLAN', icon: '📋', desc: 'Proposals' },
-  { key: 'policy', label: 'POLICY', icon: '📜', desc: 'Evaluations' },
-  { key: 'warrant', label: 'WARRANT', icon: '🔑', desc: 'Granted' },
-  { key: 'execution', label: 'EXECUTION', icon: '⚡', desc: 'Active' },
-  { key: 'verification', label: 'VERIFICATION', icon: '✅', desc: 'Audited' },
-] as const;
 
 export function ExecutionPipelineStatus() {
-  const [stats, setStats] = useState<PipelineStats | null>(null);
-  const [recentEvents, setRecentEvents] = useState<Array<{ text: string; time: string }>>([]);
+  const [stages, setStages] = useState<PipelineStage[]>([
+    { name: 'Intent', count: null, status: 'unknown' },
+    { name: 'Plan', count: null, status: 'unknown' },
+    { name: 'Policy', count: null, status: 'unknown' },
+    { name: 'Warrant', count: null, status: 'unknown' },
+    { name: 'Execution', count: null, status: 'unknown' },
+    { name: 'Verification', count: null, status: 'unknown' },
+  ]);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch pipeline status every 10 seconds
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 8000);
+    fetchPipelineStatus();
+
+    const interval = setInterval(fetchPipelineStatus, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchStats = async () => {
+  const fetchPipelineStatus = async () => {
     try {
-      const response = await fetch('/api/v1/pipeline/stats', {
-        credentials: 'include',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('vienna_access_token')}` },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        if (json.success && json.data) {
-          setStats(json.data);
-        }
-      }
-    } catch {
-      // silent
+      const systemStatus = await statusApi.getStatus();
+
+      // Map available data to pipeline stages
+      const updatedStages: PipelineStage[] = [
+        {
+          name: 'Intent',
+          count: null, // Not tracked yet
+          status: 'unknown',
+        },
+        {
+          name: 'Plan',
+          count: null, // Could query plans table
+          status: 'unknown',
+        },
+        {
+          name: 'Policy',
+          count: null, // Not directly tracked
+          status: 'unknown',
+        },
+        {
+          name: 'Warrant',
+          count: null, // Not directly tracked
+          status: 'unknown',
+        },
+        {
+          name: 'Execution',
+          count: systemStatus.active_envelopes || 0,
+          status: systemStatus.active_envelopes > 0 ? 'active' : 'idle',
+        },
+        {
+          name: 'Verification',
+          count: null, // Not directly tracked
+          status: 'unknown',
+        },
+      ];
+
+      setStages(updatedStages);
+      setError(null);
+    } catch (err) {
+      console.error('[ExecutionPipeline] Error fetching status:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
     }
+  };
 
-    // Also fetch recent audit events for the ticker
-    try {
-      const response = await fetch('/api/v1/audit?limit=5', {
-        credentials: 'include',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('vienna_access_token')}` },
-      });
-      if (response.ok) {
-        const json = await response.json();
-        const events = json.data || json.events || [];
-        if (Array.isArray(events)) {
-          setRecentEvents(events.slice(0, 5).map((e: any) => ({
-            text: e.event || e.action || 'governance event',
-            time: e.created_at ? new Date(e.created_at).toLocaleTimeString() : '',
-          })));
-        }
-      }
-    } catch {
-      // silent
+  const getStageClass = (status: string): string => {
+    switch (status) {
+      case 'active': return 'active';
+      case 'idle': return 'idle';
+      default: return 'unknown';
     }
   };
 
-  const getStageValue = (key: string): string => {
-    if (!stats) return '—';
-    const stage = stats[key as keyof PipelineStats];
-    if (!stage) return '—';
-    if (key === 'policy') return String(stage.active ?? stage.total);
-    if (key === 'warrant') return String(stage.active ?? stage.total);
-    if (key === 'execution') return String(stage.active ?? 0);
-    return String(stage.total);
-  };
-
-  const getStageStatus = (key: string): 'active' | 'idle' => {
-    if (!stats) return 'idle';
-    return stats[key as keyof PipelineStats]?.status || 'idle';
-  };
+  if (error) {
+    return (
+      <div className="execution-pipeline-status">
+        <div className="panel-header">
+          <h3>Execution Pipeline</h3>
+        </div>
+        <div className="panel-body">
+          <div className="error-state">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      {/* Pipeline Header */}
-      <div style={{
-        padding: '16px 20px',
-        borderBottom: '1px solid var(--border-subtle)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, fontFamily: 'var(--font-mono)' }}>
-          Execution Pipeline
-        </h3>
-        {stats && (
-          <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-            {stats.intent.total + stats.plan.total + stats.warrant.total + stats.execution.total} total events
-          </span>
-        )}
+    <div className="execution-pipeline-status">
+      <div className="panel-header">
+        <h3>Execution Pipeline</h3>
       </div>
 
-      {/* Pipeline Stages */}
-      <div style={{
-        padding: '24px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0',
-        flexWrap: 'wrap',
-      }}>
-        {STAGE_CONFIG.map((stage, index) => {
-          const isActive = getStageStatus(stage.key) === 'active';
-          const value = getStageValue(stage.key);
-          
-          return (
-            <React.Fragment key={stage.key}>
-              <div style={{
-                background: isActive ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${isActive ? 'rgba(212,175,55,0.3)' : 'var(--border-subtle)'}`,
-                padding: '16px 20px',
-                minWidth: '120px',
-                textAlign: 'center',
-                position: 'relative',
-                transition: 'all 300ms',
-              }}>
-                {/* Pulse indicator for active stages */}
-                {isActive && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: '#10b981',
-                    animation: 'pulse 2s ease-in-out infinite',
-                  }} />
-                )}
-                
-                <div style={{ fontSize: '11px', fontWeight: 700, color: isActive ? '#d4af37' : 'var(--text-tertiary)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', marginBottom: '8px' }}>
-                  {stage.label}
-                </div>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: isActive ? '#d4af37' : 'var(--text-primary)', fontFamily: 'var(--font-mono)', lineHeight: 1 }}>
-                  {value}
-                </div>
-                <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-                  {stage.desc}
+      <div className="panel-body">
+        <div className="pipeline-container">
+          {stages.map((stage, index) => (
+            <React.Fragment key={stage.name}>
+              <div className={`pipeline-stage ${getStageClass(stage.status)}`}>
+                <div className="stage-name">{stage.name}</div>
+                <div className="stage-value">
+                  {stage.count !== null ? stage.count : '—'}
                 </div>
               </div>
-              
-              {index < STAGE_CONFIG.length - 1 && (
-                <div style={{
-                  color: isActive ? '#d4af37' : 'var(--text-tertiary)',
-                  fontSize: '16px',
-                  padding: '0 4px',
-                  opacity: 0.6,
-                }}>
-                  →
-                </div>
+              {index < stages.length - 1 && (
+                <div className="pipeline-arrow">→</div>
               )}
             </React.Fragment>
-          );
-        })}
-      </div>
-
-      {/* Live Ticker */}
-      {recentEvents.length > 0 && (
-        <div style={{
-          borderTop: '1px solid var(--border-subtle)',
-          padding: '10px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          overflow: 'hidden',
-        }}>
-          <span style={{ fontSize: '10px', fontWeight: 600, color: '#d4af37', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-            LIVE
-          </span>
-          <div style={{ display: 'flex', gap: '16px', overflow: 'hidden' }}>
-            {recentEvents.map((event, i) => (
-              <span key={i} style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
-                {event.text} <span style={{ color: 'var(--text-tertiary)', opacity: 0.5 }}>{event.time}</span>
-              </span>
-            ))}
-          </div>
+          ))}
         </div>
-      )}
-
-      {/* CSS for pulse animation */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(1.5); }
-        }
-      `}</style>
+      </div>
     </div>
   );
 }

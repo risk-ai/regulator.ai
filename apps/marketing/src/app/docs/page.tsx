@@ -3123,7 +3123,7 @@ function verifyWarrant(warrant: Warrant, signingKey: string): boolean {
 
           <H3 id="sh-docker">Docker</H3>
           <CodeBlock language="bash" title="Docker deployment">{`# Pull the image
-docker pull ghcr.io/risk-ai/regulatorai:latest
+docker pull ghcr.io/risk-ai/vienna-os:latest
 
 # Run with environment variables
 docker run -d \\
@@ -3133,7 +3133,7 @@ docker run -d \\
   -e VIENNA_SECRET_KEY=your-secret-key \\
   -e POSTGRES_URL=postgresql://user:pass@host:5432/vienna \\
   -e VIENNA_SIMULATION=false \\
-  ghcr.io/risk-ai/regulatorai:latest
+  ghcr.io/risk-ai/vienna-os:latest
 
 # Verify
 curl http://localhost:8080/health
@@ -3186,7 +3186,7 @@ done`}</CodeBlock>
 
           <H3 id="sh-docker-compose">Docker Compose (Recommended)</H3>
           <CodeBlock language="bash" title="Docker Compose deployment">{`# Clone the repository
-git clone https://github.com/risk-ai/regulatorai.git
+git clone https://github.com/risk-ai/vienna-os.git
 cd vienna-os
 
 # Configure environment
@@ -3220,7 +3220,7 @@ spec:
     spec:
       containers:
       - name: vienna-os
-        image: ghcr.io/risk-ai/regulatorai:latest
+        image: ghcr.io/risk-ai/vienna-os:latest
         ports:
         - containerPort: 8080
         env:

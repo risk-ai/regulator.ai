@@ -31,6 +31,7 @@ export function ServicePanel() {
       setTimeout(() => {
         // Trigger dashboard store refresh
         // This will be picked up by the dashboard polling interval
+        console.log('[ServicePanel] Service action completed, waiting for next refresh');
       }, 2000);
     } catch (error) {
       setRestartResult({

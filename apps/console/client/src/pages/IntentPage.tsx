@@ -1,14 +1,12 @@
 /**
- * Intent Submission Page — Premium Terminal Design
+ * Intent Submission Page — Vienna OS
  * 
- * Governed execution interface with tier-coded action cards,
- * pipeline visualization, rich result display.
+ * The governed execution interface. Submit agent intents through the
+ * full governance pipeline: policy → risk tier → approval → warrant → execute → verify.
  */
 
-import React, { useState, useEffect } from 'react';
-import { Zap, Send, Play, Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
-
-// ─── Types ───
+import React, { useState } from 'react';
+import { useResponsive } from '../hooks/useResponsive.js';
 
 interface IntentAction {
   id: string;
@@ -19,34 +17,106 @@ interface IntentAction {
   params?: { key: string; label: string; placeholder: string; required?: boolean }[];
 }
 
-const TIER_CONFIG: Record<string, { color: string; bg: string; border: string; glow: string }> = {
-  T0: { color: 'text-slate-400',  bg: 'bg-slate-500/10',  border: 'border-slate-500/20',  glow: '' },
-  T1: { color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/20',  glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]' },
-  T2: { color: 'text-red-400',    bg: 'bg-red-500/10',    border: 'border-red-500/20',    glow: 'shadow-[0_0_8px_rgba(239,68,68,0.15)]' },
-  T3: { color: 'text-red-500',    bg: 'bg-red-500/15',    border: 'border-red-500/30',    glow: 'shadow-[0_0_12px_rgba(239,68,68,0.25)]' },
-};
-
 const INTENT_ACTIONS: IntentAction[] = [
-  { id: 'check_health', label: 'Health Check', desc: 'Verify system health through governance pipeline', tier: 'T0', tierColor: '#94a3b8' },
-  { id: 'list_objectives', label: 'List Objectives', desc: 'Query active governance objectives', tier: 'T0', tierColor: '#94a3b8' },
-  { id: 'check_system_status', label: 'System Status', desc: 'Full system posture check', tier: 'T0', tierColor: '#94a3b8' },
-  { id: 'list_recent_executions', label: 'Recent Executions', desc: 'View execution audit trail', tier: 'T0', tierColor: '#94a3b8',
-    params: [{ key: 'limit', label: 'Limit', placeholder: '10' }] },
-  { id: 'run_diagnostic', label: 'Run Diagnostic', desc: 'Execute system diagnostics', tier: 'T0', tierColor: '#94a3b8' },
-  { id: 'check_execution_status', label: 'Check Execution', desc: 'Query execution by ID', tier: 'T0', tierColor: '#94a3b8',
-    params: [{ key: 'execution_id', label: 'Execution ID', placeholder: 'exec-xxxxx', required: true }] },
-  { id: 'query_state_graph', label: 'Query State Graph', desc: 'Query canonical state graph', tier: 'T0', tierColor: '#94a3b8',
-    params: [{ key: 'entity_type', label: 'Entity Type', placeholder: 'execution | objective' }] },
-  { id: 'restart_service', label: 'Restart Service', desc: 'Restart service — requires approval', tier: 'T1', tierColor: '#f59e0b',
-    params: [{ key: 'service', label: 'Service Name', placeholder: 'api-gateway', required: true }] },
-  { id: 'trigger_backup', label: 'Trigger Backup', desc: 'Initiate state graph backup', tier: 'T1', tierColor: '#f59e0b' },
-  { id: 'update_configuration', label: 'Update Config', desc: 'Modify runtime configuration', tier: 'T1', tierColor: '#f59e0b',
-    params: [{ key: 'key', label: 'Config Key', placeholder: 'rate_limit.max', required: true }, { key: 'value', label: 'New Value', placeholder: '100', required: true }] },
-  { id: 'check_service_logs', label: 'Service Logs', desc: 'Retrieve recent service logs', tier: 'T1', tierColor: '#f59e0b',
-    params: [{ key: 'service', label: 'Service Name', placeholder: 'intent-gateway', required: true }] },
+  // T0 — Auto-approve
+  {
+    id: 'check_health',
+    label: 'Health Check',
+    desc: 'Verify system health through the governance pipeline',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'list_objectives',
+    label: 'List Objectives',
+    desc: 'Query active governance objectives and their states',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'check_system_status',
+    label: 'System Status',
+    desc: 'Full system posture check — runtime, providers, state graph',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'list_recent_executions',
+    label: 'Recent Executions',
+    desc: 'View the execution audit trail with outcomes',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'limit', label: 'Limit', placeholder: '10' },
+    ],
+  },
+  {
+    id: 'run_diagnostic',
+    label: 'Run Diagnostic',
+    desc: 'Execute system diagnostics — checks all governance engines',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+  },
+  {
+    id: 'check_execution_status',
+    label: 'Check Execution Status',
+    desc: 'Query status of a specific execution by ID',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'execution_id', label: 'Execution ID', placeholder: 'exec-xxxxx-xxxx-xxxx', required: true },
+    ],
+  },
+  {
+    id: 'query_state_graph',
+    label: 'Query State Graph',
+    desc: 'Query the canonical state graph for entities',
+    tier: 'T0',
+    tierColor: '#94a3b8',
+    params: [
+      { key: 'entity_type', label: 'Entity Type', placeholder: 'execution | objective | proposal' },
+    ],
+  },
+  // T1 — Operator approval
+  {
+    id: 'restart_service',
+    label: 'Restart Service',
+    desc: 'Restart a specific service — requires operator approval',
+    tier: 'T1',
+    tierColor: '#f59e0b',
+    params: [
+      { key: 'service', label: 'Service Name', placeholder: 'api-gateway', required: true },
+    ],
+  },
+  {
+    id: 'trigger_backup',
+    label: 'Trigger Backup',
+    desc: 'Initiate a state graph backup',
+    tier: 'T1',
+    tierColor: '#f59e0b',
+  },
+  {
+    id: 'update_configuration',
+    label: 'Update Configuration',
+    desc: 'Modify a runtime configuration value',
+    tier: 'T1',
+    tierColor: '#f59e0b',
+    params: [
+      { key: 'key', label: 'Config Key', placeholder: 'rate_limit.max_requests', required: true },
+      { key: 'value', label: 'New Value', placeholder: '100', required: true },
+    ],
+  },
+  {
+    id: 'check_service_logs',
+    label: 'Check Service Logs',
+    desc: 'Retrieve recent logs for a specific service',
+    tier: 'T1',
+    tierColor: '#f59e0b',
+    params: [
+      { key: 'service', label: 'Service Name', placeholder: 'intent-gateway', required: true },
+    ],
+  },
 ];
-
-// ─── Main Page ───
 
 export function IntentPage() {
   const [selectedAction, setSelectedAction] = useState('check_health');
@@ -56,173 +126,324 @@ export function IntentPage() {
   const [simulation, setSimulation] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const { isMobile } = useResponsive();
 
-  useEffect(() => {
+  // Fetch registered agents on mount
+  React.useEffect(() => {
     fetch('/api/v1/agents', { credentials: 'include' })
-      .then(r => r.json())
+      .then(res => res.json())
       .then(data => {
-        const list = (data.data || data.agents || []).filter((a: any) => a.status === 'active');
-        setAgents(list);
-        if (list.length > 0 && !selectedAgent) setSelectedAgent(list[0].id);
-      }).catch(() => {});
+        const agentList = (data.data || data.agents || []).filter((a: any) => a.status === 'active');
+        setAgents(agentList);
+        if (agentList.length > 0 && !selectedAgent) {
+          setSelectedAgent(agentList[0].id);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const action = INTENT_ACTIONS.find(a => a.id === selectedAction)!;
-  const tierCfg = TIER_CONFIG[action.tier] || TIER_CONFIG.T0;
 
   const handleSubmit = async () => {
-    if (!selectedAgent) { setResult({ success: false, error: 'Select an agent' }); return; }
-    setLoading(true); setResult(null);
+    if (!selectedAgent) {
+      setResult({ success: false, error: 'Please select an agent' });
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+
     try {
-      const body: Record<string, unknown> = { agent_id: selectedAgent, action: selectedAction, source: 'openclaw', tenant_id: 'system', simulation };
-      if (action.params?.length) {
-        const ctx: Record<string, string> = {};
-        for (const p of action.params) { if (params[p.key]) { ctx[p.key] = params[p.key]; body[p.key] = params[p.key]; } }
-        body.context = ctx;
+      const body: Record<string, unknown> = {
+        agent_id: selectedAgent,
+        action: selectedAction,
+        source: 'openclaw',
+        tenant_id: 'system',
+        simulation,
+      };
+
+      // Add params to context
+      if (action.params && action.params.length > 0) {
+        const context: Record<string, string> = {};
+        for (const p of action.params) {
+          if (params[p.key]) {
+            context[p.key] = params[p.key];
+            // Also add at top level for backend compatibility
+            body[p.key] = params[p.key];
+          }
+        }
+        body.context = context;
       }
-      const res = await fetch('/api/v1/agent/intent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) });
-      setResult(await res.json());
-    } catch (e) { setResult({ success: false, error: e instanceof Error ? e.message : 'Failed' }); }
+
+      const res = await fetch('/api/v1/agent/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      setResult({
+        success: false,
+        error: error instanceof Error ? error.message : 'Request failed',
+      });
+    }
+
     setLoading(false);
   };
 
-  const isSuccess = result && (result as any).success === true;
+  const isSuccess = result && (result as Record<string, unknown>).success === true;
 
   return (
-    <div className="min-h-screen">
+    <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'var(--font-sans)' }}>
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-          <Zap className="text-amber-400" size={20} />
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
           Intent Submission
         </h1>
-        <p className="text-[12px] text-white/40 mt-1 font-mono">
-          Submit intents through the governed pipeline: policy → risk tier → warrant → execute → verify
+        <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+          Submit agent intents through the governed execution pipeline. Every action flows through policy → risk tier → warrant → execute → verify.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Controls */}
-        <div className="space-y-4">
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '24px' }}>
+        {/* Left: Intent Selector + Params */}
+        <div>
           {/* Agent Selector */}
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Acting Agent</label>
-            <select value={selectedAgent} onChange={e => setSelectedAgent(e.target.value)}
-              className="w-full bg-[#12131a] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[12px] font-mono text-white focus:border-amber-500/40 focus:outline-none [color-scheme:dark]">
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+              Acting Agent
+            </div>
+            <select
+              value={selectedAgent}
+              onChange={(e) => setSelectedAgent(e.target.value)}
+              style={{
+                width: '100%',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                fontSize: '13px',
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-mono)',
+                outline: 'none',
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }}
+            >
               {agents.length === 0 && <option value="">Loading agents...</option>}
-              {agents.map(a => <option key={a.id} value={a.id}>{a.display_name} ({a.id.slice(0, 8)}…)</option>)}
+              {agents.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.display_name} ({a.id.slice(0, 8)}...)
+                </option>
+              ))}
             </select>
           </div>
 
           {/* Action Grid */}
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Select Action</label>
-            <div className="space-y-1.5 max-h-[400px] overflow-y-auto pr-1">
-              {INTENT_ACTIONS.map(a => {
-                const tc = TIER_CONFIG[a.tier] || TIER_CONFIG.T0;
-                const selected = selectedAction === a.id;
-                return (
-                  <button key={a.id} onClick={() => { setSelectedAction(a.id); setParams({}); setResult(null); }}
-                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
-                      selected
-                        ? `bg-amber-500/[0.06] border-amber-500/30 ${tc.glow}`
-                        : 'bg-[#12131a] border-white/[0.06] hover:border-white/[0.12]'
-                    }`}>
-                    <span className={`px-2 py-0.5 ${tc.bg} border ${tc.border} rounded text-[9px] font-bold ${tc.color} font-mono flex-shrink-0`}>
-                      {a.tier}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-[12px] font-semibold ${selected ? 'text-amber-400' : 'text-white'}`}>{a.label}</div>
-                      <div className="text-[10px] text-white/30 truncate">{a.desc}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Select Action
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '20px', maxHeight: '400px', overflowY: 'auto' }}>
+            {INTENT_ACTIONS.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => { setSelectedAction(a.id); setParams({}); setResult(null); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: selectedAction === a.id ? '1px solid rgba(212, 165, 32, 0.3)' : '1px solid var(--border-subtle)',
+                  background: selectedAction === a.id ? 'rgba(212, 165, 32, 0.06)' : 'var(--bg-primary)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontFamily: 'inherit',
+                  transition: 'all 150ms',
+                }}
+              >
+                <div style={{
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-mono)',
+                  color: a.tierColor,
+                  background: `${a.tierColor}12`,
+                  border: `1px solid ${a.tierColor}20`,
+                  flexShrink: 0,
+                }}>
+                  {a.tier}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: selectedAction === a.id ? '#D4A520' : 'var(--text-primary)' }}>
+                    {a.label}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>
+                    {a.desc}
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
 
           {/* Parameters */}
           {action.params && action.params.length > 0 && (
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">Parameters</label>
-              {action.params.map(p => (
-                <div key={p.key}>
-                  <label className="text-[10px] text-white/30 mb-1 block">
-                    {p.label} {p.required && <span className="text-amber-400">*</span>}
-                  </label>
-                  <input value={params[p.key] || ''} onChange={e => setParams({ ...params, [p.key]: e.target.value })}
-                    placeholder={p.placeholder}
-                    className="w-full bg-[#12131a] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] font-mono text-white focus:border-amber-500/40 focus:outline-none" />
-                </div>
-              ))}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                Parameters
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {action.params.map((p) => (
+                  <div key={p.key}>
+                    <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>
+                      {p.label} {p.required && <span style={{ color: '#D4A520' }}>*</span>}
+                    </label>
+                    <input
+                      value={params[p.key] || ''}
+                      onChange={(e) => setParams({ ...params, [p.key]: e.target.value })}
+                      placeholder={p.placeholder}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-default)',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '13px',
+                        color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-mono)',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Simulation toggle */}
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="sim" checked={simulation} onChange={e => setSimulation(e.target.checked)}
-              className="accent-amber-500" />
-            <label htmlFor="sim" className="text-[11px] text-white/40">Simulation mode (dry run)</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <input
+              type="checkbox"
+              id="sim"
+              checked={simulation}
+              onChange={(e) => setSimulation(e.target.checked)}
+              style={{ accentColor: '#D4A520' }}
+            />
+            <label htmlFor="sim" style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+              Simulation mode (dry run — no side effects)
+            </label>
           </div>
 
           {/* Submit */}
-          <button onClick={handleSubmit} disabled={loading}
-            className={`w-full py-3 rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 transition-all ${
-              loading ? 'bg-white/[0.06] text-white/30 cursor-not-allowed'
-                     : `bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 shadow-[0_0_16px_rgba(245,158,11,0.15)]`
-            }`}>
-            {loading ? (
-              <><div className="w-4 h-4 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" /> Executing...</>
-            ) : (
-              <><Send size={14} /> Submit {action.tier} Intent: {action.label}</>
-            )}
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: loading ? 'var(--bg-tertiary)' : '#B8860B',
+              color: '#fff',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: loading ? 'default' : 'pointer',
+              fontFamily: 'inherit',
+              transition: 'all 150ms',
+            }}
+          >
+            {loading ? 'Executing...' : `Submit ${action.tier} Intent: ${action.label}`}
           </button>
         </div>
 
         {/* Right: Result */}
         <div>
-          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Governance Response</label>
-          <div className={`bg-[#12131a] border rounded-lg p-6 min-h-[500px] ${
-            result ? (isSuccess ? 'border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.1)]' : 'border-red-500/20 shadow-[0_0_12px_rgba(239,68,68,0.1)]')
-                   : 'border-white/[0.08]'
-          }`}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            Governance Response
+          </div>
+
+          <div style={{
+            background: 'var(--bg-primary)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '12px',
+            padding: '20px',
+            minHeight: '500px',
+          }}>
             {result ? (
               <div>
-                {/* Status */}
-                <div className="flex items-center gap-2 mb-4">
-                  {isSuccess ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-[10px] font-bold font-mono text-emerald-400">
-                      <CheckCircle size={12} /> EXECUTED
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/20 rounded text-[10px] font-bold font-mono text-red-400">
-                      <XCircle size={12} /> FAILED
+                {/* Status badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{
+                    padding: '3px 10px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    fontFamily: 'var(--font-mono)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: isSuccess ? '#10b981' : '#ef4444',
+                    background: isSuccess ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                    border: `1px solid ${isSuccess ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                  }}>
+                    {isSuccess ? '✓ Executed' : '✗ Failed'}
+                  </div>
+                  {result.status && (
+                    <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
+                      {String(result.status)}
                     </span>
                   )}
-                  {result.status && <span className="text-[10px] font-mono text-white/25">{String(result.status)}</span>}
                 </div>
 
                 {/* Explanation */}
                 {result.explanation && (
-                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3 mb-4">
-                    <p className="text-[12px] text-white/60 leading-relaxed">{String(result.explanation)}</p>
+                  <div style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    marginBottom: '16px',
+                    fontSize: '12px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                  }}>
+                    {String(result.explanation)}
                   </div>
                 )}
 
-                {/* JSON */}
-                <pre className="bg-black/20 rounded-lg p-4 text-[10px] font-mono text-white/50 overflow-auto max-h-[360px] whitespace-pre-wrap break-all leading-relaxed">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
+                {/* Full JSON */}
+                <div style={{
+                  background: 'var(--bg-app)',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  overflow: 'auto',
+                  maxHeight: '360px',
+                }}>
+                  <pre style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                  }}>
+                    {JSON.stringify(result, null, 2)}
+                  </pre>
+                </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
-                <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-4">
-                  <Zap size={28} className="text-amber-400/40" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', textAlign: 'center' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>🎯</div>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                  Select an intent and execute
                 </div>
-                <h3 className="text-[14px] font-bold text-white mb-2">Select an intent and execute</h3>
-                <p className="text-[11px] text-white/30 max-w-xs leading-relaxed">
-                  Every submission flows through the full governance pipeline: policy → risk tier → warrant → execution → verification.
-                </p>
+                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', maxWidth: '300px', lineHeight: 1.6 }}>
+                  Every submission flows through the full governance pipeline: policy check → risk tier → warrant → execution → verification → audit trail.
+                </div>
               </div>
             )}
           </div>

@@ -59,6 +59,7 @@ export function ChatPanel() {
     const restoreThread = async () => {
       // If bootstrap already hydrated chat, skip restoration
       if (chatMessages.length > 0 && currentThreadId) {
+        console.log('[ChatPanel] Chat already hydrated by bootstrap, skipping restoration');
         setIsRestoring(false);
         return;
       }
@@ -72,6 +73,7 @@ export function ChatPanel() {
           const historyData = await chatApi.getHistory(savedThreadId);
           setChatMessages(historyData.messages);
           setCurrentThreadId(savedThreadId);
+          console.log(`[ChatPanel] Restored thread: ${savedThreadId} (${historyData.messages.length} messages)`);
         } catch (error) {
           console.error('[ChatPanel] Failed to restore thread:', error);
           // Clear invalid threadId
@@ -129,6 +131,7 @@ export function ChatPanel() {
     try {
       // Check if this is a recovery intent (Phase 6.5)
       if (recoveryApi.isRecoveryIntent(userMessage)) {
+        console.log('[ChatPanel] Detected recovery intent, routing to recovery API');
         
         // Process through recovery API
         const recoveryResponse = await recoveryApi.processIntent(userMessage);
@@ -360,6 +363,7 @@ function EnrichedChatMessage({ message }: { message: ChatHistoryItem }) {
               };
               setExecutionResult(executionResult);
             }}
+            onRejected={() => console.log('Command rejected')}
           />
         </div>
       )}

@@ -20,8 +20,8 @@
 - [x] Mon: "What happens when your AI agent makes a $50K mistake at 3 AM?" (hook → solution) ✅ Posted 2041158053395832893
 - [x] Tue: Thread — "5 real AI agent disasters and how governance would have prevented each one" ✅ Posted 2041520160209510887
 - [ ] Wed: Code snippet — minimal Vienna OS integration (before/after)
-- [~] Thu: Thread — "Policy-as-code for AI agents: a practical guide" ⚠️ PARTIAL (2/7 tweets posted, 5 got 403 — Free tier limit?)
-- [x] Fri: "Every SOC 2 auditor will eventually ask: how do you govern your AI agents?" ⚠️ FAILED (403 - API limit)
+- [ ] Thu: Thread — "Policy-as-code for AI agents: a practical guide"
+- [ ] Fri: "Every SOC 2 auditor will eventually ask: how do you govern your AI agents?"
 
 ### Week of April 14
 - [ ] Mon: "The difference between AI guardrails and AI governance" (positioning)

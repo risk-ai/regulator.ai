@@ -1,15 +1,16 @@
 /**
- * API Keys Page — Premium Terminal Design
+ * API Keys Page — Vienna OS
  * 
- * Key lifecycle cards with usage sparklines, animated copy,
- * one-click rotate with confirmation, glow indicators for active keys.
+ * Manage API keys for programmatic access to the Vienna OS console.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Key, Plus, Copy, Check, Trash2, AlertTriangle, Shield, Clock, Activity, RefreshCw, Eye, EyeOff, X } from 'lucide-react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { apiClient } from '../api/client.js';
 
-// ─── Types ───
+// ============================================================================
+// Types
+// ============================================================================
 
 interface ApiKey {
   id: string;
@@ -29,270 +30,39 @@ interface NewApiKeyResponse {
   warning: string;
 }
 
-// ─── API ───
+interface CreateApiKeyRequest {
+  name: string;
+  expires_in_days: number;
+}
+
+// ============================================================================
+// API Functions
+// ============================================================================
 
 async function fetchApiKeys(): Promise<ApiKey[]> {
   return apiClient.get<ApiKey[]>('/api-keys');
 }
 
-async function createApiKey(data: { name: string; expires_in_days: number }): Promise<NewApiKeyResponse> {
-  return apiClient.post<NewApiKeyResponse, { name: string; expires_in_days: number }>('/api-keys', data);
+async function createApiKey(data: CreateApiKeyRequest): Promise<NewApiKeyResponse> {
+  return apiClient.post<NewApiKeyResponse, CreateApiKeyRequest>('/api-keys', data);
 }
 
 async function revokeApiKey(id: string): Promise<void> {
   return apiClient.post(`/api-keys/${id}/revoke`, {});
 }
 
-// ─── Helpers ───
-
-function timeAgo(date: string | null): string {
-  if (!date) return 'Never';
-  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
-  return `${Math.floor(s / 86400)}d ago`;
-}
-
-function daysUntil(date: string): number {
-  return Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-}
-
-function expiryStatus(date: string): { label: string; color: string; glow: string } {
-  const days = daysUntil(date);
-  if (days < 0) return { label: 'EXPIRED', color: 'text-red-400', glow: 'shadow-[0_0_12px_rgba(239,68,68,0.3)]' };
-  if (days < 7) return { label: `${days}d LEFT`, color: 'text-red-400', glow: 'shadow-[0_0_12px_rgba(239,68,68,0.2)]' };
-  if (days < 30) return { label: `${days}d LEFT`, color: 'text-amber-400', glow: 'shadow-[0_0_8px_rgba(245,158,11,0.15)]' };
-  return { label: `${days}d LEFT`, color: 'text-emerald-400', glow: '' };
-}
-
-// ─── Key Card ───
-
-function KeyCard({ apiKey, onRevoke }: { apiKey: ApiKey; onRevoke: () => void }) {
-  const [copied, setCopied] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const expiry = expiryStatus(apiKey.expires_at);
-  const isActive = !apiKey.revoked && daysUntil(apiKey.expires_at) > 0;
-
-  const copyPrefix = () => {
-    navigator.clipboard.writeText(apiKey.key_prefix);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className={`bg-[#12131a] border rounded-lg p-5 transition-all ${
-      apiKey.revoked ? 'border-white/[0.04] opacity-50' : isActive ? `border-white/[0.08] ${expiry.glow}` : 'border-red-500/20'
-    }`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : apiKey.revoked ? 'bg-gray-500' : 'bg-red-500'}`} />
-          <div>
-            <h3 className="text-[14px] font-bold text-white">{apiKey.name}</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className={`text-[9px] font-bold font-mono uppercase tracking-widest ${
-                apiKey.revoked ? 'text-gray-400' : isActive ? 'text-emerald-400' : 'text-red-400'
-              }`}>
-                {apiKey.revoked ? 'REVOKED' : isActive ? 'ACTIVE' : 'EXPIRED'}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className={`px-2 py-1 rounded text-[9px] font-bold font-mono ${expiry.color} bg-white/[0.04]`}>
-          {apiKey.revoked ? 'REVOKED' : expiry.label}
-        </div>
-      </div>
-
-      {/* Key Prefix */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 bg-black/30 border border-white/[0.06] rounded-md px-3 py-2 font-mono text-[12px] text-white/60">
-          {apiKey.key_prefix}••••••••••••
-        </div>
-        <button onClick={copyPrefix}
-          className="p-2 bg-white/[0.04] border border-white/[0.06] rounded-md hover:bg-white/[0.08] transition-colors">
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} className="text-white/40" />}
-        </button>
-      </div>
-
-      {/* Metadata */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="bg-white/[0.02] border border-white/[0.04] rounded p-2">
-          <div className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-1">Created</div>
-          <div className="text-[10px] font-mono text-white/60">{new Date(apiKey.created_at).toLocaleDateString()}</div>
-        </div>
-        <div className="bg-white/[0.02] border border-white/[0.04] rounded p-2">
-          <div className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-1">Last Used</div>
-          <div className="text-[10px] font-mono text-white/60">{timeAgo(apiKey.last_used_at)}</div>
-        </div>
-        <div className="bg-white/[0.02] border border-white/[0.04] rounded p-2">
-          <div className="text-[8px] font-bold text-white/30 uppercase tracking-widest mb-1">Expires</div>
-          <div className={`text-[10px] font-mono ${expiry.color}`}>{new Date(apiKey.expires_at).toLocaleDateString()}</div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      {!apiKey.revoked && (
-        <div className="flex justify-end">
-          {confirming ? (
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-red-400 font-bold">Revoke permanently?</span>
-              <button onClick={() => { onRevoke(); setConfirming(false); }}
-                className="px-3 py-1 bg-red-500/15 border border-red-500/30 rounded text-[10px] font-bold text-red-400 hover:bg-red-500/25 transition-colors">
-                Confirm
-              </button>
-              <button onClick={() => setConfirming(false)}
-                className="px-3 py-1 bg-white/[0.04] border border-white/[0.06] rounded text-[10px] font-bold text-white/40 hover:text-white transition-colors">
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setConfirming(true)}
-              className="px-3 py-1 bg-red-500/5 border border-red-500/15 rounded text-[10px] font-bold text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all flex items-center gap-1.5">
-              <Trash2 size={10} /> Revoke
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── New Key Reveal ───
-
-function NewKeyReveal({ newKey, onDismiss }: { newKey: NewApiKeyResponse; onDismiss: () => void }) {
-  const [copied, setCopied] = useState(false);
-  const [visible, setVisible] = useState(false);
-
-  const copyKey = () => {
-    navigator.clipboard.writeText(newKey.api_key);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  return (
-    <div className="bg-[#12131a] border-2 border-amber-500/40 rounded-lg p-6 mb-6 shadow-[0_0_24px_rgba(245,158,11,0.2)]">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-amber-500/15 rounded-lg flex items-center justify-center">
-            <Key size={18} className="text-amber-400" />
-          </div>
-          <div>
-            <h3 className="text-[14px] font-bold text-white">API Key Created</h3>
-            <p className="text-[10px] text-amber-400 font-bold">Copy now — this key won't be shown again</p>
-          </div>
-        </div>
-        <button onClick={onDismiss} className="p-1.5 hover:bg-white/[0.06] rounded transition-colors">
-          <X size={14} className="text-white/40" />
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 bg-black/40 border border-amber-500/20 rounded-md px-4 py-3 font-mono text-[13px] break-all">
-          {visible ? (
-            <span className="text-amber-300">{newKey.api_key}</span>
-          ) : (
-            <span className="text-white/30">{'•'.repeat(48)}</span>
-          )}
-        </div>
-        <button onClick={() => setVisible(!visible)}
-          className="p-2.5 bg-white/[0.04] border border-white/[0.06] rounded-md hover:bg-white/[0.08] transition-colors">
-          {visible ? <EyeOff size={14} className="text-white/40" /> : <Eye size={14} className="text-white/40" />}
-        </button>
-        <button onClick={copyKey}
-          className={`px-4 py-2.5 rounded-md text-[11px] font-bold transition-all flex items-center gap-2 ${
-            copied ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400'
-                   : 'bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25'
-          }`}>
-          {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Copy Key</>}
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2 text-[10px] text-white/40">
-        <AlertTriangle size={10} className="text-amber-400" />
-        <span>Expires: {new Date(newKey.expires_at).toLocaleDateString()}</span>
-        <span className="text-white/15">•</span>
-        <span>Name: {newKey.name}</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Create Modal ───
-
-function CreateModal({ onClose, onCreate, creating }: {
-  onClose: () => void; onCreate: (name: string, days: number) => void; creating: boolean;
-}) {
-  const [name, setName] = useState('');
-  const [days, setDays] = useState(90);
-
-  return (
-    <div onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center animate-[fadeIn_150ms]">
-      <div className="bg-[#12131a] border border-white/[0.12] rounded-xl p-6 w-full max-w-md shadow-[0_0_40px_rgba(0,0,0,0.6)]">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-amber-500/15 rounded-lg flex items-center justify-center">
-            <Key size={18} className="text-amber-400" />
-          </div>
-          <div>
-            <h3 className="text-[16px] font-bold text-white">Create API Key</h3>
-            <p className="text-[11px] text-white/40">Programmatic access to Vienna OS</p>
-          </div>
-        </div>
-
-        <div className="space-y-4 mb-6">
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Key Name</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g., production-api"
-              className="w-full bg-black/30 border border-white/[0.08] rounded-lg px-4 py-2.5 text-[12px] font-mono text-white focus:border-amber-500/40 focus:outline-none transition-colors" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 block">Expiration</label>
-            <div className="flex gap-2">
-              {[30, 90, 180, 365].map(d => (
-                <button key={d} onClick={() => setDays(d)}
-                  className={`px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${
-                    days === d ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                              : 'bg-white/[0.03] text-white/30 border border-white/[0.06] hover:text-white/50'
-                  }`}>{d}d</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onClose}
-            className="px-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-[11px] font-bold text-white/40 hover:text-white transition-colors">
-            Cancel
-          </button>
-          <button onClick={() => name.trim() && onCreate(name.trim(), days)}
-            disabled={!name.trim() || creating}
-            className={`px-4 py-2 rounded-lg text-[11px] font-bold flex items-center gap-2 transition-all ${
-              name.trim() && !creating
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30'
-                : 'bg-white/[0.03] text-white/20 border border-white/[0.06] cursor-not-allowed'
-            }`}>
-            {creating ? (
-              <><div className="w-3 h-3 border border-amber-500/30 border-t-amber-500 rounded-full animate-spin" /> Creating...</>
-            ) : (
-              <><Plus size={12} /> Create Key</>
-            )}
-          </button>
-        </div>
-      </div>
-      <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
-    </div>
-  );
-}
-
-// ─── Main Page ───
+// ============================================================================
+// API Keys Page
+// ============================================================================
 
 export function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newKey, setNewKey] = useState<NewApiKeyResponse | null>(null);
   const [creating, setCreating] = useState(false);
+  const [revoking, setRevoking] = useState<string | null>(null);
 
   const loadKeys = useCallback(async () => {
     try {
@@ -301,119 +71,610 @@ export function ApiKeysPage() {
       setKeys(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load API keys');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { loadKeys(); }, [loadKeys]);
+  useEffect(() => {
+    loadKeys();
+  }, [loadKeys]);
 
-  const handleCreate = async (name: string, days: number) => {
+  const handleCreateKey = async (name: string, expiresInDays: number) => {
     setCreating(true);
     try {
-      const result = await createApiKey({ name, expires_in_days: days });
+      const result = await createApiKey({ name, expires_in_days: expiresInDays });
       setNewKey(result);
-      setShowCreate(false);
-      await loadKeys();
+      setShowCreateModal(false);
+      await loadKeys(); // Refresh the list
     } catch (err: any) {
-      alert(`Failed: ${err.message}`);
-    } finally { setCreating(false); }
-  };
-
-  const handleRevoke = async (id: string) => {
-    try {
-      await revokeApiKey(id);
-      await loadKeys();
-    } catch (err: any) {
-      alert(`Failed: ${err.message}`);
+      alert(`Failed to create API key: ${err.message}`);
+    } finally {
+      setCreating(false);
     }
   };
 
-  const activeKeys = keys.filter(k => !k.revoked);
-  const revokedKeys = keys.filter(k => k.revoked);
+  const handleRevokeKey = async (id: string, name: string) => {
+    if (!confirm(`Revoke API key "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setRevoking(id);
+    try {
+      await revokeApiKey(id);
+      await loadKeys(); // Refresh the list
+    } catch (err: any) {
+      alert(`Failed to revoke API key: ${err.message}`);
+    } finally {
+      setRevoking(null);
+    }
+  };
+
+  const formatDate = (isoDate: string | null) => {
+    if (!isoDate) return '—';
+    return new Date(isoDate).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusBadge = (key: ApiKey) => {
+    if (key.revoked) {
+      return { text: 'Revoked', color: 'var(--text-muted)' };
+    }
+    
+    const now = new Date();
+    const expires = new Date(key.expires_at);
+    
+    if (expires < now) {
+      return { text: 'Expired', color: '#ef4444' };
+    }
+    
+    // Check if expiring soon (within 7 days)
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    if (expires < sevenDaysFromNow) {
+      return { text: 'Expiring Soon', color: '#f59e0b' };
+    }
+    
+    return { text: 'Active', color: '#10b981' };
+  };
+
+  const [copied, setCopied] = useState(false);
+  
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Key className="text-amber-400" size={20} />
-            API Keys
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Manage programmatic access to Vienna OS</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-[#12131a] border border-white/[0.08] rounded-lg">
-            <Shield size={12} className="text-emerald-400" />
-            <span className="text-[10px] font-mono text-white/50">{activeKeys.length} active</span>
+    <PageLayout
+      title="API Keys"
+      description="Manage API keys for programmatic access"
+      actions={
+        <button
+          onClick={() => setShowCreateModal(true)}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: '1px solid rgba(124, 58, 237, 0.3)',
+            background: 'rgba(124, 58, 237, 0.08)',
+            color: '#f59e0b',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          Create API Key
+        </button>
+      }
+    >
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+
+        {/* New Key Display */}
+        {newKey && (
+          <div style={{
+            background: 'rgba(74, 222, 128, 0.06)',
+            border: '1px solid rgba(74, 222, 128, 0.2)',
+            borderRadius: '12px',
+            padding: '20px',
+          }}>
+            <h3 style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: '#10b981',
+              marginBottom: '12px',
+            }}>
+              ✓ API Key Created
+            </h3>
+            <p style={{
+              fontSize: '12px',
+              color: 'var(--text-tertiary)',
+              marginBottom: '12px',
+            }}>
+              {newKey.warning}
+            </p>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '6px',
+              padding: '8px 12px',
+            }}>
+              <code style={{
+                flex: 1,
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: 'var(--text-primary)',
+                wordBreak: 'break-all',
+              }}>
+                {newKey.api_key}
+              </code>
+              <button
+                onClick={() => copyToClipboard(newKey.api_key)}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(74, 222, 128, 0.3)',
+                  background: copied ? 'rgba(74, 222, 128, 0.15)' : 'rgba(74, 222, 128, 0.08)',
+                  color: '#10b981',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.2s',
+                }}
+              >
+                {copied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+            <button
+              onClick={() => setNewKey(null)}
+              style={{
+                marginTop: '12px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-subtle)',
+                background: 'transparent',
+                color: 'var(--text-tertiary)',
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Dismiss
+            </button>
           </div>
-          <button onClick={() => setShowCreate(true)}
-            className="px-4 py-2 bg-amber-500/15 border border-amber-500/30 rounded-lg text-[11px] font-bold text-amber-400 hover:bg-amber-500/25 transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-            <Plus size={14} /> New Key
-          </button>
+        )}
+
+        {/* API Keys Table */}
+        <div style={{
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <div style={{
+                display: 'inline-block',
+                width: '20px',
+                height: '20px',
+                border: '2px solid var(--border-subtle)',
+                borderTop: '2px solid #f59e0b',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }} />
+              <p style={{
+                marginTop: '12px',
+                fontSize: '12px',
+                color: 'var(--text-tertiary)',
+              }}>
+                Loading API keys...
+              </p>
+            </div>
+          ) : error ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <p style={{ color: '#ef4444', fontSize: '12px' }}>
+                {error}
+              </p>
+              <button
+                onClick={loadKeys}
+                style={{
+                  marginTop: '12px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(124, 58, 237, 0.3)',
+                  background: 'rgba(124, 58, 237, 0.08)',
+                  color: '#f59e0b',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          ) : keys.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--text-secondary)',
+                marginBottom: '8px',
+              }}>
+                No API keys found
+              </p>
+              <p style={{
+                fontSize: '12px',
+                color: 'var(--text-tertiary)',
+              }}>
+                Create your first API key to get started
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Table Header */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 120px 140px 140px 140px 100px',
+                gap: '16px',
+                padding: '16px 20px',
+                background: 'var(--bg-secondary)',
+                borderBottom: '1px solid var(--border-subtle)',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: 'var(--text-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                <div>Name</div>
+                <div>Key Prefix</div>
+                <div>Created</div>
+                <div>Last Used</div>
+                <div>Expires</div>
+                <div>Status</div>
+                <div></div>
+              </div>
+
+              {/* Table Rows */}
+              {keys.map((key) => {
+                const status = getStatusBadge(key);
+                const isRevoked = key.revoked;
+                const isExpired = new Date(key.expires_at) < new Date();
+                
+                return (
+                  <div
+                    key={key.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 120px 140px 140px 140px 100px',
+                      gap: '16px',
+                      padding: '16px 20px',
+                      borderBottom: '1px solid var(--border-subtle)',
+                      fontSize: '12px',
+                      opacity: isRevoked || isExpired ? 0.6 : 1,
+                    }}
+                  >
+                    <div>
+                      <div style={{
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        marginBottom: '2px',
+                      }}>
+                        {key.name}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: 'var(--text-tertiary)',
+                        fontFamily: 'var(--font-mono)',
+                      }}>
+                        {key.id.substring(0, 8)}...
+                      </div>
+                    </div>
+                    
+                    <div style={{
+                      fontFamily: 'var(--font-mono)',
+                      color: 'var(--text-secondary)',
+                    }}>
+                      {key.key_prefix}
+                    </div>
+                    
+                    <div style={{ color: 'var(--text-secondary)' }}>
+                      {formatDate(key.created_at)}
+                    </div>
+                    
+                    <div style={{ color: 'var(--text-secondary)' }}>
+                      {formatDate(key.last_used_at)}
+                    </div>
+                    
+                    <div style={{ color: 'var(--text-secondary)' }}>
+                      {formatDate(key.expires_at)}
+                    </div>
+                    
+                    <div>
+                      <span style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        background: `${status.color}20`,
+                        color: status.color,
+                      }}>
+                        {status.text}
+                      </span>
+                    </div>
+                    
+                    <div>
+                      {!isRevoked && !isExpired && (
+                        <button
+                          onClick={() => handleRevokeKey(key.id, key.name)}
+                          disabled={revoking === key.id}
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            border: '1px solid rgba(248, 113, 113, 0.3)',
+                            background: 'rgba(248, 113, 113, 0.08)',
+                            color: '#ef4444',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            cursor: revoking === key.id ? 'wait' : 'pointer',
+                            fontFamily: 'inherit',
+                            opacity: revoking === key.id ? 0.6 : 1,
+                          }}
+                        >
+                          {revoking === key.id ? 'Revoking...' : 'Revoke'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </div>
+
+        {/* Rate Limit Info */}
+        <div style={{
+          background: 'var(--bg-primary)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <h3 style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: '14px',
+          }}>
+            API Usage
+          </h3>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '6px 0',
+            borderBottom: '1px solid var(--border-subtle)',
+          }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Rate Limit</span>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+            }}>
+              60 req/min per key
+            </span>
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '6px 0',
+            borderBottom: '1px solid var(--border-subtle)',
+          }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Authentication</span>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-secondary)',
+            }}>
+              Bearer Token
+            </span>
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '6px 0',
+          }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Base URL</span>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+            }}>
+              {window.location.origin}/api/v1
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* New Key Reveal */}
-      {newKey && <NewKeyReveal newKey={newKey} onDismiss={() => setNewKey(null)} />}
-
-      {/* Loading */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-8 h-8 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin mb-4" />
-          <span className="text-[11px] font-mono text-white/30">Loading API keys...</span>
-        </div>
-      ) : error ? (
-        <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-6 text-center">
-          <AlertTriangle size={24} className="text-red-400 mx-auto mb-2" />
-          <p className="text-[12px] text-red-400">{error}</p>
-          <button onClick={loadKeys} className="mt-3 px-4 py-1.5 bg-red-500/10 text-red-400 rounded text-[10px] font-bold hover:bg-red-500/20 transition-colors">
-            Retry
-          </button>
-        </div>
-      ) : keys.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Key size={28} className="text-amber-400/50" />
-          </div>
-          <h3 className="text-[16px] font-bold text-white mb-2">No API Keys</h3>
-          <p className="text-[12px] text-white/40 max-w-sm mx-auto mb-4">
-            Create an API key to authenticate programmatic requests to Vienna OS.
-          </p>
-          <button onClick={() => setShowCreate(true)}
-            className="px-4 py-2 bg-amber-500/15 border border-amber-500/30 rounded-lg text-[11px] font-bold text-amber-400 hover:bg-amber-500/25 transition-all flex items-center gap-2 mx-auto">
-            <Plus size={14} /> Create First Key
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* Active Keys */}
-          {activeKeys.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Activity size={12} className="text-emerald-400" /> Active Keys
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {activeKeys.map(k => <KeyCard key={k.id} apiKey={k} onRevoke={() => handleRevoke(k.id)} />)}
-              </div>
-            </div>
-          )}
-
-          {/* Revoked Keys */}
-          {revokedKeys.length > 0 && (
-            <div>
-              <h2 className="text-[11px] font-bold text-white/20 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Clock size={12} className="text-gray-500" /> Revoked Keys
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {revokedKeys.map(k => <KeyCard key={k.id} apiKey={k} onRevoke={() => {}} />)}
-              </div>
-            </div>
-          )}
-        </>
+      {/* Create API Key Modal */}
+      {showCreateModal && (
+        <CreateApiKeyModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateKey}
+          creating={creating}
+        />
       )}
+    </PageLayout>
+  );
+}
 
-      {/* Create Modal */}
-      {showCreate && <CreateModal onClose={() => setShowCreate(false)} onCreate={handleCreate} creating={creating} />}
+// ============================================================================
+// Create API Key Modal
+// ============================================================================
+
+interface CreateApiKeyModalProps {
+  onClose: () => void;
+  onCreate: (name: string, expiresInDays: number) => void;
+  creating: boolean;
+}
+
+function CreateApiKeyModal({ onClose, onCreate, creating }: CreateApiKeyModalProps) {
+  const [name, setName] = useState('');
+  const [expiresInDays, setExpiresInDays] = useState(90);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onCreate(name.trim(), expiresInDays);
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      fontFamily: 'var(--font-sans)',
+    }}>
+      <div style={{
+        background: 'var(--bg-primary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: '12px',
+        padding: '24px',
+        width: '400px',
+        maxWidth: '90vw',
+      }}>
+        <h2 style={{
+          fontSize: '16px',
+          fontWeight: 600,
+          color: 'var(--text-primary)',
+          marginBottom: '16px',
+        }}>
+          Create API Key
+        </h2>
+        
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-tertiary)',
+              marginBottom: '6px',
+            }}>
+              Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="My API Key"
+              required
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+          
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-tertiary)',
+              marginBottom: '6px',
+            }}>
+              Expires In
+            </label>
+            <select
+              value={expiresInDays}
+              onChange={(e) => setExpiresInDays(Number(e.target.value))}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-subtle)',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                fontFamily: 'inherit',
+              }}
+            >
+              <option value={30}>30 days</option>
+              <option value={90}>90 days</option>
+              <option value={365}>1 year</option>
+              <option value={730}>2 years</option>
+            </select>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={creating}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: '1px solid var(--border-subtle)',
+                background: 'transparent',
+                color: 'var(--text-tertiary)',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: creating ? 'wait' : 'pointer',
+                fontFamily: 'inherit',
+                opacity: creating ? 0.6 : 1,
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={creating || !name.trim()}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: '1px solid rgba(124, 58, 237, 0.3)',
+                background: 'rgba(124, 58, 237, 0.08)',
+                color: '#f59e0b',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: (creating || !name.trim()) ? 'wait' : 'pointer',
+                fontFamily: 'inherit',
+                opacity: (creating || !name.trim()) ? 0.6 : 1,
+              }}
+            >
+              {creating ? 'Creating...' : 'Create Key'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

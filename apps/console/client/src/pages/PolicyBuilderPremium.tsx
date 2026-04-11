@@ -425,10 +425,10 @@ function RuleCardPremium({ rule, onEdit, onToggle, onDelete }: {
         marginBottom: '12px',
         fontFamily: 'var(--font-mono)',
       }}>
-        {rule.conditions.length === 0 ? (
+        {(!rule.conditions || rule.conditions.length === 0) ? (
           <span>MATCH ALL (catch-all)</span>
         ) : (
-          <span>{rule.conditions.length} condition{rule.conditions.length !== 1 ? 's' : ''}</span>
+          <span>{(rule.conditions || []).length} condition{(rule.conditions || []).length !== 1 ? 's' : ''}</span>
         )}
       </div>
 
@@ -1117,7 +1117,7 @@ export function PolicyBuilderPremium() {
   const fetchRules = useCallback(async () => {
     try {
       const data = await listPolicies();
-      setRules(data);
+      setRules(Array.isArray(data) ? data : []);
     } catch {
       // Silent fail
     } finally {

@@ -30,6 +30,7 @@ const SettingsPage = React.lazy(() => import('./pages/SettingsPage.js').then(m =
 const ApprovalsPage = React.lazy(() => import('./pages/ApprovalsPage.js').then(m => ({ default: m.ApprovalsPage })));
 const IntentPage = React.lazy(() => import('./pages/IntentPage.js').then(m => ({ default: m.IntentPage })));
 const PolicyBuilderPage = React.lazy(() => import('./pages/PolicyBuilderPage.js').then(m => ({ default: m.PolicyBuilderPage })));
+const PolicyBuilderPremium = React.lazy(() => import('./pages/PolicyBuilderPremium.js').then(m => ({ default: m.PolicyBuilderPremium })));
 const ActionTypesPage = React.lazy(() => import('./pages/ActionTypesPage.js').then(m => ({ default: m.ActionTypesPage })));
 const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.js').then(m => ({ default: m.FleetDashboardPage })));
 const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
@@ -245,7 +246,8 @@ export function App() {
                   <Route path="/approvals" element={<ApprovalsPremium />} />
                   <Route path="/approvals-new" element={<ApprovalsNew />} />
                   <Route path="/approvals-legacy" element={<ApprovalsPage />} />
-                  <Route path="/policies" element={<PolicyBuilderPage />} />
+                  <Route path="/policies" element={<PolicyBuilderPremium />} />
+                  <Route path="/policies-legacy" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />
                   <Route path="/compliance" element={<CompliancePage />} />

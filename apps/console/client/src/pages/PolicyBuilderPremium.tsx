@@ -34,6 +34,13 @@ import {
   getPolicyVersions,
   revertPolicy,
   type PolicyVersion,
+  getPolicyCoverage,
+  getPolicyConflicts,
+  getPolicyEffectiveness,
+  bulkPolicyAction,
+  type CoverageData,
+  type ConflictsData,
+  type EffectivenessData,
 } from '../api/policies.js';
 
 // ============================================================================
@@ -809,6 +816,293 @@ function RuleBuilderPremium({ rule, onSave, onClose }: {
 }
 
 // ============================================================================
+// SIMULATOR PANEL — Coverage + Conflict Detection
+// ============================================================================
+
+function SimulatorPanel() {
+  const [coverage, setCoverage] = useState<CoverageData | null>(null);
+  const [conflicts, setConflicts] = useState<ConflictsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      getPolicyCoverage().catch(() => null),
+      getPolicyConflicts().catch(() => null),
+    ]).then(([cov, conf]) => {
+      setCoverage(cov);
+      setConflicts(conf);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(251, 191, 36, 0.5)', fontFamily: 'var(--font-mono)' }}>
+        ⚡ ANALYZING POLICIES...
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      {/* Coverage Analysis */}
+      <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '20px' }}>
+        <h3 style={{ color: '#fbbf24', fontFamily: 'var(--font-mono)', fontSize: '14px', margin: '0 0 16px' }}>
+          🎯 COVERAGE ANALYSIS
+        </h3>
+        {coverage ? (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{
+                width: '80px', height: '80px', borderRadius: '50%',
+                background: `conic-gradient(#10b981 ${coverage.coverage_percentage}%, rgba(255,255,255,0.1) 0)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <div style={{
+                  width: '60px', height: '60px', borderRadius: '50%', background: '#0A0E14',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#10b981', fontWeight: 700, fontSize: '18px', fontFamily: 'var(--font-mono)',
+                }}>
+                  {coverage.coverage_percentage}%
+                </div>
+              </div>
+              <div>
+                <div style={{ color: '#e6e1dc', fontSize: '13px' }}>
+                  {coverage.covered_count}/{coverage.total_action_types} action types covered
+                </div>
+              </div>
+            </div>
+            {coverage.uncovered.length > 0 && (
+              <div>
+                <div style={{ color: '#ef4444', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', marginBottom: '8px' }}>
+                  ⚠ UNCOVERED ACTION TYPES:
+                </div>
+                {coverage.uncovered.map(at => (
+                  <span key={at} style={{
+                    display: 'inline-block', padding: '3px 8px', margin: '2px',
+                    background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#ef4444', fontSize: '10px', fontFamily: 'var(--font-mono)',
+                  }}>
+                    {at}
+                  </span>
+                ))}
+              </div>
+            )}
+            {coverage.uncovered.length === 0 && (
+              <div style={{ color: '#10b981', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+                ✓ ALL ACTION TYPES COVERED
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ color: 'rgba(230, 225, 220, 0.4)', fontSize: '12px' }}>Unable to load coverage data</div>
+        )}
+      </div>
+
+      {/* Conflict Detection */}
+      <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '20px' }}>
+        <h3 style={{ color: '#fbbf24', fontFamily: 'var(--font-mono)', fontSize: '14px', margin: '0 0 16px' }}>
+          ⚡ CONFLICT DETECTION
+        </h3>
+        {conflicts ? (
+          <>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+              {[
+                { label: 'HIGH', count: conflicts.high, color: '#ef4444' },
+                { label: 'MED', count: conflicts.medium, color: '#f59e0b' },
+                { label: 'LOW', count: conflicts.low, color: '#6b7280' },
+              ].map(s => (
+                <div key={s.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: s.color, fontFamily: 'var(--font-mono)' }}>{s.count}</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)' }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+            {conflicts.conflicts.length === 0 ? (
+              <div style={{ color: '#10b981', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>✓ NO CONFLICTS DETECTED</div>
+            ) : (
+              <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                {conflicts.conflicts.slice(0, 10).map((c, i) => (
+                  <div key={i} style={{
+                    padding: '8px', marginBottom: '4px',
+                    background: c.severity === 'high' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.05)',
+                    border: `1px solid ${c.severity === 'high' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.15)'}`,
+                    fontSize: '11px', color: '#e6e1dc',
+                  }}>
+                    <span style={{ color: c.severity === 'high' ? '#ef4444' : '#f59e0b', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                      [{c.severity.toUpperCase()}]
+                    </span>{' '}
+                    {c.description}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ color: 'rgba(230, 225, 220, 0.4)', fontSize: '12px' }}>Unable to load conflict data</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// AUDIT PANEL — Effectiveness Metrics
+// ============================================================================
+
+function AuditPanel() {
+  const [effectiveness, setEffectiveness] = useState<EffectivenessData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(30);
+
+  useEffect(() => {
+    setLoading(true);
+    getPolicyEffectiveness(days)
+      .then(setEffectiveness)
+      .catch(() => setEffectiveness(null))
+      .finally(() => setLoading(false));
+  }, [days]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(251, 191, 36, 0.5)', fontFamily: 'var(--font-mono)' }}>
+        ⚡ LOADING AUDIT DATA...
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Period selector */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        {[7, 14, 30, 90].map(d => (
+          <button
+            key={d}
+            onClick={() => setDays(d)}
+            style={{
+              padding: '6px 14px',
+              background: days === d ? 'rgba(251, 191, 36, 0.2)' : 'rgba(10, 14, 20, 0.6)',
+              border: `1px solid ${days === d ? '#fbbf24' : 'rgba(251, 191, 36, 0.2)'}`,
+              color: days === d ? '#fbbf24' : '#6b7280',
+              cursor: 'pointer', fontSize: '11px', fontWeight: 600, fontFamily: 'var(--font-mono)',
+            }}
+          >
+            {d}D
+          </button>
+        ))}
+      </div>
+
+      {effectiveness ? (
+        <>
+          {/* Summary */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px',
+          }}>
+            <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                {effectiveness.policies_evaluated}
+              </div>
+              <div style={{ fontSize: '10px', color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)' }}>EVALUATED</div>
+            </div>
+            <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                {effectiveness.effectiveness.reduce((a, e) => a + e.total_evaluations, 0)}
+              </div>
+              <div style={{ fontSize: '10px', color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)' }}>TOTAL EVALUATIONS</div>
+            </div>
+            <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '16px', textAlign: 'center' }}>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: '#ef4444', fontFamily: 'var(--font-mono)' }}>
+                {effectiveness.never_triggered.length}
+              </div>
+              <div style={{ fontSize: '10px', color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)' }}>NEVER TRIGGERED</div>
+            </div>
+          </div>
+
+          {/* Per-policy effectiveness */}
+          {effectiveness.effectiveness.length > 0 && (
+            <div style={{ background: 'rgba(10, 14, 20, 0.6)', border: '1px solid rgba(251, 191, 36, 0.2)', padding: '16px' }}>
+              <h3 style={{ color: '#fbbf24', fontFamily: 'var(--font-mono)', fontSize: '13px', margin: '0 0 12px' }}>
+                POLICY PERFORMANCE
+              </h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(251, 191, 36, 0.2)' }}>
+                    {['POLICY', 'EVALS', 'ALLOW', 'DENY', 'DENIAL %'].map(h => (
+                      <th key={h} style={{
+                        textAlign: 'left', padding: '8px', fontSize: '10px', fontWeight: 700,
+                        color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)',
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {effectiveness.effectiveness.map(e => (
+                    <tr key={e.policy_id} style={{ borderBottom: '1px solid rgba(251, 191, 36, 0.05)' }}>
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#e6e1dc', fontFamily: 'var(--font-mono)' }}>
+                        {e.policy_name}
+                      </td>
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#fbbf24', fontFamily: 'var(--font-mono)' }}>
+                        {e.total_evaluations}
+                      </td>
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#10b981', fontFamily: 'var(--font-mono)' }}>
+                        {e.allows}
+                      </td>
+                      <td style={{ padding: '8px', fontSize: '12px', color: '#ef4444', fontFamily: 'var(--font-mono)' }}>
+                        {e.denials}
+                      </td>
+                      <td style={{ padding: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{
+                            width: '60px', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden',
+                          }}>
+                            <div style={{
+                              width: `${e.denial_rate}%`, height: '100%',
+                              background: e.denial_rate > 50 ? '#ef4444' : e.denial_rate > 20 ? '#f59e0b' : '#10b981',
+                            }} />
+                          </div>
+                          <span style={{ fontSize: '11px', color: '#e6e1dc', fontFamily: 'var(--font-mono)' }}>
+                            {e.denial_rate}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Never triggered warning */}
+          {effectiveness.never_triggered.length > 0 && (
+            <div style={{
+              marginTop: '12px', padding: '12px',
+              background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)',
+            }}>
+              <div style={{ color: '#ef4444', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
+                ⚠ NEVER TRIGGERED ({effectiveness.never_triggered.length} policies):
+              </div>
+              {effectiveness.never_triggered.map(p => (
+                <span key={p.id} style={{
+                  display: 'inline-block', padding: '3px 8px', margin: '2px',
+                  background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                  color: '#ef4444', fontSize: '10px', fontFamily: 'var(--font-mono)',
+                }}>
+                  {p.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(230, 225, 220, 0.4)', fontSize: '12px' }}>
+          Unable to load effectiveness data
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
 // MAIN PAGE
 // ============================================================================
 
@@ -1091,28 +1385,14 @@ export function PolicyBuilderPremium() {
         </>
       )}
 
-      {/* Simulator tab */}
+      {/* Simulator tab — Coverage + Conflict detection */}
       {activeTab === 'simulator' && (
-        <div style={{
-          padding: '40px',
-          textAlign: 'center',
-          color: 'rgba(251, 191, 36, 0.5)',
-          fontFamily: 'var(--font-mono)',
-        }}>
-          🧪 SIMULATOR — Coming soon
-        </div>
+        <SimulatorPanel />
       )}
 
-      {/* Audit tab */}
+      {/* Audit tab — Effectiveness metrics */}
       {activeTab === 'audit' && (
-        <div style={{
-          padding: '40px',
-          textAlign: 'center',
-          color: 'rgba(251, 191, 36, 0.5)',
-          fontFamily: 'var(--font-mono)',
-        }}>
-          📊 AUDIT TRAIL — Coming soon
-        </div>
+        <AuditPanel />
       )}
 
       {/* Rule builder modal */}

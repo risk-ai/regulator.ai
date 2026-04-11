@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link2, Plus, RefreshCw } from 'lucide-react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { useResponsive } from '../hooks/useResponsive.js';
 import {
   listIntegrations,
@@ -138,31 +138,14 @@ export function IntegrationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <div className="mb-6">
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Link2 className="text-blue-400" size={20} /> Integrations
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Connect governance events to external services</p>
-        </div>
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-8 h-8 border-2 border-white/10 border-t-blue-500 rounded-full animate-spin mb-4" />
-          <span className="text-[11px] font-mono text-white/30">Loading integrations...</span>
-        </div>
-      </div>
+      <PageLayout title="Integrations" description="Loading...">
+        <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-tertiary)' }}>Loading integrations...</div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Link2 className="text-blue-400" size={20} /> Integrations
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Connect governance events to external services</p>
-        </div>
-      </div>
+    <PageLayout title="Integrations" description="Connect Vienna governance events to external services">
       {view === 'list' && (
         <IntegrationList
           integrations={integrations}
@@ -219,7 +202,7 @@ export function IntegrationsPage() {
           onCancel={() => setView('detail')}
         />
       )}
-    </div>
+    </PageLayout>
   );
 }
 

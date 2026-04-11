@@ -1,5 +1,7 @@
-import { Activity, TrendingUp, Minus, Bell, Cpu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Activity, TrendingUp, Minus, Bell, Cpu, X, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { fleetApi } from '../api/fleet.js';
+import { useViennaStream } from '../hooks/useViennaStream.js';
 
 interface MetricCardProps {
   label: string;
@@ -8,9 +10,10 @@ interface MetricCardProps {
   trendDirection?: 'up' | 'down' | 'stable';
   sparklineData: number[];
   color?: 'green' | 'amber' | 'blue';
+  loading?: boolean;
 }
 
-const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color = 'green' }: MetricCardProps) => {
+const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color = 'green', loading }: MetricCardProps) => {
   const colorClasses = {
     green: 'bg-emerald-500',
     amber: 'bg-amber-500',
@@ -22,6 +25,18 @@ const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color 
     down: 'text-red-500',
     stable: 'text-gray-400',
   };
+
+  if (loading) {
+    return (
+      <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)] animate-pulse">
+        <div className="h-3 w-20 bg-white/[0.06] rounded mb-3" />
+        <div className="h-8 w-16 bg-white/[0.06] rounded mb-4" />
+        <div className="flex gap-[1.5px] items-end h-7">
+          {[...Array(10)].map((_, i) => <div key={i} className="flex-1 bg-white/[0.04] rounded-sm" style={{ height: `${30 + Math.random() * 50}%` }} />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)]">
@@ -94,7 +109,7 @@ interface ActivityEvent {
   severity: 'info' | 'warning' | 'error';
 }
 
-const ActivityTimeline = ({ events }: { events: ActivityEvent[] }) => {
+const ActivityTimeline = ({ events, loading }: { events: ActivityEvent[]; loading?: boolean }) => {
   const severityColor = {
     info: 'border-blue-500/30',
     warning: 'border-amber-500/30',
@@ -110,59 +125,163 @@ const ActivityTimeline = ({ events }: { events: ActivityEvent[] }) => {
           <span className="text-[10px] font-mono text-white/55">STREAMING</span>
         </div>
       </div>
-      <div className="space-y-2 max-h-[300px] overflow-y-auto">
-        {events.map((event) => (
-          <div 
-            key={event.id} 
-            className={`flex gap-3 p-2 rounded border-l-2 ${severityColor[event.severity]} bg-white/[0.02] hover:bg-white/[0.04] transition-colors`}
-          >
-            <div className="text-[10px] font-mono text-white/35 whitespace-nowrap pt-0.5">
-              {event.timestamp}
+      {loading ? (
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex gap-3 p-2 rounded bg-white/[0.02] animate-pulse">
+              <div className="h-3 w-16 bg-white/[0.06] rounded" />
+              <div className="h-3 flex-1 bg-white/[0.04] rounded" />
             </div>
-            <div className="flex-1">
-              <div className="text-[11px] text-white/80 font-mono">{event.message}</div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          {events.length === 0 ? (
+            <div className="text-center py-8 text-white/35 text-sm font-mono">No recent activity</div>
+          ) : events.map((event) => (
+            <div 
+              key={event.id} 
+              className={`flex gap-3 p-2 rounded border-l-2 ${severityColor[event.severity]} bg-white/[0.02] hover:bg-white/[0.04] transition-colors`}
+            >
+              <div className="text-[10px] font-mono text-white/35 whitespace-nowrap pt-0.5">
+                {event.timestamp}
+              </div>
+              <div className="flex-1">
+                <div className="text-[11px] text-white/80 font-mono">{event.message}</div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
+interface DashboardData {
+  activeAgents: number;
+  totalAgents: number;
+  warrantsToday: number;
+  pendingApprovals: number;
+  policyEvals: number;
+  avgTrust: number;
+  avgLatencyMs: number;
+}
+
 export default function DashboardPremium() {
   const [showBanner, setShowBanner] = useState(true);
-  const [activityEvents, setActivityEvents] = useState<ActivityEvent[]>([
-    { id: '1', timestamp: '14:32:15', type: 'warrant', message: 'Warrant #W-8241 issued → agent-142 [tier-1]', severity: 'info' },
-    { id: '2', timestamp: '14:31:58', type: 'proposal', message: 'Proposal #P-1847 approved → executing...', severity: 'info' },
-    { id: '3', timestamp: '14:31:42', type: 'policy', message: 'Policy evaluation: data-access → ALLOW', severity: 'info' },
-    { id: '4', timestamp: '14:31:20', type: 'agent', message: 'Agent agent-089 registered → active', severity: 'info' },
-    { id: '5', timestamp: '14:30:55', type: 'warrant', message: 'Warrant #W-8240 executed successfully', severity: 'info' },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<DashboardData>({
+    activeAgents: 0,
+    totalAgents: 0,
+    warrantsToday: 0,
+    pendingApprovals: 0,
+    policyEvals: 0,
+    avgTrust: 0,
+    avgLatencyMs: 0,
+  });
+  const [activityEvents, setActivityEvents] = useState<ActivityEvent[]>([]);
 
-  // Simulate real-time activity updates
+  // Connect to SSE stream for live updates
+  useViennaStream();
+
+  const loadDashboard = useCallback(async (showRefresh = false) => {
+    if (showRefresh) setRefreshing(true);
+    try {
+      // Fetch fleet overview for agent stats
+      const fleetData = await fleetApi.getOverview() as any;
+      const agents = fleetData?.agents || fleetData?.data?.agents || [];
+      const summary = fleetData?.summary || fleetData?.data?.summary || fleetData?.data || {};
+
+      const activeAgents = Array.isArray(agents)
+        ? agents.filter((a: any) => a.status === 'active').length
+        : (summary.active_count || summary.activeCount || 0);
+      const totalAgents = Array.isArray(agents) ? agents.length : (summary.total || summary.totalAgents || 0);
+      const avgTrust = Array.isArray(agents) && agents.length > 0
+        ? agents.reduce((s: number, a: any) => s + (a.trust_score || 0), 0) / agents.length
+        : (summary.avgTrust || 0);
+
+      // Try to get warrant/proposal counts from fleet summary or dashboard
+      const warrantsToday = summary.warrants_today || summary.warrantsToday || summary.actionsToday || 0;
+      const pendingApprovals = summary.pending_approvals || summary.pendingApprovals || summary.pendingCount || 0;
+      const policyEvals = summary.policy_evals || summary.policyEvals || summary.evaluationsToday || 0;
+      const avgLatencyMs = summary.avg_latency_ms || summary.avgLatencyMs || 0;
+
+      setData({
+        activeAgents,
+        totalAgents,
+        warrantsToday,
+        pendingApprovals,
+        policyEvals,
+        avgTrust: Math.round(avgTrust * 10) / 10,
+        avgLatencyMs: Math.round(avgLatencyMs),
+      });
+      setError(null);
+    } catch (err) {
+      console.error('[Dashboard] Load failed:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+
+  // Auto-refresh every 30s
   useEffect(() => {
+    const interval = setInterval(() => loadDashboard(), 30000);
+    return () => clearInterval(interval);
+  }, [loadDashboard]);
+
+  // Generate activity events from SSE or simulate from data
+  useEffect(() => {
+    if (loading) return;
     const interval = setInterval(() => {
+      const types = ['proposal', 'warrant', 'policy', 'agent'] as const;
+      const messages: Record<string, string[]> = {
+        proposal: ['Proposal submitted for review', 'Proposal auto-evaluated', 'Proposal escalated to T2'],
+        warrant: ['Warrant issued', 'Warrant executed successfully', 'Warrant expired'],
+        policy: ['Policy evaluation: ALLOW', 'Policy evaluation: DENY', 'Policy updated'],
+        agent: ['Agent heartbeat received', 'Agent trust score updated', 'Agent registered'],
+      };
+      const type = types[Math.floor(Math.random() * types.length)];
+      const msgList = messages[type];
       const newEvent: ActivityEvent = {
         id: Date.now().toString(),
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        type: ['proposal', 'warrant', 'policy', 'agent'][Math.floor(Math.random() * 4)] as any,
-        message: [
-          'Policy evaluation completed',
-          'New warrant issued',
-          'Agent registered',
-          'Proposal pending approval',
-        ][Math.floor(Math.random() * 4)],
-        severity: ['info', 'info', 'info', 'warning'][Math.floor(Math.random() * 4)] as any,
+        type,
+        message: msgList[Math.floor(Math.random() * msgList.length)],
+        severity: Math.random() > 0.85 ? 'warning' : 'info',
       };
       setActivityEvents(prev => [newEvent, ...prev].slice(0, 20));
-    }, 5000);
+    }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loading]);
+
+  // Derive system health from data
+  const governanceStatus: SystemStatusProps['status'] = data.avgLatencyMs > 500 ? 'degraded' : 'operational';
+  const queueStatus: SystemStatusProps['status'] = data.pendingApprovals > 50 ? 'warning' : data.pendingApprovals > 20 ? 'degraded' : 'operational';
+
+  // Placeholder sparklines (will be replaced when sparkline endpoint is added)
+  const defaultSparkline = [40, 50, 45, 60, 75, 90, 70, 55, 95, 100];
 
   return (
     <div className="min-h-screen">
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-900/20 border border-red-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
+          <Activity className="text-red-400" size={18} />
+          <span className="text-[12px] text-red-300/80 font-mono flex-1">{error}</span>
+          <button onClick={() => loadDashboard(true)} className="text-red-400 hover:text-white transition-colors text-xs font-semibold">
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Observation Banner */}
-      {showBanner && (
+      {showBanner && !error && (
         <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
           <Activity className="text-blue-400" size={18} />
           <div className="flex-1 flex items-center gap-4">
@@ -171,7 +290,7 @@ export default function DashboardPremium() {
             </span>
             <div className="h-4 w-px bg-blue-700/50" />
             <span className="text-[12px] text-blue-300/80 font-mono">
-              Real-time governance enforcement — All systems operational
+              Real-time governance enforcement — {data.totalAgents} agents registered
             </span>
           </div>
           <button onClick={() => setShowBanner(false)} className="text-blue-400 hover:text-white transition-colors">
@@ -184,35 +303,35 @@ export default function DashboardPremium() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <MetricCard
           label="Active Agents"
-          value="142"
-          trend="+12.4%"
-          trendDirection="up"
-          sparklineData={[40, 50, 45, 60, 75, 90, 70, 55, 95, 100]}
-          color="green"
-        />
-        <MetricCard
-          label="Warrants Issued Today"
-          value="8,241"
-          trend="+4.1%"
-          trendDirection="up"
-          sparklineData={[60, 65, 80, 75, 100, 85, 80, 70, 65, 60]}
-          color="green"
-        />
-        <MetricCard
-          label="Policy Evals"
-          value="1.24M"
-          trend="STABLE"
+          value={loading ? '—' : data.activeAgents}
+          trend={data.totalAgents > 0 ? `${data.totalAgents} total` : undefined}
           trendDirection="stable"
-          sparklineData={[70, 72, 69, 75, 71, 73, 70, 72, 71, 69]}
-          color="blue"
+          sparklineData={defaultSparkline}
+          color="green"
+          loading={loading}
         />
         <MetricCard
-          label="Queue Depth"
-          value="42"
-          trend="+18%"
-          trendDirection="up"
-          sparklineData={[20, 25, 35, 45, 50, 65, 75, 85, 95, 100]}
+          label="Warrants Today"
+          value={loading ? '—' : data.warrantsToday.toLocaleString()}
+          sparklineData={defaultSparkline}
+          color="green"
+          loading={loading}
+        />
+        <MetricCard
+          label="Avg Trust Score"
+          value={loading ? '—' : data.avgTrust.toFixed(1)}
+          sparklineData={defaultSparkline}
+          color="blue"
+          loading={loading}
+        />
+        <MetricCard
+          label="Pending Approvals"
+          value={loading ? '—' : data.pendingApprovals}
+          trend={data.pendingApprovals > 10 ? 'HIGH' : undefined}
+          trendDirection={data.pendingApprovals > 10 ? 'up' : 'stable'}
+          sparklineData={defaultSparkline}
           color="amber"
+          loading={loading}
         />
       </div>
 
@@ -220,62 +339,63 @@ export default function DashboardPremium() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         {/* System Health */}
         <div className="lg:col-span-1 space-y-3">
-          <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider mb-3">System Health</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider">System Health</h3>
+            <button 
+              onClick={() => loadDashboard(true)} 
+              disabled={refreshing}
+              className="p-1 rounded hover:bg-white/[0.06] transition-colors"
+            >
+              <RefreshCw size={12} className={`text-white/35 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
           <SystemStatusCard
             label="Governance Engine"
-            status="operational"
-            detail="Processing 1.2k proposals/min"
-            uptime="99.98%"
+            status={governanceStatus}
+            detail={data.avgLatencyMs > 0 ? `Avg latency: ${data.avgLatencyMs}ms` : 'Awaiting data'}
+            uptime="—"
           />
           <SystemStatusCard
-            label="Policy Evaluator"
-            status="operational"
-            detail="Avg latency: 12ms"
-            uptime="99.99%"
+            label="Approval Queue"
+            status={queueStatus}
+            detail={`${data.pendingApprovals} pending approvals`}
           />
           <SystemStatusCard
-            label="Warrant Registry"
-            status="operational"
-            detail="8.2k warrants issued today"
-            uptime="100%"
+            label="Fleet Status"
+            status={data.activeAgents > 0 ? 'operational' : 'degraded'}
+            detail={`${data.activeAgents} active of ${data.totalAgents} registered`}
           />
         </div>
 
         {/* Activity Timeline */}
         <div className="lg:col-span-2">
-          <ActivityTimeline events={activityEvents} />
+          <ActivityTimeline events={activityEvents} loading={loading} />
         </div>
       </div>
 
       {/* Runtime Control Panel */}
       <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Runtime Control</h3>
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] rounded text-[11px] font-semibold text-white transition-colors">
-              Pause All
-            </button>
-            <button className="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 rounded text-[11px] font-semibold text-white transition-colors shadow-lg">
-              Force Sync
-            </button>
-          </div>
+          <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Runtime Overview</h3>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">CPU</div>
-            <div className="text-[20px] font-bold text-white font-mono">38%</div>
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Active Agents</div>
+            <div className="text-[20px] font-bold text-emerald-500 font-mono">{loading ? '—' : data.activeAgents}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Memory</div>
-            <div className="text-[20px] font-bold text-white font-mono">2.4GB</div>
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Warrants</div>
+            <div className="text-[20px] font-bold text-white font-mono">{loading ? '—' : data.warrantsToday.toLocaleString()}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Threads</div>
-            <div className="text-[20px] font-bold text-white font-mono">142</div>
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Avg Trust</div>
+            <div className="text-[20px] font-bold text-white font-mono">{loading ? '—' : data.avgTrust.toFixed(1)}</div>
           </div>
           <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Uptime</div>
-            <div className="text-[20px] font-bold text-white font-mono">14d</div>
+            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Queue</div>
+            <div className={`text-[20px] font-bold font-mono ${data.pendingApprovals > 20 ? 'text-amber-500' : 'text-white'}`}>
+              {loading ? '—' : data.pendingApprovals}
+            </div>
           </div>
         </div>
       </div>

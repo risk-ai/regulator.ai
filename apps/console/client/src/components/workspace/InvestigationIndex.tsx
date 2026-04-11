@@ -47,6 +47,7 @@ export function InvestigationIndex({ onSelectInvestigation }: InvestigationIndex
       onSelectInvestigation(investigationId);
     } else {
       // Fallback: navigate to detail page (Phase 13c)
+      console.log('Navigate to investigation:', investigationId);
     }
   };
 

@@ -1,11 +1,17 @@
 /**
- * Workspace Page — Premium Terminal Design
+ * Workspace Page
+ * Phase 13b - Investigation Workspace
  * 
- * Investigation environment with premium tab navigation.
+ * Operator investigation environment with:
+ * - Investigation index (full implementation)
+ * - Investigation detail (skeleton)
+ * - Artifact browser (skeleton)
+ * - Trace timeline (skeleton)
+ * - Related entities (skeleton)
  */
 
 import { useState } from 'react';
-import { Search, FileText, Activity, Link, ArrowLeft } from 'lucide-react';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import { InvestigationIndex } from '../components/workspace/InvestigationIndex.js';
 import { InvestigationDetail } from '../components/workspace/InvestigationDetail.js';
 import { ArtifactBrowser } from '../components/workspace/ArtifactBrowser.js';
@@ -16,67 +22,129 @@ type WorkspaceView = 'index' | 'detail' | 'artifacts' | 'traces' | 'related';
 
 export function WorkspacePage() {
   const [currentView, setCurrentView] = useState<WorkspaceView>('index');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedInvestigationId, setSelectedInvestigationId] = useState<string | null>(null);
 
-  const handleSelect = (id: string) => { setSelectedId(id); setCurrentView('detail'); };
-  const handleBack = () => { setCurrentView('index'); setSelectedId(null); };
+  const handleSelectInvestigation = (investigationId: string) => {
+    setSelectedInvestigationId(investigationId);
+    setCurrentView('detail');
+  };
 
-  const tabs = [
-    { key: 'index' as const, label: 'Investigations', icon: Search },
-    { key: 'artifacts' as const, label: 'Artifacts', icon: FileText },
-    { key: 'traces' as const, label: 'Traces', icon: Activity },
-    { key: 'related' as const, label: 'Related', icon: Link, disabled: !selectedId },
-  ];
+  const handleBackToIndex = () => {
+    setCurrentView('index');
+    setSelectedInvestigationId(null);
+  };
+
+  const renderView = () => {
+    switch (currentView) {
+      case 'index':
+        return <InvestigationIndex onSelectInvestigation={handleSelectInvestigation} />;
+
+      case 'detail':
+        return selectedInvestigationId ? (
+          <InvestigationDetail
+            investigationId={selectedInvestigationId}
+            onClose={handleBackToIndex}
+            onUpdate={() => {
+              // Re-render investigation detail after updates
+              // The component will reload its own data
+            }}
+          />
+        ) : (
+          <div className="text-gray-500">No investigation selected</div>
+        );
+
+      case 'artifacts':
+        return selectedInvestigationId ? (
+          <ArtifactBrowser investigationId={selectedInvestigationId} />
+        ) : (
+          <div className="text-gray-500">No investigation selected</div>
+        );
+
+      case 'traces':
+        return <TraceTimelinePanel investigationId={selectedInvestigationId || undefined} />;
+
+      case 'related':
+        return selectedInvestigationId ? (
+          <RelatedEntitiesPanel investigationId={selectedInvestigationId} />
+        ) : (
+          <div className="text-gray-500">No investigation selected</div>
+        );
+
+      default:
+        return <InvestigationIndex onSelectInvestigation={handleSelectInvestigation} />;
+    }
+  };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-          <Search className="text-blue-400" size={20} />
-          Workspace
-        </h1>
-        <p className="text-[12px] text-white/40 mt-1 font-mono">Investigation environment</p>
-      </div>
+    <PageLayout
+      title="Workspace"
+      description="Investigation environment"
+    >
+      {/* Secondary Navigation */}
+      <div className="mb-6 flex items-center gap-4 border-b border-gray-700 pb-4">
+        <button
+          onClick={() => setCurrentView('index')}
+          className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+            currentView === 'index'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+          }`}
+        >
+          Investigations
+        </button>
 
-      {/* Tab Navigation */}
-      <div className="flex items-center gap-1 mb-6 border-b border-white/[0.06] pb-0">
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => !t.disabled && setCurrentView(t.key)}
-            disabled={t.disabled}
-            className={`px-4 py-2.5 text-[11px] font-semibold flex items-center gap-2 border-b-2 transition-colors ${
-              currentView === t.key
-                ? 'text-white border-blue-500'
-                : t.disabled
-                  ? 'text-white/15 border-transparent cursor-not-allowed'
-                  : 'text-white/30 border-transparent hover:text-white/50'
-            }`}>
-            <t.icon size={12} /> {t.label}
-          </button>
-        ))}
+        <button
+          onClick={() => setCurrentView('artifacts')}
+          className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+            currentView === 'artifacts'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+          }`}
+        >
+          Artifacts
+        </button>
 
+        <button
+          onClick={() => setCurrentView('traces')}
+          className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+            currentView === 'traces'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+          }`}
+        >
+          Traces
+        </button>
+
+        <button
+          onClick={() => setCurrentView('related')}
+          disabled={!selectedInvestigationId}
+          className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+            currentView === 'related'
+              ? 'bg-blue-600 text-white'
+              : selectedInvestigationId
+              ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-800'
+              : 'text-gray-600 cursor-not-allowed'
+          }`}
+        >
+          Related
+        </button>
+
+        {/* Back to Index (when in detail view) */}
         {currentView !== 'index' && (
-          <button onClick={handleBack}
-            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold font-mono text-white/30 hover:text-white/50 transition-colors">
-            <ArrowLeft size={12} /> Back
+          <button
+            onClick={handleBackToIndex}
+            className="ml-auto text-sm text-gray-400 hover:text-gray-300 flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Index
           </button>
         )}
       </div>
 
       {/* View Content */}
-      {currentView === 'index' && <InvestigationIndex onSelectInvestigation={handleSelect} />}
-      {currentView === 'detail' && selectedId && (
-        <InvestigationDetail investigationId={selectedId} onClose={handleBack} onUpdate={() => {}} />
-      )}
-      {currentView === 'detail' && !selectedId && (
-        <div className="text-center py-16 text-white/30 text-[12px] font-mono">No investigation selected</div>
-      )}
-      {currentView === 'artifacts' && selectedId && <ArtifactBrowser investigationId={selectedId} />}
-      {currentView === 'artifacts' && !selectedId && (
-        <div className="text-center py-16 text-white/30 text-[12px] font-mono">Select an investigation first</div>
-      )}
-      {currentView === 'traces' && <TraceTimelinePanel investigationId={selectedId || undefined} />}
-      {currentView === 'related' && selectedId && <RelatedEntitiesPanel investigationId={selectedId} />}
-    </div>
+      {renderView()}
+    </PageLayout>
   );
 }

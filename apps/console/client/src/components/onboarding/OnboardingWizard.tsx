@@ -543,6 +543,7 @@ const result = await vienna.submit({
 
 if (result.status === 'approved') {
   // Proceed with the action — warrant is attached
+  console.log('Warrant:', result.warrant.id);
 }`}</pre>
               </div>
             </div>

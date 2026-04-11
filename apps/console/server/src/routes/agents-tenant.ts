@@ -41,10 +41,10 @@ router.get('/', async (req: Request, res: Response) => {
     const tenantId = getTenantId(req);
     
     const agents = await query<Agent>(
-      `SELECT id, display_name as name, agent_type as type, status, last_heartbeat, registered_at as created_at, config as metadata
-       FROM agent_registry
-       WHERE tenant_id = $1 OR tenant_id IS NULL
-       ORDER BY registered_at DESC`,
+      `SELECT id, name, type, status, last_heartbeat, created_at, metadata
+       FROM agents
+       WHERE tenant_id = $1
+       ORDER BY created_at DESC`,
       [tenantId]
     );
     
@@ -84,10 +84,10 @@ router.post('/', async (req: Request, res: Response) => {
     }
     
     const agent = await queryOne<Agent>(
-      `INSERT INTO agent_registry (tenant_id, agent_id, display_name, agent_type, status, config, registered_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, tenant_id, display_name as name, agent_type as type, status, registered_at as created_at, config as metadata`,
-      [tenantId, name.toLowerCase().replace(/\s+/g, '-'), name, type, 'active', JSON.stringify(metadata), 'console']
+      `INSERT INTO agents (tenant_id, name, type, status, metadata)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, tenant_id, name, type, status, created_at, metadata`,
+      [tenantId, name, type, 'active', JSON.stringify(metadata)]
     );
     
     res.status(201).json({
@@ -116,9 +116,9 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     
     const agent = await queryOne<Agent>(
-      `SELECT id, display_name as name, agent_type as type, status, last_heartbeat, registered_at as created_at, config as metadata
-       FROM agent_registry
-       WHERE id = $1 AND (tenant_id = $2 OR tenant_id IS NULL)`,
+      `SELECT id, name, type, status, last_heartbeat, created_at, metadata
+       FROM agents
+       WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     );
     
@@ -159,7 +159,7 @@ router.post('/:id/heartbeat', async (req: Request, res: Response) => {
     
     // Verify agent belongs to tenant
     const agent = await queryOne<Agent>(
-      'SELECT id FROM agent_registry WHERE id = $1 AND (tenant_id = $2 OR tenant_id IS NULL)',
+      'SELECT id FROM agents WHERE id = $1 AND tenant_id = $2',
       [id, tenantId]
     );
     
@@ -174,12 +174,12 @@ router.post('/:id/heartbeat', async (req: Request, res: Response) => {
     
     // Update heartbeat
     const updated = await queryOne<Agent>(
-      `UPDATE agent_registry
+      `UPDATE agents
        SET last_heartbeat = NOW(),
            status = $1,
-           config = COALESCE($2, config),
+           metadata = COALESCE($2, metadata),
            updated_at = NOW()
-       WHERE id = $3 AND (tenant_id = $4 OR tenant_id IS NULL)
+       WHERE id = $3 AND tenant_id = $4
        RETURNING id, status, last_heartbeat`,
       [status, metadata ? JSON.stringify(metadata) : null, id, tenantId]
     );

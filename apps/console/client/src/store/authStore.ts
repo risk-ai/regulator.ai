@@ -42,18 +42,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
   setAuthErrorCallback(() => {
     console.warn('[AuthStore] Global 401 handler triggered');
     const state = get();
-    
-    // Only show "Session expired" if user was previously authenticated.
-    // On cold visits with no stored tokens, silently redirect to login
-    // without the alarming error message.
-    const wasAuthenticated = state.authenticated || !!state.accessToken || !!localStorage.getItem('vienna_access_token');
-    
     if (state.refreshToken) {
       // Try to refresh token first
       state.refreshAccessToken().catch(() => {
         // Refresh failed, logout
-        localStorage.removeItem('vienna_access_token');
-        localStorage.removeItem('vienna_refresh_token');
         set({
           authenticated: false,
           user: null,
@@ -61,12 +53,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
           accessToken: null,
           refreshToken: null,
           loading: false,
-          error: wasAuthenticated ? 'Session expired' : null,
+          error: 'Session expired',
         });
       });
     } else {
-      localStorage.removeItem('vienna_access_token');
-      localStorage.removeItem('vienna_refresh_token');
       set({
         authenticated: false,
         user: null,
@@ -74,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         accessToken: null,
         refreshToken: null,
         loading: false,
-        error: wasAuthenticated ? 'Session expired' : null,
+        error: 'Session expired',
       });
     }
   });

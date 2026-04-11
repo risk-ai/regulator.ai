@@ -1,14 +1,10 @@
 /**
- * Services Page — Premium Terminal Design
- * 
- * Infrastructure health board with glowing status indicators,
- * governance engine cards, live health polling.
+ * Services Page — Vienna OS
+ * Live infrastructure health from /api/v1/health endpoint.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Server, RefreshCw, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
-
-// ─── Types ───
+import { PageLayout } from '../components/layout/PageLayout.js';
 
 interface HealthCheck {
   status: string;
@@ -27,39 +23,14 @@ interface HealthCheck {
   endpoints: { total: number; healthy: number };
 }
 
-const ENGINES = [
+const governanceEngines = [
   { name: 'Policy Engine', icon: '📋', desc: 'Rule evaluation & enforcement', key: 'pipeline' },
   { name: 'Warrant System', icon: '🔐', desc: 'Cryptographic signing & TTL', key: 'pipeline' },
   { name: 'Agent Registry', icon: '🤖', desc: 'Trust scores & rate limiting', key: 'agents' },
-  { name: 'Webhook Dispatch', icon: '🔔', desc: 'Event notifications', key: 'webhooks' },
+  { name: 'Webhook Dispatch', icon: '🔔', desc: 'Event notifications via HTTP', key: 'webhooks' },
   { name: 'SSE Streaming', icon: '📡', desc: 'Real-time event stream', key: 'sse' },
   { name: 'Auth & RBAC', icon: '🔑', desc: 'JWT, API keys, rate limiting', key: 'auth' },
 ];
-
-const INFRA = [
-  { label: 'Database', value: 'Neon Postgres', icon: '💾', key: 'database' },
-  { label: 'Compute', value: 'Vercel Serverless', icon: '⚡', key: null },
-  { label: 'CDN', value: 'Vercel Edge', icon: '🌐', key: null },
-  { label: 'DNS', value: 'Vercel DNS', icon: '🔗', key: null },
-  { label: 'SSL', value: "Let's Encrypt", icon: '🔒', key: null },
-  { label: 'Email', value: 'Resend', icon: '📧', key: null },
-];
-
-// ─── Helpers ───
-
-function formatUptime(s: number) {
-  if (s < 3600) return `${Math.floor(s / 60)}m`;
-  return `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m`;
-}
-
-function getCheckStatus(health: HealthCheck | null, key: string) {
-  if (!health?.checks) return { status: 'unknown', healthy: false };
-  const check = (health.checks as any)[key];
-  if (!check) return { status: 'unknown', healthy: false };
-  return { status: check.status, healthy: check.status === 'healthy', ...check };
-}
-
-// ─── Main Page ───
 
 export function ServicesPage() {
   const [health, setHealth] = useState<HealthCheck | null>(null);
@@ -68,128 +39,119 @@ export function ServicesPage() {
   const load = useCallback(async () => {
     try {
       const res = await fetch('/api/v1/health', { credentials: 'include' });
-      setHealth(await res.json());
+      const data = await res.json();
+      setHealth(data);
     } catch {} finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); const i = setInterval(load, 15000); return () => clearInterval(i); }, [load]);
 
-  const allHealthy = health?.status === 'healthy';
+  const getStatus = (key: string) => {
+    if (!health?.checks) return { status: 'unknown', color: '#94a3b8' };
+    const check = (health.checks as any)[key];
+    if (!check) return { status: 'unknown', color: '#94a3b8' };
+    const s = check.status;
+    return {
+      status: s === 'healthy' ? 'Operational' : s === 'warning' ? 'Warning' : s === 'unhealthy' ? 'Down' : s,
+      color: s === 'healthy' ? '#10b981' : s === 'warning' ? '#f59e0b' : '#ef4444',
+    };
+  };
+
+  const formatUptime = (s: number) => {
+    if (s < 60) return `${Math.floor(s)}s`;
+    if (s < 3600) return `${Math.floor(s/60)}m`;
+    return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
+  };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Server className="text-emerald-400" size={20} />
-            Services
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Infrastructure health & governance engine status</p>
+    <PageLayout title="Services" description="Infrastructure health & governance engine status">
+
+      {/* Overall status */}
+      {health && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', padding: '12px 0' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: health.status === 'healthy' ? '#10b981' : '#ef4444' }} />
+          <span style={{ fontSize: '14px', fontWeight: 600, color: health.status === 'healthy' ? '#10b981' : '#ef4444' }}>ALL SYSTEMS {health.status === 'healthy' ? 'OPERATIONAL' : 'DEGRADED'}</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginLeft: 'auto', fontFamily: 'var(--font-mono)' }}>v{health.version} · {health.mode} · uptime {formatUptime(health.uptime_seconds)}</span>
         </div>
-        <button onClick={load} className="px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] rounded-md text-[10px] font-bold font-mono text-white/50 hover:text-white transition-all flex items-center gap-2">
-          <RefreshCw size={12} />
-        </button>
+      )}
+
+      {/* Stat cards */}
+      {health && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '24px' }}>
+          <MiniStat label="Endpoints" value={health.endpoints?.total || 0} sub={`${health.endpoints?.healthy || 0} healthy`} color="#f59e0b" />
+          <MiniStat label="DB Latency" value={health.checks?.database?.latency_ms || 0} sub="ms" color={health.checks?.database?.latency_ms > 200 ? '#ef4444' : '#10b981'} />
+          <MiniStat label="Proposals" value={health.checks?.pipeline?.proposals || 0} sub="total" color="#60a5fa" />
+          <MiniStat label="Audit Events" value={health.checks?.pipeline?.audit_events || 0} sub="total" color="#94a3b8" />
+          <MiniStat label="Agents" value={health.checks?.agents?.count || 0} sub="registered" color="#D4A520" />
+          <MiniStat label="Webhooks" value={health.checks?.webhooks?.active || 0} sub="active" color="#f97316" />
+        </div>
+      )}
+
+      {/* Governance Engines */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Governance Engines</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '10px' }}>
+          {governanceEngines.map(engine => {
+            const { status, color } = getStatus(engine.key);
+            return (
+              <div key={engine.name} style={{ background: 'var(--bg-primary)', borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>{engine.icon}</span>
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{engine.name}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '1px' }}>{engine.desc}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 8px', borderRadius: '100px', background: `${color}10`, border: `1px solid ${color}25` }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color }} />
+                  <span style={{ fontSize: '10px', fontWeight: 600, color, textTransform: 'uppercase' }}>{status}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {loading && !health ? (
-        <div className="flex flex-col items-center justify-center py-24">
-          <div className="w-8 h-8 border-2 border-white/10 border-t-emerald-500 rounded-full animate-spin mb-4" />
-          <span className="text-[11px] font-mono text-white/30">Checking health...</span>
+      {/* Infrastructure */}
+      <div>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px' }}>Infrastructure</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
+          {[
+            { label: 'Database', value: 'Neon Postgres', sub: `${health?.checks?.database?.latency_ms || '?'}ms latency`, icon: '💾', status: health?.checks?.database?.status },
+            { label: 'Compute', value: 'Vercel Serverless', sub: 'US East (iad1)', icon: '⚡', status: 'healthy' },
+            { label: 'CDN', value: 'Vercel Edge', sub: 'Global distribution', icon: '🌐', status: 'healthy' },
+            { label: 'DNS', value: 'Vercel DNS', sub: '*.regulator.ai', icon: '🔗', status: 'healthy' },
+            { label: 'SSL', value: 'Let\'s Encrypt', sub: 'Auto-renewed', icon: '🔒', status: 'healthy' },
+            { label: 'Email', value: 'Resend', sub: 'Transactional', icon: '📧', status: 'healthy' },
+          ].map(svc => (
+            <div key={svc.label} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '16px' }}>{svc.icon}</span>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{svc.label}</span>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: svc.status === 'healthy' ? '#10b981' : '#ef4444', marginLeft: 'auto' }} />
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{svc.value}</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{svc.sub}</div>
+            </div>
+          ))}
         </div>
-      ) : health && (
-        <>
-          {/* Overall Status Banner */}
-          <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border mb-6 ${
-            allHealthy
-              ? 'bg-emerald-500/5 border-emerald-500/20 shadow-[0_0_16px_rgba(16,185,129,0.15)]'
-              : 'bg-red-500/5 border-red-500/20 shadow-[0_0_16px_rgba(239,68,68,0.15)]'
-          }`}>
-            <div className={`w-3 h-3 rounded-full animate-pulse ${allHealthy ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            <span className={`text-[12px] font-bold font-mono uppercase ${allHealthy ? 'text-emerald-400' : 'text-red-400'}`}>
-              All Systems {allHealthy ? 'Operational' : 'Degraded'}
-            </span>
-            <span className="text-[10px] font-mono text-white/25 ml-auto">
-              v{health.version} · {health.mode} · uptime {formatUptime(health.uptime_seconds)}
-            </span>
-          </div>
+      </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-            {[
-              { label: 'Endpoints', value: health.endpoints?.total || 0, sub: `${health.endpoints?.healthy || 0} healthy`, color: 'amber' },
-              { label: 'DB Latency', value: health.checks?.database?.latency_ms || 0, sub: 'ms', color: (health.checks?.database?.latency_ms || 0) > 200 ? 'red' : 'emerald' },
-              { label: 'Proposals', value: health.checks?.pipeline?.proposals || 0, sub: 'total', color: 'blue' },
-              { label: 'Audit Events', value: health.checks?.pipeline?.audit_events || 0, sub: 'total', color: 'blue' },
-              { label: 'Agents', value: health.checks?.agents?.count || 0, sub: 'registered', color: 'amber' },
-              { label: 'Webhooks', value: health.checks?.webhooks?.active || 0, sub: 'active', color: 'amber' },
-            ].map(s => {
-              const colorMap: Record<string, string> = { emerald: 'text-emerald-400', amber: 'text-amber-400', red: 'text-red-400', blue: 'text-blue-400' };
-              return (
-                <div key={s.label} className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3 text-center">
-                  <div className={`text-[22px] font-bold font-mono leading-none ${colorMap[s.color]}`}>{s.value}</div>
-                  <div className="text-[9px] text-white/25 font-mono mt-0.5">{s.sub}</div>
-                  <div className="text-[9px] text-white/35 uppercase tracking-wider font-bold mt-1">{s.label}</div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Governance Engines */}
-          <div className="mb-6">
-            <h2 className="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-3">Governance Engines</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {ENGINES.map(engine => {
-                const chk = getCheckStatus(health, engine.key);
-                const isHealthy = chk.healthy;
-                return (
-                  <div key={engine.name} className={`bg-[#12131a] border rounded-lg p-4 transition-all ${
-                    isHealthy
-                      ? 'border-white/[0.06] hover:border-emerald-500/20'
-                      : 'border-red-500/20 shadow-[0_0_8px_rgba(239,68,68,0.1)]'
-                  }`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-lg">{engine.icon}</span>
-                        <span className="text-[12px] font-bold text-white">{engine.name}</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
-                        isHealthy ? 'bg-emerald-500/10' : 'bg-red-500/10'
-                      }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${isHealthy ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                        <span className={`text-[9px] font-bold font-mono uppercase ${isHealthy ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {isHealthy ? 'Operational' : chk.status}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-white/30">{engine.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Infrastructure */}
-          <div>
-            <h2 className="text-[11px] font-bold text-white/40 uppercase tracking-widest mb-3">Infrastructure</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {INFRA.map(svc => {
-                const isHealthy = svc.key ? getCheckStatus(health, svc.key).healthy : true;
-                return (
-                  <div key={svc.label} className="bg-[#12131a] border border-white/[0.06] rounded-lg p-4">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <span className="text-base">{svc.icon}</span>
-                      <span className="text-[12px] font-bold text-white">{svc.label}</span>
-                      <div className={`w-2 h-2 rounded-full ml-auto ${isHealthy ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                    </div>
-                    <div className="text-[11px] font-mono text-white/50">{svc.value}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </>
+      {loading && !health && (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+          <div style={{ width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        </div>
       )}
+    </PageLayout>
+  );
+}
+
+function MiniStat({ label, value, sub, color }: { label: string; value: number; sub: string; color: string }) {
+  return (
+    <div style={{ background: `${color}06`, border: `1px solid ${color}12`, borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+      <div style={{ fontSize: '22px', fontWeight: 700, color, fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: '10px', color: 'var(--text-tertiary)', marginTop: '2px' }}>{sub}</div>
+      <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginTop: '4px' }}>{label}</div>
     </div>
   );
 }

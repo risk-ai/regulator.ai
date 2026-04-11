@@ -89,42 +89,6 @@ export function createPolicyTemplatesRouter(): Router {
   });
 
   /**
-   * Get policy template packs (grouped by category)
-   * GET /api/v1/policy-templates/packs
-   */
-  router.get('/packs', async (_req: Request, res: Response) => {
-    try {
-      const templates = await query<any>(
-        'SELECT id, name, description, category FROM policy_templates WHERE enabled = true ORDER BY category, name'
-      );
-
-      // Group templates by category into "packs"
-      const packMap: Record<string, { id: string; name: string; description: string; templates: any[] }> = {};
-      for (const t of templates) {
-        const cat = (t.category || 'general').toLowerCase().replace(/\s+/g, '-');
-        if (!packMap[cat]) {
-          packMap[cat] = {
-            id: cat,
-            name: t.category || 'General',
-            description: `${t.category || 'General'} policy templates`,
-            templates: [],
-          };
-        }
-        packMap[cat].templates.push({ id: t.id, name: t.name, description: t.description });
-      }
-
-      res.json({ success: true, packs: Object.values(packMap), timestamp: new Date().toISOString() });
-    } catch (error) {
-      console.error('[PolicyTemplates] Error listing packs:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to list template packs',
-        code: 'TEMPLATES_PACKS_ERROR',
-      });
-    }
-  });
-
-  /**
    * Get template by ID
    * GET /api/v1/policy-templates/:id
    */

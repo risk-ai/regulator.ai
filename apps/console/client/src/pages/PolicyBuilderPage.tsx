@@ -10,8 +10,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Shield } from 'lucide-react';
-import { CodeEditor } from '../components/policy/CodeEditor.js';
+import { PageLayout } from '../components/layout/PageLayout.js';
 import {
   listPolicies,
   createPolicy,
@@ -748,11 +747,11 @@ function RuleBuilder({ rule, onSave, onClose }: RuleBuilderProps) {
               Enter a mock intent to test against <strong>all active rules</strong>:
             </p>
 
-            <CodeEditor
+            <textarea
+              style={styles.textarea}
               value={testJson}
-              onChange={setTestJson}
-              placeholder='{"action_type": "create_order", "amount": 5000}'
-              minHeight="120px"
+              onChange={e => setTestJson(e.target.value)}
+              spellCheck={false}
             />
 
             <button
@@ -1330,16 +1329,11 @@ export function PolicyBuilderPage() {
   );
 
   return (
-    <div className="min-h-screen">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-[22px] font-bold text-white tracking-tight flex items-center gap-3">
-            <Shield className="text-amber-400" size={20} /> Policy Builder
-          </h1>
-          <p className="text-[12px] text-white/40 mt-1 font-mono">Define governance rules that control what agents can do</p>
-        </div>
-        <div className="flex gap-2">{headerActions}</div>
-      </div>
+    <PageLayout
+      title="Policy Builder"
+      description="Define governance rules that control what agents can do"
+      actions={headerActions}
+    >
       {/* Tabs */}
       <div style={{
         display: 'flex',
@@ -1604,6 +1598,6 @@ export function PolicyBuilderPage() {
           onClose={() => setVersionHistoryRule(null)}
         />
       )}
-    </div>
+    </PageLayout>
   );
 }

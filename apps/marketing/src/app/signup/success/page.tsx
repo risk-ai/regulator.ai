@@ -252,7 +252,7 @@ function SuccessContent() {
             <div className="text-zinc-500">Ready-to-use governance</div>
           </a>
           <a
-            href="https://github.com/risk-ai/regulatorai"
+            href="https://github.com/risk-ai/vienna-os"
             target="_blank"
             rel="noopener noreferrer"
             className="block p-4 bg-slate-800/50 border border-slate-700 hover:border-zinc-800 transition text-center"

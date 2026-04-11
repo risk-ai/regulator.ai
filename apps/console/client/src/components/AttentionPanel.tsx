@@ -69,6 +69,7 @@ export const AttentionPanel: React.FC<AttentionPanelProps> = ({ items }) => {
       navigate(`/objectives/${item.objectiveId}/timeline`);
     } else if (item.provider) {
       // Future: navigate to provider health detail
+      console.log('Navigate to provider health:', item.provider);
     } else if (item.type === 'dead_letter') {
       navigate('/deadletters');
     } else if (item.type === 'queue_capacity') {

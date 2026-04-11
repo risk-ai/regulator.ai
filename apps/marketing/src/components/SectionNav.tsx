@@ -7,12 +7,11 @@ const sections = [
   { id: "pipeline", label: "Pipeline" },
   { id: "architecture", label: "Architecture" },
   { id: "risk", label: "Risk Tiers" },
-  { id: "features", label: "Features" },
   { id: "use-cases", label: "Use Cases" },
   { id: "sdk", label: "SDK" },
   { id: "analysis", label: "Analysis" },
   { id: "protocol", label: "Protocol" },
-  { id: "compliance", label: "Compliance" },
+  { id: "simulator", label: "Try It" },
   { id: "cta", label: "Get Started" },
 ];
 

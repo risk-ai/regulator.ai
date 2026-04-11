@@ -418,6 +418,468 @@ function AnimatedPipeline() {
   );
 }
 
+/* ── Live Stats (fetched from DB via API) ── */
+function LiveStats() {
+  const [stats, setStats] = useState({
+    proposals: 94,
+    warrants: 75,
+    audit_events: 252,
+    policies: 10,
+  });
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.proposals) setStats(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const fmt = (n: number) => (n < 1000 ? `${n}+` : `${(n / 1000).toFixed(1)}k`);
+
+  return (
+    <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.proposals)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          proposals evaluated
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.warrants)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          warrants issued
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.audit_events)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          audit events logged
+        </div>
+      </div>
+      <div className="text-center py-3">
+        <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
+          {fmt(stats.policies)}
+        </div>
+        <div className="text-[10px] font-mono text-zinc-600">
+          active policies
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Dynamic Blog Posts (fetched from API) ── */
+function LatestBlogPosts() {
+  const [posts, setPosts] = useState<
+    { slug: string; title: string; category: string; readTime: string }[]
+  >([]);
+
+  useEffect(() => {
+    fetch("/api/blog/latest")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setPosts(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  if (posts.length === 0) {
+    // Skeleton while loading
+    return (
+      <div className="grid md:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-black border border-zinc-800 p-6 animate-pulse">
+            <div className="h-3 bg-zinc-800 rounded w-20 mb-4" />
+            <div className="h-4 bg-zinc-800 rounded w-full mb-2" />
+            <div className="h-4 bg-zinc-800 rounded w-3/4" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid md:grid-cols-3 gap-6">
+      {posts.map((post) => (
+        <Link
+          key={post.slug}
+          href={`/blog/${post.slug}`}
+          className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
+        >
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
+            <span className="text-[10px] font-mono text-amber-500 uppercase">
+              {post.category}
+            </span>
+            <span className="text-[10px] font-mono text-zinc-600">
+              {post.readTime}
+            </span>
+          </div>
+          <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
+            {post.title}
+          </h3>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/* ── Error Boundary Wrapper ── */
+function SafeRender({ children, fallback }: { children: React.ReactNode; fallback?: React.ReactNode }) {
+  const [hasError, setHasError] = useState(false);
+  
+  if (hasError) {
+    return (fallback || null) as React.ReactElement;
+  }
+
+  return (
+    <div onError={() => setHasError(true)}>
+      {children}
+    </div>
+  );
+}
+
+/* ── Interactive Policy Simulator ── */
+function PolicySimulator() {
+  const actions = [
+    { id: "deploy_production", label: "deploy_production", risk: "high" },
+    { id: "read_analytics", label: "read_analytics", risk: "low" },
+    { id: "delete_records", label: "delete_records", risk: "critical" },
+    { id: "schema_migration", label: "schema_migration", risk: "high" },
+    { id: "send_notification", label: "send_notification", risk: "medium" },
+  ];
+
+  const envs = [
+    { id: "staging", label: "staging" },
+    { id: "production", label: "production" },
+  ];
+
+  const agents = ["deploy-bot-v3", "analytics-agent", "migration-bot", "ops-agent-alpha"];
+
+  const [selectedAction, setSelectedAction] = useState(actions[0].id);
+  const [selectedEnv, setSelectedEnv] = useState("production");
+  const [selectedAgent, setSelectedAgent] = useState(agents[0]);
+  const [phase, setPhase] = useState<"idle" | "evaluating" | "policy" | "risk" | "gated" | "approved" | "denied" | "auto_approved" | "halted">("idle");
+  const [evalStep, setEvalStep] = useState(0);
+  const [policyLog, setPolicyLog] = useState<string[]>([]);
+
+  const getRiskTier = () => {
+    const action = actions.find(a => a.id === selectedAction);
+    if (!action) return { tier: "T0", label: "AUTO_APPROVE", color: "text-green-500", borderColor: "border-green-500" };
+    
+    if (action.risk === "critical" && selectedEnv === "production") {
+      return { tier: "T3", label: "STRICT_HALT", color: "text-red-500", borderColor: "border-red-500" };
+    }
+    if (action.risk === "high" && selectedEnv === "production") {
+      return { tier: "T2", label: "HUMAN_GATE", color: "text-amber-500", borderColor: "border-amber-500" };
+    }
+    if (action.risk === "medium" || (action.risk === "high" && selectedEnv === "staging")) {
+      return { tier: "T1", label: "POLICY_GATE", color: "text-blue-400", borderColor: "border-blue-400" };
+    }
+    return { tier: "T0", label: "AUTO_APPROVE", color: "text-green-500", borderColor: "border-green-500" };
+  };
+
+  const simulate = () => {
+    setPhase("evaluating");
+    setPolicyLog([]);
+    setEvalStep(0);
+    
+    const riskInfo = getRiskTier();
+    const logs: string[] = [];
+    
+    // Step 1: Intent received
+    setTimeout(() => {
+      logs.push(`> intent.received: ${selectedAction} → ${selectedEnv}`);
+      setPolicyLog([...logs]);
+      setEvalStep(1);
+    }, 400);
+    
+    // Step 2: Policy eval
+    setTimeout(() => {
+      logs.push(`> policy.eval: matching against ${Math.floor(Math.random() * 3) + 8} active rules`);
+      setPolicyLog([...logs]);
+      setEvalStep(2);
+      setPhase("policy");
+    }, 1000);
+    
+    // Step 3: Risk classification
+    setTimeout(() => {
+      logs.push(`> risk.classify: action=${selectedAction} env=${selectedEnv} → ${riskInfo.tier}`);
+      setPolicyLog([...logs]);
+      setEvalStep(3);
+      setPhase("risk");
+    }, 1800);
+    
+    // Step 4: Route decision
+    setTimeout(() => {
+      if (riskInfo.tier === "T0") {
+        logs.push(`> route: auto_approve — low risk, no gate required`);
+        logs.push(`> warrant.issued: WRT-${Math.random().toString(36).substring(2, 6).toUpperCase()}-SIM`);
+        logs.push(`> execution.complete: ${selectedAction} → success`);
+        logs.push(`> audit.written: SHA-256 hash recorded`);
+        setPolicyLog([...logs]);
+        setPhase("auto_approved");
+      } else if (riskInfo.tier === "T3") {
+        logs.push(`> route: strict_halt — destructive action on production`);
+        logs.push(`> proposal.created: requires 3-of-5 quorum`);
+        logs.push(`> ⚠ ACTION_HALTED — manual escalation required`);
+        setPolicyLog([...logs]);
+        setPhase("halted");
+      } else if (riskInfo.tier === "T1") {
+        logs.push(`> route: policy_gate — heuristic approval`);
+        logs.push(`> heuristic.eval: agent=${selectedAgent} history=clean`);
+        logs.push(`> auto_approved: policy conditions met`);
+        logs.push(`> warrant.issued: WRT-${Math.random().toString(36).substring(2, 6).toUpperCase()}-SIM`);
+        setPolicyLog([...logs]);
+        setPhase("auto_approved");
+      } else {
+        logs.push(`> route: human_gate — awaiting approval`);
+        logs.push(`> proposal.created: pending human sign-off`);
+        setPolicyLog([...logs]);
+        setPhase("gated");
+      }
+      setEvalStep(4);
+    }, 2600);
+  };
+
+  const handleApprove = () => {
+    const logs = [...policyLog];
+    logs.push(`> approval.granted: human sign-off received`);
+    logs.push(`> warrant.issued: WRT-${Math.random().toString(36).substring(2, 6).toUpperCase()}-SIM | ttl=300s`);
+    logs.push(`> execution.start: ${selectedAction} with warrant authority`);
+    logs.push(`> execution.complete: success | audit trail written`);
+    setPolicyLog(logs);
+    setPhase("approved");
+  };
+
+  const handleDeny = () => {
+    const logs = [...policyLog];
+    logs.push(`> approval.denied: action blocked`);
+    logs.push(`> audit.written: denial recorded with reason`);
+    setPolicyLog(logs);
+    setPhase("denied");
+  };
+
+  const reset = () => {
+    setPhase("idle");
+    setPolicyLog([]);
+    setEvalStep(0);
+  };
+
+  const riskInfo = getRiskTier();
+
+  return (
+    <div className="bg-black border border-amber-500/30 overflow-hidden">
+      {/* Header */}
+      <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-amber-500" />
+          <span className="text-xs font-mono font-bold text-amber-500">POLICY_SIMULATOR</span>
+        </div>
+        <span className="text-[10px] font-mono text-zinc-600">interactive demo</span>
+      </div>
+
+      <div className="p-4 sm:p-6">
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Left: Controls */}
+          <div className="space-y-4">
+            {/* Action selector */}
+            <div>
+              <div className="text-[10px] font-mono text-zinc-600 mb-2">ACTION_TYPE</div>
+              <div className="grid grid-cols-1 gap-1.5">
+                {actions.map(a => (
+                  <button
+                    key={a.id}
+                    onClick={() => { setSelectedAction(a.id); if (phase !== "idle") reset(); }}
+                    className={`text-left px-3 py-2 text-xs font-mono border transition-all ${
+                      selectedAction === a.id
+                        ? "border-amber-500 bg-amber-500/10 text-amber-500"
+                        : "border-zinc-800 text-zinc-500 hover:border-zinc-600"
+                    }`}
+                  >
+                    <span>{a.label}</span>
+                    <span className={`ml-2 text-[9px] ${
+                      a.risk === "critical" ? "text-red-500" : 
+                      a.risk === "high" ? "text-amber-500" :
+                      a.risk === "medium" ? "text-blue-400" : "text-green-500"
+                    }`}>
+                      [{a.risk}]
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Environment */}
+            <div>
+              <div className="text-[10px] font-mono text-zinc-600 mb-2">TARGET_ENV</div>
+              <div className="flex gap-2">
+                {envs.map(e => (
+                  <button
+                    key={e.id}
+                    onClick={() => { setSelectedEnv(e.id); if (phase !== "idle") reset(); }}
+                    className={`flex-1 px-3 py-2 text-xs font-mono border transition-all ${
+                      selectedEnv === e.id
+                        ? "border-amber-500 bg-amber-500/10 text-amber-500"
+                        : "border-zinc-800 text-zinc-500 hover:border-zinc-600"
+                    }`}
+                  >
+                    {e.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Agent */}
+            <div>
+              <div className="text-[10px] font-mono text-zinc-600 mb-2">AGENT_IDENTITY</div>
+              <select
+                value={selectedAgent}
+                onChange={(e) => { setSelectedAgent(e.target.value); if (phase !== "idle") reset(); }}
+                className="w-full bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs font-mono text-zinc-400 focus:border-amber-500/50 focus:outline-none transition"
+              >
+                {agents.map(a => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Predicted risk tier */}
+            <div className={`border ${riskInfo.borderColor}/30 bg-black p-3`}>
+              <div className="text-[10px] font-mono text-zinc-600 mb-1">PREDICTED_RISK_TIER</div>
+              <div className="flex items-center gap-3">
+                <span className={`text-lg font-mono font-bold ${riskInfo.color}`}>{riskInfo.tier}</span>
+                <span className={`text-xs font-mono ${riskInfo.color}`}>{riskInfo.label}</span>
+              </div>
+            </div>
+
+            {/* Submit / Reset */}
+            {phase === "idle" ? (
+              <button
+                onClick={simulate}
+                className="w-full bg-amber-500 hover:bg-amber-400 text-black py-3 text-xs font-mono font-bold uppercase transition"
+              >
+                ▶ SUBMIT_INTENT
+              </button>
+            ) : (
+              <button
+                onClick={reset}
+                className="w-full border border-zinc-700 hover:border-zinc-500 text-zinc-400 py-3 text-xs font-mono font-bold uppercase transition"
+              >
+                ↺ RESET_SIMULATION
+              </button>
+            )}
+          </div>
+
+          {/* Right: Live output */}
+          <div className="bg-zinc-950 border border-zinc-800 p-4 min-h-[320px] flex flex-col">
+            <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-800">
+              <span className="text-[10px] font-mono text-zinc-600">EVAL_OUTPUT</span>
+              <span className={`text-[10px] font-mono ${phase === "idle" ? "text-zinc-700" : "text-amber-500"}`}>
+                {phase === "idle" ? "○ READY" : phase === "evaluating" || phase === "policy" || phase === "risk" ? "⟳ EVALUATING" : "● COMPLETE"}
+              </span>
+            </div>
+            
+            {/* Pipeline progress bar */}
+            <div className="flex gap-1 mb-4">
+              {["INTENT", "POLICY", "RISK", "ROUTE"].map((step, i) => (
+                <div key={step} className="flex-1">
+                  <div className={`h-1 transition-all duration-500 ${
+                    evalStep > i ? "bg-amber-500" : evalStep === i ? "bg-amber-500 animate-pulse" : "bg-zinc-800"
+                  }`} />
+                  <div className={`text-[8px] font-mono mt-1 ${
+                    evalStep > i ? "text-amber-500" : evalStep === i ? "text-amber-500" : "text-zinc-700"
+                  }`}>
+                    {step}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Log output */}
+            <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[11px]">
+              {policyLog.length === 0 && (
+                <div className="text-zinc-700 text-[10px]">
+                  // select parameters and click SUBMIT_INTENT to begin simulation
+                </div>
+              )}
+              {policyLog.map((line, i) => (
+                <div key={i} className={`${
+                  line.includes("⚠") ? "text-red-500" :
+                  line.includes("success") || line.includes("approved") || line.includes("issued") ? "text-green-500" :
+                  line.includes("denied") || line.includes("HALTED") ? "text-red-500" :
+                  line.includes("classify") || line.includes("route") ? "text-amber-500" :
+                  "text-zinc-400"
+                } leading-relaxed`}>
+                  {line}
+                </div>
+              ))}
+              {(phase === "evaluating" || phase === "policy" || phase === "risk") && (
+                <span className="text-amber-500 animate-pulse">▌</span>
+              )}
+            </div>
+
+            {/* Approve/Deny buttons for gated scenarios */}
+            {phase === "gated" && (
+              <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800">
+                <button
+                  onClick={handleApprove}
+                  className="flex-1 bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 text-green-500 py-2 text-[10px] font-mono font-bold uppercase transition"
+                >
+                  ✓ APPROVE
+                </button>
+                <button
+                  onClick={handleDeny}
+                  className="flex-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-500 py-2 text-[10px] font-mono font-bold uppercase transition"
+                >
+                  ✗ DENY
+                </button>
+              </div>
+            )}
+
+            {/* Result badges */}
+            {phase === "auto_approved" && (
+              <div className="mt-4 pt-3 border-t border-zinc-800">
+                <div className="bg-green-500/10 border border-green-500/30 p-2 text-center text-[10px] font-mono text-green-500 font-bold">
+                  ✓ AUTO_APPROVED — WARRANT_ISSUED — EXECUTION_COMPLETE
+                </div>
+              </div>
+            )}
+            {phase === "approved" && (
+              <div className="mt-4 pt-3 border-t border-zinc-800">
+                <div className="bg-green-500/10 border border-green-500/30 p-2 text-center text-[10px] font-mono text-green-500 font-bold">
+                  ✓ HUMAN_APPROVED — WARRANT_SIGNED — AUDIT_RECORDED
+                </div>
+              </div>
+            )}
+            {phase === "denied" && (
+              <div className="mt-4 pt-3 border-t border-zinc-800">
+                <div className="bg-red-500/10 border border-red-500/30 p-2 text-center text-[10px] font-mono text-red-500 font-bold">
+                  ✗ DENIED — ACTION_BLOCKED — DENIAL_LOGGED
+                </div>
+              </div>
+            )}
+            {phase === "halted" && (
+              <div className="mt-4 pt-3 border-t border-zinc-800">
+                <div className="bg-red-500/10 border border-red-500/30 p-2 text-center text-[10px] font-mono text-red-500 font-bold">
+                  ⚠ STRICT_HALT — REQUIRES_ESCALATION — 3-OF-5_QUORUM
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Alias for compatibility ── */
 const RevealSection = ScrollReveal;
 
@@ -487,7 +949,7 @@ export default function Home() {
                   _AI_OPERATIONS
                 </span>
                 <br />
-                <span className="text-zinc-500">/ WITH_SIGNED_WARRANTS</span>
+                <span className="text-zinc-500 whitespace-nowrap">/ WITH_SIGNED_WARRANTS</span>
               </div>
 
               <p className="text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed font-mono">
@@ -571,163 +1033,35 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════ SOCIAL PROOF ═══════════════════ */}
-        <RevealSection>
-          <section className="py-12 px-6 border-y border-amber-500/10 bg-black/50">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-8">
-                <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest mb-4">
-                  TRUSTED_BY
-                </div>
+        {/* ═══════════════════ SOCIAL PROOF (compact bar) ═══════════════════ */}
+        <div className="py-6 px-6 border-y border-amber-500/10 bg-black/50">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+              <div className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50">
+                <span className="text-sm font-mono text-amber-500 font-bold">ai.ventures</span>
+                <span className="text-[10px] font-mono text-zinc-600">30+ AI products</span>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
-                {/* ai.ventures */}
-                <div className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50">
-                  <span className="text-sm font-mono text-amber-500 font-bold">
-                    ai.ventures
-                  </span>
-                  <span className="text-[10px] font-mono text-zinc-600">
-                    portfolio (30+ AI products)
-                  </span>
-                </div>
-
-                {/* Open Source */}
-                <a
-                  href="https://github.com/risk-ai/vienna-os"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50 hover:border-amber-500/30 transition-all"
-                >
-                  <Github className="w-4 h-4 text-zinc-400" />
-                  <span className="text-sm font-mono text-zinc-400">
-                    risk-ai/vienna-os
-                  </span>
-                  <Star className="w-3 h-3 text-amber-500" />
-                  <span className="text-xs font-mono text-amber-500">
-                    Open Source
-                  </span>
-                </a>
-
-                {/* BSL License */}
-                <div className="flex items-center gap-2 px-4 py-2 border border-zinc-800 bg-black/50">
-                  <Shield className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm font-mono text-zinc-400">
-                    BSL-1.1 Licensed
-                  </span>
-                </div>
-              </div>
-
-              {/* Key stats row */}
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    94+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    proposals evaluated
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    75+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    warrants issued
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    252+
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    audit events logged
-                  </div>
-                </div>
-                <div className="text-center py-3">
-                  <div className="text-lg sm:text-xl font-mono font-bold text-amber-500">
-                    10
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    active policies
-                  </div>
-                </div>
-              </div>
-
-              {/* Primary Testimonial — ai.ventures / law.ai (real deployment) */}
-              <div className="mt-10 max-w-3xl mx-auto">
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-[10px] font-mono text-amber-500 uppercase">
-                      DEPLOYMENT_CASE_STUDY
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-600">
-                      production since 2026-03
-                    </span>
-                  </div>
-
-                  {/* Deployment stats */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 pb-6 border-b border-amber-500/10">
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-600">org</div>
-                      <div className="text-xs font-mono text-amber-500 font-bold">ai.ventures</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-600">governed_agents</div>
-                      <div className="text-xs font-mono text-amber-500 font-bold">20+</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-600">products</div>
-                      <div className="text-xs font-mono text-amber-500 font-bold">30+ AI sites</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono text-zinc-600">key_deployment</div>
-                      <div className="text-xs font-mono text-amber-500 font-bold">law.ai</div>
-                    </div>
-                  </div>
-
-                  <blockquote className="text-sm font-mono text-zinc-300 leading-relaxed mb-4">
-                    &quot;We run 20+ autonomous agents across our portfolio — law.ai, biography.ai,
-                    corporate.ai, and dozens more. Before Vienna OS, an agent deployed a breaking
-                    schema migration to production at 3 AM with zero approval. That can&apos;t happen
-                    anymore. Every prod write requires a T2 warrant with human sign-off. At law.ai,
-                    our agents handle legal research, document analysis, and client workflows — all
-                    governed by warrant-based execution. The audit trail alone made us compliance-ready
-                    in weeks instead of months.&quot;
-                  </blockquote>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
-                      <span className="text-xs font-mono text-amber-500 font-bold">WA</span>
-                    </div>
-                    <div>
-                      <div className="text-xs font-mono text-zinc-300 font-bold">
-                        Whit Anderson
-                      </div>
-                      <div className="text-[10px] font-mono text-zinc-600">
-                        CEO, ai.ventures — 30+ AI products governed by Vienna OS
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Use case breakdown */}
-                  <div className="mt-6 pt-4 border-t border-amber-500/10 grid grid-cols-1 sm:grid-cols-3 gap-4 text-[10px] font-mono">
-                    <div className="space-y-1">
-                      <div className="text-amber-500 font-bold">law.ai</div>
-                      <div className="text-zinc-600">legal research agents, doc analysis, client workflows</div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-amber-500 font-bold">biography.ai</div>
-                      <div className="text-zinc-600">content generation, media processing, user data handling</div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-amber-500 font-bold">corporate.ai</div>
-                      <div className="text-zinc-600">vendor scoring, data enrichment, marketplace ops</div>
-                    </div>
-                  </div>
-                </div>
+              <a
+                href="https://github.com/risk-ai/regulatorai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50 hover:border-amber-500/30 transition-all"
+              >
+                <Github className="w-4 h-4 text-zinc-400" />
+                <span className="text-sm font-mono text-zinc-400">risk-ai/regulatorai</span>
+                <Star className="w-3 h-3 text-amber-500" />
+                <span className="text-xs font-mono text-amber-500">Open Source</span>
+              </a>
+              <div className="flex items-center gap-2 px-4 py-2 border border-zinc-800 bg-black/50">
+                <Shield className="w-4 h-4 text-zinc-500" />
+                <span className="text-sm font-mono text-zinc-400">BSL-1.1</span>
               </div>
             </div>
-          </section>
-        </RevealSection>
+            <SafeRender>
+              <LiveStats />
+            </SafeRender>
+          </div>
+        </div>
 
         {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
         <RevealSection>
@@ -747,7 +1081,7 @@ export default function Home() {
           </section>
         </RevealSection>
 
-        {/* ═══════════════════ SYSTEM ARCHITECTURE ═══════════════════ */}
+        {/* ═══════════════════ SYSTEM ARCHITECTURE (merged arch + capabilities + compliance) ═══════════════════ */}
         <RevealSection>
           <section id="architecture" className="py-24 px-6 bg-black/30 border-y border-amber-500/10" aria-label="System Architecture">
             <div className="max-w-7xl mx-auto">
@@ -756,94 +1090,108 @@ export default function Home() {
                   SYSTEM_ARCHITECTURE
                 </h2>
                 <p className="text-zinc-500 font-mono text-sm">
-                  infrastructure-grade governance — every layer purpose-built
+                  infrastructure-grade governance — every layer purpose-built for autonomous AI operations
                 </p>
               </div>
 
-              {/* Architecture Diagram - Terminal Style */}
-              <div className="bg-black border border-amber-500/30 p-6 mb-8">
-                <div className="text-[10px] font-mono text-zinc-600 uppercase mb-4 pb-2 border-b border-amber-500/20">
-                  ARCHITECTURE_OVERVIEW
+              {/* Interactive Architecture Diagram with hover states */}
+              <div className="bg-black border border-amber-500/30 p-6 sm:p-8 mb-8 relative overflow-hidden">
+                <div className="text-[10px] font-mono text-zinc-600 uppercase mb-6 pb-2 border-b border-amber-500/20 flex items-center justify-between">
+                  <span>ARCHITECTURE_OVERVIEW</span>
+                  <span className="text-amber-500">hover layers for details</span>
                 </div>
 
-                {/* Layer diagram */}
-                <div className="space-y-3 font-mono text-[11px]">
+                {/* Animated data flow line */}
+                <div className="absolute left-1/2 top-[120px] bottom-[40px] w-px bg-gradient-to-b from-amber-500/0 via-amber-500/40 to-amber-500/0 hidden sm:block" />
+
+                <div className="space-y-4 font-mono text-[11px] relative">
                   {/* Agent Layer */}
-                  <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">AGENT_LAYER</div>
-                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
-                      <div className="flex flex-wrap gap-2">
-                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent A</span>
-                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent B</span>
-                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700">Agent N</span>
+                  <div className="group flex items-stretch gap-3 transition-all hover:scale-[1.01]">
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2 group-hover:text-zinc-400 transition">AGENT_LAYER</div>
+                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3 group-hover:border-zinc-500 group-hover:bg-zinc-900/80 transition-all">
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700 group-hover:border-amber-500/30 transition">Agent A</span>
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700 group-hover:border-amber-500/30 transition">Agent B</span>
+                        <span className="text-zinc-400 px-2 py-0.5 border border-zinc-700 group-hover:border-amber-500/30 transition">Agent N</span>
                         <span className="text-zinc-600 px-2 py-0.5">→ submit intents via SDK</span>
+                      </div>
+                      {/* Expanded detail on hover */}
+                      <div className="max-h-0 group-hover:max-h-20 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+                        <div className="pt-2 mt-2 border-t border-zinc-800 text-[10px] text-zinc-500">
+                          Python, Node.js, GitHub Actions, Terraform — any agent submits structured intents
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
-                    <div className="text-amber-500 text-center flex-1">│ REST / WebSocket │</div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1 animate-pulse">│ REST / WebSocket / SSE │</div>
                   </div>
 
                   {/* API Gateway */}
-                  <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">API_GATEWAY</div>
-                    <div className="flex-1 border border-amber-500/30 bg-amber-500/5 p-3">
+                  <div className="group flex items-stretch gap-3 transition-all hover:scale-[1.01]">
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2 group-hover:text-amber-500/70 transition">API_GATEWAY</div>
+                    <div className="flex-1 border border-amber-500/30 bg-amber-500/5 p-3 group-hover:border-amber-500/60 group-hover:shadow-lg group-hover:shadow-amber-500/5 transition-all">
                       <div className="flex flex-wrap gap-4">
                         <div><span className="text-amber-500">auth:</span> <span className="text-zinc-400">API key + JWT</span></div>
                         <div><span className="text-amber-500">rate_limit:</span> <span className="text-zinc-400">per-tenant</span></div>
                         <div><span className="text-amber-500">protocol:</span> <span className="text-zinc-400">REST + SSE streaming</span></div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
-                    <div className="text-amber-500 text-center flex-1">▼</div>
-                  </div>
-
-                  {/* Governance Kernel */}
-                  <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-amber-500 py-2 font-bold">GOVERNANCE<br/>KERNEL</div>
-                    <div className="flex-1 border-2 border-amber-500/50 bg-amber-500/5 p-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="border border-amber-500/20 p-2">
-                          <div className="text-amber-500 text-[10px] mb-1">POLICY_ENGINE</div>
-                          <div className="text-zinc-500 text-[10px]">11 operators, conditional rules, priority-ordered evaluation</div>
-                        </div>
-                        <div className="border border-amber-500/20 p-2">
-                          <div className="text-amber-500 text-[10px] mb-1">RISK_ROUTER</div>
-                          <div className="text-zinc-500 text-[10px]">T0-T3 tier classification, auto-approve / gate / halt</div>
-                        </div>
-                        <div className="border border-amber-500/20 p-2">
-                          <div className="text-amber-500 text-[10px] mb-1">WARRANT_AUTHORITY</div>
-                          <div className="text-zinc-500 text-[10px]">HMAC-SHA256 signing, TTL-bounded, scope-restricted</div>
+                      <div className="max-h-0 group-hover:max-h-20 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+                        <div className="pt-2 mt-2 border-t border-amber-500/10 text-[10px] text-zinc-500">
+                          Multi-tenant isolation, scoped API keys, real-time event streaming for approval workflows
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Arrow */}
                   <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
                     <div className="text-amber-500 text-center flex-1">▼</div>
                   </div>
 
-                  {/* Approval + Execution */}
-                  <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">EXECUTION<br/>LAYER</div>
-                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
+                  {/* Governance Kernel — the core */}
+                  <div className="group flex items-stretch gap-3 transition-all hover:scale-[1.01]">
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-amber-500 py-2 font-bold">GOVERNANCE<br/>KERNEL</div>
+                    <div className="flex-1 border-2 border-amber-500/50 bg-amber-500/5 p-4 group-hover:border-amber-500/80 group-hover:shadow-lg group-hover:shadow-amber-500/10 transition-all">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="border border-amber-500/20 p-3 group-hover:bg-amber-500/5 transition">
+                          <div className="text-amber-500 text-[10px] mb-1 font-bold">POLICY_ENGINE</div>
+                          <div className="text-zinc-500 text-[10px]">11 operators, priority-ordered eval</div>
+                          <div className="text-zinc-600 text-[9px] mt-1">latency: &lt;50ms p99</div>
+                        </div>
+                        <div className="border border-amber-500/20 p-3 group-hover:bg-amber-500/5 transition">
+                          <div className="text-amber-500 text-[10px] mb-1 font-bold">RISK_ROUTER</div>
+                          <div className="text-zinc-500 text-[10px]">T0-T3 classification, auto-route</div>
+                          <div className="text-zinc-600 text-[9px] mt-1">auto | gate | halt</div>
+                        </div>
+                        <div className="border border-amber-500/20 p-3 group-hover:bg-amber-500/5 transition">
+                          <div className="text-amber-500 text-[10px] mb-1 font-bold">WARRANT_AUTHORITY</div>
+                          <div className="text-zinc-500 text-[10px]">HMAC-SHA256 signed, TTL-bounded</div>
+                          <div className="text-zinc-600 text-[9px] mt-1">scope-restricted</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0"></div>
+                    <div className="text-amber-500 text-center flex-1">▼</div>
+                  </div>
+
+                  {/* Execution + Audit Layer */}
+                  <div className="group flex items-stretch gap-3 transition-all hover:scale-[1.01]">
+                    <div className="hidden sm:block w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2 group-hover:text-zinc-400 transition">EXECUTION<br/>+ AUDIT</div>
+                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3 group-hover:border-zinc-500 transition-all">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
                           <span className="text-green-500">●</span>
-                          <span className="text-zinc-400">Approval queues (M-of-N quorum)</span>
+                          <span className="text-zinc-400">M-of-N approval quorum</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-green-500">●</span>
-                          <span className="text-zinc-400">Scoped execution with warrant authority</span>
+                          <span className="text-zinc-400">Scoped warrant execution</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-amber-500">●</span>
@@ -851,34 +1199,12 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-amber-500">●</span>
-                          <span className="text-zinc-400">Dead letter queue for failed ops</span>
+                          <span className="text-zinc-400">HMAC-signed immutable audit log</span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-28 sm:w-36 shrink-0"></div>
-                    <div className="text-amber-500 text-center flex-1">▼</div>
-                  </div>
-
-                  {/* Data Layer */}
-                  <div className="flex items-stretch gap-3">
-                    <div className="w-28 sm:w-36 shrink-0 text-right text-zinc-600 py-2">DATA_LAYER</div>
-                    <div className="flex-1 border border-zinc-700 bg-zinc-900/50 p-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-500">◆</span>
-                          <span className="text-zinc-400">PostgreSQL (Neon)</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-500">◆</span>
-                          <span className="text-zinc-400">HMAC-signed audit log</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-500">◆</span>
-                          <span className="text-zinc-400">Configurable retention</span>
+                      <div className="max-h-0 group-hover:max-h-20 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+                        <div className="pt-2 mt-2 border-t border-zinc-800 text-[10px] text-zinc-500">
+                          PostgreSQL (Neon) data layer with configurable retention, dead letter queue, real-time SSE events
                         </div>
                       </div>
                     </div>
@@ -886,22 +1212,30 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Deployment options */}
-              <div className="grid md:grid-cols-3 gap-4">
+              {/* Bottom row: Deployment + Compliance (compact) */}
+              <div className="grid md:grid-cols-4 gap-4">
                 <div className="bg-black border border-amber-500/30 p-4">
-                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_CLOUD</div>
+                  <div className="text-[10px] font-mono text-amber-500 mb-2 font-bold">DEPLOY_CLOUD</div>
                   <div className="text-[10px] font-mono text-zinc-500">Vercel + Neon — serverless, zero-ops</div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">scale: automatic</div>
                 </div>
                 <div className="bg-black border border-amber-500/30 p-4">
-                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_SELF_HOST</div>
+                  <div className="text-[10px] font-mono text-amber-500 mb-2 font-bold">DEPLOY_SELF_HOST</div>
                   <div className="text-[10px] font-mono text-zinc-500">Docker Compose — your infra, your data</div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">requires: PostgreSQL 15+</div>
                 </div>
                 <div className="bg-black border border-amber-500/30 p-4">
-                  <div className="text-[10px] font-mono text-amber-500 mb-2">DEPLOY_HYBRID</div>
-                  <div className="text-[10px] font-mono text-zinc-500">Cloud control plane + on-prem execution</div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">enterprise tier</div>
+                  <div className="text-[10px] font-mono text-amber-500 mb-2 font-bold">DEPLOY_HYBRID</div>
+                  <div className="text-[10px] font-mono text-zinc-500">Cloud control + on-prem execution</div>
+                </div>
+                {/* Compliance — single compact box */}
+                <div className="bg-black border border-amber-500/30 p-4">
+                  <div className="text-[10px] font-mono text-amber-500 mb-2 font-bold">COMPLIANCE_READY</div>
+                  <div className="flex flex-wrap gap-1.5 text-[9px] font-mono">
+                    <span className="text-zinc-400 px-1.5 py-0.5 border border-zinc-700">SOC2</span>
+                    <span className="text-zinc-400 px-1.5 py-0.5 border border-zinc-700">GDPR</span>
+                    <span className="text-zinc-400 px-1.5 py-0.5 border border-zinc-700">ISO27001</span>
+                    <span className="text-zinc-400 px-1.5 py-0.5 border border-zinc-700">HIPAA</span>
+                  </div>
+                  <div className="text-[9px] font-mono text-zinc-600 mt-1.5">audit trail → compliance mapping</div>
                 </div>
               </div>
             </div>
@@ -1018,200 +1352,77 @@ export default function Home() {
           </section>
         </RevealSection>
 
-        {/* ═══════════════════ CAPABILITIES ═══════════════════ */}
-        <RevealSection>
-          <section id="features" className="py-24 px-6 border-t border-amber-500/10">
-            <div className="max-w-7xl mx-auto">
-              <div className="mb-16 max-w-2xl">
-                <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                  SYSTEM_CAPABILITIES
-                </h2>
-                <p className="text-zinc-500 font-mono text-sm">
-                  core governance infrastructure
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Policy Engine */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      POLICY_ENGINE
-                    </span>
-                    <FileText className="w-4 h-4 text-zinc-600" />
-                  </div>
-                  <div className="space-y-3 text-xs font-mono">
-                    <div>
-                      <span className="text-zinc-600">throughput:</span>{" "}
-                      <span className="text-amber-500">
-                        designed for high-throughput
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">eval_latency:</span>{" "}
-                      <span className="text-green-500">sub-50ms p99</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">operators:</span>{" "}
-                      <span className="text-zinc-400">
-                        11 (==, !=, &gt;, &lt;, ...)
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">deployment:</span>{" "}
-                      <span className="text-zinc-400">zero_downtime</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Audit Trail */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      AUDIT_TRAIL
-                    </span>
-                    <Shield className="w-4 h-4 text-zinc-600" />
-                  </div>
-                  <div className="space-y-3 text-xs font-mono">
-                    <div>
-                      <span className="text-zinc-600">algorithm:</span>{" "}
-                      <span className="text-amber-500">HMAC-SHA256</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">tamper_proof:</span>{" "}
-                      <span className="text-green-500">verified</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">retention:</span>{" "}
-                      <span className="text-zinc-400">configurable (up to 7yr)</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">supports:</span>{" "}
-                      <span className="text-zinc-400">SOC2, GDPR, HIPAA</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Anomaly Detection */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      ANOMALY_DETECTION
-                    </span>
-                    <Activity className="w-4 h-4 text-zinc-600" />
-                  </div>
-                  <div className="space-y-3 text-xs font-mono">
-                    <div>
-                      <span className="text-zinc-600">detection:</span>{" "}
-                      <span className="text-green-500">
-                        real-time pattern analysis
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">response:</span>{" "}
-                      <span className="text-amber-500">
-                        sub-minute alerting
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">signals:</span>{" "}
-                      <span className="text-zinc-400">
-                        frequency, scope, risk drift
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">channels:</span>{" "}
-                      <span className="text-zinc-400">
-                        slack, email, pagerduty
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Approval System */}
-                <div className="bg-black border border-amber-500/30 p-6">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      APPROVAL_SYSTEM
-                    </span>
-                    <Users className="w-4 h-4 text-zinc-600" />
-                  </div>
-                  <div className="space-y-3 text-xs font-mono">
-                    <div>
-                      <span className="text-zinc-600">quorum_types:</span>{" "}
-                      <span className="text-amber-500">1-of-N, M-of-N</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">avg_approval:</span>{" "}
-                      <span className="text-green-500">
-                        minutes, not days
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">interface:</span>{" "}
-                      <span className="text-zinc-400">
-                        responsive web + API
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">mfa:</span>{" "}
-                      <span className="text-green-500">enforced</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </RevealSection>
-
-        {/* ═══════════════════ USE CASES ═══════════════════ */}
+        {/* ═══════════════════ USE CASES + SOCIAL PROOF (merged) ═══════════════════ */}
         <RevealSection>
           <section id="use-cases" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                  USE_CASE_MATRIX
+                  DEPLOYMENTS + USE_CASES
                 </h2>
                 <p className="text-zinc-500 font-mono text-sm">
-                  devops | compliance | executive
+                  real production deployments — devops | compliance | executive
                 </p>
               </div>
 
+              {/* Case Study (moved from social proof) */}
+              <div className="bg-black border border-amber-500/30 p-6 mb-8">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
+                  <span className="text-[10px] font-mono text-amber-500 uppercase">DEPLOYMENT_CASE_STUDY</span>
+                  <span className="text-[10px] font-mono text-zinc-600">production since 2026-03</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 pb-6 border-b border-amber-500/10">
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-600">org</div>
+                    <div className="text-xs font-mono text-amber-500 font-bold">ai.ventures</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-600">governed_agents</div>
+                    <div className="text-xs font-mono text-amber-500 font-bold">20+</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-600">products</div>
+                    <div className="text-xs font-mono text-amber-500 font-bold">30+ AI sites</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-600">key_deployment</div>
+                    <div className="text-xs font-mono text-amber-500 font-bold">law.ai</div>
+                  </div>
+                </div>
+
+                <blockquote className="text-sm font-mono text-zinc-300 leading-relaxed mb-4">
+                  &quot;We run 20+ autonomous agents across our portfolio — law.ai, biography.ai,
+                  corporate.ai, and dozens more. Before Vienna OS, an agent deployed a breaking
+                  schema migration to production at 3 AM with zero approval. That can&apos;t happen
+                  anymore. Every prod write requires a T2 warrant with human sign-off.&quot;
+                </blockquote>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                    <span className="text-xs font-mono text-amber-500 font-bold">WA</span>
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono text-zinc-300 font-bold">Whit Anderson</div>
+                    <div className="text-[10px] font-mono text-zinc-600">CEO, ai.ventures</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Use case cards */}
               <div className="grid md:grid-cols-3 gap-6">
                 {/* DevOps Lead */}
                 <div className="bg-black border border-amber-500/30 p-6">
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      DEVOPS_LEAD
-                    </span>
+                    <span className="text-xs font-mono text-amber-500">DEVOPS_LEAD</span>
                     <Code2 className="w-4 h-4 text-zinc-600" />
                   </div>
                   <div className="space-y-3 text-xs font-mono">
-                    <div className="text-zinc-400 mb-3">
-                      role: infrastructure automation
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">challenge:</span>{" "}
-                      <span className="text-red-500">
-                        agents deploy prod w/o oversight
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">solution:</span>{" "}
-                      <span className="text-green-500">
-                        T2 gate on prod writes
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">result:</span>{" "}
-                      <span className="text-zinc-400">
-                        0 unauthorized deployments
-                      </span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ ZERO_UNAUTHORIZED_DEPLOYS
-                      </span>
+                    <div className="text-zinc-400 mb-3">role: infrastructure automation</div>
+                    <div><span className="text-zinc-600">challenge:</span>{" "}<span className="text-red-500">agents deploy prod w/o oversight</span></div>
+                    <div><span className="text-zinc-600">solution:</span>{" "}<span className="text-green-500">T2 gate on prod writes</span></div>
+                    <div><span className="text-zinc-600">result:</span>{" "}<span className="text-zinc-400">0 unauthorized deployments</span></div>
+                    <div className="pt-3 border-t border-amber-500/10 text-[10px] text-zinc-600">
+                      <span className="text-amber-500 font-bold">law.ai</span> — legal research agents, doc analysis
                     </div>
                   </div>
                 </div>
@@ -1219,37 +1430,16 @@ export default function Home() {
                 {/* Compliance Officer */}
                 <div className="bg-black border border-amber-500/30 p-6">
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      COMPLIANCE_OFFICER
-                    </span>
+                    <span className="text-xs font-mono text-amber-500">COMPLIANCE_OFFICER</span>
                     <Shield className="w-4 h-4 text-zinc-600" />
                   </div>
                   <div className="space-y-3 text-xs font-mono">
-                    <div className="text-zinc-400 mb-3">
-                      role: regulatory audit
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">challenge:</span>{" "}
-                      <span className="text-red-500">
-                        no audit trail for AI decisions
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">solution:</span>{" "}
-                      <span className="text-green-500">
-                        SHA-256 signed warrants
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">result:</span>{" "}
-                      <span className="text-zinc-400">
-                        audit-ready in weeks, not months
-                      </span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ AUDIT_READY_IN_WEEKS
-                      </span>
+                    <div className="text-zinc-400 mb-3">role: regulatory audit</div>
+                    <div><span className="text-zinc-600">challenge:</span>{" "}<span className="text-red-500">no audit trail for AI decisions</span></div>
+                    <div><span className="text-zinc-600">solution:</span>{" "}<span className="text-green-500">SHA-256 signed warrants</span></div>
+                    <div><span className="text-zinc-600">result:</span>{" "}<span className="text-zinc-400">audit-ready in weeks, not months</span></div>
+                    <div className="pt-3 border-t border-amber-500/10 text-[10px] text-zinc-600">
+                      <span className="text-amber-500 font-bold">biography.ai</span> — content gen, media processing
                     </div>
                   </div>
                 </div>
@@ -1261,66 +1451,15 @@ export default function Home() {
                     <Activity className="w-4 h-4 text-zinc-600" />
                   </div>
                   <div className="space-y-3 text-xs font-mono">
-                    <div className="text-zinc-400 mb-3">
-                      role: technical strategy
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">challenge:</span>{" "}
-                      <span className="text-red-500">
-                        scale agents w/o losing control
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">solution:</span>{" "}
-                      <span className="text-green-500">
-                        policy-based auto-approval
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">result:</span>{" "}
-                      <span className="text-zinc-400">
-                        govern at scale, not at the expense of speed
-                      </span>
-                    </div>
-                    <div className="pt-3 border-t border-amber-500/10">
-                      <span className="text-[10px] text-green-500">
-                        ✓ GOVERNED_AT_SCALE
-                      </span>
+                    <div className="text-zinc-400 mb-3">role: technical strategy</div>
+                    <div><span className="text-zinc-600">challenge:</span>{" "}<span className="text-red-500">scale agents w/o losing control</span></div>
+                    <div><span className="text-zinc-600">solution:</span>{" "}<span className="text-green-500">policy-based auto-approval</span></div>
+                    <div><span className="text-zinc-600">result:</span>{" "}<span className="text-zinc-400">govern at scale, not at the expense of speed</span></div>
+                    <div className="pt-3 border-t border-amber-500/10 text-[10px] text-zinc-600">
+                      <span className="text-amber-500 font-bold">corporate.ai</span> — vendor scoring, marketplace ops
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
-        </RevealSection>
-
-        {/* ═══════════════════ MID-PAGE CTA ═══════════════════ */}
-        <RevealSection>
-          <section className="py-16 px-6 border-y border-amber-500/20 bg-amber-500/[0.03]">
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="text-[10px] font-mono text-amber-500 uppercase tracking-widest mb-4">
-                READY_TO_GOVERN?
-              </div>
-              <p className="text-lg sm:text-xl font-mono text-zinc-300 mb-8">
-                Deploy warrant-based governance in under 5 minutes.
-                <br className="hidden sm:block" />
-                <span className="text-zinc-500">
-                  Free tier includes 5 agents + full pipeline.
-                </span>
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://console.regulator.ai/signup"
-                  className="bg-amber-500 hover:bg-amber-400 text-black px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
-                >
-                  START_FREE →
-                </a>
-                <Link
-                  href="/compare"
-                  className="border border-amber-500/30 hover:border-amber-500 text-amber-500 px-8 py-4 font-mono font-bold transition-all uppercase text-sm inline-flex items-center justify-center gap-2"
-                >
-                  COMPARE_ALTERNATIVES
-                </Link>
               </div>
             </div>
           </section>
@@ -1647,126 +1786,20 @@ result = vienna.intent.submit(
           </section>
         </RevealSection>
 
-        {/* ═══════════════════ COMPLIANCE ═══════════════════ */}
+        {/* ═══════════════════ POLICY SIMULATOR (interactive) ═══════════════════ */}
         <RevealSection>
-          <section id="compliance" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
+          <section id="simulator" className="py-24 px-6 bg-black/30 border-y border-amber-500/10">
             <div className="max-w-7xl mx-auto">
               <div className="mb-16 max-w-2xl">
                 <h2 className="text-2xl sm:text-3xl font-mono font-bold mb-4 tracking-tight text-amber-500">
-                  COMPLIANCE_ENABLEMENT
+                  POLICY_SIMULATOR
                 </h2>
                 <p className="text-zinc-500 font-mono text-sm">
-                  accelerate your path to regulatory compliance
+                  try it yourself — submit an intent, watch the governance pipeline evaluate in real time
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
-                {/* SOC 2 */}
-                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      SOC_2_TYPE_II
-                    </span>
-                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    provides: audit trail controls
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
-                    maps_to: CC6.1–CC8.1
-                  </div>
-                </div>
-
-                {/* GDPR */}
-                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      GDPR
-                    </span>
-                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    provides: data processing logs
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
-                    maps_to: Art. 30 records
-                  </div>
-                </div>
-
-                {/* ISO 27001 */}
-                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      ISO_27001
-                    </span>
-                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    provides: access control evidence
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
-                    maps_to: Annex A.9
-                  </div>
-                </div>
-
-                {/* HIPAA */}
-                <div className="bg-black border border-amber-500/30 p-4 sm:p-6">
-                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-amber-500/20">
-                    <span className="text-xs font-mono text-amber-500">
-                      HIPAA
-                    </span>
-                    <Shield className="w-4 h-4 text-amber-500 hidden sm:block" />
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600">
-                    provides: authorization logging
-                  </div>
-                  <div className="text-[10px] font-mono text-zinc-600 mt-1">
-                    maps_to: §164.312 safeguards
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-black border border-amber-500/30 p-6">
-                <div className="text-xs font-mono text-zinc-600 uppercase mb-4">
-                  AUDIT_TRAIL_CAPABILITIES
-                </div>
-                <div className="grid md:grid-cols-2 gap-6 text-xs font-mono">
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-zinc-600">retention:</span>{" "}
-                      <span className="text-zinc-400">
-                        7 years (configurable)
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">export:</span>{" "}
-                      <span className="text-zinc-400">JSON, CSV, PDF</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">encryption:</span>{" "}
-                      <span className="text-amber-500">AES-256 at rest</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-zinc-600">signatures:</span>{" "}
-                      <span className="text-zinc-400">HMAC-SHA256</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">tampering:</span>{" "}
-                      <span className="text-amber-500">
-                        cryptographic verification
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">search:</span>{" "}
-                      <span className="text-zinc-400">
-                        full-text + filters
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <PolicySimulator />
             </div>
           </section>
         </RevealSection>
@@ -1841,7 +1874,7 @@ result = vienna.intent.submit(
                   /enterprise
                 </Link>
                 <a
-                  href="https://github.com/risk-ai/vienna-os"
+                  href="https://github.com/risk-ai/regulatorai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-zinc-500 hover:text-amber-500 transition-all"
@@ -1873,46 +1906,7 @@ result = vienna.intent.submit(
                 </Link>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    slug: "execution-gap-warrants-not-guardrails",
-                    title: "The Execution Gap: Why AI Governance Needs Warrants, Not Just Guardrails",
-                    category: "GOVERNANCE",
-                    readTime: "9 min",
-                  },
-                  {
-                    slug: "zero-trust-ai-agent-pipeline",
-                    title: "Building a Zero-Trust AI Agent Pipeline",
-                    category: "SECURITY",
-                    readTime: "8 min",
-                  },
-                  {
-                    slug: "ai-agent-disasters-prevented",
-                    title: "5 AI Agent Disasters That Could Have Been Prevented",
-                    category: "RISK",
-                    readTime: "9 min",
-                  },
-                ].map((post) => (
-                  <Link
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    className="bg-black border border-zinc-800 hover:border-amber-500/30 p-6 transition-all group"
-                  >
-                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800 group-hover:border-amber-500/20 transition">
-                      <span className="text-[10px] font-mono text-amber-500 uppercase">
-                        {post.category}
-                      </span>
-                      <span className="text-[10px] font-mono text-zinc-600">
-                        {post.readTime}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-mono font-bold text-zinc-300 group-hover:text-amber-500 transition leading-relaxed">
-                      {post.title}
-                    </h3>
-                  </Link>
-                ))}
-              </div>
+              <LatestBlogPosts />
 
               <div className="mt-6 sm:hidden">
                 <Link

@@ -9,6 +9,7 @@ import { PageLayout } from '../components/layout/PageLayout.js';
 import { useAuthStore } from '../store/authStore.js';
 import { apiClient } from '../api/client.js';
 import { TeamManagement } from '../components/workspace/TeamManagement.js';
+import { RBACManager } from '../components/workspace/RBACManager.js';
 import { WebhookManager } from '../components/workspace/WebhookManager.js';
 import { useResponsive } from '../hooks/useResponsive.js';
 import { useDemoMode } from '../hooks/useDemoMode.js';
@@ -130,7 +131,7 @@ export function SettingsPage() {
 
         {/* Team & RBAC */}
         <SettingsCard title="Team & Access Control">
-          <TeamManagement />
+          <RBACManager />
         </SettingsCard>
 
         {/* Settings Audit Log */}

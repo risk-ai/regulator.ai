@@ -920,14 +920,13 @@ export default function TryPage() {
                     } ${tab === "warrant" && !result.warrant ? "opacity-40 cursor-not-allowed" : ""}`}
                     disabled={tab === "warrant" && !result.warrant}
                   >
-                    {tab === "pipeline" && "Pipeline "}
-                    {tab === "warrant" && "Warrant "}
-                    {tab === "chain" && "Chain "}
-                    {tab === "trust" && "Trust "}
-                    {tab === "ows" && "OWS "}
-                    {tab === "audit" && "Audit "}
-                    {tab === "policies" && "Policies "}
-                    {tab}
+                    {tab === "pipeline" && "Pipeline"}
+                    {tab === "warrant" && "Warrant"}
+                    {tab === "chain" && "Chain"}
+                    {tab === "trust" && "Trust"}
+                    {tab === "ows" && "OWS"}
+                    {tab === "audit" && "Audit"}
+                    {tab === "policies" && "Policies"}
                   </button>
                 ))}
               </div>

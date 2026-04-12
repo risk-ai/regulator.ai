@@ -12,7 +12,7 @@
  * - Satisfying visual feedback
  */
 
-import { Activity, TrendingUp, Power, Shield, Zap, AlertTriangle, CheckCircle, RefreshCw, Play, Pause, Terminal } from 'lucide-react';
+import { Activity, TrendingUp, Power, Shield, Zap, AlertTriangle, CheckCircle, RefreshCw, Play, Pause, Terminal, Compass } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
@@ -332,6 +332,18 @@ export function DashboardControl() {
   }, [autoRefresh, loadDashboard]);
 
   const quickActions: QuickAction[] = [
+    {
+      id: 'start-tour',
+      label: 'START TOUR',
+      icon: <Compass size={12} />,
+      color: '#d4af37',
+      action: () => {
+        if ((window as any).startGuidedTour) {
+          (window as any).startGuidedTour();
+        }
+      },
+      enabled: true,
+    },
     {
       id: 'refresh',
       label: 'REFRESH',

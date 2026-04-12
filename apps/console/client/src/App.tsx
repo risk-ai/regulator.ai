@@ -18,6 +18,7 @@ import { useAuthStore } from './store/authStore.js';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts.js';
 import { ErrorBoundary } from './components/ui/ErrorBoundary.js';
 import { FeedbackWidget } from './components/feedback/FeedbackWidget.js';
+import { GuidedTour } from './components/demo/GuidedTour.js';
 import { apiClient } from './api/client.js';
 
 // Lazy-loaded pages
@@ -66,12 +67,14 @@ function PageLoadingSpinner() {
 }
 
 const ONBOARDING_STORAGE_KEY = 'vienna_onboarding_completed';
+const GUIDED_TOUR_STORAGE_KEY = 'vienna_guided_tour_completed';
 
 export function App() {
   const { authenticated, loading, error, checkSession, loginWithOAuth } = useAuthStore();
   const demoMode = useDemoMode();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showGuidedTour, setShowGuidedTour] = useState(false);
   const [backendDown, setBackendDown] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,6 +82,14 @@ export function App() {
   useKeyboardShortcuts({
     onOpenCommandPalette: () => setShowCommandPalette(true)
   });
+
+  // Expose tour trigger globally for button access
+  useEffect(() => {
+    (window as any).startGuidedTour = () => setShowGuidedTour(true);
+    return () => {
+      delete (window as any).startGuidedTour;
+    };
+  }, []);
 
   // Handle OAuth callback on mount
   useEffect(() => {
@@ -293,6 +304,16 @@ export function App() {
               onSkip={handleOnboardingSkip}
             />
           )}
+          
+          {/* Guided Tour */}
+          <GuidedTour
+            isActive={showGuidedTour}
+            onComplete={() => {
+              localStorage.setItem(GUIDED_TOUR_STORAGE_KEY, 'true');
+              setShowGuidedTour(false);
+            }}
+            onDismiss={() => setShowGuidedTour(false)}
+          />
           
           {/* Feedback Widget */}
           <FeedbackWidget />

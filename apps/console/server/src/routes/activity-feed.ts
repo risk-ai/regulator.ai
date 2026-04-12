@@ -33,22 +33,22 @@ export function createActivityFeedRouter(viennaRuntime: ViennaRuntimeService): R
         before // ISO timestamp
       } = req.query;
 
-      // Query execution events from database
+      // Query from audit_log (fallback if execution_ledger_events doesn't exist)
       let sql = `
         SELECT 
-          e.id as event_id,
-          e.timestamp,
-          e.event_type,
-          e.execution_id,
-          e.status,
-          e.tenant_id,
-          s.objective,
-          a.agent_id,
-          a.display_name as agent_display_name
-        FROM execution_ledger_events e
-        LEFT JOIN execution_ledger_summary s ON e.execution_id = s.execution_id
-        LEFT JOIN agents a ON s.agent_id = a.id
-        WHERE e.tenant_id = $1
+          a.id as event_id,
+          a.created_at as timestamp,
+          a.event as event_type,
+          a.details->>'execution_id' as execution_id,
+          COALESCE(a.details->>'status', 'completed') as status,
+          a.tenant_id,
+          COALESCE(a.details->>'objective', a.details->>'action', 'Unknown') as objective,
+          COALESCE(a.details->>'agent_id', a.agent_id) as agent_id,
+          ag.display_name as agent_display_name
+        FROM audit_log a
+        LEFT JOIN agents ag ON ag.id = COALESCE(a.details->>'agent_id', a.agent_id)
+        WHERE a.tenant_id = $1
+          AND a.event LIKE '%execution%'
       `;
       
       const params: any[] = [tenantId];
@@ -146,18 +146,24 @@ export function createActivityFeedRouter(viennaRuntime: ViennaRuntimeService): R
           break;
       }
 
-      // Get events for period from database
+      // Get events for period from audit_log (fallback)
       const events = await query<any>(
         `SELECT 
-          e.*,
-          s.objective,
-          a.agent_id,
-          a.display_name as agent_display_name
-        FROM execution_ledger_events e
-        LEFT JOIN execution_ledger_summary s ON e.execution_id = s.execution_id
-        LEFT JOIN agents a ON s.agent_id = a.id
-        WHERE e.tenant_id = $1 AND e.timestamp >= $2
-        ORDER BY e.timestamp DESC
+          a.id,
+          a.created_at as timestamp,
+          a.event as event_type,
+          a.details->>'execution_id' as execution_id,
+          COALESCE(a.details->>'status', 'completed') as status,
+          a.tenant_id,
+          COALESCE(a.details->>'objective', a.details->>'action', 'Unknown') as objective,
+          COALESCE(a.details->>'agent_id', a.agent_id) as agent_id,
+          ag.display_name as agent_display_name
+        FROM audit_log a
+        LEFT JOIN agents ag ON ag.id = COALESCE(a.details->>'agent_id', a.agent_id)
+        WHERE a.tenant_id = $1 
+          AND a.created_at >= $2
+          AND a.event LIKE '%execution%'
+        ORDER BY a.created_at DESC
         LIMIT 10000`,
         [tenantId, since.toISOString()]
       );

@@ -185,53 +185,58 @@ export function GovernanceChainPage() {
         return;
       }
 
-      // Build the governance chain from API data
+      // Build the governance chain from API data (defensive)
       const steps: GovernanceStep[] = [];
       let riskTier = 'T0';
-      let agentId = chainData.agent_id || 'unknown';
-      let action = chainData.action_type || 'unknown';
+      let agentId = (chainData as any)?.agent_id || 'unknown';
+      let action = (chainData as any)?.action_type || 'unknown';
 
       // Intent step
-      if (chainData.intent) {
+      if ((chainData as any)?.intent) {
+        const intent = (chainData as any).intent;
         steps.push({
-          id: chainData.intent.id,
+          id: intent.id || 'intent-' + Date.now(),
           type: 'intent',
           status: 'completed',
-          timestamp: chainData.intent.created_at,
-          data: chainData.intent,
+          timestamp: intent.created_at || new Date().toISOString(),
+          data: intent,
         });
       }
 
       // Policy evaluations
-      chainData.evaluations.forEach(evaluation => {
+      const evaluations = Array.isArray((chainData as any)?.evaluations) ? (chainData as any).evaluations : [];
+      evaluations.forEach((evaluation: any) => {
         steps.push({
-          id: evaluation.id,
+          id: evaluation.id || 'eval-' + Date.now(),
           type: 'policy',
           status: evaluation.result === 'deny' ? 'failed' : 'completed',
-          timestamp: evaluation.evaluated_at,
+          timestamp: evaluation.evaluated_at || new Date().toISOString(),
           data: evaluation,
         });
       });
 
       // Warrants
-      chainData.warrants.forEach(warrant => {
+      const warrants = Array.isArray((chainData as any)?.warrants) ? (chainData as any).warrants : [];
+      warrants.forEach((warrant: any) => {
         riskTier = warrant.risk_tier?.toString() || riskTier;
         steps.push({
-          id: warrant.id,
+          id: warrant.id || 'warrant-' + Date.now(),
           type: 'warrant',
           status: warrant.status === 'active' ? 'completed' : 'failed',
-          timestamp: warrant.created_at,
+          timestamp: warrant.created_at || new Date().toISOString(),
           data: warrant,
         });
       });
 
       // Executions
-      chainData.executions.forEach(execution => {
+      const executions = Array.isArray((chainData as any)?.executions) ? (chainData as any).executions : [];
+      executions.forEach((execution: any) => {
+        const eventType = String(execution.event_type || '');
         steps.push({
-          id: execution.execution_id,
+          id: execution.execution_id || 'exec-' + Date.now(),
           type: 'execution',
-          status: execution.event_type.includes('failed') ? 'failed' : 'completed',
-          timestamp: execution.timestamp,
+          status: eventType.includes('failed') ? 'failed' : 'completed',
+          timestamp: execution.timestamp || new Date().toISOString(),
           data: execution,
         });
       });

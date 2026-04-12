@@ -333,17 +333,19 @@ export default function DashboardPremium() {
       // Fetch dashboard bootstrap with all metrics
       const bootstrap: DashboardBootstrapResponse = await dashboardApi.bootstrap();
 
-      const activeAgents = bootstrap.agents.filter(a => a.status === 'active').length;
-      const totalAgents = bootstrap.agents.length;
-      const avgTrust = bootstrap.agents.length > 0
-        ? bootstrap.agents.reduce((s, a) => s + (a.trust_score || 0), 0) / bootstrap.agents.length
+      // Defensive: handle missing or malformed data
+      const agents = Array.isArray(bootstrap?.agents) ? bootstrap.agents : [];
+      const activeAgents = agents.filter((a: any) => a?.status === 'active').length;
+      const totalAgents = agents.length;
+      const avgTrust = agents.length > 0
+        ? agents.reduce((s: number, a: any) => s + (Number(a?.trust_score) || 0), 0) / agents.length
         : 0;
 
-      // Get counts from bootstrap data
-      const warrantsToday = bootstrap.active_execution.length; // Active warrants
-      const pendingApprovals = bootstrap.queue_state?.blocked || 0; // Blocked = awaiting approval
-      const policyEvals = bootstrap.decisions.length; // Recent policy decisions
-      const avgLatencyMs = bootstrap.metrics?.avg_latency_ms || 0;
+      // Get counts from bootstrap data (with fallbacks)
+      const warrantsToday = Array.isArray(bootstrap?.active_execution) ? bootstrap.active_execution.length : 0;
+      const pendingApprovals = bootstrap?.queue_state?.blocked || 0;
+      const policyEvals = Array.isArray(bootstrap?.decisions) ? bootstrap.decisions.length : 0;
+      const avgLatencyMs = bootstrap?.metrics?.avg_latency_ms || 0;
 
       setData({
         activeAgents,

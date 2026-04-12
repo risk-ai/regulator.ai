@@ -16,6 +16,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
 
@@ -668,7 +669,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   const connectedCount = integrations.filter(i => i.status === 'connected').length;
 
   return (
-    <PageLayout title="" description="">
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <AnimatedGlobeBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <PageLayout title="" description="">
       {/* Header */}
       <div style={{
         background: 'linear-gradient(180deg, rgba(6, 182, 212, 0.1) 0%, transparent 100%)',
@@ -805,6 +809,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
           <CodeSnippet language={selectedLang} code={codeSnippets[selectedLang]} />
         </div>
       </div>
-    </PageLayout>
+        </PageLayout>
+      </div>
+    </div>
   );
 }

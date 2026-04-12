@@ -14,6 +14,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import {
   listPolicies,
   createPolicy,
@@ -893,10 +894,13 @@ export function PolicyBuilderPremium() {
   const t2Rules = rules.filter(r => r.approval_tier === 'T2' && r.enabled).length;
 
   return (
-    <PageLayout
-      title=""
-      description=""
-    >
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <AnimatedGlobeBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <PageLayout
+          title=""
+          description=""
+        >
       {/* Header */}
       <div style={{
         background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.1) 0%, transparent 100%)',
@@ -1150,6 +1154,8 @@ export function PolicyBuilderPremium() {
           onClose={() => { setShowBuilder(false); setEditingRule(null); }}
         />
       )}
-    </PageLayout>
+        </PageLayout>
+      </div>
+    </div>
   );
 }

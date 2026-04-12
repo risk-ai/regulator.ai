@@ -467,6 +467,114 @@ export default function DashboardPremium() {
         </div>
       )}
 
+      {/* First-Run Experience - Empty State */}
+      {!loading && data.totalAgents === 0 && (
+        <div style={{
+          background: 'rgba(251, 191, 36, 0.05)',
+          border: '2px solid rgba(251, 191, 36, 0.3)',
+          padding: '48px 32px',
+          textAlign: 'center',
+          marginBottom: '24px',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚀</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#fbbf24', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>
+            Welcome to Vienna OS
+          </h2>
+          <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+            Your governance control center is ready. Let's get your first AI agent connected.
+          </p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '900px', margin: '0 auto' }}>
+            {/* Step 1 */}
+            <div style={{
+              background: '#0A0E14',
+              border: '1px solid rgba(251, 191, 36, 0.2)',
+              padding: '24px',
+              textAlign: 'left',
+            }}>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#fbbf24', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>1</div>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Connect Your Agent</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Install the SDK and register your first AI agent with Vienna OS.
+              </p>
+              <a
+                href="/connect"
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  background: '#fbbf24',
+                  color: '#0A0E14',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  fontFamily: 'JetBrains Mono, monospace',
+                }}
+              >
+                Connect Agent →
+              </a>
+            </div>
+
+            {/* Step 2 */}
+            <div style={{
+              background: '#0A0E14',
+              border: '1px solid rgba(148, 163, 184, 0.2)',
+              padding: '24px',
+              textAlign: 'left',
+              opacity: 0.6,
+            }}>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#94a3b8', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>2</div>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Submit Test Intent</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Send a test action through the governance pipeline to see Vienna in action.
+              </p>
+              <div style={{
+                padding: '8px 16px',
+                background: 'rgba(148, 163, 184, 0.1)',
+                color: '#64748b',
+                fontSize: '12px',
+                fontWeight: 700,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}>
+                Available after step 1
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div style={{
+              background: '#0A0E14',
+              border: '1px solid rgba(148, 163, 184, 0.2)',
+              padding: '24px',
+              textAlign: 'left',
+              opacity: 0.6,
+            }}>
+              <div style={{ fontSize: '32px', fontWeight: 700, color: '#94a3b8', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>3</div>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>See Governance</h3>
+              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                Watch the full governance chain: policy eval → risk tier → approval → warrant → execution.
+              </p>
+              <div style={{
+                padding: '8px 16px',
+                background: 'rgba(148, 163, 184, 0.1)',
+                color: '#64748b',
+                fontSize: '12px',
+                fontWeight: 700,
+                fontFamily: 'JetBrains Mono, monospace',
+              }}>
+                Available after step 2
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '32px', padding: '16px', background: 'rgba(251, 191, 36, 0.05)', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
+            <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
+              <strong style={{ color: '#fbbf24' }}>Prefer to explore first?</strong> Try the{' '}
+              <a href="/try" style={{ color: '#fbbf24', textDecoration: 'underline' }}>interactive demo</a>
+              {' '}to see Vienna OS in action with simulated scenarios.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Summary Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <MetricCard

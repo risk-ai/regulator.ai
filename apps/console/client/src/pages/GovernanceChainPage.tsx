@@ -24,6 +24,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { apiClient } from '../api/client.js';
+import { getGovernanceOverview, getGovernanceChain, searchGovernance, type GovernanceChainSummary } from '../api/governance.js';
 
 // ─── Types ───
 
@@ -156,14 +157,13 @@ export function GovernanceChainPage() {
 
   async function loadRecentChains() {
     try {
-      const response = await apiClient.get<any>('/audit?limit=10&event=intent.submitted');
-      const events = (response as any)?.data || [];
-      // Transform audit events into chain summaries
-      const chains = events.map((event: any) => ({
-        intent_id: event.details?.intent_id || event.id,
-        agent_id: event.details?.agent_id || 'unknown',
-        action: event.details?.action || event.event,
-        risk_tier: event.details?.risk_tier || 'T0',
+      const overview = await getGovernanceOverview('24h');
+      // Transform GovernanceChainSummary to GovernanceChain format
+      const chains: GovernanceChain[] = overview.recentChains.map((summary) => ({
+        intent_id: summary.intent_id,
+        agent_id: summary.agent_id,
+        action: summary.action_type,
+        risk_tier: summary.warrants?.[0]?.risk_tier?.toString() || 'T0',
         steps: [],
         total_duration_ms: 0,
         chain_valid: true,
@@ -177,88 +177,64 @@ export function GovernanceChainPage() {
   async function searchChain(intentId: string) {
     setLoading(true);
     try {
-      // Fetch all audit events for this intent
-      const response = await apiClient.get<any>(`/audit?intent_id=${intentId}&limit=50`);
-      const events = (response as any)?.data || [];
+      // Use new governance chain API
+      const chainData = await getGovernanceChain(intentId);
 
-      if (events.length === 0) {
+      if (!chainData) {
         setChain(null);
         return;
       }
 
-      // Build the governance chain from audit events
+      // Build the governance chain from API data
       const steps: GovernanceStep[] = [];
       let riskTier = 'T0';
-      let agentId = 'unknown';
-      let action = 'unknown';
+      let agentId = chainData.agent_id || 'unknown';
+      let action = chainData.action_type || 'unknown';
 
-      for (const event of events) {
-        const details = event.details || {};
-
-        if (event.event?.includes('intent.submitted') || event.event?.includes('submitted')) {
-          riskTier = details.risk_tier || riskTier;
-          agentId = details.agent_id || agentId;
-          action = details.action || action;
-          steps.push({
-            id: details.intent_id || event.id,
-            type: 'intent',
-            status: 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-          });
-        } else if (event.event?.includes('policy')) {
-          steps.push({
-            id: details.evaluation_id || details.policy_id || event.id,
-            type: 'policy',
-            status: details.decision === 'deny' ? 'failed' : 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-            duration_ms: details.evaluation_time_ms,
-          });
-        } else if (event.event?.includes('approval')) {
-          steps.push({
-            id: details.approval_id || event.id,
-            type: 'approval',
-            status: details.action === 'deny' ? 'failed' : event.event?.includes('resolved') ? 'completed' : 'pending',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-          });
-        } else if (event.event?.includes('warrant')) {
-          steps.push({
-            id: details.warrant_id || event.id,
-            type: 'warrant',
-            status: event.event?.includes('tamper') ? 'failed' : 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-          });
-        } else if (event.event?.includes('execution')) {
-          steps.push({
-            id: details.execution_id || event.id,
-            type: 'execution',
-            status: event.event?.includes('failed') ? 'failed' : 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-            duration_ms: details.execution_time_ms,
-          });
-        } else if (event.event?.includes('verification')) {
-          steps.push({
-            id: details.verification_id || event.id,
-            type: 'verification',
-            status: details.status === 'success' ? 'completed' : details.status === 'failed' ? 'failed' : 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-            duration_ms: details.verification_time_ms,
-          });
-        } else if (event.event?.includes('attestation')) {
-          steps.push({
-            id: details.attestation_id || event.id,
-            type: 'attestation',
-            status: 'completed',
-            timestamp: event.created_at || event.timestamp,
-            data: details,
-          });
-        }
+      // Intent step
+      if (chainData.intent) {
+        steps.push({
+          id: chainData.intent.id,
+          type: 'intent',
+          status: 'completed',
+          timestamp: chainData.intent.created_at,
+          data: chainData.intent,
+        });
       }
+
+      // Policy evaluations
+      chainData.evaluations.forEach(evaluation => {
+        steps.push({
+          id: evaluation.id,
+          type: 'policy',
+          status: evaluation.result === 'deny' ? 'failed' : 'completed',
+          timestamp: evaluation.evaluated_at,
+          data: evaluation,
+        });
+      });
+
+      // Warrants
+      chainData.warrants.forEach(warrant => {
+        riskTier = warrant.risk_tier?.toString() || riskTier;
+        steps.push({
+          id: warrant.id,
+          type: 'warrant',
+          status: warrant.status === 'active' ? 'completed' : 'failed',
+          timestamp: warrant.created_at,
+          data: warrant,
+        });
+      });
+
+      // Executions
+      chainData.executions.forEach(execution => {
+        steps.push({
+          id: execution.execution_id,
+          type: 'execution',
+          status: execution.event_type.includes('failed') ? 'failed' : 'completed',
+          timestamp: execution.timestamp,
+          data: execution,
+        });
+      });
 
       // Sort by timestamp
       steps.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());

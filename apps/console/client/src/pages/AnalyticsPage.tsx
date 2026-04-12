@@ -11,6 +11,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { addToast } from '../store/toastStore.js';
+import { getAnalytics, getTrends, type TimeRange } from '../api/analytics.js';
 
 // ---- Types ----
 
@@ -96,80 +97,73 @@ function exportAnalyticsCSV(data: AnalyticsData) {
 // ---- Main Page ----
 
 export function AnalyticsPage() {
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d');
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('vienna_access_token');
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
-      // Fetch multiple endpoints in parallel
-      const [statsRes, agentsRes, execsRes] = await Promise.all([
-        fetch('/api/v1/executions/stats', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/v1/fleet/agents', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/v1/executions', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+      // Fetch from new analytics API
+      const [analyticsData, trendsData] = await Promise.all([
+        getAnalytics(timeRange),
+        getTrends(timeRange),
       ]);
 
-      const stats = statsRes.success ? statsRes.data : {};
-      const agents: any[] = (agentsRes.success ? agentsRes.data : agentsRes.agents) || [];
-      const executions: any[] = (execsRes.success ? execsRes.data : []) || [];
+      // Map API data to component format
+      const totalExecs = Number(trendsData.current.executions);
+      const completed = Number(trendsData.current.completed);
+      const rejected = Number(trendsData.current.rejected);
+      const failed = totalExecs - completed - rejected;
+      
+      // Use real previous period data from trends API
+      const prevExecs = Number(trendsData.previous.executions);
+      const prevCompleted = Number(trendsData.previous.completed);
+      const prevRejected = Number(trendsData.previous.rejected);
 
-      // Build real metrics from API data
-      const totalExecs = Number(stats.total_executions || executions.length || 0);
-      const completed = Number(stats.completed || executions.filter((e: any) => e.state === 'complete').length || 0);
-      const failed = Number(stats.failed || executions.filter((e: any) => e.state === 'failed').length || 0);
-      const avgLatency = Number(stats.avg_latency_ms || 0);
-      const activeAgents = agents.filter((a: any) => a.status === 'active').length;
+      // Calculate derived metrics
+      const avgLatency = analyticsData.approvalLatency.length > 0
+        ? Math.round(analyticsData.approvalLatency.reduce((sum, b) => sum + b.avg_seconds, 0) / analyticsData.approvalLatency.length)
+        : 0;
 
-      // Simulate previous period (real implementation would query with date range)
-      const prevMultiplier = 0.85 + Math.random() * 0.3;
+      const activeAgents = analyticsData.agentRisk.filter(a => a.status === 'active').length;
 
       const metrics: MetricCard[] = [
-        { label: 'Total Executions', current: totalExecs, previous: Math.round(totalExecs * prevMultiplier), icon: '📊', color: '#818cf8' },
-        { label: 'Completed', current: completed, previous: Math.round(completed * prevMultiplier), icon: '✅', color: '#10b981' },
-        { label: 'Failed', current: failed, previous: Math.round(failed * (1 + Math.random() * 0.2)), icon: '❌', color: '#ef4444' },
-        { label: 'Active Agents', current: activeAgents, previous: Math.max(1, activeAgents - Math.floor(Math.random() * 2)), icon: '🤖', color: '#3b82f6' },
-        { label: 'Avg Latency', current: Math.round(avgLatency), previous: Math.round(avgLatency * (1 + Math.random() * 0.1)), unit: 'ms', icon: '⚡', color: '#06b6d4' },
-        { label: 'Success Rate', current: totalExecs > 0 ? Math.round(completed / totalExecs * 100) : 0, previous: 95, unit: '%', icon: '📈', color: '#f59e0b' },
+        { label: 'Total Executions', current: totalExecs, previous: prevExecs, icon: '📊', color: '#818cf8' },
+        { label: 'Completed', current: completed, previous: prevCompleted, icon: '✅', color: '#10b981' },
+        { label: 'Rejected', current: rejected, previous: prevRejected, icon: '❌', color: '#ef4444' },
+        { label: 'Active Agents', current: activeAgents, previous: activeAgents, icon: '🤖', color: '#3b82f6' },
+        { label: 'Avg Approval Time', current: avgLatency, previous: avgLatency, unit: 's', icon: '⚡', color: '#06b6d4' },
+        { label: 'Success Rate', current: totalExecs > 0 ? Math.round(completed / totalExecs * 100) : 0, previous: prevExecs > 0 ? Math.round(prevCompleted / prevExecs * 100) : 0, unit: '%', icon: '📈', color: '#f59e0b' },
       ];
 
-      // Build agent leaderboard from real data
-      const leaderboard: AgentLeaderboard[] = agents
-        .map((a: any) => ({
-          agent_id: a.agent_id || a.id,
-          agent_name: a.name || a.agent_name || a.agent_id?.slice(0, 12) || 'Unknown',
-          total_actions: Number(a.total_actions || a.action_count || Math.floor(Math.random() * 50)),
-          successful: Number(a.successful || Math.floor(Math.random() * 40)),
-          failed: Number(a.failed || Math.floor(Math.random() * 5)),
-          avg_latency_ms: Number(a.avg_latency_ms || Math.floor(Math.random() * 500)),
-          status: a.status || 'active',
+      // Build agent leaderboard from agentRisk data
+      const leaderboard: AgentLeaderboard[] = analyticsData.agentRisk
+        .map(a => ({
+          agent_id: a.agent_id,
+          agent_name: a.agent_name || a.agent_id.slice(0, 12),
+          total_actions: Number(a.total_executions),
+          successful: Number(a.total_executions) - Number(a.rejected_executions),
+          failed: Number(a.rejected_executions),
+          avg_latency_ms: 0, // Not in API response yet
+          status: a.status,
         }))
-        .sort((a: AgentLeaderboard, b: AgentLeaderboard) => b.total_actions - a.total_actions)
+        .sort((a, b) => b.total_actions - a.total_actions)
         .slice(0, 10);
 
-      // Cost breakdown by tier
-      const tierCounts: Record<string, number> = {};
-      executions.forEach((e: any) => {
-        const tier = e.risk_tier || 'T0';
-        tierCounts[tier] = (tierCounts[tier] || 0) + 1;
-      });
-
+      // Cost breakdown from execution volume
       const TIER_COST: Record<string, number> = { T0: 0.001, T1: 0.01, T2: 0.05, T3: 0.10 };
-      const costs: CostBreakdown[] = Object.entries(tierCounts).map(([tier, count]) => ({
-        category: `${tier} Executions`,
-        count,
-        estimated_cost: count * (TIER_COST[tier] || 0.01),
+      const costs: CostBreakdown[] = analyticsData.executionVolume.map(vol => ({
+        category: `${vol.bucket} Executions`,
+        count: Number(vol.total),
+        estimated_cost: Number(vol.total) * (TIER_COST[vol.bucket] || 0.01),
       }));
 
       setData({
         metrics,
         leaderboard,
         costs,
-        timeRange: timeRange === '7d' ? 'Last 7 days' : timeRange === '30d' ? 'Last 30 days' : 'Last 90 days',
+        timeRange: `Last ${timeRange}`,
       });
     } catch (err) {
       addToast('Failed to load analytics', 'error', { label: 'Retry', onClick: fetchAnalytics });
@@ -195,7 +189,7 @@ export function AnalyticsPage() {
         <div style={{ display: 'flex', gap: '8px' }}>
           {/* Time range selector */}
           <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '2px' }}>
-            {(['7d', '30d', '90d'] as const).map(range => (
+            {(['24h', '7d', '30d', '90d'] as const).map((range: TimeRange) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}

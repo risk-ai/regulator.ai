@@ -101,8 +101,8 @@ export function RBACManager() {
   const loadRoles = async () => {
     setLoading(true);
     try {
-      const data = await apiClient.get<{ roles: Role[] }>('/roles');
-      setRoles(data.roles || []);
+      const data = await apiClient.get<Role[]>('/roles');
+      setRoles(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load roles:', err);
     } finally {
@@ -112,8 +112,8 @@ export function RBACManager() {
 
   const loadAssignments = async () => {
     try {
-      const data = await apiClient.get<{ assignments: RoleAssignment[] }>('/roles/assignments');
-      setAssignments(data.assignments || []);
+      const data = await apiClient.get<RoleAssignment[]>('/roles/assignments');
+      setAssignments(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load assignments:', err);
     }
@@ -121,8 +121,8 @@ export function RBACManager() {
 
   const loadUsers = async () => {
     try {
-      const data = await apiClient.get<{ users: User[] }>('/roles/users');
-      setUsers(data.users || []);
+      const data = await apiClient.get<User[]>('/roles/users');
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load users:', err);
     }
@@ -130,8 +130,8 @@ export function RBACManager() {
 
   const loadPermissionGroups = async () => {
     try {
-      const data = await apiClient.get<{ groups: PermissionGroup[] }>('/roles/permissions');
-      setPermissionGroups(data.groups || []);
+      const data = await apiClient.get<PermissionGroup[]>('/roles/permissions');
+      setPermissionGroups(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load permissions:', err);
     }
@@ -139,8 +139,8 @@ export function RBACManager() {
 
   const loadAudit = async () => {
     try {
-      const data = await apiClient.get<{ entries: AuditEntry[] }>('/roles/audit?limit=50');
-      setAuditLog(data.entries || []);
+      const data = await apiClient.get<AuditEntry[]>('/roles/audit?limit=50');
+      setAuditLog(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load audit log:', err);
     }
@@ -195,7 +195,10 @@ export function RBACManager() {
   const handleRevokeRole = async (assignmentId: string, userEmail: string, roleName: string) => {
     if (!confirm(`Revoke role "${roleName}" from ${userEmail}?`)) return;
     try {
-      await apiClient.post('/roles/revoke', { assignment_id: assignmentId });
+      // Find the assignment to get user_id and role_id (backend expects these, not assignment_id)
+      const assignment = assignments.find(a => a.id === assignmentId);
+      if (!assignment) return;
+      await apiClient.post('/roles/revoke', { user_id: assignment.user_id, role_id: assignment.role_id });
       loadAssignments();
     } catch (err) {
       console.error('Failed to revoke role:', err);

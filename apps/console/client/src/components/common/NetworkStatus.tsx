@@ -28,11 +28,12 @@ export function NetworkStatus() {
   const checkHealth = async (): Promise<{ success: boolean; latency: number }> => {
     const startTime = Date.now();
     try {
+      // Use a longer timeout — Vercel serverless cold starts can take 5-10s
       const response = await fetch('/api/v1/health', { 
         method: 'GET',
         cache: 'no-cache',
         headers: { 'Cache-Control': 'no-cache' },
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(15000)
       });
       const latency = Date.now() - startTime;
       return { success: response.ok, latency };
@@ -67,22 +68,31 @@ export function NetworkStatus() {
       const { success, latency } = await checkHealth();
       const quality = success ? determineQuality(latency) : 'offline';
       
-      setNetworkState(prev => ({
-        ...prev,
-        isOnline: navigator.onLine && success,
-        quality,
-        lastHealthCheck: Date.now(),
-        reconnectAttempts: success ? 0 : prev.reconnectAttempts + 1
-      }));
+      setNetworkState(prev => {
+        const newAttempts = success ? 0 : prev.reconnectAttempts + 1;
+        return {
+          ...prev,
+          isOnline: navigator.onLine && success,
+          quality,
+          lastHealthCheck: Date.now(),
+          reconnectAttempts: newAttempts
+        };
+      });
 
-      if (!success && !showBanner) {
-        setShowBanner(true);
-        setRetrying(true);
+      // Only show banner after 3 consecutive failures (avoids cold-start false alarms)
+      if (!success) {
+        setNetworkState(prev => {
+          if (prev.reconnectAttempts >= 3 && !showBanner) {
+            setShowBanner(true);
+            setRetrying(true);
+          }
+          return prev;
+        });
       } else if (success && showBanner) {
         setShowBanner(false);
         setRetrying(false);
       }
-    }, 10000); // Check every 10 seconds
+    }, 30000); // Check every 30 seconds (was 10s — too aggressive for serverless)
 
     // Initial health check
     checkHealth().then(({ success, latency }) => {

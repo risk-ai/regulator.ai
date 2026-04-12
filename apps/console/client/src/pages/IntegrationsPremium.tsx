@@ -291,7 +291,7 @@ function IntegrationCard({ integration, onConnect, onTest }: {
               TEST CONNECTION
             </button>
             <button
-              onClick={() => alert('Configure coming soon')}
+              onClick={() => window.location.href = `/integrations`}
               style={{
                 padding: '8px 12px',
                 background: 'rgba(107, 114, 128, 0.2)',
@@ -699,7 +699,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
           </div>
 
           <button
-            onClick={() => alert('Create new API key coming soon')}
+            onClick={() => window.location.href = '/api-keys'}
             style={{
               padding: '8px 16px',
               background: 'rgba(6, 182, 212, 0.2)',

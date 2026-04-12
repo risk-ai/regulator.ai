@@ -15,6 +15,7 @@
 import { Activity, TrendingUp, Power, Shield, Zap, AlertTriangle, CheckCircle, RefreshCw, Play, Pause, Terminal } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { addToast } from '../store/toastStore.js';
 
 // ============================================================================
@@ -409,7 +410,10 @@ export function DashboardControl() {
   ];
 
   return (
-    <PageLayout title="" description="">
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      <AnimatedGlobeBackground />
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <PageLayout title="" description="">
       {/* Header */}
       <div style={{
         background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%)',
@@ -553,6 +557,8 @@ export function DashboardControl() {
           </div>
         </div>
       )}
-    </PageLayout>
+        </PageLayout>
+      </div>
+    </div>
   );
 }

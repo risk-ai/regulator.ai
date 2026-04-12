@@ -111,6 +111,7 @@ export default function ActivityFeedPage() {
   const [summary, setSummary] = useState<ActivitySummary | null>(null);
   const [period, setPeriod] = useState('24h');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchAll = useCallback(async () => {
@@ -119,11 +120,17 @@ export default function ActivityFeedPage() {
         fetch('/api/v1/activity/feed?limit=50', { credentials: 'include' }).then(r => r.json()),
         fetch(`/api/v1/activity/summary?period=${period}`, { credentials: 'include' }).then(r => r.json()),
       ]);
-      if (feedRes.success) setEvents(feedRes.data || []);
+      if (feedRes.success) {
+        setEvents(feedRes.data || []);
+        setError(null);
+      } else {
+        setError(feedRes.error || 'Failed to load activity feed');
+      }
       if (summaryRes.success) setSummary(summaryRes.data);
       setLastUpdated(new Date());
     } catch (e) {
-
+      console.error('[ActivityFeed] Fetch error:', e);
+      setError(e instanceof Error ? e.message : 'Network error loading activity feed');
     } finally {
       setLoading(false);
     }
@@ -320,6 +327,38 @@ export default function ActivityFeedPage() {
 
   return (
     <div style={S.page}>
+      {/* Error Banner */}
+      {error && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+        }}>
+          <span style={{ fontSize: '14px', color: '#ef4444' }}>⚠️</span>
+          <span style={{ fontSize: '13px', color: '#fca5a5', flex: 1 }}>{error}</span>
+          <button
+            onClick={() => { setLoading(true); setError(null); fetchAll(); }}
+            style={{
+              background: 'rgba(239, 68, 68, 0.2)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#fca5a5',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '12px',
+              fontWeight: 600,
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      
       {/* ── Row 1: Header ── */}
       <div style={S.header}>
         <div>

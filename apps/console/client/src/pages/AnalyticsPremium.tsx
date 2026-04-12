@@ -596,91 +596,102 @@ export function AnalyticsPremium() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const [statsRes, agentsRes, execsRes] = await Promise.all([
+      const [statsRes, agentsRes, execsRes, analyticsRes, trendsRes] = await Promise.all([
         fetch('/api/v1/executions/stats', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
         fetch('/api/v1/fleet/agents', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
         fetch('/api/v1/executions', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`/api/v1/analytics?range=${period}`, { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`/api/v1/analytics/trends?range=${period}`, { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
       ]);
 
       const stats = statsRes.success ? statsRes.data : {};
       const agents: any[] = (agentsRes.success ? agentsRes.data : agentsRes.agents) || [];
       const executions: any[] = (execsRes.success ? execsRes.data : []) || [];
+      const analyticsData = analyticsRes.success ? analyticsRes.data : {};
+      const trendsData = trendsRes.success ? trendsRes.data : {};
 
-      // Build metrics
+      // Build metrics from real API data
       const totalExecs = Number(stats.total_executions || executions.length || 0);
-      const completed = Number(stats.completed || executions.filter((e: any) => e.state === 'complete').length || 0);
-      const failed = Number(stats.failed || executions.filter((e: any) => e.state === 'failed').length || 0);
-      const avgLatency = Number(stats.avg_latency_ms || Math.floor(Math.random() * 200) + 50);
+      const completed = Number(stats.completed || 0);
+      const failed = Number(stats.rejected || 0);
       const activeAgents = agents.filter((a: any) => a.status === 'active').length;
       const successRate = totalExecs > 0 ? Math.round((completed / totalExecs) * 100) : 0;
 
-      // Previous period (simulated)
-      const prevMultiplier = 0.85 + Math.random() * 0.3;
+      // Real previous period from trends API
+      const prevExecs = Number(trendsData.previous?.executions || 0);
+      const prevCompleted = Number(trendsData.previous?.completed || 0);
+      const prevRejected = Number(trendsData.previous?.rejected || 0);
+      const prevSuccessRate = prevExecs > 0 ? Math.round((prevCompleted / prevExecs) * 100) : 0;
+
+      // Real sparklines from execution volume
+      const volumeData = (analyticsData.executionVolume || []).map((b: any) => Number(b.total || 0));
+      const completedData = (analyticsData.executionVolume || []).map((b: any) => Number(b.completed || 0));
+      const rejectedData = (analyticsData.executionVolume || []).map((b: any) => Number(b.rejected || 0));
 
       const metrics: MetricData[] = [
         {
           label: 'TOTAL EXECUTIONS',
           value: totalExecs,
-          previous: Math.round(totalExecs * prevMultiplier),
+          previous: prevExecs,
           icon: 'TrendingUp',
-          sparkline: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
+          sparkline: volumeData.length > 0 ? volumeData : [0,0,0,0,0,0,0,0,0,0,0,0],
           color: 'blue',
         },
         {
           label: 'SUCCESS RATE',
           value: successRate,
-          previous: Math.max(0, successRate - Math.floor(Math.random() * 5)),
+          previous: prevSuccessRate,
           unit: '%',
           icon: 'CheckCircle2',
-          sparkline: Array.from({ length: 12 }, () => 80 + Math.floor(Math.random() * 20)),
+          sparkline: completedData.length > 0 ? completedData : [0,0,0,0,0,0,0,0,0,0,0,0],
           color: 'green',
         },
         {
           label: 'FAILED',
           value: failed,
-          previous: Math.round(failed * (1 + Math.random() * 0.2)),
+          previous: prevRejected,
           icon: 'XCircle',
-          sparkline: Array.from({ length: 12 }, () => Math.floor(Math.random() * 40)),
+          sparkline: rejectedData.length > 0 ? rejectedData : [0,0,0,0,0,0,0,0,0,0,0,0],
           color: 'red',
         },
         {
           label: 'ACTIVE AGENTS',
           value: activeAgents,
-          previous: Math.max(1, activeAgents - Math.floor(Math.random() * 2)),
+          previous: agents.length,
           icon: 'Bot',
-          sparkline: Array.from({ length: 12 }, () => 40 + Math.floor(Math.random() * 60)),
+          sparkline: [activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents, activeAgents],
           color: 'cyan',
         },
         {
-          label: 'AVG LATENCY',
-          value: avgLatency,
-          previous: Math.round(avgLatency * (1 + Math.random() * 0.1)),
-          unit: 'ms',
+          label: 'PENDING APPROVAL',
+          value: Number(stats.pending_approval || 0),
+          previous: 0,
           icon: 'Zap',
-          sparkline: Array.from({ length: 12 }, () => 30 + Math.floor(Math.random() * 70)),
+          sparkline: [0,0,0,0,0,0,0,0,0,0,0,0],
           color: 'amber',
         },
       ];
 
-      // Build agent performance
-      const agentPerf: AgentPerformance[] = agents.map((a: any) => {
-        const totalActions = Number(a.total_actions || a.action_count || Math.floor(Math.random() * 50));
-        const successful = Number(a.successful || Math.floor(Math.random() * totalActions * 0.9));
+      // Build agent performance from real analytics data
+      const agentRiskData = analyticsData.agentRisk || [];
+      const agentPerf: AgentPerformance[] = (agentRiskData.length > 0 ? agentRiskData : agents).map((a: any) => {
+        const totalActions = Number(a.total_executions || a.executions_24h || 0);
+        const rejected = Number(a.rejected_executions || 0);
         return {
           agent_id: a.agent_id || a.id,
-          agent_name: a.name || a.agent_name || a.agent_id?.slice(0, 12) || 'Unknown',
+          agent_name: a.agent_name || a.display_name || a.agent_id?.slice(0, 12) || 'Unknown',
           total_actions: totalActions,
-          successful,
-          failed: totalActions - successful,
-          avg_latency_ms: Number(a.avg_latency_ms || Math.floor(Math.random() * 300) + 50),
-          last_activity: a.last_activity || new Date().toISOString(),
+          successful: totalActions - rejected,
+          failed: rejected,
+          avg_latency_ms: 0,
+          last_activity: a.last_heartbeat || new Date().toISOString(),
           risk_tier_dist: {
-            T0: Math.floor(Math.random() * 10),
-            T1: Math.floor(Math.random() * 5),
-            T2: Math.floor(Math.random() * 3),
+            T0: Number(a.warrant_count || 0),
+            T1: 0,
+            T2: 0,
           },
         };
-      }).sort((a, b) => b.total_actions - a.total_actions);
+      }).sort((a: AgentPerformance, b: AgentPerformance) => b.total_actions - a.total_actions);
 
       // Cost breakdown
       const tierCounts: Record<string, number> = {};

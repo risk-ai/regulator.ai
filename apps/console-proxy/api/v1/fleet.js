@@ -207,6 +207,29 @@ module.exports = async function handler(req, res) {
       return res.json({ success: true, data: result.rows });
     }
 
+    // ── Agent list (for DashboardControl + other pages) ────────────
+    if (req.method === 'GET' && path === '/agents') {
+      const agents = await pool.query(
+        'SELECT * FROM agent_registry WHERE tenant_id = $1 ORDER BY registered_at DESC',
+        [tenantId]
+      );
+      return res.json({
+        success: true,
+        data: agents.rows.map(a => ({
+          id: a.id,
+          agent_id: a.agent_id,
+          display_name: a.display_name || 'Unknown',
+          description: a.description || '',
+          agent_type: a.agent_type || 'autonomous',
+          status: a.status || 'active',
+          trust_score: a.trust_score || 0,
+          last_heartbeat: a.last_heartbeat,
+          tags: a.tags || [],
+          registered_at: a.registered_at,
+        })),
+      });
+    }
+
     // Default: return fleet overview (same as /summary for backward compat)
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       // Redirect to summary

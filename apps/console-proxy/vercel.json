@@ -123,6 +123,22 @@
       "dest": "api/v1/retention.js"
     },
     {
+      "src": "/api/v1/dashboard(.*)",
+      "dest": "api/v1/dashboard.js"
+    },
+    {
+      "src": "/api/v1/analytics(.*)",
+      "dest": "api/v1/analytics.js"
+    },
+    {
+      "src": "/api/v1/governance(.*)",
+      "dest": "api/v1/governance.js"
+    },
+    {
+      "src": "/api/v1/compliance(.*)",
+      "dest": "api/v1/compliance.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "api/server.js"
     },

@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
-import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield } from 'lucide-react';
+import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
 
 // ============================================================================
@@ -49,7 +49,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'python-sdk',
     name: 'Python SDK',
     description: 'Official Vienna OS Python client library',
-    icon: '🐍',
+    icon: 'Code',
     status: 'connected',
     category: 'sdk',
     setupTime: '2 min',
@@ -60,7 +60,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'nodejs-sdk',
     name: 'Node.js SDK',
     description: 'JavaScript/TypeScript client for Node.js',
-    icon: '📦',
+    icon: 'Code',
     status: 'connected',
     category: 'sdk',
     setupTime: '2 min',
@@ -71,7 +71,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'rest-api',
     name: 'REST API',
     description: 'Direct HTTP API access for any language',
-    icon: '🔌',
+    icon: 'Zap',
     status: 'connected',
     category: 'api',
     setupTime: '1 min',
@@ -81,7 +81,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'openai',
     name: 'OpenAI',
     description: 'Govern GPT-4, o1, and other OpenAI models',
-    icon: '🤖',
+    icon: 'Bot',
     status: 'disconnected',
     category: 'platform',
     setupTime: '5 min',
@@ -91,7 +91,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'anthropic',
     name: 'Anthropic',
     description: 'Govern Claude models with Vienna warrants',
-    icon: '🧠',
+    icon: 'Brain',
     status: 'disconnected',
     category: 'platform',
     setupTime: '5 min',
@@ -101,7 +101,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'postgres',
     name: 'PostgreSQL',
     description: 'Audit trail storage and policy evaluation',
-    icon: '🐘',
+    icon: 'Database',
     status: 'connected',
     category: 'database',
     setupTime: '10 min',
@@ -112,7 +112,7 @@ const INTEGRATIONS: Integration[] = [
     id: 'slack',
     name: 'Slack',
     description: 'Approval notifications and alerts',
-    icon: '💬',
+    icon: 'MessageSquare',
     status: 'disconnected',
     category: 'platform',
     setupTime: '3 min',
@@ -122,13 +122,33 @@ const INTEGRATIONS: Integration[] = [
     id: 'github',
     name: 'GitHub Actions',
     description: 'CI/CD governance for deployments',
-    icon: '⚙️',
+    icon: 'Settings',
     status: 'disconnected',
     category: 'platform',
     setupTime: '5 min',
     color: '#6b7280',
   },
 ];
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+const renderIntegrationIcon = (iconName: string, color: string) => {
+  const iconProps = { size: 28, color, strokeWidth: 1.5 };
+  switch (iconName) {
+    case 'Bot': return <Bot {...iconProps} />;
+    case 'Brain': return <Brain {...iconProps} />;
+    case 'Database': return <Database {...iconProps} />;
+    case 'MessageSquare': return <MessageSquare {...iconProps} />;
+    case 'Settings': return <Settings {...iconProps} />;
+    case 'Terminal': return <Terminal {...iconProps} />;
+    case 'Code': return <Code {...iconProps} />;
+    case 'Cloud': return <Cloud {...iconProps} />;
+    case 'Shield': return <Shield {...iconProps} />;
+    default: return <Zap {...iconProps} />;
+  }
+};
 
 // ============================================================================
 // INTEGRATION CARD
@@ -197,7 +217,6 @@ function IntegrationCard({ integration, onConnect, onTest }: {
       {/* Icon + Name */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{
-          fontSize: '32px',
           width: '48px',
           height: '48px',
           display: 'flex',
@@ -206,7 +225,7 @@ function IntegrationCard({ integration, onConnect, onTest }: {
           background: `${integration.color}20`,
           border: `1px solid ${integration.color}40`,
         }}>
-          {integration.icon}
+          {renderIntegrationIcon(integration.icon, integration.color)}
         </div>
         <div>
           <div style={{

@@ -15,6 +15,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
+import { TrendingUp, CheckCircle2, XCircle, Bot, Zap, Activity, DollarSign } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -82,6 +83,18 @@ const COLOR_MAP = {
   cyan: '#06b6d4',
 };
 
+const renderMetricIcon = (iconName: string, color: string) => {
+  const iconProps = { size: 20, color, strokeWidth: 1.5 };
+  switch (iconName) {
+    case 'TrendingUp': return <TrendingUp {...iconProps} />;
+    case 'CheckCircle2': return <CheckCircle2 {...iconProps} />;
+    case 'XCircle': return <XCircle {...iconProps} />;
+    case 'Bot': return <Bot {...iconProps} />;
+    case 'Zap': return <Zap {...iconProps} />;
+    default: return <Activity {...iconProps} />;
+  }
+};
+
 // ============================================================================
 // METRIC CARD WITH SPARKLINE
 // ============================================================================
@@ -133,7 +146,9 @@ function MetricCard({ metric }: { metric: MetricData }) {
             {metric.value.toLocaleString()}{metric.unit || ''}
           </div>
         </div>
-        <span style={{ fontSize: '20px' }}>{metric.icon}</span>
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {renderMetricIcon(metric.icon, color)}
+        </span>
       </div>
 
       {/* Sparkline */}
@@ -184,7 +199,7 @@ function AgentLeaderboard({ agents }: { agents: AgentPerformance[] }) {
         padding: '32px',
         textAlign: 'center',
       }}>
-        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🤖</div>
+        <div style={{ marginBottom: '8px' }}><Bot size={32} color="#fbbf24" strokeWidth={1.5} /></div>
         <div style={{ fontSize: '12px', color: 'rgba(230, 225, 220, 0.5)' }}>
           No agents registered yet
         </div>
@@ -370,7 +385,8 @@ function CostBreakdown({ costs }: { costs: CostItem[] }) {
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.05em',
         }}>
-          💰 COST TRACKING
+          <DollarSign size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+          COST TRACKING
         </h3>
       </div>
 
@@ -480,7 +496,8 @@ function ExecutionTimeline({ events }: { events: ExecutionEvent[] }) {
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.05em',
         }}>
-          📊 EXECUTION TIMELINE
+          <Activity size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+          EXECUTION TIMELINE
         </h3>
       </div>
 
@@ -605,7 +622,7 @@ export function AnalyticsPremium() {
           label: 'TOTAL EXECUTIONS',
           value: totalExecs,
           previous: Math.round(totalExecs * prevMultiplier),
-          icon: '📊',
+          icon: 'TrendingUp',
           sparkline: Array.from({ length: 12 }, () => Math.floor(Math.random() * 100)),
           color: 'blue',
         },
@@ -614,7 +631,7 @@ export function AnalyticsPremium() {
           value: successRate,
           previous: Math.max(0, successRate - Math.floor(Math.random() * 5)),
           unit: '%',
-          icon: '✅',
+          icon: 'CheckCircle2',
           sparkline: Array.from({ length: 12 }, () => 80 + Math.floor(Math.random() * 20)),
           color: 'green',
         },
@@ -622,7 +639,7 @@ export function AnalyticsPremium() {
           label: 'FAILED',
           value: failed,
           previous: Math.round(failed * (1 + Math.random() * 0.2)),
-          icon: '❌',
+          icon: 'XCircle',
           sparkline: Array.from({ length: 12 }, () => Math.floor(Math.random() * 40)),
           color: 'red',
         },
@@ -630,7 +647,7 @@ export function AnalyticsPremium() {
           label: 'ACTIVE AGENTS',
           value: activeAgents,
           previous: Math.max(1, activeAgents - Math.floor(Math.random() * 2)),
-          icon: '🤖',
+          icon: 'Bot',
           sparkline: Array.from({ length: 12 }, () => 40 + Math.floor(Math.random() * 60)),
           color: 'cyan',
         },
@@ -639,7 +656,7 @@ export function AnalyticsPremium() {
           value: avgLatency,
           previous: Math.round(avgLatency * (1 + Math.random() * 0.1)),
           unit: 'ms',
-          icon: '⚡',
+          icon: 'Zap',
           sparkline: Array.from({ length: 12 }, () => 30 + Math.floor(Math.random() * 70)),
           color: 'amber',
         },

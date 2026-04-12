@@ -35,6 +35,7 @@ import {
   revertPolicy,
   type PolicyVersion,
 } from '../api/policies.js';
+import { Zap, Shield, Activity, Clock, Search, AlertTriangle, Timer, Check, X } from 'lucide-react';
 
 // ============================================================================
 // TYPES & CONSTANTS
@@ -50,13 +51,35 @@ const TIER_COLORS = {
 };
 
 const ACTION_TYPES = [
-  { value: 'allow', label: 'ALLOW', color: '#10b981', icon: '✓' },
-  { value: 'deny', label: 'DENY', color: '#ef4444', icon: '✗' },
-  { value: 'require_approval', label: 'APPROVAL', color: '#f59e0b', icon: '⏳' },
-  { value: 'flag_for_review', label: 'REVIEW', color: '#8b5cf6', icon: '🔍' },
-  { value: 'rate_limit', label: 'LIMIT', color: '#06b6d4', icon: '⏱' },
-  { value: 'escalate', label: 'ESCALATE', color: '#f97316', icon: '⚠' },
+  { value: 'allow', label: 'ALLOW', color: '#10b981', icon: 'Check' },
+  { value: 'deny', label: 'DENY', color: '#ef4444', icon: 'X' },
+  { value: 'require_approval', label: 'APPROVAL', color: '#f59e0b', icon: 'Clock' },
+  { value: 'flag_for_review', label: 'REVIEW', color: '#8b5cf6', icon: 'Search' },
+  { value: 'rate_limit', label: 'LIMIT', color: '#06b6d4', icon: 'Timer' },
+  { value: 'escalate', label: 'ESCALATE', color: '#f97316', icon: 'AlertTriangle' },
 ];
+
+const renderActionIcon = (iconName: string, color: string, size = 14) => {
+  const iconProps = { size, color, strokeWidth: 2 };
+  switch (iconName) {
+    case 'Check': return <Check {...iconProps} />;
+    case 'X': return <X {...iconProps} />;
+    case 'Clock': return <Clock {...iconProps} />;
+    case 'Search': return <Search {...iconProps} />;
+    case 'Timer': return <Timer {...iconProps} />;
+    case 'AlertTriangle': return <AlertTriangle {...iconProps} />;
+    default: return <Zap {...iconProps} />;
+  }
+};
+
+const renderTabIcon = (iconName: string) => {
+  const iconProps = { size: 14, strokeWidth: 2, style: { display: 'inline-block', marginRight: '6px', verticalAlign: 'middle' } };
+  switch (iconName) {
+    case 'Shield': return <Shield {...iconProps} />;
+    case 'Activity': return <Activity {...iconProps} />;
+    default: return <Zap {...iconProps} />;
+  }
+};
 
 const FIELD_PRESETS = [
   { field: 'action_type', label: 'Action Type', type: 'string' },
@@ -891,7 +914,8 @@ export function PolicyBuilderPremium() {
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.02em',
             }}>
-              ⚡ POLICY BUILDER
+              <Zap size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+              POLICY BUILDER
             </h1>
             <div style={{
               fontSize: '12px',
@@ -943,9 +967,9 @@ export function PolicyBuilderPremium() {
         borderBottom: '1px solid rgba(251, 191, 36, 0.1)',
       }}>
         {[
-          { id: 'builder' as Tab, label: '🛡️ RULES', count: totalRules },
-          { id: 'simulator' as Tab, label: '🧪 SIMULATOR' },
-          { id: 'audit' as Tab, label: '📊 AUDIT' },
+          { id: 'builder' as Tab, label: 'RULES', count: totalRules, icon: 'Shield' },
+          { id: 'simulator' as Tab, label: 'SIMULATOR', icon: 'Activity' },
+          { id: 'audit' as Tab, label: 'AUDIT', icon: 'Activity' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -963,6 +987,7 @@ export function PolicyBuilderPremium() {
               letterSpacing: '0.05em',
             }}
           >
+            {renderTabIcon(tab.icon)}
             {tab.label}
             {tab.count !== undefined && (
               <span style={{
@@ -1029,7 +1054,8 @@ export function PolicyBuilderPremium() {
               fontSize: '13px',
               fontFamily: 'var(--font-mono)',
             }}>
-              ⚡ LOADING RULES...
+              <Zap size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+              LOADING RULES...
             </div>
           ) : rules.length === 0 ? (
             <div style={{
@@ -1038,7 +1064,7 @@ export function PolicyBuilderPremium() {
               padding: '60px 40px',
               textAlign: 'center',
             }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>🛡️</div>
+              <div style={{ marginBottom: '12px' }}><Shield size={40} color="rgba(251, 191, 36, 0.6)" strokeWidth={1.5} /></div>
               <div style={{
                 fontSize: '16px',
                 fontWeight: 700,
@@ -1111,7 +1137,8 @@ export function PolicyBuilderPremium() {
           color: 'rgba(251, 191, 36, 0.5)',
           fontFamily: 'var(--font-mono)',
         }}>
-          📊 AUDIT TRAIL — Coming soon
+          <Activity size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+          AUDIT TRAIL — Coming soon
         </div>
       )}
 

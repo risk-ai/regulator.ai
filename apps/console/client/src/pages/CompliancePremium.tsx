@@ -16,6 +16,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
+import { Activity, CheckCircle2, Shield } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -251,7 +252,8 @@ function PolicyAdherenceHeatmap({ policies }: { policies: PolicyAdherence[] }) {
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.05em',
         }}>
-          📊 POLICY ADHERENCE
+          <Activity size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+          POLICY ADHERENCE
         </h3>
       </div>
 
@@ -381,7 +383,8 @@ function ViolationTimeline({ violations }: { violations: Violation[] }) {
       <div style={{ padding: '12px 16px', maxHeight: '400px', overflowY: 'auto' }}>
         {violations.length === 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', color: 'rgba(230, 225, 220, 0.4)', fontSize: '11px' }}>
-            ✅ No violations recorded
+            <CheckCircle2 size={14} style={{ display: 'inline-block', marginRight: '6px', verticalAlign: 'middle' }} color="#10b981" strokeWidth={2} />
+            No violations recorded
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -704,7 +707,8 @@ export function CompliancePremium() {
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.02em',
             }}>
-              ✅ COMPLIANCE TERMINAL
+              <Shield size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+              COMPLIANCE TERMINAL
             </h1>
             <div style={{
               fontSize: '11px',

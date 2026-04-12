@@ -388,7 +388,8 @@ export function DashboardControl() {
               fontFamily: 'var(--font-mono)',
               letterSpacing: '0.02em',
             }}>
-              ⚡ MISSION CONTROL
+              <Zap size={16} style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }} strokeWidth={2} />
+              MISSION CONTROL
             </h1>
             <div style={{
               fontSize: '11px',

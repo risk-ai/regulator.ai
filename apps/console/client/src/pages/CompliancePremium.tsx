@@ -575,62 +575,69 @@ export function CompliancePremium() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      // Fetch compliance data (simulated for now)
-      const [policiesRes, execsRes] = await Promise.all([
-        fetch('/api/v1/policies', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
-        fetch('/api/v1/executions', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+      // Fetch real compliance data from backend
+      const [complianceRes, analyticsRes, governanceRes] = await Promise.all([
+        fetch('/api/v1/compliance', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`/api/v1/analytics/policies?range=${period}`, { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch(`/api/v1/governance?range=${period}`, { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
       ]);
 
-      const policies: any[] = (policiesRes.success ? policiesRes.data : policiesRes) || [];
-      const executions: any[] = (execsRes.success ? execsRes.data : []) || [];
+      const complianceData = complianceRes.success ? complianceRes.data : {};
+      const frameworks = complianceData.frameworks || [];
+      const policyStats = analyticsRes.success ? analyticsRes.data : [];
+      const govData = governanceRes.success ? governanceRes.data : {};
 
-      // Build compliance score
+      // Build compliance score from real framework data
+      const avgFrameworkScore = frameworks.length > 0
+        ? Math.round(frameworks.reduce((s: number, f: any) => s + f.score, 0) / frameworks.length)
+        : 0;
+
       const score: ComplianceScore = {
-        overall: 87 + Math.floor(Math.random() * 10),
-        policy_adherence: 92,
-        approval_compliance: 85,
-        audit_coverage: 90,
-        risk_mitigation: 82,
-        trend: Math.random() > 0.5 ? 'up' : 'stable',
-        sparkline: Array.from({ length: 30 }, () => 70 + Math.floor(Math.random() * 30)),
+        overall: avgFrameworkScore,
+        policy_adherence: frameworks.find((f: any) => f.id === 'soc2')?.score || 0,
+        approval_compliance: frameworks.find((f: any) => f.id === 'hipaa')?.score || 0,
+        audit_coverage: frameworks.find((f: any) => f.id === 'iso27001')?.score || 0,
+        risk_mitigation: frameworks.find((f: any) => f.id === 'nist_ai_rmf')?.score || 0,
+        trend: avgFrameworkScore >= 80 ? 'up' : avgFrameworkScore >= 50 ? 'stable' : 'down',
+        sparkline: frameworks.map((f: any) => f.score),
       };
 
-      // Build policy adherence
-      const policyAdherence: PolicyAdherence[] = policies.map((p: any) => {
-        const total = Math.floor(Math.random() * 1000) + 100;
-        const compliant = Math.floor(total * (0.85 + Math.random() * 0.15));
+      // Build policy adherence from real analytics data
+      const policyAdherence: PolicyAdherence[] = (policyStats || []).map((p: any) => {
+        const total = Number(p.total_evaluations || 0);
+        const denied = Number(p.denied || 0);
         return {
           policy_id: p.id,
-          policy_name: p.name || `Policy ${p.id.slice(0, 8)}`,
+          policy_name: p.name || `Policy ${p.id?.slice(0, 8)}`,
           total_evaluations: total,
-          compliant,
-          violations: total - compliant,
-          last_violation: Math.random() > 0.5 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() : null,
+          compliant: total - denied,
+          violations: denied,
+          last_violation: p.last_evaluated || null,
         };
       });
 
-      // Build violations (simulated)
-      const violations: Violation[] = Array.from({ length: Math.floor(Math.random() * 5) }, (_, i) => ({
-        id: `v-${i}`,
-        timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-        policy_name: policies[Math.floor(Math.random() * policies.length)]?.name || 'Unknown Policy',
-        agent_id: `agent-${Math.floor(Math.random() * 100)}`,
-        action_type: ['database_write', 'api_call', 'file_access', 'network_request'][Math.floor(Math.random() * 4)],
-        severity: ['critical', 'high', 'medium', 'low'][Math.floor(Math.random() * 4)] as any,
-        status: ['open', 'investigating', 'resolved'][Math.floor(Math.random() * 3)] as any,
-        description: 'Attempted action outside approved policy parameters',
+      // Build violations from real governance data (policy denials)
+      const violations: Violation[] = (govData.policyViolations || []).slice(0, 10).map((v: any, i: number) => ({
+        id: v.intent_id || `v-${i}`,
+        timestamp: v.evaluated_at || new Date().toISOString(),
+        policy_name: v.policy_name || 'Unknown Policy',
+        agent_id: v.agent_id || 'unknown',
+        action_type: v.action_type || 'unknown',
+        severity: 'high' as any,
+        status: 'open' as any,
+        description: `Policy "${v.policy_name}" denied action "${v.action_type}"`,
       }));
 
-      // Build audit trail
-      const auditTrail: AuditEntry[] = executions.slice(0, 20).map((e: any, i: number) => ({
-        id: e.id || `audit-${i}`,
-        timestamp: e.created_at || new Date().toISOString(),
-        event_type: e.event_type || 'execution',
-        user: e.created_by || 'system',
-        agent_id: e.agent_id,
-        action: e.action_type || 'unknown',
-        outcome: (e.state === 'complete' ? 'success' : e.state === 'failed' ? 'failure' : 'partial') as any,
-        details: e.description || `Execution ${e.id?.slice(0, 8)}`,
+      // Build audit trail from real reports
+      const auditTrail: AuditEntry[] = (complianceData.recentReports || []).map((r: any, i: number) => ({
+        id: r.id || `audit-${i}`,
+        timestamp: r.generated_at || new Date().toISOString(),
+        event_type: 'compliance_report',
+        user: r.generated_by || 'system',
+        agent_id: undefined,
+        action: r.report_type || 'report',
+        outcome: 'success' as any,
+        details: r.title || `${r.report_type} report`,
       }));
 
       setData({

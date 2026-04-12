@@ -36,7 +36,12 @@ const STATUS_BG: Record<string, string> = {
   pending_approval: 'rgba(245, 158, 11, 0.12)',
 };
 
-const AGENT_ICONS = ['🤖', '⚡', '🔒', '📊', '🛡️', '🔧', '📡', '🎯', '🧠', '💎'];
+// Agent icon colors (no emojis per Max's request)
+const AGENT_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+  '#8b5cf6', '#06b6d4', '#ec4899', '#14b8a6',
+  '#f97316', '#a855f7'
+];
 
 function formatTimestamp(ts: string): string {
   const d = new Date(ts);
@@ -513,9 +518,12 @@ export default function ActivityFeedPage() {
                     <span style={S.agentRank}>#{i + 1}</span>
                     <div style={{
                       width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: 11, background: 'rgba(255,255,255,0.06)',
+                      justifyContent: 'center', fontSize: 9, fontWeight: 700, 
+                      background: AGENT_COLORS[i % AGENT_COLORS.length] + '20',
+                      border: `1px solid ${AGENT_COLORS[i % AGENT_COLORS.length]}40`,
+                      color: AGENT_COLORS[i % AGENT_COLORS.length],
                     }}>
-                      {AGENT_ICONS[i % AGENT_ICONS.length]}
+                      {agent.agent_id.slice(0, 2).toUpperCase()}
                     </div>
                     <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-primary, #e2e8f0)' }}>
                       {agent.agent_id}

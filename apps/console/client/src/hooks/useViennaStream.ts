@@ -196,9 +196,10 @@ export function useViennaStream() {
     });
     
     // Connection error - implement reconnection with exponential backoff
+    // Note: SSE is non-critical. Don't set sseConnected=false on first failure
+    // to avoid triggering the yellow "Reconnecting" banner on cold starts.
     eventSource.onerror = (error) => {
-      console.error('[SSE] Connection error:', error);
-      setSSEConnected(false);
+      console.warn('[SSE] Connection error (non-critical):', error);
       eventSource.close();
       
       // Don't reconnect if user has no auth token (avoids infinite 401 loop)

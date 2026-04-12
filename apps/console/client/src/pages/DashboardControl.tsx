@@ -15,6 +15,7 @@
 import { Activity, TrendingUp, Power, Shield, Zap, AlertTriangle, CheckCircle, RefreshCw, Play, Pause, Terminal } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { addToast } from '../store/toastStore.js';
 
 // ============================================================================
 // TYPES
@@ -348,7 +349,24 @@ export function DashboardControl() {
       label: 'APPROVE QUEUE',
       icon: <CheckCircle size={12} />,
       color: '#10b981',
-      action: () => alert('Batch approve coming soon'),
+      action: async () => {
+        try {
+          const token = localStorage.getItem('vienna_access_token');
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+          const res = await fetch('/api/v1/approvals', { credentials: 'include', headers });
+          const data = await res.json();
+          const pending = (data.data || []).filter((a: any) => a.status === 'pending');
+          if (pending.length === 0) { addToast('No pending approvals in queue', 'info'); return; }
+          for (const approval of pending) {
+            await fetch(`/api/v1/approvals/${approval.approval_id || approval.id}/approve`, {
+              method: 'POST', credentials: 'include', headers, body: JSON.stringify({ reason: 'Batch approved from dashboard' })
+            });
+          }
+          addToast(`Approved ${pending.length} pending requests`, 'success');
+          loadDashboard();
+        } catch (e: any) { addToast('Batch approve failed: ' + e.message, 'error'); }
+      },
       enabled: metrics.pendingApprovals > 0,
     },
     {
@@ -356,7 +374,25 @@ export function DashboardControl() {
       label: 'EMERGENCY HALT',
       icon: <AlertTriangle size={12} />,
       color: '#ef4444',
-      action: () => confirm('Halt all agent operations?') && alert('Emergency halt triggered'),
+      action: async () => {
+        if (!confirm('⚠️ Halt ALL agent operations? This will suspend every active agent.')) return;
+        try {
+          const token = localStorage.getItem('vienna_access_token');
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+          const agentsRes = await fetch('/api/v1/fleet/agents', { credentials: 'include', headers });
+          const agentsData = await agentsRes.json();
+          const active = (agentsData.data || []).filter((a: any) => a.status === 'active');
+          for (const agent of active) {
+            await fetch(`/api/v1/agents/${agent.id}`, {
+              method: 'PUT', credentials: 'include', headers,
+              body: JSON.stringify({ status: 'suspended' })
+            });
+          }
+          addToast(`Emergency halt: ${active.length} agents suspended`, 'warning');
+          loadDashboard();
+        } catch (e: any) { addToast('Emergency halt failed: ' + e.message, 'error'); }
+      },
       enabled: true,
     },
     {

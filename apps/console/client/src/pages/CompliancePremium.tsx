@@ -649,7 +649,32 @@ export function CompliancePremium() {
   useEffect(() => { fetchCompliance(); }, [fetchCompliance]);
 
   const handleExportPDF = () => {
-    addToast('PDF export coming soon', 'info');
+    // Generate a printable PDF by opening a formatted print dialog
+    const printWindow = window.open('', '_blank');
+    if (!printWindow || !data) { addToast('Unable to open print window', 'error'); return; }
+    printWindow.document.write(`
+      <html><head><title>Vienna OS Compliance Report</title>
+      <style>body{font-family:monospace;padding:40px;color:#333}h1{color:#0a0a0a}
+      table{border-collapse:collapse;width:100%;margin:20px 0}
+      th,td{border:1px solid #ddd;padding:8px;text-align:left}
+      th{background:#f5f5f5;font-weight:bold}.score{font-size:24px;font-weight:bold}
+      .compliant{color:#10b981}.partial{color:#f59e0b}.non_compliant{color:#ef4444}
+      @media print{body{padding:20px}}</style></head><body>
+      <h1>Vienna OS — Compliance Report</h1>
+      <p>Generated: ${new Date().toLocaleString()}</p>
+      <h2>Framework Scores</h2>
+      <table><tr><th>Framework</th><th>Score</th><th>Status</th></tr>
+      ${data.frameworks.map((f: any) => `<tr><td>${f.name}</td><td class="score ${f.status}">${f.score}%</td><td>${f.status}</td></tr>`).join('')}
+      </table>
+      <h2>Metrics Summary</h2>
+      <table><tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Active Policies</td><td>${data.activePolicies}</td></tr>
+      <tr><td>Total Executions</td><td>${data.totalExecutions}</td></tr>
+      <tr><td>Compliance Rate</td><td>${data.complianceRate}%</td></tr>
+      </table></body></html>`);
+    printWindow.document.close();
+    printWindow.print();
+    addToast('PDF report opened for printing', 'success');
   };
 
   const handleExportCSV = () => {

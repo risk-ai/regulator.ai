@@ -103,6 +103,10 @@
       "dest": "api/v1/auth.js"
     },
     {
+      "src": "/api/v1/roles(.*)",
+      "dest": "api/v1/roles.js"
+    },
+    {
       "src": "/api/v1/rbac(.*)",
       "dest": "api/v1/rbac.js"
     },

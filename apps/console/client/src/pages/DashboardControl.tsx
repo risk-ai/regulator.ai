@@ -293,21 +293,24 @@ export function DashboardControl() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const [agentsRes, execsRes] = await Promise.all([
+      const [agentsRes, execsRes, dashRes] = await Promise.all([
         fetch('/api/v1/fleet/agents', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
         fetch('/api/v1/executions/stats', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+        fetch('/api/v1/dashboard?range=24h', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
       ]);
 
       const agents: any[] = (agentsRes.success ? agentsRes.data : agentsRes.agents) || [];
       const stats = execsRes.success ? execsRes.data : {};
+      const dash = dashRes.success ? dashRes.data : {};
+      const overview = dash.overview || {};
 
       setMetrics({
         activeAgents: agents.filter((a: any) => a.status === 'active').length,
         totalAgents: agents.length,
-        warrantsToday: Number(stats.total_executions || Math.floor(Math.random() * 500) + 100),
-        avgTrust: agents.length > 0 ? agents.reduce((sum: number, a: any) => sum + (Number(a.trust_score) || 85), 0) / agents.length : 0,
-        pendingApprovals: Math.floor(Math.random() * 15),
-        avgLatencyMs: Number(stats.avg_latency_ms || Math.floor(Math.random() * 50) + 20),
+        warrantsToday: Number(stats.total_executions || overview.executions_period || 0),
+        avgTrust: agents.length > 0 ? agents.reduce((sum: number, a: any) => sum + (Number(a.trust_score) || 0), 0) / agents.length : 0,
+        pendingApprovals: Number(overview.pending_approvals || stats.pending_approval || 0),
+        avgLatencyMs: Number(dash.systemHealth?.latencyMs || 0),
         systemStatus: 'healthy',
       });
     } catch {

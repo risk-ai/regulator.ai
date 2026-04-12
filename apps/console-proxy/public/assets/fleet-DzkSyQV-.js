@@ -1,0 +1,2 @@
+import{a as t}from"./index-coLn4rI7.js";const a={getOverview:()=>t.get("/fleet"),getSummary:()=>t.get("/fleet/summary"),getAlerts:()=>t.get("/fleet/alerts"),resolveAlert:e=>t.post(`/fleet/alerts/${e}/resolve`,{}),getAgent:e=>t.get(`/fleet/${e}`),getActivity:(e,s=50,l=0)=>t.get(`/fleet/${e}/activity`,{limit:s,offset:l}),getMetrics:e=>t.get(`/fleet/${e}/metrics`),suspend:e=>t.post(`/fleet/${e}/suspend`,{}),activate:e=>t.post(`/fleet/${e}/activate`,{}),adjustTrust:(e,s)=>t.put(`/fleet/${e}/trust`,{trust_score:s})};export{a as f};
+//# sourceMappingURL=fleet-DzkSyQV-.js.map

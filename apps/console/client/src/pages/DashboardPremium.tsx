@@ -377,25 +377,32 @@ export default function DashboardPremium() {
   // Generate activity events from SSE or simulate from data
   useEffect(() => {
     if (loading) return;
-    const interval = setInterval(() => {
-      const types = ['proposal', 'warrant', 'policy', 'agent'] as const;
-      const messages: Record<string, string[]> = {
-        proposal: ['Proposal submitted for review', 'Proposal auto-evaluated', 'Proposal escalated to T2'],
-        warrant: ['Warrant issued', 'Warrant executed successfully', 'Warrant expired'],
-        policy: ['Policy evaluation: ALLOW', 'Policy evaluation: DENY', 'Policy updated'],
-        agent: ['Agent heartbeat received', 'Agent trust score updated', 'Agent registered'],
-      };
-      const type = types[Math.floor(Math.random() * types.length)];
-      const msgList = messages[type];
-      const newEvent: ActivityEvent = {
-        id: Date.now().toString(),
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        type,
-        message: msgList[Math.floor(Math.random() * msgList.length)],
-        severity: Math.random() > 0.85 ? 'warning' : 'info',
-      };
-      setActivityEvents(prev => [newEvent, ...prev].slice(0, 20));
-    }, 8000);
+    // Poll real activity from audit log
+    const token = localStorage.getItem('vienna_access_token');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    
+    const fetchActivity = async () => {
+      try {
+        const res = await fetch('/api/v1/activity/feed?limit=20', { credentials: 'include', headers });
+        const data = await res.json();
+        if (data.success && data.data) {
+          const mapped = data.data.map((e: any) => ({
+            id: e.id,
+            timestamp: new Date(e.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            type: (e.type || '').includes('warrant') ? 'warrant' as const
+              : (e.type || '').includes('policy') ? 'policy' as const
+              : (e.type || '').includes('agent') ? 'agent' as const
+              : 'proposal' as const,
+            message: e.details?.event || e.execution?.objective || e.type || 'System event',
+            severity: (e.risk_tier === 'T3' || e.risk_tier === 'T2') ? 'warning' as const : 'info' as const,
+          }));
+          setActivityEvents(mapped);
+        }
+      } catch { /* silent */ }
+    };
+    fetchActivity();
+    const interval = setInterval(fetchActivity, 10000);
     return () => clearInterval(interval);
   }, [loading]);
 
@@ -403,8 +410,25 @@ export default function DashboardPremium() {
   const governanceStatus: SystemStatusProps['status'] = data.avgLatencyMs > 500 ? 'degraded' : 'operational';
   const queueStatus: SystemStatusProps['status'] = data.pendingApprovals > 50 ? 'warning' : data.pendingApprovals > 20 ? 'degraded' : 'operational';
 
-  // Placeholder sparklines (will be replaced when sparkline endpoint is added)
-  const defaultSparkline = [40, 50, 45, 60, 75, 90, 70, 55, 95, 100];
+  // Fetch real sparkline data
+  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
+  useEffect(() => {
+    const token = localStorage.getItem('vienna_access_token');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    Promise.all([
+      fetch('/api/v1/dashboard/sparklines?metric=executions&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/v1/dashboard/sparklines?metric=evaluations&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/v1/dashboard/sparklines?metric=approvals&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
+    ]).then(([exec, evals, approvals]) => {
+      setSparklines({
+        executions: exec?.points || [0,0,0,0,0,0,0,0,0,0],
+        evaluations: evals?.points || [0,0,0,0,0,0,0,0,0,0],
+        approvals: approvals?.points || [0,0,0,0,0,0,0,0,0,0],
+      });
+    });
+  }, []);
+  const defaultSparkline = sparklines.executions || [0,0,0,0,0,0,0,0,0,0];
 
   return (
     <div className="min-h-screen relative">

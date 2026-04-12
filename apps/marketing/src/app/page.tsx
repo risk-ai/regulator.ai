@@ -74,7 +74,7 @@ function InteractiveWarrantCard() {
   };
 
   return (
-    <div className="w-full max-w-[520px] bg-black border border-amber-500/30 p-0 overflow-hidden font-mono group hover:border-amber-500/50 transition-all">
+    <div className="w-full max-w-[520px] bg-black border border-amber-500/30 p-0 overflow-visible font-mono group hover:border-amber-500/50 transition-all relative z-10">
       {/* Header Bar */}
       <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -1027,7 +1027,7 @@ export default function Home() {
             </div>
 
             {/* Right Column: Interactive Warrant Card */}
-            <div className="relative lg:block flex justify-center">
+            <div className="relative lg:block flex justify-center z-10">
               <InteractiveWarrantCard />
             </div>
           </div>

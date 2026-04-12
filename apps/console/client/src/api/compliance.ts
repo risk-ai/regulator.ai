@@ -1,158 +1,92 @@
 /**
- * Compliance API Client
- * Typed wrappers for /api/v1/compliance endpoints
+ * Compliance API Client — Vienna OS
  */
 
 import { apiClient } from './client.js';
 
-// ── Types ────────────────────────────────────────────────────────
-
-export interface FrameworkControl {
-  name: string;
-  score: number;
-  weight: number;
-  detail?: string;
-}
-
-export interface Framework {
-  id: string;
-  name: string;
-  description: string;
-  score: number;
-  status: 'compliant' | 'partial' | 'non_compliant';
-  controls: FrameworkControl[];
+export interface QuickStats {
+  total_actions: number;
+  compliance_rate: number;
+  policy_violations: number;
+  avg_approval_time_minutes: number;
+  unauthorized_executions: number;
+  fleet_health_score: number;
+  period: string;
 }
 
 export interface ComplianceReport {
   id: string;
-  title: string;
   report_type: string;
-  status: string;
+  title: string;
   period_start: string;
   period_end: string;
-  generated_at: string;
+  report_data: any;
+  status: string;
   generated_by: string;
-  report_data?: Record<string, unknown>;
+  generated_at: string;
+  schedule_cron: string | null;
+  recipients: string[];
 }
 
-export interface ComplianceDashboard {
-  frameworks: Framework[];
-  recentReports: ComplianceReport[];
-  generatedAt: string;
-}
-
-export interface QuickStats {
-  active_policies: string;
-  total_agents: string;
-  audit_events_30d: string;
-  retention_policies: string;
-  roles_configured: string;
-  reports_30d: string;
-}
-
-export interface RetentionPolicy {
+export interface ReportTemplate {
   id: string;
-  tenant_id: string;
-  table_name: string;
-  retention_days: number;
-  archive_before_delete: boolean;
-  enabled: boolean;
-}
-
-export interface RetentionData {
-  policies: RetentionPolicy[];
-  recentArchives: Array<Record<string, unknown>>;
-}
-
-export interface Role {
-  id: string;
-  tenant_id: string;
-  role_name: string;
-  display_name: string;
+  name: string;
   description: string | null;
-  permissions: string[];
-  is_system_role: boolean;
+  sections: string[];
+  report_type: string | null;
+  is_default: boolean;
+  created_at: string;
 }
 
-export interface RoleAssignment {
-  id: string;
-  user_id: string;
-  role_id: string;
-  role_name: string;
-  display_name: string;
-  email: string | null;
-  assigned_at: string;
-  expires_at: string | null;
+export interface ReportsListResponse {
+  reports: ComplianceReport[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
-export interface RBACData {
-  roles: Role[];
-  assignments: RoleAssignment[];
-}
+export const complianceApi = {
+  // Quick Stats
+  getQuickStats: (period = 30) =>
+    apiClient.get<QuickStats>('/compliance/quick-stats', { period }),
 
-// ── API Functions ────────────────────────────────────────────────
+  // Reports
+  listReports: (limit = 50, offset = 0) =>
+    apiClient.get<ReportsListResponse>('/compliance/reports', { limit, offset }),
 
-export async function getComplianceDashboard(): Promise<ComplianceDashboard> {
-  return apiClient.get<ComplianceDashboard>('/compliance');
-}
+  getReport: (id: string) =>
+    apiClient.get<ComplianceReport>(`/compliance/reports/${id}`),
 
-export async function getQuickStats(): Promise<QuickStats> {
-  return apiClient.get<QuickStats>('/compliance/quick-stats');
-}
+  generateReport: (params: {
+    report_type: string;
+    period_start?: string;
+    period_end?: string;
+    template_id?: string;
+    sections?: string[];
+    generated_by?: string;
+  }) => apiClient.post<ComplianceReport, typeof params>('/compliance/reports/generate', params),
 
-export async function generateReport(options?: {
-  type?: string;
-  title?: string;
-  periodStart?: string;
-  periodEnd?: string;
-}): Promise<ComplianceReport> {
-  return apiClient.post<ComplianceReport>('/compliance/reports', options || {});
-}
+  deleteReport: (id: string) =>
+    apiClient.delete<{ deleted: boolean }>(`/compliance/reports/${id}`),
 
-export async function listReports(limit?: number, offset?: number): Promise<{ data: ComplianceReport[]; total: number }> {
-  const params: Record<string, string | number> = {};
-  if (limit) params.limit = limit;
-  if (offset) params.offset = offset;
-  return apiClient.get('/compliance/reports', params);
-}
+  getPdfUrl: (id: string) => `/api/v1/compliance/reports/${id}/pdf`,
+  getCsvUrl: (id: string) => `/api/v1/compliance/reports/${id}/csv`,
 
-export async function getReport(reportId: string): Promise<ComplianceReport> {
-  return apiClient.get<ComplianceReport>(`/compliance/reports/${reportId}`);
-}
+  // Templates
+  listTemplates: () =>
+    apiClient.get<ReportTemplate[]>('/compliance/templates'),
 
-export function getReportExportUrl(reportId: string): string {
-  return `/api/v1/compliance/reports/${reportId}/csv`;
-}
+  createTemplate: (template: Partial<ReportTemplate>) =>
+    apiClient.post<ReportTemplate, Partial<ReportTemplate>>('/compliance/templates', template),
 
-export async function getRetentionData(): Promise<RetentionData> {
-  return apiClient.get<RetentionData>('/compliance/retention');
-}
+  updateTemplate: (id: string, updates: Partial<ReportTemplate>) =>
+    apiClient.put<ReportTemplate, Partial<ReportTemplate>>(`/compliance/templates/${id}`, updates),
 
-export async function getRBAC(): Promise<RBACData> {
-  return apiClient.get<RBACData>('/compliance/roles');
-}
-
-export async function getAuditExport(options?: {
-  start?: string;
-  end?: string;
-  format?: 'json' | 'csv';
-  limit?: number;
-}): Promise<unknown> {
-  const params: Record<string, string | number> = {};
-  if (options?.start) params.start = options.start;
-  if (options?.end) params.end = options.end;
-  if (options?.format) params.format = options.format;
-  if (options?.limit) params.limit = options.limit;
-  return apiClient.get('/compliance/audit-export', params);
-}
-
-export function getAuditExportCsvUrl(start?: string, end?: string): string {
-  const params = new URLSearchParams({ format: 'csv' });
-  if (start) params.set('start', start);
-  if (end) params.set('end', end);
-  return `/api/v1/compliance/audit-export?${params.toString()}`;
-}
-
-export async function getReportTemplates(): Promise<Array<Record<string, unknown>>> {
-  return apiClient.get('/compliance/templates');
-}
+  // Scheduling
+  createSchedule: (params: {
+    report_type: string;
+    schedule_cron: string;
+    template_id?: string;
+    recipients?: string[];
+  }) => apiClient.post<ComplianceReport, typeof params>('/compliance/schedule', params),
+};

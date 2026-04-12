@@ -49,8 +49,12 @@ const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m
 const GovernanceChainPage = React.lazy(() => import('./pages/GovernanceChainPage.js').then(m => ({ default: m.GovernanceChainPage })));
 const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.js').then(m => ({ default: m.GovernanceLivePage })));
 const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js'));
+const DashboardControl = React.lazy(() => import('./pages/DashboardControl.js').then(m => ({ default: m.DashboardControl })));
 const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js'));
 const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js'));
+const AnalyticsPremium = React.lazy(() => import('./pages/AnalyticsPremium.js').then(m => ({ default: m.AnalyticsPremium })));
+const CompliancePremium = React.lazy(() => import('./pages/CompliancePremium.js').then(m => ({ default: m.CompliancePremium })));
+const IntegrationsPremium = React.lazy(() => import('./pages/IntegrationsPremium.js').then(m => ({ default: m.IntegrationsPremium })));
 const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js'));
 
 function PageLoadingSpinner() {
@@ -229,7 +233,8 @@ export function App() {
             <ErrorBoundary key={location.pathname}>
               <Suspense fallback={<PageLoadingSpinner />}>
                 <Routes>
-                  <Route path="/" element={<DashboardPremium />} />
+                  <Route path="/" element={<DashboardControl />} />
+                  <Route path="/dashboard-premium" element={<DashboardPremium />} />
                   <Route path="/now" element={<NowPage />} />
                   <Route path="/dashboard" element={<Navigate to="/" replace />} />
                   <Route path="/dashboard-clean" element={<DashboardClean />} />
@@ -250,15 +255,18 @@ export function App() {
                   <Route path="/policies-legacy" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
                   <Route path="/agent-templates" element={<AgentTemplatesPage />} />
-                  <Route path="/compliance" element={<CompliancePage />} />
+                  <Route path="/compliance" element={<CompliancePremium />} />
+                  <Route path="/compliance-legacy" element={<CompliancePage />} />
                   <Route path="/governance-chain" element={<GovernanceChainPage />} />
                   <Route path="/governance-live" element={<GovernanceLivePage />} />
                   <Route path="/activity" element={<ActivityFeedPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
+                  <Route path="/analytics" element={<AnalyticsPremium />} />
+                  <Route path="/analytics-legacy" element={<AnalyticsPage />} />
                   <Route path="/history" element={<HistoryPage />} />
                   <Route path="/runtime" element={<RuntimePage />} />
                   <Route path="/action-types" element={<ActionTypesPage />} />
-                  <Route path="/integrations" element={<IntegrationsPage />} />
+                  <Route path="/integrations" element={<IntegrationsPremium />} />
+                  <Route path="/integrations-legacy" element={<IntegrationsPage />} />
                   <Route path="/workspace" element={<WorkspacePage />} />
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/api-keys" element={<ApiKeysPage />} />

@@ -54,6 +54,7 @@ const RiskHeatmapPage = React.lazy(() => import('./pages/RiskHeatmapPage.js').th
 const CompliancePremium = React.lazy(() => import('./pages/CompliancePremium.js').then(m => ({ default: m.CompliancePremium })));
 const IntegrationsPremium = React.lazy(() => import('./pages/IntegrationsPremium.js').then(m => ({ default: m.IntegrationsPremium })));
 const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js'));
+const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js'));
 
 function PageLoadingSpinner() {
   return (
@@ -258,6 +259,7 @@ export function App() {
                   <Route path="/activity" element={<ActivityFeedPage />} />
                   <Route path="/analytics" element={<AnalyticsPremium />} />
                   <Route path="/risk-heatmap" element={<RiskHeatmapPage />} />
+                  <Route path="/demo" element={<DemoModePage />} />
                   <Route path="/analytics-legacy" element={<AnalyticsPage />} />
                   <Route path="/history" element={<HistoryPage />} />
                   <Route path="/runtime" element={<RuntimePage />} />

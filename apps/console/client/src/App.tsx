@@ -238,7 +238,6 @@ export function App() {
                   <Route path="/fleet" element={<FleetPremium />} />
                   <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
 
-                  <Route path="/fleet-legacy" element={<FleetDashboardPage />} />
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/agents/:agentId" element={<AgentDetailPage />} />
                   <Route path="/connect" element={<ConnectAgentPage />} />
@@ -247,7 +246,6 @@ export function App() {
                   <Route path="/executions" element={<ExecutionsPage />} />
                   <Route path="/approvals" element={<ApprovalsPremium />} />
 
-                  <Route path="/approvals-legacy" element={<ApprovalsPage />} />
                   <Route path="/policies" element={<PolicyBuilderPremium />} />
                   <Route path="/policies-legacy" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />

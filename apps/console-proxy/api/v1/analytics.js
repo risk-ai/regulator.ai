@@ -227,6 +227,38 @@ module.exports = async function handler(req, res) {
       return res.json({ success: true, data: result.rows });
     }
 
+    // ── Risk Heatmap (agent × tier action counts) ──────────────────
+    if (req.method === 'GET' && path === '/risk-heatmap') {
+      const result = await pool.query(`
+        SELECT
+          ar.agent_id,
+          ar.display_name AS agent_name,
+          ar.status,
+          COALESCE(SUM(CASE WHEN ele.risk_tier = 'T0' THEN 1 ELSE 0 END), 0) AS t0_count,
+          COALESCE(SUM(CASE WHEN ele.risk_tier = 'T1' THEN 1 ELSE 0 END), 0) AS t1_count,
+          COALESCE(SUM(CASE WHEN ele.risk_tier = 'T2' THEN 1 ELSE 0 END), 0) AS t2_count,
+          COALESCE(SUM(CASE WHEN ele.risk_tier = 'T3' THEN 1 ELSE 0 END), 0) AS t3_count,
+          COALESCE(SUM(CASE WHEN ele.risk_tier IN ('T2', 'T3') THEN 1 ELSE 0 END), 0) AS high_risk_count,
+          COUNT(DISTINCT ele.execution_id) AS total_actions
+        FROM agent_registry ar
+        LEFT JOIN execution_ledger_events ele ON ele.actor_id = ar.agent_id
+          AND ele.tenant_id = $1
+          AND ele.event_timestamp > NOW() - ${interval}
+          AND ele.event_type = 'execution_started'
+        WHERE ar.tenant_id = $1
+        GROUP BY ar.agent_id, ar.display_name, ar.status
+        HAVING COUNT(DISTINCT ele.execution_id) > 0
+        ORDER BY high_risk_count DESC, total_actions DESC
+      `, [tenantId]);
+
+      return res.json({
+        success: true,
+        data: result.rows,
+        timeRange: range,
+        generatedAt: new Date().toISOString(),
+      });
+    }
+
     // ── Trend comparison (current vs previous period) ───────────────
     if (req.method === 'GET' && path === '/trends') {
       const [current, previous] = await Promise.all([

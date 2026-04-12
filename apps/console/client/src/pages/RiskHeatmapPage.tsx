@@ -9,8 +9,22 @@ import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
+import { apiClient } from '../api/client.js';
+import { addToast } from '../store/toastStore.js';
 
 // ─── Types ───
+
+interface AgentRiskData {
+  agent_id: string;
+  agent_name: string;
+  status: string;
+  t0_count: number;
+  t1_count: number;
+  t2_count: number;
+  t3_count: number;
+  high_risk_count: number;
+  total_actions: number;
+}
 
 interface RiskCell {
   agent_id: string;
@@ -33,67 +47,6 @@ interface HeatmapData {
 
 type TimeRange = '24h' | '7d' | '30d' | '90d';
 
-// ─── Mock Data ───
-
-function generateMockData(): HeatmapData {
-  const agents = [
-    'finance-bot-7',
-    'devops-agent-3',
-    'ehr-agent-12',
-    'marketing-ai-5',
-    'sales-copilot-2',
-    'support-assistant-9',
-    'analytics-worker-4',
-    'data-pipeline-6',
-    'compliance-checker-1',
-    'security-scanner-8',
-  ];
-
-  const cells: RiskCell[] = [];
-  const totals = { T0: 0, T1: 0, T2: 0, T3: 0 };
-
-  agents.forEach(agent => {
-    // T0: high volume, low risk
-    const t0Count = Math.floor(Math.random() * 150) + 50;
-    cells.push({ agent_id: agent, agent_name: agent, tier: 'T0', count: t0Count });
-    totals.T0 += t0Count;
-
-    // T1: moderate volume
-    const t1Count = Math.floor(Math.random() * 80) + 20;
-    cells.push({ agent_id: agent, agent_name: agent, tier: 'T1', count: t1Count });
-    totals.T1 += t1Count;
-
-    // T2: low volume, high risk
-    const t2Count = Math.floor(Math.random() * 30);
-    cells.push({ agent_id: agent, agent_name: agent, tier: 'T2', count: t2Count });
-    totals.T2 += t2Count;
-
-    // T3: very low volume, critical risk
-    const t3Count = Math.floor(Math.random() * 5);
-    cells.push({ agent_id: agent, agent_name: agent, tier: 'T3', count: t3Count });
-    totals.T3 += t3Count;
-  });
-
-  const totalActions = totals.T0 + totals.T1 + totals.T2 + totals.T3;
-  const highRiskActions = totals.T2 + totals.T3;
-  const riskConcentration = Math.round((highRiskActions / totalActions) * 100);
-
-  // Find agent with most T2/T3 actions
-  const agentRiskScores = agents.map(agent => {
-    const t2 = cells.find(c => c.agent_id === agent && c.tier === 'T2')?.count || 0;
-    const t3 = cells.find(c => c.agent_id === agent && c.tier === 'T3')?.count || 0;
-    return { agent, score: t2 + t3 * 2 };
-  });
-  const highestRiskAgent = agentRiskScores.sort((a, b) => b.score - a.score)[0].agent;
-
-  return {
-    cells,
-    totals,
-    highest_risk_agent: highestRiskAgent,
-    risk_concentration: riskConcentration,
-  };
-}
-
 // ─── Component ───
 
 export function RiskHeatmapPage() {
@@ -104,11 +57,78 @@ export function RiskHeatmapPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Replace with real API call
-    setTimeout(() => {
-      setData(generateMockData());
-      setLoading(false);
-    }, 500);
+    let mounted = true;
+
+    async function fetchHeatmapData() {
+      setLoading(true);
+      try {
+        const response = await apiClient.get<{ success: boolean; data: AgentRiskData[] }>(
+          `/analytics/risk-heatmap?range=${timeRange}`
+        );
+
+        if (!mounted) return;
+
+        if (response.success && response.data) {
+          // Transform backend data to heatmap format
+          const cells: RiskCell[] = [];
+          const totals = { T0: 0, T1: 0, T2: 0, T3: 0 };
+
+          response.data.forEach((agent) => {
+            cells.push({ agent_id: agent.agent_id, agent_name: agent.agent_name, tier: 'T0', count: agent.t0_count });
+            cells.push({ agent_id: agent.agent_id, agent_name: agent.agent_name, tier: 'T1', count: agent.t1_count });
+            cells.push({ agent_id: agent.agent_id, agent_name: agent.agent_name, tier: 'T2', count: agent.t2_count });
+            cells.push({ agent_id: agent.agent_id, agent_name: agent.agent_name, tier: 'T3', count: agent.t3_count });
+
+            totals.T0 += agent.t0_count;
+            totals.T1 += agent.t1_count;
+            totals.T2 += agent.t2_count;
+            totals.T3 += agent.t3_count;
+          });
+
+          const totalActions = totals.T0 + totals.T1 + totals.T2 + totals.T3;
+          const highRiskActions = totals.T2 + totals.T3;
+          const riskConcentration = totalActions > 0 ? Math.round((highRiskActions / totalActions) * 100) : 0;
+
+          // Find highest risk agent
+          const sortedByRisk = response.data.sort((a, b) => b.high_risk_count - a.high_risk_count);
+          const highestRiskAgent = sortedByRisk[0]?.agent_name || 'N/A';
+
+          setData({
+            cells,
+            totals,
+            highest_risk_agent: highestRiskAgent,
+            risk_concentration: riskConcentration,
+          });
+        } else {
+          // No data - show empty state
+          setData({
+            cells: [],
+            totals: { T0: 0, T1: 0, T2: 0, T3: 0 },
+            highest_risk_agent: 'N/A',
+            risk_concentration: 0,
+          });
+        }
+      } catch (error: any) {
+        if (!mounted) return;
+        console.error('Failed to fetch risk heatmap:', error);
+        addToast('Failed to load risk heatmap data', 'error');
+        // Fallback to empty state
+        setData({
+          cells: [],
+          totals: { T0: 0, T1: 0, T2: 0, T3: 0 },
+          highest_risk_agent: 'N/A',
+          risk_concentration: 0,
+        });
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchHeatmapData();
+
+    return () => {
+      mounted = false;
+    };
   }, [timeRange]);
 
   if (loading || !data) {

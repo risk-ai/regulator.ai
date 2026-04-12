@@ -43,6 +43,10 @@
       "dest": "api/v1/onboarding.js"
     },
     {
+      "src": "/api/v1/fleet(.*)",
+      "dest": "api/v1/fleet.js"
+    },
+    {
       "src": "/api/v1/agents(.*)",
       "dest": "api/v1/agents.js"
     },

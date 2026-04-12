@@ -1,7 +1,8 @@
-import { Activity, TrendingUp, Minus, Bell, Cpu, X, RefreshCw } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
-import { fleetApi } from '../api/fleet.js';
+import { Activity, TrendingUp, Minus, Bell, Cpu, X, RefreshCw, Globe } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { dashboardApi } from '../api/dashboard.js';
 import { useViennaStream } from '../hooks/useViennaStream.js';
+import type { DashboardBootstrapResponse } from '../api/types.js';
 
 interface MetricCardProps {
   label: string;
@@ -167,6 +168,146 @@ interface DashboardData {
   avgLatencyMs: number;
 }
 
+// ── Animated Globe Background ──────────────────────────────────────────────
+
+const AnimatedGlobeBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [connections, setConnections] = useState<Array<{ x1: number; y1: number; x2: number; y2: number; progress: number }>>([]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Globe parameters
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(canvas.width, canvas.height) * 0.3;
+    let rotation = 0;
+
+    // Generate random points on sphere surface
+    const generateSpherePoint = () => {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      return { theta, phi };
+    };
+
+    // Project 3D point to 2D
+    const project = (theta: number, phi: number, rot: number) => {
+      const x3d = radius * Math.sin(phi) * Math.cos(theta + rot);
+      const y3d = radius * Math.sin(phi) * Math.sin(theta + rot);
+      const z3d = radius * Math.cos(phi);
+      return {
+        x: centerX + x3d,
+        y: centerY + y3d,
+        z: z3d,
+        visible: z3d > -radius * 0.3, // Only show front hemisphere
+      };
+    };
+
+    // Generate connections
+    const updateConnections = () => {
+      setConnections(prev => {
+        const newConns = prev.map(c => ({ ...c, progress: c.progress + 0.01 })).filter(c => c.progress < 1);
+        
+        // Add new connection occasionally
+        if (Math.random() < 0.05) {
+          const p1 = generateSpherePoint();
+          const p2 = generateSpherePoint();
+          const proj1 = project(p1.theta, p1.phi, rotation);
+          const proj2 = project(p2.theta, p2.phi, rotation);
+          if (proj1.visible && proj2.visible) {
+            newConns.push({
+              x1: proj1.x,
+              y1: proj1.y,
+              x2: proj2.x,
+              y2: proj2.y,
+              progress: 0,
+            });
+          }
+        }
+        return newConns;
+      });
+    };
+
+    // Animation loop
+    let animationId: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw globe outline
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw latitude/longitude lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      for (let i = 0; i < 8; i++) {
+        const phi = (i / 8) * Math.PI;
+        ctx.beginPath();
+        for (let theta = 0; theta <= Math.PI * 2; theta += 0.1) {
+          const p = project(theta, phi, rotation);
+          if (p.visible) {
+            if (theta === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          }
+        }
+        ctx.stroke();
+      }
+
+      // Draw connections
+      connections.forEach(conn => {
+        const x = conn.x1 + (conn.x2 - conn.x1) * conn.progress;
+        const y = conn.y1 + (conn.y2 - conn.y1) * conn.progress;
+        
+        ctx.strokeStyle = `rgba(251, 191, 36, ${0.6 * (1 - conn.progress)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(conn.x1, conn.y1);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        // Draw moving dot
+        ctx.fillStyle = `rgba(251, 191, 36, ${0.8 * (1 - conn.progress)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      rotation += 0.002; // Slow rotation
+      updateConnections();
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, [connections]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0, opacity: 0.15 }}
+    />
+  );
+};
+
 export default function DashboardPremium() {
   const [showBanner, setShowBanner] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -189,24 +330,20 @@ export default function DashboardPremium() {
   const loadDashboard = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     try {
-      // Fetch fleet overview for agent stats
-      const fleetData = await fleetApi.getOverview() as any;
-      const agents = fleetData?.agents || fleetData?.data?.agents || [];
-      const summary = fleetData?.summary || fleetData?.data?.summary || fleetData?.data || {};
+      // Fetch dashboard bootstrap with all metrics
+      const bootstrap: DashboardBootstrapResponse = await dashboardApi.bootstrap();
 
-      const activeAgents = Array.isArray(agents)
-        ? agents.filter((a: any) => a.status === 'active').length
-        : (summary.active_count || summary.activeCount || 0);
-      const totalAgents = Array.isArray(agents) ? agents.length : (summary.total || summary.totalAgents || 0);
-      const avgTrust = Array.isArray(agents) && agents.length > 0
-        ? agents.reduce((s: number, a: any) => s + (a.trust_score || 0), 0) / agents.length
-        : (summary.avgTrust || 0);
+      const activeAgents = bootstrap.agents.filter(a => a.status === 'active').length;
+      const totalAgents = bootstrap.agents.length;
+      const avgTrust = bootstrap.agents.length > 0
+        ? bootstrap.agents.reduce((s, a) => s + (a.trust_score || 0), 0) / bootstrap.agents.length
+        : 0;
 
-      // Try to get warrant/proposal counts from fleet summary or dashboard
-      const warrantsToday = summary.warrants_today || summary.warrantsToday || summary.actionsToday || 0;
-      const pendingApprovals = summary.pending_approvals || summary.pendingApprovals || summary.pendingCount || 0;
-      const policyEvals = summary.policy_evals || summary.policyEvals || summary.evaluationsToday || 0;
-      const avgLatencyMs = summary.avg_latency_ms || summary.avgLatencyMs || 0;
+      // Get counts from bootstrap data
+      const warrantsToday = bootstrap.active_execution.length; // Active warrants
+      const pendingApprovals = bootstrap.queue_state?.blocked || 0; // Blocked = awaiting approval
+      const policyEvals = bootstrap.decisions.length; // Recent policy decisions
+      const avgLatencyMs = bootstrap.metrics?.avg_latency_ms || 0;
 
       setData({
         activeAgents,
@@ -268,9 +405,14 @@ export default function DashboardPremium() {
   const defaultSparkline = [40, 50, 45, 60, 75, 90, 70, 55, 95, 100];
 
   return (
-    <div className="min-h-screen">
-      {/* Error Banner */}
-      {error && (
+    <div className="min-h-screen relative">
+      {/* Animated Globe Background */}
+      <AnimatedGlobeBackground />
+      
+      {/* Content wrapper (above globe) */}
+      <div className="relative" style={{ zIndex: 1 }}>
+        {/* Error Banner */}
+        {error && (
         <div className="bg-red-900/20 border border-red-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
           <Activity className="text-red-400" size={18} />
           <span className="text-[12px] text-red-300/80 font-mono flex-1">{error}</span>
@@ -398,6 +540,7 @@ export default function DashboardPremium() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

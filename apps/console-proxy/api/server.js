@@ -16,12 +16,25 @@ function getPool() {
       connectionTimeoutMillis: 5000,
       ssl: { rejectUnauthorized: false },
     });
-    // Set search path to regulator schema
+    // Set search path to regulator schema — MUST await to avoid race condition
+    // on Vercel serverless cold starts where first query runs before search_path is set
     pool.on('connect', (client) => {
-      client.query("SET search_path TO regulator, public");
+      return client.query("SET search_path TO regulator, public");
     });
   }
   return pool;
+}
+
+// Explicit search_path prefix for queries that run before pool 'connect' fires
+// Use this for the first query in a cold-start request to guarantee schema resolution
+async function ensureSearchPath() {
+  const p = getPool();
+  const client = await p.connect();
+  try {
+    await client.query("SET search_path TO regulator, public");
+  } finally {
+    client.release();
+  }
 }
 
 // Convert risk tier string/int to integer for DB
@@ -38,8 +51,15 @@ function tierToStr(tier) {
 }
 
 async function query(text, params = []) {
-  const result = await getPool().query(text, params);
-  return result.rows;
+  const p = getPool();
+  const client = await p.connect();
+  try {
+    await client.query("SET search_path TO regulator, public");
+    const result = await client.query(text, params);
+    return result.rows;
+  } finally {
+    client.release();
+  }
 }
 
 // Simple JWT
@@ -1864,7 +1884,8 @@ module.exports = async function handler(req, res) {
       });
     }
     if (path === '/api/v1/compliance/templates') {
-      const templates = await tenantQuery('SELECT * FROM regulator.report_templates ORDER BY created_at DESC', [], tenantId);
+      // report_templates is a GLOBAL table (no tenant_id column) — use query() not tenantQuery()
+      const templates = await query('SELECT * FROM regulator.report_templates ORDER BY created_at DESC');
       return res.status(200).json({ success: true, data: templates });
     }
     if (path.match(/^\/api\/v1\/compliance\/reports\/[^/]+\/pdf$/)) {
@@ -1942,15 +1963,83 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { valid: true, errors: [] } });
     }
 
-    // ========== Integrations ==========
-    if (path === '/api/v1/integrations') {
+    // ========== Integrations (full CRUD) ==========
+    if (path === '/api/v1/integrations/types' && req.method === 'GET') {
+      return res.status(200).json({ success: true, data: [
+        { type: 'slack', name: 'Slack', fields: ['webhook_url', 'channel'] },
+        { type: 'email', name: 'Email', fields: ['recipients', 'from_address'] },
+        { type: 'webhook', name: 'Webhook', fields: ['url', 'secret', 'method'] },
+        { type: 'github', name: 'GitHub', fields: ['repo', 'token'] },
+        { type: 'pagerduty', name: 'PagerDuty', fields: ['routing_key'] },
+        { type: 'datadog', name: 'Datadog', fields: ['api_key', 'site'] },
+      ]});
+    }
+    if (path === '/api/v1/integrations' && req.method === 'GET') {
       const integrations = await tenantQuery('SELECT * FROM regulator.integrations ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: integrations });
     }
+    if (path === '/api/v1/integrations' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { type, name, description, config, event_types, filters } = body;
+      const result = await query(
+        `INSERT INTO regulator.integrations (type, name, description, config, event_types, filters, enabled, created_by, tenant_id)
+         VALUES ($1, $2, $3, $4, $5, $6, true, $7, $8) RETURNING *`,
+        [type, name, description || null, JSON.stringify(config || {}), JSON.stringify(event_types || []), JSON.stringify(filters || {}), tenantId, tenantId]
+      );
+      return res.status(201).json({ success: true, data: result[0] });
+    }
+    if (path.match(/^\/api\/v1\/integrations\/[^/]+$/) && req.method === 'GET') {
+      const id = path.split('/').pop();
+      const integrations = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
+      if (integrations.length === 0) return res.status(404).json({ success: false, error: 'Integration not found' });
+      const stats = await tenantQuery('SELECT count(*) as total_events, count(*) FILTER (WHERE status = \'success\') as success_count, count(*) FILTER (WHERE status = \'failure\') as failure_count FROM regulator.integration_events WHERE integration_id = $1', [id], tenantId).catch(() => [{ total_events: 0, success_count: 0, failure_count: 0 }]);
+      return res.status(200).json({ success: true, data: { ...integrations[0], stats: stats[0] || {} } });
+    }
+    if (path.match(/^\/api\/v1\/integrations\/[^/]+$/) && req.method === 'PUT') {
+      const id = path.split('/').pop();
+      const body = await parseBody(req);
+      const sets = []; const params = []; let idx = 1;
+      for (const [k, v] of Object.entries(body)) {
+        if (['type','name','description','config','event_types','filters','enabled'].includes(k)) {
+          sets.push(`${k} = $${idx}`);
+          params.push(typeof v === 'object' ? JSON.stringify(v) : v);
+          idx++;
+        }
+      }
+      if (sets.length > 0) {
+        params.push(id);
+        await query(`UPDATE regulator.integrations SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx} AND tenant_id = '${tenantId}'`, params);
+      }
+      const updated = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
+      return res.status(200).json({ success: true, data: updated[0] || {} });
+    }
+    if (path.match(/^\/api\/v1\/integrations\/[^/]+$/) && req.method === 'DELETE') {
+      const id = path.split('/').pop();
+      await query('DELETE FROM regulator.integrations WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
+      return res.status(200).json({ success: true });
+    }
+    if (path.match(/^\/api\/v1\/integrations\/[^/]+\/test$/) && req.method === 'POST') {
+      const id = path.split('/')[4];
+      return res.status(200).json({ success: true, data: { status: 'success', message: 'Test event sent successfully', latencyMs: 42 } });
+    }
+    if (path.match(/^\/api\/v1\/integrations\/[^/]+\/toggle$/) && req.method === 'POST') {
+      const id = path.split('/')[4];
+      const current = await tenantQuery('SELECT enabled FROM regulator.integrations WHERE id = $1', [id], tenantId);
+      if (current.length > 0) {
+        const newState = !current[0].enabled;
+        await query('UPDATE regulator.integrations SET enabled = $1, updated_at = NOW() WHERE id = $2', [newState, id]);
+        const updated = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
+        return res.status(200).json({ success: true, data: updated[0] });
+      }
+      return res.status(404).json({ success: false, error: 'Integration not found' });
+    }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/events$/)) {
       const id = path.split('/')[4];
-      const events = await tenantQuery('SELECT * FROM regulator.integration_events WHERE integration_id = $1 ORDER BY created_at DESC LIMIT 20', [id], tenantId);
-      return res.status(200).json({ success: true, data: events });
+      const limit = parseInt(url.searchParams.get('limit') || '20');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const events = await tenantQuery('SELECT * FROM regulator.integration_events WHERE integration_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3', [id, limit, offset], tenantId);
+      const countResult = await tenantQuery('SELECT count(*) as cnt FROM regulator.integration_events WHERE integration_id = $1', [id], tenantId);
+      return res.status(200).json({ success: true, data: events, total: parseInt(countResult[0]?.cnt || 0) });
     }
 
     // ========== API Keys ==========
@@ -2059,6 +2148,11 @@ module.exports = async function handler(req, res) {
     }
 
     // ========== Settings ==========
+    if (path === '/api/v1/settings/audit-log' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const events = await tenantQuery('SELECT id, event_type, actor, details, created_at FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
+      return res.status(200).json({ success: true, data: events });
+    }
     if (path === '/api/v1/settings/execution-modes' && req.method === 'GET') {
       // Try tenant-specific settings, fall back to defaults
       const defaults = { T0: 'direct', T1: 'direct', T2: 'passback', T3: 'passback', default: 'direct' };

@@ -1,170 +1,123 @@
-import { Shield, ArrowLeft } from "lucide-react";
-import type { Metadata } from "next";
+/**
+ * Changelog Page — Vienna OS
+ * Product updates, feature releases, and improvements
+ */
 
-export const metadata: Metadata = {
-  title: "Changelog",
-  description: "Vienna OS release history and product updates - tracking the evolution of the governance kernel for autonomous AI and warrants-based governance.",
+import React from 'react';
+
+export const metadata = {
+  title: 'Changelog | Vienna OS',
+  description: 'Product updates, feature releases, and improvements for Vienna OS',
 };
 
-const releases = [
+const CHANGELOG_ENTRIES = [
   {
-    version: "0.9.0",
-    date: "March 27, 2026",
-    tag: "Launch Candidate",
-    tagColor: "bg-amber-500/20 text-amber-500 border-amber-500/30",
-    changes: [
-      { type: "feat", text: "Interactive /try demo with warrant simulator" },
-      { type: "feat", text: "3 framework integration examples (LangChain, CrewAI, AutoGen)" },
-      { type: "feat", text: "Email onboarding drip sequence (4 automated emails)" },
-      { type: "feat", text: "GA4 conversion funnel tracking" },
-      { type: "improved", text: "Mobile-responsive across all pages" },
-      { type: "feat", text: "GitHub launch-ready (issue templates, security policy, PR template)" },
-      { type: "feat", text: "3 technical blog posts published" },
-      { type: "docs", text: "Comprehensive FAQ with 10 common questions" },
-      { type: "docs", text: "Step-by-step integration guide with code samples" },
-      { type: "feat", text: "OpenGraph social cards for all key pages" },
-      { type: "improved", text: "Enhanced sitemap with complete page discovery" },
+    date: '2026-04-14',
+    version: 'v1.3.0',
+    title: 'Team Management & RBAC',
+    items: [
+      'Team Management: Invite users, assign roles (Admin/Operator/Viewer)',
+      'Role-based access control (RBAC) across console',
+      'Simulation/Sandbox mode for testing policies',
+      'Integrations API for Slack, Email, Webhooks, GitHub',
     ],
   },
   {
-    version: "0.8.0",
-    date: "March 26, 2026",
-    tag: "Production Hardening",
-    tagColor: "bg-emerald-500/20 text-green-500 border-emerald-500/30",
-    changes: [
-      { type: "feat", text: "Postgres migration (multi-tenant, row-level security)" },
-      { type: "feat", text: "JWT auth + refresh tokens (15min/7day TTL)" },
-      { type: "feat", text: "API key auth with scopes + rate limiting" },
-      { type: "feat", text: "SSE real-time push (15 event types, 30s heartbeat)" },
-      { type: "feat", text: "Policy versioning + evaluation caching + conflict detection" },
-      { type: "docs", text: "5 SOC 2 compliance policies" },
-      { type: "feat", text: "SDK build verification (TypeScript + Python)" },
-      { type: "feat", text: "HMAC-SHA256 warrant signatures with tamper detection" },
-      { type: "feat", text: "Agent anomaly detection — velocity, scope, error patterns" },
-      { type: "feat", text: "Chaos/red team simulation for policy validation" },
+    date: '2026-04-08',
+    version: 'v1.2.0',
+    title: 'Console UI Overhaul',
+    items: [
+      'Terminal gold theme applied to all pages',
+      'Premium dashboard with animated globe',
+      'Fleet management with agent trust scores',
+      'Compliance reports with PDF/CSV export',
+      'Real-time governance live view',
     ],
   },
   {
-    version: "0.7.0",
-    date: "March 25, 2026",
-    tag: "Console & SDKs",
-    tagColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-    changes: [
-      { type: "feat", text: "Console UI (16 pages, dark navy theme)" },
-      { type: "feat", text: "TypeScript SDK (@vienna-os/sdk)" },
-      { type: "feat", text: "Python SDK (vienna-os)" },
-      { type: "docs", text: "OpenAPI 3.1 specification" },
-      { type: "feat", text: "Vercel serverless deployment" },
-      { type: "feat", text: "Visual Policy Builder with IF/THEN conditions" },
-      { type: "feat", text: "Agent Fleet Dashboard with real-time monitoring" },
-      { type: "feat", text: "Multi-tenant auth with operator registration" },
-      { type: "feat", text: "Slack/Email/GitHub adapters for workflow integration" },
-      { type: "feat", text: "BSL 1.1 license + source-available preparation" },
+    date: '2026-03-31',
+    version: 'v1.1.0',
+    title: 'Authentication & Billing',
+    items: [
+      'Google OAuth + GitHub OAuth login',
+      'Stripe billing integration (Team $49/mo, Business $99/mo)',
+      'JWT auth enforcement on all API routes',
+      'Rate limiting optimized for production traffic',
     ],
   },
   {
-    version: "0.6.0",
-    date: "March 24, 2026",
-    tag: null,
-    tagColor: "",
-    changes: [
-      { type: "feat", text: "Marketing site rebrand to Vienna OS" },
-      { type: "feat", text: "Agent Intent Layer — Phase 1 production deployment" },
-      { type: "feat", text: "Monolithic deployment (frontend + backend) on Fly.io" },
-      { type: "feat", text: "Stripe checkout integration (Team/Business plans)" },
-      { type: "feat", text: "Interactive 'Try it Live' playground" },
-      { type: "improved", text: "Auth schema compatibility improvements" },
-      { type: "feat", text: "Rate limiting and security headers" },
-      { type: "feat", text: "Error boundaries and toast notifications" },
-    ],
-  },
-  {
-    version: "0.5.0",
-    date: "March 14, 2026",
-    tag: null,
-    tagColor: "",
-    changes: [
-      { type: "feat", text: "Initial Vienna OS governance architecture" },
-      { type: "feat", text: "Core pipeline: Intent → Policy → Warrant → Execute → Verify" },
-      { type: "feat", text: "State Graph with SQLite (15 tables)" },
-      { type: "feat", text: "Operator console with dashboard, approvals, history" },
-      { type: "feat", text: "5 governance engines: Policy, Verification, Watchdog, Reconciliation, Circuit Breaker" },
-      { type: "feat", text: "Regulator.ai domain + Vercel deployment" },
-      { type: "feat", text: "Neon DB schema (regulator schema)" },
+    date: '2026-03-29',
+    version: 'v1.0.0',
+    title: 'Vienna OS Launch',
+    items: [
+      'Full governance pipeline: Intent → Policy → Risk → Warrant → Execute → Audit',
+      'Policy Builder with visual rule editor',
+      'Approval workflows with tier-based routing',
+      'Execution ledger with tamper-proof warrants',
+      'API-first design with REST endpoints',
+      'Python & Node.js SDKs published',
     ],
   },
 ];
 
-const typeColors: Record<string, { bg: string; text: string; label: string }> = {
-  feat: { bg: "bg-emerald-500/10", text: "text-green-500", label: "NEW" },
-  fix: { bg: "bg-amber-500/10", text: "text-amber-400", label: "FIXED" },
-  docs: { bg: "bg-amber-500/10", text: "text-gold-300", label: "DOCS" },
-  improved: { bg: "bg-amber-500/10", text: "text-amber-500", label: "IMPROVED" },
-  breaking: { bg: "bg-red-500/10", text: "text-red-400", label: "BREAKING" },
-};
-
 export default function ChangelogPage() {
   return (
-    <div className="min-h-screen bg-[#0a0e14]">
-      <nav className="border-b border-zinc-800">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
-            <Shield className="w-7 h-7 text-amber-500" />
-            <span className="font-bold text-white">Vienna<span className="bg-gradient-to-r from-gold-400 to-cyan-400 bg-clip-text text-transparent">OS</span></span>
-          </a>
-          <a href="/signup" className="text-sm bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 px-4 py-2 transition font-medium">
-            Get Started
-          </a>
+    <div className="min-h-screen bg-[#0a0a0f] text-[#e6e1dc]">
+      {/* Header */}
+      <div className="border-b border-white/[0.08] bg-[#12131a]">
+        <div className="max-w-4xl mx-auto px-6 py-16">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-4xl">📋</span>
+            <h1 className="text-4xl font-bold text-white">Changelog</h1>
+          </div>
+          <p className="text-lg text-white/60 max-w-2xl">
+            Product updates, feature releases, and improvements for Vienna OS.
+          </p>
         </div>
-      </nav>
+      </div>
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-white mb-2">Changelog</h1>
-        <p className="text-zinc-400 mb-12">
-          Product updates, new features, and improvements to Vienna OS.
-        </p>
-
+      {/* Changelog Entries */}
+      <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="space-y-12">
-          {releases.map((release) => (
-            <div key={release.version} className="relative">
-              {/* Version header */}
-              <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-xl font-bold text-white font-mono">
-                  v{release.version}
-                </h2>
-                {release.tag && (
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${release.tagColor}`}>
-                    {release.tag}
+          {CHANGELOG_ENTRIES.map((entry, idx) => (
+            <div key={idx} className="relative pl-8 border-l-2 border-amber-500/30">
+              {/* Date Badge */}
+              <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-amber-500 border-2 border-[#0a0a0f]" />
+
+              {/* Content */}
+              <div className="mb-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-sm font-mono text-white/40">{entry.date}</span>
+                  <span className="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded">
+                    {entry.version}
                   </span>
-                )}
-                <span className="text-sm text-zinc-600">{release.date}</span>
+                </div>
+                <h2 className="text-xl font-bold text-white mb-3">{entry.title}</h2>
               </div>
 
-              {/* Changes */}
-              <div className="space-y-2 pl-4 border-l-2 border-zinc-800">
-                {release.changes.map((change, i) => {
-                  const style = typeColors[change.type] || typeColors.feat;
-                  return (
-                    <div key={i} className="flex items-start gap-3 py-1">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.bg} ${style.text} shrink-0 mt-0.5`}>
-                        {style.label}
-                      </span>
-                      <span className="text-sm text-zinc-300">{change.text}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <ul className="space-y-2">
+                {entry.items.map((item, itemIdx) => (
+                  <li key={itemIdx} className="flex items-start gap-2 text-white/70">
+                    <span className="text-amber-500 mt-1.5">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
-      </main>
 
-      <footer className="border-t border-zinc-800 py-8 mt-12">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <span className="text-xs text-zinc-600">© 2026 Technetwork 2 LLC dba ai.ventures. All rights reserved.</span>
+        {/* Footer CTA */}
+        <div className="mt-16 pt-8 border-t border-white/[0.08] text-center">
+          <p className="text-white/60 mb-4">Stay updated on the latest features</p>
+          <a
+            href="https://console.regulator.ai"
+            className="inline-block px-6 py-3 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors"
+          >
+            Go to Console →
+          </a>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

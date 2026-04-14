@@ -167,7 +167,7 @@ export function GovernanceLivePage() {
         if (data.type === 'heartbeat') return;
 
         const event: GovernanceEvent = {
-          id: data.id || `evt_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          id: data.id || `evt_${Date.now()}`,
           type: data.type || data.event || 'unknown',
           timestamp: data.timestamp || new Date().toISOString(),
           data: data.data || data,
@@ -211,27 +211,30 @@ export function GovernanceLivePage() {
     return () => es.close();
   }, [paused]);
 
-  // Load initial stats
+  // Load initial stats from governance overview API
   useEffect(() => {
-    fetch('/api/v1/metrics/summary', { credentials: 'include' })
+    fetch('/api/v1/governance?range=24h', { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
         if (data.success && data.data) {
+          const overview = data.data;
           setStats(prev => ({
             ...prev,
-            approvals_pending: data.data.approvals?.pending || 0,
-            agents_active: data.data.agents?.active || 0,
+            warrants_active: overview.warrantStatus?.reduce((sum: number, w: any) => 
+              sum + (w.status === 'active' ? parseInt(w.count, 10) : 0), 0) || 0,
+            approvals_pending: overview.chainStats?.pending_chains ? parseInt(overview.chainStats.pending_chains, 10) : 0,
+            chain_length: overview.chainStats?.completed_chains ? parseInt(overview.chainStats.completed_chains, 10) : 0,
           }));
         }
       })
       .catch(() => {});
 
-    // Load chain status
-    fetch('/api/v1/warrant-chain/status', { credentials: 'include' })
+    // Load agent count from fleet API
+    fetch('/api/v1/fleet/agents', { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
         if (data.success && data.data) {
-          setStats(prev => ({ ...prev, chain_length: data.data.chain_length || 0 }));
+          setStats(prev => ({ ...prev, agents_active: data.data.length || 0 }));
         }
       })
       .catch(() => {});

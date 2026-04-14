@@ -117,14 +117,19 @@ function assignRiskTier(trustScore: number): 'T0' | 'T1' | 'T2' | 'T3' {
 }
 
 /**
- * Get warrant status (mock for now; would come from API)
+ * Get warrant status badge text from warrant data
  * 
- * TODO: wire to real warrant API - currently returns random data for visual polish
+ * @param agent Agent object (can include warrant_status from backend)
+ * @returns Status badge text
  */
-function getWarrantStatus(): 'Active Warrant' | 'No Warrant' | 'Expired' {
-  const statuses = ['Active Warrant', 'No Warrant', 'Expired'] as const;
-  // In production, would query actual warrant state from /api/v1/warrants
-  return statuses[Math.floor(Math.random() * statuses.length)];
+function getWarrantStatus(agent: any): 'Active Warrant' | 'No Warrant' | 'Expired' {
+  // If backend provides warrant_status, use it
+  if (agent.warrant_status) {
+    if (agent.warrant_status === 'active') return 'Active Warrant';
+    if (agent.warrant_status === 'expired') return 'Expired';
+  }
+  // Default to no warrant if not provided
+  return 'No Warrant';
 }
 
 // ============================================================================
@@ -919,7 +924,7 @@ export function FleetDashboardPage() {
                   key={agent.agent_id}
                   agent={agent}
                   riskTier={assignRiskTier(agent.trust_score)}
-                  warrantStatus={getWarrantStatus()}
+                  warrantStatus={getWarrantStatus(agent)}
                   onClick={() => setExpandedAgent(agent.agent_id === expandedAgent ? null : agent.agent_id)}
                   onAdjustTrust={() => setTrustModal({ agentId: agent.agent_id, score: agent.trust_score })}
                   onSuspend={() => handleSuspend(agent.agent_id)}

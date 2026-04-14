@@ -57,6 +57,7 @@ const IntegrationsPremium = React.lazy(() => import('./pages/IntegrationsPremium
 const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js'));
 const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js'));
 const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js'));
+const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js'));
 
 function PageLoadingSpinner() {
   return (
@@ -273,6 +274,7 @@ export function App() {
                   <Route path="/risk-heatmap" element={<RiskHeatmapPage />} />
                   <Route path="/demo" element={<DemoModePage />} />
                   <Route path="/embed-widget" element={<EmbedWidgetPage />} />
+                  <Route path="/simulation" element={<SimulationPage />} />
                   <Route path="/analytics-legacy" element={<AnalyticsPage />} />
                   <Route path="/history" element={<HistoryPage />} />
                   <Route path="/runtime" element={<RuntimePage />} />

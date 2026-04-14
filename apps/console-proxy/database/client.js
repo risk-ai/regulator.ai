@@ -11,20 +11,10 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   ssl: { rejectUnauthorized: false },
-});
-
-// Set search path to regulator schema on every new connection
-pool.on('connect', (client) => {
-  client.query('SET search_path TO regulator, public');
-});
-
-// Set search_path to prioritize 'regulator' schema, fallback to 'public'
-pool.on('connect', (client) => {
-  client.query('SET search_path TO regulator, public', (err) => {
-    if (err) {
-      console.error('[DB] Failed to set search_path:', err);
-    }
-  });
+  // Set search_path at connection time via protocol-level options.
+  // This avoids race conditions on Vercel serverless cold starts where
+  // pool.on('connect') SET queries can race with actual application queries.
+  options: '-c search_path=regulator,public',
 });
 
 /**

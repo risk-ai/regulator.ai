@@ -112,31 +112,41 @@ export function NetworkStatus() {
     };
   }, [showBanner]);
 
-  // Also show banner on fetch failures
+  // Track consecutive fetch failures — only escalate to banner after threshold
   useEffect(() => {
     const originalFetch = window.fetch;
-    
+    let consecutiveFailures = 0;
+    const FAILURE_THRESHOLD = 3; // Match health-check threshold
+
     window.fetch = async (...args) => {
       try {
         const response = await originalFetch(...args);
-        
-        // If we were showing banner and got a successful response, hide it
-        if (showBanner && response.ok) {
-          setShowBanner(false);
-          setRetrying(false);
+
+        if (response.ok) {
+          consecutiveFailures = 0;
+          // If banner was showing and we got a good response, clear it
+          if (showBanner) {
+            setShowBanner(false);
+            setRetrying(false);
+          }
+        } else if (response.status >= 500) {
+          consecutiveFailures++;
+          // Only show banner after multiple consecutive failures
+          // This avoids false alarms from Vercel cold starts or transient 502s
+          if (consecutiveFailures >= FAILURE_THRESHOLD && !showBanner) {
+            setShowBanner(true);
+            setRetrying(true);
+          }
         }
-        
-        // If request failed due to network, show banner
-        if (!response.ok && response.status >= 500) {
+        // 4xx errors are not network issues — ignore them
+
+        return response;
+      } catch (error) {
+        consecutiveFailures++;
+        if (consecutiveFailures >= FAILURE_THRESHOLD && !showBanner) {
           setShowBanner(true);
           setRetrying(true);
         }
-        
-        return response;
-      } catch (error) {
-        // Network error - show banner
-        setShowBanner(true);
-        setRetrying(true);
         throw error;
       }
     };

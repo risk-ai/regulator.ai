@@ -59,6 +59,8 @@ const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js'));
 const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js'));
 const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js'));
 const TeamManagementPage = React.lazy(() => import('./pages/TeamManagementPage.js'));
+const UsageDashboardPage = React.lazy(() => import('./pages/UsageDashboardPage.js'));
+const WebhookConfigPage = React.lazy(() => import('./pages/WebhookConfigPage.js'));
 
 function PageLoadingSpinner() {
   return (
@@ -277,6 +279,8 @@ export function App() {
                   <Route path="/embed-widget" element={<EmbedWidgetPage />} />
                   <Route path="/simulation" element={<SimulationPage />} />
                   <Route path="/team" element={<TeamManagementPage />} />
+                  <Route path="/usage" element={<UsageDashboardPage />} />
+                  <Route path="/webhooks" element={<WebhookConfigPage />} />
                   <Route path="/analytics-legacy" element={<AnalyticsPage />} />
                   <Route path="/history" element={<HistoryPage />} />
                   <Route path="/runtime" element={<RuntimePage />} />

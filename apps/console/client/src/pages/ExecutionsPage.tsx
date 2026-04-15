@@ -13,6 +13,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { addToast } from '../store/toastStore.js';
 import { ExecutionStatsRow } from '../components/executions/ExecutionStatsRow.js';
 import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
+import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
+import { Activity } from 'lucide-react';
 
 // ---- Types ----
 
@@ -587,6 +589,7 @@ export function ExecutionsPage() {
   const [allExecutions, setAllExecutions] = useState<Execution[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [selected, setSelected] = useState<string | null>(null);
   const [detail, setDetail] = useState<ExecutionDetail | null>(null);
@@ -622,7 +625,9 @@ export function ExecutionsPage() {
       }
       if (statsData.success) setStats(statsData.data);
     } catch (err) {
-      // Silent fail — toast already shows from apiClient
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load executions';
+      setError(errorMsg);
+      addToast('Failed to load executions', 'error');
     } finally {
       setLoading(false);
     }

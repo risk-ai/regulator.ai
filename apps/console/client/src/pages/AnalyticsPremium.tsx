@@ -16,7 +16,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { addToast } from '../store/toastStore.js';
-import { TrendingUp, CheckCircle2, XCircle, Bot, Zap, Activity, DollarSign } from 'lucide-react';
+import { TrendingUp, CheckCircle2, XCircle, Bot, Zap, Activity, DollarSign, BarChart3 } from 'lucide-react';
+import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 
 // ============================================================================
 // TYPES
@@ -588,10 +589,12 @@ function ExecutionTimeline({ events }: { events: ExecutionEvent[] }) {
 export function AnalyticsPremium() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('7d');
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('vienna_access_token');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -724,6 +727,8 @@ export function AnalyticsPremium() {
         period: period === '7d' ? 'Last 7 Days' : period === '30d' ? 'Last 30 Days' : 'Last 90 Days',
       });
     } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load analytics data';
+      setError(errorMsg);
       addToast('Failed to load analytics', 'error');
     } finally {
       setLoading(false);
@@ -827,22 +832,18 @@ export function AnalyticsPremium() {
 
       {/* Content */}
       {loading ? (
-        <div style={{ padding: '80px', textAlign: 'center' }}>
-          <div style={{
-            display: 'inline-block',
-            width: '32px',
-            height: '32px',
-            border: '3px solid rgba(251, 191, 36, 0.2)',
-            borderTop: '3px solid #fbbf24',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite',
-          }} />
-          <p style={{ marginTop: '16px', fontSize: '12px', color: 'rgba(230, 225, 220, 0.5)', fontFamily: 'var(--font-mono)' }}>
-            LOADING ANALYTICS...
-          </p>
-          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        </div>
-      ) : data && (
+        <LoadingState message="Loading analytics data..." />
+      ) : error ? (
+        <ErrorState error={error} onRetry={() => fetchAnalytics()} />
+      ) : !data ? (
+        <EmptyState
+          icon={<BarChart3 className="w-12 h-12" />}
+          title="No Analytics Data"
+          description="Unable to load analytics data. This may be due to insufficient permissions or no data available for the selected time period."
+          actionLabel="Retry"
+          onAction={() => fetchAnalytics()}
+        />
+      ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Metrics Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>

@@ -928,7 +928,7 @@ export default function Home() {
 
       <main className="flex-1" id="main-content">
         {/* ═══════════════════ HERO ═══════════════════ */}
-        <section id="hero" className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-6 relative z-10">
+        <section id="hero" className="pt-16 sm:pt-20 pb-24 sm:pb-32 px-6 relative z-20 overflow-visible">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column: Text */}
             <div className="space-y-6 sm:space-y-8 overflow-hidden">
@@ -1034,7 +1034,7 @@ export default function Home() {
         </section>
 
         {/* ═══════════════════ SOCIAL PROOF (compact bar) ═══════════════════ */}
-        <div className="py-6 px-6 border-y border-amber-500/10 bg-black/50">
+        <div className="py-6 px-6 border-y border-amber-500/10 bg-black/50 relative z-10">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
               <div className="flex items-center gap-3 px-4 py-2 border border-zinc-800 bg-black/50">

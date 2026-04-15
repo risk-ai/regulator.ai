@@ -17,6 +17,7 @@ import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
 import { Users, Mail, Shield, Trash2, Edit2, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 
 interface TeamMember {
   id: string;
@@ -68,6 +69,7 @@ export function TeamManagementPage() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'admin' | 'operator' | 'viewer'>('operator');
@@ -80,6 +82,7 @@ export function TeamManagementPage() {
   const loadTeamData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [membersRes, invitesRes] = await Promise.all([
         fetch('/api/v1/team/members', { credentials: 'include' }),
         fetch('/api/v1/team/invitations', { credentials: 'include' }),
@@ -90,7 +93,9 @@ export function TeamManagementPage() {
 
       if (membersData.success) setMembers(membersData.data);
       if (invitesData.success) setInvitations(invitesData.data);
-    } catch (error) {
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load team data';
+      setError(errorMsg);
       addToast('Failed to load team data', 'error');
     } finally {
       setLoading(false);
@@ -201,6 +206,9 @@ export function TeamManagementPage() {
       </PageLayout>
     );
   }
+
+  if (loading) return <LoadingState message="Loading team data..." />;
+  if (error) return <ErrorState error={error} onRetry={loadTeamData} />;
 
   return (
     <PageLayout title="Team Management" description="Invite users and manage role-based access">

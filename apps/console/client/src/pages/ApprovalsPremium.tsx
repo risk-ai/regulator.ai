@@ -10,10 +10,12 @@ import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from
 import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
 import { useAuthStore } from '../store/authStore.js';
 import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';
+import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 
 export default function ApprovalsPremium() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [stats, setStats] = useState({ approved: 0, denied: 0 });
@@ -22,11 +24,13 @@ export default function ApprovalsPremium() {
 
   const loadApprovals = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
+    setError(null);
     try {
       const data = await listApprovals({ status: 'pending' }) as any;
       setApprovals(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
       console.error('Failed to load approvals:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load approvals');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -80,13 +84,8 @@ export default function ApprovalsPremium() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading approval queue..." />;
+  if (error) return <ErrorState error={error} onRetry={() => loadApprovals()} />;
 
   const criticalCount = approvals.filter(a => a.tier === 'T2').length;
 
@@ -132,6 +131,12 @@ export default function ApprovalsPremium() {
 
       {/* Approval Cards */}
       {approvals.length === 0 ? (
+        <EmptyState
+          icon={<ShieldCheck className="w-12 h-12" />}
+          title="No Pending Approvals"
+          description="All agent requests are either auto-approved or have been processed. The queue is clear."
+        />
+      ) : approvals.length === 0 && (
         <div className="rounded-lg p-12 text-center" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
             style={{ background: 'rgba(16,185,129,0.1)' }}>

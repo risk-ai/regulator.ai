@@ -7,9 +7,10 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, RefreshCw } from 'lucide-react';
+import { TrendingUp, RefreshCw, Users } from 'lucide-react';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
+import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 
 export default function FleetPremium() {
   const navigate = useNavigate();
@@ -17,15 +18,18 @@ export default function FleetPremium() {
   const [summary, setSummary] = useState<FleetSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadFleet = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
+    setError(null);
     try {
       const data = await fleetApi.getOverview() as any;
       setAgents(data.agents || []);
       setSummary(data.summary || null);
     } catch (err) {
       console.error('Fleet load failed:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load fleet data');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -50,11 +54,19 @@ export default function FleetPremium() {
   const totalActions = summary?.actionsToday ?? agents.reduce((s, a) => s + (a.actions_today || 0), 0);
   const avgLatency = summary?.avgLatencyMs?.toFixed(1) ?? '—';
 
-  if (loading) {
+  if (loading) return <LoadingState message="Loading fleet data..." />;
+  if (error) return <ErrorState error={error} onRetry={() => loadFleet()} />;
+  if (agents.length === 0) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
-      </div>
+      <EmptyState
+        icon={<Users className="w-12 h-12" />}
+        title="No Agents Registered"
+        description="Connect your first agent to start managing your AI fleet. Agents can be integrated via SDK or API."
+        actionLabel="Connect Agent"
+        onAction={() => navigate('/connect')}
+        secondaryLabel="View Documentation"
+        onSecondary={() => window.open('https://regulator.ai/docs', '_blank')}
+      />
     );
   }
 

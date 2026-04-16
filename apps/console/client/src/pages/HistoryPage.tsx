@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { exportCSV, exportPrintReport } from '../utils/exportReport.js';
 import { addToast } from '../store/toastStore.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface AuditEntry {
   id: string;
@@ -42,6 +43,7 @@ export function HistoryPage() {
   const [filterType, setFilterType] = useState('all');
   const [entries, setEntries] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadHistory();
@@ -49,6 +51,7 @@ export function HistoryPage() {
 
   const loadHistory = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/v1/audit/recent?limit=50', {
         credentials: 'include',
@@ -56,11 +59,14 @@ export function HistoryPage() {
       if (res.ok) {
         const data = await res.json();
         setEntries(data.data?.entries || []);
+      } else {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
-    } catch {
-      // API may not be available yet
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load history');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -129,7 +135,9 @@ export function HistoryPage() {
         </div>
       }
     >
-      {entries.length > 0 ? (
+      {error ? (
+        <PageError error={error} onRetry={loadHistory} title="Failed to Load History" />
+      ) : entries.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {entries.map((entry) => (
             <AuditRow key={entry.id} entry={entry} />

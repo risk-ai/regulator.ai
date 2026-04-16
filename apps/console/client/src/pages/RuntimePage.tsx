@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { useEventStream } from '../hooks/useEventStream.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface RuntimeStats {
   window: string;
@@ -38,17 +39,21 @@ export function RuntimePage() {
   const [executions, setExecutions] = useState<ExecutionRecord[]>([]);
   const [window, setWindow] = useState('24h');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { connected, events } = useEventStream({ enabled: true, maxEvents: 10 });
 
   const load = useCallback(async () => {
     try {
+      setError(null);
       const [s, e] = await Promise.all([
         fetchJSON(`/api/v1/runtime/stats?window=${window}`),
         fetchJSON('/api/v1/execution-records?limit=10'),
       ]);
       setStats(s.data);
       setExecutions(e.data || []);
-    } catch {} finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load runtime data');
+    } finally { setLoading(false); }
   }, [window]);
 
   useEffect(() => { load(); const i = setInterval(load, 15000); return () => clearInterval(i); }, [load]);
@@ -57,6 +62,14 @@ export function RuntimePage() {
   const statusColors: Record<string, string> = {
     executed: '#10b981', denied: '#ef4444', expired: '#94a3b8', revoked: '#f97316', pending: '#f59e0b',
   };
+
+  if (error) {
+    return (
+      <PageLayout title="Runtime" description="Error loading data">
+        <PageError error={error} onRetry={load} title="Failed to Load Runtime Data" />
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout title="Runtime" description="Execution pipeline health and metrics">

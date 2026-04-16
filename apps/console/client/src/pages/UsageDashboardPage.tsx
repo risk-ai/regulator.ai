@@ -16,6 +16,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { TrendingUp, Activity, Shield, Zap, Users, ArrowUp } from 'lucide-react';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface UsageMetrics {
   proposals_today: number;
@@ -42,6 +43,7 @@ interface UsageMetrics {
 export function UsageDashboardPage() {
   const [metrics, setMetrics] = useState<UsageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export function UsageDashboardPage() {
   const loadMetrics = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(`/api/v1/usage/metrics?range=${timeRange}`, {
         credentials: 'include',
       });
@@ -60,8 +63,9 @@ export function UsageDashboardPage() {
       if (data.success) {
         setMetrics(data.data);
       }
-    } catch (error) {
-      console.error('Failed to load usage metrics:', error);
+    } catch (err) {
+      console.error('Failed to load usage metrics:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load usage metrics');
     } finally {
       setLoading(false);
     }
@@ -77,11 +81,19 @@ export function UsageDashboardPage() {
     );
   }
 
-  if (!metrics) {
+  if (error) {
     return (
       <PageLayout title="Usage Dashboard" description="Error loading metrics">
+        <PageError error={error} onRetry={loadMetrics} title="Failed to Load Usage Data" />
+      </PageLayout>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <PageLayout title="Usage Dashboard" description="No data available">
         <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-tertiary)' }}>
-          Failed to load usage data. Please try again.
+          No usage data available
         </div>
       </PageLayout>
     );

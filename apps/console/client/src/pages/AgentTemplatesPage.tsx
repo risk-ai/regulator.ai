@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface AgentTemplate {
   id: string;
@@ -22,6 +23,7 @@ interface AgentTemplate {
 export default function AgentTemplatesPage() {
   const [templates, setTemplates] = useState<AgentTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<AgentTemplate | null>(null);
   const [showCode, setShowCode] = useState(false);
 
@@ -32,14 +34,15 @@ export default function AgentTemplatesPage() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/v1/agent-templates');
       const data = await response.json();
       
       if (data.success) {
         setTemplates(data.data);
       }
-    } catch (error) {
-
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load templates');
     } finally {
       setLoading(false);
     }
@@ -75,6 +78,9 @@ export default function AgentTemplatesPage() {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      ) : error ? (
+        <PageError error={error} onRetry={fetchTemplates} title="Failed to Load Templates" />
           <p className="mt-4 text-[rgba(255,255,255,0.6)]">Loading templates...</p>
         </div>
       ) : (

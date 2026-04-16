@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
 import { Bell, Plus, Trash2, TestTube } from 'lucide-react';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface WebhookConfig {
   id: string;
@@ -35,6 +36,7 @@ const EVENT_TYPES = [
 export function WebhookConfigPage() {
   const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
@@ -44,11 +46,14 @@ export function WebhookConfigPage() {
   const loadWebhooks = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch('/api/v1/integrations', { credentials: 'include' });
       const data = await response.json();
       if (data.success) setWebhooks(data.data);
-    } catch (error) {
-      addToast('Failed to load webhooks', 'error');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load webhooks';
+      setError(errorMsg);
+      addToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -136,6 +141,8 @@ export function WebhookConfigPage() {
           <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-tertiary)' }}>
             Loading webhooks...
           </div>
+        ) : error ? (
+          <PageError error={error} onRetry={loadWebhooks} title="Failed to Load Webhooks" />
         ) : webhooks.length === 0 ? (
           <div style={{
             background: 'var(--bg-primary)',

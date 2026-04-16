@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface PolicyTemplate {
   id: string;
@@ -22,6 +23,7 @@ export default function PolicyTemplatesPage() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<PolicyTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTemplate, setSelectedTemplate] = useState<PolicyTemplate | null>(null);
 
@@ -32,6 +34,7 @@ export default function PolicyTemplatesPage() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
+      setError(null);
       const url = selectedCategory === 'all'
         ? '/api/v1/policy-templates'
         : `/api/v1/policy-templates?category=${selectedCategory}`;
@@ -42,8 +45,8 @@ export default function PolicyTemplatesPage() {
       if (data.success) {
         setTemplates(data.data);
       }
-    } catch (error) {
-
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load policy templates');
     } finally {
       setLoading(false);
     }
@@ -112,6 +115,8 @@ export default function PolicyTemplatesPage() {
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <p className="mt-4 text-[rgba(255,255,255,0.6)]">Loading templates...</p>
         </div>
+      ) : error ? (
+        <PageError error={error} onRetry={fetchTemplates} title="Failed to Load Policy Templates" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.length === 0 ? (

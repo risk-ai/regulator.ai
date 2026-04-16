@@ -18,6 +18,7 @@ import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { addToast } from '../store/toastStore.js';
 import { Activity, CheckCircle2, Shield } from 'lucide-react';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 // ============================================================================
 // TYPES
@@ -566,10 +567,12 @@ function AuditTrail({ entries }: { entries: AuditEntry[] }) {
 export function CompliancePremium() {
   const [data, setData] = useState<ComplianceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
 
   const fetchCompliance = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('vienna_access_token');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -648,7 +651,9 @@ export function CompliancePremium() {
         period: period === '7d' ? 'Last 7 Days' : period === '30d' ? 'Last 30 Days' : 'Last 90 Days',
       });
     } catch (err) {
-      addToast('Failed to load compliance data', 'error');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load compliance data';
+      setError(errorMsg);
+      addToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
@@ -833,6 +838,8 @@ export function CompliancePremium() {
           </p>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
+      ) : error ? (
+        <PageError error={error} onRetry={fetchCompliance} title="Failed to Load Compliance Data" />
       ) : data && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Compliance Score */}

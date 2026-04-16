@@ -9,23 +9,28 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Activity, AlertTriangle, CheckCircle, XCircle, RefreshCw, Pause, Play } from 'lucide-react';
 import { fleetApi, type AgentDetail } from '../api/fleet.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 export default function AgentDetailPage() {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
   const [data, setData] = useState<AgentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const loadAgent = useCallback(async (showRefresh = false) => {
     if (!agentId) return;
     if (showRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
     try {
       const detail = await fleetApi.getAgent(agentId);
       setData(detail);
     } catch (err) {
       console.error('Agent load failed:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load agent details');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -72,6 +77,10 @@ export default function AgentDetailPage() {
         <div className="w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--border-subtle)', borderTopColor: 'var(--accent-primary)' }} />
       </div>
     );
+  }
+
+  if (error) {
+    return <PageError error={error} onRetry={() => loadAgent()} title="Failed to Load Agent" />;
   }
 
   if (!data) {

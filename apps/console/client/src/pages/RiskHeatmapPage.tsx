@@ -11,6 +11,7 @@ import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackg
 import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 import { apiClient } from '../api/client.js';
 import { addToast } from '../store/toastStore.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 // ─── Types ───
 
@@ -55,12 +56,14 @@ export function RiskHeatmapPage() {
   const [sortBy, setSortBy] = useState<'alpha' | 'active' | 'risk'>('risk');
   const [filterT2Plus, setFilterT2Plus] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     async function fetchHeatmapData() {
       setLoading(true);
+      setError(null);
       try {
         const response = await apiClient.get<{ success: boolean; data: AgentRiskData[] }>(
           `/analytics/risk-heatmap?range=${timeRange}`
@@ -108,17 +111,12 @@ export function RiskHeatmapPage() {
             risk_concentration: 0,
           });
         }
-      } catch (error: any) {
+      } catch (err: any) {
         if (!mounted) return;
-        console.error('Failed to fetch risk heatmap:', error);
-        addToast('Failed to load risk heatmap data', 'error');
-        // Fallback to empty state
-        setData({
-          cells: [],
-          totals: { T0: 0, T1: 0, T2: 0, T3: 0 },
-          highest_risk_agent: 'N/A',
-          risk_concentration: 0,
-        });
+        console.error('Failed to fetch risk heatmap:', err);
+        const errorMsg = err instanceof Error ? err.message : 'Failed to load risk heatmap data';
+        setError(errorMsg);
+        addToast(errorMsg, 'error');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -131,7 +129,7 @@ export function RiskHeatmapPage() {
     };
   }, [timeRange]);
 
-  if (loading || !data) {
+  if (loading) {
     return (
       <div style={{ position: 'relative', minHeight: '100vh' }}>
         <AnimatedGlobeBackground />
@@ -146,6 +144,34 @@ export function RiskHeatmapPage() {
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
               }} />
+            </div>
+          </PageLayout>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <AnimatedGlobeBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <PageLayout title="Risk Distribution" description="Error loading data">
+            <PageError error={error} onRetry={() => window.location.reload()} title="Failed to Load Heatmap" />
+          </PageLayout>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <AnimatedGlobeBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <PageLayout title="Risk Distribution" description="No data available">
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0', color: 'var(--text-tertiary)' }}>
+              No heatmap data available
             </div>
           </PageLayout>
         </div>

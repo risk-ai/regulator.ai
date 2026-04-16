@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 interface HealthCheck {
   status: string;
@@ -35,13 +36,18 @@ const governanceEngines = [
 export function ServicesPage() {
   const [health, setHealth] = useState<HealthCheck | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
+      setError(null);
       const res = await fetch('/api/v1/health', { credentials: 'include' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setHealth(data);
-    } catch {} finally { setLoading(false); }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load services health');
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); const i = setInterval(load, 15000); return () => clearInterval(i); }, [load]);
@@ -62,6 +68,14 @@ export function ServicesPage() {
     if (s < 3600) return `${Math.floor(s/60)}m`;
     return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
   };
+
+  if (error) {
+    return (
+      <PageLayout title="Services" description="Error loading data">
+        <PageError error={error} onRetry={load} title="Failed to Load Services Status" />
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout title="Services" description="Infrastructure health & governance engine status">

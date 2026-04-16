@@ -17,6 +17,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { addToast } from '../store/toastStore.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 // ============================================================================
 // TYPES

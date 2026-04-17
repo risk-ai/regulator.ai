@@ -7,7 +7,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 import { apiClient } from '../api/client.js';
 import { addToast } from '../store/toastStore.js';
@@ -134,7 +133,6 @@ export function RiskHeatmapPage() {
   if (loading || !data) {
     return (
       <div style={{ position: 'relative', minHeight: '100vh' }}>
-        <AnimatedGlobeBackground />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <PageLayout title="Risk Distribution" description="Loading heatmap...">
             <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
@@ -212,7 +210,6 @@ export function RiskHeatmapPage() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <AnimatedGlobeBackground />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <PageLayout title="" description="">
           {/* Header */}

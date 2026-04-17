@@ -254,7 +254,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   // Trace back to intent if starting from warrant or execution
   if (entityType === 'warrant' || entityType === 'auto') {
     const w = await pool.query(
-      'SELECT intent_id FROM warrants WHERE id = $1 AND tenant_id = $2',
+      'SELECT intent_id FROM warrants WHERE id::text = $1::text AND tenant_id::text = $2::text',
       [entityId, tenantId]
     );
     if (w.rows.length > 0 && w.rows[0].intent_id) {
@@ -264,8 +264,8 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   if (entityType === 'execution' || (entityType === 'auto' && intentId === entityId)) {
     const e = await pool.query(
       `SELECT w.intent_id FROM execution_ledger_events ele 
-       JOIN warrants w ON w.id = ele.warrant_id AND w.tenant_id = $2
-       WHERE ele.execution_id = $1 AND ele.tenant_id = $2 AND w.intent_id IS NOT NULL
+       JOIN warrants w ON w.id::text = ele.warrant_id::text AND w.tenant_id::text = $2::text
+       WHERE ele.execution_id = $1 AND ele.tenant_id::text = $2::text AND w.intent_id IS NOT NULL
        LIMIT 1`,
       [entityId, tenantId]
     );
@@ -276,7 +276,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
 
   // Fetch intent
   const intentResult = await pool.query(
-    'SELECT * FROM intents WHERE id = $1 AND tenant_id = $2',
+    'SELECT * FROM intents WHERE id::text = $1::text AND tenant_id::text = $2::text',
     [intentId, tenantId]
   );
   if (intentResult.rows.length > 0) {
@@ -288,7 +288,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
     `SELECT pe.*, p.name AS policy_name 
      FROM policy_evaluations pe 
      LEFT JOIN policies p ON p.id = pe.rule_id
-     WHERE pe.intent_id = $1 AND pe.tenant_id = $2
+     WHERE pe.intent_id::text = $1::text AND pe.tenant_id::text = $2::text
      ORDER BY pe.evaluated_at ASC`,
     [intentId, tenantId]
   );
@@ -296,14 +296,14 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
 
   // Fetch warrants
   const warrantResult = await pool.query(
-    'SELECT * FROM warrants WHERE intent_id = $1 AND tenant_id = $2 ORDER BY created_at ASC',
+    'SELECT * FROM warrants WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
     [intentId, tenantId]
   );
   chain.warrants = warrantResult.rows;
 
   // Fetch approvals
   const approvalResult = await pool.query(
-    'SELECT * FROM approval_requests WHERE intent_id = $1 AND tenant_id = $2 ORDER BY created_at ASC',
+    'SELECT * FROM approval_requests WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
     [intentId, tenantId]
   );
   chain.approvals = approvalResult.rows;
@@ -313,7 +313,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   if (warrantIds.length > 0) {
     const execResult = await pool.query(
       `SELECT * FROM execution_ledger_events 
-       WHERE warrant_id = ANY($1) AND tenant_id = $2
+       WHERE warrant_id::text = ANY($1::text[]) AND tenant_id::text = $2::text
        ORDER BY event_timestamp ASC`,
       [warrantIds, tenantId]
     );

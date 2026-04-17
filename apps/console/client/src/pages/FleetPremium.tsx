@@ -13,6 +13,7 @@ import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 import { EmptyStates } from '../components/ui/RichEmptyState';
 import { useResponsive } from '../hooks/useResponsive';
+import { FleetGridSkeleton, FleetTableSkeleton } from '../components/ui/LoadingSkeletons';
 
 export default function FleetPremium() {
   const navigate = useNavigate();
@@ -57,7 +58,13 @@ export default function FleetPremium() {
   const totalActions = summary?.actionsToday ?? agents.reduce((s, a) => s + (a.actions_today || 0), 0);
   const avgLatency = summary?.avgLatencyMs?.toFixed(1) ?? '—';
 
-  if (loading) return <LoadingState message="Loading fleet data..." />;
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-[1440px] mx-auto p-6">
+        {isMobile ? <FleetGridSkeleton count={6} /> : <FleetTableSkeleton rows={8} />}
+      </div>
+    );
+  }
   if (error) return <ErrorState error={error} onRetry={() => loadFleet()} />;
   if (agents.length === 0) {
     return (

@@ -11,6 +11,7 @@ import { ApprovalCard } from './ApprovalCard';
 import { useAuthStore } from '../../store/authStore.js';
 import { addToast } from '../../store/toastStore.js';
 import { EmptyStates } from '../ui/RichEmptyState';
+import { ApprovalListSkeleton } from '../ui/LoadingSkeletons';
 
 interface PendingApprovalsListProps {
   onApprovalChange?: () => void;
@@ -162,11 +163,7 @@ export const PendingApprovalsList = forwardRef<any, PendingApprovalsListProps>((
   };
 
   if (loading && approvals.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-      </div>
-    );
+    return <ApprovalListSkeleton />;
   }
 
   if (error) {

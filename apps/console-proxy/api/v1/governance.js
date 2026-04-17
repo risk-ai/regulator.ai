@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
               'result', pe.result,
               'evaluated_at', pe.evaluated_at
             ) ORDER BY pe.evaluated_at)
-            FROM policy_evaluations pe WHERE pe.intent_id = i.id AND pe.tenant_id::text = $1::text
+            FROM policy_evaluations pe WHERE pe.intent_id::text = i.id::text AND pe.tenant_id::text = $1::text
             ) AS evaluations,
             (SELECT json_agg(json_build_object(
               'id', w.id,
@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
               'risk_tier', w.risk_tier,
               'created_at', w.created_at
             ) ORDER BY w.created_at)
-            FROM warrants w WHERE w.intent_id = i.id AND w.tenant_id::text = $1::text
+            FROM warrants w WHERE w.intent_id::text = i.id::text AND w.tenant_id::text = $1::text
             ) AS warrants,
             (SELECT json_agg(json_build_object(
               'execution_id', e.execution_id,
@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
               'timestamp', e.event_timestamp
             ) ORDER BY e.event_timestamp DESC)
             FROM execution_ledger_events e 
-            WHERE e.warrant_id IN (SELECT w2.id FROM warrants w2 WHERE w2.intent_id = i.id AND w2.tenant_id::text = $1::text)
+            WHERE e.warrant_id IN (SELECT w2.id FROM warrants w2 WHERE w2.intent_id::text = i.id::text AND w2.tenant_id::text = $1::text)
               AND e.tenant_id::text = $1::text
             ) AS executions
           FROM intents i

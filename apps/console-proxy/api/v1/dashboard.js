@@ -136,7 +136,7 @@ module.exports = async function handler(req, res) {
             (SELECT COUNT(*) FROM integrations WHERE tenant_id::text = $1::text AND enabled = true) AS active_integrations,
             (SELECT COUNT(*) FROM webhooks WHERE tenant_id::text = $1::text AND enabled = true) AS active_webhooks,
             (SELECT COUNT(*) FROM webhook_deliveries WHERE 1=1 
-              AND delivered_at > NOW() - INTERVAL '1 hour' AND status = 'failed') AS failed_webhooks_1h,
+              AND delivered_at > NOW() - INTERVAL '1 hour' AND status_code >= 400) AS failed_webhooks_1h,
             (SELECT COUNT(*) FROM api_keys WHERE tenant_id::text = $1::text AND revoked = false 
               AND (expires_at IS NULL OR expires_at > NOW())) AS active_api_keys
         `, [tenantId]),

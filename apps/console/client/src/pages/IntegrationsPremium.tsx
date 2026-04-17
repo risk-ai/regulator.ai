@@ -510,24 +510,7 @@ function CodeSnippet({ language, code }: { language: string; code: string }) {
 
 export function IntegrationsPremium() {
   const [integrations, setIntegrations] = useState<Integration[]>(INTEGRATIONS);
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: 'key-1',
-      name: 'Production API Key',
-      key: 'vienna_live_7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d',
-      created: '2026-04-01',
-      lastUsed: '2 hours ago',
-      permissions: ['read:agents', 'write:warrants', 'read:policies'],
-    },
-    {
-      id: 'key-2',
-      name: 'Development API Key',
-      key: 'vienna_test_1234567890abcdef1234567890abcdef',
-      created: '2026-03-15',
-      lastUsed: '1 day ago',
-      permissions: ['read:agents', 'read:policies'],
-    },
-  ]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [selectedLang, setSelectedLang] = useState<'python' | 'nodejs' | 'go' | 'rust'>('python');
 
   const codeSnippets = {
@@ -641,28 +624,69 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }`,
   };
 
-  const handleConnect = (id: string) => {
-    addToast(`Connecting ${id}...`, 'info');
-    setTimeout(() => {
-      setIntegrations(prev => prev.map(i =>
-        i.id === id ? { ...i, status: 'connected' as const, lastSync: 'Just now' } : i
-      ));
-      addToast(`${id} connected successfully`, 'success');
-    }, 1500);
+  const getHeaders = useCallback(() => {
+    const token = localStorage.getItem('vienna_access_token');
+    const h: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) h['Authorization'] = `Bearer ${token}`;
+    return h;
+  }, []);
+
+  // Fetch real integrations + API keys on mount
+  useEffect(() => {
+    const headers = getHeaders();
+    Promise.all([
+      fetch('/api/v1/integrations', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+      fetch('/api/v1/api-keys', { credentials: 'include', headers }).then(r => r.json()).catch(() => ({ success: false })),
+    ]).then(([intRes, keyRes]) => {
+      if (intRes.success && intRes.data) {
+        const realMap = new Map(intRes.data.map((i: any) => [i.type, i]));
+        setIntegrations(prev => prev.map(item => {
+          const real = realMap.get(item.id);
+          if (real) return { ...item, status: real.enabled ? 'connected' as const : 'disconnected' as const, lastSync: real.updated_at ? new Date(real.updated_at).toLocaleString() : undefined };
+          return item;
+        }));
+      }
+      if (keyRes.success && keyRes.data) {
+        setApiKeys(keyRes.data.map((k: any) => ({
+          id: k.id, name: k.name, key: k.key_prefix || '••••••••',
+          created: new Date(k.created_at).toLocaleDateString(),
+          lastUsed: k.last_used_at ? new Date(k.last_used_at).toLocaleString() : 'Never',
+          permissions: k.permissions || [],
+        })));
+      }
+    });
+  }, [getHeaders]);
+
+  const handleConnect = async (id: string) => {
+    addToast(\`Connecting \${id}...\`, 'info');
+    const headers = getHeaders();
+    try {
+      const res = await fetch('/api/v1/integrations', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ type: id, name: id, enabled: true, config: {} }) });
+      const data = await res.json();
+      if (data.success) { setIntegrations(prev => prev.map(i => i.id === id ? { ...i, status: 'connected' as const, lastSync: 'Just now' } : i)); addToast(\`\${id} connected\`, 'success'); }
+      else addToast(\`Failed: \${data.error || 'unknown'}\`, 'error');
+    } catch { addToast(\`Failed to connect \${id}\`, 'error'); }
   };
 
-  const handleTest = (id: string) => {
-    addToast(`Testing ${id} connection...`, 'info');
-    setTimeout(() => {
-      addToast(`${id} connection healthy`, 'success');
-    }, 1000);
+  const handleTest = async (id: string) => {
+    addToast(\`Testing \${id}...\`, 'info');
+    const headers = getHeaders();
+    try {
+      const res = await fetch(\`/api/v1/integrations/\${id}/test\`, { method: 'POST', credentials: 'include', headers });
+      const data = await res.json();
+      addToast(data.success ? \`\${id} healthy\` : \`\${id} test failed\`, data.success ? 'success' : 'warning');
+    } catch { addToast(\`\${id} test failed\`, 'error'); }
   };
 
-  const handleRevokeKey = (id: string) => {
-    if (confirm('Revoke this API key? This cannot be undone.')) {
-      setApiKeys(prev => prev.filter(k => k.id !== id));
-      addToast('API key revoked', 'success');
-    }
+  const handleRevokeKey = async (id: string) => {
+    if (!confirm('Revoke this API key? This cannot be undone.')) return;
+    const headers = getHeaders();
+    try {
+      const res = await fetch(\`/api/v1/api-keys/\${id}/revoke\`, { method: 'POST', credentials: 'include', headers });
+      const data = await res.json();
+      if (data.success) { setApiKeys(prev => prev.filter(k => k.id !== id)); addToast('API key revoked', 'success'); }
+      else addToast(\`Failed: \${data.error}\`, 'error');
+    } catch { addToast('Failed to revoke key', 'error'); }
   };
 
   const connectedCount = integrations.filter(i => i.status === 'connected').length;

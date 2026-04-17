@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE status = 'completed') AS completed_chains,
             COUNT(*) FILTER (WHERE status = 'rejected' OR status = 'denied') AS rejected_chains,
             COUNT(*) FILTER (WHERE status = 'pending' OR status = 'awaiting_approval') AS pending_chains
-          FROM intents
+          FROM regulator.intents
           WHERE tenant_id::text = $1::text AND created_at > NOW() - ${interval}
         `, [tenantId]),
 
@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
               'result', pe.result,
               'evaluated_at', pe.evaluated_at
             ) ORDER BY pe.evaluated_at)
-            FROM policy_evaluations pe WHERE pe.intent_id::text = i.id::text AND pe.tenant_id::text = $1::text
+            FROM regulator.policy_evaluations pe WHERE pe.intent_id::text = i.id::text AND pe.tenant_id::text = $1::text
             ) AS evaluations,
             (SELECT json_agg(json_build_object(
               'id', w.id,
@@ -79,18 +79,18 @@ module.exports = async function handler(req, res) {
               'risk_tier', w.risk_tier,
               'created_at', w.created_at
             ) ORDER BY w.created_at)
-            FROM warrants w WHERE w.intent_id::text = i.id::text AND w.tenant_id::text = $1::text
+            FROM regulator.warrants w WHERE w.intent_id::text = i.id::text AND w.tenant_id::text = $1::text
             ) AS warrants,
             (SELECT json_agg(json_build_object(
               'execution_id', e.execution_id,
               'event_type', e.event_type,
               'timestamp', e.event_timestamp
             ) ORDER BY e.event_timestamp DESC)
-            FROM execution_ledger_events e 
-            WHERE e.warrant_id IN (SELECT w2.id FROM warrants w2 WHERE w2.intent_id::text = i.id::text AND w2.tenant_id::text = $1::text)
+            FROM regulator.execution_ledger_events e 
+            WHERE e.warrant_id IN (SELECT w2.id FROM regulator.warrants w2 WHERE w2.intent_id::text = i.id::text AND w2.tenant_id::text = $1::text)
               AND e.tenant_id::text = $1::text
             ) AS executions
-          FROM intents i
+          FROM regulator.intents i
           WHERE i.tenant_id::text = $1::text AND i.created_at > NOW() - ${interval}
           ORDER BY i.created_at DESC
           LIMIT 15
@@ -107,9 +107,9 @@ module.exports = async function handler(req, res) {
             pe.evaluated_at,
             i.action AS action_type,
             i.agent_id
-          FROM policy_evaluations pe
-          LEFT JOIN policies p ON p.id = pe.rule_id
-          LEFT JOIN intents i ON i.id = pe.intent_id
+          FROM regulator.policy_evaluations pe
+          LEFT JOIN regulator.policies p ON p.id = pe.rule_id
+          LEFT JOIN regulator.intents i ON i.id = pe.intent_id
           WHERE pe.tenant_id::text = $1::text 
             AND pe.result = 'deny'
             AND pe.evaluated_at > NOW() - ${interval}
@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
             risk_tier,
             COUNT(*) AS count,
             MAX(created_at) AS most_recent
-          FROM warrants
+          FROM regulator.warrants
           WHERE tenant_id::text = $1::text
           GROUP BY status, risk_tier
           ORDER BY count DESC
@@ -141,7 +141,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE status = 'expired') AS expired,
             AVG(EXTRACT(EPOCH FROM (updated_at - created_at))) 
               FILTER (WHERE status IN ('approved', 'denied')) AS avg_resolution_seconds
-          FROM approval_requests
+          FROM regulator.approval_requests
           WHERE tenant_id::text = $1::text AND created_at > NOW() - ${interval}
           GROUP BY required_tier
           ORDER BY required_tier
@@ -177,7 +177,7 @@ module.exports = async function handler(req, res) {
       if (!type || type === 'intent') {
         const r = await pool.query(`
           SELECT 'intent' AS entity_type, id, action AS action_type, agent_id, status, created_at
-          FROM intents
+          FROM regulator.intents
           WHERE tenant_id::text = $1::text AND (
             id::text ILIKE $2 OR action ILIKE $2 OR agent_id ILIKE $2
           )
@@ -189,7 +189,7 @@ module.exports = async function handler(req, res) {
       if (!type || type === 'warrant') {
         const r = await pool.query(`
           SELECT 'warrant' AS entity_type, id, agent_id, status, risk_tier, created_at
-          FROM warrants
+          FROM regulator.warrants
           WHERE tenant_id::text = $1::text AND (
             id::text ILIKE $2 OR agent_id ILIKE $2 OR status ILIKE $2
           )
@@ -203,7 +203,7 @@ module.exports = async function handler(req, res) {
           SELECT DISTINCT ON (execution_id) 
             'execution' AS entity_type, execution_id AS id, event AS status, 
             actor_id AS agent_id, event_timestamp AS created_at
-          FROM execution_ledger_events
+          FROM regulator.execution_ledger_events
           WHERE tenant_id::text = $1::text AND (
             execution_id::text ILIKE $2 OR actor_id ILIKE $2
           )
@@ -217,7 +217,7 @@ module.exports = async function handler(req, res) {
         const r = await pool.query(`
           SELECT 'agent' AS entity_type, agent_id AS id, display_name, status, 
             trust_score, last_heartbeat AS created_at
-          FROM agent_registry
+          FROM regulator.agent_registry
           WHERE tenant_id::text = $1::text AND (
             agent_id ILIKE $2 OR display_name ILIKE $2
           )
@@ -254,7 +254,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   // Trace back to intent if starting from warrant or execution
   if (entityType === 'warrant' || entityType === 'auto') {
     const w = await pool.query(
-      'SELECT intent_id FROM warrants WHERE id::text = $1::text AND tenant_id::text = $2::text',
+      'SELECT intent_id FROM regulator.warrants WHERE id::text = $1::text AND tenant_id::text = $2::text',
       [entityId, tenantId]
     );
     if (w.rows.length > 0 && w.rows[0].intent_id) {
@@ -263,8 +263,8 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   }
   if (entityType === 'execution' || (entityType === 'auto' && intentId === entityId)) {
     const e = await pool.query(
-      `SELECT w.intent_id FROM execution_ledger_events ele 
-       JOIN warrants w ON w.id::text = ele.warrant_id::text AND w.tenant_id::text = $2::text
+      `SELECT w.intent_id FROM regulator.execution_ledger_events ele 
+       JOIN regulator.warrants w ON w.id::text = ele.warrant_id::text AND w.tenant_id::text = $2::text
        WHERE ele.execution_id = $1 AND ele.tenant_id::text = $2::text AND w.intent_id IS NOT NULL
        LIMIT 1`,
       [entityId, tenantId]
@@ -276,7 +276,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
 
   // Fetch intent
   const intentResult = await pool.query(
-    'SELECT * FROM intents WHERE id::text = $1::text AND tenant_id::text = $2::text',
+    'SELECT * FROM regulator.intents WHERE id::text = $1::text AND tenant_id::text = $2::text',
     [intentId, tenantId]
   );
   if (intentResult.rows.length > 0) {
@@ -286,8 +286,8 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   // Fetch policy evaluations
   const evalResult = await pool.query(
     `SELECT pe.*, p.name AS policy_name 
-     FROM policy_evaluations pe 
-     LEFT JOIN policies p ON p.id = pe.rule_id
+     FROM regulator.policy_evaluations pe 
+     LEFT JOIN regulator.policies p ON p.id = pe.rule_id
      WHERE pe.intent_id::text = $1::text AND pe.tenant_id::text = $2::text
      ORDER BY pe.evaluated_at ASC`,
     [intentId, tenantId]
@@ -296,14 +296,14 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
 
   // Fetch warrants
   const warrantResult = await pool.query(
-    'SELECT * FROM warrants WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
+    'SELECT * FROM regulator.warrants WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
     [intentId, tenantId]
   );
   chain.warrants = warrantResult.rows;
 
   // Fetch approvals
   const approvalResult = await pool.query(
-    'SELECT * FROM approval_requests WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
+    'SELECT * FROM regulator.approval_requests WHERE intent_id::text = $1::text AND tenant_id::text = $2::text ORDER BY created_at ASC',
     [intentId, tenantId]
   );
   chain.approvals = approvalResult.rows;
@@ -312,7 +312,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
   const warrantIds = chain.warrants.map(w => w.id);
   if (warrantIds.length > 0) {
     const execResult = await pool.query(
-      `SELECT * FROM execution_ledger_events 
+      `SELECT * FROM regulator.execution_ledger_events 
        WHERE warrant_id::text = ANY($1::text[]) AND tenant_id::text = $2::text
        ORDER BY event_timestamp ASC`,
       [warrantIds, tenantId]
@@ -322,7 +322,7 @@ async function buildGovernanceChain(tenantId, entityId, entityType) {
 
   // Fetch audit trail
   const auditResult = await pool.query(
-    `SELECT * FROM audit_log 
+    `SELECT * FROM regulator.audit_log 
      WHERE tenant_id::text = $1::text AND (
        details->>'intent_id' = $2 
        OR details->>'entity_id' = $2

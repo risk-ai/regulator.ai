@@ -44,18 +44,18 @@ module.exports = async function handler(req, res) {
         // 1. Overview counters
         pool.query(`
           SELECT
-            (SELECT COUNT(*) FROM warrants WHERE tenant_id::text = $1::text) AS total_warrants,
-            (SELECT COUNT(*) FROM warrants WHERE tenant_id::text = $1::text AND status = 'active') AS active_warrants,
-            (SELECT COUNT(*) FROM policies WHERE tenant_id::text = $1::text AND enabled = true) AS active_policies,
-            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id::text = $1::text) AS total_agents,
-            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id::text = $1::text 
+            (SELECT COUNT(*) FROM regulator.warrants WHERE tenant_id::text = $1::text) AS total_warrants,
+            (SELECT COUNT(*) FROM regulator.warrants WHERE tenant_id::text = $1::text AND status = 'active') AS active_warrants,
+            (SELECT COUNT(*) FROM regulator.policies WHERE tenant_id::text = $1::text AND enabled = true) AS active_policies,
+            (SELECT COUNT(*) FROM regulator.agent_registry WHERE tenant_id::text = $1::text) AS total_agents,
+            (SELECT COUNT(*) FROM regulator.agent_registry WHERE tenant_id::text = $1::text 
               AND last_heartbeat > NOW() - INTERVAL '1 hour') AS online_agents,
-            (SELECT COUNT(DISTINCT execution_id) FROM execution_ledger_events 
+            (SELECT COUNT(DISTINCT execution_id) FROM regulator.execution_ledger_events 
               WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - ${interval}) AS executions_period,
-            (SELECT COUNT(*) FROM approval_requests WHERE tenant_id::text = $1::text AND status = 'pending') AS pending_approvals,
-            (SELECT COUNT(*) FROM policy_evaluations WHERE tenant_id::text = $1::text 
+            (SELECT COUNT(*) FROM regulator.approval_requests WHERE tenant_id::text = $1::text AND status = 'pending') AS pending_approvals,
+            (SELECT COUNT(*) FROM regulator.policy_evaluations WHERE tenant_id::text = $1::text 
               AND evaluated_at > NOW() - ${interval}) AS evaluations_period,
-            (SELECT COUNT(*) FROM audit_log WHERE tenant_id::text = $1::text 
+            (SELECT COUNT(*) FROM regulator.audit_log WHERE tenant_id::text = $1::text 
               AND created_at > NOW() - ${interval}) AS audit_events_period,
             (SELECT 0) AS open_incidents -- incidents table lacks tenant_id
         `, [tenantId]),
@@ -66,7 +66,7 @@ module.exports = async function handler(req, res) {
             status,
             COUNT(*) AS count,
             COALESCE(AVG(EXTRACT(EPOCH FROM (NOW() - last_heartbeat))), 0) AS avg_seconds_since_heartbeat
-          FROM agent_registry
+          FROM regulator.agent_registry
           WHERE tenant_id::text = $1::text
           GROUP BY status
           ORDER BY count DESC
@@ -81,7 +81,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE status = 'expired') AS expired,
             AVG(EXTRACT(EPOCH FROM (updated_at - created_at))) FILTER (WHERE status IN ('approved','denied')) AS avg_resolution_seconds,
             COUNT(*) FILTER (WHERE created_at > NOW() - ${interval}) AS new_this_period
-          FROM approval_requests
+          FROM regulator.approval_requests
           WHERE tenant_id::text = $1::text
         `, [tenantId]),
 
@@ -93,7 +93,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE result = 'deny') AS denied,
             COUNT(*) FILTER (WHERE result = 'require_approval') AS require_approval,
             ROUND(100.0 * COUNT(*) FILTER (WHERE result = 'allow') / NULLIF(COUNT(*), 0), 1) AS allow_rate
-          FROM policy_evaluations
+          FROM regulator.policy_evaluations
           WHERE tenant_id::text = $1::text AND evaluated_at > NOW() - ${interval}
         `, [tenantId]),
 
@@ -104,18 +104,18 @@ module.exports = async function handler(req, res) {
             COUNT(DISTINCT execution_id) AS executions,
             COUNT(*) FILTER (WHERE event_type = 'execution_completed') AS completed,
             COUNT(*) FILTER (WHERE event_type = 'execution_rejected') AS rejected
-          FROM execution_ledger_events
+          FROM regulator.execution_ledger_events
           WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - ${interval}
           GROUP BY bucket
           ORDER BY bucket ASC
         `, [tenantId]),
 
-        // 6. Risk distribution (from warrants risk_tier)
+        // 6. Risk distribution (from regulator.warrants risk_tier)
         pool.query(`
           SELECT
             COALESCE(risk_tier::text, 'unclassified') AS risk_tier,
             COUNT(*) AS count
-          FROM warrants
+          FROM regulator.warrants
           WHERE tenant_id::text = $1::text
           GROUP BY risk_tier
           ORDER BY count DESC
@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
         // 7. Recent activity feed (last 20)
         pool.query(`
           SELECT id, event, actor, details, created_at
-          FROM audit_log
+          FROM regulator.audit_log
           WHERE tenant_id::text = $1::text
           ORDER BY created_at DESC
           LIMIT 20
@@ -133,11 +133,11 @@ module.exports = async function handler(req, res) {
         // 8. System health (integration status, webhook delivery)
         pool.query(`
           SELECT
-            (SELECT COUNT(*) FROM integrations WHERE tenant_id::text = $1::text AND enabled = true) AS active_integrations,
-            (SELECT COUNT(*) FROM webhooks WHERE tenant_id::text = $1::text AND enabled = true) AS active_webhooks,
-            (SELECT COUNT(*) FROM webhook_deliveries WHERE 1=1 
+            (SELECT COUNT(*) FROM regulator.integrations WHERE tenant_id::text = $1::text AND enabled = true) AS active_integrations,
+            (SELECT COUNT(*) FROM regulator.webhooks WHERE tenant_id::text = $1::text AND enabled = true) AS active_webhooks,
+            (SELECT COUNT(*) FROM regulator.webhook_deliveries WHERE 1=1 
               AND delivered_at > NOW() - INTERVAL '1 hour' AND status_code >= 400) AS failed_webhooks_1h,
-            (SELECT COUNT(*) FROM api_keys WHERE tenant_id::text = $1::text AND revoked = false 
+            (SELECT COUNT(*) FROM regulator.api_keys WHERE tenant_id::text = $1::text AND revoked = false 
               AND (expires_at IS NULL OR expires_at > NOW())) AS active_api_keys
         `, [tenantId]),
       ]);
@@ -172,28 +172,28 @@ module.exports = async function handler(req, res) {
         case 'executions':
           query = `
             SELECT date_trunc(${bucket}, event_timestamp) AS t, COUNT(DISTINCT execution_id) AS v
-            FROM execution_ledger_events
+            FROM regulator.execution_ledger_events
             WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - ${interval}
             GROUP BY t ORDER BY t ASC`;
           break;
         case 'evaluations':
           query = `
             SELECT date_trunc(${bucket}, evaluated_at) AS t, COUNT(*) AS v
-            FROM policy_evaluations
+            FROM regulator.policy_evaluations
             WHERE tenant_id::text = $1::text AND evaluated_at > NOW() - ${interval}
             GROUP BY t ORDER BY t ASC`;
           break;
         case 'approvals':
           query = `
             SELECT date_trunc(${bucket}, created_at) AS t, COUNT(*) AS v
-            FROM approval_requests
+            FROM regulator.approval_requests
             WHERE tenant_id::text = $1::text AND created_at > NOW() - ${interval}
             GROUP BY t ORDER BY t ASC`;
           break;
         case 'audit':
           query = `
             SELECT date_trunc(${bucket}, created_at) AS t, COUNT(*) AS v
-            FROM audit_log
+            FROM regulator.audit_log
             WHERE tenant_id::text = $1::text AND created_at > NOW() - ${interval}
             GROUP BY t ORDER BY t ASC`;
           break;
@@ -224,7 +224,7 @@ module.exports = async function handler(req, res) {
       try {
         const r = await pool.query(`
           SELECT COUNT(DISTINCT execution_id) AS count
-          FROM execution_ledger_events
+          FROM regulator.execution_ledger_events
           WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - INTERVAL '5 minutes'
         `, [tenantId]);
         checks.executionPipeline = {
@@ -239,7 +239,7 @@ module.exports = async function handler(req, res) {
       try {
         const r = await pool.query(`
           SELECT COUNT(*) AS count
-          FROM policy_evaluations
+          FROM regulator.policy_evaluations
           WHERE tenant_id::text = $1::text AND evaluated_at > NOW() - INTERVAL '5 minutes'
         `, [tenantId]);
         checks.policyEngine = {
@@ -256,7 +256,7 @@ module.exports = async function handler(req, res) {
           SELECT 
             COUNT(*) FILTER (WHERE status = 'pending') AS pending,
             MIN(created_at) FILTER (WHERE status = 'pending') AS oldest_pending
-          FROM approval_requests WHERE tenant_id::text = $1::text
+          FROM regulator.approval_requests WHERE tenant_id::text = $1::text
         `, [tenantId]);
         const oldest = r.rows[0].oldest_pending;
         const stale = oldest && (Date.now() - new Date(oldest).getTime()) > 3600000;

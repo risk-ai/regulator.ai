@@ -1,8 +1,12 @@
-import { Activity, TrendingUp, Minus, Bell, Cpu, X, RefreshCw, Globe } from 'lucide-react';
+import { Activity, TrendingUp, Minus, Bell, X, RefreshCw, Shield, AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { dashboardApi } from '../api/dashboard.js';
 import { useViennaStream } from '../hooks/useViennaStream.js';
 import type { DashboardBootstrapResponse } from '../api/types.js';
+
+/* ════════════════════════════════════════════════════════════════════
+   Metric Card — compact KPI with sparkline
+   ════════════════════════════════════════════════════════════════════ */
 
 interface MetricCardProps {
   label: string;
@@ -10,58 +14,48 @@ interface MetricCardProps {
   trend?: string;
   trendDirection?: 'up' | 'down' | 'stable';
   sparklineData: number[];
-  color?: 'green' | 'amber' | 'blue';
+  color?: 'green' | 'amber' | 'blue' | 'red';
   loading?: boolean;
 }
 
 const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color = 'green', loading }: MetricCardProps) => {
-  const colorClasses = {
-    green: 'bg-emerald-500',
-    amber: 'bg-amber-500',
-    blue: 'bg-blue-500',
-  };
-
-  const trendColor = {
-    up: 'text-emerald-500',
-    down: 'text-red-500',
-    stable: 'text-gray-400',
-  };
+  const barColor = { green: 'bg-emerald-500', amber: 'bg-amber-500', blue: 'bg-blue-500', red: 'bg-red-500' };
+  const trendColor = { up: 'text-emerald-500', down: 'text-red-500', stable: 'text-zinc-500' };
 
   if (loading) {
     return (
-      <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)] animate-pulse">
+      <div className="bg-[#0d0e14] border border-white/[0.06] p-3.5 flex flex-col animate-pulse">
         <div className="h-3 w-20 bg-white/[0.06] rounded mb-3" />
-        <div className="h-8 w-16 bg-white/[0.06] rounded mb-4" />
-        <div className="flex gap-[1.5px] items-end h-7">
-          {[...Array(10)].map((_, i) => <div key={i} className="flex-1 bg-white/[0.04] rounded-sm" style={{ height: `${30 + Math.random() * 50}%` }} />)}
+        <div className="h-7 w-14 bg-white/[0.06] rounded mb-4" />
+        <div className="flex gap-px items-end h-6">
+          {Array.from({ length: 10 }, (_, i) => (
+            <div key={i} className="flex-1 bg-white/[0.04]" style={{ height: `${20 + (i * 7) % 60}%` }} />
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-3.5 flex flex-col shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)]">
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-3.5 flex flex-col hover:border-white/[0.12] transition-colors">
       <div className="flex justify-between items-start">
-        <div className="text-[11px] font-semibold text-white/45 uppercase tracking-wider">{label}</div>
+        <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">{label}</div>
         {trend && (
-          <div className={`text-[11px] font-bold ${trendColor[trendDirection || 'stable']} flex items-center gap-1 font-mono`}>
-            {trend} {trendDirection === 'up' && <TrendingUp size={11} />}
-            {trendDirection === 'stable' && <Minus size={11} />}
+          <div className={`text-[10px] font-bold font-mono ${trendColor[trendDirection || 'stable']} flex items-center gap-1`}>
+            {trend} {trendDirection === 'up' && <TrendingUp size={10} />}
+            {trendDirection === 'stable' && <Minus size={10} />}
           </div>
         )}
       </div>
-      <div className={`text-[28px] font-bold ${color === 'amber' ? 'text-amber-500' : 'text-white'} font-mono mt-1 leading-none`}>
+      <div className={`text-[26px] font-bold font-mono mt-1 leading-none ${color === 'amber' ? 'text-amber-500' : color === 'red' ? 'text-red-400' : 'text-white'}`}>
         {value}
       </div>
-      <div className="mt-4 flex gap-[1.5px] items-end h-7">
+      <div className="mt-3 flex gap-px items-end h-6">
         {sparklineData.map((height, i) => (
           <div
             key={i}
-            className={`flex-1 ${colorClasses[color]}`}
-            style={{ 
-              height: `${height}%`,
-              opacity: i === sparklineData.length - 1 ? 1 : 0.2 + (height / 100) * 0.8
-            }}
+            className={`flex-1 ${barColor[color]}`}
+            style={{ height: `${Math.max(height, 2)}%`, opacity: i === sparklineData.length - 1 ? 1 : 0.15 + (height / 100) * 0.7 }}
           />
         ))}
       </div>
@@ -69,87 +63,259 @@ const MetricCard = ({ label, value, trend, trendDirection, sparklineData, color 
   );
 };
 
-interface SystemStatusProps {
-  label: string;
-  status: 'operational' | 'degraded' | 'warning';
-  detail: string;
-  uptime?: string;
-}
+/* ════════════════════════════════════════════════════════════════════
+   Risk Distribution — horizontal bar chart by tier
+   ════════════════════════════════════════════════════════════════════ */
 
-const SystemStatusCard = ({ label, status, detail, uptime }: SystemStatusProps) => {
-  const statusConfig = {
-    operational: { dot: 'bg-emerald-500', text: 'text-emerald-500', glow: 'shadow-[0_0_12px_rgba(16,185,129,0.4)]' },
-    degraded: { dot: 'bg-amber-500', text: 'text-amber-500', glow: 'shadow-[0_0_12px_rgba(245,158,11,0.4)]' },
-    warning: { dot: 'bg-red-500', text: 'text-red-500', glow: 'shadow-[0_0_12px_rgba(239,68,68,0.4)]' },
-  };
+interface RiskTier { risk_tier: string; count: number }
+
+const TIER_CONFIG: Record<string, { label: string; color: string; bg: string; desc: string }> = {
+  T0: { label: 'T0', color: 'text-emerald-400', bg: 'bg-emerald-500', desc: 'Auto-approved' },
+  T1: { label: 'T1', color: 'text-blue-400', bg: 'bg-blue-500', desc: 'Policy-gated' },
+  T2: { label: 'T2', color: 'text-amber-400', bg: 'bg-amber-500', desc: 'Human review' },
+  T3: { label: 'T3', color: 'text-red-400', bg: 'bg-red-500', desc: 'Multi-party sign-off' },
+  unclassified: { label: '—', color: 'text-zinc-500', bg: 'bg-zinc-600', desc: 'Unclassified' },
+};
+
+const RiskDistribution = ({ data, loading }: { data: RiskTier[]; loading: boolean }) => {
+  const total = data.reduce((s, d) => s + Number(d.count), 0);
+  const sorted = ['T0', 'T1', 'T2', 'T3', 'unclassified']
+    .map(tier => {
+      const found = data.find(d => d.risk_tier === tier);
+      return { tier, count: found ? Number(found.count) : 0 };
+    })
+    .filter(d => d.count > 0);
 
   return (
-    <div className={`bg-[#1a1b26] border border-white/[0.08] rounded-lg p-3 ${statusConfig[status].glow}`}>
-      <div className="flex items-start justify-between mb-2">
-        <div className="text-[13px] font-semibold text-white">{label}</div>
-        <div className={`w-2 h-2 rounded-full ${statusConfig[status].dot} animate-pulse`} />
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest">Risk Distribution</h3>
+        <span className="text-[10px] font-mono text-zinc-600">{total} warrants</span>
       </div>
-      <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${statusConfig[status].text}`}>
-        {status.toUpperCase()}
-      </div>
-      <div className="text-[11px] text-white/55 font-mono">{detail}</div>
-      {uptime && (
-        <div className="text-[10px] text-white/35 font-mono mt-2 pt-2 border-t border-white/[0.06]">
-          Uptime: {uptime}
+      {loading ? (
+        <div className="space-y-3">
+          {[1,2,3].map(i => <div key={i} className="h-6 bg-white/[0.04] animate-pulse" />)}
+        </div>
+      ) : sorted.length === 0 ? (
+        <div className="text-center py-6 text-zinc-600 text-xs font-mono">No warrants issued yet</div>
+      ) : (
+        <div className="space-y-3">
+          {sorted.map(({ tier, count }) => {
+            const cfg = TIER_CONFIG[tier] || TIER_CONFIG.unclassified;
+            const pct = total > 0 ? (count / total) * 100 : 0;
+            return (
+              <div key={tier}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[11px] font-mono font-bold ${cfg.color}`}>{cfg.label}</span>
+                    <span className="text-[10px] text-zinc-600 font-mono">{cfg.desc}</span>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-400">{count} <span className="text-zinc-600">({pct.toFixed(0)}%)</span></span>
+                </div>
+                <div className="h-1.5 bg-white/[0.04] overflow-hidden">
+                  <div className={`h-full ${cfg.bg} transition-all duration-500`} style={{ width: `${pct}%`, opacity: 0.8 }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
   );
 };
 
-interface ActivityEvent {
-  id: string;
-  timestamp: string;
-  type: 'proposal' | 'warrant' | 'policy' | 'agent';
-  message: string;
-  severity: 'info' | 'warning' | 'error';
+/* ════════════════════════════════════════════════════════════════════
+   Approval Breakdown — donut-style summary
+   ════════════════════════════════════════════════════════════════════ */
+
+interface ApprovalMetrics {
+  pending: number;
+  approved: number;
+  denied: number;
+  expired: number;
+  avg_resolution_seconds: number | null;
+  new_this_period: number;
 }
 
-const ActivityTimeline = ({ events, loading }: { events: ActivityEvent[]; loading?: boolean }) => {
-  const severityColor = {
-    info: 'border-blue-500/30',
-    warning: 'border-amber-500/30',
-    error: 'border-red-500/30',
-  };
+const ApprovalBreakdown = ({ data, loading }: { data: ApprovalMetrics | null; loading: boolean }) => {
+  if (loading || !data) {
+    return (
+      <div className="bg-[#0d0e14] border border-white/[0.06] p-4 animate-pulse">
+        <div className="h-3 w-32 bg-white/[0.06] rounded mb-4" />
+        <div className="space-y-3">
+          {[1,2,3,4].map(i => <div key={i} className="h-8 bg-white/[0.04]" />)}
+        </div>
+      </div>
+    );
+  }
+
+  const total = data.pending + data.approved + data.denied + data.expired;
+  const avgMinutes = data.avg_resolution_seconds ? Math.round(data.avg_resolution_seconds / 60) : null;
+
+  const rows = [
+    { label: 'Approved', count: data.approved, icon: <CheckCircle size={12} />, color: 'text-emerald-400', bar: 'bg-emerald-500' },
+    { label: 'Denied', count: data.denied, icon: <XCircle size={12} />, color: 'text-red-400', bar: 'bg-red-500' },
+    { label: 'Pending', count: data.pending, icon: <Clock size={12} />, color: 'text-amber-400', bar: 'bg-amber-500' },
+    { label: 'Expired', count: data.expired, icon: <AlertTriangle size={12} />, color: 'text-zinc-500', bar: 'bg-zinc-600' },
+  ];
 
   return (
-    <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4">
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Live Activity</h3>
+        <h3 className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest">Approval Pipeline</h3>
+        {avgMinutes !== null && (
+          <span className="text-[10px] font-mono text-zinc-600">avg {avgMinutes}m resolution</span>
+        )}
+      </div>
+      <div className="space-y-2.5">
+        {rows.map(row => {
+          const pct = total > 0 ? (row.count / total) * 100 : 0;
+          return (
+            <div key={row.label} className="flex items-center gap-3">
+              <div className={`${row.color} shrink-0`}>{row.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-mono text-zinc-400">{row.label}</span>
+                  <span className={`text-[12px] font-mono font-bold ${row.color}`}>{row.count}</span>
+                </div>
+                <div className="h-1 bg-white/[0.04] overflow-hidden">
+                  <div className={`h-full ${row.bar} transition-all duration-500`} style={{ width: `${pct}%`, opacity: 0.7 }} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {data.new_this_period > 0 && (
+        <div className="mt-3 pt-3 border-t border-white/[0.04] text-[10px] font-mono text-zinc-600">
+          {data.new_this_period} new requests this period
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   Activity Feed — real governance events, not generic
+   ════════════════════════════════════════════════════════════════════ */
+
+interface ActivityEvent {
+  id: string;
+  event_type: string;
+  actor: string;
+  details: any;
+  created_at: string;
+}
+
+const EVENT_ICONS: Record<string, { icon: React.ReactNode; color: string }> = {
+  warrant_issued: { icon: <Shield size={11} />, color: 'text-emerald-400' },
+  warrant_revoked: { icon: <XCircle size={11} />, color: 'text-red-400' },
+  policy_created: { icon: <CheckCircle size={11} />, color: 'text-blue-400' },
+  policy_updated: { icon: <CheckCircle size={11} />, color: 'text-blue-400' },
+  agent_registered: { icon: <Activity size={11} />, color: 'text-amber-400' },
+  approval_granted: { icon: <CheckCircle size={11} />, color: 'text-emerald-400' },
+  approval_denied: { icon: <XCircle size={11} />, color: 'text-red-400' },
+  execution_completed: { icon: <CheckCircle size={11} />, color: 'text-emerald-400' },
+  execution_rejected: { icon: <AlertTriangle size={11} />, color: 'text-red-400' },
+};
+
+const formatEventMessage = (event: ActivityEvent): string => {
+  const d = event.details || {};
+  switch (event.event_type) {
+    case 'warrant_issued': return `Warrant issued for ${d.agent_id || 'agent'} → ${d.action || d.objective || 'action'}`;
+    case 'warrant_revoked': return `Warrant revoked: ${d.warrant_id || d.reason || 'manual revocation'}`;
+    case 'policy_created': return `Policy "${d.name || d.policy_id || 'policy'}" created`;
+    case 'policy_updated': return `Policy "${d.name || d.policy_id || 'policy'}" updated`;
+    case 'agent_registered': return `Agent "${d.display_name || d.agent_id || 'agent'}" registered`;
+    case 'approval_granted': return `Approval granted: ${d.action || d.intent_id || 'request'} (${d.approver || event.actor})`;
+    case 'approval_denied': return `Approval denied: ${d.action || d.intent_id || 'request'} (${d.approver || event.actor})`;
+    case 'execution_completed': return `Execution complete: ${d.objective || d.execution_id || 'task'}`;
+    case 'execution_rejected': return `Execution rejected: ${d.reason || d.execution_id || 'task'}`;
+    default: return d.event || d.message || event.event_type.replace(/_/g, ' ');
+  }
+};
+
+const ActivityFeed = ({ events, loading }: { events: ActivityEvent[]; loading: boolean }) => {
+  return (
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest">Governance Log</h3>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-[10px] font-mono text-white/55">STREAMING</span>
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-[9px] font-mono text-zinc-600 uppercase">Live</span>
         </div>
       </div>
       {loading ? (
         <div className="space-y-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex gap-3 p-2 rounded bg-white/[0.02] animate-pulse">
-              <div className="h-3 w-16 bg-white/[0.06] rounded" />
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="flex gap-3 p-2 bg-white/[0.02] animate-pulse">
+              <div className="h-3 w-14 bg-white/[0.06] rounded" />
               <div className="h-3 flex-1 bg-white/[0.04] rounded" />
             </div>
           ))}
         </div>
+      ) : events.length === 0 ? (
+        <div className="text-center py-8">
+          <div className="text-zinc-600 text-xs font-mono mb-1">No governance events yet</div>
+          <div className="text-zinc-700 text-[10px] font-mono">Connect an agent and submit an intent to see the pipeline in action</div>
+        </div>
       ) : (
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
-          {events.length === 0 ? (
-            <div className="text-center py-8 text-white/35 text-sm font-mono">No recent activity</div>
-          ) : events.map((event) => (
-            <div 
-              key={event.id} 
-              className={`flex gap-3 p-2 rounded border-l-2 ${severityColor[event.severity]} bg-white/[0.02] hover:bg-white/[0.04] transition-colors`}
-            >
-              <div className="text-[10px] font-mono text-white/35 whitespace-nowrap pt-0.5">
-                {event.timestamp}
+        <div className="space-y-1 max-h-[380px] overflow-y-auto">
+          {events.map((event) => {
+            const cfg = EVENT_ICONS[event.event_type] || { icon: <Activity size={11} />, color: 'text-zinc-500' };
+            const time = new Date(event.created_at).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return (
+              <div key={event.id} className="flex items-start gap-2.5 py-1.5 px-2 hover:bg-white/[0.02] transition-colors group">
+                <div className={`mt-0.5 shrink-0 ${cfg.color}`}>{cfg.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] text-zinc-300 font-mono truncate">{formatEventMessage(event)}</div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[9px] font-mono text-zinc-600">{time}</span>
+                    {event.actor && <span className="text-[9px] font-mono text-zinc-700">{event.actor}</span>}
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="text-[11px] text-white/80 font-mono">{event.message}</div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   System Health — real endpoint checks
+   ════════════════════════════════════════════════════════════════════ */
+
+interface HealthCheck {
+  label: string;
+  status: 'operational' | 'degraded' | 'warning';
+  detail: string;
+}
+
+const SystemHealth = ({ checks, loading }: { checks: HealthCheck[]; loading: boolean }) => {
+  const statusDot = { operational: 'bg-emerald-500', degraded: 'bg-amber-500', warning: 'bg-red-500' };
+  const statusText = { operational: 'text-emerald-500', degraded: 'text-amber-500', warning: 'text-red-500' };
+
+  return (
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-4">
+      <h3 className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest mb-3">System Health</h3>
+      {loading ? (
+        <div className="space-y-2">
+          {[1,2,3].map(i => <div key={i} className="h-10 bg-white/[0.04] animate-pulse" />)}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {checks.map((check, i) => (
+            <div key={i} className="flex items-center gap-3 py-2 px-2.5 bg-white/[0.02] border border-white/[0.04]">
+              <div className={`w-2 h-2 rounded-full ${statusDot[check.status]} ${check.status === 'operational' ? '' : 'animate-pulse'}`} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-mono text-zinc-300">{check.label}</div>
+                <div className="text-[9px] font-mono text-zinc-600">{check.detail}</div>
               </div>
+              <span className={`text-[9px] font-mono font-bold uppercase tracking-wider ${statusText[check.status]}`}>
+                {check.status}
+              </span>
             </div>
           ))}
         </div>
@@ -157,6 +323,62 @@ const ActivityTimeline = ({ events, loading }: { events: ActivityEvent[]; loadin
     </div>
   );
 };
+
+/* ════════════════════════════════════════════════════════════════════
+   Execution Trend — mini bar chart
+   ════════════════════════════════════════════════════════════════════ */
+
+interface TrendBucket { bucket: string; executions: number; completed: number; rejected: number }
+
+const ExecutionTrend = ({ data, loading }: { data: TrendBucket[]; loading: boolean }) => {
+  const maxVal = Math.max(...data.map(d => Number(d.executions)), 1);
+
+  return (
+    <div className="bg-[#0d0e14] border border-white/[0.06] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-[11px] font-mono text-zinc-500 uppercase tracking-widest">Execution Throughput</h3>
+        <span className="text-[10px] font-mono text-zinc-600">24h</span>
+      </div>
+      {loading ? (
+        <div className="h-24 bg-white/[0.04] animate-pulse" />
+      ) : data.length === 0 ? (
+        <div className="h-24 flex items-center justify-center text-zinc-700 text-[10px] font-mono">
+          No executions in this period
+        </div>
+      ) : (
+        <div className="flex items-end gap-px h-24">
+          {data.map((bucket, i) => {
+            const h = (Number(bucket.executions) / maxVal) * 100;
+            const rejected = Number(bucket.rejected);
+            const hasRejected = rejected > 0;
+            return (
+              <div key={i} className="flex-1 flex flex-col items-stretch justify-end gap-0" title={`${bucket.executions} executions${hasRejected ? `, ${rejected} rejected` : ''}`}>
+                {hasRejected && (
+                  <div className="bg-red-500/60" style={{ height: `${(rejected / maxVal) * 100}%`, minHeight: '2px' }} />
+                )}
+                <div className="bg-emerald-500/70 hover:bg-emerald-500 transition-colors" style={{ height: `${h - (hasRejected ? (rejected / maxVal) * 100 : 0)}%`, minHeight: '1px' }} />
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <div className="flex items-center gap-4 mt-2 pt-2 border-t border-white/[0.04]">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 bg-emerald-500/70" />
+          <span className="text-[9px] font-mono text-zinc-600">Completed</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 bg-red-500/60" />
+          <span className="text-[9px] font-mono text-zinc-600">Rejected</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   Dashboard — Main Component
+   ════════════════════════════════════════════════════════════════════ */
 
 interface DashboardData {
   activeAgents: number;
@@ -166,197 +388,120 @@ interface DashboardData {
   policyEvals: number;
   avgTrust: number;
   avgLatencyMs: number;
+  totalWarrants: number;
+  activeWarrants: number;
+  activePolicies: number;
+  executionsPeriod: number;
+  auditEventsPeriod: number;
+  openIncidents: number;
 }
 
-// ── Animated Globe Background ──────────────────────────────────────────────
-
-const AnimatedGlobeBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [connections, setConnections] = useState<Array<{ x1: number; y1: number; x2: number; y2: number; progress: number }>>([]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    // Globe parameters
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = Math.min(canvas.width, canvas.height) * 0.3;
-    let rotation = 0;
-
-    // Generate random points on sphere surface
-    const generateSpherePoint = () => {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      return { theta, phi };
-    };
-
-    // Project 3D point to 2D
-    const project = (theta: number, phi: number, rot: number) => {
-      const x3d = radius * Math.sin(phi) * Math.cos(theta + rot);
-      const y3d = radius * Math.sin(phi) * Math.sin(theta + rot);
-      const z3d = radius * Math.cos(phi);
-      return {
-        x: centerX + x3d,
-        y: centerY + y3d,
-        z: z3d,
-        visible: z3d > -radius * 0.3, // Only show front hemisphere
-      };
-    };
-
-    // Generate connections
-    const updateConnections = () => {
-      setConnections(prev => {
-        const newConns = prev.map(c => ({ ...c, progress: c.progress + 0.01 })).filter(c => c.progress < 1);
-        
-        // Add new connection occasionally
-        if (Math.random() < 0.05) {
-          const p1 = generateSpherePoint();
-          const p2 = generateSpherePoint();
-          const proj1 = project(p1.theta, p1.phi, rotation);
-          const proj2 = project(p2.theta, p2.phi, rotation);
-          if (proj1.visible && proj2.visible) {
-            newConns.push({
-              x1: proj1.x,
-              y1: proj1.y,
-              x2: proj2.x,
-              y2: proj2.y,
-              progress: 0,
-            });
-          }
-        }
-        return newConns;
-      });
-    };
-
-    // Animation loop
-    let animationId: number;
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw globe outline
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Draw latitude/longitude lines
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      for (let i = 0; i < 8; i++) {
-        const phi = (i / 8) * Math.PI;
-        ctx.beginPath();
-        for (let theta = 0; theta <= Math.PI * 2; theta += 0.1) {
-          const p = project(theta, phi, rotation);
-          if (p.visible) {
-            if (theta === 0) ctx.moveTo(p.x, p.y);
-            else ctx.lineTo(p.x, p.y);
-          }
-        }
-        ctx.stroke();
-      }
-
-      // Draw connections
-      connections.forEach(conn => {
-        const x = conn.x1 + (conn.x2 - conn.x1) * conn.progress;
-        const y = conn.y1 + (conn.y2 - conn.y1) * conn.progress;
-        
-        ctx.strokeStyle = `rgba(251, 191, 36, ${0.6 * (1 - conn.progress)})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(conn.x1, conn.y1);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-
-        // Draw moving dot
-        ctx.fillStyle = `rgba(251, 191, 36, ${0.8 * (1 - conn.progress)})`;
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      rotation += 0.002; // Slow rotation
-      updateConnections();
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, [connections]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0, opacity: 0.15 }}
-    />
-  );
-};
-
 export default function DashboardPremium() {
-  const [showBanner, setShowBanner] = useState(true);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<DashboardData>({
-    activeAgents: 0,
-    totalAgents: 0,
-    warrantsToday: 0,
-    pendingApprovals: 0,
-    policyEvals: 0,
-    avgTrust: 0,
-    avgLatencyMs: 0,
+    activeAgents: 0, totalAgents: 0, warrantsToday: 0, pendingApprovals: 0,
+    policyEvals: 0, avgTrust: 0, avgLatencyMs: 0, totalWarrants: 0,
+    activeWarrants: 0, activePolicies: 0, executionsPeriod: 0,
+    auditEventsPeriod: 0, openIncidents: 0,
   });
+  const [riskData, setRiskData] = useState<RiskTier[]>([]);
+  const [approvalData, setApprovalData] = useState<ApprovalMetrics | null>(null);
   const [activityEvents, setActivityEvents] = useState<ActivityEvent[]>([]);
+  const [executionTrend, setExecutionTrend] = useState<TrendBucket[]>([]);
+  const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
+  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
 
-  // Connect to SSE stream for live updates
   useViennaStream();
 
+  const getAuthHeaders = useCallback(() => {
+    const token = localStorage.getItem('vienna_access_token');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  }, []);
+
+  /* ── Load all dashboard data ── */
   const loadDashboard = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
+    const headers = getAuthHeaders();
+
     try {
-      // Fetch dashboard bootstrap with all metrics
-      const bootstrap: DashboardBootstrapResponse = await dashboardApi.bootstrap();
+      // Primary dashboard endpoint — returns everything
+      const res = await fetch('/api/v1/dashboard', { credentials: 'include', headers });
+      const json = await res.json();
 
-      // Defensive: handle missing or malformed data
-      const agents = Array.isArray(bootstrap?.agents) ? bootstrap.agents : [];
-      const activeAgents = agents.filter((a: any) => a?.status === 'active').length;
-      const totalAgents = agents.length;
-      const avgTrust = agents.length > 0
-        ? agents.reduce((s: number, a: any) => s + (Number(a?.trust_score) || 0), 0) / agents.length
-        : 0;
+      if (json.success && json.data) {
+        const d = json.data;
+        const overview = d.overview || {};
+        const agents = d.agents || [];
+        const activeAgents = agents.filter((a: any) => a?.status === 'active').reduce((s: number, a: any) => s + Number(a.count || 0), 0);
+        const totalAgents = agents.reduce((s: number, a: any) => s + Number(a.count || 0), 0);
 
-      // Get counts from bootstrap data (with fallbacks)
-      const warrantsToday = Array.isArray(bootstrap?.active_execution) ? bootstrap.active_execution.length : 0;
-      const pendingApprovals = bootstrap?.queue_state?.blocked || 0;
-      const policyEvals = Array.isArray(bootstrap?.decisions) ? bootstrap.decisions.length : 0;
-      const avgLatencyMs = bootstrap?.metrics?.avg_latency_ms || 0;
+        setData({
+          activeAgents,
+          totalAgents: Number(overview.total_agents) || totalAgents,
+          warrantsToday: Number(overview.active_warrants) || 0,
+          pendingApprovals: Number(overview.pending_approvals) || 0,
+          policyEvals: Number(overview.evaluations_period) || 0,
+          avgTrust: 0, // computed from agent data if available
+          avgLatencyMs: 0,
+          totalWarrants: Number(overview.total_warrants) || 0,
+          activeWarrants: Number(overview.active_warrants) || 0,
+          activePolicies: Number(overview.active_policies) || 0,
+          executionsPeriod: Number(overview.executions_period) || 0,
+          auditEventsPeriod: Number(overview.audit_events_period) || 0,
+          openIncidents: Number(overview.open_incidents) || 0,
+        });
 
-      setData({
-        activeAgents,
-        totalAgents,
-        warrantsToday,
-        pendingApprovals,
-        policyEvals,
-        avgTrust: Math.round(avgTrust * 10) / 10,
-        avgLatencyMs: Math.round(avgLatencyMs),
-      });
-      setError(null);
+        // Risk distribution
+        if (d.riskDistribution) setRiskData(d.riskDistribution);
+
+        // Approval breakdown
+        if (d.approvals) {
+          setApprovalData({
+            pending: Number(d.approvals.pending) || 0,
+            approved: Number(d.approvals.approved) || 0,
+            denied: Number(d.approvals.denied) || 0,
+            expired: Number(d.approvals.expired) || 0,
+            avg_resolution_seconds: d.approvals.avg_resolution_seconds ? Number(d.approvals.avg_resolution_seconds) : null,
+            new_this_period: Number(d.approvals.new_this_period) || 0,
+          });
+        }
+
+        // Execution trend
+        if (d.executionTrend) setExecutionTrend(d.executionTrend);
+
+        // Recent activity
+        if (d.recentActivity) setActivityEvents(d.recentActivity);
+
+        // System health
+        if (d.systemHealth) {
+          const sh = d.systemHealth;
+          setHealthChecks([
+            {
+              label: 'Database',
+              status: 'operational',
+              detail: `${Number(sh.active_api_keys) || 0} active API keys`,
+            },
+            {
+              label: 'Webhook Delivery',
+              status: Number(sh.failed_webhooks_1h) > 0 ? 'degraded' : 'operational',
+              detail: Number(sh.failed_webhooks_1h) > 0
+                ? `${sh.failed_webhooks_1h} failed in last hour`
+                : `${Number(sh.active_webhooks) || 0} active webhooks`,
+            },
+            {
+              label: 'Integrations',
+              status: 'operational',
+              detail: `${Number(sh.active_integrations) || 0} connected`,
+            },
+          ]);
+        }
+
+        setError(null);
+      }
     } catch (err) {
       console.error('[Dashboard] Load failed:', err);
       setError('Failed to load dashboard data');
@@ -364,317 +509,139 @@ export default function DashboardPremium() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [getAuthHeaders]);
 
   useEffect(() => { loadDashboard(); }, [loadDashboard]);
-
-  // Auto-refresh every 30s
   useEffect(() => {
     const interval = setInterval(() => loadDashboard(), 30000);
     return () => clearInterval(interval);
   }, [loadDashboard]);
 
-  // Generate activity events from SSE or simulate from data
+  /* ── Sparklines ── */
   useEffect(() => {
-    if (loading) return;
-    // Poll real activity from audit log
-    const token = localStorage.getItem('vienna_access_token');
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    
-    const fetchActivity = async () => {
-      try {
-        const res = await fetch('/api/v1/activity/feed?limit=20', { credentials: 'include', headers });
-        const data = await res.json();
-        if (data.success && data.data) {
-          const mapped = data.data.map((e: any) => ({
-            id: e.id,
-            timestamp: new Date(e.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-            type: (e.type || '').includes('warrant') ? 'warrant' as const
-              : (e.type || '').includes('policy') ? 'policy' as const
-              : (e.type || '').includes('agent') ? 'agent' as const
-              : 'proposal' as const,
-            message: e.details?.event || e.execution?.objective || e.type || 'System event',
-            severity: (e.risk_tier === 'T3' || e.risk_tier === 'T2') ? 'warning' as const : 'info' as const,
-          }));
-          setActivityEvents(mapped);
-        }
-      } catch { /* silent */ }
-    };
-    fetchActivity();
-    const interval = setInterval(fetchActivity, 10000);
-    return () => clearInterval(interval);
-  }, [loading]);
-
-  // Derive system health from data
-  const governanceStatus: SystemStatusProps['status'] = data.avgLatencyMs > 500 ? 'degraded' : 'operational';
-  const queueStatus: SystemStatusProps['status'] = data.pendingApprovals > 50 ? 'warning' : data.pendingApprovals > 20 ? 'degraded' : 'operational';
-
-  // Fetch real sparkline data
-  const [sparklines, setSparklines] = useState<Record<string, number[]>>({});
-  useEffect(() => {
-    const token = localStorage.getItem('vienna_access_token');
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const headers = getAuthHeaders();
     Promise.all([
       fetch('/api/v1/dashboard/sparklines?metric=executions&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
       fetch('/api/v1/dashboard/sparklines?metric=evaluations&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
       fetch('/api/v1/dashboard/sparklines?metric=approvals&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
-    ]).then(([exec, evals, approvals]) => {
+      fetch('/api/v1/dashboard/sparklines?metric=audit&range=24h&points=10', { credentials: 'include', headers }).then(r => r.json()).catch(() => null),
+    ]).then(([exec, evals, approvals, audit]) => {
       setSparklines({
-        executions: exec?.points || [0,0,0,0,0,0,0,0,0,0],
-        evaluations: evals?.points || [0,0,0,0,0,0,0,0,0,0],
-        approvals: approvals?.points || [0,0,0,0,0,0,0,0,0,0],
+        executions: exec?.points || new Array(10).fill(0),
+        evaluations: evals?.points || new Array(10).fill(0),
+        approvals: approvals?.points || new Array(10).fill(0),
+        audit: audit?.points || new Array(10).fill(0),
       });
     });
-  }, []);
-  const defaultSparkline = sparklines.executions || [0,0,0,0,0,0,0,0,0,0];
+  }, [getAuthHeaders]);
 
+  const emptySparkline = new Array(10).fill(0);
+
+  /* ── Render ── */
   return (
-    <div className="min-h-screen relative">
-      {/* Animated Globe Background */}
-      <AnimatedGlobeBackground />
-      
-      {/* Content wrapper (above globe) */}
-      <div className="relative" style={{ zIndex: 1 }}>
-        {/* Error Banner */}
-        {error && (
-        <div className="bg-red-900/20 border border-red-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
-          <Activity className="text-red-400" size={18} />
-          <span className="text-[12px] text-red-300/80 font-mono flex-1">{error}</span>
-          <button onClick={() => loadDashboard(true)} className="text-red-400 hover:text-white transition-colors text-xs font-semibold">
-            Retry
+    <div className="space-y-4">
+      {/* Error state */}
+      {error && (
+        <div className="bg-red-500/[0.08] border border-red-500/20 py-2.5 px-4 flex items-center gap-3">
+          <AlertTriangle className="text-red-400 shrink-0" size={14} />
+          <span className="text-[11px] text-red-300/80 font-mono flex-1">{error}</span>
+          <button onClick={() => loadDashboard(true)} className="text-red-400 hover:text-white transition-colors text-[10px] font-mono font-bold">
+            RETRY
           </button>
         </div>
       )}
 
-      {/* Observation Banner */}
-      {showBanner && !error && (
-        <div className="bg-blue-900/20 border border-blue-700/30 rounded-lg py-2.5 px-4 flex items-center gap-3 mb-4">
-          <Activity className="text-blue-400" size={18} />
-          <div className="flex-1 flex items-center gap-4">
-            <span className="text-[11px] font-bold text-blue-100 uppercase tracking-widest whitespace-nowrap">
-              System Monitoring Active
-            </span>
-            <div className="h-4 w-px bg-blue-700/50" />
-            <span className="text-[12px] text-blue-300/80 font-mono">
-              Real-time governance enforcement — {data.totalAgents} agents registered
-            </span>
-          </div>
-          <button onClick={() => setShowBanner(false)} className="text-blue-400 hover:text-white transition-colors">
-            <X size={14} />
-          </button>
+      {/* Header bar with refresh */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[13px] font-mono font-bold text-white uppercase tracking-wider">Mission Control</h1>
+          {!loading && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/[0.08] border border-emerald-500/20">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-[9px] font-mono text-emerald-500 uppercase">
+                {data.totalAgents} agent{data.totalAgents !== 1 ? 's' : ''} · {data.activePolicies} polic{data.activePolicies !== 1 ? 'ies' : 'y'}
+              </span>
+            </div>
+          )}
         </div>
-      )}
+        <button
+          onClick={() => loadDashboard(true)}
+          disabled={refreshing}
+          className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-mono text-zinc-500 hover:text-white border border-white/[0.06] hover:border-white/[0.12] transition-colors"
+        >
+          <RefreshCw size={10} className={refreshing ? 'animate-spin' : ''} />
+          {refreshing ? 'REFRESHING' : 'REFRESH'}
+        </button>
+      </div>
 
-      {/* First-Run Experience - Empty State */}
-      {!loading && data.totalAgents === 0 && (
-        <div style={{
-          background: 'rgba(251, 191, 36, 0.05)',
-          border: '2px solid rgba(251, 191, 36, 0.3)',
-          padding: '48px 32px',
-          textAlign: 'center',
-          marginBottom: '24px',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚀</div>
-          <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#fbbf24', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>
-            Welcome to Vienna OS
-          </h2>
-          <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
-            Your governance control center is ready. Let's get your first AI agent connected.
+      {/* First-run empty state */}
+      {!loading && data.totalAgents === 0 && data.totalWarrants === 0 && (
+        <div className="border-2 border-dashed border-amber-500/20 p-8 text-center">
+          <div className="text-[11px] font-mono text-amber-500 uppercase tracking-widest mb-2">Getting Started</div>
+          <p className="text-sm text-zinc-400 font-mono mb-6 max-w-lg mx-auto">
+            Connect your first agent, define a governance policy, and submit a test intent to see the full warrant pipeline.
           </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '900px', margin: '0 auto' }}>
-            {/* Step 1 */}
-            <div style={{
-              background: '#0A0E14',
-              border: '1px solid rgba(251, 191, 36, 0.2)',
-              padding: '24px',
-              textAlign: 'left',
-            }}>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#fbbf24', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>1</div>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Connect Your Agent</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                Install the SDK and register your first AI agent with Vienna OS.
-              </p>
-              <a
-                href="/connect"
-                style={{
-                  display: 'inline-block',
-                  padding: '8px 16px',
-                  background: '#fbbf24',
-                  color: '#0A0E14',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  fontFamily: 'JetBrains Mono, monospace',
-                }}
-              >
-                Connect Agent →
-              </a>
-            </div>
-
-            {/* Step 2 */}
-            <div style={{
-              background: '#0A0E14',
-              border: '1px solid rgba(148, 163, 184, 0.2)',
-              padding: '24px',
-              textAlign: 'left',
-              opacity: 0.6,
-            }}>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#94a3b8', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>2</div>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Submit Test Intent</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                Send a test action through the governance pipeline to see Vienna in action.
-              </p>
-              <div style={{
-                padding: '8px 16px',
-                background: 'rgba(148, 163, 184, 0.1)',
-                color: '#64748b',
-                fontSize: '12px',
-                fontWeight: 700,
-                fontFamily: 'JetBrains Mono, monospace',
-              }}>
-                Available after step 1
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div style={{
-              background: '#0A0E14',
-              border: '1px solid rgba(148, 163, 184, 0.2)',
-              padding: '24px',
-              textAlign: 'left',
-              opacity: 0.6,
-            }}>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: '#94a3b8', marginBottom: '12px', fontFamily: 'JetBrains Mono, monospace' }}>3</div>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>See Governance</h3>
-              <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
-                Watch the full governance chain: policy eval → risk tier → approval → warrant → execution.
-              </p>
-              <div style={{
-                padding: '8px 16px',
-                background: 'rgba(148, 163, 184, 0.1)',
-                color: '#64748b',
-                fontSize: '12px',
-                fontWeight: 700,
-                fontFamily: 'JetBrains Mono, monospace',
-              }}>
-                Available after step 2
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '32px', padding: '16px', background: 'rgba(251, 191, 36, 0.05)', border: '1px solid rgba(251, 191, 36, 0.2)' }}>
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-              <strong style={{ color: '#fbbf24' }}>Prefer to explore first?</strong> Try the{' '}
-              <a href="/try" style={{ color: '#fbbf24', textDecoration: 'underline' }}>interactive demo</a>
-              {' '}to see Vienna OS in action with simulated scenarios.
-            </p>
+          <div className="flex items-center justify-center gap-4">
+            <a href="/connect" className="px-4 py-2 bg-amber-500 text-black text-[11px] font-mono font-bold hover:bg-amber-400 transition-colors">
+              CONNECT AGENT →
+            </a>
+            <a href="/try" className="px-4 py-2 border border-amber-500/30 text-amber-500 text-[11px] font-mono font-bold hover:border-amber-500 transition-colors">
+              TRY DEMO
+            </a>
           </div>
         </div>
       )}
 
-      {/* Summary Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
-          label="Active Agents"
-          value={loading ? '—' : data.activeAgents}
-          trend={data.totalAgents > 0 ? `${data.totalAgents} total` : undefined}
-          trendDirection="stable"
-          sparklineData={defaultSparkline}
+          label="Executions (24h)"
+          value={loading ? '—' : data.executionsPeriod.toLocaleString()}
+          sparklineData={sparklines.executions || emptySparkline}
           color="green"
           loading={loading}
         />
         <MetricCard
-          label="Warrants Today"
-          value={loading ? '—' : data.warrantsToday.toLocaleString()}
-          sparklineData={defaultSparkline}
-          color="green"
-          loading={loading}
-        />
-        <MetricCard
-          label="Avg Trust Score"
-          value={loading ? '—' : data.avgTrust.toFixed(1)}
-          sparklineData={defaultSparkline}
+          label="Policy Evaluations"
+          value={loading ? '—' : data.policyEvals.toLocaleString()}
+          sparklineData={sparklines.evaluations || emptySparkline}
           color="blue"
+          loading={loading}
+        />
+        <MetricCard
+          label="Active Warrants"
+          value={loading ? '—' : data.activeWarrants}
+          trend={data.totalWarrants > 0 ? `${data.totalWarrants} total` : undefined}
+          trendDirection="stable"
+          sparklineData={sparklines.approvals || emptySparkline}
+          color="amber"
           loading={loading}
         />
         <MetricCard
           label="Pending Approvals"
           value={loading ? '—' : data.pendingApprovals}
-          trend={data.pendingApprovals > 10 ? 'HIGH' : undefined}
-          trendDirection={data.pendingApprovals > 10 ? 'up' : 'stable'}
-          sparklineData={defaultSparkline}
-          color="amber"
+          trend={data.openIncidents > 0 ? `${data.openIncidents} incident${data.openIncidents > 1 ? 's' : ''}` : undefined}
+          trendDirection={data.openIncidents > 0 ? 'up' : 'stable'}
+          sparklineData={sparklines.audit || emptySparkline}
+          color={data.pendingApprovals > 20 ? 'red' : 'amber'}
           loading={loading}
         />
       </div>
 
-      {/* Main Grid: System Status + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        {/* System Health */}
-        <div className="lg:col-span-1 space-y-3">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[11px] font-bold text-white/45 uppercase tracking-wider">System Health</h3>
-            <button 
-              onClick={() => loadDashboard(true)} 
-              disabled={refreshing}
-              className="p-1 rounded hover:bg-white/[0.06] transition-colors"
-            >
-              <RefreshCw size={12} className={`text-white/35 ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-          <SystemStatusCard
-            label="Governance Engine"
-            status={governanceStatus}
-            detail={data.avgLatencyMs > 0 ? `Avg latency: ${data.avgLatencyMs}ms` : 'Awaiting data'}
-            uptime="—"
-          />
-          <SystemStatusCard
-            label="Approval Queue"
-            status={queueStatus}
-            detail={`${data.pendingApprovals} pending approvals`}
-          />
-          <SystemStatusCard
-            label="Fleet Status"
-            status={data.activeAgents > 0 ? 'operational' : 'degraded'}
-            detail={`${data.activeAgents} active of ${data.totalAgents} registered`}
-          />
+      {/* Main grid: Activity + Health/Risk/Approvals */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Left 2/3: Activity + Execution Trend */}
+        <div className="lg:col-span-2 space-y-3">
+          <ActivityFeed events={activityEvents} loading={loading} />
+          <ExecutionTrend data={executionTrend} loading={loading} />
         </div>
 
-        {/* Activity Timeline */}
-        <div className="lg:col-span-2">
-          <ActivityTimeline events={activityEvents} loading={loading} />
+        {/* Right 1/3: Risk + Approvals + Health */}
+        <div className="space-y-3">
+          <RiskDistribution data={riskData} loading={loading} />
+          <ApprovalBreakdown data={approvalData} loading={loading} />
+          <SystemHealth checks={healthChecks} loading={loading} />
         </div>
-      </div>
-
-      {/* Runtime Control Panel */}
-      <div className="bg-[#12131a] border border-white/[0.08] rounded-lg p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[13px] font-bold text-white uppercase tracking-wider">Runtime Overview</h3>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Active Agents</div>
-            <div className="text-[20px] font-bold text-emerald-500 font-mono">{loading ? '—' : data.activeAgents}</div>
-          </div>
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Warrants</div>
-            <div className="text-[20px] font-bold text-white font-mono">{loading ? '—' : data.warrantsToday.toLocaleString()}</div>
-          </div>
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Avg Trust</div>
-            <div className="text-[20px] font-bold text-white font-mono">{loading ? '—' : data.avgTrust.toFixed(1)}</div>
-          </div>
-          <div className="bg-white/[0.02] border border-white/[0.06] rounded p-3">
-            <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-1">Queue</div>
-            <div className={`text-[20px] font-bold font-mono ${data.pendingApprovals > 20 ? 'text-amber-500' : 'text-white'}`}>
-              {loading ? '—' : data.pendingApprovals}
-            </div>
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   );

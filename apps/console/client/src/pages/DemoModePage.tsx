@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Terminal, PlayCircle, RotateCcw, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground';
 
 interface DemoScenario {
   id: string;
@@ -167,7 +166,7 @@ export default function DemoModePage() {
 
   return (
     <div className="relative min-h-screen bg-[#0a0a0a] text-[#e4e4e4] overflow-hidden">
-      <AnimatedGlobeBackground />
+
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Header */}

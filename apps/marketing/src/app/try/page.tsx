@@ -480,15 +480,6 @@ export default function TryPage() {
   return (
     <div className="min-h-screen bg-[#0A0E14] relative">
       {/* Animated Globe Background */}
-      <AnimatedGlobeBackground />
-      
-      {/* Content wrapper (above globe) */}
-      <div className="relative" style={{ zIndex: 1 }}>
-        {/* ─── Nav ─── */}
-        <nav className="border-b border-zinc-800 backdrop-blur-sm bg-[#0A0E14]/90 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-white transition">
-            <ArrowLeft className="w-4 h-4" />
             <Shield className="w-5 h-5 text-amber-500" />
             <span className="font-bold text-white">
               Vienna<span className="text-amber-500">OS</span>

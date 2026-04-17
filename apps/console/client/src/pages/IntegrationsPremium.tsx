@@ -16,7 +16,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
 
@@ -670,7 +669,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <AnimatedGlobeBackground />
+
       <div style={{ position: 'relative', zIndex: 1 }}>
         <PageLayout title="" description="">
       {/* Header */}

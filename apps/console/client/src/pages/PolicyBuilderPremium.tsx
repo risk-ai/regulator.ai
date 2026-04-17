@@ -14,7 +14,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import {
   listPolicies,
   createPolicy,
@@ -895,7 +894,7 @@ export function PolicyBuilderPremium() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <AnimatedGlobeBackground />
+
       <div style={{ position: 'relative', zIndex: 1 }}>
         <PageLayout
           title=""

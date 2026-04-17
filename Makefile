@@ -5,7 +5,7 @@ dev:
 	docker compose up
 
 dev-console:
-	cd apps/console/server && npm run dev
+	cd apps/console/client && npm run dev
 
 dev-marketing:
 	cd apps/marketing && npm run dev
@@ -21,16 +21,13 @@ test-sdk:
 # Building
 build:
 	cd apps/marketing && npm run build
-	cd apps/console/server && npm run build:prod
+	cd apps/console/client && npm run build
 	cd packages/sdk && npx tsc
 
 build-docker:
 	docker compose build
 
-# Deploy
-deploy-console:
-	cd apps/console/server && fly deploy --remote-only -a vienna-os
-
+# Deploy (Vercel — all projects deploy via git push)
 deploy-marketing:
 	cd apps/marketing && vercel --prod
 
@@ -41,7 +38,6 @@ publish-sdk:
 
 # Cleanup
 clean:
-	rm -rf apps/console/server/build apps/console/server/dist
 	rm -rf apps/console/client/dist
 	rm -rf packages/sdk/dist
 	rm -rf apps/marketing/.next

@@ -83,7 +83,7 @@ module.exports = async function handler(req, res) {
             ) AS warrants,
             (SELECT json_agg(json_build_object(
               'execution_id', e.execution_id,
-              'event', e.event,
+              'event_type', e.event_type,
               'timestamp', e.event_timestamp
             ) ORDER BY e.event_timestamp DESC)
             FROM execution_ledger_events e 

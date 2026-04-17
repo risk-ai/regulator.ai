@@ -16,6 +16,7 @@ import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBa
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 import { EmptyStates } from '../components/ui/RichEmptyState';
 import { useResponsive } from '../hooks/useResponsive';
+import { ExecutionListSkeleton, TableSkeleton } from '../components/ui/LoadingSkeletons';
 import { Activity } from 'lucide-react';
 
 // ---- Types ----
@@ -797,13 +798,8 @@ export function ExecutionsPage() {
       {/* Main Content */}
       <div style={{ background: 'var(--bg-primary)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
         {loading ? (
-          <div style={{ padding: '48px', textAlign: 'center' }}>
-            <div style={{
-              display: 'inline-block', width: '24px', height: '24px',
-              border: '2px solid var(--border-subtle)', borderTop: '2px solid #f59e0b',
-              borderRadius: '50%', animation: 'spin 0.8s linear infinite',
-            }} />
-            <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-tertiary)' }}>Loading executions...</p>
+          <div style={{ padding: '20px' }}>
+            {isMobile ? <ExecutionListSkeleton count={8} /> : <TableSkeleton rows={8} columns={7} />}
           </div>
         ) : filteredExecutions.length === 0 ? (
           activeFilterCount > 0 ? (

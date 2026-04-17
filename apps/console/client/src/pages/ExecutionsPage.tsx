@@ -15,6 +15,7 @@ import { ExecutionStatsRow } from '../components/executions/ExecutionStatsRow.js
 import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 import { EmptyStates } from '../components/ui/RichEmptyState';
+import { useResponsive } from '../hooks/useResponsive';
 import { Activity } from 'lucide-react';
 
 // ---- Types ----
@@ -587,6 +588,7 @@ function applyFilters(executions: Execution[], filters: FilterState): Execution[
 // ---- Main Page ----
 
 export function ExecutionsPage() {
+  const { isMobile } = useResponsive();
   const [allExecutions, setAllExecutions] = useState<Execution[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -829,7 +831,55 @@ export function ExecutionsPage() {
               onRefresh={loadExecutions}
             />
           )
+        ) : isMobile ? (
+          // Mobile: Card layout
+          <div className="divide-y" style={{ borderTop: '1px solid var(--border-subtle)', borderColor: 'var(--border-subtle)' }}>
+            {filteredExecutions.map(exec => (
+              <div
+                key={exec.execution_id}
+                onClick={() => openDetail(exec.execution_id)}
+                className="p-4 hover:bg-white/5 cursor-pointer transition-colors"
+                style={{
+                  background: selected === exec.execution_id ? 'rgba(245,158,11,0.05)' : 'transparent'
+                }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <TierBadge tier={exec.risk_tier} />
+                    <StateStatusBadge state={exec.state} tier={exec.risk_tier} />
+                  </div>
+                  <span className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+                    {timeAgo(exec.created_at)}
+                  </span>
+                </div>
+                <div className="text-sm mb-2" style={{ color: 'var(--text-primary)' }}>
+                  {exec.objective}
+                </div>
+                <div className="flex items-center gap-4 text-xs">
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>ID: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {exec.execution_id.slice(0, 12)}…
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Steps: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {exec.step_count}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Duration: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {formatDuration(exec.duration_ms)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
+          // Desktop: Table layout
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '700px' }}>
               <thead>

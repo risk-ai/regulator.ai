@@ -104,15 +104,20 @@ export default function DemoModePage() {
       'complete',
     ];
 
+    // Deterministic pseudo-random selection (seeded by index)
+    const deterministicSelect = <T,>(arr: T[], seed: number): T => {
+      return arr[seed % arr.length];
+    };
+
     for (let i = 0; i < scenario.events; i++) {
       const event: DemoEvent = {
         id: `demo-event-${i}`,
-        type: ['intent', 'proposal', 'warrant', 'execution', 'audit'][Math.floor(Math.random() * 5)] as DemoEvent['type'],
+        type: deterministicSelect(['intent', 'proposal', 'warrant', 'execution', 'audit'] as DemoEvent['type'][], i * 7),
         timestamp: new Date(Date.now() + i * 5000).toISOString(),
-        agent: agents[Math.floor(Math.random() * agents.length)],
-        action: actions[Math.floor(Math.random() * actions.length)],
-        tier: tiers[Math.floor(Math.random() * tiers.length)],
-        status: statuses[Math.floor(Math.random() * statuses.length)],
+        agent: deterministicSelect(agents, i * 13),
+        action: deterministicSelect(actions, i * 17),
+        tier: deterministicSelect(tiers, i * 23),
+        status: deterministicSelect(statuses, i * 29),
       };
       mockEvents.push(event);
     }

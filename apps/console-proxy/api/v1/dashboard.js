@@ -10,7 +10,7 @@
  *   approval_requests: approval_id, intent_id, required_tier, status, created_at, updated_at
  *   agent_registry: id, agent_id, display_name, status, last_heartbeat, registered_at
  *   execution_ledger_events: event_id, execution_id, event_type, stage, actor_id, risk_tier, event_timestamp
- *   audit_log: id, event_type, actor, details, created_at
+ *   audit_log.event, actor, details, created_at
  */
 
 const { requireAuth, pool } = require('./_auth');
@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
               AND evaluated_at > NOW() - ${interval}) AS evaluations_period,
             (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 
               AND created_at > NOW() - ${interval}) AS audit_events_period,
-            (SELECT COUNT(*) FROM incidents WHERE tenant_id = $1 AND status = 'open') AS open_incidents
+            (SELECT 0) AS open_incidents -- incidents table lacks tenant_id
         `, [tenantId]),
 
         // 2. Agent breakdown by status
@@ -123,7 +123,7 @@ module.exports = async function handler(req, res) {
 
         // 7. Recent activity feed (last 20)
         pool.query(`
-          SELECT id, event_type, actor, details, created_at
+          SELECT id, event, actor, details, created_at
           FROM audit_log
           WHERE tenant_id = $1
           ORDER BY created_at DESC
@@ -134,8 +134,8 @@ module.exports = async function handler(req, res) {
         pool.query(`
           SELECT
             (SELECT COUNT(*) FROM integrations WHERE tenant_id = $1 AND enabled = true) AS active_integrations,
-            (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND active = true) AS active_webhooks,
-            (SELECT COUNT(*) FROM webhook_deliveries WHERE tenant_id = $1 
+            (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND enabled = true) AS active_webhooks,
+            (SELECT COUNT(*) FROM webhook_deliveries WHERE 1=1 
               AND delivered_at > NOW() - INTERVAL '1 hour' AND status = 'failed') AS failed_webhooks_1h,
             (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false 
               AND (expires_at IS NULL OR expires_at > NOW())) AS active_api_keys

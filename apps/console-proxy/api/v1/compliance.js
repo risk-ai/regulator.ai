@@ -170,7 +170,7 @@ module.exports = async function handler(req, res) {
       const limit = Math.min(parseInt(params.limit || '10000', 10), 50000);
 
       const result = await pool.query(`
-        SELECT id, event_type, actor, details, created_at
+        SELECT id, event, actor, details, created_at
         FROM audit_log
         WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
         ORDER BY created_at ASC
@@ -278,7 +278,7 @@ async function calculateFrameworkScores(tenantId) {
         AND expires_at IS NOT NULL) AS keys_with_expiry,
       (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false) AS total_keys,
       (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1 AND enabled = true) AS retention_policies,
-      (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND active = true) AS active_webhooks,
+      (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND enabled = true) AS active_webhooks,
       (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 
         AND created_at > NOW() - INTERVAL '30 days') AS recent_audit_events,
       (SELECT COUNT(*) FROM roles WHERE tenant_id = $1) AS role_count,

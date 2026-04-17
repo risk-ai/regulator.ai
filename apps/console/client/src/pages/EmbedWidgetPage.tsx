@@ -299,10 +299,10 @@ function MockWidget({ config }: { config: WidgetConfig }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setMetrics({
-        agents: Math.floor(Math.random() * 10) + 20,
-        warrants: Math.floor(Math.random() * 100) + 1800,
-        approvals: Math.floor(Math.random() * 10),
-        policies: Math.floor(Math.random() * 5) + 12,
+        agents: 24,
+        warrants: metrics.warrants + 1,
+        approvals: metrics.approvals > 0 ? metrics.approvals - 1 : 3,
+        policies: 15,
       });
     }, config.refreshInterval * 1000);
     return () => clearInterval(interval);

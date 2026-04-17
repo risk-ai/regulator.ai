@@ -14,6 +14,14 @@ const { requireAuth, pool } = require('./_auth');
 
 const MINIMUM_RETENTION_DAYS = 30;
 
+// Whitelist of tables that retention policies can target
+// SECURITY: prevents SQL injection via table_name interpolation
+const ALLOWED_TABLES = new Set([
+  'execution_log', 'audit_log', 'execution_ledger_events',
+  'execution_steps', 'policy_evaluations', 'approval_requests',
+  'webhook_deliveries', 'intents', 'warrants',
+]);
+
 const DEFAULT_POLICIES = [
   { table_name: 'execution_log', retention_days: 365, archive_before_delete: true },
   { table_name: 'audit_log', retention_days: 730, archive_before_delete: true },
@@ -53,6 +61,10 @@ module.exports = async function handler(req, res) {
     if (req.method === 'PUT' && path === '/policies') {
       const { table_name, retention_days, archive_before_delete = true } = req.body;
 
+      // Validate table_name against whitelist to prevent SQL injection
+      if (!ALLOWED_TABLES.has(table_name)) {
+        return res.status(400).json({ success: false, error: `Invalid table: ${table_name}. Allowed: ${[...ALLOWED_TABLES].join(", ")}` });
+      }
       if (!table_name || !retention_days) {
         return res.status(400).json({
           success: false,
@@ -91,6 +103,9 @@ module.exports = async function handler(req, res) {
         : DEFAULT_POLICIES;
 
       // Filter to specific table if requested
+      if (table_name && !ALLOWED_TABLES.has(table_name)) {
+        return res.status(400).json({ success: false, error: `Invalid table: ${table_name}` });
+      }
       const targetPolicies = table_name
         ? policies.filter(p => p.table_name === table_name)
         : policies;

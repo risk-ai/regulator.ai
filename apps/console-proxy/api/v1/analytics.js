@@ -51,8 +51,8 @@ module.exports = async function handler(req, res) {
           FROM policies p
           LEFT JOIN policy_evaluations pe ON pe.rule_id = p.id 
             AND pe.evaluated_at > NOW() - ${interval}
-            AND pe.tenant_id = $1::text
-          WHERE p.tenant_id = $1::text
+            AND pe.tenant_id::text = $1::text
+          WHERE p.tenant_id::text = $1::text
           GROUP BY p.id, p.name
           ORDER BY evaluation_count DESC
           LIMIT 20
@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) AS count,
             AVG(EXTRACT(EPOCH FROM (updated_at - created_at))) AS avg_seconds
           FROM approval_requests
-          WHERE tenant_id = $1::text 
+          WHERE tenant_id::text = $1::text 
             AND status IN ('approved', 'denied')
             AND created_at > NOW() - ${interval}
           GROUP BY latency_bucket
@@ -94,10 +94,10 @@ module.exports = async function handler(req, res) {
             ) / NULLIF(COUNT(DISTINCT ele.execution_id), 0), 1) AS rejection_rate
           FROM agent_registry ar
           LEFT JOIN execution_ledger_events ele ON ele.actor_id = ar.agent_id 
-            AND ele.tenant_id = $1::text
+            AND ele.tenant_id::text = $1::text
             AND ele.event_timestamp > NOW() - ${interval}
-          LEFT JOIN warrants w ON w.agent_id = ar.agent_id AND w.tenant_id = $1::text
-          WHERE ar.tenant_id = $1::text
+          LEFT JOIN warrants w ON w.agent_id = ar.agent_id AND w.tenant_id::text = $1::text
+          WHERE ar.tenant_id::text = $1::text
           GROUP BY ar.agent_id, ar.display_name, ar.status
           ORDER BY total_executions DESC
           LIMIT 20
@@ -112,7 +112,7 @@ module.exports = async function handler(req, res) {
             COUNT(DISTINCT execution_id) FILTER (WHERE event_type = 'execution_rejected') AS rejected,
             COUNT(DISTINCT execution_id) FILTER (WHERE event_type = 'approval_required') AS escalated
           FROM execution_ledger_events
-          WHERE tenant_id = $1::text AND event_timestamp > NOW() - ${interval}
+          WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - ${interval}
           GROUP BY bucket
           ORDER BY bucket ASC
         `, [tenantId]),
@@ -123,7 +123,7 @@ module.exports = async function handler(req, res) {
             action AS action_type,
             COUNT(*) AS usage_count
           FROM intents
-          WHERE tenant_id = $1::text AND created_at > NOW() - ${interval}
+          WHERE tenant_id::text = $1::text AND created_at > NOW() - ${interval}
           GROUP BY action
           ORDER BY usage_count DESC
           LIMIT 15
@@ -132,16 +132,16 @@ module.exports = async function handler(req, res) {
         // Compliance posture score
         pool.query(`
           SELECT
-            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text AND enabled = true) AS enabled_policies,
-            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text) AS total_policies,
-            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text 
+            (SELECT COUNT(*) FROM policies WHERE tenant_id::text = $1::text AND enabled = true) AS enabled_policies,
+            (SELECT COUNT(*) FROM policies WHERE tenant_id::text = $1::text) AS total_policies,
+            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id::text = $1::text 
               AND last_heartbeat > NOW() - INTERVAL '1 hour') AS monitored_agents,
-            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text) AS total_agents,
-            (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1::text AND revoked = false 
+            (SELECT COUNT(*) FROM agent_registry WHERE tenant_id::text = $1::text) AS total_agents,
+            (SELECT COUNT(*) FROM api_keys WHERE tenant_id::text = $1::text AND revoked = false 
               AND expires_at IS NOT NULL AND expires_at > NOW()) AS rotatable_keys,
-            (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1::text AND revoked = false) AS total_keys,
-            (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1::text AND enabled = true) AS active_webhooks,
-            (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1::text AND enabled = true) AS retention_policies
+            (SELECT COUNT(*) FROM api_keys WHERE tenant_id::text = $1::text AND revoked = false) AS total_keys,
+            (SELECT COUNT(*) FROM webhooks WHERE tenant_id::text = $1::text AND enabled = true) AS active_webhooks,
+            (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id::text = $1::text AND enabled = true) AS retention_policies
         `, [tenantId]),
       ]);
 
@@ -193,8 +193,8 @@ module.exports = async function handler(req, res) {
         FROM policies p
         LEFT JOIN policy_evaluations pe ON pe.rule_id = p.id
           AND pe.evaluated_at > NOW() - ${interval}
-          AND pe.tenant_id = $1::text
-        WHERE p.tenant_id = $1::text
+          AND pe.tenant_id::text = $1::text
+        WHERE p.tenant_id::text = $1::text
         GROUP BY p.id
         ORDER BY total_evaluations DESC
       `, [tenantId]);
@@ -216,10 +216,10 @@ module.exports = async function handler(req, res) {
           COUNT(DISTINCT w.id) AS warrants
         FROM agent_registry ar
         LEFT JOIN execution_ledger_events ele ON ele.actor_id = ar.agent_id 
-          AND ele.tenant_id = $1::text
+          AND ele.tenant_id::text = $1::text
           AND ele.event_timestamp > NOW() - ${interval}
-        LEFT JOIN warrants w ON w.agent_id = ar.agent_id AND w.tenant_id = $1::text
-        WHERE ar.tenant_id = $1::text
+        LEFT JOIN warrants w ON w.agent_id = ar.agent_id AND w.tenant_id::text = $1::text
+        WHERE ar.tenant_id::text = $1::text
         GROUP BY ar.agent_id, ar.display_name, ar.status, ar.trust_score, ar.registered_at, ar.last_heartbeat
         ORDER BY executions DESC
       `, [tenantId]);
@@ -242,10 +242,10 @@ module.exports = async function handler(req, res) {
           COUNT(DISTINCT ele.execution_id) AS total_actions
         FROM agent_registry ar
         LEFT JOIN execution_ledger_events ele ON ele.actor_id = ar.agent_id
-          AND ele.tenant_id = $1::text
+          AND ele.tenant_id::text = $1::text
           AND ele.event_timestamp > NOW() - ${interval}
           AND ele.event_type = 'execution_started'
-        WHERE ar.tenant_id = $1::text
+        WHERE ar.tenant_id::text = $1::text
         GROUP BY ar.agent_id, ar.display_name, ar.status
         HAVING COUNT(DISTINCT ele.execution_id) > 0
         ORDER BY high_risk_count DESC, total_actions DESC
@@ -268,7 +268,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE event_type = 'execution_completed') AS completed,
             COUNT(*) FILTER (WHERE event_type = 'execution_rejected') AS rejected
           FROM execution_ledger_events
-          WHERE tenant_id = $1::text AND event_timestamp > NOW() - ${interval}
+          WHERE tenant_id::text = $1::text AND event_timestamp > NOW() - ${interval}
         `, [tenantId]),
         pool.query(`
           SELECT
@@ -276,7 +276,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE event_type = 'execution_completed') AS completed,
             COUNT(*) FILTER (WHERE event_type = 'execution_rejected') AS rejected
           FROM execution_ledger_events
-          WHERE tenant_id = $1::text 
+          WHERE tenant_id::text = $1::text 
             AND event_timestamp BETWEEN NOW() - (2 * ${interval}) AND NOW() - ${interval}
         `, [tenantId]),
       ]);

@@ -83,7 +83,7 @@ module.exports = async function handler(req, res) {
             ) AS warrants,
             (SELECT json_agg(json_build_object(
               'execution_id', e.execution_id,
-              'event_type', e.event_type,
+              'event', e.event,
               'timestamp', e.event_timestamp
             ) ORDER BY e.event_timestamp DESC)
             FROM execution_ledger_events e 
@@ -201,7 +201,7 @@ module.exports = async function handler(req, res) {
       if (!type || type === 'execution') {
         const r = await pool.query(`
           SELECT DISTINCT ON (execution_id) 
-            'execution' AS entity_type, execution_id AS id, event_type AS status, 
+            'execution' AS entity_type, execution_id AS id, event AS status, 
             actor_id AS agent_id, event_timestamp AS created_at
           FROM execution_ledger_events
           WHERE tenant_id = $1 AND (

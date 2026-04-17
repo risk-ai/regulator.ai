@@ -6,7 +6,7 @@
  * 
  * Schema: integrations table
  *   - id, tenant_id, type (slack|email|webhook|github)
- *   - name, enabled, config (JSONB), event_filters (JSONB)
+ *   - name, enabled, config (JSONB), event_types (JSONB)
  *   - created_at, updated_at, created_by
  */
 
@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
     // ── List integrations ────────────────────────────────────────────
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const result = await pool.query(`
-        SELECT id, tenant_id, type, name, enabled, config, event_filters, created_at, updated_at, created_by
+        SELECT id, tenant_id, type, name, enabled, config, event_types, created_at, updated_at, created_by
         FROM integrations
         WHERE tenant_id = $1
         ORDER BY created_at DESC
@@ -103,7 +103,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.startsWith('/') && path.split('/').length === 2) {
       const id = path.replace('/', '');
       const result = await pool.query(`
-        SELECT id, tenant_id, type, name, enabled, config, event_filters, created_at, updated_at, created_by
+        SELECT id, tenant_id, type, name, enabled, config, event_types, created_at, updated_at, created_by
         FROM integrations
         WHERE id = $1 AND tenant_id = $2
       `, [id, tenantId]);
@@ -122,7 +122,7 @@ module.exports = async function handler(req, res) {
 
     // ── Create integration ───────────────────────────────────────────
     if (req.method === 'POST' && (!path || path === '' || path === '/')) {
-      const { type, name, config, event_filters, enabled = true } = req.body;
+      const { type, name, config, event_types, enabled = true } = req.body;
 
       if (!type || !name || !config) {
         return res.status(400).json({ success: false, error: 'type, name, and config required' });
@@ -141,10 +141,10 @@ module.exports = async function handler(req, res) {
       }
 
       const result = await pool.query(`
-        INSERT INTO integrations (tenant_id, type, name, enabled, config, event_filters, created_by)
+        INSERT INTO integrations (tenant_id, type, name, enabled, config, event_types, created_by)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING id, tenant_id, type, name, enabled, config, event_filters, created_at, updated_at, created_by
-      `, [tenantId, type, name, enabled, config, event_filters || [], user.user_id]);
+        RETURNING id, tenant_id, type, name, enabled, config, event_types, created_at, updated_at, created_by
+      `, [tenantId, type, name, enabled, config, event_types || [], user.user_id]);
 
       const integration = {
         ...result.rows[0],
@@ -157,7 +157,7 @@ module.exports = async function handler(req, res) {
     // ── Update integration ───────────────────────────────────────────
     if (req.method === 'PATCH' && path.startsWith('/') && path.split('/').length === 2) {
       const id = path.replace('/', '');
-      const { name, config, event_filters, enabled } = req.body;
+      const { name, config, event_types, enabled } = req.body;
 
       const updates = [];
       const values = [tenantId, id];
@@ -171,9 +171,9 @@ module.exports = async function handler(req, res) {
         updates.push(`config = $${idx++}`);
         values.push(config);
       }
-      if (event_filters !== undefined) {
-        updates.push(`event_filters = $${idx++}`);
-        values.push(event_filters);
+      if (event_types !== undefined) {
+        updates.push(`event_types = $${idx++}`);
+        values.push(event_types);
       }
       if (enabled !== undefined) {
         updates.push(`enabled = $${idx++}`);
@@ -190,7 +190,7 @@ module.exports = async function handler(req, res) {
         UPDATE integrations
         SET ${updates.join(', ')}
         WHERE tenant_id = $1 AND id = $2
-        RETURNING id, tenant_id, type, name, enabled, config, event_filters, created_at, updated_at, created_by
+        RETURNING id, tenant_id, type, name, enabled, config, event_types, created_at, updated_at, created_by
       `, values);
 
       if (result.rows.length === 0) {

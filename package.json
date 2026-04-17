@@ -5,7 +5,6 @@
   "workspaces": [
     "apps/marketing",
     "apps/console/client",
-    "apps/console/server",
     "services/vienna-lib"
   ],
   "scripts": {

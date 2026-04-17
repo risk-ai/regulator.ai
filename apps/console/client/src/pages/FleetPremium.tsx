@@ -8,7 +8,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, RefreshCw } from 'lucide-react';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
 
 export default function FleetPremium() {
@@ -60,7 +59,6 @@ export default function FleetPremium() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <AnimatedGlobeBackground />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div className="space-y-6 max-w-[1440px] mx-auto">
       {/* Header */}

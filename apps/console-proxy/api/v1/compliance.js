@@ -50,7 +50,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path === '/quick-stats') {
       const result = await pool.query(`
         SELECT
-          (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = 1) AS active_policies,
+          (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS active_policies,
           (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1) AS total_agents,
           (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 
             AND created_at > NOW() - INTERVAL '30 days') AS audit_events_30d,
@@ -269,7 +269,7 @@ module.exports = async function handler(req, res) {
 async function calculateFrameworkScores(tenantId) {
   const signals = await pool.query(`
     SELECT
-      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = 1) AS active_policies,
+      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS active_policies,
       (SELECT COUNT(*) FROM policies WHERE tenant_id = $1) AS total_policies,
       (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1 
         AND last_heartbeat > NOW() - INTERVAL '24 hours') AS monitored_agents,

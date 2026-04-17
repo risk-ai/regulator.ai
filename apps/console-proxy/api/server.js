@@ -1687,6 +1687,40 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/fleet' && req.method === 'GET') {
       const agents = await tenantQuery('SELECT * FROM regulator.agent_registry ORDER BY registered_at DESC', [], tenantId);
       const alerts = await tenantQuery('SELECT * FROM regulator.agent_alerts ORDER BY created_at DESC LIMIT 10', [], tenantId);
+
+      // Calculate real metrics from agent_activity
+      const activityToday = await tenantQuery(
+        `SELECT 
+           agent_id,
+           COUNT(*) as action_count,
+           AVG(latency_ms) as avg_latency,
+           COUNT(*) FILTER (WHERE result IN ('failed', 'timeout')) as error_count
+         FROM regulator.agent_activity 
+         WHERE created_at > NOW() - INTERVAL '24 hours'
+         GROUP BY agent_id`,
+        [], tenantId
+      );
+
+      // Build metrics map for O(1) lookup
+      const metricsMap = {};
+      let totalActions = 0;
+      let totalLatency = 0;
+      let actionCount = 0;
+      activityToday.forEach(row => {
+        metricsMap[row.agent_id] = {
+          actions_today: parseInt(row.action_count || 0),
+          avg_latency_ms: parseFloat(row.avg_latency || 0),
+          error_rate: row.action_count > 0 ? (parseInt(row.error_count || 0) / parseInt(row.action_count)) * 100 : 0,
+        };
+        totalActions += parseInt(row.action_count || 0);
+        if (row.avg_latency) {
+          totalLatency += parseFloat(row.avg_latency);
+          actionCount++;
+        }
+      });
+
+      const avgLatency = actionCount > 0 ? totalLatency / actionCount : 0;
+
       return res.status(200).json({
         success: true,
         data: {
@@ -1695,38 +1729,41 @@ module.exports = async function handler(req, res) {
             activeAgents: agents.filter(a => a.status === 'active').length,
             idleAgents: agents.filter(a => a.status === 'idle').length,
             suspendedAgents: agents.filter(a => a.status === 'suspended').length,
-            actionsToday: 0,
-            actionsThisHour: 0,
-            actionsThisMinute: 0,
-            avgLatencyMs: 45,
+            actionsToday: totalActions,
+            actionsThisHour: 0, // TODO: add 1-hour window query
+            actionsThisMinute: 0, // TODO: add 1-minute window query
+            avgLatencyMs: avgLatency,
             violationsCount: 0,
             unresolvedAlerts: alerts.filter(a => !a.resolved).length,
-            actionsByResult: { success: 0, denied: 0, error: 0 },
+            actionsByResult: { success: 0, denied: 0, error: 0 }, // TODO: add result breakdown
             topAgentsByVolume: [],
             agentsNeedingAttention: [],
             trendData: [],
           },
-          agents: agents.map(a => ({
-            id: a.id,
-            agent_id: a.id,
-            display_name: a.display_name || 'Unknown',
-            description: a.description || '',
-            agent_type: a.agent_type || 'autonomous',
-            status: a.status || 'active',
-            trust_score: a.trust_score || 0,
-            last_heartbeat: a.last_heartbeat,
-            config: a.config || {},
-            tags: a.tags || [],
-            rate_limit_per_minute: a.rate_limit_per_minute || 60,
-            rate_limit_per_hour: a.rate_limit_per_hour || 1000,
-            registered_at: a.registered_at,
-            registered_by: a.registered_by || 'system',
-            updated_at: a.updated_at || a.registered_at,
-            actions_today: 0,
-            avg_latency_ms: 0,
-            error_rate: 0,
-            unresolved_alerts: 0,
-          })),
+          agents: agents.map(a => {
+            const metrics = metricsMap[a.agent_id] || { actions_today: 0, avg_latency_ms: 0, error_rate: 0 };
+            return {
+              id: a.id,
+              agent_id: a.agent_id,
+              display_name: a.display_name || 'Unknown',
+              description: a.description || '',
+              agent_type: a.agent_type || 'autonomous',
+              status: a.status || 'active',
+              trust_score: a.trust_score || 0,
+              last_heartbeat: a.last_heartbeat,
+              config: a.config || {},
+              tags: a.tags || [],
+              rate_limit_per_minute: a.rate_limit_per_minute || 60,
+              rate_limit_per_hour: a.rate_limit_per_hour || 1000,
+              registered_at: a.registered_at,
+              registered_by: a.registered_by || 'system',
+              updated_at: a.updated_at || a.registered_at,
+              actions_today: metrics.actions_today,
+              avg_latency_ms: Math.round(metrics.avg_latency_ms),
+              error_rate: metrics.error_rate,
+              unresolved_alerts: 0,
+            };
+          }),
           alerts: alerts.map(a => ({
             id: a.id,
             agentId: a.agent_id,

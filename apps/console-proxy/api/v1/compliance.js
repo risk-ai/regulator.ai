@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
       const recent = await pool.query(
         `SELECT id, title, report_type, status, period_start, period_end, generated_at, generated_by
          FROM compliance_reports
-         WHERE tenant_id = $1
+         WHERE tenant_id = $1::text
          ORDER BY generated_at DESC
          LIMIT 10`,
         [tenantId]
@@ -50,13 +50,13 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path === '/quick-stats') {
       const result = await pool.query(`
         SELECT
-          (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS active_policies,
-          (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1) AS total_agents,
-          (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 
+          (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text AND enabled = true) AS active_policies,
+          (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text) AS total_agents,
+          (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1::text 
             AND created_at > NOW() - INTERVAL '30 days') AS audit_events_30d,
-          (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1 AND enabled = true) AS retention_policies,
-          (SELECT COUNT(*) FROM roles WHERE tenant_id = $1) AS roles_configured,
-          (SELECT COUNT(*) FROM compliance_reports WHERE tenant_id = $1 
+          (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1::text AND enabled = true) AS retention_policies,
+          (SELECT COUNT(*) FROM roles WHERE tenant_id = $1::text) AS roles_configured,
+          (SELECT COUNT(*) FROM compliance_reports WHERE tenant_id = $1::text 
             AND generated_at > NOW() - INTERVAL '30 days') AS reports_30d
       `, [tenantId]);
       
@@ -100,12 +100,12 @@ module.exports = async function handler(req, res) {
       
       const result = await pool.query(
         `SELECT id, title, report_type, status, period_start, period_end, generated_at, generated_by
-         FROM compliance_reports WHERE tenant_id = $1
+         FROM compliance_reports WHERE tenant_id = $1::text
          ORDER BY generated_at DESC LIMIT $2 OFFSET $3`,
         [tenantId, limit, offset]
       );
       const countResult = await pool.query(
-        'SELECT COUNT(*) AS cnt FROM compliance_reports WHERE tenant_id = $1',
+        'SELECT COUNT(*) AS cnt FROM compliance_reports WHERE tenant_id = $1::text',
         [tenantId]
       );
 
@@ -172,7 +172,7 @@ module.exports = async function handler(req, res) {
       const result = await pool.query(`
         SELECT id, event, actor, details, created_at
         FROM audit_log
-        WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
+        WHERE tenant_id = $1::text AND created_at BETWEEN $2 AND $3
         ORDER BY created_at ASC
         LIMIT $4
       `, [tenantId, start, end, limit]);
@@ -198,13 +198,13 @@ module.exports = async function handler(req, res) {
     // ── Data retention status ───────────────────────────────────────
     if (req.method === 'GET' && path === '/retention') {
       const policies = await pool.query(
-        'SELECT * FROM data_retention_policies WHERE tenant_id = $1 ORDER BY table_name',
+        'SELECT * FROM data_retention_policies WHERE tenant_id = $1::text ORDER BY table_name',
         [tenantId]
       );
       
       const archives = await pool.query(
         `SELECT * FROM retention_archive_log 
-         WHERE tenant_id = $1 
+         WHERE tenant_id = $1::text 
          ORDER BY executed_at DESC LIMIT 20`,
         [tenantId]
       );
@@ -221,7 +221,7 @@ module.exports = async function handler(req, res) {
     // ── RBAC — roles & assignments ──────────────────────────────────
     if (req.method === 'GET' && path === '/roles') {
       const roles = await pool.query(
-        'SELECT * FROM roles WHERE tenant_id = $1 ORDER BY is_system_role DESC, role_name',
+        'SELECT * FROM roles WHERE tenant_id = $1::text ORDER BY is_system_role DESC, role_name',
         [tenantId]
       );
 
@@ -230,7 +230,7 @@ module.exports = async function handler(req, res) {
          FROM user_role_assignments ura
          JOIN roles r ON r.id = ura.role_id
          LEFT JOIN users u ON u.id = ura.user_id
-         WHERE ura.tenant_id = $1
+         WHERE ura.tenant_id = $1::text
          ORDER BY ura.assigned_at DESC`,
         [tenantId]
       );
@@ -269,23 +269,23 @@ module.exports = async function handler(req, res) {
 async function calculateFrameworkScores(tenantId) {
   const signals = await pool.query(`
     SELECT
-      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS active_policies,
-      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1) AS total_policies,
-      (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1 
+      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text AND enabled = true) AS active_policies,
+      (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text) AS total_policies,
+      (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text 
         AND last_heartbeat > NOW() - INTERVAL '24 hours') AS monitored_agents,
-      (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1) AS total_agents,
-      (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false 
+      (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text) AS total_agents,
+      (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1::text AND revoked = false 
         AND expires_at IS NOT NULL) AS keys_with_expiry,
-      (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false) AS total_keys,
-      (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1 AND enabled = true) AS retention_policies,
-      (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND enabled = true) AS active_webhooks,
-      (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 
+      (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1::text AND revoked = false) AS total_keys,
+      (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1::text AND enabled = true) AS retention_policies,
+      (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1::text AND enabled = true) AS active_webhooks,
+      (SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1::text 
         AND created_at > NOW() - INTERVAL '30 days') AS recent_audit_events,
-      (SELECT COUNT(*) FROM roles WHERE tenant_id = $1) AS role_count,
-      (SELECT COUNT(*) FROM user_role_assignments WHERE tenant_id = $1) AS role_assignments,
-      (SELECT COUNT(*) FROM integrations WHERE tenant_id = $1 AND enabled = true) AS active_integrations,
+      (SELECT COUNT(*) FROM roles WHERE tenant_id = $1::text) AS role_count,
+      (SELECT COUNT(*) FROM user_role_assignments WHERE tenant_id = $1::text) AS role_assignments,
+      (SELECT COUNT(*) FROM integrations WHERE tenant_id = $1::text AND enabled = true) AS active_integrations,
       (SELECT COUNT(DISTINCT execution_id) FROM execution_ledger_events 
-        WHERE tenant_id = $1 AND event_timestamp > NOW() - INTERVAL '30 days') AS recent_executions
+        WHERE tenant_id = $1::text AND event_timestamp > NOW() - INTERVAL '30 days') AS recent_executions
   `, [tenantId]);
 
   const s = signals.rows[0];
@@ -388,7 +388,7 @@ async function generateReportData(tenantId, start, end) {
         COUNT(DISTINCT execution_id) FILTER (WHERE event_type = 'execution_completed') AS completed,
         COUNT(DISTINCT execution_id) FILTER (WHERE event_type = 'execution_rejected') AS rejected
       FROM execution_ledger_events
-      WHERE tenant_id = $1 AND event_timestamp BETWEEN $2 AND $3
+      WHERE tenant_id = $1::text AND event_timestamp BETWEEN $2 AND $3
     `, [tenantId, start, end]),
 
     pool.query(`
@@ -398,13 +398,13 @@ async function generateReportData(tenantId, start, end) {
         COUNT(*) FILTER (WHERE result = 'deny') AS denied,
         COUNT(*) FILTER (WHERE result = 'require_approval') AS escalated
       FROM policy_evaluations
-      WHERE tenant_id = $1 AND evaluated_at BETWEEN $2 AND $3
+      WHERE tenant_id = $1::text AND evaluated_at BETWEEN $2 AND $3
     `, [tenantId, start, end]),
 
     pool.query(`
       SELECT COUNT(*) AS total, 
         COUNT(*) FILTER (WHERE status = 'active') AS active
-      FROM agent_registry WHERE tenant_id = $1
+      FROM agent_registry WHERE tenant_id = $1::text
     `, [tenantId]),
 
     pool.query(`
@@ -413,12 +413,12 @@ async function generateReportData(tenantId, start, end) {
         AVG(EXTRACT(EPOCH FROM (updated_at - created_at))) 
           FILTER (WHERE status IN ('approved','denied')) AS avg_resolution_seconds
       FROM approval_requests
-      WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
+      WHERE tenant_id = $1::text AND created_at BETWEEN $2 AND $3
     `, [tenantId, start, end]),
 
     pool.query(`
       SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE status = 'open') AS open
-      FROM incidents WHERE tenant_id = $1 AND created_at BETWEEN $2 AND $3
+      FROM incidents WHERE tenant_id = $1::text AND created_at BETWEEN $2 AND $3
     `, [tenantId, start, end]),
 
     calculateFrameworkScores(tenantId),

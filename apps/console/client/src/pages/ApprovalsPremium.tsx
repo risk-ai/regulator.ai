@@ -10,9 +10,11 @@ import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from
 import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
 import { useAuthStore } from '../store/authStore.js';
 import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';
+import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 
 export default function ApprovalsPremium() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [recentDecisions, setRecentDecisions] = useState<Approval[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -23,8 +25,17 @@ export default function ApprovalsPremium() {
   const loadApprovals = useCallback(async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     try {
-      const data = await listApprovals({ status: 'pending' }) as any;
-      setApprovals(Array.isArray(data) ? data : data.data || []);
+      const [pendingData, approvedData, deniedData] = await Promise.all([
+        listApprovals({ status: 'pending', limit: 50 }) as any,
+        listApprovals({ status: 'approved', limit: 10 }) as any,
+        listApprovals({ status: 'denied', limit: 10 }) as any,
+      ]);
+      setApprovals(Array.isArray(pendingData) ? pendingData : pendingData.data || []);
+      const resolved = [
+        ...(Array.isArray(approvedData) ? approvedData : approvedData.data || []),
+        ...(Array.isArray(deniedData) ? deniedData : deniedData.data || []),
+      ].sort((a, b) => (b.reviewed_at || 0) - (a.reviewed_at || 0)).slice(0, 10);
+      setRecentDecisions(resolved);
     } catch (err) {
       console.error('Failed to load approvals:', err);
     } finally {
@@ -234,6 +245,75 @@ export default function ApprovalsPremium() {
         </div>
       </div>
 
+      {/* Recent Decisions (Approval Chain) */}
+      {recentDecisions.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--text-primary)' }}>Recent Decisions</h2>
+          <div className="rounded-lg overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
+            <table className="w-full text-sm">
+              <thead style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <tr>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Agent</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Action</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Requested By</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Reviewed By</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Decision</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Time to Resolution</th>
+                  <th className="py-2 px-4 text-left text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Reviewed At</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentDecisions.map((decision, idx) => {
+                  const timeToResolution = decision.reviewed_at && decision.requested_at
+                    ? formatDuration(decision.reviewed_at - decision.requested_at)
+                    : '—';
+                  const isApproved = decision.status === 'approved';
+                  return (
+                    <tr key={decision.approval_id} style={{ borderBottom: idx < recentDecisions.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-primary)' }}>
+                          {decision.target_id?.slice(0, 12)}...
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                          {decision.action_type}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                          {decision.requested_by}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+                          {decision.reviewed_by || '—'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${isApproved ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                          {decision.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                          {timeToResolution}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-mono text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                          {decision.reviewed_at ? timeAgo(decision.reviewed_at) : '—'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Warrant Detail Modal */}
       {selectedApproval && (
         <WarrantDetailModal
@@ -278,4 +358,11 @@ function timeAgo(ts: number): string {
   if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
   return `${Math.floor(diff / 3600000)}h ago`;
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${Math.floor(ms / 1000)}s`;
+  if (ms < 3600000) return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+  return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
 }

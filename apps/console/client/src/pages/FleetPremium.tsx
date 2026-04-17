@@ -12,9 +12,11 @@ import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackg
 import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
 import { EmptyStates } from '../components/ui/RichEmptyState';
+import { useResponsive } from '../hooks/useResponsive';
 
 export default function FleetPremium() {
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
   const [agents, setAgents] = useState<FleetAgent[]>([]);
   const [summary, setSummary] = useState<FleetSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,7 +130,60 @@ export default function FleetPremium() {
             onAddAgent={() => navigate('/connect')}
             onViewDocs={() => window.open('https://docs.regulator.ai/sdk', '_blank')}
           />
+        ) : isMobile ? (
+          // Mobile: Card layout
+          <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
+            {agents.map((agent, idx) => (
+              <div
+                key={agent.id || agent.agent_id}
+                className="p-4 hover:bg-white/5 cursor-pointer transition-colors"
+                onClick={() => navigate(`/fleet/${agent.agent_id}`)}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${statusDot(agent.status)}`} />
+                    <span className="text-xs font-mono font-semibold" style={{ color: 'var(--accent-primary)' }}>
+                      {agent.agent_id}
+                    </span>
+                  </div>
+                  <span className={`text-sm font-mono font-medium ${trustColor(agent.trust_score)}`}>
+                    {agent.trust_score?.toFixed(1) ?? '—'}%
+                  </span>
+                </div>
+                <div className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                  {agent.display_name || agent.agent_id}
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Status: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {statusLabel(agent.status)}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Actions: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {(agent.actions_today ?? 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Heartbeat: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {agent.last_heartbeat ? timeAgo(agent.last_heartbeat) : '—'}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>Latency: </span>
+                    <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      {agent.avg_latency_ms?.toFixed(0) ?? '—'}ms
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
+          // Desktop: Table layout
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>

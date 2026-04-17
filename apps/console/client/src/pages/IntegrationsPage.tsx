@@ -216,6 +216,7 @@ function IntegrationList({ integrations, schemas, onSelect, onAdd, onToggle }: {
   onAdd: () => void;
   onToggle: (id: string) => void;
 }) {
+  const { isMobile } = useResponsive();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -231,7 +232,7 @@ function IntegrationList({ integrations, schemas, onSelect, onAdd, onToggle }: {
           />
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
           {integrations.map(int => (
             <IntegrationCard key={int.id} integration={int} onClick={() => onSelect(int.id)} onToggle={(e) => { e.stopPropagation(); onToggle(int.id); }} />
           ))}
@@ -314,13 +315,14 @@ function TypePicker({ schemas, onSelect, onCancel }: {
   onSelect: (type: string) => void;
   onCancel: () => void;
 }) {
+  const { isMobile } = useResponsive();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={styles.sectionTitle}>Choose Integration Type</h2>
         <button style={styles.button('ghost')} onClick={onCancel}>← Back</button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
         {schemas.map(schema => (
           <div
             key={schema.type}

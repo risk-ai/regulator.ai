@@ -16,6 +16,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { EmptyStates } from '../components/ui/RichEmptyState';
+import { useResponsive } from '../hooks/useResponsive';
 import {
   listPolicies,
   createPolicy,
@@ -838,6 +839,7 @@ function RuleBuilderPremium({ rule, onSave, onClose }: {
 // ============================================================================
 
 export function PolicyBuilderPremium() {
+  const { isMobile } = useResponsive();
   const [rules, setRules] = useState<PolicyRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('builder');
@@ -952,7 +954,7 @@ export function PolicyBuilderPremium() {
         {/* Metrics row */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)',
           gap: '12px',
           marginTop: '20px',
         }}>
@@ -1096,7 +1098,7 @@ export function PolicyBuilderPremium() {
           ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr',
+              gridTemplateColumns: isMobile ? '1fr' : (viewMode === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr'),
               gap: '12px',
             }}>
               {rules.map(rule => (

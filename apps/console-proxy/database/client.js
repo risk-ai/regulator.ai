@@ -1,6 +1,9 @@
 /**
  * Database Client
  * Shared PostgreSQL connection pool
+ * 
+ * IMPORTANT: All queries go through the query() function which explicitly
+ * sets search_path before each query to avoid Vercel cold-start race conditions.
  */
 
 const { Pool } = require('pg');
@@ -11,27 +14,21 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   ssl: { rejectUnauthorized: false },
-  // NOTE: Do NOT use `options: '-c search_path=...'` here.
-  // Neon's pooled connection endpoint (PgBouncer) rejects startup parameters.
-  // Instead, we SET search_path after each connection via pool.on('connect').
-});
-
-// Set search_path on every new connection from the pool.
-// This fires before any application query on that connection.
-pool.on('connect', (client) => {
-  return client.query('SET search_path TO regulator, public');
 });
 
 /**
- * Execute a parameterized query
- * @param {string} text - SQL query with $1, $2 placeholders
- * @param {Array} params - Query parameters
- * @returns {Promise<{rows: Array, rowCount: number}>}
+ * Execute a parameterized query with guaranteed search_path.
+ * 
+ * Uses pool.connect() + explicit SET search_path instead of pool.query()
+ * to eliminate the cold-start race condition where pool.on('connect') 
+ * hasn't completed before the first query runs.
  */
 async function query(text, params) {
   const start = Date.now();
+  const client = await pool.connect();
   try {
-    const res = await pool.query(text, params);
+    await client.query('SET search_path TO regulator, public');
+    const res = await client.query(text, params);
     const duration = Date.now() - start;
     
     if (duration > 1000) {
@@ -42,14 +39,19 @@ async function query(text, params) {
   } catch (error) {
     console.error('[DB] Query failed:', { text, error: error.message });
     throw error;
+  } finally {
+    client.release();
   }
 }
 
 /**
- * Get a client from the pool for transactions
+ * Get a client from the pool for transactions.
+ * Caller MUST set search_path and release the client.
  */
 async function getClient() {
-  return pool.connect();
+  const client = await pool.connect();
+  await client.query('SET search_path TO regulator, public');
+  return client;
 }
 
 module.exports = {

@@ -140,7 +140,7 @@ module.exports = async function handler(req, res) {
             (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false 
               AND expires_at IS NOT NULL AND expires_at > NOW()) AS rotatable_keys,
             (SELECT COUNT(*) FROM api_keys WHERE tenant_id = $1 AND revoked = false) AS total_keys,
-            (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND active = true) AS active_webhooks,
+            (SELECT COUNT(*) FROM webhooks WHERE tenant_id = $1 AND enabled = true) AS active_webhooks,
             (SELECT COUNT(*) FROM data_retention_policies WHERE tenant_id = $1 AND enabled = true) AS retention_policies
         `, [tenantId]),
       ]);

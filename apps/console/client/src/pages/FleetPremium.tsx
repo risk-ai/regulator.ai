@@ -11,6 +11,7 @@ import { TrendingUp, RefreshCw, Users } from 'lucide-react';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 import { fleetApi, type FleetAgent, type FleetSummary } from '../api/fleet.js';
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
+import { EmptyStates } from '../components/ui/RichEmptyState';
 
 export default function FleetPremium() {
   const navigate = useNavigate();
@@ -123,12 +124,10 @@ export default function FleetPremium() {
       {/* Agent Table */}
       <div className="rounded-lg overflow-hidden" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
         {agents.length === 0 ? (
-          <div className="p-12 text-center">
-            <p className="text-sm mb-2" style={{ color: 'var(--text-tertiary)' }}>No agents registered yet</p>
-            <button onClick={() => navigate('/connect')} className="text-sm underline" style={{ color: 'var(--accent-primary)' }}>
-              Connect your first agent →
-            </button>
-          </div>
+          <EmptyStates.Fleet.NoAgents
+            onAddAgent={() => navigate('/connect')}
+            onViewDocs={() => window.open('https://docs.regulator.ai/sdk', '_blank')}
+          />
         ) : (
           <table className="w-full text-sm">
             <thead>

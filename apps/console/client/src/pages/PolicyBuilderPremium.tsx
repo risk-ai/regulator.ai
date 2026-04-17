@@ -15,6 +15,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
+import { EmptyStates } from '../components/ui/RichEmptyState';
 import {
   listPolicies,
   createPolicy,
@@ -1062,29 +1063,20 @@ export function PolicyBuilderPremium() {
               LOADING RULES...
             </div>
           ) : rules.length === 0 ? (
+            <div style={{ padding: '20px 0' }}>
+              <EmptyStates.Policies.NoPolicies
+                onCreatePolicy={() => { setEditingRule(null); setShowBuilder(true); }}
+                onUseTemplate={() => window.location.href = '/policy-templates'}
+              />
+            </div>
+          ) : rules.length === 0 ? (
             <div style={{
               background: 'rgba(10, 14, 20, 0.6)',
               border: '1px dashed rgba(251, 191, 36, 0.3)',
               padding: '60px 40px',
               textAlign: 'center',
+              display: 'none' // Hidden, replaced by RichEmptyState above
             }}>
-              <div style={{ marginBottom: '12px' }}><Shield size={40} color="rgba(251, 191, 36, 0.6)" strokeWidth={1.5} /></div>
-              <div style={{
-                fontSize: '16px',
-                fontWeight: 700,
-                color: '#fbbf24',
-                marginBottom: '8px',
-                fontFamily: 'var(--font-mono)',
-              }}>
-                NO RULES YET
-              </div>
-              <div style={{
-                fontSize: '12px',
-                color: 'rgba(230, 225, 220, 0.6)',
-                marginBottom: '20px',
-              }}>
-                Create your first governance rule to control what agents can do
-              </div>
               <button
                 onClick={() => { setEditingRule(null); setShowBuilder(true); }}
                 style={{

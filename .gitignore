@@ -172,3 +172,13 @@ services/vienna-runtime/console/
 *.whl
 *.egg-info/
 .superdesign/
+
+# SQLite databases (dev artifacts, never commit)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Monitoring (retired - Vercel doesn't use Prometheus)
+monitoring/

@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { approveApproval, denyApproval, type Approval } from '../../api/approvals';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '../../store/authStore';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface ApprovalCardProps {
   approval: Approval;
@@ -19,6 +20,7 @@ interface ApprovalCardProps {
 
 export function ApprovalCard({ approval, onAction, urgent = false, focused = false, showExpandedDetails = false }: ApprovalCardProps) {
   const user = useAuthStore((state) => state.user);
+  const { isMobile } = useResponsive();
   const [acting, setActing] = useState(false);
   const [showDenyReason, setShowDenyReason] = useState(false);
   const [denyReason, setDenyReason] = useState('');
@@ -132,7 +134,7 @@ export function ApprovalCard({ approval, onAction, urgent = false, focused = fal
       </div>
 
       {/* Metadata */}
-      <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-2 mb-3 text-xs`}>
         <div>
           <span className="text-neutral-500">Requested:</span>{' '}
           <span className="text-neutral-300">

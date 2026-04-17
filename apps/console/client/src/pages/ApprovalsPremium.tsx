@@ -10,7 +10,6 @@ import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from
 import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
 import { useAuthStore } from '../store/authStore.js';
 import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';
-import { AnimatedGlobeBackground } from '../components/common/AnimatedGlobeBackground.js';
 
 export default function ApprovalsPremium() {
   const [approvals, setApprovals] = useState<Approval[]>([]);
@@ -103,7 +102,6 @@ export default function ApprovalsPremium() {
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <AnimatedGlobeBackground />
       <div style={{ position: 'relative', zIndex: 1 }} className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">

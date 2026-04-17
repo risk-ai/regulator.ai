@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { useResponsive } from '../hooks/useResponsive.js';
+import { EmptyStates } from '../components/ui/RichEmptyState';
 import {
   listIntegrations,
   getIntegration,
@@ -223,16 +224,11 @@ function IntegrationList({ integrations, schemas, onSelect, onAdd, onToggle }: {
       </div>
 
       {integrations.length === 0 ? (
-        <div style={{
-          ...styles.card,
-          textAlign: 'center',
-          padding: '48px',
-          cursor: 'default',
-          color: 'var(--text-tertiary)',
-        }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔌</div>
-          <div style={{ fontSize: '14px', fontWeight: 600 }}>No integrations configured</div>
-          <div style={{ fontSize: '12px', marginTop: '4px' }}>Add a Slack, Email, Webhook, or GitHub integration to get started.</div>
+        <div style={{ marginTop: '20px' }}>
+          <EmptyStates.Integrations.NoIntegrations
+            onAddSlack={() => setActiveTab('add')}
+            onAddWebhook={() => setActiveTab('add')}
+          />
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>

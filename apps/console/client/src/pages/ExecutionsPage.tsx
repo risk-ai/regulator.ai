@@ -14,6 +14,7 @@ import { addToast } from '../store/toastStore.js';
 import { ExecutionStatsRow } from '../components/executions/ExecutionStatsRow.js';
 import { ExecutionStatusBadge } from '../components/executions/ExecutionStatusBadge.js';
 import { LoadingState, EmptyState, ErrorState } from '../components/ui/PageStates.js';
+import { EmptyStates } from '../components/ui/RichEmptyState';
 import { Activity } from 'lucide-react';
 
 // ---- Types ----
@@ -803,17 +804,15 @@ export function ExecutionsPage() {
             <p style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-tertiary)' }}>Loading executions...</p>
           </div>
         ) : filteredExecutions.length === 0 ? (
-          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>{activeFilterCount > 0 ? '🔍' : '🔄'}</div>
-            <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>
-              {activeFilterCount > 0 ? 'No matching executions' : 'No executions yet'}
-            </h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', maxWidth: '400px', margin: '0 auto', lineHeight: 1.6 }}>
-              {activeFilterCount > 0
-                ? 'Try adjusting your filters or clearing them to see all executions.'
-                : 'Executions appear here when intents are submitted through the governance pipeline.'}
-            </p>
-            {activeFilterCount > 0 && (
+          activeFilterCount > 0 ? (
+            <div style={{ padding: '60px 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>
+                No matching executions
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', maxWidth: '400px', margin: '0 auto', lineHeight: 1.6 }}>
+                Try adjusting your filters or clearing them to see all executions.
+              </p>
               <button
                 onClick={() => setFilters(DEFAULT_FILTERS)}
                 style={{
@@ -824,8 +823,12 @@ export function ExecutionsPage() {
               >
                 Clear all filters
               </button>
-            )}
-          </div>
+            </div>
+          ) : (
+            <EmptyStates.Executions.NoHistory
+              onRefresh={loadExecutions}
+            />
+          )
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '700px' }}>

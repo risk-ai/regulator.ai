@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
           SELECT
             (SELECT COUNT(*) FROM warrants WHERE tenant_id = $1) AS total_warrants,
             (SELECT COUNT(*) FROM warrants WHERE tenant_id = $1 AND status = 'active') AS active_warrants,
-            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = 1) AS active_policies,
+            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS active_policies,
             (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1) AS total_agents,
             (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1 
               AND last_heartbeat > NOW() - INTERVAL '1 hour') AS online_agents,

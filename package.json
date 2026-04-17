@@ -5,16 +5,13 @@
   "workspaces": [
     "apps/marketing",
     "apps/console/client",
-    "apps/console/server",
     "services/vienna-lib"
   ],
   "scripts": {
     "dev:marketing": "npm run dev --workspace=apps/marketing",
     "dev:console": "npm run dev --workspace=apps/console/client",
-    "dev:server": "npm run dev --workspace=apps/console/server",
     "build:marketing": "npm run build --workspace=apps/marketing",
     "build:console": "npm run build --workspace=apps/console/client",
-    "build:server": "npm run build --workspace=apps/console/server",
     "install:all": "npm install"
   },
   "engines": {

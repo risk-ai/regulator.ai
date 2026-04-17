@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
       const queryParams = [tenantId];
       
       if (enabled !== undefined) {
-        queryParams.push(enabled === 'true' ? 1 : 0);
+        queryParams.push(enabled === 'true');
         query += ` AND enabled = $${queryParams.length}`;
       }
       
@@ -54,7 +54,7 @@ module.exports = async function handler(req, res) {
       const countParams = [tenantId];
       
       if (enabled !== undefined) {
-        countParams.push(enabled === 'true' ? 1 : 0);
+        countParams.push(enabled === 'true');
         countQuery += ` AND enabled = $${countParams.length}`;
       }
       

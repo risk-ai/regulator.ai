@@ -44,14 +44,14 @@ module.exports = async function handler(req, res) {
         // 1. Overview counters
         pool.query(`
           SELECT
-            (SELECT COUNT(*) FROM warrants WHERE tenant_id = $1::text::text) AS total_warrants,
+            (SELECT COUNT(*) FROM warrants WHERE tenant_id = $1::text) AS total_warrants,
             (SELECT COUNT(*) FROM warrants WHERE tenant_id = $1::text AND status = 'active') AS active_warrants,
             (SELECT COUNT(*) FROM policies WHERE tenant_id = $1::text AND enabled = true) AS active_policies,
             (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text) AS total_agents,
             (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1::text 
               AND last_heartbeat > NOW() - INTERVAL '1 hour') AS online_agents,
             (SELECT COUNT(DISTINCT execution_id) FROM execution_ledger_events 
-              WHERE tenant_id = $1::text::text AND event_timestamp > NOW() - ${interval}) AS executions_period,
+              WHERE tenant_id = $1::text AND event_timestamp > NOW() - ${interval}) AS executions_period,
             (SELECT COUNT(*) FROM approval_requests WHERE tenant_id = $1::text AND status = 'pending') AS pending_approvals,
             (SELECT COUNT(*) FROM policy_evaluations WHERE tenant_id = $1::text 
               AND evaluated_at > NOW() - ${interval}) AS evaluations_period,
@@ -105,7 +105,7 @@ module.exports = async function handler(req, res) {
             COUNT(*) FILTER (WHERE event_type = 'execution_completed') AS completed,
             COUNT(*) FILTER (WHERE event_type = 'execution_rejected') AS rejected
           FROM execution_ledger_events
-          WHERE tenant_id = $1::text::text AND event_timestamp > NOW() - ${interval}
+          WHERE tenant_id = $1::text AND event_timestamp > NOW() - ${interval}
           GROUP BY bucket
           ORDER BY bucket ASC
         `, [tenantId]),
@@ -173,7 +173,7 @@ module.exports = async function handler(req, res) {
           query = `
             SELECT date_trunc(${bucket}, event_timestamp) AS t, COUNT(DISTINCT execution_id) AS v
             FROM execution_ledger_events
-            WHERE tenant_id = $1::text::text AND event_timestamp > NOW() - ${interval}
+            WHERE tenant_id = $1::text AND event_timestamp > NOW() - ${interval}
             GROUP BY t ORDER BY t ASC`;
           break;
         case 'evaluations':
@@ -225,7 +225,7 @@ module.exports = async function handler(req, res) {
         const r = await pool.query(`
           SELECT COUNT(DISTINCT execution_id) AS count
           FROM execution_ledger_events
-          WHERE tenant_id = $1::text::text AND event_timestamp > NOW() - INTERVAL '5 minutes'
+          WHERE tenant_id = $1::text AND event_timestamp > NOW() - INTERVAL '5 minutes'
         `, [tenantId]);
         checks.executionPipeline = {
           status: 'operational',

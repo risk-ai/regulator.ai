@@ -12,6 +12,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { addToast } from '../store/toastStore.js';
 import { getAnalytics, getTrends, type TimeRange } from '../api/analytics.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 // ---- Types ----
 
@@ -99,10 +100,12 @@ function exportAnalyticsCSV(data: AnalyticsData) {
 export function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AnalyticsData | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       // Fetch from new analytics API
       const [analyticsData, trendsData] = await Promise.all([
@@ -166,13 +169,23 @@ export function AnalyticsPage() {
         timeRange: `Last ${timeRange}`,
       });
     } catch (err) {
-      addToast('Failed to load analytics', 'error', { label: 'Retry', onClick: fetchAnalytics });
+      const errorMsg = err instanceof Error ? err.message : 'Failed to load analytics';
+      setError(errorMsg);
+      addToast(errorMsg, 'error');
     } finally {
       setLoading(false);
     }
   }, [timeRange]);
 
   useEffect(() => { fetchAnalytics(); }, [fetchAnalytics]);
+
+  if (error) {
+    return (
+      <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto' }}>
+        <PageError error={error} onRetry={fetchAnalytics} title="Failed to Load Analytics" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '28px 32px', maxWidth: '1400px', margin: '0 auto', fontFamily: 'var(--font-sans)' }}>

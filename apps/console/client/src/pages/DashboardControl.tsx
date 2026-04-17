@@ -286,10 +286,12 @@ export function DashboardControl() {
     systemStatus: 'healthy',
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('vienna_access_token');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -315,8 +317,8 @@ export function DashboardControl() {
         avgLatencyMs: Number(dash.systemHealth?.latencyMs || 0),
         systemStatus: 'healthy',
       });
-    } catch {
-      // Silent fail
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -421,6 +423,19 @@ export function DashboardControl() {
       enabled: true,
     },
   ];
+
+  if (error) {
+    return (
+      <div style={{ position: 'relative', minHeight: '100vh' }}>
+        <AnimatedGlobeBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <PageLayout title="Mission Control" description="Error loading data">
+            <PageError error={error} onRetry={loadDashboard} title="Failed to Load Dashboard" />
+          </PageLayout>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>

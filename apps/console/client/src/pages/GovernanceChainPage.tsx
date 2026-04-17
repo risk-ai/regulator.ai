@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '../api/client.js';
 import { getGovernanceOverview, getGovernanceChain, searchGovernance, type GovernanceChainSummary } from '../api/governance.js';
+import { PageError } from '../components/ui/StateHandlers.js';
 
 // ─── Types ───
 
@@ -148,6 +149,7 @@ export function GovernanceChainPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [chain, setChain] = useState<GovernanceChain | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [recentChains, setRecentChains] = useState<GovernanceChain[]>([]);
 
   // Load recent governance chains
@@ -176,6 +178,7 @@ export function GovernanceChainPage() {
 
   async function searchChain(intentId: string) {
     setLoading(true);
+    setError(null);
     try {
       // Use new governance chain API
       const chainData = await getGovernanceChain(intentId);
@@ -258,6 +261,7 @@ export function GovernanceChainPage() {
       });
     } catch (err) {
       console.error('Failed to load governance chain:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load governance chain');
     } finally {
       setLoading(false);
     }
@@ -299,8 +303,13 @@ export function GovernanceChainPage() {
         </button>
       </div>
 
+      {/* Error state */}
+      {error && (
+        <PageError error={error} onRetry={() => searchQuery && searchChain(searchQuery)} title="Failed to Load Chain" />
+      )}
+
       {/* Chain visualization */}
-      {chain && (
+      {!error && chain && (
         <div className="space-y-4">
           {/* Chain header */}
           <div className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] border border-[var(--border-default)] rounded-lg">

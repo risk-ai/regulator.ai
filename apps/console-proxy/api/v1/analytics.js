@@ -132,7 +132,7 @@ module.exports = async function handler(req, res) {
         // Compliance posture score
         pool.query(`
           SELECT
-            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = 1) AS enabled_policies,
+            (SELECT COUNT(*) FROM policies WHERE tenant_id = $1 AND enabled = true) AS enabled_policies,
             (SELECT COUNT(*) FROM policies WHERE tenant_id = $1) AS total_policies,
             (SELECT COUNT(*) FROM agent_registry WHERE tenant_id = $1 
               AND last_heartbeat > NOW() - INTERVAL '1 hour') AS monitored_agents,

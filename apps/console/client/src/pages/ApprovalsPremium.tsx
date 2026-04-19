@@ -136,15 +136,6 @@ export default function ApprovalsPremium() {
           title="No Pending Approvals"
           description="All agent requests are either auto-approved or have been processed. The queue is clear."
         />
-      ) : approvals.length === 0 && (
-        <div className="rounded-lg p-12 text-center" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}>
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'rgba(16,185,129,0.1)' }}>
-            <CheckCircle className="text-emerald-500" size={32} />
-          </div>
-          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>All Clear</h2>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No pending approvals in the queue.</p>
-        </div>
       ) : (
         <div className="space-y-3">
           {approvals.map((approval, idx) => {

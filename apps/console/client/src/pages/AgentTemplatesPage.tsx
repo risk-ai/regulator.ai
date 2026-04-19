@@ -78,11 +78,10 @@ export default function AgentTemplatesPage() {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-[rgba(255,255,255,0.6)]">Loading templates...</p>
         </div>
       ) : error ? (
         <PageError error={error} onRetry={fetchTemplates} title="Failed to Load Templates" />
-          <p className="mt-4 text-[rgba(255,255,255,0.6)]">Loading templates...</p>
-        </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {templates.map((template) => (

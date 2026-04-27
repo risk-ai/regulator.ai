@@ -315,7 +315,7 @@ module.exports = async function handler(req, res) {
       });
 
       // Generate signed JWT refresh token (must be verifiable by /auth/refresh)
-      const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.VIENNA_SESSION_SECRET || JWT_SECRET;
       const refreshPayload = {
         sub: user.id,
         type: 'refresh',
@@ -424,7 +424,7 @@ module.exports = async function handler(req, res) {
       });
 
       // Generate signed JWT refresh token
-      const REG_REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const REG_REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.VIENNA_SESSION_SECRET || JWT_SECRET;
       const regRefreshPayload = {
         sub: id,
         type: 'refresh',
@@ -1982,13 +1982,19 @@ module.exports = async function handler(req, res) {
     if (path.match(/^\/api\/v1\/action-types\/[^/]+$/) && req.method === 'PUT') {
       const id = path.split('/').pop();
       const body = await parseBody(req);
+      const ALLOWED_ACTION_TYPE_FIELDS = ['name', 'description', 'category', 'risk_tier', 'enabled', 'schema', 'config'];
       const sets = [];
       const params = [];
       let idx = 1;
       for (const [k, v] of Object.entries(body)) {
-        sets.push(`${k} = $${idx}`);
-        params.push(v);
-        idx++;
+        if (ALLOWED_ACTION_TYPE_FIELDS.includes(k)) {
+          sets.push(`${k} = $${idx}`);
+          params.push(typeof v === 'object' ? JSON.stringify(v) : v);
+          idx++;
+        }
+      }
+      if (sets.length === 0) {
+        return res.status(400).json({ success: false, error: 'No valid fields to update' });
       }
       params.push(id);
       await query(`UPDATE regulator.action_types SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx}`, params);
@@ -2048,7 +2054,8 @@ module.exports = async function handler(req, res) {
       }
       if (sets.length > 0) {
         params.push(id);
-        await query(`UPDATE regulator.integrations SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx} AND tenant_id = '${tenantId}'`, params);
+        params.push(tenantId);
+        await query(`UPDATE regulator.integrations SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx} AND tenant_id = $${idx + 1}`, params);
       }
       const updated = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
       return res.status(200).json({ success: true, data: updated[0] || {} });

@@ -12,8 +12,10 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { pool } = require('../../database/client');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'vienna-jwt-secret-change-in-production';
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.VIENNA_SESSION_SECRET;
+const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.VIENNA_SESSION_SECRET;
+if (!JWT_SECRET) console.error('[refresh] FATAL: JWT_SECRET or VIENNA_SESSION_SECRET must be set');
+if (!REFRESH_SECRET) console.error('[refresh] FATAL: REFRESH_SECRET or VIENNA_SESSION_SECRET must be set');
 
 function generateTokens(user) {
   const accessToken = jwt.sign(

@@ -170,7 +170,7 @@ module.exports = async function handler(req, res) {
       const limit = Math.min(parseInt(params.limit || '10000', 10), 50000);
 
       const result = await pool.query(`
-        SELECT id, event, actor, details, created_at
+        SELECT id, event AS event_type, actor, details, created_at
         FROM audit_log
         WHERE tenant_id::text = $1::text AND created_at BETWEEN $2 AND $3
         ORDER BY created_at ASC

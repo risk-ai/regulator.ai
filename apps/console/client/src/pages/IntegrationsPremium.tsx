@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
@@ -291,7 +292,7 @@ function IntegrationCard({ integration, onConnect, onTest }: {
               TEST CONNECTION
             </button>
             <button
-              onClick={() => window.location.href = `/integrations`}
+              onClick={() => navigate('/integrations')}
               style={{
                 padding: '8px 12px',
                 background: 'rgba(107, 114, 128, 0.2)',
@@ -509,6 +510,7 @@ function CodeSnippet({ language, code }: { language: string; code: string }) {
 // ============================================================================
 
 export function IntegrationsPremium() {
+  const navigate = useNavigate();
   const [integrations, setIntegrations] = useState<Integration[]>(INTEGRATIONS);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [selectedLang, setSelectedLang] = useState<'python' | 'nodejs' | 'go' | 'rust'>('python');
@@ -725,7 +727,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
           </div>
 
           <button
-            onClick={() => window.location.href = '/api-keys'}
+            onClick={() => navigate('/api-keys')}
             style={{
               padding: '8px 16px',
               background: 'rgba(6, 182, 212, 0.2)',

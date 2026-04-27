@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { apiClient } from '../api/client.js';
 import { useAuthStore } from '../store/authStore.js';
@@ -24,6 +25,7 @@ interface PolicyPack {
 }
 
 export function ConnectAgentPage() {
+  const navigate = useNavigate();
   const tenant = useAuthStore((state) => state.tenant);
   const tenantId = tenant?.id || 'unknown';
   
@@ -742,7 +744,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
 
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
         <button
-          onClick={() => window.location.href = '/fleet'}
+          onClick={() => navigate('/fleet')}
           style={{
             padding: '10px 16px',
             background: 'var(--bg-primary)',
@@ -757,7 +759,7 @@ const result = await vienna.govern('deploy_to_prod', { env: 'production' });`}</
         </button>
         
         <button
-          onClick={() => window.location.href = '/'}
+          onClick={() => navigate('/')}
           style={{
             padding: '10px 20px',
             background: '#f59e0b',

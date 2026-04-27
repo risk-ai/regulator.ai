@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileTreePanel } from '../components/files/FileTreePanel.js';
 import { EditorPanel } from '../components/files/EditorPanel.js';
 import { EnvelopeVisualizerPanel } from '../components/files/EnvelopeVisualizerPanel.js';
@@ -15,6 +16,7 @@ import { AICommandBar } from '../components/files/AICommandBar.js';
 import { filesApi } from '../api/files.js';
 
 export function FilesWorkspace() {
+  const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [selectedEnvelope, setSelectedEnvelope] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -99,7 +101,7 @@ export function FilesWorkspace() {
       <div className="bg-[#12131a] border-b border-[rgba(255,255,255,0.08)] px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[rgba(255,255,255,0.6)] hover:text-[#e2e8f0] hover:bg-[rgba(255,255,255,0.04)] rounded transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

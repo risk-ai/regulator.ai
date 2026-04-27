@@ -382,8 +382,11 @@ module.exports = async function handler(req, res) {
       const verificationToken = crypto.randomBytes(32).toString('hex');
 
       // Create tenant FIRST (user.tenant_id has FK constraint to tenants.id)
+      // Append short random suffix to slug to avoid unique constraint collisions
+      const baseSlug = (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`;
       await query('INSERT INTO regulator.tenants (id, name, slug, plan, created_at) VALUES ($1, $2, $3, $4, NOW())',
-        [newTenantId, company || email.split('@')[1], (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-'), plan || 'community']);
+        [newTenantId, company || email.split('@')[1], slug, plan || 'community']);
       
       await query(
         `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)

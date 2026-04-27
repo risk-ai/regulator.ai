@@ -96,15 +96,18 @@ export function App() {
     };
   }, []);
 
-  // Handle OAuth callback on mount
+  // Handle OAuth callback on mount — read token from URL before router strips it
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     
     if (token) {
+      // Clear the token from URL immediately to prevent re-processing
+      const cleanUrl = window.location.pathname === '/auth/callback' ? '/' : window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
       loginWithOAuth(token).then((success) => {
         if (success) {
-          navigate(location.pathname, { replace: true });
+          navigate('/', { replace: true });
         }
       });
       return;
@@ -291,6 +294,7 @@ export function App() {
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/api-keys" element={<ApiKeysPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/auth/callback" element={<Navigate to="/" replace />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>

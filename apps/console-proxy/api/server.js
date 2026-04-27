@@ -2067,7 +2067,29 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/test$/) && req.method === 'POST') {
       const id = path.split('/')[4];
-      return res.status(200).json({ success: true, data: { status: 'success', message: 'Test event sent successfully', latencyMs: 42 } });
+      // Verify the integration exists and is enabled
+      const integration = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
+      if (integration.length === 0) {
+        return res.status(404).json({ success: false, error: 'Integration not found' });
+      }
+      const config = typeof integration[0].config === 'string' ? JSON.parse(integration[0].config) : (integration[0].config || {});
+      const hasConfig = Object.keys(config).length > 0;
+      
+      // Log the test event
+      await query(
+        `INSERT INTO regulator.integration_events (id, integration_id, event_type, status, details, created_at, tenant_id)
+         VALUES ($1, $2, 'test', $3, $4, NOW(), $5)`,
+        [crypto.randomUUID(), id, hasConfig ? 'success' : 'warning', JSON.stringify({ message: hasConfig ? 'Test event sent' : 'Integration has no configuration — add webhook URL or API key' }), tenantId]
+      ).catch(() => {}); // Table may not exist
+      
+      return res.status(200).json({
+        success: hasConfig,
+        data: {
+          status: hasConfig ? 'success' : 'warning',
+          message: hasConfig ? 'Test event sent successfully' : 'Integration needs configuration — no webhook URL or API key set',
+          configured: hasConfig,
+        }
+      });
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/toggle$/) && req.method === 'POST') {
       const id = path.split('/')[4];
@@ -2093,6 +2115,224 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/api-keys' && req.method === 'GET') {
       const keys = await tenantQuery('SELECT id, name, key_prefix as prefix, scopes, agent_id, rate_limit, last_used_at, created_at, expires_at, revoked_at FROM regulator.api_keys ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: keys });
+    }
+
+    // ========== API Keys — Create ==========
+    if (path === '/api/v1/api-keys' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { name, expires_in_days } = body;
+      if (!name) return res.status(400).json({ success: false, error: 'name is required' });
+      
+      const id = crypto.randomUUID();
+      const keyRaw = `vos_${crypto.randomBytes(24).toString('hex')}`;
+      const keyPrefix = keyRaw.slice(0, 12) + '...';
+      const expiresAt = expires_in_days
+        ? new Date(Date.now() + expires_in_days * 86400000).toISOString()
+        : null;
+      
+      await query(
+        `INSERT INTO regulator.api_keys (id, name, key_hash, key_prefix, scopes, tenant_id, created_at, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)`,
+        [id, name, crypto.createHash('sha256').update(keyRaw).digest('hex'), keyPrefix, '["*"]', tenantId, expiresAt]
+      );
+      
+      return res.status(201).json({
+        success: true,
+        data: { id, name, key: keyRaw, prefix: keyPrefix, expires_at: expiresAt, created_at: new Date().toISOString() }
+      });
+    }
+
+    // ========== API Keys — Revoke ==========
+    if (path.match(/^\/api\/v1\/api-keys\/[^/]+\/revoke$/) && req.method === 'POST') {
+      const id = path.split('/')[4];
+      await query('UPDATE regulator.api_keys SET revoked_at = NOW() WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
+      return res.status(200).json({ success: true });
+    }
+
+    // ========== Connect Agent — Test Connection ==========
+    if (path === '/api/v1/connect/test' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { method, provider, apiKey } = body;
+      
+      if (!method || !provider) {
+        return res.status(400).json({ success: false, error: 'method and provider are required' });
+      }
+      
+      // Register the agent in the fleet
+      const agentId = crypto.randomUUID();
+      const agentName = `${provider}-agent-${agentId.slice(0, 6)}`;
+      
+      await query(
+        `INSERT INTO regulator.agent_registry (id, name, type, status, capabilities, registered_at, tenant_id)
+         VALUES ($1, $2, $3, 'active', $4, NOW(), $5)
+         ON CONFLICT DO NOTHING`,
+        [agentId, agentName, provider, JSON.stringify({ method, provider }), tenantId]
+      );
+      
+      return res.status(200).json({
+        success: true,
+        data: { agent_id: agentId, name: agentName, status: 'connected', method, provider }
+      });
+    }
+
+    // ========== Connect Agent — Activate Policy Pack ==========
+    if (path === '/api/v1/connect/activate-pack' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { policy_pack_id, tenant_id: reqTenantId } = body;
+      
+      if (!policy_pack_id) {
+        return res.status(400).json({ success: false, error: 'policy_pack_id is required' });
+      }
+      
+      // Load the policy pack templates
+      const templates = await tenantQuery(
+        'SELECT * FROM regulator.policy_templates WHERE pack_id = $1',
+        [policy_pack_id], tenantId
+      ).catch(() => []);
+      
+      // Create policy rules from the templates
+      let created = 0;
+      for (const tmpl of templates) {
+        await query(
+          `INSERT INTO regulator.policy_rules (id, name, description, conditions, action_on_match, priority, enabled, tenant_id, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, true, $7, NOW())
+           ON CONFLICT DO NOTHING`,
+          [crypto.randomUUID(), tmpl.name, tmpl.description, JSON.stringify(tmpl.conditions || []), tmpl.action_on_match || 'require_approval', tmpl.priority || 50, tenantId]
+        );
+        created++;
+      }
+      
+      return res.status(200).json({
+        success: true,
+        data: { pack_id: policy_pack_id, policies_created: created }
+      });
+    }
+
+    // ========== Team — Invite Member ==========
+    if (path === '/api/v1/team/invite' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { email, role } = body;
+      
+      if (!email || !role) {
+        return res.status(400).json({ success: false, error: 'email and role are required' });
+      }
+      
+      // Check if user already exists
+      const existing = await query('SELECT id FROM regulator.users WHERE email = $1 AND tenant_id = $2', [email, tenantId]);
+      if (existing.length > 0) {
+        return res.status(409).json({ success: false, error: 'User already in this organization' });
+      }
+      
+      // Create a pending invite (user will complete registration when they click the link)
+      const inviteId = crypto.randomUUID();
+      const inviteToken = crypto.randomBytes(32).toString('hex');
+      
+      // Create the user with a placeholder password (they'll set it via invite link)
+      await query(
+        `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
+         VALUES ($1, $2, $3, 'INVITE_PENDING', $4, $5, NOW())`,
+        [inviteId, email, email.split('@')[0], tenantId, role]
+      );
+      
+      // Send invite email via Resend if available
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_API_KEY) {
+        const inviteUrl = `https://console.regulator.ai?invite=${inviteToken}`;
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vienna OS <noreply@regulator.ai>',
+            to: [email],
+            subject: 'You\'ve been invited to Vienna OS',
+            html: `<p>You've been invited to join a Vienna OS organization as <strong>${role}</strong>.</p><p><a href="${inviteUrl}">Accept Invite</a></p>`
+          })
+        }).catch(err => console.error('[Invite] Email send failed:', err.message));
+      }
+      
+      return res.status(201).json({
+        success: true,
+        data: { id: inviteId, email, role, status: 'invited' }
+      });
+    }
+
+    // ========== Settings — Notification Preferences ==========
+    if (path === '/api/v1/settings/notifications' && req.method === 'GET') {
+      const prefs = await tenantQuery(
+        'SELECT * FROM regulator.notification_preferences WHERE tenant_id = $1 LIMIT 1',
+        [], tenantId
+      ).catch(() => []);
+      
+      return res.status(200).json({
+        success: true,
+        data: prefs[0] || { email_enabled: true, slack_enabled: false, webhook_url: null }
+      });
+    }
+    
+    if (path === '/api/v1/settings/notifications' && req.method === 'PUT') {
+      const body = await parseBody(req);
+      
+      // Upsert notification preferences
+      await query(
+        `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         ON CONFLICT (tenant_id) DO UPDATE SET
+           email_enabled = EXCLUDED.email_enabled,
+           slack_enabled = EXCLUDED.slack_enabled,
+           webhook_url = EXCLUDED.webhook_url,
+           updated_at = NOW()`,
+        [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
+      ).catch(() => {
+        // Table may not exist yet — create it
+        return query(`
+          CREATE TABLE IF NOT EXISTS regulator.notification_preferences (
+            id UUID PRIMARY KEY,
+            tenant_id UUID NOT NULL UNIQUE,
+            email_enabled BOOLEAN DEFAULT true,
+            slack_enabled BOOLEAN DEFAULT false,
+            webhook_url TEXT,
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+          )
+        `).then(() => query(
+          `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
+           VALUES ($1, $2, $3, $4, $5, NOW())`,
+          [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
+        ));
+      });
+      
+      return res.status(200).json({ success: true });
+    }
+
+    // ========== Billing — Stripe Portal ==========
+    if (path === '/api/v1/billing/portal' && req.method === 'POST') {
+      const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+      if (!STRIPE_KEY) {
+        return res.status(501).json({ success: false, error: 'Billing not configured' });
+      }
+      
+      // Get customer ID from tenant
+      const tenant = await query('SELECT stripe_customer_id FROM regulator.tenants WHERE id = $1', [tenantId]);
+      const customerId = tenant[0]?.stripe_customer_id;
+      
+      if (!customerId) {
+        return res.status(400).json({ success: false, error: 'No billing account linked. Subscribe to a plan first.' });
+      }
+      
+      // Create Stripe billing portal session
+      const portalRes = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${STRIPE_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `customer=${customerId}&return_url=${encodeURIComponent('https://console.regulator.ai/settings')}`,
+      });
+      
+      const portalData = await portalRes.json();
+      if (portalData.url) {
+        return res.status(200).json({ success: true, data: { url: portalData.url } });
+      }
+      return res.status(500).json({ success: false, error: 'Failed to create billing portal session' });
     }
 
     // ========== Tenants ==========

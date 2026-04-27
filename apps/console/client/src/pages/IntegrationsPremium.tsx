@@ -660,14 +660,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   }, [getHeaders]);
 
   const handleConnect = async (id: string) => {
-    addToast(\`Connecting \${id}...\`, 'info');
-    const headers = getHeaders();
-    try {
-      const res = await fetch('/api/v1/integrations', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ type: id, name: id, enabled: true, config: {} }) });
-      const data = await res.json();
-      if (data.success) { setIntegrations(prev => prev.map(i => i.id === id ? { ...i, status: 'connected' as const, lastSync: 'Just now' } : i)); addToast(\`\${id} connected\`, 'success'); }
-      else addToast(\`Failed: \${data.error || 'unknown'}\`, 'error');
-    } catch { addToast(\`Failed to connect \${id}\`, 'error'); }
+    // Navigate to the legacy integrations page which has the full configuration form
+    // This ensures integrations are properly configured (API keys, URLs, etc.)
+    // rather than creating empty records
+    addToast(`Opening ${id} configuration...`, 'info');
+    navigate('/integrations');
   };
 
   const handleTest = async (id: string) => {

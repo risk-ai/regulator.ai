@@ -4,6 +4,8 @@
 
 import { Router } from 'express';
 import { getStateGraph } from '@vienna/lib';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const ProposalReviewer = require('@vienna-lib/core/proposal-review.js');
 
 const router = Router();

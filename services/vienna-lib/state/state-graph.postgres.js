@@ -15,9 +15,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Hybrid Postgres client: pg for local, @vercel/postgres for Vercel
+const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 const isVercel = process.env.VERCEL === '1' || 
-                 (process.env.POSTGRES_URL?.includes('vercel.app') || 
-                  process.env.POSTGRES_URL?.includes('?pgbouncer=true'));
+                 (dbUrl?.includes('vercel.app') || 
+                  dbUrl?.includes('?pgbouncer=true'));
 
 let pgClient = null;
 
@@ -28,13 +29,14 @@ function getPgClient() {
       pgClient = vercelPg.sql;
     } else {
       const { Pool } = require('pg');
-      const isLocal = !process.env.POSTGRES_URL || 
-                      process.env.POSTGRES_URL.includes('localhost') ||
-                      process.env.POSTGRES_URL.includes('///');
+      const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+      const isLocal = !dbUrl || 
+                      dbUrl.includes('localhost') ||
+                      dbUrl.includes('///');
       
       if (isLocal) {
         // Extract database name if present in connection string
-        const dbMatch = process.env.POSTGRES_URL?.match(/\/\/\/([^?]+)/);
+        const dbMatch = dbUrl?.match(/\/\/\/([^?]+)/);
         const database = dbMatch ? dbMatch[1] : 'vienna_dev';
         
         pgClient = new Pool({
@@ -44,7 +46,7 @@ function getPgClient() {
         });
       } else {
         pgClient = new Pool({
-          connectionString: process.env.POSTGRES_URL
+          connectionString: dbUrl
         });
       }
     }
@@ -59,14 +61,14 @@ const SCHEMA_PATH = path.join(__dirname, 'schema.postgres.sql');
  */
 class StateGraph {
   constructor(options = {}) {
-    this.connectionString = process.env.POSTGRES_URL;
+    this.connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
     this.initialized = false;
     this.environment = options.environment || process.env.VIENNA_ENV || 'prod';
     
     if (!this.connectionString) {
       throw new Error(
-        'POSTGRES_URL environment variable is required. ' +
-        'Set this to your Vercel Postgres connection string.'
+        'DATABASE_URL or POSTGRES_URL environment variable is required. ' +
+        'Set this to your Postgres connection string.'
       );
     }
   }

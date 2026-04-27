@@ -105,6 +105,7 @@ import { createAdapterConfigsRouter } from './routes/adapter-configs.js';
 import { createSettingsRouter } from './routes/settings.js';
 import connectRouter from './routes/connect.js';
 import { createAnomaliesRouter } from './routes/anomalies.js';
+import proposalsRouter from './routes/proposals.js';
 
 import type { ErrorResponse } from './types/api.js';
 
@@ -429,6 +430,7 @@ export function createApp(
   
   app.use(`${apiPrefix}/agents`, requireAuth, agentsTenantRouter);
   app.use(`${apiPrefix}/policies`, requireAuth, policiesTenantRouter);
+  app.use(`${apiPrefix}/proposals`, requireAuth, proposalsRouter);
   app.use(`${apiPrefix}/policy-templates`, requireAuth, createPolicyTemplatesRouter());
   app.use(`${apiPrefix}/agent-templates`, requireAuth, createAgentTemplatesRouter());
   

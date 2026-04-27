@@ -2187,7 +2187,7 @@ module.exports = async function handler(req, res) {
     // ========== Settings ==========
     if (path === '/api/v1/settings/audit-log' && req.method === 'GET') {
       const limit = parseInt(url.searchParams.get('limit') || '50');
-      const events = await tenantQuery('SELECT id, event_type, actor, details, created_at FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
+      const events = await tenantQuery('SELECT id, event AS event_type, actor, details, created_at FROM regulator.audit_log ORDER BY created_at DESC LIMIT $1', [limit], tenantId);
       return res.status(200).json({ success: true, data: events });
     }
     if (path === '/api/v1/settings/execution-modes' && req.method === 'GET') {

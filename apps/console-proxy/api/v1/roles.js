@@ -31,7 +31,9 @@ module.exports = async function handler(req, res) {
     }
 
     // ── Get specific role with assignments ──────────────────────────
-    if (req.method === 'GET' && path.match(/^\/[^/]+$/) && !path.includes('/assignments') && !path.includes('/permissions')) {
+    // Reserved sub-paths that should NOT be treated as role IDs
+    const reservedPaths = ['/assignments', '/permissions', '/users', '/audit'];
+    if (req.method === 'GET' && path.match(/^\/[^/]+$/) && !reservedPaths.some(rp => path === rp)) {
       const roleId = path.substring(1);
       const role = await pool.query(
         'SELECT * FROM roles WHERE id = $1 AND tenant_id = $2',

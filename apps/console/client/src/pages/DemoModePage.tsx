@@ -62,12 +62,22 @@ export default function DemoModePage() {
     setProgress(0);
     setEvents([]);
 
-    // TODO: Call backend /api/v1/demo/seed endpoint
-    // For now, simulate with mock data
+    // Seed real demo data in the backend
+    try {
+      await fetch('/api/v1/demo/seed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ scenario: scenarioId }),
+      });
+    } catch {
+      // Continue with UI animation even if seed fails
+    }
+
     const scenario = scenarios.find((s) => s.id === scenarioId);
     if (!scenario) return;
 
-    // Simulate progress
+    // Animate progress bar
     const duration = parseInt(scenario.duration) * 60 * 1000; // Convert to ms
     const interval = duration / 100;
 

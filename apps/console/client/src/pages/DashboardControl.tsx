@@ -14,6 +14,7 @@
 
 import { Activity, TrendingUp, Power, Shield, Zap, AlertTriangle, CheckCircle, RefreshCw, Play, Pause, Terminal, Compass } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
 
@@ -274,6 +275,7 @@ function SystemStatusCard({ label, status, detail, action }: {
 // ============================================================================
 
 export function DashboardControl() {
+  const navigate = useNavigate();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     activeAgents: 0,
     totalAgents: 0,
@@ -415,7 +417,7 @@ export function DashboardControl() {
       label: 'CONSOLE',
       icon: <Terminal size={12} />,
       color: '#06b6d4',
-      action: () => window.location.href = '/workspace',
+      action: () => navigate('/workspace'),
       enabled: true,
     },
   ];
@@ -512,19 +514,19 @@ export function DashboardControl() {
               label="Governance Engine"
               status={metrics.avgLatencyMs < 100 ? 'healthy' : 'degraded'}
               detail={`Avg latency: ${metrics.avgLatencyMs}ms`}
-              action={() => window.location.href = '/analytics'}
+              action={() => navigate('/analytics')}
             />
             <SystemStatusCard
               label="Approval Queue"
               status={metrics.pendingApprovals < 20 ? 'healthy' : 'degraded'}
               detail={`${metrics.pendingApprovals} pending approvals`}
-              action={() => window.location.href = '/approvals'}
+              action={() => navigate('/approvals')}
             />
             <SystemStatusCard
               label="Fleet Status"
               status={metrics.activeAgents >= metrics.totalAgents * 0.8 ? 'healthy' : 'degraded'}
               detail={`${metrics.activeAgents} active of ${metrics.totalAgents} total`}
-              action={() => window.location.href = '/fleet'}
+              action={() => navigate('/fleet')}
             />
           </div>
 

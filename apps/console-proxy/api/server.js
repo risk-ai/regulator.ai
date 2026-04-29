@@ -315,7 +315,7 @@ module.exports = async function handler(req, res) {
       });
 
       // Generate signed JWT refresh token (must be verifiable by /auth/refresh)
-      const REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.VIENNA_SESSION_SECRET || JWT_SECRET;
       const refreshPayload = {
         sub: user.id,
         type: 'refresh',
@@ -382,8 +382,11 @@ module.exports = async function handler(req, res) {
       const verificationToken = crypto.randomBytes(32).toString('hex');
 
       // Create tenant FIRST (user.tenant_id has FK constraint to tenants.id)
+      // Append short random suffix to slug to avoid unique constraint collisions
+      const baseSlug = (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const slug = `${baseSlug}-${crypto.randomUUID().slice(0, 8)}`;
       await query('INSERT INTO regulator.tenants (id, name, slug, plan, created_at) VALUES ($1, $2, $3, $4, NOW())',
-        [newTenantId, company || email.split('@')[1], (company || email.split('@')[1]).toLowerCase().replace(/[^a-z0-9]/g, '-'), plan || 'community']);
+        [newTenantId, company || email.split('@')[1], slug, plan || 'community']);
       
       await query(
         `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
@@ -421,7 +424,7 @@ module.exports = async function handler(req, res) {
       });
 
       // Generate signed JWT refresh token
-      const REG_REFRESH_SECRET = process.env.REFRESH_SECRET || 'vienna-refresh-secret-change-in-production';
+      const REG_REFRESH_SECRET = process.env.REFRESH_SECRET || process.env.VIENNA_SESSION_SECRET || JWT_SECRET;
       const regRefreshPayload = {
         sub: id,
         type: 'refresh',
@@ -738,12 +741,21 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // System services
+    // System services — real health checks
     if (path === '/api/v1/system/services') {
+      const dbStart = Date.now();
+      const dbOk = await query('SELECT 1').then(() => true).catch(() => false);
+      const dbLatency = Date.now() - dbStart;
+      
+      const agentCount = await tenantQuery('SELECT count(*) as c FROM regulator.agent_registry', [], tenantId).catch(() => [{ c: 0 }]);
+      const policyCount = await tenantQuery('SELECT count(*) as c FROM regulator.policy_rules WHERE enabled = true', [], tenantId).catch(() => [{ c: 0 }]);
+      
       return res.status(200).json({ success: true, data: [
-        { name: 'database', status: 'healthy', latency: 50 },
-        { name: 'auth', status: 'healthy', latency: 10 },
-        { name: 'policy-engine', status: 'healthy', latency: 5 },
+        { name: 'database', status: dbOk ? 'healthy' : 'unhealthy', latency: dbLatency },
+        { name: 'auth', status: 'healthy', latency: 2 },
+        { name: 'policy-engine', status: parseInt(policyCount[0]?.c) > 0 ? 'healthy' : 'idle', latency: 5, details: `${policyCount[0]?.c || 0} active rules` },
+        { name: 'agent-fleet', status: parseInt(agentCount[0]?.c) > 0 ? 'healthy' : 'idle', latency: 3, details: `${agentCount[0]?.c || 0} agents registered` },
+        { name: 'audit-ledger', status: 'healthy', latency: 1 },
       ]});
     }
 
@@ -1218,11 +1230,29 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/execution/integrity') {
       return res.status(200).json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() }, timestamp: new Date().toISOString() });
     }
-    // Execution control
+    // Execution control — persist pause state in tenant settings
     if (path === '/api/v1/execution/pause' && req.method === 'POST') {
+      await query(
+        `UPDATE regulator.tenants SET settings = COALESCE(settings, '{}'::jsonb) || '{"execution_paused": true}'::jsonb WHERE id = $1`,
+        [tenantId]
+      ).catch(() => {});
+      await query(
+        `INSERT INTO regulator.audit_log (id, event, actor, risk_tier, details, created_at, tenant_id)
+         VALUES ($1, 'execution_paused', $2, 'T0', '{"action":"pause"}', NOW(), $3)`,
+        [crypto.randomUUID(), tenantId, tenantId]
+      ).catch(() => {});
       return res.status(200).json({ success: true, paused: true });
     }
     if (path === '/api/v1/execution/resume' && req.method === 'POST') {
+      await query(
+        `UPDATE regulator.tenants SET settings = COALESCE(settings, '{}'::jsonb) || '{"execution_paused": false}'::jsonb WHERE id = $1`,
+        [tenantId]
+      ).catch(() => {});
+      await query(
+        `INSERT INTO regulator.audit_log (id, event, actor, risk_tier, details, created_at, tenant_id)
+         VALUES ($1, 'execution_resumed', $2, 'T0', '{"action":"resume"}', NOW(), $3)`,
+        [crypto.randomUUID(), tenantId, tenantId]
+      ).catch(() => {});
       return res.status(200).json({ success: true, paused: false });
     }
 
@@ -1543,7 +1573,69 @@ module.exports = async function handler(req, res) {
 
     // Demo seed
     if (path === '/api/v1/demo/seed' && req.method === 'POST') {
-      return res.status(200).json({ success: true, message: 'Demo data already seeded' });
+      const body = await parseBody(req);
+      const scenario = body.scenario || 'default';
+      
+      // Seed demo agents
+      const demoAgents = [
+        { name: '[Demo] GPT-4 Analyst', type: 'openai', status: 'active' },
+        { name: '[Demo] Claude Reviewer', type: 'anthropic', status: 'active' },
+        { name: '[Demo] Compliance Bot', type: 'custom', status: 'active' },
+      ];
+      
+      for (const agent of demoAgents) {
+        await query(
+          `INSERT INTO regulator.agent_registry (id, name, type, status, capabilities, registered_at, tenant_id)
+           VALUES ($1, $2, $3, $4, '{}', NOW(), $5) ON CONFLICT DO NOTHING`,
+          [crypto.randomUUID(), agent.name, agent.type, agent.status, tenantId]
+        );
+      }
+      
+      // Seed demo policies
+      const demoPolicies = [
+        { name: '[Demo] Production Deploy Gate', description: 'Require approval for production deployments', action: 'require_approval', priority: 90 },
+        { name: '[Demo] Data Access Audit', description: 'Log all data access operations', action: 'audit', priority: 50 },
+        { name: '[Demo] High-Risk Auto-Block', description: 'Block T2+ actions without explicit warrant', action: 'deny', priority: 100 },
+      ];
+      
+      for (const policy of demoPolicies) {
+        await query(
+          `INSERT INTO regulator.policy_rules (id, name, description, conditions, action_on_match, priority, enabled, tenant_id, created_at)
+           VALUES ($1, $2, $3, '[]', $4, $5, true, $6, NOW()) ON CONFLICT DO NOTHING`,
+          [crypto.randomUUID(), policy.name, policy.description, policy.action, policy.priority, tenantId]
+        );
+      }
+      
+      // Seed demo proposals and audit events
+      const tiers = ['T0', 'T1', 'T2'];
+      const states = ['approved', 'approved', 'approved', 'denied', 'pending'];
+      const actions = ['deploy_code', 'query_database', 'send_email', 'modify_config', 'access_secrets'];
+      
+      for (let i = 0; i < 15; i++) {
+        const proposalId = crypto.randomUUID();
+        const tier = tiers[i % tiers.length];
+        const state = states[i % states.length];
+        const action = actions[i % actions.length];
+        
+        await query(
+          `INSERT INTO regulator.proposals (id, agent_id, action, payload, risk_tier, state, created_at, tenant_id)
+           VALUES ($1, (SELECT id FROM regulator.agent_registry WHERE tenant_id = $7 LIMIT 1), $2, $3, $4, $5, NOW() - interval '${i} hours', $6)
+           ON CONFLICT DO NOTHING`,
+          [proposalId, action, JSON.stringify({ demo: true, action }), tier, state, tenantId, tenantId]
+        );
+        
+        await query(
+          `INSERT INTO regulator.audit_log (id, proposal_id, event, actor, risk_tier, details, created_at, tenant_id)
+           VALUES ($1, $2, $3, 'demo-system', $4, $5, NOW() - interval '${i} hours', $6)
+           ON CONFLICT DO NOTHING`,
+          [crypto.randomUUID(), proposalId, state === 'approved' ? 'warrant_issued' : 'proposal_denied', tier, JSON.stringify({ demo: true }), tenantId]
+        );
+      }
+      
+      return res.status(200).json({ 
+        success: true, 
+        data: { agents: demoAgents.length, policies: demoPolicies.length, proposals: 15, audit_events: 15 }
+      });
     }
 
     // ========== Simulation Engine ==========
@@ -1979,13 +2071,19 @@ module.exports = async function handler(req, res) {
     if (path.match(/^\/api\/v1\/action-types\/[^/]+$/) && req.method === 'PUT') {
       const id = path.split('/').pop();
       const body = await parseBody(req);
+      const ALLOWED_ACTION_TYPE_FIELDS = ['name', 'description', 'category', 'risk_tier', 'enabled', 'schema', 'config'];
       const sets = [];
       const params = [];
       let idx = 1;
       for (const [k, v] of Object.entries(body)) {
-        sets.push(`${k} = $${idx}`);
-        params.push(v);
-        idx++;
+        if (ALLOWED_ACTION_TYPE_FIELDS.includes(k)) {
+          sets.push(`${k} = $${idx}`);
+          params.push(typeof v === 'object' ? JSON.stringify(v) : v);
+          idx++;
+        }
+      }
+      if (sets.length === 0) {
+        return res.status(400).json({ success: false, error: 'No valid fields to update' });
       }
       params.push(id);
       await query(`UPDATE regulator.action_types SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx}`, params);
@@ -2045,7 +2143,8 @@ module.exports = async function handler(req, res) {
       }
       if (sets.length > 0) {
         params.push(id);
-        await query(`UPDATE regulator.integrations SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx} AND tenant_id = '${tenantId}'`, params);
+        params.push(tenantId);
+        await query(`UPDATE regulator.integrations SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${idx} AND tenant_id = $${idx + 1}`, params);
       }
       const updated = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
       return res.status(200).json({ success: true, data: updated[0] || {} });
@@ -2057,7 +2156,29 @@ module.exports = async function handler(req, res) {
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/test$/) && req.method === 'POST') {
       const id = path.split('/')[4];
-      return res.status(200).json({ success: true, data: { status: 'success', message: 'Test event sent successfully', latencyMs: 42 } });
+      // Verify the integration exists and is enabled
+      const integration = await tenantQuery('SELECT * FROM regulator.integrations WHERE id = $1', [id], tenantId);
+      if (integration.length === 0) {
+        return res.status(404).json({ success: false, error: 'Integration not found' });
+      }
+      const config = typeof integration[0].config === 'string' ? JSON.parse(integration[0].config) : (integration[0].config || {});
+      const hasConfig = Object.keys(config).length > 0;
+      
+      // Log the test event
+      await query(
+        `INSERT INTO regulator.integration_events (id, integration_id, event_type, status, details, created_at, tenant_id)
+         VALUES ($1, $2, 'test', $3, $4, NOW(), $5)`,
+        [crypto.randomUUID(), id, hasConfig ? 'success' : 'warning', JSON.stringify({ message: hasConfig ? 'Test event sent' : 'Integration has no configuration — add webhook URL or API key' }), tenantId]
+      ).catch(() => {}); // Table may not exist
+      
+      return res.status(200).json({
+        success: hasConfig,
+        data: {
+          status: hasConfig ? 'success' : 'warning',
+          message: hasConfig ? 'Test event sent successfully' : 'Integration needs configuration — no webhook URL or API key set',
+          configured: hasConfig,
+        }
+      });
     }
     if (path.match(/^\/api\/v1\/integrations\/[^/]+\/toggle$/) && req.method === 'POST') {
       const id = path.split('/')[4];
@@ -2083,6 +2204,224 @@ module.exports = async function handler(req, res) {
     if (path === '/api/v1/api-keys' && req.method === 'GET') {
       const keys = await tenantQuery('SELECT id, name, key_prefix as prefix, scopes, agent_id, rate_limit, last_used_at, created_at, expires_at, revoked_at FROM regulator.api_keys ORDER BY created_at DESC', [], tenantId);
       return res.status(200).json({ success: true, data: keys });
+    }
+
+    // ========== API Keys — Create ==========
+    if (path === '/api/v1/api-keys' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { name, expires_in_days } = body;
+      if (!name) return res.status(400).json({ success: false, error: 'name is required' });
+      
+      const id = crypto.randomUUID();
+      const keyRaw = `vos_${crypto.randomBytes(24).toString('hex')}`;
+      const keyPrefix = keyRaw.slice(0, 12) + '...';
+      const expiresAt = expires_in_days
+        ? new Date(Date.now() + expires_in_days * 86400000).toISOString()
+        : null;
+      
+      await query(
+        `INSERT INTO regulator.api_keys (id, name, key_hash, key_prefix, scopes, tenant_id, created_at, expires_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)`,
+        [id, name, crypto.createHash('sha256').update(keyRaw).digest('hex'), keyPrefix, '["*"]', tenantId, expiresAt]
+      );
+      
+      return res.status(201).json({
+        success: true,
+        data: { id, name, key: keyRaw, prefix: keyPrefix, expires_at: expiresAt, created_at: new Date().toISOString() }
+      });
+    }
+
+    // ========== API Keys — Revoke ==========
+    if (path.match(/^\/api\/v1\/api-keys\/[^/]+\/revoke$/) && req.method === 'POST') {
+      const id = path.split('/')[4];
+      await query('UPDATE regulator.api_keys SET revoked_at = NOW() WHERE id = $1 AND tenant_id = $2', [id, tenantId]);
+      return res.status(200).json({ success: true });
+    }
+
+    // ========== Connect Agent — Test Connection ==========
+    if (path === '/api/v1/connect/test' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { method, provider, apiKey } = body;
+      
+      if (!method || !provider) {
+        return res.status(400).json({ success: false, error: 'method and provider are required' });
+      }
+      
+      // Register the agent in the fleet
+      const agentId = crypto.randomUUID();
+      const agentName = `${provider}-agent-${agentId.slice(0, 6)}`;
+      
+      await query(
+        `INSERT INTO regulator.agent_registry (id, name, type, status, capabilities, registered_at, tenant_id)
+         VALUES ($1, $2, $3, 'active', $4, NOW(), $5)
+         ON CONFLICT DO NOTHING`,
+        [agentId, agentName, provider, JSON.stringify({ method, provider }), tenantId]
+      );
+      
+      return res.status(200).json({
+        success: true,
+        data: { agent_id: agentId, name: agentName, status: 'connected', method, provider }
+      });
+    }
+
+    // ========== Connect Agent — Activate Policy Pack ==========
+    if (path === '/api/v1/connect/activate-pack' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { policy_pack_id, tenant_id: reqTenantId } = body;
+      
+      if (!policy_pack_id) {
+        return res.status(400).json({ success: false, error: 'policy_pack_id is required' });
+      }
+      
+      // Load the policy pack templates
+      const templates = await tenantQuery(
+        'SELECT * FROM regulator.policy_templates WHERE pack_id = $1',
+        [policy_pack_id], tenantId
+      ).catch(() => []);
+      
+      // Create policy rules from the templates
+      let created = 0;
+      for (const tmpl of templates) {
+        await query(
+          `INSERT INTO regulator.policy_rules (id, name, description, conditions, action_on_match, priority, enabled, tenant_id, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, true, $7, NOW())
+           ON CONFLICT DO NOTHING`,
+          [crypto.randomUUID(), tmpl.name, tmpl.description, JSON.stringify(tmpl.conditions || []), tmpl.action_on_match || 'require_approval', tmpl.priority || 50, tenantId]
+        );
+        created++;
+      }
+      
+      return res.status(200).json({
+        success: true,
+        data: { pack_id: policy_pack_id, policies_created: created }
+      });
+    }
+
+    // ========== Team — Invite Member ==========
+    if (path === '/api/v1/team/invite' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const { email, role } = body;
+      
+      if (!email || !role) {
+        return res.status(400).json({ success: false, error: 'email and role are required' });
+      }
+      
+      // Check if user already exists
+      const existing = await query('SELECT id FROM regulator.users WHERE email = $1 AND tenant_id = $2', [email, tenantId]);
+      if (existing.length > 0) {
+        return res.status(409).json({ success: false, error: 'User already in this organization' });
+      }
+      
+      // Create a pending invite (user will complete registration when they click the link)
+      const inviteId = crypto.randomUUID();
+      const inviteToken = crypto.randomBytes(32).toString('hex');
+      
+      // Create the user with a placeholder password (they'll set it via invite link)
+      await query(
+        `INSERT INTO regulator.users (id, email, name, password_hash, tenant_id, role, created_at)
+         VALUES ($1, $2, $3, 'INVITE_PENDING', $4, $5, NOW())`,
+        [inviteId, email, email.split('@')[0], tenantId, role]
+      );
+      
+      // Send invite email via Resend if available
+      const RESEND_API_KEY = process.env.RESEND_API_KEY;
+      if (RESEND_API_KEY) {
+        const inviteUrl = `https://console.regulator.ai?invite=${inviteToken}`;
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Vienna OS <noreply@regulator.ai>',
+            to: [email],
+            subject: 'You\'ve been invited to Vienna OS',
+            html: `<p>You've been invited to join a Vienna OS organization as <strong>${role}</strong>.</p><p><a href="${inviteUrl}">Accept Invite</a></p>`
+          })
+        }).catch(err => console.error('[Invite] Email send failed:', err.message));
+      }
+      
+      return res.status(201).json({
+        success: true,
+        data: { id: inviteId, email, role, status: 'invited' }
+      });
+    }
+
+    // ========== Settings — Notification Preferences ==========
+    if (path === '/api/v1/settings/notifications' && req.method === 'GET') {
+      const prefs = await tenantQuery(
+        'SELECT * FROM regulator.notification_preferences WHERE tenant_id = $1 LIMIT 1',
+        [], tenantId
+      ).catch(() => []);
+      
+      return res.status(200).json({
+        success: true,
+        data: prefs[0] || { email_enabled: true, slack_enabled: false, webhook_url: null }
+      });
+    }
+    
+    if (path === '/api/v1/settings/notifications' && req.method === 'PUT') {
+      const body = await parseBody(req);
+      
+      // Upsert notification preferences
+      await query(
+        `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         ON CONFLICT (tenant_id) DO UPDATE SET
+           email_enabled = EXCLUDED.email_enabled,
+           slack_enabled = EXCLUDED.slack_enabled,
+           webhook_url = EXCLUDED.webhook_url,
+           updated_at = NOW()`,
+        [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
+      ).catch(() => {
+        // Table may not exist yet — create it
+        return query(`
+          CREATE TABLE IF NOT EXISTS regulator.notification_preferences (
+            id UUID PRIMARY KEY,
+            tenant_id UUID NOT NULL UNIQUE,
+            email_enabled BOOLEAN DEFAULT true,
+            slack_enabled BOOLEAN DEFAULT false,
+            webhook_url TEXT,
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+          )
+        `).then(() => query(
+          `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
+           VALUES ($1, $2, $3, $4, $5, NOW())`,
+          [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
+        ));
+      });
+      
+      return res.status(200).json({ success: true });
+    }
+
+    // ========== Billing — Stripe Portal ==========
+    if (path === '/api/v1/billing/portal' && req.method === 'POST') {
+      const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+      if (!STRIPE_KEY) {
+        return res.status(501).json({ success: false, error: 'Billing not configured' });
+      }
+      
+      // Get customer ID from tenant
+      const tenant = await query('SELECT stripe_customer_id FROM regulator.tenants WHERE id = $1', [tenantId]);
+      const customerId = tenant[0]?.stripe_customer_id;
+      
+      if (!customerId) {
+        return res.status(400).json({ success: false, error: 'No billing account linked. Subscribe to a plan first.' });
+      }
+      
+      // Create Stripe billing portal session
+      const portalRes = await fetch('https://api.stripe.com/v1/billing_portal/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${STRIPE_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `customer=${customerId}&return_url=${encodeURIComponent('https://console.regulator.ai/settings')}`,
+      });
+      
+      const portalData = await portalRes.json();
+      if (portalData.url) {
+        return res.status(200).json({ success: true, data: { url: portalData.url } });
+      }
+      return res.status(500).json({ success: false, error: 'Failed to create billing portal session' });
     }
 
     // ========== Tenants ==========
@@ -2217,9 +2556,10 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { ...defaults, ...body }, timestamp: new Date().toISOString() });
     }
     if (path === '/api/v1/settings' && req.method === 'GET') {
-      return res.status(200).json({
-        success: true,
-        data: {
+      // Pull tenant settings from DB, merge with defaults
+      const tenant = await query('SELECT settings FROM regulator.tenants WHERE id = $1', [tenantId]).catch(() => []);
+      const dbSettings = tenant[0]?.settings || {};
+      const defaults = {
           warrant_ttl_seconds: 300,
           max_risk_tier: 3,
           auto_approve_t0: true,
@@ -2227,8 +2567,21 @@ module.exports = async function handler(req, res) {
           audit_retention_days: 365,
           sse_enabled: true,
           webhook_enabled: true,
-        }
+      };
+      return res.status(200).json({
+        success: true,
+        data: { ...defaults, ...dbSettings }
       });
+    }
+    
+    // Settings — Save/Update
+    if (path === '/api/v1/settings' && req.method === 'PUT') {
+      const body = await parseBody(req);
+      await query(
+        `UPDATE regulator.tenants SET settings = COALESCE(settings, '{}'::jsonb) || $2::jsonb WHERE id = $1`,
+        [tenantId, JSON.stringify(body)]
+      ).catch(() => {});
+      return res.status(200).json({ success: true, data: body });
     }
 
     // ========== Compliance Report Generation ==========

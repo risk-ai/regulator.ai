@@ -1,5 +1,6 @@
 import { Activity, TrendingUp, Minus, Bell, X, RefreshCw, Shield, AlertTriangle, CheckCircle, XCircle, Clock, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dashboardApi } from '../api/dashboard.js';
 import { useViennaStream } from '../hooks/useViennaStream.js';
 import type { DashboardBootstrapResponse } from '../api/types.js';
@@ -397,6 +398,7 @@ interface DashboardData {
 }
 
 export default function DashboardPremium() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -582,12 +584,12 @@ export default function DashboardPremium() {
             Connect your first agent, define a governance policy, and submit a test intent to see the full warrant pipeline.
           </p>
           <div className="flex items-center justify-center gap-4">
-            <a href="/connect" className="px-4 py-2 bg-amber-500 text-black text-[11px] font-mono font-bold hover:bg-amber-400 transition-colors">
+            <button onClick={() => navigate('/connect')} className="px-4 py-2 bg-amber-500 text-black text-[11px] font-mono font-bold hover:bg-amber-400 transition-colors cursor-pointer" style={{ border: 'none' }}>
               CONNECT AGENT →
-            </a>
-            <a href="/try" className="px-4 py-2 border border-amber-500/30 text-amber-500 text-[11px] font-mono font-bold hover:border-amber-500 transition-colors">
+            </button>
+            <button onClick={() => navigate('/demo')} className="px-4 py-2 border border-amber-500/30 text-amber-500 text-[11px] font-mono font-bold hover:border-amber-500 transition-colors cursor-pointer" style={{ background: 'transparent' }}>
               TRY DEMO
-            </a>
+            </button>
           </div>
         </div>
       )}

@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../api/client.js';
+import { useAuthStore } from '../store/authStore.js';
 
 const DEMO_DISMISSED_KEY = 'vienna_demo_dismissed';
 const DEMO_FORCE_KEY = 'vienna_demo_force';
@@ -40,6 +41,7 @@ interface DemoModeState {
 }
 
 export function useDemoMode(): DemoModeState {
+  const { authenticated } = useAuthStore();
   const [agentCount, setAgentCount] = useState<number>(0);
   const [hasDemoAgents, setHasDemoAgents] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
@@ -81,11 +83,16 @@ export function useDemoMode(): DemoModeState {
   }, [agentCount, loading]);
 
   useEffect(() => {
+    // Only poll when authenticated — prevents 401 loops on login page
+    if (!authenticated) {
+      setLoading(false);
+      return;
+    }
     checkAgents();
     // Re-check every 30 seconds (in case user connects an agent in another tab)
     const interval = setInterval(checkAgents, 30000);
     return () => clearInterval(interval);
-  }, [checkAgents]);
+  }, [checkAgents, authenticated]);
 
   const hasRealAgents = agentCount > 0;
   const isEmptyWorkspace = !hasRealAgents && !hasDemoAgents && !loading;

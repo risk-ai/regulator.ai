@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
 import { Bell, Plus, Trash2, TestTube } from 'lucide-react';
@@ -33,6 +34,7 @@ const EVENT_TYPES = [
 ];
 
 export function WebhookConfigPage() {
+  const navigate = useNavigate();
   const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -112,7 +114,7 @@ export function WebhookConfigPage() {
             Get notified when approvals are required, actions execute, or policies are violated.
           </p>
           <button
-            onClick={() => window.location.href = '/integrations'}
+            onClick={() => navigate('/integrations')}
             style={{
               padding: '10px 20px',
               background: 'linear-gradient(135deg, #f59e0b, #d97706)',
@@ -152,7 +154,7 @@ export function WebhookConfigPage() {
               Set up Slack, email, or custom webhook notifications to stay informed of governance events.
             </p>
             <button
-              onClick={() => window.location.href = '/integrations'}
+              onClick={() => navigate('/integrations')}
               style={{
                 padding: '10px 20px',
                 background: '#f59e0b',

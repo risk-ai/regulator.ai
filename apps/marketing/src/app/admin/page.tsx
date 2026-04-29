@@ -322,7 +322,7 @@ export default function AdminPage() {
               { label: 'API Docs', href: 'https://regulator.ai/docs', icon: '' },
               { label: 'GitHub', href: 'https://github.com/risk-ai/regulator.ai', icon: '' },
               { label: 'Stripe Dashboard', href: 'https://dashboard.stripe.com', icon: '' },
-              { label: 'GA4 Analytics', href: 'https://analytics.google.com/analytics/web/#/p/G-6M9GQDJSHQ', icon: '' },
+              { label: 'GA4 Analytics', href: 'https://analytics.google.com/analytics/web/#/p/G-7LZLG0D79N', icon: '' },
               { label: 'Vercel', href: 'https://vercel.com/ai-ventures', icon: '▲' },
               { label: 'Neon DB', href: 'https://console.neon.tech', icon: '' },
             ].map(link => (

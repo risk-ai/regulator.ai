@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     // List API keys (hashed)
     if ((path === '' || path === '/') && req.method === 'GET') {
       const keys = await pool.query(
-        `SELECT id, name, key_hash as key_prefix, created_at, last_used_at, expires_at, revoked
+        `SELECT id, name, key_prefix, scopes, agent_id, rate_limit, created_at, last_used_at, expires_at, revoked
          FROM api_keys
          WHERE tenant_id = $1
          ORDER BY created_at DESC`,
@@ -37,7 +37,7 @@ module.exports = async function handler(req, res) {
         success: true,
         data: keys.rows.map(k => ({
           ...k,
-          key_prefix: k.key_prefix ? k.key_prefix.substring(0, 12) + '...' : null
+          key_prefix: k.key_prefix ? k.key_prefix + '...' : null
         }))
       });
     }
@@ -55,13 +55,14 @@ module.exports = async function handler(req, res) {
       
       const apiKey = generateApiKey();
       const keyHash = hashApiKey(apiKey);
+      const keyPrefix = apiKey.substring(0, 12); // e.g. "vos_a3b4c5d6"
       const keyId = crypto.randomUUID();
       const expiresAt = new Date(Date.now() + expires_in_days * 24 * 60 * 60 * 1000);
       
       await pool.query(
-        `INSERT INTO api_keys (id, tenant_id, name, key_hash, created_at, expires_at, revoked)
-         VALUES ($1, $2, $3, $4, NOW(), $5, false)`,
-        [keyId, tenantId, name, keyHash, expiresAt]
+        `INSERT INTO api_keys (id, tenant_id, name, key_hash, key_prefix, created_at, expires_at, revoked)
+         VALUES ($1, $2, $3, $4, $5, NOW(), $6, false)`,
+        [keyId, tenantId, name, keyHash, keyPrefix, expiresAt]
       );
       
       return res.json({

@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
       const result = await pool.query(`
         SELECT 
           tm.id, tm.user_id, tm.role, tm.status, tm.invited_at, tm.invited_by,
-          u.email, u.name, u.last_login
+          u.email, u.name, u.last_login_at
         FROM team_members tm
         LEFT JOIN users u ON tm.user_id = u.id
         WHERE tm.tenant_id = $1

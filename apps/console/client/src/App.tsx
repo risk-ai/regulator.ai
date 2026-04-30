@@ -249,8 +249,8 @@ export function App() {
           {/* Page Content */}
           <main className="container mx-auto px-6 py-6">
             <ErrorBoundary key={location.pathname}>
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <Routes>
+              <Suspense key={location.pathname} fallback={<PageLoadingSpinner />}>
+                <Routes location={location}>
                   <Route path="/" element={<DashboardControl />} />
                   <Route path="/dashboard-premium" element={<DashboardPremium />} />
                   <Route path="/now" element={<NowPage />} />

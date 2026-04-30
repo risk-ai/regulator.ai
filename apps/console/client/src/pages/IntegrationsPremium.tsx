@@ -668,23 +668,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   };
 
   const handleTest = async (id: string) => {
-    addToast(\`Testing \${id}...\`, 'info');
+    addToast(`Testing ${id}...`, 'info');
     const headers = getHeaders();
     try {
-      const res = await fetch(\`/api/v1/integrations/\${id}/test\`, { method: 'POST', credentials: 'include', headers });
+      const res = await fetch(`/api/v1/integrations/${id}/test`, { method: 'POST', credentials: 'include', headers });
       const data = await res.json();
-      addToast(data.success ? \`\${id} healthy\` : \`\${id} test failed\`, data.success ? 'success' : 'warning');
-    } catch { addToast(\`\${id} test failed\`, 'error'); }
+      addToast(data.success ? `${id} healthy` : `${id} test failed`, data.success ? 'success' : 'warning');
+    } catch { addToast(`${id} test failed`, 'error'); }
   };
 
   const handleRevokeKey = async (id: string) => {
     if (!confirm('Revoke this API key? This cannot be undone.')) return;
     const headers = getHeaders();
     try {
-      const res = await fetch(\`/api/v1/api-keys/\${id}/revoke\`, { method: 'POST', credentials: 'include', headers });
+      const res = await fetch(`/api/v1/api-keys/${id}/revoke`, { method: 'POST', credentials: 'include', headers });
       const data = await res.json();
       if (data.success) { setApiKeys(prev => prev.filter(k => k.id !== id)); addToast('API key revoked', 'success'); }
-      else addToast(\`Failed: \${data.error}\`, 'error');
+      else addToast(`Failed: ${data.error}`, 'error');
     } catch { addToast('Failed to revoke key', 'error'); }
   };
 

@@ -147,6 +147,30 @@
       "dest": "api/v1/compliance.js"
     },
     {
+      "src": "/api/v1/team(.*)",
+      "dest": "api/v1/team.js"
+    },
+    {
+      "src": "/api/v1/simulation(.*)",
+      "dest": "api/v1/simulation.js"
+    },
+    {
+      "src": "/api/v1/integrations(.*)",
+      "dest": "api/v1/integrations.js"
+    },
+    {
+      "src": "/api/v1/policy-templates(.*)",
+      "dest": "api/v1/policy-templates.js"
+    },
+    {
+      "src": "/api/v1/usage-metrics(.*)",
+      "dest": "api/v1/usage-metrics.js"
+    },
+    {
+      "src": "/api/v1/billing-portal(.*)",
+      "dest": "api/v1/billing-portal.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "api/server.js"
     },

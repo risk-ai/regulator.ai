@@ -24,10 +24,10 @@ module.exports = async function handler(req, res) {
   
   try {
     // List API keys (hashed)
-    if (path === '' || path === '/' && req.method === 'GET') {
+    if ((path === '' || path === '/') && req.method === 'GET') {
       const keys = await pool.query(
         `SELECT id, name, key_hash as key_prefix, created_at, last_used_at, expires_at, revoked
-         FROM regulator.api_keys
+         FROM api_keys
          WHERE tenant_id = $1
          ORDER BY created_at DESC`,
         [tenantId]
@@ -43,8 +43,8 @@ module.exports = async function handler(req, res) {
     }
     
     // Generate new API key
-    if (path === '' || path === '/' && req.method === 'POST') {
-      const { name, expires_in_days = 90 } = req.body;
+    if ((path === '' || path === '/') && req.method === 'POST') {
+      const { name, expires_in_days = 90 } = req.body || {};
       
       if (!name) {
         return res.status(400).json({
@@ -61,7 +61,7 @@ module.exports = async function handler(req, res) {
       await pool.query(
         `INSERT INTO api_keys (id, tenant_id, name, key_hash, created_at, expires_at, revoked)
          VALUES ($1, $2, $3, $4, NOW(), $5, false)`,
-        [keyId, 'default', name, keyHash, expiresAt]
+        [keyId, tenantId, name, keyHash, expiresAt]
       );
       
       return res.json({
@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
       
       await pool.query(
         'UPDATE api_keys SET revoked = true WHERE id = $1 AND tenant_id = $2',
-        [keyId, 'default']
+        [keyId, tenantId]
       );
       
       return res.json({
@@ -94,9 +94,24 @@ module.exports = async function handler(req, res) {
       });
     }
     
+    // Delete API key
+    if (path.startsWith('/') && req.method === 'DELETE') {
+      const keyId = path.substring(1);
+      
+      await pool.query(
+        'DELETE FROM api_keys WHERE id = $1 AND tenant_id = $2',
+        [keyId, tenantId]
+      );
+      
+      return res.json({
+        success: true,
+        data: { id: keyId, deleted: true }
+      });
+    }
+    
     // Verify API key
     if (path === '/verify' && req.method === 'POST') {
-      const { api_key } = req.body;
+      const { api_key } = req.body || {};
       
       if (!api_key) {
         return res.status(400).json({
@@ -108,7 +123,7 @@ module.exports = async function handler(req, res) {
       const keyHash = hashApiKey(api_key);
       
       const result = await pool.query(
-        `SELECT id, name, expires_at, revoked, last_used_at
+        `SELECT id, name, tenant_id, expires_at, revoked, last_used_at
          FROM api_keys
          WHERE key_hash = $1`,
         [keyHash]
@@ -152,6 +167,7 @@ module.exports = async function handler(req, res) {
         data: {
           id: key.id,
           name: key.name,
+          tenant_id: key.tenant_id,
           last_used_at: new Date()
         }
       });

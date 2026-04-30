@@ -99,7 +99,7 @@ module.exports = async function handler(req, res) {
   const params = Object.fromEntries(url.searchParams);
 
   // Auth required
-  const user = requireAuth(req, res);
+  const user = await requireAuth(req, res);
   if (!user) return; // 401 already sent
   const tenantId = user.tenant_id;
   
@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const webhooks = await pool.query(
         'SELECT id, url, events, enabled, created_at FROM webhooks WHERE tenant_id = $1 ORDER BY created_at DESC',
-        ['default'] // Replace with actual tenant from auth
+        [tenantId]
       );
       
       return res.json({
@@ -134,7 +134,7 @@ module.exports = async function handler(req, res) {
       await pool.query(
         `INSERT INTO webhooks (id, tenant_id, url, events, secret, enabled, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-        [webhookId, 'default', webhookUrl, JSON.stringify(events), secret, enabled]
+        [webhookId, tenantId, webhookUrl, JSON.stringify(events), secret, enabled]
       );
       
       // Start queue processor

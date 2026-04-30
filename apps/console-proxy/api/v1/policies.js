@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
     // List all policies (with pagination)
     if (req.method === 'GET' && (!path || path === '' || path === '/')) {
       const enabled = params.enabled;
-      const tier = params.tier;
+      const riskTier = params.risk_tier || params.tier;
       const page = parseInt(params.page || '1', 10);
       const limit = Math.min(parseInt(params.limit || '50', 10), 100);
       const offset = (page - 1) * limit;
@@ -34,9 +34,9 @@ module.exports = async function handler(req, res) {
         query += ` AND enabled = $${queryParams.length}`;
       }
       
-      if (tier) {
-        queryParams.push(tier);
-        query += ` AND tier = $${queryParams.length}`;
+      if (riskTier) {
+        queryParams.push(parseInt(riskTier, 10));
+        query += ` AND risk_tier = $${queryParams.length}`;
       }
       
       query += ' ORDER BY priority DESC, created_at DESC';
@@ -58,9 +58,9 @@ module.exports = async function handler(req, res) {
         countQuery += ` AND enabled = $${countParams.length}`;
       }
       
-      if (tier) {
-        countParams.push(tier);
-        countQuery += ` AND tier = $${countParams.length}`;
+      if (riskTier) {
+        countParams.push(parseInt(riskTier, 10));
+        countQuery += ` AND risk_tier = $${countParams.length}`;
       }
       
       const countResult = await pool.query(countQuery, countParams);
@@ -107,25 +107,28 @@ module.exports = async function handler(req, res) {
       const {
         name,
         description,
-        tier,
+        risk_tier,
+        tier,          // accept legacy param name
         rules,
         enabled = true,
         priority = 100
       } = req.body;
       
-      if (!name || !tier) {
+      const riskTier = risk_tier ?? tier ?? 1;
+      
+      if (!name) {
         return res.status(400).json({
           success: false,
-          error: 'name and tier required'
+          error: 'name is required'
         });
       }
       
-      const policyId = `policy_${Date.now()}`;
+      const policyId = require('crypto').randomUUID();
       
       await pool.query(
-        `INSERT INTO policies (id, name, description, tier, rules, enabled, priority, tenant_id, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [policyId, name, description || '', tier, JSON.stringify(rules || {}), enabled ? 1 : 0, priority, tenantId]
+        `INSERT INTO policies (id, name, description, risk_tier, rules, enabled, priority, tenant_id, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+        [policyId, name, description || '', riskTier, JSON.stringify(rules || {}), enabled !== false, priority, tenantId]
       );
       
       return res.json({
@@ -133,8 +136,9 @@ module.exports = async function handler(req, res) {
         data: {
           id: policyId,
           name,
-          tier,
-          enabled
+          risk_tier: riskTier,
+          enabled,
+          priority
         }
       });
     }
@@ -145,6 +149,7 @@ module.exports = async function handler(req, res) {
       const {
         name,
         description,
+        risk_tier,
         tier,
         rules,
         enabled,
@@ -162,16 +167,17 @@ module.exports = async function handler(req, res) {
         values.push(description);
         updates.push(`description = $${values.length}`);
       }
-      if (tier !== undefined) {
-        values.push(tier);
-        updates.push(`tier = $${values.length}`);
+      const riskTierValue = risk_tier ?? tier;
+      if (riskTierValue !== undefined) {
+        values.push(parseInt(riskTierValue, 10));
+        updates.push(`risk_tier = $${values.length}`);
       }
       if (rules !== undefined) {
         values.push(JSON.stringify(rules));
         updates.push(`rules = $${values.length}`);
       }
       if (enabled !== undefined) {
-        values.push(enabled ? 1 : 0);
+        values.push(enabled !== false);
         updates.push(`enabled = $${values.length}`);
       }
       if (priority !== undefined) {

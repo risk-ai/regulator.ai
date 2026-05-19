@@ -50,7 +50,7 @@ export function createSettingsRouter(): Router {
 
       // Get tenant settings from database
       const tenant = await queryOne<{ settings: any }>(
-        'SELECT settings FROM regulator.tenants WHERE id = $1',
+        'SELECT settings FROM regulator.tenants WHERE id = $1::uuid',
         [req.user.tenantId]
       );
 
@@ -144,13 +144,13 @@ export function createSettingsRouter(): Router {
          SET settings = COALESCE(settings, '{}'::jsonb) || jsonb_build_object('execution_modes', 
            COALESCE(settings->'execution_modes', '{}'::jsonb) || $2::jsonb
          )
-         WHERE id = $1`,
+         WHERE id = $1::uuid`,
         [req.user.tenantId, JSON.stringify(updates)]
       );
 
       // Return updated configuration
       const tenant = await queryOne<{ settings: any }>(
-        'SELECT settings FROM regulator.tenants WHERE id = $1',
+        'SELECT settings FROM regulator.tenants WHERE id = $1::uuid',
         [req.user.tenantId]
       );
 

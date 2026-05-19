@@ -490,7 +490,7 @@ export function createExecutionRouter(vienna: ViennaRuntimeService): Router {
         // Import query here to avoid circular dependencies
         const { queryOne } = await import('../db/postgres.js');
         const tenant = await queryOne<{ settings: any }>(
-          'SELECT settings FROM regulator.tenants WHERE id = $1',
+          'SELECT settings FROM regulator.tenants WHERE id = $1::uuid',
           [tenant_id]
         );
         

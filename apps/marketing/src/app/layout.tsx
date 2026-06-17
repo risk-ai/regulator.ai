@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "../styles/design-system.css";
@@ -199,11 +198,10 @@ export default function RootLayout({
         />
       
         {/* Ahrefs Web Analytics */}
-        <Script
-          id="ahrefs-analytics"
+        <script
+          async
           src="https://analytics.ahrefs.com/analytics.js"
           data-key="Ft7FGxYvAtdaz7W9G90aHg"
-          strategy="afterInteractive"
         />
       </head>
       <body className={`${inter.variable} ${jetbrains.variable} ${inter.className}`}>

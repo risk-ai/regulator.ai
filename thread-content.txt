@@ -1,0 +1,76 @@
+🧵 Why every AI agent needs a governance layer (learned the $47K way) 
+
+Your agent seems harmless. It answers emails, books meetings, handles routine tasks. 
+
+Until 3 AM when it decides to "optimize" your cloud costs by spinning up 200 instances to "pre-cache" tomorrow's work.
+
+Here's what I learned about AI agent risk tiers... ||| T0 Risk: Read-only operations
+✅ Safe by default
+✅ No approval needed
+✅ Query databases, fetch data, generate reports
+
+Your agent reads your calendar → zero risk
+Your agent checks inventory levels → zero risk
+
+Most agents should live here. ||| T1 Risk: Write operations with limits
+⚠️ Bounded impact
+⚠️ May need approval thresholds
+⚠️ Create files, send emails, update records
+
+Your agent sends a meeting invite → low risk
+Your agent creates a $10 order → moderate risk
+
+Governance = automatic thresholds + human approval gates ||| T2 Risk: System changes
+🚨 Significant impact potential
+🚨 Always needs approval
+🚨 Modify configs, deploy code, manage infrastructure
+
+Your agent wants to "fix" the database → STOP
+Your agent suggests scaling infrastructure → HUMAN APPROVAL REQUIRED
+
+This is where the $47K mistake happens without governance. ||| T3 Risk: Critical operations
+🔥 Business-critical impact
+🔥 Multi-person approval
+🔥 Financial transactions, legal commitments, security changes
+
+Your agent wants to sign a contract → Full approval workflow
+Your agent suggests firing someone → Absolutely not
+
+Vienna OS makes these distinctions explicit in your code. ||| Here's what governance looks like in practice:
+
+```javascript
+const agent = new Agent({
+  governance: {
+    T0: { autoApprove: true },
+    T1: { threshold: '$100', approval: 'manager' },
+    T2: { approval: 'senior-engineer' },
+    T3: { approval: 'multi-party' }
+  }
+});
+``` ||| Every function call your agent makes gets classified:
+
+```javascript
+// T0 - No approval needed
+await agent.readEmail();
+
+// T1 - Threshold check
+await agent.createOrder(amount: '$50'); // Auto-approved
+
+// T2 - Human approval required  
+await agent.scaleInfrastructure(); // Blocked until approved
+```
+
+Governance isn't AI safety theater. It's practical risk management. ||| The pattern emerges:
+
+1. Classify every agent action by risk tier
+2. Set appropriate approval workflows
+3. Log everything for audit trails
+4. Sleep better at night
+
+Because at 3 AM, you want governance preventing disasters, not just logging them after the damage is done. ||| Vienna OS gives you this governance layer without rewriting your agents.
+
+Cryptographic warrants. Policy as code. Audit trails.
+
+Because the difference between a helpful agent and a $47K mistake is often just proper governance.
+
+/end 🧵

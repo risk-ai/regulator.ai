@@ -1,11 +1,39 @@
 /**
  * Feedback API - Vercel Serverless
  * POST /api/v1/feedback
+ *
+ * Auth: optional — feedback can be submitted anonymously.
+ * Uses CommonJS (project-standard); was incorrectly using ESM import/export syntax.
  */
 
-import { requireAuth } from '../../lib/auth.js';
+const { requireAuth } = require('./_auth');
 
-export default async function handler(req, res) {
+/**
+ * Attempt to identify the caller without hard-blocking on missing credentials.
+ * Returns the auth payload if a valid token is present, null otherwise.
+ */
+async function optionalAuth(req) {
+  const cookie = req.headers?.cookie || '';
+  const hasCookie = cookie.includes('vienna_session=');
+  const hasBearer = (req.headers?.authorization || '').startsWith('Bearer ');
+  const hasApiKey = !!(req.headers?.['x-api-key']);
+  if (!hasCookie && !hasBearer && !hasApiKey) return null;
+
+  // Build a fake res that absorbs the 401 so we can return null gracefully
+  let authResult = null;
+  const fakeRes = {
+    status() { return this; },
+    json() {},
+  };
+  try {
+    authResult = await requireAuth(req, fakeRes);
+  } catch (_) {
+    // Auth lib threw — treat as unauthenticated
+  }
+  return authResult || null;
+}
+
+module.exports = async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -26,10 +54,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get authenticated user (optional - feedback can be anonymous)
-    const user = await requireAuth(req, res, { optional: true });
+    // Optional auth — identify user if token present, allow anonymous otherwise
+    const user = await optionalAuth(req);
 
-    const { message, page, userAgent, timestamp, screenshot } = req.body;
+    const { message, page, userAgent, timestamp, screenshot } = req.body || {};
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({
@@ -47,7 +75,7 @@ export default async function handler(req, res) {
       userAgent: userAgent || req.headers['user-agent'] || 'unknown',
       timestamp: timestamp || new Date().toISOString(),
       user: user ? {
-        userId: user.user_id,
+        userId: user.sub || user.user_id,
         email: user.email,
         tenantId: user.tenant_id,
       } : null,
@@ -63,21 +91,21 @@ export default async function handler(req, res) {
       console.log('[Feedback]', JSON.stringify(feedback, null, 2));
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: { received: true },
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('[Feedback] Error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Failed to submit feedback',
       code: 'FEEDBACK_ERROR',
       timestamp: new Date().toISOString(),
     });
   }
-}
+};
 
 /**
  * Send feedback to Discord via webhook

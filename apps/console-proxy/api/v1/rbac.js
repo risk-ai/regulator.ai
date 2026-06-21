@@ -37,7 +37,7 @@ function hasPermission(userRole, requiredPermission) {
 }
 
 module.exports = async function handler(req, res) {
-  const user = requireAuth(req, res); if (!user) return;
+  const user = await requireAuth(req, res); if (!user) return;
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/rbac/, '');
   

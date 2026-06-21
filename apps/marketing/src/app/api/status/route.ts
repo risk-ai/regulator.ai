@@ -49,37 +49,42 @@ async function checkService(
 }
 
 export async function GET() {
-  const [console, health, marketing] = await Promise.all([
-    checkService(
-      "Vienna OS Console",
-      "console.regulator.ai",
-      "https://console.regulator.ai"
-    ),
-    checkService(
-      "Health API",
-      "/api/v1/health",
-      "https://console.regulator.ai/api/v1/health"
-    ),
-    checkService(
-      "Marketing Site",
-      "regulator.ai",
-      "https://regulator.ai"
-    ),
+  // Try to get enriched status from the Vienna OS status API (includes uptime %)
+  try {
+    const viennaStatus = await fetch(
+      "https://console.regulator.ai/api/v1/status",
+      { signal: AbortSignal.timeout(10000), cache: "no-store" }
+    );
+    if (viennaStatus.ok) {
+      const data = await viennaStatus.json();
+      if (data?.success && data?.data?.services) {
+        const services: ServiceCheck[] = data.data.services.map((s: any) => ({
+          name: s.name,
+          endpoint: s.key,
+          url: s.key,
+          operational: s.status === 'healthy',
+          latencyMs: s.latencyMs ?? s.avg_latency_ms,
+          statusCode: s.statusCode ?? (s.status === 'healthy' ? 200 : 503),
+          uptime_pct: s.uptime_pct,
+        }));
+        const allOperational = services.every((s) => s.operational);
+        return NextResponse.json({
+          status: data.data.overall ?? (allOperational ? "operational" : "degraded"),
+          services,
+          checkedAt: data.data.checked_at ?? new Date().toISOString(),
+          source: 'vienna-status-api',
+        });
+      }
+    }
+  } catch { /* fallback to direct checks */ }
+
+  // Fallback: direct health checks without uptime history
+  const [consoleCheck, health, marketing] = await Promise.all([
+    checkService("Vienna OS Console", "console.regulator.ai", "https://console.regulator.ai"),
+    checkService("Health API", "/api/v1/health", "https://console.regulator.ai/api/v1/health"),
+    checkService("Marketing Site", "regulator.ai", "https://regulator.ai"),
   ]);
 
-  // Parse health details if available
-  let healthDetails: any = null;
-  if (health.operational) {
-    try {
-      const res = await fetch("https://console.regulator.ai/api/v1/health", {
-        cache: "no-store",
-      });
-      healthDetails = await res.json();
-    } catch {}
-  }
-
-  // Intent Gateway and Auth are served by the same backend as Health API
-  // If health endpoint works, they work too
   const intentGateway: ServiceCheck = {
     name: "Intent Gateway API",
     endpoint: "/api/v1/agent/intent",
@@ -98,13 +103,13 @@ export async function GET() {
     statusCode: health.operational ? 200 : null,
   };
 
-  const services = [console, health, intentGateway, auth, marketing];
+  const services = [consoleCheck, health, intentGateway, auth, marketing];
   const allOperational = services.every((s) => s.operational);
 
   return NextResponse.json({
     status: allOperational ? "operational" : "degraded",
     services,
-    healthDetails,
     checkedAt: new Date().toISOString(),
+    source: 'fallback',
   });
 }

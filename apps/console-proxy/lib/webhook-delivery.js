@@ -19,8 +19,8 @@ async function deliverWebhook(eventType, payload, tenantId) {
       `SELECT * FROM webhooks 
        WHERE tenant_id = $1 
          AND enabled = true 
-         AND $2 = ANY(events)`,
-      [tenantId, eventType]
+         AND (events @> $2::jsonb OR events @> '["*"]'::jsonb)`,
+      [tenantId, JSON.stringify([eventType])]
     );
     
     if (webhooks.rows.length === 0) {
@@ -73,7 +73,7 @@ async function deliverToWebhook(webhook, eventType, payload) {
           'User-Agent': 'Vienna-OS-Webhooks/1.0'
         },
         body: JSON.stringify(deliveryPayload),
-        timeout: 10000 // 10 second timeout
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
       
       if (response.ok) {
@@ -82,10 +82,10 @@ async function deliverToWebhook(webhook, eventType, payload) {
         // Log successful delivery
         await pool.query(
           `INSERT INTO webhook_deliveries 
-           (id, webhook_id, event_type, payload, response_status, delivered_at, attempts)
-           VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
-          [deliveryId, webhook.id, eventType, deliveryPayload, response.status, attempt]
-        );
+           (webhook_id, event_type, payload, status_code, delivered_at)
+           VALUES ($1, $2, $3, $4, NOW())`,
+          [webhook.id, eventType, JSON.stringify(deliveryPayload), response.status]
+        ).catch(err => console.error('[webhook-delivery] Log insert failed:', err));
         
         console.log(`[webhook-delivery] Delivered ${eventType} to ${webhook.url} (attempt ${attempt})`);
       } else {
@@ -105,10 +105,10 @@ async function deliverToWebhook(webhook, eventType, payload) {
   if (!delivered) {
     await pool.query(
       `INSERT INTO webhook_deliveries 
-       (id, webhook_id, event_type, payload, error, attempts, failed_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-      [deliveryId, webhook.id, eventType, deliveryPayload, lastError, attempt]
-    );
+       (webhook_id, event_type, payload, error_message, delivered_at)
+       VALUES ($1, $2, $3, $4, NOW())`,
+      [webhook.id, eventType, JSON.stringify(deliveryPayload), lastError]
+    ).catch(err => console.error('[webhook-delivery] Log insert failed:', err));
     
     console.error(`[webhook-delivery] Failed to deliver ${eventType} to ${webhook.url} after ${attempt} attempts: ${lastError}`);
   }

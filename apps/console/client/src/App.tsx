@@ -59,6 +59,7 @@ const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js'));
 const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js'));
 const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js'));
 const TeamManagementPage = React.lazy(() => import('./pages/TeamManagementPage.js'));
+const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage.js'));
 const UsageDashboardPage = React.lazy(() => import('./pages/UsageDashboardPage.js'));
 const WebhookConfigPage = React.lazy(() => import('./pages/WebhookConfigPage.js'));
 
@@ -209,6 +210,15 @@ export function App() {
     );
   }
   
+  // Accept invitation page is public (no auth required)
+  if (location.pathname === '/accept-invite') {
+    return (
+      <React.Suspense fallback={<div style={{ background: '#0d0d14', minHeight: '100vh' }} />}>
+        <AcceptInvitePage />
+      </React.Suspense>
+    );
+  }
+
   if (!authenticated) {
     return <LoginScreen />;
   }
@@ -282,6 +292,7 @@ export function App() {
                   <Route path="/embed-widget" element={<EmbedWidgetPage />} />
                   <Route path="/simulation" element={<SimulationPage />} />
                   <Route path="/team" element={<TeamManagementPage />} />
+                  <Route path="/accept-invite" element={<AcceptInvitePage />} />
                   <Route path="/usage" element={<UsageDashboardPage />} />
                   <Route path="/webhooks" element={<WebhookConfigPage />} />
                   <Route path="/analytics-legacy" element={<AnalyticsPage />} />

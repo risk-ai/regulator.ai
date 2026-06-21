@@ -16,6 +16,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageLayout } from '../components/layout/PageLayout.js';
 import { addToast } from '../store/toastStore.js';
+import { apiClient } from '../api/client.js';
 import { Users, Mail, Shield, Trash2, Edit2, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 interface TeamMember {
@@ -80,16 +81,12 @@ export function TeamManagementPage() {
   const loadTeamData = async () => {
     try {
       setLoading(true);
-      const [membersRes, invitesRes] = await Promise.all([
-        fetch('/api/v1/team/members', { credentials: 'include' }),
-        fetch('/api/v1/team/invitations', { credentials: 'include' }),
+      const [membersData, invitesData] = await Promise.all([
+        apiClient.get<TeamMember[]>('/api/v1/team/members'),
+        apiClient.get<Invitation[]>('/api/v1/team/invitations'),
       ]);
-
-      const membersData = await membersRes.json();
-      const invitesData = await invitesRes.json();
-
-      if (membersData.success) setMembers(membersData.data);
-      if (invitesData.success) setInvitations(invitesData.data);
+      setMembers(Array.isArray(membersData) ? membersData : []);
+      setInvitations(Array.isArray(invitesData) ? invitesData : []);
     } catch (error) {
       addToast('Failed to load team data', 'error');
     } finally {
@@ -102,93 +99,47 @@ export function TeamManagementPage() {
       addToast('Email and role required', 'warning');
       return;
     }
-
     try {
-      const response = await fetch('/api/v1/team/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        addToast(`Invitation sent to ${inviteEmail}`, 'success');
-        setShowInviteModal(false);
-        setInviteEmail('');
-        setInviteRole('operator');
-        loadTeamData();
-      } else {
-        addToast(data.error || 'Failed to send invitation', 'error');
-      }
-    } catch (error) {
-      addToast('Network error', 'error');
+      await apiClient.post('/api/v1/team/invite', { email: inviteEmail, role: inviteRole });
+      addToast(`Invitation sent to ${inviteEmail}`, 'success');
+      setShowInviteModal(false);
+      setInviteEmail('');
+      setInviteRole('operator');
+      loadTeamData();
+    } catch (error: any) {
+      addToast(error?.message || 'Failed to send invitation', 'error');
     }
   };
 
   const handleUpdateRole = async (memberId: string, newRole: string) => {
     try {
-      const response = await fetch(`/api/v1/team/members/${memberId}/role`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ role: newRole }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        addToast('Role updated', 'success');
-        setEditingMember(null);
-        loadTeamData();
-      } else {
-        addToast(data.error || 'Failed to update role', 'error');
-      }
-    } catch (error) {
-      addToast('Network error', 'error');
+      await apiClient.patch(`/api/v1/team/members/${memberId}/role`, { role: newRole });
+      addToast('Role updated', 'success');
+      setEditingMember(null);
+      loadTeamData();
+    } catch (error: any) {
+      addToast(error?.message || 'Failed to update role', 'error');
     }
   };
 
   const handleRemoveMember = async (memberId: string, email: string) => {
     if (!confirm(`Remove ${email} from the team?`)) return;
-
     try {
-      const response = await fetch(`/api/v1/team/members/${memberId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        addToast('Member removed', 'success');
-        loadTeamData();
-      } else {
-        addToast(data.error || 'Failed to remove member', 'error');
-      }
-    } catch (error) {
-      addToast('Network error', 'error');
+      await apiClient.delete(`/api/v1/team/members/${memberId}`);
+      addToast('Member removed', 'success');
+      loadTeamData();
+    } catch (error: any) {
+      addToast(error?.message || 'Failed to remove member', 'error');
     }
   };
 
   const handleRevokeInvitation = async (inviteId: string) => {
     try {
-      const response = await fetch(`/api/v1/team/invitations/${inviteId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        addToast('Invitation revoked', 'success');
-        loadTeamData();
-      } else {
-        addToast(data.error || 'Failed to revoke invitation', 'error');
-      }
-    } catch (error) {
-      addToast('Network error', 'error');
+      await apiClient.delete(`/api/v1/team/invitations/${inviteId}`);
+      addToast('Invitation revoked', 'success');
+      loadTeamData();
+    } catch (error: any) {
+      addToast(error?.message || 'Failed to revoke invitation', 'error');
     }
   };
 

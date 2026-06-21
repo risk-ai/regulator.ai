@@ -5,6 +5,7 @@
 
 const { requireAuth, pool } = require('./_auth');
 const { notifyApprovalGranted, notifyApprovalDenied } = require('../../lib/notifications');
+const { deliverWebhook } = require('../../lib/webhook-delivery');
 
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
@@ -105,6 +106,13 @@ module.exports = async function handler(req, res) {
       } catch (notificationError) {
         console.error('[approvals] Failed to create approval granted notification:', notificationError);
       }
+      // Fire webhook (non-blocking)
+      deliverWebhook('warrant.approve', {
+        approval_id: approvalId,
+        reviewed_by: reviewer,
+        notes: notes || null,
+        approved_at: new Date().toISOString(),
+      }, tenantId).catch(err => console.error('[webhook] warrant.approve delivery failed:', err));
       
       return res.json({
         success: true,
@@ -153,6 +161,13 @@ module.exports = async function handler(req, res) {
       } catch (notificationError) {
         console.error('[approvals] Failed to create approval denied notification:', notificationError);
       }
+      // Fire webhook (non-blocking)
+      deliverWebhook('warrant.deny', {
+        approval_id: approvalId,
+        reviewed_by: reviewer,
+        reason,
+        denied_at: new Date().toISOString(),
+      }, tenantId).catch(err => console.error('[webhook] warrant.deny delivery failed:', err));
       
       return res.json({
         success: true,

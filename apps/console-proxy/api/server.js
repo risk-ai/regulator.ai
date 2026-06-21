@@ -4,6 +4,7 @@ require('../lib/sentry').initSentry();
 const { Pool } = require('pg');
 const crypto = require('crypto');
 const { captureException } = require('../lib/sentry');
+const { deliverWebhook } = require('../lib/webhook-delivery');
 
 // Lazy pool init
 let pool = null;
@@ -913,15 +914,38 @@ module.exports = async function handler(req, res) {
       await query('UPDATE regulator.proposals SET warrant_id = $1, state = $2 WHERE id = $3', [warrantId, 'warranted', approvalId]);
       await query('INSERT INTO regulator.audit_log (id, proposal_id, warrant_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)',
         [crypto.randomUUID(), approvalId, warrantId, 'warrant_issued', body.reviewer || 'operator', p.risk_tier, JSON.stringify({ approved_by: body.reviewer || 'operator' }), p.tenant_id]);
+      // Fire webhook notification (non-blocking)
+      deliverWebhook('warrant.approve', {
+        proposal_id: approvalId,
+        warrant_id: warrantId,
+        agent_id: p.agent_id,
+        action: p.action,
+        risk_tier: p.risk_tier,
+        approved_by: body.reviewer || 'operator',
+        expires_at: expiresAt,
+      }, p.tenant_id).catch(err => console.error('[webhook] warrant.approve delivery failed:', err));
       return res.status(200).json({ success: true, data: { warrant: { id: warrantId, signature, expires_at: expiresAt } } });
     }
 
     if (path.match(/^\/api\/v1\/approvals\/[^/]+\/deny$/) && req.method === 'POST') {
       const approvalId = path.split('/')[4];
       const body = await parseBody(req);
+      const denyProposal = await tenantQuery('SELECT * FROM regulator.proposals WHERE id = $1', [approvalId], tenantId);
       await query('UPDATE regulator.proposals SET state = $1, error = $2 WHERE id = $3', ['denied', body.reason || 'Denied by operator', approvalId]);
       await query('INSERT INTO regulator.audit_log (id, proposal_id, event, actor, risk_tier, details, created_at, tenant_id) VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)',
-        [crypto.randomUUID(), approvalId, 'proposal_denied', body.reviewer || 'operator', tierToInt('T2'), JSON.stringify({ reason: body.reason }), '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+        [crypto.randomUUID(), approvalId, 'proposal_denied', body.reviewer || 'operator', tierToInt('T2'), JSON.stringify({ reason: body.reason }), tenantId || '1c4221a8-4c86-4c68-82e9-b785400e40fb']);
+      // Fire webhook notification (non-blocking)
+      if (denyProposal.length > 0) {
+        const dp = denyProposal[0];
+        deliverWebhook('warrant.deny', {
+          proposal_id: approvalId,
+          agent_id: dp.agent_id,
+          action: dp.action,
+          risk_tier: dp.risk_tier,
+          denied_by: body.reviewer || 'operator',
+          reason: body.reason || 'Denied by operator',
+        }, tenantId || dp.tenant_id).catch(err => console.error('[webhook] warrant.deny delivery failed:', err));
+      }
       return res.status(200).json({ success: true });
     }
 

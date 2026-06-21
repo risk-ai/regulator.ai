@@ -202,6 +202,13 @@ async function hashPassword(plain) {
 }
 
 // Parse cookies
+// UUID validation — prevents "invalid input syntax for type uuid" errors
+// when route path segments are passed as Postgres UUID parameters.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidUUID(str) {
+  return typeof str === 'string' && UUID_RE.test(str);
+}
+
 function parseCookies(cookieHeader) {
   const cookies = {};
   if (!cookieHeader) return cookies;
@@ -2362,6 +2369,7 @@ module.exports = async function handler(req, res) {
       const body = await parseBody(req);
       
       // Upsert notification preferences
+      // Table created by migration 007_create_notification_preferences.sql
       await query(
         `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
          VALUES ($1, $2, $3, $4, $5, NOW())
@@ -2371,23 +2379,7 @@ module.exports = async function handler(req, res) {
            webhook_url = EXCLUDED.webhook_url,
            updated_at = NOW()`,
         [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
-      ).catch(() => {
-        // Table may not exist yet — create it
-        return query(`
-          CREATE TABLE IF NOT EXISTS regulator.notification_preferences (
-            id UUID PRIMARY KEY,
-            tenant_id UUID NOT NULL UNIQUE,
-            email_enabled BOOLEAN DEFAULT true,
-            slack_enabled BOOLEAN DEFAULT false,
-            webhook_url TEXT,
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-          )
-        `).then(() => query(
-          `INSERT INTO regulator.notification_preferences (id, tenant_id, email_enabled, slack_enabled, webhook_url, updated_at)
-           VALUES ($1, $2, $3, $4, $5, NOW())`,
-          [crypto.randomUUID(), tenantId, body.email_enabled ?? true, body.slack_enabled ?? false, body.webhook_url || null]
-        ));
-      });
+      );
       
       return res.status(200).json({ success: true });
     }

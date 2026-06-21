@@ -11,6 +11,11 @@
 const { requireAuth, pool } = require('./_auth');
 const { captureException } = require('../../lib/sentry');
 
+// Prevent 'invalid input syntax for type uuid' errors when path segments
+// are used as UUID query parameters.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidUUID(str) { return typeof str === 'string' && UUID_RE.test(str); }
+
 module.exports = async function handler(req, res) {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const path = url.pathname.replace(/^\/api\/v1\/roles/, '');
@@ -35,6 +40,11 @@ module.exports = async function handler(req, res) {
     const reservedPaths = ['/assignments', '/permissions', '/users', '/audit'];
     if (req.method === 'GET' && path.match(/^\/[^/]+$/) && !reservedPaths.some(rp => path === rp)) {
       const roleId = path.substring(1);
+      // Guard: if roleId is not a valid UUID, skip to 404 to avoid
+      // 'invalid input syntax for type uuid' Postgres error.
+      if (!isValidUUID(roleId)) {
+        return res.status(404).json({ success: false, error: 'Role not found' });
+      }
       const role = await pool.query(
         'SELECT * FROM roles WHERE id = $1 AND tenant_id = $2',
         [roleId, tenantId]
@@ -80,6 +90,9 @@ module.exports = async function handler(req, res) {
     // ── Update role ─────────────────────────────────────────────────
     if (req.method === 'PUT' && path.match(/^\/[^/]+$/)) {
       const roleId = path.substring(1);
+      if (!isValidUUID(roleId)) {
+        return res.status(404).json({ success: false, error: 'Role not found' });
+      }
       const body = await parseBody(req);
       
       // Don't allow editing system roles
@@ -116,6 +129,9 @@ module.exports = async function handler(req, res) {
     // ── Delete custom role ──────────────────────────────────────────
     if (req.method === 'DELETE' && path.match(/^\/[^/]+$/)) {
       const roleId = path.substring(1);
+      if (!isValidUUID(roleId)) {
+        return res.status(404).json({ success: false, error: 'Role not found' });
+      }
       const existing = await pool.query(
         'SELECT is_system_role, role_name FROM roles WHERE id = $1 AND tenant_id = $2',
         [roleId, tenantId]

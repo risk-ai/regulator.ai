@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const crypto = require('crypto');
 const { captureException } = require('../lib/sentry');
 const { deliverWebhook } = require('../lib/webhook-delivery');
+const { validateHost, getBaseUrl } = require('../lib/trusted-host');
 
 // Lazy pool init
 let pool = null;
@@ -254,7 +255,17 @@ module.exports = async function handler(req, res) {
     return res.status(204).end();
   }
 
-  const url = new URL(req.url, `https://${req.headers.host}`);
+  // Host header allowlist check (security hardening — prevents Host injection)
+  // Only enforced when ALLOWED_HOSTS env var is explicitly configured.
+  // Self-hosted: set ALLOWED_HOSTS=your.domain.com to enable the allowlist.
+  const hostCheck = validateHost(req);
+  if (!hostCheck.valid) {
+    console.warn('[security] Blocked request with invalid Host header:', hostCheck.host);
+    return res.status(400).json({ error: 'Invalid Host header', code: 'INVALID_HOST' });
+  }
+  // Use validated host for URL construction (replaces raw req.headers.host usage)
+
+  const url = new URL(req.url, getBaseUrl(req));
   const path = url.pathname;
 
   try {

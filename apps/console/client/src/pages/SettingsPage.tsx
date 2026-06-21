@@ -994,33 +994,55 @@ function SettingsLink({ label, href }: { label: string; href: string }) {
 // Billing Card
 // ============================================================================
 
+interface BillingResponse {
+  plan: { name: string; key: string; status: string };
+  subscription?: {
+    id: string;
+    status: string;
+    current_period_end: string;
+    cancel_at_period_end?: boolean;
+  } | null;
+}
+
 function BillingCard() {
-  const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [billing, setBilling] = useState<BillingResponse | null>(null);
+
+  useEffect(() => {
+    apiClient.get<BillingResponse>('/api/v1/billing')
+      .then(data => setBilling(data))
+      .catch(() => {}); // silently degrade to static display
+  }, []);
 
   const handleManageBilling = async () => {
-    setLoading(true);
+    setPortalLoading(true);
     setError(null);
-    
     try {
-      const response = await apiClient.post<{ url: string; expires_at: string }>('/api/v1/billing/portal', {});
-      
-      // Open Stripe customer portal in new tab
+      const response = await apiClient.post<{ url: string }>('/api/v1/billing/portal', {});
       window.open(response.url, '_blank');
     } catch (err: any) {
-
-      setError(err?.message || 'Failed to open billing portal');
+      setError(err?.message || 'Failed to open billing portal. Ensure you have an active subscription.');
     } finally {
-      setLoading(false);
+      setPortalLoading(false);
     }
   };
 
+  const planLabel = billing?.plan?.name || 'Professional';
+  const planStatus = billing?.subscription?.status || billing?.plan?.status || 'active';
+  const statusColor = planStatus === 'active' ? '#10b981' : planStatus === 'trialing' ? '#f59e0b' : '#ef4444';
+  const nextBilling = billing?.subscription?.current_period_end
+    ? new Date(billing.subscription.current_period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '—';
+
   return (
     <SettingsCard title="Billing & Subscription">
-      <SettingsRow label="Plan" value="Professional" valueColor="#f59e0b" />
-      <SettingsRow label="Price" value="$99/month" />
-      <SettingsRow label="Status" value="Active" valueColor="#10b981" />
-      <SettingsRow label="Next billing" value="Apr 30, 2026" />
+      <SettingsRow label="Plan" value={planLabel} valueColor="#f59e0b" />
+      <SettingsRow label="Status" value={planStatus.charAt(0).toUpperCase() + planStatus.slice(1)} valueColor={statusColor} />
+      <SettingsRow label="Next billing" value={nextBilling} />
+      {billing?.subscription?.cancel_at_period_end && (
+        <SettingsRow label="Note" value="Cancels at period end" valueColor="#ef4444" />
+      )}
       
       {error && (
         <div style={{
@@ -1039,7 +1061,7 @@ function BillingCard() {
       <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)' }}>
         <button
           onClick={handleManageBilling}
-          disabled={loading}
+          disabled={portalLoading}
           style={{
             width: '100%',
             padding: '8px 16px',
@@ -1049,12 +1071,12 @@ function BillingCard() {
             color: '#f59e0b',
             fontSize: '12px',
             fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: portalLoading ? 'not-allowed' : 'pointer',
             fontFamily: 'inherit',
-            opacity: loading ? 0.6 : 1,
+            opacity: portalLoading ? 0.6 : 1,
           }}
         >
-          {loading ? 'Opening...' : 'Manage Billing'}
+          {portalLoading ? 'Opening...' : 'Manage Billing'}
         </button>
         <p style={{
           marginTop: '8px',

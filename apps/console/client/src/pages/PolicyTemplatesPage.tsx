@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../api/client.js';
 
 interface PolicyTemplate {
   id: string;
@@ -32,18 +33,11 @@ export default function PolicyTemplatesPage() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const url = selectedCategory === 'all'
-        ? '/api/v1/policy-templates'
-        : `/api/v1/policy-templates?category=${selectedCategory}`;
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (data.success) {
-        setTemplates(data.data);
-      }
+      const qs = selectedCategory === 'all' ? '' : `?category=${selectedCategory}`;
+      const data = await apiClient.get<{ data: PolicyTemplate[]; categories: any[] }>(`/api/v1/policy-templates${qs}`);
+      setTemplates(data.data || []);
     } catch (error) {
-
+      console.error('[PolicyTemplates] fetch error:', error);
     } finally {
       setLoading(false);
     }
@@ -51,32 +45,23 @@ export default function PolicyTemplatesPage() {
 
   const handleUseTemplate = async (template: PolicyTemplate) => {
     try {
-      const response = await fetch(`/api/v1/policy-templates/${template.id}/instantiate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: template.name,
-          customizations: {}
-        })
+      await apiClient.post(`/api/v1/policy-templates/${template.id}/instantiate`, {
+        name: template.name,
+        customizations: {}
       });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        // Navigate to policies page to see the new policy
-        navigate('/policies');
-      }
+      navigate('/policies');
     } catch (error) {
-
+      console.error('[PolicyTemplates] instantiate error:', error);
     }
   };
 
   const categories = [
     { id: 'all', name: 'All Templates', icon: '📋' },
+    { id: 'regulatory', name: 'Regulatory', icon: '⚖️' },
     { id: 'financial', name: 'Financial', icon: '💰' },
-    { id: 'security', name: 'Security', icon: '🔒' },
-    { id: 'compliance', name: 'Compliance', icon: '📋' },
-    { id: 'operations', name: 'Operations', icon: '⚙️' }
+    { id: 'privacy', name: 'Privacy', icon: '🔒' },
+    { id: 'security', name: 'Security', icon: '🛡️' },
+    { id: 'operations', name: 'Operations', icon: '⚙️' },
   ];
 
   return (

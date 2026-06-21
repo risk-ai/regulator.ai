@@ -1,0 +1,66 @@
+id: eu-ai-act-basic
+name: EU AI Act — Basic Compliance
+description: |
+  Enforces basic compliance with the EU AI Act requirements for
+  high-risk AI systems. Requires human oversight on high-risk actions
+  (Tier 2+), mandatory audit logging, and documentation of AI decisions.
+category: regulatory
+tags:
+  - eu-ai-act
+  - compliance
+  - high-risk
+  - gdpr
+version: "1.0"
+author: Vienna OS
+
+rules:
+  - id: require-human-oversight-t2
+    name: Require Human Oversight for High-Risk Actions (T2+)
+    description: All Tier 2 and above actions must be reviewed by a human operator before execution.
+    condition:
+      type: risk_tier_gte
+      value: 2
+    action: require_approval
+    require_justification: true
+    audit: true
+
+  - id: audit-all-decisions
+    name: Mandatory Audit Trail
+    description: All AI governance decisions must be logged for audit purposes (EU AI Act Article 12).
+    condition:
+      type: always
+    action: audit_log
+    retention_days: 365
+    include_input: true
+    include_output: true
+
+  - id: block-prohibited-uses
+    name: Block Prohibited AI Uses
+    description: Block actions that constitute prohibited AI uses under EU AI Act (Article 5).
+    condition:
+      type: action_matches_any
+      patterns:
+        - "social_scoring*"
+        - "biometric_mass_surveillance*"
+        - "real_time_biometric_public*"
+        - "subliminal_manipulation*"
+    action: deny
+    reason: "Prohibited under EU AI Act Article 5"
+
+  - id: document-high-risk-systems
+    name: Require Documentation for High-Risk Systems
+    description: High-risk AI systems must maintain technical documentation (EU AI Act Annex IV).
+    condition:
+      type: risk_tier_gte
+      value: 1
+    action: require_metadata
+    required_fields:
+      - agent_purpose
+      - training_data_description
+      - accuracy_metrics
+
+policy_settings:
+  default_decision: require_review
+  max_risk_tier: 3
+  warrant_ttl_seconds: 300
+  require_justification_tier: 2

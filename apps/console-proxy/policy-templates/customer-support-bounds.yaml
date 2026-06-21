@@ -1,0 +1,109 @@
+id: customer-support-bounds
+name: Customer Support Agent Boundaries
+description: |
+  Defines safe operational boundaries for AI agents handling customer support.
+  Prevents agents from making unauthorized commitments, accessing out-of-scope
+  data, issuing refunds above thresholds, or escalating conflicts without
+  human review. Designed for Tier 0/1 autonomous operation with Tier 2
+  escalation paths.
+category: operations
+tags:
+  - customer-support
+  - helpdesk
+  - boundaries
+  - autonomous-agents
+version: "1.0"
+author: Vienna OS
+
+rules:
+  - id: refund-threshold
+    name: Refund Amount Threshold
+    description: >
+      Refunds under $50 are auto-approved. Refunds $50-$200 require
+      supervisor review. Refunds over $200 require manager approval.
+    condition:
+      type: action_matches
+      pattern: "issue_refund"
+    action:
+      - condition:
+          type: payload_field_lt
+          field: amount
+          value: 50
+        action: auto_approve
+      - condition:
+          type: payload_field_between
+          field: amount
+          min: 50
+          max: 200
+        action: require_approval
+        approver_role: supervisor
+      - condition:
+          type: payload_field_gte
+          field: amount
+          value: 200
+        action: require_approval
+        approver_role: manager
+        require_justification: true
+
+  - id: block-legal-commitments
+    name: Block Unauthorized Legal Commitments
+    description: >
+      Prevent agents from making statements that constitute legal commitments
+      (warranties, guarantees, settlements) without legal review.
+    condition:
+      type: action_matches_any
+      patterns:
+        - "make_warranty_claim"
+        - "issue_legal_settlement"
+        - "commit_to_sla*"
+        - "waive_terms*"
+    action: deny
+    reason: "Legal commitments require human legal review"
+
+  - id: scope-enforcement
+    name: Data Access Scope Enforcement
+    description: >
+      Customer support agents may only access data directly related to
+      the current customer's account. Cross-customer data access is blocked.
+    condition:
+      type: cross_tenant_data_access
+    action: deny
+    reason: "Access to other customers' data is prohibited"
+
+  - id: escalation-on-sentiment
+    name: Escalate High-Anger Interactions
+    description: >
+      Route to human agent when customer sentiment score indicates significant
+      frustration (CSAT < 2.0 predicted, or explicit escalation request).
+    condition:
+      type: any_of
+      conditions:
+        - type: payload_field_lt
+          field: customer_sentiment_score
+          value: 2.0
+        - type: payload_contains_keyword
+          keywords: ["speak to a human", "speak to a manager", "this is unacceptable", "I want to cancel"]
+    action: require_approval
+    approver_role: human_agent
+    priority: high
+
+  - id: sensitive-account-actions
+    name: Require Approval for Account Modifications
+    description: Account closure, email changes, and payment method updates require identity verification.
+    condition:
+      type: action_matches_any
+      patterns:
+        - "close_account"
+        - "change_email"
+        - "change_payment_method"
+        - "delete_data"
+    action: require_approval
+    require_justification: true
+    audit: true
+
+policy_settings:
+  default_decision: allow
+  max_risk_tier: 2
+  auto_approve_t0: true
+  warrant_ttl_seconds: 300
+  audit_retention_days: 90

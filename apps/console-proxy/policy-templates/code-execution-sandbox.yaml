@@ -1,0 +1,127 @@
+id: code-execution-sandbox
+name: Code Execution Sandbox Policy
+description: |
+  Strict governance policy for AI agents that can write and execute code.
+  Enforces sandboxing, resource limits, network isolation, and prevents
+  code that could escape the sandbox, access system resources, or execute
+  privilege escalation. Essential for coding assistant and automation agents.
+category: security
+tags:
+  - code-execution
+  - sandbox
+  - security
+  - developer-tools
+  - hardening
+version: "1.0"
+author: Vienna OS
+
+rules:
+  - id: block-shell-escape
+    name: Block Shell Escape Attempts
+    description: >
+      Prevent code that attempts to break out of sandboxed execution
+      via shell commands, subprocess spawning, or OS-level calls.
+    condition:
+      type: code_contains_patterns
+      patterns:
+        - "import os"
+        - "import subprocess"
+        - "import sys"
+        - "__import__"
+        - "eval("
+        - "exec("
+        - "os.system"
+        - "subprocess.run"
+        - "subprocess.Popen"
+        - "/bin/sh"
+        - "/bin/bash"
+        - "shell=True"
+    action: require_approval
+    require_justification: true
+    audit: true
+
+  - id: block-network-access
+    name: Block Unauthorized Network Access
+    description: >
+      Sandboxed code should not make network calls unless explicitly
+      approved for an allow-listed domain.
+    condition:
+      type: code_contains_patterns
+      patterns:
+        - "requests.get"
+        - "requests.post"
+        - "urllib.request"
+        - "httpx"
+        - "aiohttp"
+        - "fetch("
+        - "XMLHttpRequest"
+        - "curl "
+        - "wget "
+    action:
+      - condition:
+          type: network_allowlist_match
+        action: auto_approve
+      - action: deny
+        reason: "Network access from sandboxed code requires allowlisting"
+
+  - id: resource-limits
+    name: Resource Consumption Limits
+    description: Enforce CPU and memory limits for code execution to prevent DoS.
+    condition:
+      type: resource_usage
+    action: enforce_limits
+    limits:
+      max_cpu_seconds: 30
+      max_memory_mb: 512
+      max_execution_time_ms: 30000
+      max_file_writes: 100
+      max_file_size_mb: 10
+
+  - id: block-privilege-escalation
+    name: Block Privilege Escalation
+    description: Prevent code that attempts to gain elevated permissions.
+    condition:
+      type: code_contains_patterns
+      patterns:
+        - "sudo "
+        - "chmod 777"
+        - "chmod +s"
+        - "setuid"
+        - "setgid"
+        - "cap_sys_admin"
+        - "/etc/sudoers"
+        - "docker.sock"
+        - "/proc/self"
+    action: deny
+    reason: "Privilege escalation attempts are not permitted in sandboxed execution"
+
+  - id: require-approval-filesystem
+    name: Require Approval for Filesystem Operations
+    description: Code that reads or writes to the filesystem requires explicit approval.
+    condition:
+      type: action_matches_any
+      patterns:
+        - "filesystem_write*"
+        - "filesystem_delete*"
+        - "filesystem_read_sensitive*"
+    action: require_approval
+    require_justification: true
+
+  - id: audit-all-executions
+    name: Audit All Code Executions
+    description: All code execution events must be logged with the full code payload.
+    condition:
+      type: action_category
+      value: code_execution
+    action: audit_log
+    retention_days: 180
+    include_input: true
+    include_output: true
+
+policy_settings:
+  default_decision: allow
+  max_risk_tier: 2
+  sandbox_isolation: strict
+  network_policy: deny_all
+  warrant_ttl_seconds: 120
+  auto_approve_t0: false

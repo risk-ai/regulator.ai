@@ -1,0 +1,99 @@
+id: financial-services-trade
+name: Financial Services — Trade & Transaction Controls
+description: |
+  Governance policy for AI agents operating in financial services contexts.
+  Enforces trade amount limits, requires multi-party approval for large
+  transactions, implements market manipulation detection, and ensures
+  regulatory compliance (MiFID II, Dodd-Frank, SEC Rule 17a-4).
+category: financial
+tags:
+  - financial
+  - trading
+  - mifid2
+  - dodd-frank
+  - sec
+  - compliance
+version: "1.0"
+author: Vienna OS
+
+rules:
+  - id: high-value-transaction-approval
+    name: Multi-Party Approval for High-Value Transactions
+    description: Transactions above $10,000 require at minimum one human approver.
+    condition:
+      type: payload_field_gte
+      field: amount
+      value: 10000
+    action: require_approval
+    min_approvers: 1
+    require_justification: true
+    audit: true
+
+  - id: large-transaction-multi-approval
+    name: Dual Control for Transactions Above $100K
+    description: Transactions above $100,000 require dual-party approval (four-eyes principle).
+    condition:
+      type: payload_field_gte
+      field: amount
+      value: 100000
+    action: require_approval
+    min_approvers: 2
+    require_justification: true
+    audit: true
+
+  - id: block-prohibited-trade-actions
+    name: Block Potential Market Manipulation
+    description: >
+      Deny actions that exhibit patterns consistent with market manipulation
+      (wash trading, spoofing, layering).
+    condition:
+      type: action_matches_any
+      patterns:
+        - "wash_trade*"
+        - "spoof_order*"
+        - "layering*"
+        - "quote_stuffing*"
+    action: deny
+    reason: "Potential market manipulation — prohibited under applicable securities law"
+
+  - id: rate-limit-high-frequency
+    name: High-Frequency Trading Rate Limit
+    description: Limit trade submissions to 100 per minute to prevent runaway algorithms.
+    condition:
+      type: rate_limit
+      window_seconds: 60
+      max_count: 100
+      scope: tenant
+    action: deny
+    reason: "Trade rate limit exceeded (100/min). Check for runaway algorithm."
+
+  - id: audit-all-trades
+    name: Complete Trade Audit Trail
+    description: All trade-related actions must be logged with full context (SEC Rule 17a-4).
+    condition:
+      type: action_category
+      value: trade
+    action: audit_log
+    retention_days: 2555  # 7 years for SEC compliance
+    include_input: true
+    include_output: true
+    include_agent_state: true
+
+  - id: after-hours-restriction
+    name: After-Hours Trading Restriction
+    description: Block trading actions outside market hours without override approval.
+    condition:
+      type: outside_hours
+      timezone: "America/New_York"
+      market_open: "09:30"
+      market_close: "16:00"
+      exclude_weekends: true
+    action: require_approval
+    require_justification: true
+
+policy_settings:
+  default_decision: allow
+  max_risk_tier: 3
+  warrant_ttl_seconds: 60
+  require_justification_tier: 1
+  audit_retention_days: 2555

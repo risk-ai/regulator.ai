@@ -1,0 +1,80 @@
+id: pii-redaction
+name: PII Redaction & Privacy Protection
+description: |
+  Automatically detects and blocks AI actions that would expose, store, or
+  transmit Personally Identifiable Information (PII) without explicit consent.
+  Covers GDPR, CCPA, and general privacy best practices.
+category: privacy
+tags:
+  - pii
+  - gdpr
+  - ccpa
+  - privacy
+  - data-protection
+version: "1.0"
+author: Vienna OS
+
+rules:
+  - id: block-pii-write-without-consent
+    name: Block PII Write Operations Without Consent
+    description: Prevent writing PII to external systems without documented consent.
+    condition:
+      type: all_of
+      conditions:
+        - type: action_category
+          value: write
+        - type: payload_contains_pii
+          pii_types:
+            - email
+            - phone
+            - ssn
+            - credit_card
+            - address
+            - date_of_birth
+    action: require_approval
+    require_justification: true
+    audit: true
+
+  - id: redact-pii-in-logs
+    name: Redact PII from Audit Logs
+    description: Automatically redact PII patterns from all audit log entries.
+    condition:
+      type: always
+    action: redact_pii
+    redact_patterns:
+      - pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+        replacement: "[EMAIL REDACTED]"
+      - pattern: "\\b(?:\\d{3}-\\d{2}-\\d{4}|\\d{9})\\b"
+        replacement: "[SSN REDACTED]"
+      - pattern: "\\b(?:\\d{4}[\\s-]?){3}\\d{4}\\b"
+        replacement: "[CARD REDACTED]"
+      - pattern: "\\b(?:\\+1[-.\\s]?)?(?:\\([2-9][0-9]{2}\\)[-.\\s]?)?[2-9][0-9]{2}[-.\\s]?[0-9]{4}\\b"
+        replacement: "[PHONE REDACTED]"
+
+  - id: deny-bulk-pii-export
+    name: Deny Bulk PII Export
+    description: Block any action that would export more than 100 PII records at once.
+    condition:
+      type: all_of
+      conditions:
+        - type: action_matches_any
+          patterns: ["export*", "bulk_download*", "dump*"]
+        - type: estimated_record_count_gte
+          value: 100
+    action: deny
+    reason: "Bulk PII export requires data protection impact assessment"
+
+  - id: data-minimization
+    name: Data Minimization Enforcement
+    description: Flag actions that request more PII fields than necessary for the stated purpose.
+    condition:
+      type: pii_field_count_gte
+      value: 5
+    action: require_approval
+    require_justification: true
+
+policy_settings:
+  default_decision: allow
+  max_risk_tier: 2
+  audit_pii_access: true
+  data_retention_days: 90

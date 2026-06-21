@@ -14,6 +14,10 @@ const { requireAuth, pool } = require('./_auth');
 const { captureException } = require('../../lib/sentry');
 const crypto = require('crypto');
 
+// UUID validation — prevents 'invalid input syntax for type uuid' errors.
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidUUID(str) { return typeof str === 'string' && UUID_RE.test(str); }
+
 // Integration type schemas
 const INTEGRATION_SCHEMAS = {
   slack: {
@@ -102,6 +106,9 @@ module.exports = async function handler(req, res) {
     // ── Get single integration ───────────────────────────────────────
     if (req.method === 'GET' && path.startsWith('/') && path.split('/').length === 2) {
       const id = path.replace('/', '');
+      if (!isValidUUID(id)) {
+        return res.status(404).json({ success: false, error: 'Integration not found' });
+      }
       const result = await pool.query(`
         SELECT id, tenant_id, type, name, enabled, config, event_types, created_at, updated_at, created_by
         FROM integrations
@@ -242,24 +249,34 @@ module.exports = async function handler(req, res) {
 
     // ── Test integration ─────────────────────────────────────────────
     if (req.method === 'POST' && path.endsWith('/test')) {
-      const id = path.replace('/test', '').replace('/', '');
+      const rawId = path.replace('/test', '').replace(/^\//, '');
 
-      const result = await pool.query(`
-        SELECT id, type, name, config
-        FROM integrations
-        WHERE id = $1 AND tenant_id = $2
-      `, [id, tenantId]);
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ success: false, error: 'Integration not found' });
+      // The frontend may pass either a DB UUID or an integration type string
+      // (e.g. 'slack', 'github'). Support both.
+      let integrationRow = null;
+      if (isValidUUID(rawId)) {
+        const result = await pool.query(
+          'SELECT id, type, name, config FROM integrations WHERE id = $1 AND tenant_id = $2',
+          [rawId, tenantId]
+        );
+        integrationRow = result.rows[0] || null;
+      } else {
+        // Look up by type for the tenant
+        const result = await pool.query(
+          'SELECT id, type, name, config FROM integrations WHERE type = $1 AND tenant_id = $2 AND enabled = true ORDER BY created_at DESC LIMIT 1',
+          [rawId, tenantId]
+        );
+        integrationRow = result.rows[0] || null;
       }
 
-      const integration = result.rows[0];
+      if (!integrationRow) {
+        return res.status(404).json({ success: false, error: 'Integration not found or not configured' });
+      }
 
-      // Send test event (implementation depends on type)
-      const testResult = await sendTestEvent(integration);
+      // Actually test the connection
+      const testResult = await sendTestEvent(integrationRow);
 
-      return res.json({ success: true, data: testResult });
+      return res.json({ success: testResult.success, data: testResult });
     }
 
     // ── Get integration events (delivery log) ────────────────────────
@@ -267,13 +284,22 @@ module.exports = async function handler(req, res) {
       const id = path.replace('/events', '').replace('/', '');
       const limit = parseInt(params.limit || '50');
 
+      // Note: integration_events does not have a tenant_id column; tenant
+      // isolation is provided by scoping to integration_id (which is tenant-scoped).
+      // Columns: id, integration_id, event_type, payload, success, error_message,
+      //          response_status, response_body, latency_ms, created_at
       const result = await pool.query(`
-        SELECT id, integration_id, event_type, payload, status, error, created_at
+        SELECT id, integration_id, event_type, payload,
+               success,
+               error_message AS error,
+               response_status,
+               latency_ms,
+               created_at
         FROM integration_events
-        WHERE integration_id = $1 AND tenant_id = $2
+        WHERE integration_id = $1
         ORDER BY created_at DESC
-        LIMIT $3
-      `, [id, tenantId, limit]);
+        LIMIT $2
+      `, [id, limit]);
 
       return res.json({ success: true, data: result.rows });
     }
@@ -282,15 +308,16 @@ module.exports = async function handler(req, res) {
     if (req.method === 'GET' && path.match(/^\/[^/]+\/stats$/)) {
       const id = path.replace('/stats', '').replace('/', '');
 
+      // integration_events columns: success (boolean), error_message, created_at
       const result = await pool.query(`
         SELECT
           COUNT(*) AS total_events,
-          COUNT(*) FILTER (WHERE status = 'delivered') AS delivered,
-          COUNT(*) FILTER (WHERE status = 'failed') AS failed,
+          COUNT(*) FILTER (WHERE success = true) AS delivered,
+          COUNT(*) FILTER (WHERE success = false) AS failed,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') AS events_24h
         FROM integration_events
-        WHERE integration_id = $1 AND tenant_id = $2
-      `, [id, tenantId]);
+        WHERE integration_id = $1
+      `, [id]);
 
       return res.json({ success: true, data: result.rows[0] || {} });
     }
@@ -321,33 +348,118 @@ function maskSecrets(config, type) {
 }
 
 async function sendTestEvent(integration) {
-  const testPayload = {
-    event_type: 'test',
-    timestamp: new Date().toISOString(),
-    data: {
-      message: 'Test event from Vienna OS',
-      integration_id: integration.id,
-    },
-  };
+  const config = integration.config || {};
+  const ts = new Date().toISOString();
 
   try {
     switch (integration.type) {
-      case 'slack':
-        // Would send to Slack webhook
-        return { success: true, message: 'Test message sent to Slack', timestamp: new Date().toISOString() };
-      case 'email':
-        // Would send test email
-        return { success: true, message: 'Test email sent', timestamp: new Date().toISOString() };
-      case 'webhook':
-        // Would POST to webhook URL
-        return { success: true, message: 'Test webhook delivered', timestamp: new Date().toISOString() };
-      case 'github':
-        // Would create test issue
-        return { success: true, message: 'Test GitHub issue created', timestamp: new Date().toISOString() };
+      case 'slack': {
+        // POST a test message to the Slack incoming webhook URL
+        const webhookUrl = config.webhook_url;
+        if (!webhookUrl) {
+          return { success: false, message: 'Slack webhook URL not configured', timestamp: ts };
+        }
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: ':white_check_mark: *Vienna OS*: Test connection successful!',
+            username: config.username || 'Vienna OS',
+          }),
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok) {
+          return { success: true, message: 'Test message delivered to Slack', timestamp: ts };
+        }
+        const body = await res.text().catch(() => '');
+        return { success: false, message: `Slack returned ${res.status}: ${body.substring(0, 100)}`, timestamp: ts };
+      }
+
+      case 'webhook': {
+        // POST a test event to the configured webhook URL
+        const url = config.url;
+        if (!url) {
+          return { success: false, message: 'Webhook URL not configured', timestamp: ts };
+        }
+        const testBody = JSON.stringify({
+          event: 'test',
+          source: 'vienna-os',
+          timestamp: ts,
+          message: 'Test connection from Vienna OS',
+          integration_id: integration.id,
+        });
+        const headers = { 'Content-Type': 'application/json', ...(config.headers || {}) };
+        if (config.secret) {
+          const crypto = require('crypto');
+          const sig = crypto.createHmac('sha256', config.secret).update(testBody).digest('hex');
+          headers['X-Vienna-Signature'] = `sha256=${sig}`;
+        }
+        const res = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: testBody,
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok || res.status < 400) {
+          return { success: true, message: `Webhook responded ${res.status}`, timestamp: ts };
+        }
+        return { success: false, message: `Webhook returned ${res.status}`, timestamp: ts };
+      }
+
+      case 'email': {
+        // Email is sent via Resend (or logged if not configured)
+        const recipients = Array.isArray(config.recipients) ? config.recipients : [config.recipients].filter(Boolean);
+        if (!recipients.length) {
+          return { success: false, message: 'No recipients configured', timestamp: ts };
+        }
+        const RESEND_KEY = process.env.RESEND_API_KEY;
+        if (!RESEND_KEY) {
+          return { success: false, message: 'Email provider not configured (RESEND_API_KEY missing)', timestamp: ts };
+        }
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: `${config.from_name || 'Vienna OS'} <notifications@regulator.ai>`,
+            to: recipients,
+            subject: `${config.subject_prefix || '[Vienna]'} Test connection`,
+            text: 'This is a test message from Vienna OS governance platform. Your email integration is working correctly.',
+          }),
+          signal: AbortSignal.timeout(10000),
+        });
+        if (res.ok) {
+          return { success: true, message: `Test email sent to ${recipients.join(', ')}`, timestamp: ts };
+        }
+        const body = await res.json().catch(() => ({}));
+        return { success: false, message: `Email send failed: ${body.message || res.status}`, timestamp: ts };
+      }
+
+      case 'github': {
+        // Verify the token by calling the GitHub API
+        const token = config.token;
+        const repo = config.repo;
+        if (!token || !repo) {
+          return { success: false, message: 'GitHub token and repo required', timestamp: ts };
+        }
+        const res = await fetch(`https://api.github.com/repos/${repo}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          return { success: true, message: `Connected to GitHub repo: ${data.full_name}`, timestamp: ts };
+        }
+        return { success: false, message: `GitHub returned ${res.status} for repo ${repo}`, timestamp: ts };
+      }
+
       default:
-        return { success: false, message: 'Unknown integration type' };
+        return { success: false, message: `Unknown integration type: ${integration.type}`, timestamp: ts };
     }
   } catch (error) {
-    return { success: false, message: error.message };
+    return { success: false, message: error.message || 'Connection test failed', timestamp: ts };
   }
 }

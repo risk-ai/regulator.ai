@@ -421,9 +421,9 @@ function AnimatedPipeline() {
 /* ── Live Stats (fetched from DB via API) ── */
 function LiveStats() {
   const [stats, setStats] = useState({
-    proposals: 94,
-    warrants: 75,
-    audit_events: 252,
+    proposals: 163,
+    warrants: 113,
+    audit_events: 381,
     policies: 10,
   });
 
@@ -431,7 +431,7 @@ function LiveStats() {
     fetch("/api/stats")
       .then((r) => r.json())
       .then((data) => {
-        if (data && data.proposals) setStats(data);
+        if (data && typeof data.proposals === "number") setStats(data);
       })
       .catch(() => {});
   }, []);

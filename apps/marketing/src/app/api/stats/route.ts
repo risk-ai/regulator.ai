@@ -10,9 +10,9 @@ interface StatsRow {
 }
 
 const FALLBACK: StatsRow = {
-  proposals: 94,
-  warrants: 75,
-  audit_events: 252,
+  proposals: 163,
+  warrants: 113,
+  audit_events: 381,
   policies: 10,
 };
 
@@ -32,7 +32,7 @@ export async function GET() {
         SELECT
           (SELECT COUNT(*)::int FROM regulator.proposals) AS proposals,
           (SELECT COUNT(*)::int FROM regulator.warrants) AS warrants,
-          (SELECT COUNT(*)::int FROM regulator.audit_events) AS audit_events,
+          (SELECT COUNT(*)::int FROM regulator.audit_log) AS audit_events,
           (SELECT COUNT(*)::int FROM regulator.policies) AS policies
       `);
       return NextResponse.json(rows[0] || FALLBACK);

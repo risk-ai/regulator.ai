@@ -14,8 +14,8 @@ const { captureException } = require('../../lib/sentry');
 const SERVICES = [
   {
     key: 'api',
-    name: 'Console API',
-    url: 'https://console.regulator.ai/api/v1/health',
+    name: 'Public API',
+    url: 'https://api.regulator.ai/api/v1/health',
   },
   {
     key: 'console',

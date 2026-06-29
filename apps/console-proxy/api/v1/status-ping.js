@@ -8,8 +8,8 @@
  * The GET endpoint is public (no auth required).
  */
 
-const { pool } = require('../../../database/client');
-const { captureException } = require('../../../lib/sentry');
+const { pool } = require('../../database/client');
+const { captureException } = require('../../lib/sentry');
 
 const SERVICES = [
   {

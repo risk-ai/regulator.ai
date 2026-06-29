@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   description:
     "The governance kernel that controls what autonomous AI can do. Warrants-based authorization with cryptographic execution authority, policy enforcement, and immutable audit trails for AI systems.",
   metadataBase: new URL("https://regulator.ai"),
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     title: "Vienna OS — Governance Kernel for Autonomous AI",
     description:

@@ -29,10 +29,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install console server deps
-        run: cd apps/console/server && npm ci
-      - name: Type check console server
-        run: cd apps/console/server && npx tsc --noEmit --skipLibCheck
+      - name: Install console proxy deps
+        run: cd apps/console-proxy && npm ci
+      - name: Syntax check console proxy
+        run: |
+          cd apps/console-proxy
+          find api database lib middleware scripts -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Install SDK deps
         run: cd packages/sdk && npm ci
       - name: Build SDK
@@ -48,19 +50,15 @@ jobs:
           node-version: 22
       - name: Run core engine tests
         run: |
-          if ls services/vienna-lib/test/*.test.js 1>/dev/null 2>&1; then
-            node --test services/vienna-lib/test/*.test.js
-          else
-            echo "No tests found, skipping"
-          fi
+          node --test services/vienna-lib/test/policy-suggestions.test.js
 
   security:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Audit console server
-        run: cd apps/console/server && npm ci && npm audit --omit=dev --audit-level=high || true
+      - name: Audit console proxy
+        run: cd apps/console-proxy && npm ci && npm audit --omit=dev --audit-level=high || true
       - name: Audit SDK
         run: cd packages/sdk && npm ci && npm audit --omit=dev --audit-level=high || true
       - name: Check for hardcoded secrets

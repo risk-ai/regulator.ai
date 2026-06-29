@@ -8,14 +8,14 @@
  * The GET endpoint is public (no auth required).
  */
 
-const { pool } = require('../../../database/client');
-const { captureException } = require('../../../lib/sentry');
+const { pool } = require('../../database/client');
+const { captureException } = require('../../lib/sentry');
 
 const SERVICES = [
   {
     key: 'api',
-    name: 'Console API',
-    url: 'https://console.regulator.ai/api/v1/health',
+    name: 'Public API',
+    url: 'https://api.regulator.ai/api/v1/health',
   },
   {
     key: 'console',

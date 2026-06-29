@@ -224,20 +224,15 @@ const POST_META: Record<string, Omit<BlogPost, "content">> = {
  * within the marketing app (copied from docs/blog/ at repo root).
  * This ensures files are available in Vercel standalone builds.
  */
+const MARKETING_CONTENT_BLOG_DIR = path.join(process.cwd(), "content", "blog");
+const MONOREPO_CONTENT_BLOG_DIR = path.join(process.cwd(), "apps", "marketing", "content", "blog");
+const MONOREPO_DOCS_BLOG_DIR = path.join(process.cwd(), "docs", "blog");
+
 function getBlogDir(): string {
-  const candidates = [
-    // Marketing app root (Vercel build cwd = apps/marketing)
-    path.join(process.cwd(), "content", "blog"),
-    // Monorepo root (local dev)
-    path.join(process.cwd(), "apps", "marketing", "content", "blog"),
-    // Fallback to docs/blog at monorepo root
-    path.join(process.cwd(), "docs", "blog"),
-    path.join(process.cwd(), "..", "..", "docs", "blog"),
-  ];
-  for (const dir of candidates) {
-    if (fs.existsSync(dir)) return dir;
-  }
-  return candidates[0]; // fallback
+  if (fs.existsSync(MARKETING_CONTENT_BLOG_DIR)) return MARKETING_CONTENT_BLOG_DIR;
+  if (fs.existsSync(MONOREPO_CONTENT_BLOG_DIR)) return MONOREPO_CONTENT_BLOG_DIR;
+  if (fs.existsSync(MONOREPO_DOCS_BLOG_DIR)) return MONOREPO_DOCS_BLOG_DIR;
+  return MARKETING_CONTENT_BLOG_DIR;
 }
 
 /** Load a single blog post by slug. Returns null if not found. */

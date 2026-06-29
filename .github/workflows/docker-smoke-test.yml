@@ -42,28 +42,28 @@ jobs:
           EOF
           
           # Start with test config
-          docker-compose --env-file .env.test up -d --wait --timeout 60 || true
+          docker compose --env-file .env.test up -d --wait --timeout 60 || true
           
           # Give services time to initialize
           sleep 10
           
           # Check container health
-          docker-compose ps
+          docker compose ps
 
       - name: Run health check
         run: |
           # Try health endpoint (may be on different ports)
           for port in 3000 3001 3100; do
             echo "Checking port $port..."
-            curl -sf http://localhost:$port/health && echo " ✅ Port $port healthy" || echo " ⚠️ Port $port not responding"
+            curl -sf http://localhost:$port/api/v1/health && echo " ✅ Port $port healthy" || echo " ⚠️ Port $port not responding"
           done
 
       - name: Check container logs for errors
         if: always()
         run: |
           echo "=== Container Logs ==="
-          docker-compose logs --tail=50 2>/dev/null || true
+          docker compose logs --tail=50 2>/dev/null || true
 
       - name: Cleanup
         if: always()
-        run: docker-compose down -v 2>/dev/null || true
+        run: docker compose down -v 2>/dev/null || true

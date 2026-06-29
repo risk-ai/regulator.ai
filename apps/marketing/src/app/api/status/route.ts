@@ -81,14 +81,14 @@ export async function GET() {
   // Fallback: direct health checks without uptime history
   const [consoleCheck, health, marketing] = await Promise.all([
     checkService("Vienna OS Console", "console.regulator.ai", "https://console.regulator.ai"),
-    checkService("Health API", "/api/v1/health", "https://console.regulator.ai/api/v1/health"),
+    checkService("Public API", "api.regulator.ai", "https://api.regulator.ai/api/v1/health"),
     checkService("Marketing Site", "regulator.ai", "https://regulator.ai"),
   ]);
 
   const intentGateway: ServiceCheck = {
     name: "Intent Gateway API",
     endpoint: "/api/v1/agent/intent",
-    url: "https://console.regulator.ai/api/v1/agent/intent",
+    url: "https://api.regulator.ai/api/v1/agent/intent",
     operational: health.operational,
     latencyMs: health.latencyMs,
     statusCode: health.operational ? 200 : null,
@@ -97,7 +97,7 @@ export async function GET() {
   const auth: ServiceCheck = {
     name: "Authentication",
     endpoint: "/api/v1/auth",
-    url: "https://console.regulator.ai/api/v1/auth",
+    url: "https://api.regulator.ai/api/v1/auth",
     operational: health.operational,
     latencyMs: health.latencyMs,
     statusCode: health.operational ? 200 : null,

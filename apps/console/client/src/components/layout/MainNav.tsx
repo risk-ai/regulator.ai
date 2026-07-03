@@ -7,7 +7,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Zap, Shield, Bot, Wrench, Settings, BarChart3, TrendingUp, Target, CheckCircle2, Play, FileText, Search, Link2, Film, Key, Plug, Folder, ClipboardList } from 'lucide-react';
 import { useResponsive } from '../../hooks/useResponsive.js';
 
 /* ── Navigation structure: 5 groups ── */
@@ -16,80 +16,101 @@ interface NavItem {
   path: string;
   label: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode | string; // Support both Lucide components and legacy emoji
 }
 
 interface NavGroup {
   id: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode | string;
   items: NavItem[];
   /** If set, clicking the group label navigates here directly */
   defaultPath?: string;
 }
 
+// Icon mapping: emoji → Lucide component
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  '⚡': Zap,
+  '🛡️': Shield,
+  '🤖': Bot,
+  '🔧': Wrench,
+  '⚙️': Settings,
+  '📊': BarChart3,
+  '📈': TrendingUp,
+  '🎯': Target,
+  '✅': CheckCircle2,
+  '▶️': Play,
+  '📋': FileText,
+  '🔍': Search,
+  '⛓️': Link2,
+  '🎬': Film,
+  '🔑': Key,
+  '🔌': Plug,
+  '📁': Folder,
+};
+
 const NAV_GROUPS: NavGroup[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: '⚡',
+    icon: <Zap className="w-4 h-4" />,
     defaultPath: '/',
     items: [
-      { path: '/', label: 'Overview', description: 'System posture & action center', icon: '⚡' },
-      { path: '/activity', label: 'Activity Feed', description: 'Real-time event stream', icon: '📊' },
-      { path: '/analytics', label: 'Analytics', description: 'Metrics, leaderboard & costs', icon: '📈' },
+      { path: '/', label: 'Overview', description: 'System posture & action center', icon: <Zap className="w-4 h-4" /> },
+      { path: '/activity', label: 'Activity Feed', description: 'Real-time event stream', icon: <BarChart3 className="w-4 h-4" /> },
+      { path: '/analytics', label: 'Analytics', description: 'Metrics, leaderboard & costs', icon: <TrendingUp className="w-4 h-4" /> },
     ],
   },
   {
     id: 'governance',
     label: 'Governance',
-    icon: '🛡️',
+    icon: <Shield className="w-4 h-4" />,
     defaultPath: '/approvals',
     items: [
-      { path: '/intent', label: 'Submit Intent', description: 'Request governed action', icon: '🎯' },
-      { path: '/approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: '✅' },
-      { path: '/execution', label: 'Execution', description: 'Live execution pipeline', icon: '▶️' },
-      { path: '/executions', label: 'Execution Log', description: 'Past execution records', icon: '📋' },
-      { path: '/governance-chain', label: 'Governance Chain', description: 'Warrant chain visualization', icon: '⛓️' },
-      { path: '/governance-live', label: 'Live Governance', description: 'Real-time governance flow', icon: '🎬' },
-      { path: '/policies', label: 'Policy Builder', description: 'Create governance rules', icon: '🛡️' },
-      { path: '/policy-templates', label: 'Policy Templates', description: 'Pre-built policies', icon: '📋' },
-      { path: '/compliance', label: 'Compliance', description: 'Governance reports', icon: '📑' },
-      { path: '/history', label: 'Audit Trail', description: 'Execution ledger', icon: '🔍' },
+      { path: '/intent', label: 'Submit Intent', description: 'Request governed action', icon: <Target className="w-4 h-4" /> },
+      { path: '/approvals', label: 'Approvals', description: 'Pending T1/T2 actions', icon: <CheckCircle2 className="w-4 h-4" /> },
+      { path: '/execution', label: 'Execution', description: 'Live execution pipeline', icon: <Play className="w-4 h-4" /> },
+      { path: '/executions', label: 'Execution Log', description: 'Past execution records', icon: <ClipboardList className="w-4 h-4" /> },
+      { path: '/governance-chain', label: 'Governance Chain', description: 'Warrant chain visualization', icon: <Link2 className="w-4 h-4" /> },
+      { path: '/governance-live', label: 'Live Governance', description: 'Real-time governance flow', icon: <Film className="w-4 h-4" /> },
+      { path: '/policies', label: 'Policy Builder', description: 'Create governance rules', icon: <Shield className="w-4 h-4" /> },
+      { path: '/policy-templates', label: 'Policy Templates', description: 'Pre-built policies', icon: <FileText className="w-4 h-4" /> },
+      { path: '/compliance', label: 'Compliance', description: 'Governance reports', icon: <FileText className="w-4 h-4" /> },
+      { path: '/history', label: 'Audit Trail', description: 'Execution ledger', icon: <Search className="w-4 h-4" /> },
     ],
   },
   {
     id: 'fleet',
     label: 'Fleet',
-    icon: '🤖',
+    icon: <Bot className="w-4 h-4" />,
     defaultPath: '/fleet',
     items: [
-      { path: '/fleet', label: 'Agent Dashboard', description: 'Fleet overview & status', icon: '🤖' },
-      { path: '/connect', label: 'Connect Agent', description: 'Register a new agent', icon: '🔗' },
-      { path: '/agent-templates', label: 'Agent Templates', description: 'Integration templates', icon: '📦' },
-      { path: '/action-types', label: 'Action Registry', description: 'Action type definitions', icon: '⚡' },
+      { path: '/fleet', label: 'Agent Dashboard', description: 'Fleet overview & status', icon: <Bot className="w-4 h-4" /> },
+      { path: '/connect', label: 'Connect Agent', description: 'Register a new agent', icon: <Plug className="w-4 h-4" /> },
+      { path: '/agent-templates', label: 'Agent Templates', description: 'Integration templates', icon: <ClipboardList className="w-4 h-4" /> },
+      { path: '/action-types', label: 'Action Registry', description: 'Action type definitions', icon: <Zap className="w-4 h-4" /> },
     ],
   },
   {
     id: 'infra',
     label: 'Infrastructure',
-    icon: '🔧',
+    icon: <Wrench className="w-4 h-4" />,
     defaultPath: '/api-keys',
     items: [
-      { path: '/api-keys', label: 'API Keys', description: 'Programmatic access', icon: '🔑' },
-      { path: '/integrations', label: 'Integrations', description: 'External services', icon: '🔌' },
-      { path: '/runtime', label: 'Runtime', description: 'Pipeline & reconciliation', icon: '⚙️' },
-      { path: '/workspace', label: 'Workspace', description: 'Files & artifacts', icon: '📁' },
-      { path: '/services', label: 'Services', description: 'Infrastructure health', icon: '🔧' },
+      { path: '/api-keys', label: 'API Keys', description: 'Programmatic access', icon: <Key className="w-4 h-4" /> },
+      { path: '/integrations', label: 'Integrations', description: 'External services', icon: <Plug className="w-4 h-4" /> },
+      { path: '/runtime', label: 'Runtime', description: 'Pipeline & reconciliation', icon: <Settings className="w-4 h-4" /> },
+      { path: '/workspace', label: 'Workspace', description: 'Files & artifacts', icon: <Folder className="w-4 h-4" /> },
+      { path: '/services', label: 'Services', description: 'Infrastructure health', icon: <Wrench className="w-4 h-4" /> },
     ],
   },
   {
     id: 'settings',
     label: 'Settings',
-    icon: '⚙️',
+    icon: <Settings className="w-4 h-4" />,
     defaultPath: '/settings',
     items: [
-      { path: '/settings', label: 'Organization', description: 'Team, security & billing', icon: '⚙️' },
+      { path: '/settings', label: 'Organization', description: 'Team, security & billing', icon: <Settings className="w-4 h-4" /> },
     ],
   },
 ];
@@ -196,7 +217,7 @@ export function MainNav() {
                           fontFamily: 'var(--font-sans)',
                         }}
                       >
-                        <span className="text-lg">{item.icon}</span>
+                        <span className="text-lg flex-shrink-0">{typeof item.icon === 'string' ? item.icon : item.icon}</span>
                         <div>
                           <div>{item.label}</div>
                           <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{item.description}</div>
@@ -216,7 +237,7 @@ export function MainNav() {
                         fontFamily: 'var(--font-sans)',
                       }}
                     >
-                      <span className="text-lg">{group.icon}</span>
+                      <span className="text-lg flex-shrink-0">{typeof group.icon === 'string' ? group.icon : group.icon}</span>
                       <div>{group.label}</div>
                     </button>
                   )}

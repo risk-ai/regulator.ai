@@ -37,31 +37,31 @@ const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.j
 const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
 const CompliancePage = React.lazy(() => import('./pages/CompliancePage.js').then(m => ({ default: m.CompliancePage })));
 const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m => ({ default: m.ExecutionPage })));
-const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js'));
-const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js'));
-const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js'));
+const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js').then(m => ({ default: m.PolicyTemplatesPage })));
+const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js').then(m => ({ default: m.AgentTemplatesPage })));
+const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js').then(m => ({ default: m.ActivityFeedPage })));
 const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
 const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
 const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m => ({ default: m.AnalyticsPage })));
 const GovernanceChainPage = React.lazy(() => import('./pages/GovernanceChainPage.js').then(m => ({ default: m.GovernanceChainPage })));
 const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.js').then(m => ({ default: m.GovernanceLivePage })));
-const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js'));
+const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js').then(m => ({ default: m.DashboardPremium })));
 const DashboardControl = React.lazy(() => import('./pages/DashboardControl.js').then(m => ({ default: m.DashboardControl })));
-const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js'));
-const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js'));
+const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js').then(m => ({ default: m.FleetPremium })));
+const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js').then(m => ({ default: m.ApprovalsPremium })));
 const AnalyticsPremium = React.lazy(() => import('./pages/AnalyticsPremium.js').then(m => ({ default: m.AnalyticsPremium })));
 const RiskHeatmapPage = React.lazy(() => import('./pages/RiskHeatmapPage.js').then(m => ({ default: m.RiskHeatmapPage })));
 const CompliancePremium = React.lazy(() => import('./pages/CompliancePremium.js').then(m => ({ default: m.CompliancePremium })));
 const IntegrationsPremium = React.lazy(() => import('./pages/IntegrationsPremium.js').then(m => ({ default: m.IntegrationsPremium })));
-const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js'));
-const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js'));
-const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js'));
-const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js'));
-const TeamManagementPage = React.lazy(() => import('./pages/TeamManagementPage.js'));
-const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage.js'));
-const UsageDashboardPage = React.lazy(() => import('./pages/UsageDashboardPage.js'));
-const WebhookConfigPage = React.lazy(() => import('./pages/WebhookConfigPage.js'));
+const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js').then(m => ({ default: m.AgentDetailPage })));
+const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js').then(m => ({ default: m.DemoModePage })));
+const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js').then(m => ({ default: m.EmbedWidgetPage })));
+const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js').then(m => ({ default: m.SimulationPage })));
+const TeamManagementPage = React.lazy(() => import('./pages/TeamManagementPage.js').then(m => ({ default: m.TeamManagementPage })));
+const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage.js').then(m => ({ default: m.AcceptInvitePage })));
+const UsageDashboardPage = React.lazy(() => import('./pages/UsageDashboardPage.js').then(m => ({ default: m.UsageDashboardPage })));
+const WebhookConfigPage = React.lazy(() => import('./pages/WebhookConfigPage.js').then(m => ({ default: m.WebhookConfigPage })));
 
 function PageLoadingSpinner() {
   return (

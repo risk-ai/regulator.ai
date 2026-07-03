@@ -13,3 +13,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Color Compatibility Layer — maps hardcoded colors to CSS variables */
+@import './styles/tailwind-color-compat.css';

@@ -1,0 +1,94 @@
+/**
+ * Tailwind Color Compatibility Layer
+ * Maps hardcoded bg-blue-*, border-blue-*, etc. to CSS variables
+ * This allows existing JSX to work without refactoring every color instance
+ * 
+ * Generated: 2026-07-03
+ * Purpose: Bridges old hardcoded colors to design system during transition
+ */
+
+@layer utilities {
+  /* Background colors — map to design system */
+  .bg-blue-900 {
+    background-color: var(--bg-secondary) !important;
+  }
+  .bg-blue-800 {
+    background-color: var(--bg-secondary) !important;
+  }
+  .bg-blue-700 {
+    background-color: var(--bg-tertiary) !important;
+  }
+  .bg-blue-600 {
+    background-color: var(--info-bg) !important;
+  }
+
+  .bg-gray-900 {
+    background-color: var(--bg-secondary) !important;
+  }
+  .bg-gray-800 {
+    background-color: var(--bg-tertiary) !important;
+  }
+  .bg-gray-700 {
+    background-color: var(--bg-hover) !important;
+  }
+
+  /* Border colors */
+  .border-blue-900 {
+    border-color: var(--border-strong) !important;
+  }
+  .border-blue-800 {
+    border-color: var(--border-strong) !important;
+  }
+  .border-blue-700 {
+    border-color: var(--border-strong) !important;
+  }
+  .border-blue-600 {
+    border-color: var(--border-default) !important;
+  }
+
+  .border-gray-700 {
+    border-color: var(--border-default) !important;
+  }
+  .border-gray-600 {
+    border-color: var(--border-default) !important;
+  }
+  .border-gray-500 {
+    border-color: var(--border-subtle) !important;
+  }
+
+  /* Text colors */
+  .text-blue-400 {
+    color: var(--text-secondary) !important;
+  }
+  .text-blue-300 {
+    color: var(--text-tertiary) !important;
+  }
+  .text-blue-100 {
+    color: var(--text-primary) !important;
+  }
+
+  .text-gray-500 {
+    color: var(--text-tertiary) !important;
+  }
+  .text-gray-400 {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Hover states */
+  .hover\:bg-blue-800:hover {
+    background-color: var(--bg-tertiary) !important;
+  }
+  .hover\:bg-gray-700:hover {
+    background-color: var(--bg-hover) !important;
+  }
+}
+
+/**
+ * NOTE: This is a TEMPORARY bridge during migration.
+ * Long-term: Replace hardcoded colors in JSX with:
+ *   style={{ background: 'var(--bg-secondary)' }}
+ *   style={{ borderColor: 'var(--border-default)' }}
+ *
+ * Once all instances are migrated, this file can be deleted.
+ * Track progress in: regulator.ai/CONSOLE-REDESIGN-BRIEF.md
+ */

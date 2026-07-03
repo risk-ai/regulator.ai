@@ -1,16 +1,18 @@
+"use strict";
 /**
  * Vienna Provider Manager
  *
  * Policy-based provider selection with health tracking, cooldown management,
  * retry backoff, and sticky session preference.
  */
-export class ProviderManager {
-    providers = new Map();
-    healthTracking = new Map();
-    activeThreads = new Map(); // threadId -> providerName
-    healthMonitorInterval = null;
-    policy;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProviderManager = void 0;
+class ProviderManager {
     constructor(policy) {
+        this.providers = new Map();
+        this.healthTracking = new Map();
+        this.activeThreads = new Map(); // threadId -> providerName
+        this.healthMonitorInterval = null;
         this.policy = {
             primaryProvider: 'anthropic',
             fallbackOrder: ['anthropic', 'openclaw'],
@@ -283,4 +285,4 @@ export class ProviderManager {
         this.activeThreads.delete(threadId);
     }
 }
-//# sourceMappingURL=manager.js.map
+exports.ProviderManager = ProviderManager;

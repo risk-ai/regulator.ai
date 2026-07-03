@@ -1,18 +1,21 @@
+"use strict";
 /**
  * Anthropic Provider
  *
  * Direct Claude API integration for Vienna.
  * Enables Vienna to function independently of OpenClaw.
  */
-import Anthropic from '@anthropic-ai/sdk';
-export class AnthropicProvider {
-    name = 'anthropic';
-    type = 'anthropic';
-    client;
-    defaultModel;
-    classificationModel;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AnthropicProvider = void 0;
+const sdk_1 = __importDefault(require("@anthropic-ai/sdk"));
+class AnthropicProvider {
     constructor(config) {
-        this.client = new Anthropic({
+        this.name = 'anthropic';
+        this.type = 'anthropic';
+        this.client = new sdk_1.default({
             apiKey: config.apiKey,
         });
         this.defaultModel = config.defaultModel || 'claude-sonnet-4-5';
@@ -173,4 +176,4 @@ Reply with only the classification word.`,
         };
     }
 }
-//# sourceMappingURL=client.js.map
+exports.AnthropicProvider = AnthropicProvider;

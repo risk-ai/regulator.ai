@@ -19,6 +19,11 @@
     "npm": ">=9.0.0"
   },
   "dependencies": {
+    "better-sqlite3": "^12.11.1",
     "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "typescript": "^6.0.3"
   }
 }

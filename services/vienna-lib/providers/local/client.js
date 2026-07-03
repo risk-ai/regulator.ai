@@ -1,16 +1,16 @@
+"use strict";
 /**
  * Local Provider (Ollama)
  *
  * Local model integration via Ollama for Vienna fallback.
  * Enables Vienna to function when external APIs are unavailable.
  */
-export class LocalProvider {
-    name = 'local';
-    type = 'local';
-    baseUrl;
-    model;
-    contextSize;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LocalProvider = void 0;
+class LocalProvider {
     constructor(config = {}) {
+        this.name = 'local';
+        this.type = 'local';
         this.baseUrl = config.baseUrl || 'http://127.0.0.1:11434';
         this.model = config.model || 'qwen2.5:0.5b';
         this.contextSize = config.contextSize || 8192;
@@ -228,4 +228,4 @@ Reply with only the classification word.`,
         };
     }
 }
-//# sourceMappingURL=client.js.map
+exports.LocalProvider = LocalProvider;

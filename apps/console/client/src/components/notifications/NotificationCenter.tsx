@@ -19,13 +19,14 @@ export interface Notification {
   action_label?: string;
 }
 
-async function fetchNotifications(): Promise<Notification[]> {
+async function fetchNotifications(readFilter?: string): Promise<{ data: Notification[]; unread_count: number }> {
   try {
-    const response = await apiClient.get<{ data: Notification[] }>('/notifications?limit=50&read=false');
-    return (response as any).data || [];
+    const qs = readFilter !== undefined ? `?limit=50&read=${readFilter}` : '?limit=50';
+    const response = await apiClient.get<{ data: Notification[]; unread_count: number }>(`/notifications${qs}`);
+    return { data: (response as any).data || [], unread_count: (response as any).unread_count ?? 0 };
   } catch (error) {
     console.error('[NotificationCenter] Failed to fetch notifications:', error);
-    return [];
+    return { data: [], unread_count: 0 };
   }
 }
 
@@ -40,9 +41,21 @@ async function markAllAsRead(): Promise<void> {
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Background poll for unread count every 30s
+  useEffect(() => {
+    const pollUnread = async () => {
+      try {
+        const { unread_count } = await fetchNotifications('false');
+        setUnreadCount(unread_count);
+      } catch { /* silent */ }
+    };
+    pollUnread();
+    const interval = setInterval(pollUnread, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -53,8 +66,9 @@ export function NotificationCenter() {
   const loadNotifications = async () => {
     setLoading(true);
     try {
-      const data = await fetchNotifications();
+      const { data, unread_count } = await fetchNotifications();
       setNotifications(data);
+      setUnreadCount(unread_count);
     } catch (error) {
       console.error('[NotificationCenter] Load failed:', error);
     } finally {
@@ -77,6 +91,7 @@ export function NotificationCenter() {
     try {
       await markAllAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
     } catch (error) {
       console.error('[NotificationCenter] Mark all as read failed:', error);
     }

@@ -138,14 +138,14 @@ export function Dashboard() {
     <div className="space-y-6">
       {/* Observation Window Banner (Phase 10.3) */}
       {observationWindow.active && (
-        <div className="bg-blue-900 border border-blue-700 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ background: 'var(--info-bg)', border: '1px solid var(--info-border)' }}>
           <div className="flex items-center gap-3">
-            <div className="text-blue-400 text-xl">●</div>
+            <div className="text-xl" style={{ color: 'var(--info-text)' }}>●</div>
             <div className="flex-1">
-              <div className="text-sm font-medium text-blue-100">
+              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                 {observationWindow.message}
               </div>
-              <div className="text-xs text-blue-300 mt-1">
+              <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
                 Execution timeout enforcement operational. Monitoring for stable behavior.
               </div>
             </div>

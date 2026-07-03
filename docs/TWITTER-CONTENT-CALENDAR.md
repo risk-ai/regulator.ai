@@ -72,10 +72,24 @@
 
 ### Week of June 9
 - [x] Mon: Product update or milestone tweet ✅ Posted 2066521686745244002
-- [ ] Tue: Thread topic TBD
+- [x] Tue: Thread topic TBD ❌ Skipped — no thread written for this slot (past)
 - [x] Wed: Code snippet — @govern decorator wrapping agent_scale_infra, $47K hook, "ungoverned agents are just functions with no return policy" ❌ API 403 error - Account posting restrictions (2026-06-17)
-- [ ] Thu: Thread topic TBD
+- [x] Thu: Thread — "Prompt injection + agent governance: capability restriction > prompt filtering" ✅ Posted thread starting 2067609264772808784 (8/10 tweets — 2 hit 403)
 - [x] Fri: "That $47K AWS bill taught me something: your AI agents are like teenagers with your credit card..." ✅ Posted 2065434317682073819 (parental controls analogy, dev-focused governance hook)
+
+### Week of June 16
+- [x] Mon: (no entry — no tweet scheduled)
+- [x] Tue: Thread — "Runtime vs. build-time governance: why wrapping your agent at deploy is too late"
+- [ ] Wed: Code snippet — risk tier classification with @govern decorator
+- [ ] Thu: Thread — "From $47K bill to audit-ready: the Vienna OS governance stack"
+- [x] Fri: "Your CI/CD pipeline has code review, linting, staging, approval gates. Your AI agents have... vibes." ❌ API 403 error — Account posting restrictions persist (2026-06-19)
+
+### Week of June 23
+- [x] Mon: "Build-time vs runtime governance" hook tweet ❌ API 403 error — Account posting restrictions persist (2026-06-22)
+- [x] Tue: Thread — "Runtime vs. build-time governance: why wrapping your agent at deploy is too late" (carry-over) ✅ Posted thread starting 2070507746030432553
+- [x] Wed: Code snippet — risk tier classification with @govern decorator (carry-over) ❌ API 403 error - Account posting restrictions persist (2026-06-29)
+- [x] Thu: Thread — "From $47K bill to audit-ready: the Vienna OS governance stack" (carry-over) ✅ Posted thread starting 2072681986393596092 (4/8 tweets — 403 errors persist, 2026-07-02)
+- [ ] Fri: Engagement/hot take
 
 ### Evergreen Content (rotate in)
 - Integration tutorials (LangChain, CrewAI, AutoGen)

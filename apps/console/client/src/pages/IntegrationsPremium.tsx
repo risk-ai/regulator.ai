@@ -132,6 +132,134 @@ const INTEGRATIONS: Integration[] = [
 ];
 
 // ============================================================================
+// CONNECT MODAL CONFIG
+// ============================================================================
+
+interface FieldSpec { key: string; label: string; type: 'text' | 'password' | 'url'; placeholder?: string; required?: boolean; }
+
+const INTEGRATION_FIELDS: Record<string, FieldSpec[]> = {
+  slack: [
+    { key: 'webhook_url', label: 'Webhook URL', type: 'url', placeholder: 'https://hooks.slack.com/services/...', required: true },
+  ],
+  pagerduty: [
+    { key: 'api_key', label: 'API Key', type: 'password', placeholder: 'pd_api_...', required: true },
+    { key: 'service_id', label: 'Service ID', type: 'text', placeholder: 'PABC123', required: true },
+  ],
+  datadog: [
+    { key: 'api_key', label: 'API Key', type: 'password', placeholder: 'dd_api_...', required: true },
+    { key: 'app_key', label: 'Application Key', type: 'password', placeholder: 'dd_app_...', required: true },
+    { key: 'site', label: 'Site', type: 'text', placeholder: 'us1 / eu1 / us3', required: false },
+  ],
+  openai: [
+    { key: 'api_key', label: 'API Key', type: 'password', placeholder: 'sk-...', required: true },
+  ],
+  anthropic: [
+    { key: 'api_key', label: 'API Key', type: 'password', placeholder: 'sk-ant-...', required: true },
+  ],
+  github: [
+    { key: 'token', label: 'Personal Access Token', type: 'password', placeholder: 'ghp_...', required: true },
+    { key: 'org', label: 'Organization (optional)', type: 'text', placeholder: 'my-org', required: false },
+  ],
+};
+
+function ConnectModal({ integration, onClose, onSaved }: {
+  integration: Integration;
+  onClose: () => void;
+  onSaved: (id: string) => void;
+}) {
+  const fields = INTEGRATION_FIELDS[integration.id] || [
+    { key: 'api_key', label: 'API Key / Token', type: 'password' as const, placeholder: 'Paste your key here', required: true },
+  ];
+  const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(f => [f.key, ''])));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const missing = fields.filter(f => f.required && !values[f.key]?.trim());
+    if (missing.length) { setError(`Required: ${missing.map(f => f.label).join(', ')}`); return; }
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('vienna_access_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch('/api/v1/integrations', {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ type: integration.id, name: integration.name, config: values, enabled: true }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Save failed');
+      onSaved(integration.id);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save integration');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '8px 12px', background: 'rgba(0,0,0,0.4)',
+    border: '1px solid rgba(245,158,11,0.3)', color: '#e5e7eb',
+    fontSize: '13px', fontFamily: 'var(--font-mono)', borderRadius: '0',
+    outline: 'none', boxSizing: 'border-box',
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)' }} />
+      <div style={{
+        position: 'relative', width: '480px', background: '#0d1117',
+        border: '1px solid rgba(245,158,11,0.4)', padding: '28px',
+        boxShadow: '0 0 40px rgba(245,158,11,0.15)', zIndex: 1,
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div>
+            <div style={{ fontSize: '11px', color: '#f59e0b', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', marginBottom: '4px' }}>CONFIGURE INTEGRATION</div>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: '#e5e7eb' }}>{integration.name}</div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '20px', padding: '4px' }}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {fields.map(field => (
+              <div key={field.key}>
+                <label style={{ display: 'block', fontSize: '11px', color: '#f59e0b', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                  {field.label}{field.required && <span style={{ color: '#ef4444' }}> *</span>}
+                </label>
+                <input
+                  type={field.type === 'password' ? 'password' : field.type === 'url' ? 'url' : 'text'}
+                  placeholder={field.placeholder}
+                  value={values[field.key] || ''}
+                  onChange={e => setValues(prev => ({ ...prev, [field.key]: e.target.value }))}
+                  style={inputStyle}
+                />
+              </div>
+            ))}
+          </div>
+          {error && <div style={{ marginTop: '12px', padding: '8px 12px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', fontSize: '12px' }}>{error}</div>}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+            <button type='submit' disabled={saving} style={{
+              flex: 1, padding: '10px', background: saving ? 'rgba(245,158,11,0.1)' : 'rgba(245,158,11,0.15)',
+              border: '1px solid rgba(245,158,11,0.5)', color: '#f59e0b',
+              fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', cursor: saving ? 'wait' : 'pointer',
+              letterSpacing: '0.05em',
+            }}>{saving ? 'CONNECTING...' : 'CONNECT'}</button>
+            <button type='button' onClick={onClose} style={{
+              padding: '10px 20px', background: 'transparent', border: '1px solid rgba(107,114,128,0.4)',
+              color: '#6b7280', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)', cursor: 'pointer',
+            }}>CANCEL</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 
@@ -292,7 +420,7 @@ function IntegrationCard({ integration, onConnect, onTest }: {
               TEST CONNECTION
             </button>
             <button
-              onClick={() => navigate('/integrations')}
+              onClick={() => onConnect()}
               style={{
                 padding: '8px 12px',
                 background: 'rgba(107, 114, 128, 0.2)',
@@ -514,6 +642,7 @@ export function IntegrationsPremium() {
   const [integrations, setIntegrations] = useState<Integration[]>(INTEGRATIONS);
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [selectedLang, setSelectedLang] = useState<'python' | 'nodejs' | 'go' | 'rust'>('python');
+  const [connectModal, setConnectModal] = useState<Integration | null>(null);
 
   const codeSnippets = {
     python: `from vienna_os import ViennaClient
@@ -659,12 +788,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
   }, [getHeaders]);
 
-  const handleConnect = async (id: string) => {
-    // Navigate to the legacy integrations page which has the full configuration form
-    // This ensures integrations are properly configured (API keys, URLs, etc.)
-    // rather than creating empty records
-    addToast(`Opening ${id} configuration...`, 'info');
-    navigate('/integrations');
+  const handleConnect = (id: string) => {
+    const integration = integrations.find(i => i.id === id);
+    if (integration) setConnectModal(integration);
+  };
+
+  const handleConnectSaved = (id: string) => {
+    setIntegrations(prev => prev.map(i => i.id === id ? { ...i, status: 'connected' as const, lastSync: 'Just now' } : i));
+    addToast(`${id} connected successfully`, 'success');
   };
 
   const handleTest = async (id: string) => {
@@ -691,6 +822,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   const connectedCount = integrations.filter(i => i.status === 'connected').length;
 
   return (
+    <>
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       <div style={{ position: 'relative', zIndex: 1 }}>
         <PageLayout title="" description="">
@@ -833,5 +965,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         </PageLayout>
       </div>
     </div>
+    {connectModal && (
+      <ConnectModal
+        integration={connectModal}
+        onClose={() => setConnectModal(null)}
+        onSaved={handleConnectSaved}
+      />
+    )}
+    </>
   );
 }

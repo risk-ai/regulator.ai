@@ -1944,7 +1944,45 @@ module.exports = async function handler(req, res) {
     // In-memory simulation state (per-process; resets on cold start)
     // The global simState is defined at top of handler scope
 
+    // Simulation state helpers — persist to tenants.settings so state survives cold starts
+    const simKey = 'simulation_state';
+    const loadSimState = async () => {
+      // global cache first (warm), then DB (cold start recovery)
+      if (global.__simLoaded) return;
+      try {
+        const rows = await tenantQuery('SELECT settings FROM regulator.tenants WHERE id = $1', [tenantId], tenantId);
+        const s = rows[0]?.settings?.[simKey];
+        if (s) {
+          global.__simRunning = s.running || false;
+          global.__simStartedAt = s.started_at || null;
+          global.__simLastTick = s.last_tick_at || null;
+          global.__simTickCount = s.tick_count || 0;
+          global.__simActionsGenerated = s.actions_generated || 0;
+          global.__simAlertsGenerated = s.alerts_generated || 0;
+        }
+        global.__simLoaded = true;
+      } catch { /* non-blocking */ }
+    };
+    const saveSimState = async () => {
+      try {
+        const state = {
+          running: !!global.__simRunning,
+          started_at: global.__simStartedAt || null,
+          last_tick_at: global.__simLastTick || null,
+          tick_count: global.__simTickCount || 0,
+          actions_generated: global.__simActionsGenerated || 0,
+          alerts_generated: global.__simAlertsGenerated || 0,
+          updated_at: new Date().toISOString(),
+        };
+        await query(
+          `UPDATE regulator.tenants SET settings = COALESCE(settings, '{}'::jsonb) || $1::jsonb WHERE id = $2`,
+          [JSON.stringify({ [simKey]: state }), tenantId]
+        );
+      } catch { /* non-blocking */ }
+    };
+
     if (path === '/api/v1/simulation/status' && req.method === 'GET') {
+      await loadSimState();
       return res.status(200).json({
         success: true,
         data: {
@@ -1959,16 +1997,19 @@ module.exports = async function handler(req, res) {
     }
 
     if (path === '/api/v1/simulation/start' && req.method === 'POST') {
+      await loadSimState();
       global.__simRunning = true;
-      global.__simStartedAt = new Date().toISOString();
+      global.__simStartedAt = global.__simStartedAt || new Date().toISOString();
       global.__simTickCount = global.__simTickCount || 0;
       global.__simActionsGenerated = global.__simActionsGenerated || 0;
       global.__simAlertsGenerated = global.__simAlertsGenerated || 0;
+      await saveSimState();
       return res.status(200).json({ success: true, message: 'Simulation started' });
     }
 
     if (path === '/api/v1/simulation/stop' && req.method === 'POST') {
       global.__simRunning = false;
+      await saveSimState();
       return res.status(200).json({ success: true, message: 'Simulation stopped' });
     }
 
@@ -2036,6 +2077,7 @@ module.exports = async function handler(req, res) {
       global.__simAlertsGenerated = (global.__simAlertsGenerated || 0) + alertsGenerated;
       global.__simTickCount = (global.__simTickCount || 0) + 1;
       global.__simLastTick = new Date().toISOString();
+      await saveSimState().catch(() => {});
 
       return res.status(200).json({
         success: true,

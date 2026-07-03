@@ -1163,12 +1163,40 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ success: false, error: 'Objective not found' });
     }
 
-    // Objectives
-    if (path === '/api/v1/objectives') {
-      return res.status(200).json({ success: true, data: [] });
+    // Objectives — real DB
+    if (path === '/api/v1/objectives' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const status = url.searchParams.get('status');
+      try {
+        const whereClause = status
+          ? 'WHERE tenant_id = $1 AND status = $2'
+          : 'WHERE tenant_id = $1';
+        const params = status ? [tenantId, status, limit, offset] : [tenantId, limit, offset];
+        const limitParam = status ? '$3' : '$2';
+        const offsetParam = status ? '$4' : '$3';
+        const rows = await tenantQuery(
+          `SELECT * FROM regulator.objectives ${whereClause} ORDER BY created_at DESC LIMIT ${limitParam} OFFSET ${offsetParam}`,
+          params.slice(0, status ? 4 : 3), tenantId
+        ).catch(() => []);
+        const countRows = await tenantQuery(
+          `SELECT count(*) as cnt FROM regulator.objectives ${whereClause}`,
+          status ? [tenantId, status] : [tenantId], tenantId
+        ).catch(() => [{ cnt: 0 }]);
+        return res.status(200).json({ success: true, data: rows, total: parseInt(countRows[0]?.cnt || 0) });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], total: 0 });
+      }
     }
     if (path.match(/^\/api\/v1\/objectives\/[^/]+$/) && req.method === 'GET') {
-      return res.status(404).json({ success: false, error: 'Objective not found' });
+      const objectiveId = path.split('/')[4];
+      try {
+        const rows = await tenantQuery('SELECT * FROM regulator.objectives WHERE objective_id = $1 AND tenant_id = $2', [objectiveId, tenantId], tenantId);
+        if (!rows.length) return res.status(404).json({ success: false, error: 'Objective not found' });
+        return res.status(200).json({ success: true, data: rows[0] });
+      } catch (e) {
+        return res.status(404).json({ success: false, error: 'Objective not found' });
+      }
     }
     if (path.match(/^\/api\/v1\/objectives\/[^/]+\/envelopes$/) && req.method === 'GET') {
       return res.status(200).json({ success: true, data: { objective_id: path.split('/')[4], envelopes: [], total: 0 } });
@@ -1187,17 +1215,55 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: { objective_id: path.split('/')[4], metrics: {} } });
     }
 
-    // Dead letters — list
+    // Dead letters — list (proposals with state = 'failed' or 'denied')
     if (path === '/api/v1/deadletters' && req.method === 'GET') {
-      return res.status(200).json({ success: true, data: [], stats: { total: 0, by_state: {}, by_reason: {} } });
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      try {
+        const rows = await tenantQuery(
+          `SELECT id, agent_id, action, risk_tier, state, error, created_at, updated_at, payload
+           FROM regulator.proposals WHERE tenant_id = $1 AND state IN ('failed','denied','error')
+           ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+          [tenantId, limit, offset], tenantId
+        ).catch(() => []);
+        const countRows = await tenantQuery(
+          `SELECT count(*) as cnt FROM regulator.proposals WHERE tenant_id = $1 AND state IN ('failed','denied','error')`,
+          [tenantId], tenantId
+        ).catch(() => [{ cnt: 0 }]);
+        const deadLetters = rows.map(r => ({
+          envelope_id: r.id,
+          agent_id: r.agent_id,
+          action: r.action,
+          risk_tier: r.risk_tier,
+          status: 'pending_review',
+          failure_reason: r.error || r.state,
+          failed_at: r.updated_at,
+          created_at: r.created_at,
+        }));
+        const total = parseInt(countRows[0]?.cnt || 0);
+        return res.status(200).json({ success: true, data: deadLetters, stats: { total, by_state: { pending_review: total }, by_reason: {} } });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], stats: { total: 0, by_state: {}, by_reason: {} } });
+      }
     }
 
     // Dead letters — stats
     if (path === '/api/v1/deadletters/stats' && req.method === 'GET') {
-      return res.status(200).json({
-        success: true,
-        data: { total: 0, pending_review: 0, requeued: 0, cancelled: 0, archived: 0 }
-      });
+      try {
+        const countRows = await tenantQuery(
+          `SELECT state, count(*) as cnt FROM regulator.proposals WHERE tenant_id = $1 AND state IN ('failed','denied','error') GROUP BY state`,
+          [tenantId], tenantId
+        ).catch(() => []);
+        const byState = {};
+        let total = 0;
+        countRows.forEach(r => { byState[r.state] = parseInt(r.cnt); total += parseInt(r.cnt); });
+        return res.status(200).json({
+          success: true,
+          data: { total, pending_review: total, requeued: 0, cancelled: 0, archived: 0, by_state: byState }
+        });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { total: 0, pending_review: 0, requeued: 0, cancelled: 0, archived: 0 } });
+      }
     }
 
     // Dead letters — requeue
@@ -1246,17 +1312,77 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // Artifacts
+    // Artifacts — real DB
+    if (path === '/api/v1/artifacts' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const artifactType = url.searchParams.get('type');
+      try {
+        const whereExtra = artifactType ? " AND artifact_type = '" + artifactType.replace(/'/g,'') + "'" : '';
+        const rows = await query(
+          `SELECT * FROM regulator.workspace_artifacts WHERE deleted_at IS NULL${whereExtra} ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+          [limit, offset]
+        ).catch(() => []);
+        const countRows = await query(
+          `SELECT count(*) as cnt FROM regulator.workspace_artifacts WHERE deleted_at IS NULL${whereExtra}`,
+          []
+        ).catch(() => [{ cnt: 0 }]);
+        return res.status(200).json({ success: true, data: rows, total: parseInt(countRows[0]?.cnt || 0) });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], total: 0 });
+      }
+    }
     if (path.startsWith('/api/v1/artifacts')) {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // Incidents
+    // Incidents — real DB
+    if (path === '/api/v1/incidents' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const severity = url.searchParams.get('severity');
+      const status = url.searchParams.get('status');
+      try {
+        const conditions = ['1=1'];
+        const params = [];
+        if (severity) { params.push(severity); conditions.push(`severity = $${params.length}`); }
+        if (status) { params.push(status); conditions.push(`status = $${params.length}`); }
+        const where = conditions.join(' AND ');
+        params.push(limit); params.push(offset);
+        const rows = await query(
+          `SELECT * FROM regulator.incidents WHERE ${where} ORDER BY detected_at DESC LIMIT $${params.length-1} OFFSET $${params.length}`,
+          params
+        ).catch(() => []);
+        const countRows = await query(`SELECT count(*) as cnt FROM regulator.incidents WHERE ${where}`, params.slice(0,-2)).catch(() => [{ cnt: 0 }]);
+        return res.status(200).json({ success: true, data: rows, total: parseInt(countRows[0]?.cnt || 0) });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], total: 0 });
+      }
+    }
     if (path.startsWith('/api/v1/incidents')) {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    // Investigations
+    // Investigations — real DB
+    if (path === '/api/v1/investigations' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const status = url.searchParams.get('status');
+      try {
+        const whereExtra = status ? " AND status = '" + status.replace(/'/g,'') + "'" : '';
+        const rows = await query(
+          `SELECT * FROM regulator.workspace_investigations WHERE archived_at IS NULL${whereExtra} ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+          [limit, offset]
+        ).catch(() => []);
+        const countRows = await query(
+          `SELECT count(*) as cnt FROM regulator.workspace_investigations WHERE archived_at IS NULL${whereExtra}`,
+          []
+        ).catch(() => [{ cnt: 0 }]);
+        return res.status(200).json({ success: true, data: rows, investigations: rows, total: parseInt(countRows[0]?.cnt || 0) });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], investigations: [], total: 0 });
+      }
+    }
     if (path.startsWith('/api/v1/investigations')) {
       return res.status(200).json({ success: true, data: { investigations: [], total: 0 } });
     }
@@ -1381,7 +1507,33 @@ module.exports = async function handler(req, res) {
 
     // Recovery
     if (path === '/api/v1/recovery/intent' && req.method === 'POST') {
-      return res.status(200).json({ success: true, data: { status: 'acknowledged' } });
+      const body = await parseBody(req);
+      const recoveryId = crypto.randomUUID();
+      const { queue_item_id, reason, metadata } = body || {};
+      try {
+        // Create recovery proposal in proposals table
+        const proposalId = crypto.randomUUID();
+        await tenantQuery(
+          `INSERT INTO regulator.proposals (id, agent_id, action, payload, risk_tier, state, tenant_id, created_at, updated_at)
+           VALUES ($1, 'system', 'recovery_intent', $2, 0, 'pending', $3, NOW(), NOW())`,
+          [proposalId, JSON.stringify({ reason, metadata, queue_item_id }), tenantId], tenantId
+        ).catch(() => {});
+        // Record in recovery_events
+        await query(
+          `INSERT INTO regulator.recovery_events (recovery_id, queue_item_id, disposition, detected_at, reason, metadata_json, created_at)
+           VALUES ($1, $2, 'pending', NOW(), $3, $4, NOW())`,
+          [recoveryId, queue_item_id || proposalId, reason || 'manual_recovery', JSON.stringify(metadata || {})]
+        ).catch(() => {});
+        // Audit log
+        await query(
+          `INSERT INTO regulator.audit_log (id, event, actor, risk_tier, details, created_at, tenant_id)
+           VALUES ($1, 'recovery_intent', 'operator', 'T0', $2, NOW(), $3)`,
+          [crypto.randomUUID(), JSON.stringify({ recovery_id: recoveryId, proposal_id: proposalId, reason }), tenantId]
+        ).catch(() => {});
+        return res.status(200).json({ success: true, data: { status: 'acknowledged', recovery_id: recoveryId, proposal_id: proposalId } });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { status: 'acknowledged', recovery_id: recoveryId } });
+      }
     }
     if (path === '/api/v1/recovery/mode' && req.method === 'GET') {
       return res.status(200).json({ success: true, data: { mode: 'normal', updated_at: new Date().toISOString() } });
@@ -2078,11 +2230,52 @@ module.exports = async function handler(req, res) {
     }
 
     // ========== Runtime ==========
-    if (path === '/api/v1/runtime/envelopes') {
-      return res.status(200).json({ success: true, data: [] });
+    if (path === '/api/v1/runtime/envelopes' && req.method === 'GET') {
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const stateFilter = url.searchParams.get('state');
+      try {
+        const whereExtra = stateFilter ? " AND state = '" + stateFilter.replace(/'/g,'') + "'" : '';
+        const rows = await tenantQuery(
+          `SELECT id, agent_id, action, risk_tier, state, created_at, updated_at, execution_id,
+                  payload, result, error
+           FROM regulator.proposals WHERE tenant_id = $1${whereExtra}
+           ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+          [tenantId, limit, offset], tenantId
+        ).catch(() => []);
+        const countRows = await tenantQuery(
+          `SELECT count(*) as cnt FROM regulator.proposals WHERE tenant_id = $1${whereExtra}`,
+          [tenantId], tenantId
+        ).catch(() => [{ cnt: 0 }]);
+        const envelopes = rows.map(r => ({
+          id: r.id,
+          envelope_id: r.id,
+          agent_id: r.agent_id,
+          action: r.action,
+          risk_tier: r.risk_tier,
+          status: r.state,
+          created_at: r.created_at,
+          updated_at: r.updated_at,
+          execution_id: r.execution_id,
+        }));
+        return res.status(200).json({ success: true, data: envelopes, total: parseInt(countRows[0]?.cnt || 0) });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: [], total: 0 });
+      }
     }
     if (path.match(/^\/api\/v1\/runtime\/envelopes\/[^/]+$/)) {
-      return res.status(200).json({ success: true, data: { id: path.split('/').pop(), status: 'completed' } });
+      const envelopeId = path.split('/').pop();
+      try {
+        const rows = await tenantQuery(
+          'SELECT * FROM regulator.proposals WHERE id = $1 AND tenant_id = $2',
+          [envelopeId, tenantId], tenantId
+        );
+        if (!rows.length) return res.status(200).json({ success: true, data: { id: envelopeId, status: 'not_found' } });
+        const r = rows[0];
+        return res.status(200).json({ success: true, data: { id: r.id, envelope_id: r.id, agent_id: r.agent_id, action: r.action, status: r.state, risk_tier: r.risk_tier, created_at: r.created_at, result: r.result } });
+      } catch (e) {
+        return res.status(200).json({ success: true, data: { id: envelopeId, status: 'completed' } });
+      }
     }
     if (path.match(/^\/api\/v1\/runtime\/objectives\/[^/]+\/execution$/)) {
       return res.status(200).json({ success: true, data: { status: 'idle' } });

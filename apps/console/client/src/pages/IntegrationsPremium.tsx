@@ -17,7 +17,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../components/layout/PageLayout.js';
-import { CheckCircle, Copy, ExternalLink, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
+import { CheckCircle, Copy, Terminal, Zap, AlertCircle, RefreshCw, Code, Database, Cloud, Shield, Bot, Brain, Settings, MessageSquare } from 'lucide-react';
 import { addToast } from '../store/toastStore.js';
 
 // ============================================================================

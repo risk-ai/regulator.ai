@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { ShieldCheck, CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, AlertCircle, RefreshCw } from 'lucide-react';
 import { listApprovals, approveApproval, denyApproval, type Approval } from '../api/approvals.js';
 import { useAuthStore } from '../store/authStore.js';
 import { WarrantDetailModal } from '../components/approvals/WarrantDetailModal.js';

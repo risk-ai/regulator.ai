@@ -245,18 +245,43 @@ function GovernanceConfigCard() {
   });
   const [saved, setSaved] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  // Load from API on mount (API is source of truth, localStorage is cache)
+  useEffect(() => {
+    apiClient.get('/settings').then((res: any) => {
+      const data = res?.data || res;
+      if (data?.governance) {
+        const merged = { ...DEFAULT_GOV_CONFIG, ...data.governance };
+        setConfig(merged);
+        localStorage.setItem(GOV_STORAGE_KEY, JSON.stringify(merged));
+      }
+    }).catch(() => {
+      // Fallback: keep localStorage value already loaded in useState initializer
+    });
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await apiClient.put('/settings', { governance: config });
+    } catch {
+      // Non-blocking: persist locally if API fails
+    }
     localStorage.setItem(GOV_STORAGE_KEY, JSON.stringify(config));
+    setSaving(false);
     setSaved(true);
     setEditing(false);
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setConfig(DEFAULT_GOV_CONFIG);
     localStorage.removeItem(GOV_STORAGE_KEY);
     setSaved(false);
+    try {
+      await apiClient.put('/settings', { governance: DEFAULT_GOV_CONFIG });
+    } catch { /* non-blocking */ }
   };
 
   const inputStyle: React.CSSProperties = {
@@ -336,11 +361,12 @@ function GovernanceConfigCard() {
       </div>
 
       <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-subtle)', display: 'flex', gap: '8px' }}>
-        <button onClick={handleSave} style={{
+        <button onClick={handleSave} disabled={saving} style={{
           flex: 1, padding: '8px 16px', borderRadius: '0',
           border: '1px solid rgba(74, 222, 128, 0.3)', background: 'rgba(74, 222, 128, 0.08)',
-          color: '#10b981', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-        }}>Save Settings</button>
+          color: '#10b981', fontSize: '12px', fontWeight: 600, cursor: saving ? 'wait' : 'pointer', fontFamily: 'inherit',
+          opacity: saving ? 0.7 : 1,
+        }}>{saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save Settings'}</button>
         <button onClick={handleReset} style={{
           padding: '8px 16px', borderRadius: '0',
           border: '1px solid var(--border-subtle)', background: 'transparent',

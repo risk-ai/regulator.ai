@@ -23,8 +23,8 @@ import {
   Search,
   RefreshCw,
 } from 'lucide-react';
-import { apiClient } from '../api/client.js';
-import { getGovernanceOverview, getGovernanceChain, searchGovernance, type GovernanceChainSummary } from '../api/governance.js';
+
+import { getGovernanceOverview, getGovernanceChain, type GovernanceChainSummary } from '../api/governance.js';
 
 // ─── Types ───
 

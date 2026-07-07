@@ -889,7 +889,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white" suppressHydrationWarning>
       {/* Accessible H1 for SEO */}
       <h1 className="sr-only">
         Vienna OS — Governance Kernel for Autonomous AI Operations with Signed

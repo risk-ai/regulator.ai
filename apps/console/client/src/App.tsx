@@ -21,47 +21,28 @@ import { FeedbackWidget } from './components/feedback/FeedbackWidget.js';
 import { GuidedTour } from './components/demo/GuidedTour.js';
 import { apiClient } from './api/client.js';
 
-// Lazy-loaded pages
+// Lazy-loaded pages — canonical 22-route map (v2)
 const NowPage = React.lazy(() => import('./pages/NowPage.js').then(m => ({ default: m.NowPage })));
-const RuntimePage = React.lazy(() => import('./pages/RuntimePage.js').then(m => ({ default: m.RuntimePage })));
-const WorkspacePage = React.lazy(() => import('./pages/WorkspacePage.js').then(m => ({ default: m.WorkspacePage })));
-const HistoryPage = React.lazy(() => import('./pages/HistoryPage.js').then(m => ({ default: m.HistoryPage })));
-const ServicesPage = React.lazy(() => import('./pages/ServicesPage.js').then(m => ({ default: m.ServicesPage })));
-const SettingsPage = React.lazy(() => import('./pages/SettingsPage.js').then(m => ({ default: m.SettingsPage })));
+const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.js').then(m => ({ default: m.FleetDashboardPage })));
+const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js').then(m => ({ default: m.AgentDetailPage })));
 const ApprovalsPage = React.lazy(() => import('./pages/ApprovalsPage.js').then(m => ({ default: m.ApprovalsPage })));
+const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
+const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m => ({ default: m.ExecutionPage })));
 const IntentPage = React.lazy(() => import('./pages/IntentPage.js').then(m => ({ default: m.IntentPage })));
 const PolicyBuilderPage = React.lazy(() => import('./pages/PolicyBuilderPage.js').then(m => ({ default: m.PolicyBuilderPage })));
-const PolicyBuilderPremium = React.lazy(() => import('./pages/PolicyBuilderPremium.js').then(m => ({ default: m.PolicyBuilderPremium })));
-const ActionTypesPage = React.lazy(() => import('./pages/ActionTypesPage.js').then(m => ({ default: m.ActionTypesPage })));
-const FleetDashboardPage = React.lazy(() => import('./pages/FleetDashboardPage.js').then(m => ({ default: m.FleetDashboardPage })));
-const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
-const CompliancePage = React.lazy(() => import('./pages/CompliancePage.js').then(m => ({ default: m.CompliancePage })));
-const ExecutionPage = React.lazy(() => import('./pages/ExecutionPage.js').then(m => ({ default: m.ExecutionPage })));
 const PolicyTemplatesPage = React.lazy(() => import('./pages/PolicyTemplatesPage.js').then(m => ({ default: m.PolicyTemplatesPage })));
-const AgentTemplatesPage = React.lazy(() => import('./pages/AgentTemplatesPage.js').then(m => ({ default: m.AgentTemplatesPage })));
-const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js').then(m => ({ default: m.ActivityFeedPage })));
-const ApiKeysPage = React.lazy(() => import('./pages/ApiKeysPage.js').then(m => ({ default: m.ApiKeysPage })));
-const ExecutionsPage = React.lazy(() => import('./pages/ExecutionsPage.js').then(m => ({ default: m.ExecutionsPage })));
+const HistoryPage = React.lazy(() => import('./pages/HistoryPage.js').then(m => ({ default: m.HistoryPage })));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage.js').then(m => ({ default: m.SettingsPage })));
 const ConnectAgentPage = React.lazy(() => import('./pages/ConnectAgentPage.js').then(m => ({ default: m.ConnectAgentPage })));
+const IntegrationsPage = React.lazy(() => import('./pages/IntegrationsPage.js').then(m => ({ default: m.IntegrationsPage })));
 const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage.js').then(m => ({ default: m.AnalyticsPage })));
-const GovernanceChainPage = React.lazy(() => import('./pages/GovernanceChainPage.js').then(m => ({ default: m.GovernanceChainPage })));
-const GovernanceLivePage = React.lazy(() => import('./pages/GovernanceLivePage.js').then(m => ({ default: m.GovernanceLivePage })));
-const DashboardPremium = React.lazy(() => import('./pages/DashboardPremium.js').then(m => ({ default: m.DashboardPremium })));
-const DashboardControl = React.lazy(() => import('./pages/DashboardControl.js').then(m => ({ default: m.DashboardControl })));
-const FleetPremium = React.lazy(() => import('./pages/FleetPremium.js').then(m => ({ default: m.FleetPremium })));
-const ApprovalsPremium = React.lazy(() => import('./pages/ApprovalsPremium.js').then(m => ({ default: m.ApprovalsPremium })));
-const AnalyticsPremium = React.lazy(() => import('./pages/AnalyticsPremium.js').then(m => ({ default: m.AnalyticsPremium })));
+const CompliancePage = React.lazy(() => import('./pages/CompliancePage.js').then(m => ({ default: m.CompliancePage })));
 const RiskHeatmapPage = React.lazy(() => import('./pages/RiskHeatmapPage.js').then(m => ({ default: m.RiskHeatmapPage })));
-const CompliancePremium = React.lazy(() => import('./pages/CompliancePremium.js').then(m => ({ default: m.CompliancePremium })));
-const IntegrationsPremium = React.lazy(() => import('./pages/IntegrationsPremium.js').then(m => ({ default: m.IntegrationsPremium })));
-const AgentDetailPage = React.lazy(() => import('./pages/AgentDetailPage.js').then(m => ({ default: m.AgentDetailPage })));
-const DemoModePage = React.lazy(() => import('./pages/DemoModePage.js').then(m => ({ default: m.DemoModePage })));
-const EmbedWidgetPage = React.lazy(() => import('./pages/EmbedWidgetPage.js').then(m => ({ default: m.EmbedWidgetPage })));
-const SimulationPage = React.lazy(() => import('./pages/SimulationPage.js').then(m => ({ default: m.SimulationPage })));
+const ActivityFeedPage = React.lazy(() => import('./pages/ActivityFeedPage.js').then(m => ({ default: m.ActivityFeedPage })));
 const TeamManagementPage = React.lazy(() => import('./pages/TeamManagementPage.js').then(m => ({ default: m.TeamManagementPage })));
-const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage.js').then(m => ({ default: m.AcceptInvitePage })));
 const UsageDashboardPage = React.lazy(() => import('./pages/UsageDashboardPage.js').then(m => ({ default: m.UsageDashboardPage })));
-const WebhookConfigPage = React.lazy(() => import('./pages/WebhookConfigPage.js').then(m => ({ default: m.WebhookConfigPage })));
+const WorkspacePage = React.lazy(() => import('./pages/WorkspacePage.js').then(m => ({ default: m.WorkspacePage })));
+const AcceptInvitePage = React.lazy(() => import('./pages/AcceptInvitePage.js').then(m => ({ default: m.AcceptInvitePage })));
 
 function PageLoadingSpinner() {
   return (
@@ -261,52 +242,48 @@ export function App() {
             <ErrorBoundary key={location.pathname}>
               <Suspense key={location.pathname} fallback={<PageLoadingSpinner />}>
                 <Routes location={location}>
-                  <Route path="/" element={<DashboardControl />} />
-                  <Route path="/dashboard-premium" element={<DashboardPremium />} />
+                  {/* v2 canonical routes — 22 pages */}
+                  <Route path="/" element={<Navigate to="/now" replace />} />
                   <Route path="/now" element={<NowPage />} />
-                  <Route path="/dashboard" element={<Navigate to="/" replace />} />
 
-                  <Route path="/fleet" element={<FleetPremium />} />
+                  {/* Fleet */}
+                  <Route path="/fleet" element={<FleetDashboardPage />} />
                   <Route path="/fleet/:agentId" element={<AgentDetailPage />} />
-
                   <Route path="/agents" element={<Navigate to="/fleet" replace />} />
                   <Route path="/agents/:agentId" element={<AgentDetailPage />} />
-                  <Route path="/connect" element={<ConnectAgentPage />} />
-                  <Route path="/intent" element={<IntentPage />} />
-                  <Route path="/execution" element={<ExecutionPage />} />
-                  <Route path="/executions" element={<ExecutionsPage />} />
-                  <Route path="/approvals" element={<ApprovalsPremium />} />
 
-                  <Route path="/policies" element={<PolicyBuilderPremium />} />
-                  <Route path="/policies-legacy" element={<PolicyBuilderPage />} />
+                  {/* Governance */}
+                  <Route path="/approvals" element={<ApprovalsPage />} />
+                  <Route path="/executions" element={<ExecutionsPage />} />
+                  <Route path="/execution" element={<ExecutionPage />} />
+                  <Route path="/intent" element={<IntentPage />} />
+                  <Route path="/policies" element={<PolicyBuilderPage />} />
                   <Route path="/policy-templates" element={<PolicyTemplatesPage />} />
-                  <Route path="/agent-templates" element={<AgentTemplatesPage />} />
-                  <Route path="/compliance" element={<CompliancePremium />} />
-                  <Route path="/compliance-legacy" element={<CompliancePage />} />
-                  <Route path="/governance-chain" element={<GovernanceChainPage />} />
-                  <Route path="/governance-live" element={<GovernanceLivePage />} />
-                  <Route path="/activity" element={<ActivityFeedPage />} />
-                  <Route path="/analytics" element={<AnalyticsPremium />} />
+                  <Route path="/audit" element={<HistoryPage />} />
+                  <Route path="/history" element={<Navigate to="/audit" replace />} />
+
+                  {/* Observability */}
+                  <Route path="/analytics" element={<AnalyticsPage />} />
+                  <Route path="/compliance" element={<CompliancePage />} />
                   <Route path="/risk-heatmap" element={<RiskHeatmapPage />} />
-                  <Route path="/demo" element={<DemoModePage />} />
-                  <Route path="/embed-widget" element={<EmbedWidgetPage />} />
-                  <Route path="/simulation" element={<SimulationPage />} />
-                  <Route path="/team" element={<TeamManagementPage />} />
-                  <Route path="/accept-invite" element={<AcceptInvitePage />} />
-                  <Route path="/usage" element={<UsageDashboardPage />} />
-                  <Route path="/webhooks" element={<WebhookConfigPage />} />
-                  <Route path="/analytics-legacy" element={<AnalyticsPage />} />
-                  <Route path="/history" element={<HistoryPage />} />
-                  <Route path="/runtime" element={<RuntimePage />} />
-                  <Route path="/action-types" element={<ActionTypesPage />} />
-                  <Route path="/integrations" element={<IntegrationsPremium />} />
-                  <Route path="/integrations-legacy" element={<IntegrationsPage />} />
+                  <Route path="/activity" element={<ActivityFeedPage />} />
+
+                  {/* Infrastructure */}
+                  <Route path="/integrations" element={<IntegrationsPage />} />
+                  <Route path="/connect" element={<ConnectAgentPage />} />
                   <Route path="/workspace" element={<WorkspacePage />} />
-                  <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/api-keys" element={<ApiKeysPage />} />
+
+                  {/* Settings + Admin */}
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/auth/callback" element={<Navigate to="/" replace />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="/team" element={<TeamManagementPage />} />
+                  <Route path="/usage" element={<UsageDashboardPage />} />
+
+                  {/* Auth flows */}
+                  <Route path="/accept-invite" element={<AcceptInvitePage />} />
+                  <Route path="/auth/callback" element={<Navigate to="/now" replace />} />
+                  <Route path="/dashboard" element={<Navigate to="/now" replace />} />
+
+                  <Route path="*" element={<Navigate to="/now" replace />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>

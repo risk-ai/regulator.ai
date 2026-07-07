@@ -26,17 +26,19 @@ import SectionNav from "@/components/SectionNav";
 
 /* ── Isolated Clock Component (avoids full-page re-render every second) ── */
 function LiveClock() {
-  const [currentTime, setCurrentTime] = useState(
-    new Date().toISOString().split(".")[0] + "Z"
-  );
+  const [currentTime, setCurrentTime] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setCurrentTime(new Date().toISOString().split(".")[0] + "Z");
     const timer = setInterval(() => {
       setCurrentTime(new Date().toISOString().split(".")[0] + "Z");
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  if (!mounted) return <span>utc: --:--:--Z</span>;
   return <span>utc: {currentTime}</span>;
 }
 
@@ -889,7 +891,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white" suppressHydrationWarning>
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#0a0e14] text-white">
       {/* Accessible H1 for SEO */}
       <h1 className="sr-only">
         Vienna OS — Governance Kernel for Autonomous AI Operations with Signed
